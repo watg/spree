@@ -12,7 +12,7 @@ module Spree
           prepare(params)
         end
 
-        def retrieve_products_x
+        def retrieve_products
           @products_scope = get_base_scope
           curr_page = page || 1
 
