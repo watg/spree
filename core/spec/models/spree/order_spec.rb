@@ -125,6 +125,18 @@ describe Spree::Order do
     end
   end
 
+  context "checking if order is paid" do
+    context "payment_state is paid" do
+      before { order.stub payment_state: 'paid' }
+      it { expect(order).to be_paid }
+    end
+
+    context "payment_state is credit_owned" do
+      before { order.stub payment_state: 'credit_owed' }
+      it { expect(order).to be_paid }
+    end
+  end
+
   context "#finalize!" do
     let(:order) { Spree::Order.create }
     it "should set completed_at" do
@@ -197,13 +209,32 @@ describe Spree::Order do
   end
 
   context "#process_payments!" do
+    let(:payment) { stub_model(Spree::Payment) }
+    before { order.stub :pending_payments => [payment], :total => 10 }
+
     it "should process the payments" do
-      order.stub(:total).and_return(10)
-      payment = stub_model(Spree::Payment)
-      payments = [payment]
-      order.stub(:payments).and_return(payments)
-      payments.first.should_receive(:process!)
-      order.process_payments!
+      payment.should_receive(:process!)
+      order.process_payments!.should be_true
+    end
+
+    it "should return false if no pending_payments available" do
+      order.stub :pending_payments => []
+      order.process_payments!.should be_false
+    end
+
+    context "when a payment raises a GatewayError" do
+      before { payment.should_receive(:process!).and_raise(Spree::Core::GatewayError) }
+
+      it "should return true when configured to allow checkout on gateway failures" do
+        Spree::Config.set :allow_checkout_on_gateway_error => true
+        order.process_payments!.should be_true
+      end
+
+      it "should return false when not configured to allow checkout on gateway failures" do
+        Spree::Config.set :allow_checkout_on_gateway_error => false
+        order.process_payments!.should be_false
+      end
+
     end
   end
 
@@ -489,6 +520,22 @@ describe Spree::Order do
     end
   end
 
+  context "promotion adjustments" do
+    let(:originator) { double("Originator", id: 1) }
+    let(:adjustment) { double("Adjustment", originator: originator) }
+
+    before { order.stub_chain(:adjustments, :promotion, reload: [adjustment]) }
+
+    context "order has an adjustment from given promo action" do
+      it { expect(order.promotion_credit_exists? originator).to be_true }
+    end
+
+    context "order has no adjustment from given promo action" do
+      before { originator.stub(id: 12) }
+      it { expect(order.promotion_credit_exists? originator).to be_true }
+    end
+  end
+
   context "payment required?" do
     let(:order) { Spree::Order.new }
 
@@ -499,27 +546,6 @@ describe Spree::Order do
     context "total > zero" do
       before { order.stub(total: 1) }
       it { order.payment_required?.should be_true }
-    end
-  end
-
-  # Related to the fix for #2694
-  context "#has_unprocessed_payments?" do
-    let!(:persisted_order) { create(:order) }
-
-    context "with payments in the 'checkout' state" do
-      before do
-        create(:payment, :order => persisted_order, :state => 'checkout')
-      end
-
-      it "returns true" do
-        assert persisted_order.has_unprocessed_payments?
-      end
-    end
-
-    context "with no payments in the 'checkout' state" do
-      it "returns false" do
-        assert !persisted_order.has_unprocessed_payments?
-      end
     end
   end
 

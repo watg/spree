@@ -30,7 +30,8 @@ describe Spree::Payment do
   let!(:success_response) do
     mock('success_response', :success? => true,
                              :authorization => '123',
-                             :avs_result => { 'code' => 'avs-code' })
+                             :avs_result => { 'code' => 'avs-code' },
+                             :cvv_result => { 'code' => 'cvv-code', 'message' => "CVV Result"})
   end
 
   let(:failed_response) { mock('gateway_response', :success? => false) }
@@ -38,6 +39,18 @@ describe Spree::Payment do
   before(:each) do
     # So it doesn't create log entries every time a processing method is called
     payment.log_entries.stub(:create)
+  end
+
+  context 'validations' do
+    it "returns useful error messages when source is invalid" do
+      payment.source = Spree::CreditCard.new
+      payment.should_not be_valid
+      cc_errors = payment.errors['Credit Card']
+      cc_errors.should include("Number can't be blank")
+      cc_errors.should include("Month is not a number")
+      cc_errors.should include("Year is not a number")
+      cc_errors.should include("Verification Value can't be blank")
+    end
   end
 
   # Regression test for https://github.com/spree/spree/pull/2224
@@ -132,10 +145,12 @@ describe Spree::Payment do
                                                                  anything).and_return(success_response)
         end
 
-        it "should store the response_code and avs_response" do
+        it "should store the response_code, avs_response and cvv_response fields" do
           payment.authorize!
           payment.response_code.should == '123'
           payment.avs_response.should == 'avs-code'
+          payment.cvv_response_code.should == 'cvv-code'
+          payment.cvv_response_message.should == 'CVV Result'
         end
 
         it "should make payment pending" do
@@ -524,24 +539,17 @@ describe Spree::Payment do
   context "#build_source" do
     it "should build the payment's source" do
       params = { :amount => 100, :payment_method => gateway,
-        :source_attributes => {:year=>"2012", :month =>"1", :number => '1234567890123',:verification_value => '123'}}
+        :source_attributes => {
+          :year => 1.month.from_now.year,
+          :month =>1.month.from_now.month,
+          :number => '1234567890123',
+          :verification_value => '123'
+        }
+      }
 
       payment = Spree::Payment.new(params, :without_protection => true)
       payment.should be_valid
       payment.source.should_not be_nil
-    end
-
-    context "with the params hash ordered differently" do
-      it "should build the payment's source" do
-        params = {
-          :source_attributes => {:year=>"2012", :month =>"1", :number => '1234567890123',:verification_value => '123'},
-          :amount => 100, :payment_method => gateway
-        }
-
-        payment = Spree::Payment.new(params, :without_protection => true)
-        payment.should be_valid
-        payment.source.should_not be_nil
-      end
     end
 
     it "errors when payment source not valid" do

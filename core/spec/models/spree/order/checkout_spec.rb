@@ -67,19 +67,39 @@ describe Spree::Order do
     end
 
     it "transitions to address" do
+      order.line_items << FactoryGirl.create(:line_item)
+      order.email = "user@example.com"
       order.next!
       order.state.should == "address"
+    end
+
+    it "cannot transition to address without any line items" do
+      order.line_items.should be_blank
+      lambda { order.next! }.should raise_error(StateMachine::InvalidTransition, /#{Spree.t(:there_are_no_items_for_this_order)}/)
     end
 
     context "from address" do
       before do
         order.state = 'address'
+        order.stub(:has_available_payment)
+        shipment = FactoryGirl.create(:shipment, :order => order)
+        order.email = "user@example.com"
+        order.save!
       end
 
       it "transitions to delivery" do
-        order.stub(:has_available_payment)
+        order.stub(:ensure_available_shipping_rates => true)
         order.next!
         order.state.should == "delivery"
+      end
+
+      context "cannot transition to delivery" do
+        context "if there are no shipping rates for any shipment" do
+          specify do
+            transition = lambda { order.next! }
+            transition.should raise_error(StateMachine::InvalidTransition, /#{Spree.t(:items_cannot_be_shipped)}/)
+          end
+        end
       end
     end
 
@@ -131,11 +151,10 @@ describe Spree::Order do
         before do
           order.stub :confirmation_required? => false
           order.stub :payment_required? => true
-          order.stub_chain(:has_unprocessed_payments?).and_return(true)
         end
 
         it "transitions to complete" do
-          order.should_receive(:process_payments!).once
+          order.should_receive(:process_payments!).once.and_return true
           order.next!
           order.state.should == "complete"
         end

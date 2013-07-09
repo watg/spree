@@ -29,10 +29,9 @@ describe "Stock Locations" do
     click_icon :trash
     page.driver.browser.switch_to.alert.accept
     # Wait for API request to complete.
-    sleep(1)
-    visit current_path
-
-    find('#listing_stock_locations').should_not have_content("NY Warehouse")
+    wait_for_ajax
+    visit current_path 
+    page.should have_content("No stock locations found")
   end
 
   it "can update an existing stock location" do

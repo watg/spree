@@ -22,6 +22,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'spree_api', version
 
   s.add_dependency 'jquery-rails', '~> 2.2.1'
+  # Commented out otherwise as it conflicts with refinery
+  #s.add_dependency 'jquery-rails', '~> 3.0.0'
+  #s.add_dependency 'jquery-ui-rails', '~> 4.0.0'
   s.add_dependency 'select2-rails', '3.2.1'
 
   s.add_dependency 'rails', '~> 3.2.8'

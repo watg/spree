@@ -27,10 +27,15 @@ module Spree
         authorize! :create, Product
         params[:product][:available_on] ||= Time.now
         @product = Product.new(params[:product])
-        if @product.save
-          respond_with(@product, :status => 201, :default_template => :show)
-        else
-          invalid_resource!(@product)
+        begin
+          if @product.save
+            respond_with(@product, :status => 201, :default_template => :show)
+          else
+            invalid_resource!(@product)
+          end
+        rescue ActiveRecord::RecordNotUnique
+          @product.permalink = nil
+          retry
         end
       end
 
