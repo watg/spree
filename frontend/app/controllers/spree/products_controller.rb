@@ -1,8 +1,10 @@
 module Spree
   class ProductsController < Spree::StoreController
     before_filter :load_product, :only => :show
-    rescue_from ActiveRecord::RecordNotFound, :with => :render_404
+    rescue_from ActiveRecord::RecordNotFound, :with => :product_not_found
     helper 'spree/taxons'
+
+
 
     respond_to :html
 
@@ -35,6 +37,11 @@ module Spree
     end
 
     private
+      def product_not_found
+        flash[:error] = "Product not found"
+        redirect_to root_url
+      end
+
       def accurate_title
         @product ? @product.name : super
       end
