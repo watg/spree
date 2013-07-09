@@ -10,7 +10,9 @@ module Spree
           @products = product_scope.ransack(params[:q]).result
         end
 
-        @products = @products.page(params[:page]).per(params[:per_page])
+        if params[:page] || params[:per_page]
+          @products = @products.page(params[:page]).per(params[:per_page])
+        end
 
         respond_with(@products)
       end

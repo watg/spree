@@ -2,7 +2,12 @@ module Spree
   module Api
     class StockLocationsController < Spree::Api::BaseController
       def index
-        @stock_locations = StockLocation.order('name ASC').ransack(params[:q]).result.page(params[:page]).per(params[:per_page])
+        @stock_locations = StockLocation.order('name ASC').ransack(params[:q]).result 
+
+        if params[:page] || params[:per_page]
+          @stock_locations = @stock_locations.page(params[:page]).per(params[:per_page])
+        end
+
         respond_with(@stock_locations)
       end
 

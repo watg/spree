@@ -1,8 +1,10 @@
 object false
-node(:count) { @variants.count }
-node(:total_count) { @variants.total_count }
-node(:current_page) { params[:page] ? params[:page].to_i : 1 }
-node(:pages) { @variants.num_pages }
+if @variants.respond_to?(:num_pages)
+  node(:count) { @variants.count }
+  node(:total_count) { @variants.total_count }
+  node(:current_page) { params[:page] ? params[:page].to_i : 1 }
+  node(:pages) { @variants.num_pages }
+end
 
 child(@variants => :variants) do
   attributes *variant_attributes
