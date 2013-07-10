@@ -57,41 +57,25 @@ module Spree
           expect(subject.shipping_rates(package).map(&:cost)).to eq %w[3.00 4.00 5.00].map(&BigDecimal.method(:new))
         end
 
-        context "general shipping methods" do
-          let(:shipping_methods) { 2.times.map { create(:shipping_method) } }
+        it "selects the most affordable shipping rate" do
+          shipping_methods = 3.times.map { create(:shipping_method) }
+          shipping_methods[0].stub_chain(:calculator, :compute).and_return(5.00)
+          shipping_methods[1].stub_chain(:calculator, :compute).and_return(3.00)
+          shipping_methods[2].stub_chain(:calculator, :compute).and_return(4.00)
 
-          it "selects the most affordable shipping rate" do
-            shipping_methods[0].stub_chain(:calculator, :compute).and_return(5.00)
-            shipping_methods[1].stub_chain(:calculator, :compute).and_return(3.00)
+          subject.stub(:shipping_methods).and_return(shipping_methods)
 
-            subject.stub(:shipping_methods).and_return(shipping_methods)
-
-            expect(subject.shipping_rates(package).sort_by(&:cost).map(&:selected)).to eq [true, false]
-          end
-
-          it "selects the most affordable shipping rate and doesn't raise exception over nil cost" do
-            shipping_methods[0].stub_chain(:calculator, :compute).and_return(1.00)
-            shipping_methods[1].stub_chain(:calculator, :compute).and_return(nil)
-
-            subject.stub(:shipping_methods).and_return(shipping_methods)
-
-            subject.shipping_rates(package)
-          end
+          expect(subject.shipping_rates(package).sort_by(&:cost).map(&:selected)).to eq [true, false, false]
         end
 
-        context "involves backend only shipping methods" do
-          let(:backend_method) { create(:shipping_method, display_on: "back_end") }
-          let(:generic_method) { create(:shipping_method) }
+        it "selects the most affordable shipping rate and doesn't raise exception over nil cost" do
+          shipping_methods = 2.times.map { create(:shipping_method) }
+          shipping_methods[0].stub_chain(:calculator, :compute).and_return(1.00)
+          shipping_methods[1].stub_chain(:calculator, :compute).and_return(nil)
 
-          # regression for #3287
-          it "doesn't select backend rates even if they're more affordable" do
-            backend_method.stub_chain(:calculator, :compute).and_return(0.00)
-            generic_method.stub_chain(:calculator, :compute).and_return(5.00)
+          subject.stub(:shipping_methods).and_return(shipping_methods)
 
-            subject.stub(:shipping_methods).and_return([backend_method, generic_method])
-
-            expect(subject.shipping_rates(package).map(&:selected)).to eq [false, true]
-          end
+          subject.shipping_rates(package)
         end
       end
     end
