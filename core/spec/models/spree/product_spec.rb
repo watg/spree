@@ -39,10 +39,9 @@ describe Spree::Product do
     end
 
     context "product has no variants" do
-      context "#delete" do
+      context "#destroy" do
         it "should set deleted_at value" do
-          product.delete
-          product.reload
+          product.destroy
           product.deleted_at.should_not be_nil
           product.master.deleted_at.should_not be_nil
         end
@@ -54,9 +53,9 @@ describe Spree::Product do
         create(:variant, :product => product)
       end
 
-      context "#delete" do
+      context "#destroy" do
         it "should set deleted_at value" do
-          product.delete
+          product.destroy
           product.deleted_at.should_not be_nil
           product.variants_including_master.all? { |v| !v.deleted_at.nil? }.should be_true
         end
@@ -202,19 +201,16 @@ describe Spree::Product do
         end
       end
 
-      context "make_permalink should declare validates_uniqueness_of" do
+      context "permalinks must be unique" do
         before do
           @product1 = create(:product, :name => 'foo')
+        end
+
+        it "cannot create another product with the same permalink" do
           @product2 = create(:product, :name => 'foo')
-          @product2.update_attributes(:permalink => 'foo')
-        end
-
-        it "should have an error" do
-          @product2.errors.size.should == 1
-        end
-
-        it "should have error message that permalink is already taken" do
-          @product2.errors.full_messages.first.should == 'Permalink has already been taken'
+          lambda do
+            @product2.update_attributes(:permalink => @product1.permalink)
+          end.should raise_error(ActiveRecord::RecordNotUnique)
         end
       end
 

@@ -29,7 +29,7 @@ module Spree
 
       def destroy
         @product = Product.find_by_permalink!(params[:id])
-        @product.delete
+        @product.destroy
 
         flash[:success] = Spree.t('notice_messages.product_deleted')
 
@@ -55,6 +55,10 @@ module Spree
         @variants = @product.variants
         @variants = [@product.master] if @variants.empty?
         @stock_locations = StockLocation.accessible_by(current_ability, :read)
+        if @stock_locations.empty?
+          flash[:error] = Spree.t(:stock_management_requires_a_stock_location)
+          redirect_to admin_stock_locations_path
+        end
       end
 
       protected
@@ -80,8 +84,10 @@ module Spree
           params[:q][:deleted_at_null] ||= "1"
 
           params[:q][:s] ||= "name asc"
-
-          @search = super.ransack(params[:q])
+          @collection = super
+          @collection = @collection.with_deleted if params[:q].delete(:deleted_at_null).blank?
+          # @search needs to be defined as this is passed to search_form_for
+          @search = @collection.ransack(params[:q])
           @collection = @search.result.
             group_by_products_id.
             includes(product_includes).

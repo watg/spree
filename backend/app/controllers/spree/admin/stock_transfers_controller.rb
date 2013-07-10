@@ -17,7 +17,6 @@ module Spree
       end
 
       def new
-
       end
 
       def create

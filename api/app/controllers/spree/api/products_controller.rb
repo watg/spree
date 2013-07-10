@@ -10,7 +10,9 @@ module Spree
           @products = product_scope.ransack(params[:q]).result
         end
 
-        @products = @products.page(params[:page]).per(params[:per_page])
+        if params[:page] || params[:per_page]
+          @products = @products.page(params[:page]).per(params[:per_page])
+        end
 
         respond_with(@products)
       end
@@ -27,10 +29,15 @@ module Spree
         authorize! :create, Product
         params[:product][:available_on] ||= Time.now
         @product = Product.new(params[:product])
-        if @product.save
-          respond_with(@product, :status => 201, :default_template => :show)
-        else
-          invalid_resource!(@product)
+        begin
+          if @product.save
+            respond_with(@product, :status => 201, :default_template => :show)
+          else
+            invalid_resource!(@product)
+          end
+        rescue ActiveRecord::RecordNotUnique
+          @product.permalink = nil
+          retry
         end
       end
 

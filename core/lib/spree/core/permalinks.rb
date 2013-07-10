@@ -14,8 +14,6 @@ module Spree
           options[:field] ||= :permalink
           self.permalink_options = options
 
-          validates permalink_options[:field], :uniqueness => true
-
           if self.table_exists? && self.column_names.include?(permalink_options[:field].to_s)
             before_validation(:on => :create) { save_permalink }
           end
@@ -53,7 +51,7 @@ module Spree
 
           field = self.class.permalink_field
             # Do other links exist with this permalink?
-            other = self.class.select(field).where("#{self.class.table_name}.#{field} LIKE ?", "#{permalink_value}%")
+            other = self.class.where("#{self.class.table_name}.#{field} LIKE ?", "#{permalink_value}%")
             if other.any?
               # Find the existing permalink with the highest number, and increment that number.
               # (If none of the existing permalinks have a number, this will evaluate to 1.)

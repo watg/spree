@@ -6,6 +6,8 @@ module Spree
 
       include Spree::Core::ControllerHelpers::Auth
       include Spree::Core::ControllerHelpers::Order
+      # This before_filter comes from Spree::Core::ControllerHelpers::Order
+      skip_before_filter :set_current_order
 
       respond_to :json
 
@@ -15,9 +17,12 @@ module Spree
       end
 
       def update
-        user_id = object_params.delete(:user_id)
         authorize! :update, @order, params[:order_token]
-        if @order.update_attributes(object_params)
+        order_params = object_params
+        user_id = order_params.delete(:user_id)
+        line_items = order_params.delete("line_items_attributes")
+        if @order.update_attributes(order_params)
+          @order.update_line_items(line_items)
           # TODO: Replace with better code when we switch to strong_parameters
           # Also remove above user_id stripping
           if current_api_user.has_spree_role?("admin") && user_id.present?
@@ -44,15 +49,16 @@ module Spree
         def object_params
           # For payment step, filter order parameters to produce the expected nested attributes for a single payment and its source, discarding attributes for payment methods other than the one selected
           # respond_to check is necessary due to issue described in #2910
+          object_params = nested_params
           if @order.has_checkout_step?("payment") && @order.payment?
-            if params[:payment_source].present? && source_params = params.delete(:payment_source)[params[:order][:payments_attributes].first[:payment_method_id].underscore]
-              params[:order][:payments_attributes].first[:source_attributes] = source_params
+            if object_params[:payment_source].present? && source_params = object_params.delete(:payment_source)[object_params[:payments_attributes].first[:payment_method_id].underscore]
+              object_params[:payments_attributes].first[:source_attributes] = source_params
             end
-            if params[:order].present? && params[:order][:payments_attributes]
-              params[:order][:payments_attributes].first[:amount] = @order.total
+            if object_params.present? && object_params[:payments_attributes]
+              object_params[:payments_attributes].first[:amount] = @order.total
             end
           end
-          params[:order] || {}
+          object_params
         end
 
         def nested_params

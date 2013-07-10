@@ -63,8 +63,7 @@ describe "Stock Management" do
 
         new_location_backorderable = find "#stock_item_backorderable_#{new_location.id}"
         new_location_backorderable.set(false)
-        # Wait for API request to complete.
-        sleep(1)
+        wait_for_ajax
 
         page.current_url.should include("/admin/products")
       end
@@ -131,6 +130,25 @@ describe "Stock Management" do
             end
           end
         end
+      end
+    end
+
+    # Regression test for #3304
+    context "with no stock location" do
+      before do
+        @product = create(:product, name: 'apache baseball cap', price: 10)
+        v = @product.variants.create!(sku: 'FOOBAR')
+        Spree::StockLocation.delete_all
+        click_link "Products"
+        within_row(1) do
+          click_icon :edit
+        end
+        click_link "Stock Management"
+      end
+
+      it "redirects to stock locations page" do
+        page.should have_content(Spree.t(:stock_management_requires_a_stock_location))
+        page.current_url.should include("admin/stock_locations")
       end
     end
   end
