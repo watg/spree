@@ -118,7 +118,7 @@ module Spree
     end
 
     def price_in(currency)
-      prices.select{ |price| price.currency == currency }.first || Spree::Price.new(variant_id: self.id, currency: currency)
+     variant_price_in(currency)  || product_price_in(currency) || Spree::Price.new(variant_id: self.id, currency: currency)
     end
 
     def amount_in(currency)
@@ -134,6 +134,14 @@ module Spree
     end
 
     private
+    def variant_price_in(currency)
+      prices.select{ |price| price.currency == currency }.first
+    end
+
+    def product_price_in(currency)
+      self.product.master.prices.select{ |price| price.currency == currency }.first
+    end
+    
       # strips all non-price-like characters from the price, taking into account locale settings
       def parse_price(price)
         return price unless price.is_a?(String)
