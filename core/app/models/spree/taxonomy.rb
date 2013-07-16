@@ -12,6 +12,10 @@ module Spree
 
     default_scope order: "#{self.table_name}.position"
 
+    def self.visible
+      where(['name <> ?', 'HIDDEN'])
+    end
+
     private
       def set_name
         if root
