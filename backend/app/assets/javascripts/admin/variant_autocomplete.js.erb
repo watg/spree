@@ -258,7 +258,8 @@ $.fn.variantAutocomplete = function() {
       data: function(term, page) {
         return {
           q: {
-            "product_name_or_sku_cont": term
+            "product_name_or_sku_cont": term,
+            "product_product_type_eq": 'product'
           }
         }
       },
