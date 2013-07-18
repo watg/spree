@@ -56,7 +56,7 @@ module Spree
     def adjust(order)
       label = create_label
       if included_in_price
-        if Zone.default_tax.contains? order.tax_zone
+        if Zone.default_tax && Zone.default_tax.contains?(order.tax_zone)
           order.line_items.each { |line_item| create_adjustment(label, line_item, line_item) }
         else
           amount = -1 * calculator.compute(order)
