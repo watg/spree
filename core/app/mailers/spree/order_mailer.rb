@@ -44,29 +44,25 @@ module Spree
 
     def adjustements_template
       t =<<EOF
-<ul class="adjustments">
 <% @order.adjustments.eligible.each do |adjustment| %>
 <% next if (adjustment.originator_type == 'Spree::TaxRate') and (adjustment.amount == 0) %>
-<li><span class="adjustment-label"><%= adjustment.label %>: </span><span class="adjustment-amount"><%= adjustment.display_amount.to_html %></span></li>
+<tr>
+<td><%= adjustment.label %>: <%= adjustment.display_amount.to_html %></td>
+</tr>
 <% end %>
-</ul>
 EOF
       t
     end
 
     def line_items_template
+ 
       t =<<EOF
 <% @order.line_items.map do |line_item| %>
-<% has_kit_options = !line_item.line_item_options.blank? %>
-<h4><%= line_item.product.name %></h4>
-<ul class="line-items">
-<% if has_kit_options %>
-<li>(1 * <%= line_item.variant.price_in(@order.currency) %>) <%= line_item.variant.options_text %></li>
-<% line_item.line_item_options.each do |o| %>
-<li>(<%= o.quantity %> * <%= o.variant.kit_price_in(@order.currency) %>) <%= o.variant.name %></li>
+<tr>
+<td align="left" style="font-weight:bold;"><%= line_item.product.name %></td>
+<td align="left"><%= line_item.quantity %></td><td align="left"><%= line_item.variant.options_text %></td><td align="left"><%= line_item.price.to_s %></td>
+</tr>
 <% end %>
-<% else %><li><%= line_item.variant.options_text %></li><% end %>
-</ul><% end %>
 EOF
       t
     end

@@ -21,9 +21,9 @@ module Spree
     
     def manifest_template
       t=<<EOF
-<ul class="manifest"><% @shipment.manifest.each do |item| %>
-<li><%= item.variant.sku %> <%= item.variant.product.name %> <%= item.variant.options_text %></li>
-<% end %></ul>
+<% @shipment.manifest.each do |item| %>
+<tr><td><%= item.variant.product.name %>: <%= item.variant.options_text %></td></tr>
+<% end %>
 EOF
       t
     end
