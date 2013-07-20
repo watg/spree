@@ -1,7 +1,7 @@
 module Spree
   module Admin
     class StockItemsController < Spree::Admin::BaseController
-      before_filter :determine_backorderable
+      before_filter :determine_backorderable, only: :update
 
       def update
         stock_item.save
@@ -10,8 +10,15 @@ module Spree
         end
       end
 
-      private
+      def destroy
+        stock_item.destroy
+        respond_with(@stock_item) do |format|
+          format.html { redirect_to :back }
+          format.js
+        end
+      end
 
+      private
         def stock_item
           @stock_item ||= StockItem.find(params[:id])
         end
