@@ -13,6 +13,12 @@ module Spree
           admin_product_images_url(@product)
         end
 
+
+        def collection_url(opts={})
+          spree.admin_product_images_url(opts)
+        end
+
+        
         def load_data
           @product = Product.find_by_permalink(params[:product_id])
           @variants = @product.variants.collect do |variant|
