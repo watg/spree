@@ -1,5 +1,6 @@
 <% shipment.manifest.each do |item| %>
   <% line_item = order.find_line_item_by_variant(item.variant) %>
+  <% next unless line_item %>
 
   <tr class="stock-item" data-item-quantity="<%= item.quantity %>">
     <td class="item-image"><%= mini_image(item.variant) %></td>
