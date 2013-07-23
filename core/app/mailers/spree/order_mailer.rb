@@ -38,7 +38,7 @@ module Spree
         adjustments: htmlify(:adjustements),
         adjustments_total: @order.adjustment_total.to_s,
         currency: @order.currency,
-        payment_total: @order.payment_total.to_s
+        payment_total: @order.total.to_s
       }
     end
 
