@@ -3,14 +3,28 @@
   <% next unless line_item %>
 
   <tr class="stock-item" data-item-quantity="<%= item.quantity %>">
+    <td class="item-type"><%= item.variant.product_type %></td>
     <td class="item-image"><%= mini_image(item.variant) %></td>
     <td class="item-name">
-      <%= item.variant.product.name %><br><%= "(" + variant_options(item.variant) + ")" unless item.variant.option_values.empty? %>
+      <strong>    <%= item.variant.product.name %><br><%= "(" + variant_options(item.variant) + ")" unless item.variant.option_values.empty? %></strong>
+      <% if item.variant.product.assembly? %>
+      <hr />
+      <ul class='assembly_parts' style="list-style:none;">
+        <% item.variant.required_parts_for_display.each do |v| %>
+        <li><%= v.count_part %> x <%= v.name + " (" + v.options_text + ")" %> </li>
+        <% end %>
+        <% line_item.line_item_options.each do |o| %>
+        <li><%= o.quantity %> x <%= o.variant.name + " (" + o.variant.options_text + ")" %></li>
+        <% end %>
+      </ul>
+  
+      <% end %>
+
     </td>
     <td class="item-price align-center"><%= line_item.single_money.to_html %></td>
     <td class="item-qty-show align-center">
         <% item.states.each do |state,count| %>
-          <%= count %> x <%= state.humanize.downcase %>
+          <%= count %> 
         <% end %>
     </td>
     <% unless shipment.shipped? %>
@@ -18,7 +32,7 @@
         <%= number_field_tag :quantity, item.quantity, :min => 0, :class => "line_item_quantity", :size => 5 %>
       </td>
     <% end %>
-    <td class="item-total align-center"><%= line_item_shipment_price(line_item, item.quantity) %></td>
+    <td class="item-total align-center"> <%= line_item.display_amount.to_html unless line_item.quantity.nil? %></td>
     <% unless shipment.shipped? %>
       <td class="cart-item-delete actions" data-hook="cart_item_delete">
         <% if can? :update, item %>
