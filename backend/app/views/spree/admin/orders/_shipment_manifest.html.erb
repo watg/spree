@@ -7,7 +7,10 @@
     <td class="item-image"><%= mini_image(item.variant) %></td>
     <td class="item-name">
       <strong>    <%= item.variant.product.name %><br><%= "(" + variant_options(item.variant) + ")" unless item.variant.option_values.empty? %></strong>
+      SKU: <%= item.variant.sku %>
       <% if item.variant.product.assembly? %>
+      <hr />
+      Gang Member Nickname: <%= item.variant.product.gang_member.nickname %>
       <hr />
       <ul class='assembly_parts' style="list-style:none;">
         <% item.variant.required_parts_for_display.each do |v| %>
