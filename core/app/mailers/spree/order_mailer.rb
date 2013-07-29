@@ -32,7 +32,7 @@ module Spree
     def order_data
       {
         order_number: @order.number,
-        email: @order.user.email,
+        email: @order.email,
         items: htmlify(:line_items),
         items_total: @order.item_total.to_s,
         adjustments: htmlify(:adjustements),
