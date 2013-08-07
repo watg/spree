@@ -16,6 +16,8 @@ module Spree
     # we need to look at the write-queue for images which have not been saved yet
     after_post_process :find_dimensions
 
+    process_in_background :attachment
+
     include Spree::Core::S3Support
     supports_s3 :attachment
 
