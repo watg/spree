@@ -8,6 +8,7 @@ module Spree
 
     before_filter :load_order
 
+    before_filter :check_payment_status
     before_filter :ensure_order_not_completed
     before_filter :ensure_checkout_allowed
     before_filter :ensure_sufficient_stock_lines
@@ -15,7 +16,7 @@ module Spree
 
     before_filter :associate_user
     before_filter :check_authorization
-
+    
     helper 'spree/orders'
 
     rescue_from Spree::Core::GatewayError, :with => :rescue_from_spree_gateway_error
@@ -45,6 +46,13 @@ module Spree
     end
 
     private
+    def check_payment_status
+      if params[:state] == 'payment' && !@order.can_attempt_payment?
+        flash[:error] = Spree.t(:we_have_already_a_payment_for_this_order)
+        redirect_to spree.cart_path
+      end
+    end
+    
       def ensure_valid_state
         unless skip_state_validation?
           if (params[:state] && !@order.has_checkout_step?(params[:state])) ||

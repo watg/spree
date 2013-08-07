@@ -47,7 +47,7 @@ module Spree
 
     has_many :state_changes, as: :stateful
     has_many :line_items, dependent: :destroy, order: "#{Spree::LineItem.table_name}.created_at ASC"
-    has_many :payments, dependent: :destroy, :class_name => "Spree::Payment"
+    has_many :payments, dependent: :destroy, :class_name => "Spree::Payment", order: 'updated_at DESC'
 
     has_many :shipments, dependent: :destroy, :class_name => "Shipment" do
       def states
@@ -538,8 +538,13 @@ module Spree
       shipments
     end
 
+    def can_attempt_payment?
+      payments.select(&:pending?).blank?
+    end
+
     private
 
+    
       def link_by_email
         self.email = user.email if self.user
       end
