@@ -26,6 +26,8 @@ module Spree
     has_many :product_properties, dependent: :destroy
     has_many :properties, through: :product_properties
 
+    has_many :displayable_variants
+    
     has_many :classifications, dependent: :delete_all
     has_many :taxons, through: :classifications
     has_and_belongs_to_many :promotion_rules, join_table: :spree_products_promotion_rules
@@ -148,6 +150,14 @@ module Spree
       variants.active.group_by { |v| v.option_values.detect { |o| o.option_type == opt_type} }
     end
 
+    def name_and_type
+      "#{name} - #{product_type}"
+    end
+
+    def self.saleable?
+      where(individual_sale: true)
+    end
+
     def self.like_any(fields, values)
       where_str = fields.map { |field| Array.new(values.size, "#{self.quoted_table_name}.#{field} #{LIKE} ?").join(' OR ') }.join(' OR ')
       self.where([where_str, values.map { |value| "%#{value}%" } * fields.size].flatten)
@@ -203,6 +213,7 @@ module Spree
     def master
       super || variants_including_master.with_deleted.where(:is_master => true).first
     end
+
 
     private
 

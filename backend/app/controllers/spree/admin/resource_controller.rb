@@ -139,7 +139,7 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
         # call authorize! a third time (called twice already in Admin::BaseController)
         # this time we pass the actual instance so fine-grained abilities can control
         # access to individual records, not just entire models.
-        authorize! action, @object
+       authorize! action, @object
 
         instance_variable_set("@#{object_name}", @object)
       else

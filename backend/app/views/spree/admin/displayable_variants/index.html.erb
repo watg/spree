@@ -1,0 +1,38 @@
+<h1><%= Spree.t(:displayable_variants) %></h1>
+
+<%= form_tag admin_displayable_variants_path, method: :get do %>
+   <%= select_tag 'product_id', options_from_collection_for_select(@products, 'id', 'name_and_type', @product_id), :class => 'select2' %>
+   <%= submit_tag Spree.t(:search) %>
+<% end %>
+
+
+<% if @variants %>
+<%= form_tag admin_displayable_variants_path do %>
+  <%= hidden_field_tag :product_id, @product_id%>
+  <table class="index">
+    <colgroup>
+      <col style="width: 75%" />
+      <col style="width: 25%" />
+    </colgroup>
+    <thead data-hook="variants_header">
+      <tr>
+        <th><%= Spree.t(:variant_combination) %></th>
+        <th><%= Spree.t(:visible) %></th>
+      </tr>
+    </thead>
+    <tbody>
+    <% @variants.each do |variant| %>
+      <tr id="<%= spree_dom_id variant %>" class="<%= cycle('odd', 'even')%>">
+        <td><%= variant.options_text %></td>
+        <td><%= check_box_tag 'variant_ids[]', variant.id, variant.visible? %></td>
+      </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <%= submit_tag('Save') %>
+<% end %>
+<% else %>
+  <div class="no-objects-found"><%= Spree.t(:no_results)%>.</div>
+<% end %>
+
