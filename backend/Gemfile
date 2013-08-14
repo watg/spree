@@ -4,3 +4,5 @@ gem 'spree_core', :path => '../core'
 gem 'spree_api', :path => '../api'
 
 gemspec
+gem 'therubyracer', :platforms => :ruby
+gem 'delayed_paperclip'

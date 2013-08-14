@@ -20,6 +20,9 @@ module Spree
     has_many :stock_locations, through: :stock_items
     has_many :stock_movements
 
+
+    has_many :displayable_variants 
+
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants
     has_many :images, as: :viewable, order: :position, dependent: :destroy, class_name: "Spree::Image"
 
@@ -48,6 +51,17 @@ module Spree
 
     def self.active(currency = nil)
       joins(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
+    end
+
+    def self.visible
+      where(view_on_index_page: true)
+    end
+
+    def self.displayable(product_id)
+      where(product_id: product_id, is_master: false).includes(:displayable_variants)
+    end      
+    def visible?
+      displayable_variants.any?
     end
 
     def cost_price=(price)

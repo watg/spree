@@ -5,7 +5,6 @@ module Spree
 
       before_filter :load_data, :except => :index
       create.before :create_before
-      update.before :update_before
 
       def show
         session[:return_to] ||= request.referer
@@ -18,13 +17,7 @@ module Spree
       end
 
       def update
-        if params[:product][:taxon_ids].present?
-          params[:product][:taxon_ids] = params[:product][:taxon_ids].split(',')
-        end
-        if params[:product][:option_type_ids].present?
-          params[:product][:option_type_ids] = params[:product][:option_type_ids].split(',')
-        end
-        super
+        ::Spree::ProductChange.new(self).perform(@object, params[:product])
       end
 
       def destroy
@@ -63,6 +56,19 @@ module Spree
 
       protected
 
+      def update_success(product)
+        flash[:success] = flash_message_for(product, :successfully_updated)
+      
+        respond_with(product) do |format|
+          format.html { redirect_to location_after_save }
+          format.js   { render :layout => false }
+        end
+      end
+
+
+      def update_failed(product)
+        respond_with(product)
+      end
         def find_resource
           Product.find_by_permalink!(params[:id])
         end
@@ -104,12 +110,6 @@ module Spree
         def create_before
           return if params[:product][:prototype_id].blank?
           @prototype = Spree::Prototype.find(params[:product][:prototype_id])
-        end
-
-        def update_before
-          # note: we only reset the product properties if we're receiving a post from the form on that tab
-          return unless params[:clear_product_properties]
-          params[:product] ||= {}
         end
 
         def product_includes
