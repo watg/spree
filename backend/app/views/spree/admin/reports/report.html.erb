@@ -1,0 +1,54 @@
+<% content_for :page_title do %>
+  <%= Spree.t(:reports) %>
+<% end %>
+
+
+<% content_for :page_actions do %>
+  <li><%= link_to_with_icon 'icon-arrow-left', Spree.t(:back_to_reports_list), spree.admin_reports_url, :class => 'button' %></li>
+<% end %>
+
+
+<% content_for :table_filter_title do %>
+  <%= Spree.t(:date_range) %>
+<% end %>
+
+<% content_for :table_filter do %>
+  <%= render :partial => 'spree/admin/shared/report_criteria', :locals => { name: @name } %>
+<% end %>
+
+<fieldset>
+  <legend align="center"><%= Spree.t(:ready_reports) %></legend>
+
+    <div class="label-block left ten columns alpha">
+    <table id="available-reports">
+      <thead>
+        <tr>
+          <th scope="row"> <%= Spree.t(:name) %> </th>
+          <th scope="row"> <%= Spree.t(:last_updated) %> </th>
+        </tr>
+
+        <tbody id="reports" data-hook>
+          <% @csv_objects.each do |csv_object| %>
+            <% if !csv_object.nil?  %>
+              <tr>
+                <% if csv_object.generating? %>
+                  <td><%= Spree.t(:generating_csv) %></td>
+                  <td></td>
+                <% elsif csv_object.csv_file_exists? %>
+                  <% shortened_filename = csv_object.csv_file_file_name.split('-').first + '.csv' %>
+                  <td><%= link_to shortened_filename, download_admin_reports_path(csv_object.name,csv_object.id) %></td>
+                  <td><%= csv_object.updated_at.to_s(:viewable) %></td>
+                <% else %>
+                  <td><%= Spree.t(:no_csv_exists) %></td>
+                  <td></td>
+                <% end %>
+              </tr>
+            <% end %>
+          <% end %>
+        </tbody>
+
+      </table>
+    </div>
+
+</fieldset>
+

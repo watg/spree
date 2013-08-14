@@ -36,6 +36,18 @@ module Spree
         ]
       end
 
+      def self.activate
+        Dir.glob(File.join(File.dirname(__FILE__), "../../../app/reports/**/*.rb")) do |c|
+          Rails.env.production? ? require(c) : load(c)
+        end
+
+        Dir.glob(File.join(File.dirname(__FILE__), "../../../app/jobs/**/*.rb")) do |c|
+          Rails.env.production? ? require(c) : load(c)
+        end
+      end
+
+      config.to_prepare &method(:activate).to_proc
+
     end
   end
 end
