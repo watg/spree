@@ -51,14 +51,21 @@ module Spree
       params ||= {}
     end
 
+    def all_taxons(taxons_ids)
+      taxons = Spree::Taxon.find(taxons_ids)
+        taxons.map do |t|
+          t.self_and_parents.map(&:id)
+        end.flatten
+    end
+
     def taxons_to_remove(product, params=[])
       taxon_ids = (product.taxons.blank? ? [] : product.taxons.map(&:id))
-      taxon_ids - params
+      all_taxons(taxon_ids - params)
     end
     
     def taxons_to_add(product, params=[])
       taxon_ids = (product.taxons.blank? ? [] : product.taxons.map(&:id))
-      params - taxon_ids
+      all_taxons( params - taxon_ids )
     end
 
   end

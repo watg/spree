@@ -37,6 +37,17 @@ module Spree
       fs
     end
 
+    # This is method is here as awesome_nested_set method self_and_ancestors in version 2.1.6 does not seem to work
+    def self_and_parents
+      parents = [self]
+      child = self.dup
+      while child.parent do
+        parents << child.parent
+        child = child.parent
+      end
+      parents
+    end
+
     # Return meta_title if set otherwise generates from root name and/or taxon name
     def seo_title
       if meta_title
