@@ -17,7 +17,7 @@ module Spree
       end
 
       def update
-        ::Spree::ProductChange.new(self).perform(@object, params[:product])
+        Spree::ProductUpdateService.new(self).perform(@object, params[:product])
       end
 
       def destroy
