@@ -51,6 +51,10 @@ module Spree
       params ||= {}
     end
 
+    def current_displayable_variants(product)
+      Spree::DisplayableVariant.where(product_id: product.id).uniq.pluck(:variant_id)
+    end
+
     def all_taxons(taxons_ids)
       taxons = Spree::Taxon.find(taxons_ids)
         taxons.map do |t|
