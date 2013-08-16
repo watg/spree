@@ -93,6 +93,10 @@ module Spree
       master
     end
 
+    def visible_option_types
+      option_types.where('spree_product_option_types.visible' => true)
+    end
+
     def to_param
       permalink.present? ? permalink : (permalink_was || name.to_s.to_url)
     end

@@ -6,17 +6,20 @@ module Spree
     end
   
     def perform(product, params)
+      visible_option_type_ids = params.delete(:visible_option_type_ids)
+       
       assign_taxons(product, params[:taxon_ids])
       update_details(product, params.dup)
+      option_type_visibility(product, visible_option_type_ids)
     rescue Exception => e
-      Rails.logger.error "[ProductUpdateService] #{e.backtrace}"
+      Rails.logger.error "[ProductUpdateService] #{e.message} -- #{e.backtrace}"
       controller.send(:update_failed,product)
     end
   
     def update_details(product, params)
       params[:option_type_ids] = split_params(params[:option_type_ids])
       params[:taxon_ids] = split_params(params[:taxon_ids])
-      
+
       update_before(params)
   
       if product.update_attributes(params)
@@ -45,8 +48,12 @@ module Spree
       Spree::DisplayableVariant.destroy_all(product_id: product.id, taxon_id: to_remove) unless to_remove.blank?
        
       params
-     end
+    end
 
+    def option_type_visibility(product, visible_option_type_ids)
+      list = split_params(visible_option_type_ids)
+      list.each {|ot_id|  Spree::ProductOptionType.create(product_id: product.id, option_type_id: ot_id, visible: true) }
+    end
     
     private
     def update_before(params)
