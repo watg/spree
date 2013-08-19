@@ -31,11 +31,13 @@
         <tbody>
           <% @variants.each do |variant| %>
             <tr id="<%= spree_dom_id variant %>" class="<%= cycle('odd', 'even')%>">
-              <% if variant.images.any? %>
-              <%= image_tag(variant.images.first.attachment.url(:listing)) %>
-              <% else %>
-              No image
-              <% end %>
+              <td>
+                <% if variant.images.any? %>
+                  <%= image_tag(variant.images.first.attachment.url(:listing)) %>
+                <% else %>
+                  No image
+                <% end %>
+              </td>
               <td><%= variant.options_text %></td>
               <td><%= check_box_tag 'variant_ids[]', variant.id, variant.visible? %></td>
             </tr>
