@@ -6,12 +6,17 @@ module Spree
     end
   
     def perform(product, params)
-      params[:taxon_ids] = assign_taxons(product, params[:taxon_ids])
-      update_details(product, params)
+      assign_taxons(product, params[:taxon_ids])
+      update_details(product, params.dup)
+    rescue Exception => e
+      Rails.logger.error "[ProductUpdateService] #{e.backtrace}"
+      controller.send(:update_failed,product)
     end
   
     def update_details(product, params)
-      params[:option_type_ids] = assign_option_types(product, params[:option_type_ids])
+      params[:option_type_ids] = split_params(params[:option_type_ids])
+      params[:taxon_ids] = split_params(params[:taxon_ids])
+      
       update_before(params)
   
       if product.update_attributes(params)
@@ -21,15 +26,14 @@ module Spree
       end
     end
   
-    def assign_option_types(product, params=nil)
+    def split_params(params=nil)
       params.blank?  ? [] : params.split(',').map(&:to_i)
-    end
+    end  
   
-  
-    def assign_taxons(product, params=nil)
-      params  = (params.blank? ? [] : params.split(',').map(&:to_i))
-
-      variant_ids = product.variants.map(&:id)
+    def assign_taxons(product, list='')
+      params = split_params(list)
+      
+      variant_ids = current_displayable_variants(product)
 
       taxons_to_add(product, params).map do |t|
         variant_ids.map do |variant_id|
@@ -62,12 +66,14 @@ module Spree
         end.flatten
     end
 
-    def taxons_to_remove(product, params=[])
+    def taxons_to_remove(product, params)
+      params ||= []
       taxon_ids = (product.taxons.blank? ? [] : product.taxons.map(&:id))
       all_taxons(taxon_ids - params)
     end
     
-    def taxons_to_add(product, params=[])
+    def taxons_to_add(product, params)
+      params ||= []
       taxon_ids = (product.taxons.blank? ? [] : product.taxons.map(&:id))
       all_taxons( params - taxon_ids )
     end
