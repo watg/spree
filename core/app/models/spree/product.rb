@@ -23,6 +23,8 @@ module Spree
     acts_as_paranoid
     has_many :product_option_types, dependent: :destroy
     has_many :option_types, through: :product_option_types
+    has_many :visible_option_types, through: :product_option_types, conditions: {spree_product_option_types: true }
+    
     has_many :product_properties, dependent: :destroy
     has_many :properties, through: :product_properties
 
