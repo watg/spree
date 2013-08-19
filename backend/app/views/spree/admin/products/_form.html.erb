@@ -99,6 +99,11 @@
       <%= f.label :option_type_ids, Spree.t(:option_types) %>
       <%= f.hidden_field :option_type_ids, :value => @product.option_type_ids.join(',') %>
     <% end %>
+
+    <%= f.field_container :visible_option_types do %>
+      <%= f.label :visible_option_type_ids, Spree.t(:visible_option_types) %>
+      <%= f.hidden_field :visible_option_type_ids, :value => @product.visible_option_types.map(&:id).join(',') %>
+    <% end %>
   </div>
 
   <!-- <h2><%= Spree.t(:metadata) %></h2> -->
