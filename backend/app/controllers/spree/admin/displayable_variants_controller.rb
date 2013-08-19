@@ -21,7 +21,7 @@ module Spree
 
       def update_failure(product, error)
         flash[:error] = "Could not update variants for product #{product.name}"
-        Rails.logger.error error
+        Rails.logger.error error.backtrace
         redirect_to admin_displayable_variants_url()
       end
       
