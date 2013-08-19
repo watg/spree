@@ -23,6 +23,8 @@ module Spree
     acts_as_paranoid
     has_many :product_option_types, dependent: :destroy
     has_many :option_types, through: :product_option_types
+    has_many :visible_option_types, through: :product_option_types, conditions: {spree_product_option_types: true }
+    
     has_many :product_properties, dependent: :destroy
     has_many :properties, through: :product_properties
 
@@ -91,6 +93,10 @@ module Spree
     def variants_with_only_master
       ActiveSupport::Deprecation.warn("[SPREE] Spree::Product#variants_with_only_master will be deprecated in Spree 1.3. Please use Spree::Product#master instead.")
       master
+    end
+
+    def visible_option_types
+      option_types.where('spree_product_option_types.visible' => true)
     end
 
     def to_param

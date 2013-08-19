@@ -17,11 +17,13 @@
       <%= hidden_field_tag :product_id, @product_id%>
       <table class="index">
         <colgroup>
-          <col style="width: 75%" />
+          <col style="width: 25%" />
+          <col style="width: 50%" />
           <col style="width: 25%" />
         </colgroup>
         <thead data-hook="variants_header">
           <tr>
+            <th><%= Spree.t(:image) %></th>
             <th><%= Spree.t(:variant_combination) %></th>
             <th><%= Spree.t(:visible) %></th>
           </tr>
@@ -29,6 +31,11 @@
         <tbody>
           <% @variants.each do |variant| %>
             <tr id="<%= spree_dom_id variant %>" class="<%= cycle('odd', 'even')%>">
+              <% if variant.images.any? %>
+              <%= image_tag(variant.images.first.attachment.url(:listing)) %>
+              <% else %>
+              No image
+              <% end %>
               <td><%= variant.options_text %></td>
               <td><%= check_box_tag 'variant_ids[]', variant.id, variant.visible? %></td>
             </tr>
@@ -51,5 +58,3 @@
 <script type='text/javascript'>
     $('#check_all').on("click", function(){ $('input[type="checkbox"]').click(); });
 </script>
-
-

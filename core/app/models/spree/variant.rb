@@ -73,6 +73,16 @@ module Spree
       inventory_units.with_state('backordered').size
     end
 
+    def display_name
+      values = self.option_values.joins(:option_type).joins("INNER JOIN \"#{Spree::ProductOptionType.table_name}\" ON \"spree_option_types\".\"id\" = \"#{Spree::ProductOptionType.table_name}\".\"option_type_id\"").where("#{Spree::ProductOptionType.table_name}.visible" => true)
+
+      values.map! do |ov|
+        "#{ov.option_type.presentation}: #{ov.presentation}"
+      end
+
+      values.to_sentence({ words_connector: ", ", two_words_connector: ", " })
+    end
+    
     def options_text
       values = self.option_values.joins(:option_type).order("#{Spree::OptionType.table_name}.position asc")
 
