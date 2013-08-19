@@ -5,7 +5,8 @@ module Spree
     belongs_to :taxonomy, class_name: 'Spree::Taxonomy'
     has_many :classifications, dependent: :delete_all
     has_many :products, through: :classifications
-
+    has_many :displayable_variants, dependent: :delete_all
+    
     before_create :set_permalink
 
     attr_accessible :name, :parent_id, :position, :icon, :description, :permalink, :taxonomy_id,
