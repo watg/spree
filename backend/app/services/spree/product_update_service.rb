@@ -55,24 +55,16 @@ module Spree
     def option_type_visibility(product, visible_option_type_ids)
       list = split_params(visible_option_type_ids)
       option_type_ids = product.option_types.map(&:id)
-      
-      to_reset = option_type_ids - list
-      reset_visible_option_types(product.id, to_reset)
-
-      selection_to_update = list - option_type_ids
-      to_update = selection_to_update.map {|e| e if option_type.include?(e)}.compact
-      update_visible_option_types(product.id, to_update)
+            
+      reset_visible_option_types(product.id, (option_type_ids - list))
+      update_visible_option_types(product.id, list)
     end
     
     private
     def update_visible_option_types(p_id, list)
       list.each {|ot_id|
         pot = Spree::ProductOptionType.where(product_id: p_id, option_type_id: ot_id).first
-        if pot
-          pot.update_attributes(visible: true)
-        else
-          Spree::ProductOptionType.create(product_id: p_id, option_type_id: ot_id, visible: true)
-        end
+        pot.update_attributes(visible: true) if pot
       }
     end
     def reset_visible_option_types(product_id, ids_to_reset)
