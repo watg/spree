@@ -36,6 +36,8 @@ module Spree
 
     belongs_to :tax_category, class_name: 'Spree::TaxCategory'
     belongs_to :shipping_category, class_name: 'Spree::ShippingCategory'
+    belongs_to :gang_member, class_name: 'Spree::GangMember'
+    belongs_to :product_group, class_name: 'Spree::ProductGroup'
 
     has_one :master,
       class_name: 'Spree::Variant',
@@ -71,6 +73,8 @@ module Spree
 
     validates :name, :permalink, presence: true
     validates :price, presence: true, if: proc { Spree::Config[:require_master_price] }
+    validates :shipping_category, presence: true
+    validates :tax_category, presence: true
 
     attr_accessor :option_values_hash
 

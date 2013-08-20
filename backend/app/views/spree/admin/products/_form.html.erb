@@ -78,15 +78,28 @@
 
     <%= f.field_container :shipping_categories do %>
       <%= f.label :shipping_category_id, Spree.t(:shipping_categories) %>
-      <%= f.collection_select(:shipping_category_id, @shipping_categories, :id, :name, { :include_blank => Spree.t('match_choices.none') }, { :class => 'select2' }) %>
+      <%= f.collection_select(:shipping_category_id, @shipping_categories, :id, :name, { :include_blank => false }, { :class => 'select2' }) %>
       <%= f.error_message_on :shipping_category %>
     <% end %>
 
     <%= f.field_container :tax_category do %>
       <%= f.label :tax_category_id, Spree.t(:tax_category) %>
-      <%= f.collection_select(:tax_category_id, @tax_categories, :id, :name, { :include_blank => Spree.t('match_choices.none') }, { :class => 'select2' }) %>
+      <%= f.collection_select(:tax_category_id, @tax_categories, :id, :name, { :include_blank => false }, { :class => 'select2' }) %>
       <%= f.error_message_on :tax_category %>
     <% end %>
+
+    <%= f.field_container :product_group do %>
+      <%= f.label :product_group_id, Spree.t(:product_group) %>
+      <%= f.collection_select(:product_group_id, @product_groups, :id, :name, { :include_blank => Spree.t('match_choices.none') }, { :class => 'select2' }) %>
+      <%= f.error_message_on :product_group %>
+    <% end %>
+
+    <%= f.field_container :gang_member do %>
+      <%= f.label :gang_member_id, Spree.t(:gang_member) %>
+      <%= f.collection_select(:gang_member_id, @gang_members, :id, :name, { :include_blank => Spree.t('match_choices.none') }, { :class => 'select2' }) %>
+      <%= f.error_message_on :gang_member %>
+    <% end %>
+
   </div>
 
   <div class="twelve columns alpha omega">
