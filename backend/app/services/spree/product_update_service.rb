@@ -53,8 +53,15 @@ module Spree
     end
 
     def option_type_visibility(product, visible_option_type_ids)
-      reset_visible_option_types(product.id)
-      update_visible_option_types(product.id, split_params(visible_option_type_ids))
+      list = split_params(visible_option_type_ids)
+      option_type_ids = product.option_types.map(&:id)
+      
+      to_reset = option_type_ids - list
+      reset_visible_option_types(product.id, to_reset)
+
+      selection_to_update = list - option_type_ids
+      to_update = selection_to_update.map {|e| e if option_type.include?(e)}.compact
+      update_visible_option_types(product.id, to_update)
     end
     
     private
@@ -68,8 +75,8 @@ module Spree
         end
       }
     end
-    def reset_visible_option_types(product_id)
-      Spree::ProductOptionType.where(product_id: product_id).update_all(visible: false)
+    def reset_visible_option_types(product_id, ids_to_reset)
+      Spree::ProductOptionType.where(product_id: product_id, option_type_id: ids_to_reset).update_all(visible: false)
     end
     def update_before(params)
       # note: we only reset the product properties if we're receiving a post from the form on that tab
