@@ -94,6 +94,8 @@ module Spree
 
     after_initialize :ensure_master
 
+    after_save { self.delay.touch_variants }
+
     def variants_with_only_master
       ActiveSupport::Deprecation.warn("[SPREE] Spree::Product#variants_with_only_master will be deprecated in Spree 1.3. Please use Spree::Product#master instead.")
       master
@@ -227,43 +229,48 @@ module Spree
 
     private
 
-      # Builds variants from a hash of option types & values
-      def build_variants_from_option_values_hash
-        ensure_option_types_exist_for_values_hash
-        values = option_values_hash.values
-        values = values.inject(values.shift) { |memo, value| memo.product(value).map(&:flatten) }
+    def touch_variants
+      self.variants.each { |v| v.touch }
+    end
 
-        values.each do |ids|
-          variant = variants.create({ option_value_ids: ids, price: master.price }, without_protection: true)
+
+    # Builds variants from a hash of option types & values
+    def build_variants_from_option_values_hash
+      ensure_option_types_exist_for_values_hash
+      values = option_values_hash.values
+      values = values.inject(values.shift) { |memo, value| memo.product(value).map(&:flatten) }
+
+      values.each do |ids|
+        variant = variants.create({ option_value_ids: ids, price: master.price }, without_protection: true)
+      end
+      save
+    end
+
+    def add_properties_and_option_types_from_prototype
+      if prototype_id && prototype = Spree::Prototype.find_by_id(prototype_id)
+        prototype.properties.each do |property|
+          product_properties.create({property: property}, without_protection: true)
         end
-        save
+        self.option_types = prototype.option_types
       end
+    end
 
-      def add_properties_and_option_types_from_prototype
-        if prototype_id && prototype = Spree::Prototype.find_by_id(prototype_id)
-          prototype.properties.each do |property|
-            product_properties.create({property: property}, without_protection: true)
-          end
-          self.option_types = prototype.option_types
-        end
-      end
+    # ensures the master variant is flagged as such
+    def set_master_variant_defaults
+      master.is_master = true
+    end
 
-      # ensures the master variant is flagged as such
-      def set_master_variant_defaults
-        master.is_master = true
-      end
+    # there's a weird quirk with the delegate stuff that does not automatically save the delegate object
+    # when saving so we force a save using a hook.
+    def save_master
+      master.save if master && (master.changed? || master.new_record? || (master.default_price && (master.default_price.changed || master.default_price.new_record)))
+    end
 
-      # there's a weird quirk with the delegate stuff that does not automatically save the delegate object
-      # when saving so we force a save using a hook.
-      def save_master
-        master.save if master && (master.changed? || master.new_record? || (master.default_price && (master.default_price.changed || master.default_price.new_record)))
-      end
+    def ensure_master
+      return unless new_record?
+      self.master ||= Variant.new
+    end
+    end
+    end
 
-      def ensure_master
-        return unless new_record?
-        self.master ||= Variant.new
-      end
-  end
-end
-
-require_dependency 'spree/product/scopes'
+    require_dependency 'spree/product/scopes'
