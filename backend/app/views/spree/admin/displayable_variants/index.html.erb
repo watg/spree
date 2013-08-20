@@ -5,10 +5,14 @@
 <%= render :partial => 'spree/admin/shared/product_sub_menu' %>
 
 <fieldset class="no-border-top">
-  <%= form_tag admin_displayable_variants_path, method: :get do %>
-    <%= select_tag 'product_id', options_from_collection_for_select(@products, 'id', 'name_and_type', @product_id), :class => 'select2' %>
-    <%= submit_tag Spree.t(:search) %>
-  <% end %>
+  <div class="alpha four columns">
+    <div class="field">
+      <%= form_tag admin_displayable_variants_path, method: :get do %>
+        <%= select_tag 'product_id', options_from_collection_for_select(@products, 'id', 'name_and_type', @product_id ), :include_blank => true, :class => 'select2 fullwidth' %>
+      </div>
+      <%= submit_tag Spree.t(:search) %>
+    <% end %>
+  </div>
 </fieldset>
 
 <fieldset class="no-border-top">
