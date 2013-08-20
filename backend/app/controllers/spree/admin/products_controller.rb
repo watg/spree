@@ -66,9 +66,12 @@ module Spree
       end
 
 
-      def update_failed(product)
-        respond_with(product)
+      def update_failed(product, error)
+        flash[:error] = "Could not update product #{product.name} -- #{error}"
+        redirect_to edit_admin_product_url(product)
       end
+
+      
         def find_resource
           Product.find_by_permalink!(params[:id])
         end

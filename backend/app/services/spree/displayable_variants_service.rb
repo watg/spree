@@ -1,14 +1,12 @@
 module Spree
   class DisplayableVariantsService < Struct.new(:controller)
     def perform(product_id, variant_ids)
-
       product = Spree::Product.find(product_id)
-      update_displayable_variants(product,variant_ids)
-     
-      controller.send(:update_success, product)
- 
+      ActiveRecord::Base.transaction do
+        update_displayable_variants(product,variant_ids)
+        controller.send(:update_success, product)
+      end
     rescue Exception => error
-      
       controller.send(:update_failure, product, error)
     end
 
@@ -20,7 +18,7 @@ module Spree
 
       variants_to_add(current_ids, variant_ids).each do |variant_id|
         all_taxons( product.taxons ).each do |taxon|
-          Spree::DisplayableVariant.create(product_id: product.id, variant_id: variant_id, taxon_id: taxon.id)
+          Spree::DisplayableVariant.create!(product_id: product.id, variant_id: variant_id, taxon_id: taxon.id)
         end
       end
 
