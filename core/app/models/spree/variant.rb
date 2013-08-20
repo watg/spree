@@ -73,8 +73,14 @@ module Spree
       inventory_units.with_state('backordered').size
     end
 
+
     def display_name
-      values = self.option_values.joins(:option_type).joins("INNER JOIN \"#{Spree::ProductOptionType.table_name}\" ON \"spree_option_types\".\"id\" = \"#{Spree::ProductOptionType.table_name}\".\"option_type_id\"").where("#{Spree::ProductOptionType.table_name}.visible" => true)
+
+      # retrieve all the option type ids which are visible, we have to go up to the product to retrieve this information
+      option_type_ids = self.product.product_option_types.where( visible: true ).joins(:option_type).map(&:option_type_id)
+
+      # Now retrieve the option values
+      values = self.option_values.where( option_type_id: option_type_ids )
 
       values.map! do |ov|
         ov.presentation
