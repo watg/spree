@@ -42,9 +42,12 @@ module Spree
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true } if self.table_exists? && self.column_names.include?('cost_price')
 
     before_validation :set_cost_currency
-    after_save :save_default_price
     after_create :create_stock_items
     after_create :set_position
+    after_save :save_default_price
+
+    # Regardless of us updating anything, touch so we invalidate cache
+    after_save { self.touch } 
 
     # default variant scope only lists non-deleted variants
     scope :deleted, lambda { where('deleted_at IS NOT NULL') }

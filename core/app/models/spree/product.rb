@@ -62,7 +62,9 @@ module Spree
     after_create :set_master_variant_defaults
     after_create :add_properties_and_option_types_from_prototype
     after_create :build_variants_from_option_values_hash, if: :option_values_hash
+
     after_save :save_master
+    after_save { self.delay.touch_variants }
 
     delegate :images, to: :master, prefix: true
     alias_method :images, :master_images
@@ -94,7 +96,6 @@ module Spree
 
     after_initialize :ensure_master
 
-    after_save { self.delay.touch_variants }
 
     def variants_with_only_master
       ActiveSupport::Deprecation.warn("[SPREE] Spree::Product#variants_with_only_master will be deprecated in Spree 1.3. Please use Spree::Product#master instead.")
