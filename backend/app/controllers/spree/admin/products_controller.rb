@@ -68,7 +68,10 @@ module Spree
 
       def update_failed(product, error)
         flash[:error] = "Could not update product #{product.name} -- #{error}"
-        redirect_to edit_admin_product_url(product)
+        respond_with(product) do |format|
+          format.html { redirect_to edit_admin_product_url(product) }
+          format.js   { render :layout => false }
+        end
       end
 
       
