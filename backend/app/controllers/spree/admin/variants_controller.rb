@@ -22,7 +22,7 @@ module Spree
 
       protected
         def new_before
-          @object.attributes = @object.product.master.attributes.except('id', 'created_at', 'deleted_at',
+          @object.attributes = @object.product.master.attributes.except('id', 'created_at', 'deleted_at', 'updated_at',
                                                                         'sku', 'is_master')
           # Shallow Clone of the default price to populate the price field.
           @object.default_price = @object.product.master.default_price.clone

@@ -56,10 +56,6 @@ module Spree
       joins(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
     end
 
-    def self.visible
-      where(view_on_index_page: true)
-    end
-
     def self.displayable(product_id)
       where(product_id: product_id, is_master: false).includes(:displayable_variants)
     end      
