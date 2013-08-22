@@ -2,12 +2,13 @@ module Spree
   module Core
     module ControllerHelpers
       module Order
-        def self.included(base)
-          base.class_eval do
+        extend ActiveSupport::Concern
+        include CurrencyHelpers
+
+        included do
             helper_method :current_order
             helper_method :current_currency
             before_filter :set_current_order
-          end
         end
 
         # The current incomplete order from the session for use in cart and during checkout
