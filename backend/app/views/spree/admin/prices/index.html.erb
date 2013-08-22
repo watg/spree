@@ -4,11 +4,44 @@
 <%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => 'Prices'} %>
 
 
-<%= form_tag do %>
-  <%= render :partial => 'variant_prices', :locals => { :variant => @product.master } %>
+<fieldset class="no-border-top">
 
-  <% @product.variants.each do |variant| %>
-    <%= render :partial => 'variant_prices', :locals => { :variant => variant } %>
-  <% end %>
+  <%= form_tag do %>
+    <table class="index">
+      <colgroup>
+        <col style="width: 30%" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th><%= Spree.t(:variant) %></th>
+          <th colspan="2"><%= Spree.t(:price_type) %></th>
+          <% supported_currencies.each do |currency| %>
+            <th><%= Spree.t(currency.to_s.to_sym) %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @product.variants_including_master.order("is_master desc").each do |variant| %>
+          <tr class="<%= cycle('odd', 'even')%>" >
+            <td rowspan="3" > <%= variant.options_text %>  </td>
+            <% variant.price_types.each do |price_type| %>
+              <td> <%= price_type %> </td>
+              <% if price_type == :sale %>
+                <td><%= check_box_tag 'variant_ids[]', variant.id, variant.in_sale? %></td>
+              <% else %>
+                <td></td>
+              <% end %>
+
+            <% supported_currencies.each do |currency| %>
+              <% price = variant.price_for_type(price_type,currency.iso_code) %>
+              <td> <%= text_field_tag("vp[#{variant.id}][#{price_type}][#{currency.iso_code}]", (price ? price.display_amount : '')) %> </td>
+            <% end %>
+          </tr>
+          <% end %>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
   <%= submit_tag %>
-<% end %>
+
+</fieldset>

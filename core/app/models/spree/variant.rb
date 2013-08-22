@@ -11,7 +11,7 @@ module Spree
     attr_accessible :name, :presentation, :cost_price, :lock_version,
                     :position, :option_value_ids,
                     :product_id, :option_values_attributes, :price,
-                    :weight, :height, :width, :depth, :sku, :cost_currency
+                    :weight, :height, :width, :depth, :sku, :cost_currency, :in_sale
 
     has_many :inventory_units
     has_many :line_items
@@ -72,6 +72,32 @@ module Spree
       inventory_units.with_state('backordered').size
     end
 
+
+    # TODO move this into a decorator as it is view centric
+    def price_types
+      types = [:normal,:sale]
+      if self.isa_part?
+        types << :part
+      end
+      types
+    end
+
+    def price_for_type(type,currency_code)
+      price_in_method = "price_#{type}_in".to_sym
+      self.send(price_in_method, currency_code )
+    end
+
+    def price_normal_in(currency_code)
+      price_in(currency_code)
+    end
+
+    def price_sale_in(currency_code)
+      Spree::Price.new(variant_id: self.id, currency: currency_code)
+    end
+
+    def price_part_in(currency_code)
+      kit_price_in(currency_code)
+    end
 
     def display_name
 
