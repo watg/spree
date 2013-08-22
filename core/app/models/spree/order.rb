@@ -531,10 +531,22 @@ module Spree
       shipments.destroy_all
 
       packages = Spree::Stock::Coordinator.new(self).packages
+
+      # I am trying to track down a bug, which is to do with double shipping costs, hence 
+      # this could only happen if we ended up with multiple packages for some reason
+      if packages.size > 1
+        Rails.logger.error(" MULTI-PACKAGE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ")
+        Rails.logger.error(" MULTI-PACKAGE packages: #{packages.inspect}")
+        Rails.logger.error(" MULTI-PACKAGE each package: #{packages.map { |p| p.inspect } }")
+        Rails.logger.error(" MULTI-PACKAGE order: #{self.inspect}")
+        Rails.logger.error(" MULTI-PACKAGE shipments before: #{shipments.inspect}")
+      end
+
       packages.each do |package|
         shipments << package.to_shipment
       end
 
+      Rails.logger.error(" MULTI-PACKAGE shipments after: #{shipments.inspect}")
       shipments
     end
 
