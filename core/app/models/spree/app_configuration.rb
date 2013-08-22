@@ -100,6 +100,12 @@ module Spree
     preference :smtp_username, :string
     preference :smtp_password, :string
 
+    # from mulit currency extension
+    preference :allow_currency_change, :boolean, :default => false
+    preference :show_currency_selector, :boolean, :default => false
+    preference :supported_currencies, :string, :default => 'GBP'
+    # end of multi currency extension
+
     # searcher_class allows spree extension writers to provide their own Search class
     def searcher_class
       @searcher_class ||= Spree::Core::Search::Base

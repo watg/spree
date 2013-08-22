@@ -97,6 +97,11 @@ module Spree
     after_initialize :ensure_master
 
 
+
+    # from multi currency extension
+    alias amount= price=
+    # end of multi currency extension
+
     def variants_with_only_master
       ActiveSupport::Deprecation.warn("[SPREE] Spree::Product#variants_with_only_master will be deprecated in Spree 1.3. Please use Spree::Product#master instead.")
       master

@@ -5,7 +5,8 @@ class Spree::BaseController < ApplicationController
   include Spree::Core::ControllerHelpers::RespondWith
   include Spree::Core::ControllerHelpers::SSL
   include Spree::Core::ControllerHelpers::Common
-
+  include Spree::Core::ControllerHelpers::CurrencyHelpers
+  
   respond_to :html
 end
 

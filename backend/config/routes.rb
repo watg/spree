@@ -25,6 +25,9 @@ Spree::Core::Engine.routes.draw do
     resources :tax_categories
 
     resources :products do
+      
+      resources :prices, :only => [:index, :create]
+
       resources :product_properties do
         collection do
           post :update_positions

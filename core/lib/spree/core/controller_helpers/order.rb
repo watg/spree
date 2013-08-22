@@ -65,7 +65,15 @@ module Spree
         end
 
         def current_currency
-          Spree::Config[:currency]
+          # from multi currency 
+          # ensure session currency is supported
+          #
+          if session.key?(:currency) && supported_currencies.map(&:iso_code).include?(session[:currency])
+            session[:currency]
+          else
+            Spree::Config[:currency]
+          end
+          # from multi currency 
         end
 
         def ip_address
