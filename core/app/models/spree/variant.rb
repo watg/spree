@@ -75,30 +75,52 @@ module Spree
 
     # TODO move this into a decorator as it is view centric
     def price_types
-      types = [:normal,:sale]
+      types = [:normal,:normal_sale]
       if self.isa_part?
-        types << :part
+        types << [:part, :part_sale]
       end
-      types
+      types.flatten
+    end
+
+    def visible_price_types
+      price_types - [:part_sale]
+    end
+
+    def current_price_in(currency_code)
+      self.in_sale? ? price_normal_sale_in(currency_code) : price_normal_in(currency_code)
     end
 
     def price_for_type(type,currency_code)
-      price_in_method = "price_#{type}_in".to_sym
+      t = type.to_s.downcase
+      price_in_method = "price_#{t}_in".to_sym
       self.send(price_in_method, currency_code )
     end
 
+    # --- new price getters --------
     def price_normal_in(currency_code)
-      price_in(currency_code)
+      find_price(currency_code, :regular) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: false, sale: false)
     end
-
-    def price_sale_in(currency_code)
-      Spree::Price.new(variant_id: self.id, currency: currency_code)
+    def price_normal_sale_in(currency_code)
+      find_price(currency_code, :sale) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: false, sale: true)
     end
 
     def price_part_in(currency_code)
-      kit_price_in(currency_code)
+      find_part_price(currency_code, :regular) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: true, sale: false)
     end
+    def price_part_sale_in(currency_code)
+      find_part_price(currency_code, :sale) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: true, sale: true)
+    end
+    # ------------------------------
 
+    def price_in(currency)
+      ActiveSupport::Deprecation.warn("variant#price_in is deprecated use price_normal_in instead")
+      price_normal_in(currency)
+    end     
+    def kit_price_in(currency)
+      ActiveSupport::Deprecation.warn("variant#kit_price_in is deprecated use price_part_in instead")
+      price_part_in(currency)
+    end
+       
     def display_name
 
       # retrieve all the option type ids which are visible, we have to go up to the product to retrieve this information
@@ -174,22 +196,6 @@ module Spree
       !self.default_price.nil?
     end
 
-    def price_in(currency)
-      variant_price_in(currency) || Spree::Price.new(variant_id: self.id, currency: currency)
-    end
-    
-    # def price_in(currency)
-    #   if variant_price_in(currency).amount.blank?
-    #     if product_price_in(currency).amount.blank?
-    #       Spree::Price.new(variant_id: self.id, currency: currency)
-    #     else
-    #       product_price_in(currency)
-    #     end
-    #   else
-    #     variant_price_in(currency)  
-    #   end
-    # end
-
     def amount_in(currency)
       price_in(currency).try(:amount)
     end
@@ -210,9 +216,14 @@ module Spree
     end
 
     private
-    def variant_price_in(currency)
-      prices.select{ |price| price.currency == currency }.first
+    def find_price(currency, type)
+      prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first
     end
+    
+    def find_part_price(currency, type)
+      kit_prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first 
+    end
+
 
     def product_price_in(currency)
       self.product.master.prices.select{ |price| price.currency == currency }.first

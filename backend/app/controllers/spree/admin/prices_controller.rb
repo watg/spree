@@ -4,31 +4,21 @@ module Spree
       belongs_to 'spree/product', :find_by => :permalink
 
       def create
-        errors = []
-        params[:vp].each do |variant_id, prices|
-          variant = Spree::Variant.find(variant_id)
-          if variant
-            supported_currencies.each do |currency|
-              if variant.isa_part?
-                kit_price = variant.kit_price_in(currency.iso_code)
-                kit_price.price = (prices['part'][currency.iso_code].blank? ? nil : prices['part'][currency.iso_code])
-                kit_price.save if kit_price.changed?
-                if kit_price.errors.any?
-                  errors << "Part Price: #{kit_price.errors.full_messages.join(', ')}"
-                end
-              end
-              price = variant.price_in(currency.iso_code)
-              price.price = (prices['normal'][currency.iso_code].blank? ? nil : prices['normal'][currency.iso_code])
-              price.save if price.changed?
-              if price.errors.any?
-                errors << "Price: #{price.errors.full_messages.join(', ')}"
-              end
-            end
-          end
-        end
-                  
+        service = Spree::VariantPricesService.new(self)
+        service.perform(filtered_params)
+        render :index
+      end
+
+      private
+      def filtered_params
+        {
+          vp:                  params[:vp],
+          variant_in_sale_ids: params[:variant_in_sale_ids]
+        }
+      end
+
+      def create_callback(errors)
         flash[:error] = errors.join(', ') unless errors.blank?
-        render :action => :index
       end
     end
   end
