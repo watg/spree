@@ -23,17 +23,17 @@
       <tbody>
         <% @product.variants_including_master.order("is_master desc").each do |variant| %>
           <tr class="<%= cycle('odd', 'even')%>" >
-            <td rowspan="3" > <%= variant.options_text %>  </td>
-            <% variant.price_types.each do |price_type| %>
+            <td rowspan="<%= variant.visible_price_types.size %>" > <%= (variant.options_text.blank? ? Spree.t(:master) : variant.options_text) %>  </td>
+            <% variant.visible_price_types.each do |price_type| %>
               <td> <%= price_type %> </td>
-              <% if price_type == :sale %>
-                <td><%= check_box_tag 'variant_ids[]', variant.id, variant.in_sale? %></td>
+              <% if price_type == :normal_sale %>
+                <td><%= check_box_tag 'variant_in_sale_ids[]', variant.id, variant.in_sale? %></td>
               <% else %>
                 <td></td>
               <% end %>
 
             <% supported_currencies.each do |currency| %>
-              <% price = variant.price_for_type(price_type,currency.iso_code) %>
+              <% price = variant.price_for_type(price_type, currency.iso_code) %>
               <td> <%= text_field_tag("vp[#{variant.id}][#{price_type}][#{currency.iso_code}]", (price ? price.display_amount : '')) %> </td>
             <% end %>
           </tr>
