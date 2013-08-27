@@ -50,7 +50,11 @@ module Spree
     after_save { self.touch } 
 
     # default variant scope only lists non-deleted variants
-    scope :deleted, lambda { where('deleted_at IS NOT NULL') }
+    scope :deleted, lambda { where("#{Variant.quoted_table_name}.deleted_at IS NOT NULL") }
+
+    scope :not_deleted, lambda { where("#{Variant.quoted_table_name}.deleted_at IS NULL or #{Variant.quoted_table_name}.deleted_at >= ?", Time.zone.now) }
+
+    scope :available, lambda { joins(:product).where("spree_products.available_on <= ?", Time.zone.now)  }
 
     def self.active(currency = nil)
       joins(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
