@@ -2,6 +2,15 @@ require 'spree/core/validators/email'
 require 'spree/order/checkout'
 
 module Spree
+  # THIS IS TEMPORARY WHILST WE FIX THE DUPLICATE PACKAGE BUG
+  class DuplicatePackageMailer < BaseMailer
+    def send
+      mail(to: 'david@woolandthegang.com', from: 'info@woolandthegang.com', subject: 'duplicate package!!!!!!!!!!!!!')
+    end
+  end
+  # END OF THIS IS TEMPORARY WHILST WE FIX THE DUPLICATE PACKAGE BUG
+
+
   class Order < ActiveRecord::Base
     # TODO:
     # Need to use fully qualified name here because during sandbox migration
@@ -540,6 +549,7 @@ module Spree
         Rails.logger.error(" MULTI-PACKAGE each package: #{packages.map { |p| p.inspect } }")
         Rails.logger.error(" MULTI-PACKAGE order: #{self.inspect}")
         Rails.logger.error(" MULTI-PACKAGE shipments before: #{shipments.inspect}")
+        #DuplicatePackageMailer.delay.send
       end
 
       packages.each do |package|
@@ -549,6 +559,8 @@ module Spree
       Rails.logger.error(" MULTI-PACKAGE shipments after: #{shipments.inspect}")
       shipments
     end
+
+
 
     def can_attempt_payment?
       payments.select(&:pending?).blank?

@@ -80,7 +80,7 @@ Spree::Core::Engine.routes.draw do
 
     resource :image_settings
 
-    resources :orders, :except => [:show] do
+    resources :orders do
       member do
         put :fire
         get :fire
