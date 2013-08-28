@@ -4,23 +4,23 @@ module Spree
       belongs_to 'spree/product', :find_by => :permalink
 
       def create
-        service = Spree::VariantPricesService.new(self)
-        service.perform(filtered_params)
+        outcome = Spree::VariantPricesService.run(filtered_params)
+        if !outcome.success?
+          flash[:error] = outcome.errors.message_list.join(', ')
+        end
         render :index
       end
 
       private
       def filtered_params
         {
-          product:             @product,
-          vp:                  params[:vp],
-          variant_in_sale_ids: params[:variant_in_sale_ids]
+          product:              @product,
+          vp:                   params[:vp],
+          variant_in_sale_ids:  params[:variant_in_sale_ids],
+          supported_currencies: supported_currencies
         }
       end
 
-      def create_callback(errors)
-        flash[:error] = errors.join(', ') unless errors.blank?
-      end
     end
   end
 end
