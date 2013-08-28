@@ -38,6 +38,10 @@ module Spree
       fs
     end
 
+    def displayable_variants
+      Spree::Variant.active.not_deleted.available.includes(:displayable_variants).where([" spree_displayable_variants.taxon_id = ?", self.id ]).order("spree_variants.id")
+    end
+
     # This is method is here as awesome_nested_set method self_and_ancestors in version 2.1.6 does not seem to work
     def self_and_parents
       parents = [self]

@@ -64,7 +64,9 @@ module Spree
     after_create :build_variants_from_option_values_hash, if: :option_values_hash
 
     after_save :save_master
-    after_save { self.delay.touch_variants }
+
+    # This will help us clear the caches if a product is modified
+    after_touch { self.delay.touch_taxons }
 
     delegate :images, to: :master, prefix: true
     alias_method :images, :master_images
@@ -232,13 +234,13 @@ module Spree
       super || variants_including_master.with_deleted.where(:is_master => true).first
     end
 
-
     private
-
-    def touch_variants
-      self.variants.each { |v| v.touch }
+    def touch_taxons
+      # You should be able to just call self.taxons.each { |t| t.touch } but
+      # for some reason acts_as_nested_set does not walk all the ancestors
+      # correclty
+      self.taxons.each { |t| t.self_and_parents.each { |t2| t2.touch } }
     end
-
 
     # Builds variants from a hash of option types & values
     def build_variants_from_option_values_hash
@@ -270,6 +272,9 @@ module Spree
     # when saving so we force a save using a hook.
     def save_master
       master.save if master && (master.changed? || master.new_record? || (master.default_price && (master.default_price.changed || master.default_price.new_record)))
+      # This has been commented out, as touch already get's called twice on a save due to the fact we save a master variant when we save the product
+      # which in turn update the product.... ahhhhh!!!
+      # delay.touch_taxons
     end
 
     def ensure_master

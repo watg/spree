@@ -63,6 +63,7 @@ module Spree
     def self.displayable(product_id)
       where(product_id: product_id, is_master: false).includes(:displayable_variants)
     end      
+
     def visible?
       displayable_variants.any?
     end
