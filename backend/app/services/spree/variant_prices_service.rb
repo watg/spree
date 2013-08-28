@@ -11,15 +11,16 @@ module Spree
         end
       end
 
-      update_variant_sale(params[:variant_in_sale_ids])
+      update_variant_sale(params[:product],params[:variant_in_sale_ids])
       
       controller.send(:create_callback, errors)
     end
 
     private
-    def update_variant_sale(variant_ids)
-      Spree::Variant.update_all(in_sale: false)
-      Spree::Variant.where(id: variant_ids).update_all(in_sale: true)
+    def update_variant_sale(product, variant_ids)
+      Spree::Variant.where(product_id: product.id).update_all(in_sale: false, updated_at: Time.now)
+      Spree::Variant.where(id: variant_ids).update_all(in_sale: true, updated_at: Time.now)
+      product.touch # this is here to invalidate the cache set on taxon through product 
     end
     
     def update_variant_prices(v, t, p)
