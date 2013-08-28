@@ -1,5 +1,7 @@
 module Spree
   class Taxonomy < ActiveRecord::Base
+    ORDER = { 'Men' => 1, 'Women' => 0, 'Collections' => 2, 'Knit Your Own' => 3, 'Sales' => 4 }
+
     validates :name, presence: true
 
     attr_accessible :name
@@ -9,6 +11,7 @@ module Spree
                    dependent: :destroy
 
     after_save :set_name
+    after_save :set_order
 
     default_scope order: "#{self.table_name}.position"
 
@@ -25,5 +28,11 @@ module Spree
         end
       end
 
+      def set_order
+        ORDER.each do |n,p| 
+          t = Spree::Taxonomy.find_by_name(n)
+          t.update_column(:position, p) if t 
+        end
+      end
   end
 end
