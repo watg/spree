@@ -12,6 +12,7 @@ module Spree
       private
       def filtered_params
         {
+          product:             @product,
           vp:                  params[:vp],
           variant_in_sale_ids: params[:variant_in_sale_ids]
         }
