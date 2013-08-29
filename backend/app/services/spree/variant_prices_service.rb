@@ -1,6 +1,10 @@
 module Spree
   class VariantPricesService < Mutations::Command 
 
+    NORMAL = 'normal'
+    SALE   = 'normal_sale'
+    PART   = 'part'
+
     required do
       duck  :vp
       model :product, class: 'Spree::Product'
@@ -9,20 +13,17 @@ module Spree
     end
 
     def execute
+      variant_in_sale_ids_set = variant_in_sale_ids.to_set
+
+      # Validate prices are not zero when sales are enabled
+      inputs[:vp].each do |variant_id, prices_by_type|
+        validate_prices(prices_by_type, variant_in_sale_ids_set, variant_id) 
+      end
+
+      return if has_errors?
+
       inputs[:vp].each do |variant_id, prices_by_type|
         variant = Spree::Variant.find(variant_id)
-
-        # Validate prices are not zero
-        prices_by_type.each do |type, prices|
-          prices.each do |currency,value|
-            price = parse_price(value)
-            if price < 0.01
-              add_error(:price, :range_mismatch, 'price can not be less than 0.01' )
-              return
-            end
-          end
-        end
-
 
         prices_by_type.each do |type, prices|
           update_variant_prices(variant, type, prices, supported_currencies)
@@ -34,11 +35,21 @@ module Spree
 
     private
 
-    def if_variant_is_sale_price_can_not_be_zero
+    def validate_prices(prices_by_type, variant_in_sale_ids_set, variant_id )
+      prices_by_type.each do |type, prices|
+        prices.each do |currency,value|
+          price = parse_price(value)
+          if price < 0.01
+            if type != SALE 
+              add_error(:price, :range_mismatch, 'price can not be less than 0.01' )
+            elsif variant_in_sale_ids_set.include? variant_id.to_s
+              add_error(:price, :range_mismatch, 'price can not be less than 0.01' )
+            end
+          end
+        end
+      end
     end
 
-    def price_can_not_be_zreo
-    end
 
 
     def update_variant_sale(product, variant_ids)
