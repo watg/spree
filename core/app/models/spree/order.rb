@@ -122,6 +122,14 @@ module Spree
       self.update_hooks.add(hook)
     end
 
+    def item_normal_total
+      if @item_normal_total.blank?
+        line_items.map(&:normal_amount).sum
+      else
+        @item_normal_total
+      end
+    end
+
     # For compatiblity with Calculator::PriceSack
     def amount
       line_items.inject(0.0) { |sum, li| sum + li.amount }

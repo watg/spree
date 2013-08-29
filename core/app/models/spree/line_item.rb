@@ -44,6 +44,21 @@ module Spree
       self.quantity.decrement!
     end
 
+    # This is assuming we are including kit functionality from spree_product_assembley
+    def normal_unitary_price
+      ( line_item_options.blank? ? normal_price : (normal_price + amount_all_options) )
+    end
+
+    def normal_amount
+      if normal_price.blank?
+        amount
+      else
+        normal_unitary_price * quantity
+      end
+    end
+    alias normal_total normal_amount
+
+    # Careful this method gets overridden by the spree_product_assembley extension
     def amount
       price * quantity
     end

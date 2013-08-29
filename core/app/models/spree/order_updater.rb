@@ -28,6 +28,7 @@ module Spree
       order.update_attributes_without_callbacks({
         payment_state: order.payment_state,
         shipment_state: order.shipment_state,
+        item_normal_total: order.item_normal_total,
         item_total: order.item_total,
         adjustment_total: order.adjustment_total,
         payment_total: order.payment_total,
@@ -43,12 +44,13 @@ module Spree
 
     # Updates the following Order total values:
     #
-    # +payment_total+      The total value of all finalized Payments (NOTE: non-finalized Payments are excluded)
-    # +item_total+         The total value of all LineItems
-    # +adjustment_total+   The total value of all adjustments (promotions, credits, etc.)
-    # +total+              The so-called "order total."  This is equivalent to +item_total+ plus +adjustment_total+.
+    # +payment_total+        The total value of all finalized Payments (NOTE: non-finalized Payments are excluded)
+    # +item_normal_total+ The total value of all LineItems without sales discounts
+    # +adjustment_total+     The total value of all adjustments (promotions, credits, etc.)
+    # +total+                The so-called "order total."  This is equivalent to +item_total+ plus +adjustment_total+.
     def update_totals
       order.payment_total = payments.completed.map(&:amount).sum
+      order.item_normal_total = line_items.map(&:normal_amount).sum
       order.item_total = line_items.map(&:amount).sum
       order.adjustment_total = adjustments.eligible.map(&:amount).sum
       order.total = order.item_total + order.adjustment_total
