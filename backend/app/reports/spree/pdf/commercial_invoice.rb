@@ -18,7 +18,7 @@ module Spree
         font_size font_size
 
         #start with EON Media Group
-        text_box "WOOL AND THE GANG SA", :at => [address_x,  cursor]
+        text_box "WOOL AND THE GANG Ltd", :at => [address_x,  cursor]
         move_down lineheight_y
         text_box "Unit C106", :at => [address_x,  cursor]
         move_down lineheight_y
@@ -151,7 +151,7 @@ module Spree
 
         invoice_terms_data = [ 
           ["Delivery Terms"],
-          ["Goods shipped by wool and the gang"]
+          ["Goods shipped by Wool and the Gang"]
         ]
 
         table(invoice_terms_data, :width => 275) do
