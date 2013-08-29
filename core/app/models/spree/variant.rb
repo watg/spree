@@ -13,6 +13,10 @@ module Spree
                     :product_id, :option_values_attributes, :price,
                     :weight, :height, :width, :depth, :sku, :cost_currency, :in_sale
 
+    # from variant options
+    attr_accessible :option_values
+    # end variant options
+    
     has_many :inventory_units
     has_many :line_items
 
@@ -78,6 +82,15 @@ module Spree
     end
 
 
+    # from variant options
+    def to_hash(currency)
+      { 
+        :id    => self.id, 
+        :price => current_price_in(currency).display_price.to_s
+      }
+    end
+    # end variant options 
+    
     # TODO move this into a decorator as it is view centric
     def price_types
       types = [:normal,:normal_sale]

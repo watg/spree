@@ -106,6 +106,12 @@ module Spree
     preference :supported_currencies, :string, :default => 'GBP'
     # end of multi currency extension
 
+
+    # from variant options
+    preference :allow_select_outofstock, :boolean, :default => false
+    preference :default_instock, :boolean, :default => false
+    # end variant options
+    
     # searcher_class allows spree extension writers to provide their own Search class
     def searcher_class
       @searcher_class ||= Spree::Core::Search::Base
