@@ -13,6 +13,10 @@ module Spree
                     :product_id, :option_values_attributes, :price,
                     :weight, :height, :width, :depth, :sku, :cost_currency, :in_sale
 
+    # from variant options
+    attr_accessible :option_values
+    # end variant options
+    
     has_many :inventory_units
     has_many :line_items
 
@@ -56,13 +60,21 @@ module Spree
 
     scope :available, lambda { joins(:product).where("spree_products.available_on <= ?", Time.zone.now)  }
 
-    def self.active(currency = nil)
-      joins(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
-    end
+    class << self
+      def active(currency = nil)
+        joins(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
+      end
+      
+      def displayable(product_id)
+        where(product_id: product_id, is_master: false).includes(:displayable_variants)
+      end
 
-    def self.displayable(product_id)
-      where(product_id: product_id, is_master: false).includes(:displayable_variants)
-    end      
+      def options_by_product(product, option_value_name_list)
+        _option_values = Spree::OptionValue.select(:id).where(name: option_value_name_list).all.map(&:id).compact.sort
+
+        product.variants.detect {|v| v.option_values.map(&:id).sort == _option_values}
+      end
+    end
 
     def visible?
       displayable_variants.any?
@@ -78,6 +90,15 @@ module Spree
     end
 
 
+    # from variant options
+    def to_hash(currency)
+      { 
+        :id    => self.id, 
+        :price => current_price_in(currency).display_price.to_s
+      }
+    end
+    # end variant options 
+    
     # TODO move this into a decorator as it is view centric
     def price_types
       types = [:normal,:normal_sale]
