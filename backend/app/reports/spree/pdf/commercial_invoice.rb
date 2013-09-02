@@ -75,10 +75,11 @@ module Spree
 
         move_down 45
 
-        invoice_services_data = [ [ 'item', 'type', 'contents', 'options', 'price', 'quantity', 'total' ] ]
+        invoice_services_data = [ [ 'item', 'sku', 'type', 'contents', 'options', 'price', 'quantity', 'total' ] ]
         order.line_items.each do |item|
           invoice_services_data << [
             item.variant.product.name,
+            item.variant.sku,
             item.product.product_type,
             '-',
             item.variant.option_values.empty? ? '' : item.variant.options_text,
@@ -123,10 +124,11 @@ module Spree
           style(row(0).columns(-1), :borders => [:top, :right, :bottom])
           style(row(-1), :border_width => 2)
           style(column(2..-1), :align => :right)
-          style(columns(0), :width => 75)
+          style(columns(0), :width => 50)
           style(columns(1), :width => 50)
-          style(columns(2), :width => 75)
-          style(columns(3), :width => 150)
+          style(columns(2), :width => 50)
+          style(columns(3), :width => 50)
+          style(columns(4), :width => 150)
         end
 
         move_down 1
