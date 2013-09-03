@@ -1,13 +1,18 @@
 module Spree
-  class DisplayableVariantsService < Struct.new(:controller)
-    def perform(product_id, variant_ids)
+  class DisplayableVariantsService < Mutations::Command
+
+    required do
+      integer :product_id
+      array   :variant_ids
+    end
+    
+    def execute
       product = Spree::Product.find(product_id)
       ActiveRecord::Base.transaction do
         update_displayable_variants(product,variant_ids)
-        controller.send(:update_success, product)
       end
     rescue Exception => error
-      controller.send(:update_failure, product, error)
+      add_error(:variant, :exception, error.message)
     end
 
 

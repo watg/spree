@@ -1,55 +1,52 @@
 module Spree
-  class ProductUpdateService
-    attr_reader :controller
-    def initialize(controller=nil)
-      @controller = controller
+  class ProductUpdateService < Mutations::Command
+    required do
+      model :product, class: 'Spree::Product'
+      duck  :details
     end
-  
-    def perform(product, params)
-      visible_option_type_ids = params.delete(:visible_option_type_ids)
+    
+    def execute
+      visible_option_type_ids = details.delete(:visible_option_type_ids)
 
-      ActiveRecord::Base.transaction do 
-        assign_taxons(product, params[:taxon_ids])
-        update_details(product, params.dup)
+      ActiveRecord::Base.transaction do
+        assign_taxons(product, details[:taxon_ids])
+        update_details(product, details.dup)
         option_type_visibility(product, visible_option_type_ids)
       end
     rescue Exception => e
       Rails.logger.error "[ProductUpdateService] #{e.message} -- #{e.backtrace}"
-      controller.send(:update_failed,product, e.message)
+      add_error(:product_update, :exception, e.message)
     end
   
-    def update_details(product, params)
-      params[:option_type_ids] = split_params(params[:option_type_ids])
-      params[:taxon_ids] = split_params(params[:taxon_ids])
+    def update_details(product, product_params)
+      product_params[:option_type_ids] = split_params(product_params[:option_type_ids])
+      product_params[:taxon_ids] = split_params(product_params[:taxon_ids])
 
-      update_before(params)
+      update_before(product_params)
   
-      if product.update_attributes(params)
-        controller.send(:update_success,product)
-      else
-        controller.send(:update_failed,product)
+      unless product.update_attributes(product_params)
+        add_error(:product, :details, product.errors.full_messages.join(', '))
       end
     end
   
-    def split_params(params=nil)
-      params.blank?  ? [] : params.split(',').map(&:to_i)
+    def split_params(input=nil)
+      input.blank? ? [] : input.split(',').map(&:to_i)
     end  
   
     def assign_taxons(product, list='')
-      params = split_params(list)
-      
+      dv_params = split_params(list)
       variant_ids = current_displayable_variants(product)
-
-      taxons_to_add(product, params).map do |t|
+      
+      taxons_to_add(product, dv_params).map do |t|
         variant_ids.map do |variant_id|
           Spree::DisplayableVariant.create!(product_id: product.id, taxon_id: t, variant_id: variant_id)
         end
       end.flatten
 
-      to_remove = taxons_to_remove(product, params)
+      to_remove = taxons_to_remove(product, dv_params)
       Spree::DisplayableVariant.destroy_all(product_id: product.id, taxon_id: to_remove) unless to_remove.blank?
        
-      params
+      dv_params
     end
 
     def option_type_visibility(product, visible_option_type_ids)
@@ -92,16 +89,16 @@ module Spree
         end.flatten
     end
 
-    def taxons_to_remove(product, params)
-      params ||= []
+    def taxons_to_remove(product, list)
+      list ||= []
       taxon_ids = (product.taxons.blank? ? [] : product.taxons.map(&:id))
-      all_taxons(taxon_ids - params)
+      all_taxons(taxon_ids - list)
     end
     
-    def taxons_to_add(product, params)
-      params ||= []
+    def taxons_to_add(product, list)
+      list ||= []
       taxon_ids = (product.taxons.blank? ? [] : product.taxons.map(&:id))
-      all_taxons( params - taxon_ids )
+      all_taxons( list - taxon_ids )
     end
 
   end
