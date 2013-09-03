@@ -25,7 +25,7 @@ module Spree
       end
 
     def currency_symbol
-      display_price.to_html[0]
+      "#{display_price.to_html}".split(';')[0]+';'
     end
 
     def price=(price)
