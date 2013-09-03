@@ -308,7 +308,6 @@ module Spree
                    )
         master.save 
       end
-      delay.touch_taxons
     end
 
     def ensure_master
