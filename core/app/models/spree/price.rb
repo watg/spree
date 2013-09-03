@@ -20,6 +20,14 @@ module Spree
       amount
     end
 
+    def in_subunit
+      ( price * 100 ).to_i
+      end
+
+    def currency_symbol
+      display_price.to_html[0]
+    end
+
     def price=(price)
       self[:amount] = parse_price(price)
     end
