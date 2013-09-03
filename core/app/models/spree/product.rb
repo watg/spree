@@ -24,12 +24,12 @@ module Spree
     has_many :product_option_types, dependent: :destroy
     has_many :option_types, through: :product_option_types
     has_many :visible_option_types, through: :product_option_types, conditions: {spree_product_option_types: true }
-    
+
     has_many :product_properties, dependent: :destroy
     has_many :properties, through: :product_properties
 
     has_many :displayable_variants
-    
+
     has_many :classifications, dependent: :delete_all
     has_many :taxons, through: :classifications
     has_and_belongs_to_many :promotion_rules, join_table: :spree_products_promotion_rules
@@ -83,10 +83,10 @@ module Spree
     attr_accessor :option_values_hash
 
     attr_accessible :name, :description, :available_on, :permalink, :meta_description,
-                    :meta_keywords, :price, :sku, :deleted_at, :prototype_id,
-                    :option_values_hash, :weight, :height, :width, :depth,
-                    :shipping_category_id, :tax_category_id, :product_properties_attributes,
-                    :variants_attributes, :taxon_ids, :option_type_ids, :cost_currency
+      :meta_keywords, :price, :sku, :deleted_at, :prototype_id,
+      :option_values_hash, :weight, :height, :width, :depth,
+      :shipping_category_id, :tax_category_id, :product_properties_attributes,
+      :variants_attributes, :taxon_ids, :option_type_ids, :cost_currency
 
     attr_accessible :cost_price if Variant.table_exists? && Variant.column_names.include?('cost_price')
 
@@ -100,40 +100,40 @@ module Spree
 
     # from multi currency extension
     alias amount= price=
-    # end of multi currency extension
+      # end of multi currency extension
 
 
-    # from variant options
+      # from variant options
       def option_values
         @_option_values ||= Spree::OptionValue.for_product(self).order(:position).sort_by {|ov| ov.option_type.position }
       end
-      
-      def grouped_option_values
-        @_grouped_option_values ||= option_values.group_by(&:option_type)
-      end
-      
-      def variants_for_option_value(value)
-        @_variant_option_values ||= variants.includes(:option_values).all
-        @_variant_option_values.select { |i| i.option_value_ids.include?(value.id) }
-      end
-      
-      def variant_options_hash(currency = Spree::Config[:currency])
-        return @_variant_options_hash if @_variant_options_hash
-        hash = {}
-        variants.includes(:option_values).each do |variant|
-          variant.option_values.each do |ov|
-            otid = ov.option_type_id.to_s
-            ovid = ov.id.to_s
-            hash[otid] ||= {}
-            hash[otid][ovid] ||= {}
-            hash[otid][ovid][variant.id.to_s] = variant.to_hash(currency)
-          end
+
+    def grouped_option_values
+      @_grouped_option_values ||= option_values.group_by(&:option_type)
+    end
+
+    def variants_for_option_value(value)
+      @_variant_option_values ||= variants.includes(:option_values).all
+      @_variant_option_values.select { |i| i.option_value_ids.include?(value.id) }
+    end
+
+    def variant_options_hash(currency = Spree::Config[:currency])
+      return @_variant_options_hash if @_variant_options_hash
+      hash = {}
+      variants.includes(:option_values).each do |variant|
+        variant.option_values.each do |ov|
+          otid = ov.option_type_id.to_s
+          ovid = ov.id.to_s
+          hash[otid] ||= {}
+          hash[otid][ovid] ||= {}
+          hash[otid][ovid][variant.id.to_s] = variant.to_hash(currency)
         end
-        @_variant_options_hash = hash
       end
+      @_variant_options_hash = hash
+    end
     # end variant options
 
-    
+
     def variants_with_only_master
       ActiveSupport::Deprecation.warn("[SPREE] Spree::Product#variants_with_only_master will be deprecated in Spree 1.3. Please use Spree::Product#master instead.")
       master
@@ -301,17 +301,21 @@ module Spree
     # there's a weird quirk with the delegate stuff that does not automatically save the delegate object
     # when saving so we force a save using a hook.
     def save_master
-      master.save if master && (master.changed? || master.new_record? || (master.default_price && (master.default_price.changed || master.default_price.new_record)))
-      # This has been commented out, as touch already get's called twice on a save due to the fact we save a master variant when we save the product
-      # which in turn update the product.... ahhhhh!!!
-      # delay.touch_taxons
+      if master && (master.changed? ||  
+                    master.new_record? || 
+                    (master.default_price && (master.default_price.changed? || master.default_price.new_record?)
+                    )
+                   )
+        master.save 
+      end
+      delay.touch_taxons
     end
 
     def ensure_master
       return unless new_record?
       self.master ||= Variant.new
     end
-    end
-    end
+  end
+end
 
-    require_dependency 'spree/product/scopes'
+require_dependency 'spree/product/scopes'
