@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 module Spree
   class Price < ActiveRecord::Base
     belongs_to :variant, class_name: 'Spree::Variant', touch: true
-
+    CURRENCY_SYMBOL = {'USD' => '$', 'GBP' => '£', 'EUR' => '€'}
+    
     validate :check_price
     validates :amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: false
 
@@ -25,7 +27,7 @@ module Spree
       end
 
     def currency_symbol
-      "#{display_price.to_html}".split(';')[0]+';'
+      CURRENCY_SYMBOL[currency.to_s.upcase]
     end
 
     def price=(price)
