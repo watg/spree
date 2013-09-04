@@ -5,6 +5,9 @@ module Spree
     has_and_belongs_to_many :variants, join_table: 'spree_option_values_variants', class_name: "Spree::Variant"
 
     validates :name, :presentation, presence: true
+    validates_uniqueness_of :name
+
+    validate :name_is_url_safe
 
     attr_accessible :name, :presentation
     attr_accessible :image, :color_code     # from variant options
@@ -28,6 +31,11 @@ module Spree
     Spree::OptionValue.attachment_definitions[:image][:default_url] = Spree::Config[:attachment_default_url]
     Spree::OptionValue.attachment_definitions[:image][:default_style] = Spree::Config[:attachment_default_style]
     Spree::OptionValue.attachment_definitions[:image][:s3_host_name] = "s3-eu-west-1.amazonaws.com"
+
+    # At some point we may want to turn auto formatting on
+    #def name=(val)
+    #  write_attribute(:name, val.gsub(/\W+/,'-').downcase)
+    #end
     
     def has_image?
       image_file_name && !image_file_name.empty?
@@ -43,6 +51,12 @@ module Spree
     after_save { self.delay.touch_variants }
 
     private
+
+    def name_is_url_safe
+      if Rack::Utils.escape_path(name) != name
+        errors.add(:name, "[#{name}] is not url safe")
+      end
+    end
 
     def touch_variants
       self.variants.each { |v| v.touch }

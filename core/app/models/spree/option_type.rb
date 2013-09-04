@@ -10,5 +10,9 @@ module Spree
     default_scope order: "#{self.table_name}.position"
 
     accepts_nested_attributes_for :option_values, reject_if: lambda { |ov| ov[:name].blank? || ov[:presentation].blank? }, allow_destroy: true
+
+    # Custom validator which can be found in the backend initializer dir
+    validates_associated_bubbling :option_values
+
   end
 end
