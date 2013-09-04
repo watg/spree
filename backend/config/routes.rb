@@ -133,8 +133,9 @@ Spree::Core::Engine.routes.draw do
 
     resources :reports, :only => [:index, :show] do
       collection do
-        get :sales_total
-        post :sales_total
+        get '/download/:name/:id' => 'reports#download', :as => 'download'
+        get '/:name' => 'reports#report', :as => 'report_name'
+        post '/:name' => 'reports#create', :as => 'create'
       end
     end
 
