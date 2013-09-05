@@ -34,10 +34,22 @@ module Spree
     has_many :taxons, through: :classifications
     has_and_belongs_to_many :promotion_rules, join_table: :spree_products_promotion_rules
 
-    belongs_to :tax_category, class_name: 'Spree::TaxCategory'
+    belongs_to :tax_category,      class_name: 'Spree::TaxCategory'
     belongs_to :shipping_category, class_name: 'Spree::ShippingCategory'
-    belongs_to :gang_member, class_name: 'Spree::GangMember'
-    belongs_to :product_group, class_name: 'Spree::ProductGroup'
+    belongs_to :gang_member,       class_name: 'Spree::GangMember'
+    belongs_to :product_group,     class_name: 'Spree::ProductGroup'
+
+  
+    # ---- from marketplace ext --
+    attr_accessible :product_group_id, :gang_member_id
+    
+    belongs_to :product_group
+    belongs_to :gang_member
+
+    validates :product_group, :presence => true
+    validates :gang_member, :presence => true
+    # ----- end marketplace -------
+
 
     has_one :master,
       class_name: 'Spree::Variant',

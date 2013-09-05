@@ -55,13 +55,13 @@ module Spree
           line_item.in_sale       = variant.in_sale
           line_item.normal_price  = variant.price_normal_in(currency).amount
         end
-        
+
         line_item.add_options(options,currency) unless options.blank?
-        
         order.line_items << line_item
+
         line_item
       end
-      
+
       order.reload
       line_item
     end
