@@ -8,6 +8,7 @@ module Spree
         :sales_total => { :name => Spree.t(:sales_total), :description => Spree.t(:sales_total_description) },
         :order_summary => { :name => Spree.t(:order_summary), :description => Spree.t(:order_summary_description) },
         :line_sales => { :name => Spree.t(:line_sales), :description => Spree.t(:line_sales_description) },
+        :stock_report => { :name => Spree.t(:stock_report), :description => Spree.t(:stock_report_description) },
       }.with_indifferent_access
 
       def index
