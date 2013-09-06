@@ -9,9 +9,9 @@ module Spree
       visible_option_type_ids = details.delete(:visible_option_type_ids)
 
       ActiveRecord::Base.transaction do
-        assign_taxons(product, details[:taxon_ids])
+        assign_taxons(product, details[:taxon_ids])               unless details.has_key?(:product_properties_attributes)
         update_details(product, details.dup)
-        option_type_visibility(product, visible_option_type_ids)
+        option_type_visibility(product, visible_option_type_ids)  unless details.has_key?(:product_properties_attributes)
       end
     rescue Exception => e
       Rails.logger.error "[ProductUpdateService] #{e.message} -- #{e.backtrace}"
@@ -19,8 +19,16 @@ module Spree
     end
   
     def update_details(product, product_params)
-      product_params[:option_type_ids] = split_params(product_params[:option_type_ids])
-      product_params[:taxon_ids] = split_params(product_params[:taxon_ids])
+      if product_params[:option_type_ids].blank?
+        product_params.delete(:option_type_ids)
+      else
+       product_params[:option_type_ids] = split_params(product_params[:option_type_ids])
+      end
+      if product_params[:taxon_ids].blank?
+        product_params.delete(:taxon_ids)
+      else
+       product_params[:taxon_ids] = split_params(product_params[:taxon_ids])
+      end
 
       update_before(product_params)
   
