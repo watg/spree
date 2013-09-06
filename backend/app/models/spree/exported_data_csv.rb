@@ -1,38 +1,24 @@
 module Spree
   class ExportedDataCsv < ActiveRecord::Base
-    #acts_as_singleton
-    attr_accessor :search
-    attr_accessible :search
 
-    BUCKET = 'reports'
-    has_attached_file :csv_file
+    FINISHED = -1
 
-    include Spree::Core::S3Support
-    supports_s3 :csv_file
-
-    #self.attachment_definitions[:csv_file][:default_url]    = '/spree/products/:id/:style/:basename.:extension' 
-    #self.attachment_definitions[:csv_file][:path]            = ':rails_root/public/' 
-    #self.attachment_definitions[:csv_file][:s3_protocol]    = 'https'
-    #self.attachment_definitions[:csv_file][:s3_permissions] = :authenticated_read,
-    self.attachment_definitions[:csv_file][:s3_host_name]   = "s3-eu-west-1.amazonaws.com"
-    #self.attachment_definitions[:csv_file][:folder]         = BUCKET 
-
-    def generating?
-      job_id.present?
+    def finished_status
+      FINISHED 
     end
 
-    def csv_file_exists?
-      !self.csv_file_file_name.blank?
+    def finished?
+      job_id == FINISHED 
+    end
+
+    def generating?
+      job_id > 0
     end
 
     def trigger_csv_generation( params={} )
-      if valid_params( params )
-        csv = Spree::Jobs::GenerateCsv.new({:csv_instance => self, :params => params})
-        job = Delayed::Job.enqueue csv 
-        update_attribute(:job_id, job.id)
-      else
-        # TODO: callback that params were invalid
-      end
+      csv = Spree::Jobs::GenerateCsv.new({:csv_instance => self, :params => params})
+      job = Delayed::Job.enqueue csv 
+      job_id = job.id
     end
 
     def write_csv( params={} )
@@ -44,11 +30,10 @@ module Spree
             csv << data
           end
           fh.flush
-          self.csv_file = fh
+          self.csv_file_file_name = fh.path
           self.save!
         ensure
           fh.close
-          fh.unlink # deletes the temp file
         end
       end
     end
@@ -58,17 +43,13 @@ module Spree
     end
     
     protected
-    def valid_params( params )
-      true
-    end
 
-    # Kevin says: override me in subclasses ...
     def filename
-      'exported_data_csv_'
+      raise "override me"
     end
 
     def data_string
-      ''
+      raise "override me"
     end
   end
 end
