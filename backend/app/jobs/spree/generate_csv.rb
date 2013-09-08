@@ -4,13 +4,15 @@ module Spree
     Options ||= Struct.new :options
     class GenerateCsv < Options 
 
-
       def perform
-        csv_instance = options[:csv_instance]
+        report_instance = options[:report_instance]
         begin
-          csv_instance.write_csv( options[:params] )
+          report_instance.write_csv( options[:name], options[:params] )
+        rescue => e
+          puts "#{e.to_s}\n #{e.backtrace}"
+          Rails.logger.error("#{e.to_s}\n #{e.backtrace}")
         ensure
-          csv_instance.update_attribute(:job_id, csv_instance.finished_status)
+          report_instance.update_attribute(:job_id, report_instance.finished_status)
         end
       end
 
