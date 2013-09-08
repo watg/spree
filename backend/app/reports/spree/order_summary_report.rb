@@ -70,19 +70,23 @@ module Spree
     def generate_product_type_totals( o )
       product_type_totals = Hash.new 
       o.line_items.each do |li| 
+
+        # A hack incase someone deletes the variant or product
+        variant = Variant.unscoped.find(li.variant_id)
+
         cost = li.price.to_f * li.quantity
-        if ['kit','virtual_product'].include? li.variant.product_type 
-          product_type_totals[ li.variant.product_type ] ||= 0 
-          product_type_totals[ li.variant.product_type ] += cost 
+        if ['kit','virtual_product'].include? variant.product_type 
+          product_type_totals[ variant.product_type ] ||= 0 
+          product_type_totals[ variant.product_type ] += cost 
           # Add the optional parts
           option_costs = li.line_item_options.inject(0) { |acc,val| acc + ( val.price * val.quantity ).to_f }
-          product_type_totals[ li.variant.product_type ] += option_costs 
+          product_type_totals[ variant.product_type ] += option_costs 
         else
-          if li.variant.sku.match(/^GANG-/)
+          if variant.sku.match(/^GANG-/)
             product_type_totals['gang_collection'] ||= 0 
             product_type_totals['gang_collection'] += cost
           else
-            if li.variant.isa_part?
+            if variant.isa_part?
               product_type_totals['part'] ||= 0 
               product_type_totals['part'] += cost 
             else

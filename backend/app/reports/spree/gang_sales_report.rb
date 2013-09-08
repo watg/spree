@@ -1,20 +1,33 @@
 module Spree
-  class ListSalesReport
+  class GangSalesReport
 
     HEADER = %w(
   order_id
   number
   line_item_id
+  gang_member_firstname
+  gang_member_lastname
+  gang_member_nickname
   created_at
   shipped_at
   completed_at
-  part_type
   product_sku
   variant_sku
   product_name
   product_type
-  quantity
   state
+  quantity
+  currency
+
+  item_revenue_pre_sale
+  item_revenue
+
+  order_revenue_pre_sale_pre_ship_pre_promo 
+  order_revenue_pre_ship_pre_promo
+  order_revenue_shipping_pre_promo
+  order_promos
+  order_revenue_received
+
   email
     )
 
@@ -26,7 +39,6 @@ module Spree
 
     def header
       header = HEADER + @option_types.map { |ot| ot[0] }
-      header = header + %w( promo1 promo2 promo3 promo4 ) 
       header
     end
 
@@ -38,27 +50,19 @@ module Spree
           # A hack incase someone deletes the variant or product
           variant = Variant.unscoped.find(li.variant_id)
 
-          shipped_at = ''
-          if !o.shipment.shipped_at.blank? 
-            shipped_at = o.shipment.shipped_at.to_s(:db)
-          end
+          if variant.sku.match(/^GANG-/)
 
-          yield csv_array( li, o, shipped_at, variant, li.quantity )
-
-          if variant.product.product_type == 'kit' or variant.product.product_type == 'virtual_product'
-
-            variant.required_parts_for_display.each do |p|
-              yield  csv_array( li, o, shipped_at, p, p.count_part, 'required_part' )
-            end
-            li.line_item_options.each do |p|
-              yield csv_array( li, o, shipped_at, p.variant, p.quantity, 'optional_part' )
+            shipped_at = ''
+            if !o.shipment.shipped_at.blank? 
+              shipped_at = o.shipment.shipped_at.to_s(:db)
             end
 
-          end
+            yield csv_array( li, o, variant, shipped_at )
 
+          end
+          end
         end
       end
-    end
 
     private
     def generate_option_types
@@ -86,23 +90,38 @@ module Spree
       end
     end
 
-    def csv_array(li, o, shipped_at, variant, quantity, part_type='')
+    def csv_array(li, o, variant, shipped_at)
+      shipment_costs = o.shipments.inject(0) {|acc,val| acc + val.cost.to_f } # Total cost including shipment
+      adjustment_costs = o.adjustments.inject(0) {|acc,val| acc + val.amount.to_f } - shipment_costs  # Total adjustments including shipping
       [
         o.id, 
         o.number, 
         li.id, 
+        variant.product.gang_member.firstname,
+        variant.product.gang_member.lastname,
+        variant.product.gang_member.nickname,
         o.created_at.to_s(:db),
         shipped_at,
         o.completed_at.to_s(:db), 
-        part_type,
         variant.product.sku,
         variant.sku,
         variant.product.name,
         variant.product.product_type,
-        quantity,
         o.state,
+        li.quantity,
+        li.currency,
+        li.normal_price || li.price,
+        li.price,
+
+        o.item_normal_total.to_f,
+        o.item_total.to_f, # Total cost
+        shipment_costs,
+        adjustment_costs,
+        o.total.to_f, # Over cost
+
         o.email,
-      ] + option_types_for_variant(variant) + adjustments(o)
+      ] + option_types_for_variant(li.variant) + adjustments(o)
+
     end
 
   end

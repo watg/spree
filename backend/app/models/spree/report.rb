@@ -4,17 +4,6 @@ module Spree
 
     FINISHED = -1
 
-    AVAILABLE_REPORTS = {
-      :sales_total => { :name => Spree.t(:sales_total), :description => Spree.t(:sales_total_description) },
-      :order_summary => { :name => Spree.t(:order_summary), :description => Spree.t(:order_summary_description) },
-      :list_sales => { :name => Spree.t(:list_sales), :description => Spree.t(:list_sales_description) },
-      :stock => { :name => Spree.t(:stock), :description => Spree.t(:stock_description) },
-    }.with_indifferent_access
-
-    def self.available
-      AVAILABLE_REPORTS
-    end
-
     def finished_status
       FINISHED 
     end
