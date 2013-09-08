@@ -56,7 +56,7 @@ module Spree
 
       def show
         @order = Order.find_by_number!(params[:id])
-        invoice = Spree::Pdf::CommercialInvoice.new.to_pdf(@order)
+        invoice = Spree::CommercialInvoice.new.to_pdf(@order)
         respond_to do |format|
           format.pdf do
             send_data invoice, :filename => "hello.pdf", 

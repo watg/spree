@@ -138,6 +138,7 @@ Spree::Core::Engine.routes.draw do
       collection do
         get '/download/:name/:id' => 'reports#download', :as => 'download'
         get '/:name' => 'reports#report', :as => 'report_name'
+        get '/:name/:id' => 'reports#refresh', :as => 'refresh'
         post '/:name' => 'reports#create', :as => 'create'
       end
     end

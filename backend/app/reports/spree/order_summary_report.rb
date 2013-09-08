@@ -1,7 +1,5 @@
 module Spree
-  class OrderSummary < Spree::ExportedDataCsv
-
-    FILENAME = 'order_summary_'
+  class OrderSummaryReport
 
     HEADER = %w(
   id
@@ -13,15 +11,16 @@ module Spree
   location_shipped
   returning_customer
   currency
-  revenue_pre_ship_pre_discount
-  revenue_shipping_pre_discount
-  discounts
+  revenue_pre_sale_pre_ship_pre_promo 
+  revenue_pre_ship_pre_promo
+  revenue_shipping_pre_promo
+  promos
   revenue_received
-  kit_revenue_pre_discount
-  virtual_product_pre_discount
-  gang_collection_revenue_pre_discount
-  r2w_revenue_pre_discount
-  supplies_revenue_pre_discount
+  kit_revenue_pre_promo
+  virtual_product_pre_promo
+  gang_collection_revenue_pre_promo
+  r2w_revenue_pre_promo
+  supplies_revenue_pre_promo
 
   billing_address_firstname 
   billing_address_lastname 
@@ -46,22 +45,27 @@ module Spree
   shipping_method_backend
     )
 
-    protected
+    def initialize(params)
+      @from = params[:from].blank? ? Time.now.midnight : Time.parse(params[:from])  
+      @to = params[:to].blank? ? Time.now.tomorrow.midnight : Time.parse(params[:to])  
+    end
 
     def header
       HEADER
     end
-    
-    def filename
-      FILENAME
-    end
 
-    def retrieve_data( params )
-      #Spree::Order.complete.where( :completed_at => params[:from]..params[:to] ).each do |o| 
-      Spree::Order.complete.all.each do |o| 
-        yield data(o)
+    def retrieve_data
+
+      # This is from the old system
+      previous_users = CSV.read(File.join(File.dirname(__FILE__),"unique_previous_users.csv")).flatten
+      previous_users = previous_users.to_set
+
+      Spree::Order.where( :state => 'complete', :completed_at => @from..@to ).each do |o| 
+        yield  generate_csv_line(o,previous_users)
       end
     end
+
+    private
 
     def generate_product_type_totals( o )
       product_type_totals = Hash.new 
@@ -74,7 +78,7 @@ module Spree
           option_costs = li.line_item_options.inject(0) { |acc,val| acc + ( val.price * val.quantity ).to_f }
           product_type_totals[ li.variant.product_type ] += option_costs 
         else
-          if li.variant.product.gang_member.nickname != 'WATG'
+          if li.variant.sku.match(/^GANG-/)
             product_type_totals['gang_collection'] ||= 0 
             product_type_totals['gang_collection'] += cost
           else
@@ -93,7 +97,7 @@ module Spree
       product_type_totals
     end
 
-    def data(o)
+    def generate_csv_line(o,previous_users)
       product_type_totals = generate_product_type_totals(o)
       shipment_costs = o.shipments.inject(0) {|acc,val| acc + val.cost.to_f } # Total cost including shipment
       adjustment_costs = o.adjustments.inject(0) {|acc,val| acc + val.amount.to_f } - shipment_costs  # Total adjustments including shipping
@@ -106,14 +110,20 @@ module Spree
       # If the first order they have ever made is equal to this one, then we 
       # can assume they are a new customer 
       returning_customer = false
-      if o.user and o.user.orders.size > 1 and o != o.user.orders.order("id").first
-        returning_customer = true
+      if o.user
+        if o.user.orders.size > 1 and o != o.user.orders.order("id").first
+          returning_customer = true
+        elsif previous_users.include? o.user.email.to_s
+          returning_customer = true
+        end
       end
 
       payment_method = ''
       if payment = o.payments.find_by_state('completed')
         payment_method = payment.payment_method.name
       end
+
+      shipping_methods = o.shipment.shipping_methods
 
       [
         o.id, 
@@ -125,6 +135,7 @@ module Spree
         o.shipping_address.country.name,
         returning_customer,
         o.currency,
+        o.item_normal_total.to_f,
         o.item_total.to_f, # Total cost
         shipment_costs,
         adjustment_costs,
@@ -153,11 +164,11 @@ module Spree
 
         o.payments.where( :state => ['completed','pending']).size,
         payment_method,
-
-        o.shipment.shipping_methods.find_by_display_on('front_end').name,
-        o.shipment.shipping_methods.find_by_display_on('back_end').name,
+        ( shipping_methods.find_by_display_on('front_end') ? shipping_methods.find_by_display_on('front_end').name : '' ),
+        ( shipping_methods.find_by_display_on('back_end') ? shipping_methods.find_by_display_on('back_end').name : '' ),
       ] 
-    end
 
+    end
+    
   end
 end

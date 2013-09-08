@@ -5,11 +5,11 @@ module Spree
     has_and_belongs_to_many :variants, join_table: 'spree_option_values_variants', class_name: "Spree::Variant"
 
     validates :name, :presentation, presence: true
-    validates_uniqueness_of :name
+    validates_uniqueness_of :name, :scope => [:option_type_id]
 
     validate :name_is_url_safe
 
-    attr_accessible :name, :presentation
+    attr_accessible :name, :presentation, :option_type_id
     attr_accessible :image, :color_code     # from variant options
 
     # from variant options
