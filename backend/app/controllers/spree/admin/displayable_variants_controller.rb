@@ -9,19 +9,31 @@ module Spree
       end
 
       def create
-        service = Spree::DisplayableVariantsService.new(self)
-        service.perform(params[:product_id], params[:variant_ids])
+        outcome = Spree::DisplayableVariantsService.run(filtered_params)
+        if outcome.success?
+          update_success
+        else
+          update_failure(outcome.errors.message_list)
+        end
       end
 
       private
-      def update_success(product)
+      def filtered_params
+        {
+          product_id:  params[:product_id],
+          variant_ids: (params[:variant_ids].blank? ? [] : params[:variant_ids])
+        }
+      end
+      
+      def update_success
         flash[:success] = "Success"
-        redirect_to admin_displayable_variants_url(product_id: product.id)
+        redirect_to admin_displayable_variants_url(product_id: params[:product_id])
       end
 
-      def update_failure(product, error)
-        flash[:error] = "Could not update variants for product #{product.name}"
-        Rails.logger.error error.backtrace
+      def update_failure(error_list)
+        msg = error_list.join ", "
+        flash[:error] = "Could not update variants for product #{msg}"
+        Rails.logger.error msg
         redirect_to admin_displayable_variants_url()
       end
       

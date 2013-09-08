@@ -47,6 +47,23 @@
         <% end %>
       </div>
 
+      <div data-hook="new_product_group_attrs" class="row">
+        <div class="alpha four columns">
+          <%= f.field_container :product_group do %>
+          <%= f.label :product_group_id, Spree.t(:product_group) %><br />
+          <%= f.collection_select :product_group_id, Spree::ProductGroup.all, :id, :name, {:include_blank => true}, {:class => 'select2 fullwidth product-group-id'} %>
+          <% end %>
+        </div>
+        
+        
+        <div class="four columns">
+          <%= f.field_container :gang_member do %>
+          <%= f.label :gang_member_id, Spree.t(:gang_member) %><br />
+          <%= f.collection_select :gang_member_id, Spree::GangMember.all, :id, :name, {:include_blank => true}, {:class => 'select2 fullwidth gang-member-id'} %>
+          <% end %>
+        </div>
+      </div>
+      
     </div>
 
     <div class="clearfix" data-hook="product-from-prototype" id="product-from-prototype">

@@ -17,7 +17,12 @@ module Spree
       end
 
       def update
-        Spree::ProductUpdateService.new(self).perform(@object, params[:product])
+        outcome = Spree::ProductUpdateService.run(product: @object, details: params[:product])
+        if outcome.success?
+          update_success(@object)
+        else
+          update_failed(@object, outcome.errors.message_list.join(', '))
+        end
       end
 
       def destroy
