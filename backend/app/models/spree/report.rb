@@ -26,7 +26,8 @@ module Spree
     def write_csv(name, params)
       report = get_report_instance(name, params)
 
-      Tempfile.open([self.filename, '.csv']) do |fh|
+      File.open( tmp_filename(name), 'w') do |fh| 
+      #Tempfile.open([ File.join( RAILS_ROOT, 'tmp', self.filename ), '.csv']) do |fh|
         begin
           csv = CSV.new(fh)
           csv << report.header
@@ -56,5 +57,10 @@ module Spree
     def data_string
       raise "override me"
     end
+
+    def tmp_filename(name)
+      File.join( Rails.root, 'tmp', "#{name}_#{Time.now.to_i}_#{Process.pid}.csv" )
+    end
+
   end
 end
