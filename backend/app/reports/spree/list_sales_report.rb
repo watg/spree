@@ -1,5 +1,6 @@
 module Spree
   class ListSalesReport
+    include BaseReport
 
     HEADER = %w(
   order_id
@@ -22,6 +23,10 @@ module Spree
       @option_types = generate_option_types 
       @from = params[:from].blank? ? Time.now.midnight : Time.parse(params[:from])  
       @to = params[:to].blank? ? Time.now.tomorrow.midnight : Time.parse(params[:to])  
+    end
+
+    def filename_uuid
+      "#{@from.to_s(:number)}_#{@to.to_s(:number)}"
     end
 
     def header
@@ -68,8 +73,7 @@ module Spree
     end
 
     def adjustments(o)
-      o.adjustments.eligible.map do |adjustment|
-        next if ((adjustment.originator_type == 'Spree::TaxRate') and (adjustment.amount == 0)) || adjustment.originator_type == 'Spree::ShippingMethod'
+      o.adjustments.eligible.promotion.map do |adjustment|
         adjustment.label
       end
     end

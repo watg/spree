@@ -28,12 +28,16 @@ module Spree
       def create
         @name = params[:name]
         @report = Spree::Report.create
+        # kind of feels the report should be created here and passed in
         @report.trigger_csv_generation(@name, params[:q])
         flash[:notice] = "We're generating your CSV file. Refresh the page in a minute or so to download it."
       end
 
+
+      # TODO: provide link in the view to download once job has finished
       def download
-        send_file Spree::Report.find(params[:id]).filename, :type=>"application/csv", :x_sendfile=>true
+        @report = Spree::Report.find(params[:id])
+        send_data @report.data, :filename => @report.filename
       end
 
       private

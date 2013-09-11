@@ -1,5 +1,6 @@
 module Spree
   class OrderSummaryReport
+    include BaseReport
 
     HEADER = %w(
   id
@@ -48,6 +49,10 @@ module Spree
     def initialize(params)
       @from = params[:from].blank? ? Time.now.midnight : Time.parse(params[:from])  
       @to = params[:to].blank? ? Time.now.tomorrow.midnight : Time.parse(params[:to])  
+    end
+
+    def filename_uuid
+      "#{@from.to_s(:number)}_#{@to.to_s(:number)}"
     end
 
     def header
@@ -103,8 +108,6 @@ module Spree
 
     def generate_csv_line(o,previous_users)
       product_type_totals = generate_product_type_totals(o)
-      shipment_costs = o.shipments.inject(0) {|acc,val| acc + val.cost.to_f } # Total cost including shipment
-      adjustment_costs = o.adjustments.inject(0) {|acc,val| acc + val.amount.to_f } - shipment_costs  # Total adjustments including shipping
 
       shipped_at = ''
       if !o.shipment.shipped_at.blank? 
@@ -141,8 +144,8 @@ module Spree
         o.currency,
         o.item_normal_total.to_f,
         o.item_total.to_f, # Total cost
-        shipment_costs,
-        adjustment_costs,
+        o.ship_total,
+        o.promo_total,
         o.total.to_f, # Over cost
         product_type_totals['kit'] || '',
         product_type_totals['virtual_product'] || '',

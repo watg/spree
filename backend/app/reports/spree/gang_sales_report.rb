@@ -1,5 +1,6 @@
 module Spree
   class GangSalesReport
+    include BaseReport
 
     HEADER = %w(
   order_id
@@ -37,6 +38,10 @@ module Spree
       @to = params[:to].blank? ? Time.now.tomorrow.midnight : Time.parse(params[:to])  
     end
 
+    def filename_uuid
+      "#{@from.to_s(:number)}_#{@to.to_s(:number)}"
+    end
+
     def header
       header = HEADER + @option_types.map { |ot| ot[0] }
       header
@@ -60,9 +65,9 @@ module Spree
             yield csv_array( li, o, variant, shipped_at )
 
           end
-          end
         end
       end
+    end
 
     private
     def generate_option_types
@@ -72,8 +77,7 @@ module Spree
     end
 
     def adjustments(o)
-      o.adjustments.eligible.map do |adjustment|
-        next if ((adjustment.originator_type == 'Spree::TaxRate') and (adjustment.amount == 0)) || adjustment.originator_type == 'Spree::ShippingMethod'
+      o.adjustments.eligible.promotion.map do |adjustment|
         adjustment.label
       end
     end
@@ -91,8 +95,6 @@ module Spree
     end
 
     def csv_array(li, o, variant, shipped_at)
-      shipment_costs = o.shipments.inject(0) {|acc,val| acc + val.cost.to_f } # Total cost including shipment
-      adjustment_costs = o.adjustments.inject(0) {|acc,val| acc + val.amount.to_f } - shipment_costs  # Total adjustments including shipping
       [
         o.id, 
         o.number, 
@@ -115,8 +117,8 @@ module Spree
 
         o.item_normal_total.to_f,
         o.item_total.to_f, # Total cost
-        shipment_costs,
-        adjustment_costs,
+        o.ship_total,
+        o.promo_total,
         o.total.to_f, # Over cost
 
         o.email,

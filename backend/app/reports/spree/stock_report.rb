@@ -1,5 +1,8 @@
 module Spree
   class StockReport
+    include BaseReport
+
+    FILTERS = [] 
 
     HEADER = %w(
   product_name
@@ -25,11 +28,19 @@ module Spree
       @variants = {}
     end
 
+    def filename_uuid
+      Time.now.to_s(:number)
+    end
+
+    
     def header
       HEADER
       HEADER + @locations.to_a + ['total']
     end
 
+    def filters
+      FILTERS
+    end
 
     def xretrieve_data
       yield [1,2,3]
@@ -51,7 +62,7 @@ module Spree
       @locations << 'waiting_for_shippment'
       Spree::LineItem.joins(:order).where(
         "completed_at IS NOT NULL and shipment_state not in ('partial', 'shipped') ").sum(:quantity, :group => :variant_id ).each do |v,c| 
-          variant = Spree::Variant.find(v) 
+          variant = Spree::Variant.unscoped.find(v) 
           @variant_stock_count[variant.sku] ||= {} 
           @variant_stock_count[variant.sku]['waiting_for_shippment'] ||= 0 
           @variant_stock_count[variant.sku]['waiting_for_shippment'] += c 
