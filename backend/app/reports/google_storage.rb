@@ -26,11 +26,7 @@ module GoogleStorage
 
     # The configuration object.
     def configuration
-      puts "BEGIN XXXXXXXXXXXXXXXXXXXXXXXXXXX"
-      puts @configuration.object_id
       @configuration ||= Configuration.new
-      puts "AFTER XXXXXXXXXXXXXXXXXXXXXXXXXXX"
-      puts @configuration.object_id
       @configuration
     end
 
