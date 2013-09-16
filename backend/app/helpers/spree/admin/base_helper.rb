@@ -30,6 +30,18 @@ module Spree
         end
       end
 
+      def number_of_shipment_pending(sku)
+        (order_to_be_shipped[sku] || 0)
+      end
+
+      def order_to_be_shipped
+        return @sku_to_be_shipped unless @sku_to_be_shipped.blank?
+        order_set = Spree::Order.includes(:shipments).includes(:payments).where('spree_orders.state' => :complete, 'spree_payments.state' => :completed, 'spree_shipments.state' => :ready).map(&:line_items).flatten.map {|e| [(e.variant.sku rescue nil), e.quantity]}
+        @sku_to_be_shipped = order_set.inject({}) {|hsh, tuple| hsh[tuple[0]] ||=0; hsh[tuple[0]] += tuple[1]; hsh}
+
+        @sku_to_be_shipped
+      end
+
       # This method demonstrates the use of the :child_index option to render a
       # form partial for, for instance, client side addition of new nested
       # records.
