@@ -47,7 +47,8 @@ module Spree
 
       def update
         authorize! :update, Taxon
-        if taxon.update_attributes(params[:taxon])
+        outcome = Spree::UpdateTaxonPositionService.run(update_params)
+        if outcome.success?
           respond_with(taxon, :status => 200, :default_template => :show)
         else
           invalid_resource!(taxon)
@@ -61,7 +62,9 @@ module Spree
       end
 
       private
-
+      def update_params
+        {parent_id: params[:taxon][:parent_id], taxon_id: taxon.id, position: params[:taxon][:position]}
+      end
       def taxonomy
         if params[:taxonomy_id].present?
           @taxonomy ||= Taxonomy.find(params[:taxonomy_id])
