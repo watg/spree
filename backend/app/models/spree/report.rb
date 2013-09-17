@@ -38,7 +38,7 @@ module Spree
         end
       end
 
-      gfile = GoogleStorage.upload_csv_string( csv_string, report.filename, true )
+      gfile = GoogleDriveStorage.upload_csv_string( csv_string, report.filename, true )
       gfile.parent_directory( REPORTS_FOLDER_ID )
       gfile.add_permission( 'reports@woolandthegang.com', 'group', 'reader' )
       self.update_attributes( file_id: gfile.file_id, download_uri: gfile.download_uri, filename: gfile.converted_filename )
@@ -46,7 +46,7 @@ module Spree
     end
 
     def data
-      GoogleStorage.download_data( self.download_uri )
+      GoogleDriveStorage.download_data( self.download_uri )
     end
 
     protected
