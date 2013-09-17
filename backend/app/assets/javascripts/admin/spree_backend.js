@@ -1,6 +1,7 @@
 //= require jquery-migrate-1.0.0
 //= require jquery-ui
 //= require modernizr
+//= require select2
 //= require jquery.cookie
 //= require jquery.delayedobserver
 //= require jquery.jstree/jquery.jstree
