@@ -1,18 +1,20 @@
-<h5><%= variant.sku %> (<%= variant.is_master? ? t(:master) : variant.options_text %>)</h5>
-<ul>
-<% supported_currencies.each do |currency| %>
-  <li>
-    <% if variant.isa_part? %>
-      <label for='<%= "vp_#{variant.id}_kit_price_#{currency.iso_code}" %>'><%= Spree.t(:kit_price) %></label>
-      <% kit_price = variant.kit_price_in(currency.iso_code) %>
-      <%= text_field_tag("vp[#{variant.id}][kit_price][#{currency.iso_code}]", (kit_price ? kit_price.display_amount : '')) %>
-      <span> || </span>
-      <label for='<%= "vp_#{variant.id}_#{currency.iso_code}" %>'><%= Spree.t(:normal_price) %></label>
-    <% end %>
-    <% price = variant.price_in(currency.iso_code) %>
-    <%= text_field_tag("vp[#{variant.id}][#{currency.iso_code}]", (price ? price.display_amount : '')) %>
-    <%= error_message_on(price, :amount) %>
-    <%= currency.iso_code %>
-  </li>
-<% end %>
-</ul>
+<tr class="<%= cycle('odd', 'even')%>" >
+  <td rowspan="<%= variant.visible_price_types.size %>" > <%= (variant.options_text.blank? ? Spree.t(:master) : variant.options_text) %>  </td>
+    <% variant.visible_price_types.each do |price_type| %>
+      <td> <%= price_type %> </td>
+
+      <% if price_type == :normal_sale %>
+        <td><%= check_box_tag 'variant_in_sale_ids[]', variant.id, variant.in_sale? %></td>
+      <% else %>
+        <td></td>
+      <% end %>
+
+      <% supported_currencies.each do |currency| %>
+        <% price = variant.price_for_type(price_type, currency.iso_code) %>
+        <td> <%= text_field_tag("#{tag}[#{variant.id}][#{price_type}][#{currency.iso_code}]", (price ? price.display_amount : '')) %> </td>
+      <% end %>
+
+    </tr>
+    <tr class="<%= cycle('even', 'odd')%>">
+  <% end %>
+</tr>
