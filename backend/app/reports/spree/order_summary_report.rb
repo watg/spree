@@ -66,7 +66,7 @@ module Spree
       previous_users = previous_users.to_set
 
       Spree::Order.where( :state => 'complete', :completed_at => @from..@to ).each do |o| 
-        yield  generate_csv_line(o,previous_users)
+        yield generate_csv_line(o,previous_users)
       end
     end
 

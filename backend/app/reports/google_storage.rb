@@ -30,8 +30,11 @@ module GoogleStorage
       @configuration
     end
 
+    def connection
+      Connection.new(configuration)
+    end
+
     def upload_csv_string(string, filename, convert=false)
-      connection = Connection.new(configuration)
       if convert == true
         SpreadSheet.upload_csv_string(connection, string, filename)
       else
@@ -40,7 +43,6 @@ module GoogleStorage
     end 
 
     def download_data( uri )
-      connection = Connection.new(configuration)
       connection.client.execute(:uri => uri).body
     end
 

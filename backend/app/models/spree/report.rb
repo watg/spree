@@ -21,7 +21,7 @@ module Spree
       params ||= {}
       csv = Spree::Jobs::GenerateCsv.new({:report_instance => self, :name => name, :params => params})
       job = Delayed::Job.enqueue csv 
-      job_id = job.id
+      self.update_attributes(job_id: job.id)
     end
 
     # TODO: this needs to go into a singleton
