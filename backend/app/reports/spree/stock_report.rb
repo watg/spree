@@ -22,8 +22,10 @@ module Spree
   USD_sale
     )
 
-    def initialize(params)
-      @locations = Set.new 
+    def initialize(params=nil)
+      # Bug locations should be populated at this point
+      @locations = Spree::StockLocation.pluck(:name) 
+      @locations << 'waiting_for_shippment'
       @variant_stock_count = {}
       @variants = {}
     end
@@ -32,7 +34,6 @@ module Spree
       Time.now.to_s(:number)
     end
 
-    
     def header
       HEADER
       HEADER + @locations.to_a + ['total']
@@ -48,42 +49,41 @@ module Spree
 
     def retrieve_data
 
+      # Retrieve the stock that is in the warehouses
       Spree::Variant.joins(:product,:stock_items).each do |variant| 
         variant.stock_items.each do |si|
           @variant_stock_count[variant.sku] ||= {} 
           @variant_stock_count[variant.sku][si.stock_location.name] ||= 0 
           @variant_stock_count[variant.sku][si.stock_location.name] += si.count_on_hand 
 
-          @locations << si.stock_location.name
           @variants[variant.sku] = variant_details(variant)
         end
       end
 
-      @locations << 'waiting_for_shippment'
-      Spree::LineItem.joins(:order).where(
-        "completed_at IS NOT NULL and shipment_state not in ('partial', 'shipped') ").sum(:quantity, :group => :variant_id ).each do |v,c| 
-          variant = Spree::Variant.unscoped.find(v) 
-          @variant_stock_count[variant.sku] ||= {} 
-          @variant_stock_count[variant.sku]['waiting_for_shippment'] ||= 0 
-          @variant_stock_count[variant.sku]['waiting_for_shippment'] += c 
-          @variants[variant.sku] = variant_details(variant)
-        end
+      # Retrieve the stock waiting to be shipped
+      Spree::LineItem.joins(:order).where("completed_at IS NOT NULL and shipment_state not in ('partial', 'shipped') ").sum(:quantity, :group => :variant_id ).each do |v,c| 
+        variant = Spree::Variant.unscoped.find(v) 
+        @variant_stock_count[variant.sku] ||= {} 
+        @variant_stock_count[variant.sku]['waiting_for_shippment'] ||= 0 
+        @variant_stock_count[variant.sku]['waiting_for_shippment'] += c 
+        @variants[variant.sku] = variant_details(variant)
+      end
 
-        @variant_stock_count.each do |sku,locations_count|
+      @variant_stock_count.each do |sku,locations_count|
 
-          data = @variants[sku]
-          total = 0
-          @locations.each do |location|
-            if locations_count[location] 
-              data << locations_count[location] 
-              total += locations_count[location]
-            else
-              data << 0
-            end
+        data = @variants[sku]
+        total = 0
+        @locations.each do |location|
+          if locations_count[location] 
+            data << locations_count[location] 
+            total += locations_count[location]
+          else
+            data << 0
           end
-          data << total
-          yield data 
         end
+        data << total
+        yield data 
+      end
     end
 
     private

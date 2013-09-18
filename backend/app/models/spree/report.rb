@@ -2,11 +2,20 @@ module Spree
   class Report < ActiveRecord::Base
     attr_accessible :job_id, :filename, :file_id, :download_uri
 
-    REPORTS_FOLDER_ID = '0B9oajy9I3FKQOTE3bnE4OFh4ZmM'
+    DEFAULT_REPORTS_FOLDER_ID = '0B9oajy9I3FKQNjRwRkh4Ml9XUVk'
+    PRODUCTION_REPORTS_FOLDER_ID = '0B9oajy9I3FKQOTE3bnE4OFh4ZmM'
     FINISHED = -1
 
     def finished_status
       FINISHED 
+    end
+
+    def reports_folder_id
+      if Rails.env.production?
+        PRODUCTION_REPORTS_FOLDER_ID
+      else
+        DEFAULT_REPORTS_FOLDER_ID
+      end
     end
 
     def finished?
@@ -39,7 +48,7 @@ module Spree
       end
 
       gfile = GoogleDriveStorage.upload_csv_string( csv_string, report.filename, true )
-      gfile.parent_directory( REPORTS_FOLDER_ID )
+      gfile.parent_directory( reports_folder_id )
       gfile.add_permission( 'reports@woolandthegang.com', 'group', 'reader' )
       self.update_attributes( file_id: gfile.file_id, download_uri: gfile.download_uri, filename: gfile.converted_filename )
       self.save!
