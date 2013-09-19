@@ -67,6 +67,8 @@ module Spree
     has_many :return_authorizations, dependent: :destroy
     has_many :adjustments, as: :adjustable, dependent: :destroy, order: "#{Spree::Adjustment.table_name}.created_at ASC"
 
+    has_many :parcels
+    
     accepts_nested_attributes_for :line_items
     accepts_nested_attributes_for :bill_address
     accepts_nested_attributes_for :ship_address
@@ -92,36 +94,53 @@ module Spree
     class_attribute :update_hooks
     self.update_hooks = Set.new
 
-    def self.by_number(number)
-      where(number: number)
+    class << self
+      def by_number(number)
+        where(number: number)
+      end
+  
+      def between(start_date, end_date)
+        where(created_at: start_date..end_date)
+      end
+  
+      def by_customer(customer)
+        joins(:user).where("#{Spree.user_class.table_name}.email" => customer)
+      end
+  
+      def by_state(state)
+        where(state: state)
+      end
+  
+      def complete
+        where('completed_at IS NOT NULL')
+      end
+  
+      def incomplete
+        where(completed_at: nil)
+      end
+  
+      # Use this method in other gems that wish to register their own custom logic
+      # that should be called after Order#update
+      def register_update_hook(hook)
+        self.update_hooks.add(hook)
+      end
     end
 
-    def self.between(start_date, end_date)
-      where(created_at: start_date..end_date)
-    end
+    def parcels_grouped_by_box
+      parcels.inject([]) do |list, parcel|
+        current_parcel = list.detect {|e| e.box_id == parcel.box_id}
+        if current_parcel
+          current_parcel.quantity += 1
+        else
+          current_parcel = parcel
+          current_parcel.quantity = 1
+          list << current_parcel
+        end
 
-    def self.by_customer(customer)
-      joins(:user).where("#{Spree.user_class.table_name}.email" => customer)
+        list
+      end
     end
-
-    def self.by_state(state)
-      where(state: state)
-    end
-
-    def self.complete
-      where('completed_at IS NOT NULL')
-    end
-
-    def self.incomplete
-      where(completed_at: nil)
-    end
-
-    # Use this method in other gems that wish to register their own custom logic
-    # that should be called after Order#update
-    def self.register_update_hook(hook)
-      self.update_hooks.add(hook)
-    end
-
+    
     def item_normal_total
       if @item_normal_total.blank?
         line_items.map(&:normal_amount).sum

@@ -2,6 +2,12 @@ Spree::Core::Engine.routes.draw do
   root :to => 'home#index'
 
   namespace :admin do
+    namespace :orders do
+     
+    end
+  end
+  
+  namespace :admin do
     get '/search/users', :to => "search#users", :as => :search_users
 
     resources :product_groups
@@ -83,6 +89,12 @@ Spree::Core::Engine.routes.draw do
 
     resource :image_settings
 
+    resources :waiting_orders do
+      collection do
+        get :batch
+      end
+    end
+    
     resources :orders do
       member do
         put :fire
