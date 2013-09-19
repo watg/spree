@@ -63,7 +63,8 @@ module Spree
     # Update the boolean _eligible_ attribute which determines which adjustments
     # count towards the order's adjustment_total.
     def set_eligibility
-      result = self.mandatory || (self.amount != 0 && self.eligible_for_originator?)
+      result = self.mandatory || (self.amount != 0 && self.eligible_for_originator?) ||
+          (self.is_free_ship? && self.eligible_for_originator?)
       update_attribute_without_callbacks(:eligible, result)
     end
 
@@ -74,9 +75,14 @@ module Spree
       !originator.respond_to?(:eligible?) || originator.eligible?(source)
     end
 
-    # Update both the eligibility and amount of the adjustment. Adjustments 
-    # delegate updating of amount to their Originator when present, but only if
-    # +locked+ is false. Adjustments that are +locked+ will never change their amount.
+    def is_free_ship?
+      self.originator && self.originator.calculator.class == Spree::Calculator::FreeShipping
+    end
+
+    # Update both the eligibility and amount of the adjustment. Adjustments delegate updating of amount to their Originator
+    # when present, but only if +locked+ is false.  Adjustments that are +locked+ will never change their amount.
+    # The new adjustment amount will be set by by the +originator+ and is not automatically saved.  This makes it save
+    # to use this method in an after_save hook for other models without causing an infinite recursion problem.
     #
     # order#update_adjustments passes self as the src, this is so calculations can
     # be performed on the # current values. If we used source it would load the old
@@ -92,7 +98,7 @@ module Spree
     end
 
     def display_amount
-      Spree::Money.new(amount, { currency: currency })
+      Spree::Money.new(amount, { currency: currency }).to_s
     end
 
     def immutable?
