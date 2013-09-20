@@ -2,26 +2,6 @@ module Spree
   class StockReport
     include BaseReport
 
-    FILTERS = [] 
-
-    HEADER = %w(
-      product_name
-      product_type
-      product_sku
-      variant_sku
-      variant_options
-      cost_price
-      GBP_normal
-      GBP_part
-      GBP_sale
-      EUR_normal
-      EUR_part
-      EUR_sale
-      USD_normal
-      USD_part
-      USD_sale
-    )
-
     def initialize(params = nil)
       @locations = Spree::StockLocation.select("id, name") 
     end
@@ -31,16 +11,35 @@ module Spree
     end
 
     def header
+      header = %w(
+        product_name
+        product_type
+        product_sku
+        variant_sku
+        variant_options
+        cost_price
+        GBP_normal
+        GBP_part
+        GBP_sale
+        EUR_normal
+        EUR_part
+        EUR_sale
+        USD_normal
+        USD_part
+        USD_sale
+      )
+
       locations = []
       @locations.each do |l|
         locations << l.name
         locations << "waiting_for_shippment @" + l.name
-      end 
-      HEADER + locations + ['total']
+      end
+
+      header + locations + ['total']
     end
 
     def filters
-      FILTERS
+      []
     end
 
     def xretrieve_data
