@@ -5,7 +5,7 @@ module Spree
       def index
         @curr_page, @per_page = pagination_helper(params)
         @all_boxes = Spree::Parcel.find_boxes
-        @orders = Spree::Order.where(state: :complete).page(@curr_page).per(@per_page)
+        @orders = load_orders_waiting
       end
 
       def update
@@ -24,14 +24,35 @@ module Spree
       end
 
       def destroy
-        raise "define me"
+        outcome = Spree::RemoveParcelToOrderService.run(parcel_params)
+        if outcome.success?
+          respond_to do |format|
+            format.html { redirect_to admin_waiting_orders_url(page: params[:page]) }
+            format.json { render :json => {success: true}.to_json}
+          end
+        else
+          respond_to do |format|
+            format.html { render :index }
+            format.json { render :json => {success: false}.to_json}
+          end
+        end
       end
 
       def batch
-        raise "define me"
+        filename = 'batch.pdf'
+        batch_pdf = Spree::PDF::OrdersToBeDispatched.to_pdf(filename, load_orders_waiting)
+        respond_to do |format|
+          format.pdf do
+            send_data invoice, filename: filename,  type: "application/pdf"
+          end
+        end
       end
 
       private
+      def load_orders_waiting
+        Spree::Order.where(state: :complete).page(@curr_page).per(@per_page)
+      end
+      
       def parcel_params
         {
           order_id:  params[:id],

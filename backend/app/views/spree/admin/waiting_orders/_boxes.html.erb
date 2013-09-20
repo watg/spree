@@ -2,7 +2,7 @@
 <% order.parcels_grouped_by_box.each do |parcel| %>
 <li>
 <%= parcel.quantity %> - <%= parcel.box.sku %>
-<%= button_to 'X', admin_waiting_order_path(order.id, box_sku: parcel.box.sku) , method: :delete, data: { confirm: "Are you sure to delete parcels?" } %>
+<%= button_to 'X', admin_waiting_order_path(order.id, 'box[id]' => parcel.box.id, 'box[quantity]' => parcel.quantity) , method: :delete, data: { confirm: "Are you sure to delete parcels?" } %>
 </li>
 <% end %>
 </ul>

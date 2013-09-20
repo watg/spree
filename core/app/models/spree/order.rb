@@ -190,6 +190,10 @@ module Spree
       !! completed_at
     end
 
+    def has_ready_made?
+      line_items.map(&:variant).select {|e| %w(product virtual_product).include?(e.product_type.downcase)}.any?
+    end
+
     # Indicates whether or not the user is allowed to proceed to checkout.
     # Currently this is implemented as a check for whether or not there is at
     # least one LineItem in the Order.  Feel free to override this logic in your

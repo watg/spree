@@ -1,5 +1,5 @@
 module Spree
-  class AddParcelToOrderService < Mutations::Command
+  class RemoveParcelToOrderService < Mutations::Command
 
     required do
       integer :box_id
@@ -11,8 +11,8 @@ module Spree
       verify_quantity(quantity)
       order, box = load_models(order_id, box_id)
 
-      quantity.times { Spree::Parcel.create!(box_id: box.id, order_id: order.id) }
-      reduce_stock_for(box, quantity)
+      Spree::Parcel.destroy(order.parcels.map(&:id))
+      add_stock_for(box, quantity)
     rescue Exception => error
       add_error(:parcel, :parcel_error, error)
     end
@@ -22,9 +22,9 @@ module Spree
       [Spree::Order.find(o_id), Spree::Product.find(b_id)]
     end
 
-    def reduce_stock_for(product, qtty)
+    def add_stock_for(product, qtty)
       stock_item = product.master.stock_items[0]
-      stock_item.adjust_count_on_hand((-1 * qtty))
+      stock_item.adjust_count_on_hand(qtty)
     end
 
     def verify_quantity(quantity)

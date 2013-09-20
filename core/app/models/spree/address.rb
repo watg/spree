@@ -72,6 +72,15 @@ module Spree
       attributes.except('id', 'created_at', 'updated_at', 'order_id', 'country_id').all? { |_, v| v.nil? }
     end
 
+    def in_zone?(zone_name)
+      zone = Spree::Zone.where(name: zone_name).first
+      if zone
+        zone.zone_members.map(&:zoneable_id).include?(country_id)
+      else
+        raise "Unknow Zone named: '#{zone_name}'"
+      end
+    end
+    
     # Generates an ActiveMerchant compatible address hash
     def active_merchant_hash
       {
