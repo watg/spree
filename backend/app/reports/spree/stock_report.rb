@@ -5,29 +5,25 @@ module Spree
     FILTERS = [] 
 
     HEADER = %w(
-  product_name
-  product_type
-  product_sku
-  variant_sku
-  variant_options
-  cost_price
-  GBP_normal
-  GBP_part
-  GBP_sale
-  EUR_normal
-  EUR_part
-  EUR_sale
-  USD_normal
-  USD_part
-  USD_sale
+      product_name
+      product_type
+      product_sku
+      variant_sku
+      variant_options
+      cost_price
+      GBP_normal
+      GBP_part
+      GBP_sale
+      EUR_normal
+      EUR_part
+      EUR_sale
+      USD_normal
+      USD_part
+      USD_sale
     )
 
-    def initialize(params=nil)
-      # Bug locations should be populated at this point
-      @locations = Spree::StockLocation.pluck(:name) 
-      @locations << 'waiting_for_shippment'
-      @variant_stock_count = {}
-      @variants = {}
+    def initialize(params = nil)
+      @locations = Spree::StockLocation.select("id, name") 
     end
 
     def filename_uuid
@@ -35,8 +31,12 @@ module Spree
     end
 
     def header
-      HEADER
-      HEADER + @locations.to_a + ['total']
+      locations = []
+      @locations.each do |l|
+        locations << l.name
+        locations << "waiting_for_shippment @" + l.name
+      end 
+      HEADER + locations + ['total']
     end
 
     def filters
@@ -47,46 +47,44 @@ module Spree
       yield [1,2,3]
     end
 
+    # Retrieve the stock that is in the warehouses
     def retrieve_data
+      Spree::Variant.all.each do |variant| 
+        row = variant_details(variant)
 
-      # Retrieve the stock that is in the warehouses
-      Spree::Variant.joins(:product,:stock_items).each do |variant| 
+        count_on_location = {}
         variant.stock_items.each do |si|
-          @variant_stock_count[variant.sku] ||= {} 
-          @variant_stock_count[variant.sku][si.stock_location.name] ||= 0 
-          @variant_stock_count[variant.sku][si.stock_location.name] += si.count_on_hand 
-
-          @variants[variant.sku] = variant_details(variant)
+          count_on_location[si.stock_location_id] = si.count_on_hand
         end
-      end
-
-      # Retrieve the stock waiting to be shipped
-      Spree::LineItem.joins(:order).where("completed_at IS NOT NULL and shipment_state not in ('partial', 'shipped') ").sum(:quantity, :group => :variant_id ).each do |v,c| 
-        variant = Spree::Variant.unscoped.find(v) 
-        @variant_stock_count[variant.sku] ||= {} 
-        @variant_stock_count[variant.sku]['waiting_for_shippment'] ||= 0 
-        @variant_stock_count[variant.sku]['waiting_for_shippment'] += c 
-        @variants[variant.sku] = variant_details(variant)
-      end
-
-      @variant_stock_count.each do |sku,locations_count|
-
-        data = @variants[sku]
+        
         total = 0
-        @locations.each do |location|
-          if locations_count[location] 
-            data << locations_count[location] 
-            total += locations_count[location]
+        
+        @locations.map(&:id).each do |location_id|
+          if count_on_location[location_id]
+            total += count_on_location[location_id]
+            row << count_on_location[location_id] # items at the location
+
+            waiting_for_shippment = variant.line_items.joins(order: :shipments). #.select('spree_orders.*, spree_line_items.*').
+            where('spree_orders.state' => :complete,
+              'spree_orders.shipment_state' => :ready,
+              'spree_orders.payment_state' => :paid,
+              'spree_shipments.stock_location_id' => location_id).
+            sum(:quantity)
+
+            total += waiting_for_shippment
+            row << waiting_for_shippment # items to be shipped at the location
           else
-            data << 0
+            row << 0 # items at the location
+            row << 0 # items to be shipped at the location
           end
         end
-        data << total
-        yield data 
+      
+        row << total
+        yield row
       end
     end
 
-    private
+  private
 
     def variant_details(variant)
       prices = variant.prices.map { |p| [[ p.currency, p.is_kit, p.sale ].join('-'), p.amount.to_s] }.flatten
@@ -112,7 +110,6 @@ module Spree
     end
 
     def product_type(variant)
-
       if ['kit','virtual_product'].include? variant.product_type 
         variant.product_type
       else
@@ -125,11 +122,8 @@ module Spree
             'ready_to_wear'
           end
         end
-
       end
-
     end
 
   end
-
 end
