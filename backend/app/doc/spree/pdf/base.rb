@@ -4,7 +4,8 @@ module Spree
       def self.to_pdf(filename, order)
         pdf = Prawn::Document.new
         pdf = create(pdf, order)
-        pdf.render_file(filename)
+        #        pdf.render_file(filename)
+        pdf.render
       end
     end
   end

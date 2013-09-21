@@ -43,14 +43,15 @@ module Spree
         batch_pdf = Spree::PDF::OrdersToBeDispatched.to_pdf(filename, load_orders_waiting)
         respond_to do |format|
           format.pdf do
-            send_data invoice, filename: filename,  type: "application/pdf"
+            send_data batch_pdf, filename: filename,  type: "application/pdf"
           end
         end
       end
 
       private
       def load_orders_waiting
-        Spree::Order.where(state: :complete).page(@curr_page).per(@per_page)
+#        Spree::Order.where(state: :complete).page(@curr_page).per(@per_page)
+        Spree::Order.includes(:payments).includes(:shipments).where('spree_orders.state' => 'complete', 'spree_payments.state' => 'completed', 'spree_shipments.state' => 'ready').order('spree_orders.created_at DESC').page(@curr_page).per(@per_page)
       end
       
       def parcel_params
