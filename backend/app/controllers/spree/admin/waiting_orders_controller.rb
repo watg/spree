@@ -5,7 +5,7 @@ module Spree
       def index
         @curr_page, @per_page = pagination_helper(params)
         @all_boxes = Spree::Parcel.find_boxes
-        @orders = load_orders_waiting
+        @orders = load_orders_waiting.page(@curr_page).per(@per_page)
       end
 
       def update
@@ -16,8 +16,8 @@ module Spree
       def destroy
         outcome = Spree::RemoveParcelToOrderService.run(parcel_params)
         handle(outcome)
-     end
-
+      end
+      
       def batch
         filename = 'batch.pdf'
         batch_pdf = Spree::PDF::OrdersToBeDispatched.to_pdf(filename, load_orders_waiting)
@@ -28,9 +28,14 @@ module Spree
         end
       end
 
+      def create_and_allocate_consignment
+        outcome = Spree::CreateAndAllocateConsignmentService.run(order_id: params[:id])
+        handle(outcome)
+      end
+
       private
       def load_orders_waiting
-        Spree::Order.includes(:payments).includes(:shipments).where('spree_orders.state' => 'complete', 'spree_payments.state' => 'completed', 'spree_shipments.state' => 'ready').order('spree_orders.created_at DESC').page(@curr_page).per(@per_page)
+        Spree::Order.to_be_packed_and_shipped
       end
 
       def handle(outcome)
@@ -41,7 +46,10 @@ module Spree
           end
         else
           respond_to do |format|
-            format.html { render :index }
+            format.html {
+              flash[:error] = outcome.errors.to_s
+              redirect_to admin_waiting_orders_url
+            }
             format.json { render :json => {success: false}.to_json}
           end
         end 

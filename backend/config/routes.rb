@@ -93,6 +93,9 @@ Spree::Core::Engine.routes.draw do
       collection do
         get :batch
       end
+      member do
+        post :create_and_allocate_consignment
+      end
     end
     
     resources :orders do

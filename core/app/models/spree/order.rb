@@ -38,7 +38,8 @@ module Spree
     attr_accessible :line_items, :bill_address_attributes, :ship_address_attributes,
                     :payments_attributes, :ship_address, :bill_address, :currency,
                     :line_items_attributes, :number, :email, :use_billing, 
-                    :special_instructions, :shipments_attributes, :coupon_code
+                    :special_instructions, :shipments_attributes, :coupon_code,
+                    :metapack_consignment_id, :tracking_code
 
     attr_reader :coupon_code
 
@@ -118,7 +119,11 @@ module Spree
       def incomplete
         where(completed_at: nil)
       end
-  
+
+      def to_be_packed_and_shipped
+        includes(:payments).includes(:shipments).where('spree_orders.state' => 'complete', 'spree_payments.state' => 'completed', 'spree_shipments.state' => 'ready').order('spree_orders.created_at DESC')
+      end
+      
       # Use this method in other gems that wish to register their own custom logic
       # that should be called after Order#update
       def register_update_hook(hook)
@@ -126,6 +131,9 @@ module Spree
       end
     end
 
+    def max_dimension
+      parcels_grouped_by_box.map(&:longest_edge).sort{ |a,b| b <=> a }.first
+    end
     def parcels_grouped_by_box
       parcels.inject([]) do |list, parcel|
         current_parcel = list.detect {|e| e.box_id == parcel.box_id}
@@ -152,6 +160,17 @@ module Spree
     # For compatiblity with Calculator::PriceSack
     def amount
       line_items.inject(0.0) { |sum, li| sum + li.amount }
+    end
+
+    def value_in_gbp
+      amount
+    end
+
+    def weight
+      goods_weight = line_items.inject(0.0) { |sum, li| sum + li.variant.weight.to_f }
+      boxes_weight = parcels.inject(0.0)    { |sum, p| sum + p.box.weight.to_f }
+
+      goods_weight + boxes_weight
     end
 
     def currency
