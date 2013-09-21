@@ -10,33 +10,13 @@ module Spree
 
       def update
         outcome = Spree::AddParcelToOrderService.run(parcel_params)
-        if outcome.success?
-          respond_to do |format|
-            format.html { redirect_to admin_waiting_orders_url(page: params[:page]) }
-            format.json { render :json => {success: true}.to_json}
-          end
-        else
-          respond_to do |format|
-            format.html { render :index }
-            format.json { render :json => {success: false}.to_json}
-          end
-        end
+        handle(outcome)
       end
 
       def destroy
         outcome = Spree::RemoveParcelToOrderService.run(parcel_params)
-        if outcome.success?
-          respond_to do |format|
-            format.html { redirect_to admin_waiting_orders_url(page: params[:page]) }
-            format.json { render :json => {success: true}.to_json}
-          end
-        else
-          respond_to do |format|
-            format.html { render :index }
-            format.json { render :json => {success: false}.to_json}
-          end
-        end
-      end
+        handle(outcome)
+     end
 
       def batch
         filename = 'batch.pdf'
@@ -50,8 +30,21 @@ module Spree
 
       private
       def load_orders_waiting
-#        Spree::Order.where(state: :complete).page(@curr_page).per(@per_page)
         Spree::Order.includes(:payments).includes(:shipments).where('spree_orders.state' => 'complete', 'spree_payments.state' => 'completed', 'spree_shipments.state' => 'ready').order('spree_orders.created_at DESC').page(@curr_page).per(@per_page)
+      end
+
+      def handle(outcome)
+        if outcome.success?
+          respond_to do |format|
+            format.html { redirect_to admin_waiting_orders_url(page: params[:page]) }
+            format.json { render :json => {success: true}.to_json}
+          end
+        else
+          respond_to do |format|
+            format.html { render :index }
+            format.json { render :json => {success: false}.to_json}
+          end
+        end 
       end
       
       def parcel_params

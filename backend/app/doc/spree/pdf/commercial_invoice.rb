@@ -12,11 +12,11 @@ module Spree
           invoice_header_x = 325
           lineheight_y = 12
 
+          set_font(pdf)
           pdf.text_box batch_index.to_s, at: [10, 40], height: 30, width: 100 if batch_index
           
           pdf.move_down initialmove_y
 
-          set_font(pdf)
           watg_details(pdf, address_x, lineheight_y)
           watg_logo(pdf)
           customer_address(pdf, order, address_x, lineheight_y)

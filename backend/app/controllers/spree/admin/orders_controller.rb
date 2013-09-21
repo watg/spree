@@ -59,7 +59,7 @@ module Spree
         invoice = Spree::CommercialInvoice.new.to_pdf(@order)
         respond_to do |format|
           format.pdf do
-            send_data invoice, :filename => "batch.pdf",  :type => "application/pdf"
+            send_data invoice, :filename => "invoice.pdf",  :type => "application/pdf"
           end
         end
       end
