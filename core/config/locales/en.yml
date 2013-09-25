@@ -130,6 +130,9 @@ en:
       spree/zone:
         description: Description
         name: Name
+    errors:
+      messages:
+        too_long: Too long
     models:
       spree/address:
         one: Address
