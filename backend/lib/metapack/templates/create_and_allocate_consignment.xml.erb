@@ -11,27 +11,23 @@
           <moreThanOneMetreGoodsFlag xsi:type="xsd:boolean">false</moreThanOneMetreGoodsFlag>
           <moreThanTwentyFiveKgGoodsFlag xsi:type="xsd:boolean">false</moreThanTwentyFiveKgGoodsFlag>
           <twoManLiftFlag xsi:type="xsd:boolean">false</twoManLiftFlag>
-
           <consignmentLevelDetailsFlag xsi:type="xsd:boolean">true</consignmentLevelDetailsFlag>
-
           <consignmentValue xsi:type="xsd:double"><%= consignment[:value] %></consignmentValue>
           <consignmentWeight xsi:type="xsd:double"><%= consignment[:weight] %></consignmentWeight>
           <maxDimension xsi:type="xsd:double"><%= consignment[:max_dimension] %></maxDimension>
           <orderNumber xsi:type="soapenc:string"><%= consignment[:order_number] %></orderNumber>
           <parcelCount xsi:type="xsd:int"><%= consignment[:parcels].size %></parcelCount>
-          <parcels soapenc:arrayType="ns2:Parcel[1]" xsi:type="soapenc:Array">
+          <parcels soapenc:arrayType="ns2:Parcel[<%= consignment[:parcels].size %>]" xsi:type="soapenc:Array">
             <% consignment[:parcels].each do |parcel| %>
             <item xsi:type="ns2:Parcel">
               <dutyPaid xsi:type="xsd:double">0.0</dutyPaid>
-              <number xsi:type="xsd:int"><%= parcel[:number] %></number>
               <parcelDepth xsi:type="xsd:double"><%= parcel[:depth] %></parcelDepth>
               <parcelHeight xsi:type="xsd:double"><%= parcel[:height] %></parcelHeight>
-              <parcelWeight xsi:type="xsd:double">1.0</parcelWeight>
+              <parcelWeight xsi:type="xsd:double">0.1</parcelWeight>
               <parcelWidth xsi:type="xsd:double"><%= parcel[:width] %></parcelWidth>
             </item>
             <% end %>
           </parcels>
-
           <recipientAddress xsi:type="ns2:Address">
             <countryCode xsi:type="soapenc:string"><%= consignment[:recipient][:address][:country] %></countryCode>
             <line1 xsi:type="soapenc:string"><%= consignment[:recipient][:address][:line1] %></line1>
@@ -40,7 +36,7 @@
             <type xsi:type="soapenc:string">Residential</type>
           </recipientAddress>
           <recipientContactPhone xsi:type="soapenc:string"><%= consignment[:recipient][:phone] %></recipientContactPhone>
-          <recipientEmail xsi:type="soapenc:string"/><%= consignment[:recipient][:email] %></recipientEmail> 
+          <recipientEmail xsi:type="soapenc:string"><%= consignment[:recipient][:email] %></recipientEmail> 
           <recipientName xsi:type="soapenc:string"><%= consignment[:recipient][:name] %></recipientName>
 
           <senderAddress xsi:type="ns2:Address">

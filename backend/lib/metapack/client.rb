@@ -5,7 +5,17 @@ module Metapack
       Net::HTTP.start(Metapack::Config.host) {|http|
         req = Net::HTTP::Post.new(url)
         req.basic_auth Metapack::Config.username, Metapack::Config.password
-        req.body = soap_message(:create_and_allocate_consignment, consignment)
+        body = soap_message(:create_and_allocate_consignment, consignment)
+        req["User-Agent"]    = "WATG"
+        req["SOAPAction"]    = "createAndAllocateConsignments"
+        req["Content-Type"]  = "text/xml;charset=UTF-8"
+        req["Content-Length"]= body.size
+
+        Rails.logger.info '-'*80
+        Rails.logger.info body
+        Rails.logger.info '-'*80
+        
+        req.body = body
         extract(http.request(req))
       }
     end
@@ -24,10 +34,13 @@ module Metapack
       #              [:create_and_allocate_consignments_return]
       #              [:consignment_code]
 
+      Rails.logger.info '+'*80
+      Rails.logger.info response.body.inspect
+      Rails.logger.info '+'*80
       if response.code.to_i == 200
         build_hash(response.body)
       else
-        Rails.logger.info(response.inspect)
+        Rails.logger.info(response.body.inspect)
         raise "The request to Metapack failed error code: #{response.code}"
       end
     end

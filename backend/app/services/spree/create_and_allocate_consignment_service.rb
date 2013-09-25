@@ -26,7 +26,7 @@ module Spree
       { 
         value:         order.value_in_gbp,
         weight:        order.weight,
-        max_dimension: order.max_dimension.to_i,
+        max_dimension: order.max_dimension.to_f,
         order_number:  order.number,  
         parcels:       parcel(order.parcels),
         recipient: {
@@ -43,9 +43,9 @@ module Spree
       total = parcels.size
       parcels.map.with_index do |p,index|
         {
-          height: p.box.height.to_i,
-          depth:  p.box.depth.to_i,
-          width:  p.box.width.to_i,
+          height: p.box.height,
+          depth:  p.box.depth,
+          width:  p.box.width,
           number: "#{index+1}/#{total}"
         }
       end

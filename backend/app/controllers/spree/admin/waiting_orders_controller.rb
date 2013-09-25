@@ -5,6 +5,7 @@ module Spree
       def index
         @curr_page, @per_page = pagination_helper(params)
         @all_boxes = Spree::Parcel.find_boxes
+        Rails.logger.info @all_boxes.inspect
         @orders = load_orders_waiting.page(@curr_page).per(@per_page)
       end
 
