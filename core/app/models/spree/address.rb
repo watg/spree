@@ -9,6 +9,7 @@ module Spree
     validates :phone, presence: true, if: :require_phone?
 
     validate :state_validate
+    validate :phone_validate
 
     attr_accessible :firstname, :lastname, :address1, :address2,
                     :city, :zipcode, :country_id, :state_id,
@@ -20,8 +21,14 @@ module Spree
 
     # Disconnected since there's no code to display error messages yet OR matching client-side validation
     def phone_validate
-      return if phone.blank?
+      if phone.blank?
+        errors.add :phone, :invalid
+        return 
+      end
       n_digits = phone.scan(/[0-9]/).size
+
+      errors.add :phone, :too_long if n_digits > 15
+      
       valid_chars = (phone =~ /^[-+()\/\s\d]+$/)
       errors.add :phone, :invalid unless (n_digits > 5 && valid_chars)
     end
