@@ -8,3 +8,4 @@ attributes  :provider_name,
             :currency_code,
             :availability
 
+

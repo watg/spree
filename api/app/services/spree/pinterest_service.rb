@@ -1,54 +1,71 @@
 module Spree
-  module Api
-    class PinterestRichPin
-      def initialize(url)
-        @product_url = url
+  class PinterestService < Mutations::Command
+    # http://0.0.0.0:3000/shop/products/florence-sweater/ivory-white
+
+    required do
+      string :url
+    end
+
+    def execute
+      product_permalink, variant_option_values = parse_url
+      if has_errors?
+        return
       end
 
-      def valid?
-        url = @product_url.split("/")
-        @product_permalink = url[url.index("products") + 1] if url
-        return false unless @product_permalink
-        variant_option_values = url[url.index("products") + 2, 5]
-        
-        load_product(@product_permalink)
-        return false unless @product
-        load_selected_variant(variant_option_values)
-        return false unless @variant
-        true
+      product = load_product(product_permalink) if product_permalink
+      if !product
+        add_error(:url, :could_not_find_product, "Could not find product")
+        return
       end
 
-      def get_result
-        OpenStruct.new({
-          provider_name: "Wool and the Gang",
-          url: @product_url,
-          title: @product.name,
-          description: @product.description,
-          product_id: @product_permalink,
-          price: @variant.price,
-          currency_code: @variant.currency,
-          availability: @variant.in_stock? ? "in stock" : "out of stock"
-        })
+      variant = load_selected_variant(product, variant_option_values)
+      if !variant
+        add_error(:url, :could_not_find_variant, "Could not find variant")
+        return
       end
-
-    private    
-        
-      def load_product(permalink)
-        @product = Product.find_by_permalink!(permalink)
-      end
-
-      def load_selected_variant(variant_option_values)
-        if variant_option_values.blank?
-          @variant = @product.master
-        else
-          @variant = Spree::Variant.options_by_product(@product, variant_option_values)
-        end
-        
-        if !variant_option_values.blank? && (@variant.blank? || @variant.is_master)
-          return false
-        end
-      end
+      
+      OpenStruct.new({
+        provider_name: "Wool and the Gang",
+        url: url,
+        title: product.name,
+        description: product.description,
+        product_id: product_permalink,
+        price: variant.price,
+        currency_code: variant.currency,
+        availability: variant.in_stock? ? "in stock" : "out of stock"
+      })
 
     end
+
+  
+  private
+
+    def parse_url
+      url_parts = url.match /products\/(.*)/
+      if url_parts
+        url_parts = url_parts[1].split("/") 
+        product_permalink = url_parts.shift
+      else
+        add_error(:url, :could_not_parse_url, "Could not parse url")
+        return
+      end
+
+      [product_permalink, url_parts]
+    end
+      
+    def load_product(permalink)
+      Product.find_by_permalink(permalink)
+    end
+
+    def load_selected_variant(product, variant_option_values)
+      if variant_option_values.blank?
+        variant = product.master
+      else
+        variant = Spree::Variant.options_by_product(product, variant_option_values)
+      end
+      
+      variant
+    end
+
   end
 end
