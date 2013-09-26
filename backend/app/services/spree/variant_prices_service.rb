@@ -12,6 +12,9 @@ module Spree
       array :supported_currencies
     end
 
+    # TODO:
+    # only do the validation for it being greater than 0 for the master
+
     def execute
       variant_in_sale_ids_set = variant_in_sale_ids.to_set
 

@@ -42,6 +42,7 @@ module Spree
       dependent: :destroy
 
     validate :check_price
+    validate :check_prices
     validates :price, numericality: { greater_than_or_equal_to: 0 }, presence: true, if: proc { Spree::Config[:require_master_price] }
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true } if self.table_exists? && self.column_names.include?('cost_price')
 
@@ -276,6 +277,21 @@ module Spree
         end
         if currency.nil?
           self.currency = Spree::Config[:currency]
+        end
+      end
+
+      # Ensure all a variant prices inherit the master prices if not supplied, this is very similar to 
+      # check_price apart from this looks at the prices table
+      def check_prices
+        price_hash = {}
+        self.prices.each do |p| 
+          price_hash[[p.currency,p.is_kit,p.sale]] = p 
+        end
+
+        self.product.master.prices.each do |mp| 
+          if !price_hash[[mp.currency,mp.is_kit,mp.sale]] or price_hash[[mp.currency,mp.is_kit,mp.sale]].amount < 0.01
+            self.prices << mp.dup
+          end
         end
       end
 
