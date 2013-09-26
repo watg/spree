@@ -4,30 +4,27 @@ module Spree
     required do
       integer :order_id
     end
-    
+
     def execute
       order = Spree::Order.find(order_id)
-      response = metapack_client.create_and_allocate_consignment(allocation_hash(order))
+      response = Metapack::Client.create_and_allocate_consignment(allocation_hash(order))
       order.update_attributes!(response)
     rescue Exception => error
-      
+
       Rails.logger.info '-'*80
       Rails.logger.info error.inspect
       Rails.logger.info error.backtrace
-      
+
       add_error(:metapack, :metapack_error, error.inspect)
     end
 
     private
-    def metapack_client
-      @metapack_client ||= Metapack::Client.new
-    end
     def allocation_hash(order)
-      { 
+      {
         value:         order.value_in_gbp,
         weight:        order.weight,
         max_dimension: order.max_dimension.to_f,
-        order_number:  order.number,  
+        order_number:  order.number,
         parcels:       parcel(order.parcels),
         recipient: {
           address:     address(order.shipping_address),
