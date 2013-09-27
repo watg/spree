@@ -23,7 +23,7 @@ FactoryGirl.define do
 
   factory :custom_product, class: Spree::Product do
     name 'Custom Product'
-    description { generate(:random_description) }
+    description 'Custom Product Description'
     price 17.99
     sku 'ABC'
     available_on { 1.year.ago }

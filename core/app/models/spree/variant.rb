@@ -72,7 +72,6 @@ module Spree
 
       def options_by_product(product, option_value_name_list)
         _option_values = Spree::OptionValue.select(:id).where(name: option_value_name_list).all.map(&:id).compact.sort
-
         product.variants.detect {|v| v.option_values.map(&:id).sort == _option_values}
       end
     end
