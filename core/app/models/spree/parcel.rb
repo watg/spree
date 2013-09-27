@@ -1,7 +1,7 @@
 module Spree
   class Parcel < ActiveRecord::Base
     attr_accessor :quantity
-    attr_accessible :box_id, :order_id
+    attr_accessible :box_id, :order_id, :metapack_tracking_code, :metapack_tracking_url
     
     belongs_to :order
     has_one :box, class_name: "Spree::Product", foreign_key: :id, primary_key: :box_id

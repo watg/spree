@@ -10,7 +10,8 @@ module Spree
     def execute
       verify_quantity(quantity)
       order, box = load_models(order_id, box_id)
-
+      is_addition_allowed?(order)
+      
       quantity.times { Spree::Parcel.create!(box_id: box.id, order_id: order.id) }
       reduce_stock_for(box, quantity)
     rescue Exception => error
@@ -28,7 +29,17 @@ module Spree
     end
 
     def verify_quantity(quantity)
-      add_error(:quantity, :quantity_cannot_be_negative, "Quantity cannot be negative") if quantity < 0
+      if quantity < 0
+        add_error(:quantity, :quantity_cannot_be_negative, "Quantity cannot be negative")
+        return
+      end
+    end
+
+    def is_addition_allowed?(order)
+      if order.metapack_allocated
+        add_error(:allocated, :cannot_add_parcel_to_allocated_order, "Cannot add parcels to allocated order")
+        return
+      end
     end
   end
 end

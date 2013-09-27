@@ -39,7 +39,7 @@ module Spree
                     :payments_attributes, :ship_address, :bill_address, :currency,
                     :line_items_attributes, :number, :email, :use_billing, 
                     :special_instructions, :shipments_attributes, :coupon_code,
-                    :metapack_consignment_id, :tracking_code
+                    :metapack_consignment_code, :metapack_allocated
 
     attr_reader :coupon_code
 

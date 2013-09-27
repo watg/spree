@@ -47,7 +47,7 @@ module Spree
         else
           respond_to do |format|
             format.html {
-              flash[:error] = outcome.errors.to_s
+              flash[:error] = outcome.errors.message_list.join('<br/ >')
               redirect_to admin_waiting_orders_url
             }
             format.json { render :json => {success: false}.to_json}
