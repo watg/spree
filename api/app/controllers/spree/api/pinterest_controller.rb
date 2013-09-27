@@ -1,7 +1,8 @@
 module Spree
   module Api
     class PinterestController < Spree::Api::BaseController
-      respond_to :json
+      before_filter :disable_require_login
+
       def show
         outcome = Spree::PinterestService.run(params)
         
@@ -14,6 +15,12 @@ module Spree
         end
       end
     
+    private
+
+      def disable_require_login
+        Spree::Api::Config[:requires_authentication] = false
+      end
+
     end
 
   end
