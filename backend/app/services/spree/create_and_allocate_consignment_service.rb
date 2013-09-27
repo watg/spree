@@ -9,6 +9,7 @@ module Spree
       order = Spree::Order.find(order_id)
       response = Metapack::Client.create_and_allocate_consignment(allocation_hash(order))
       order.update_attributes!(response)
+      Metapack::Client.create_labels_as_pdf(response[:metapack_consignment_id])
     rescue Exception => error
 
       Rails.logger.info '-'*80

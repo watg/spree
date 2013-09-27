@@ -17,7 +17,7 @@ module Spree
         outcome = Spree::RemoveParcelToOrderService.run(parcel_params)
         handle(outcome)
       end
-      
+
       def batch
         filename = 'batch.pdf'
         batch_pdf = Spree::PDF::OrdersToBeDispatched.to_pdf(filename, load_orders_waiting)
@@ -30,7 +30,11 @@ module Spree
 
       def create_and_allocate_consignment
         outcome = Spree::CreateAndAllocateConsignmentService.run(order_id: params[:id])
-        handle(outcome)
+        if outcome.success?
+          send_data outcome.result, filename: "label.pdf", type: "application/pdf"
+        else
+          handle(outcome)
+        end
       end
 
       private
@@ -52,9 +56,9 @@ module Spree
             }
             format.json { render :json => {success: false}.to_json}
           end
-        end 
+        end
       end
-      
+
       def parcel_params
         {
           order_id:  params[:id],
@@ -62,15 +66,15 @@ module Spree
           quantity:  params[:box][:quantity]
         }
       end
-      
+
       def pagination_helper( params )
         per_page = params[:per_page].to_i
         per_page = per_page > 0 ? per_page : Spree::Config[:orders_per_page]
-        page = (params[:page].to_i <= 0) ? 1 : params[:page].to_i 
+        page = (params[:page].to_i <= 0) ? 1 : params[:page].to_i
         curr_page = page || 1
         [curr_page, per_page]
       end
-      
+
     end
 
   end

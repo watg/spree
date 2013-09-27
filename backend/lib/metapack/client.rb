@@ -7,6 +7,11 @@ module Metapack
       }
     end
 
+    def self.create_labels_as_pdf(consignment_id)
+      response = request(:ConsignmentService, :create_labels_as_pdf, consignment_code: consignment_id)
+      Base64.decode64(response.find("createLabelsAsPdfReturn"))
+    end
+
     def self.find_ready_to_manifest_records
       manifests = request(:ManifestService, :find_ready_to_manifest_records).find_all(
         "findReadyToManifestRecordsReturn findReadyToManifestRecordsReturn",
