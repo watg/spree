@@ -9,6 +9,8 @@ Spree::Core::Engine.routes.draw do
   end
 
   namespace :api, :defaults => { :format => 'json' } do
+    get 'pinterest' => 'pinterest#show', :as => 'pinterest'
+
     resources :products do
       resources :variants
       resources :product_properties
