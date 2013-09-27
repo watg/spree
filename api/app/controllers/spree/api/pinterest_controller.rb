@@ -14,12 +14,6 @@ module Spree
         end
       end
     
-    private
-
-      def requires_authentication?
-        false
-      end
-
     end
 
   end
