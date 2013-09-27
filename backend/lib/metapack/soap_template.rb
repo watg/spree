@@ -15,7 +15,7 @@ module Metapack
 
     def xml
       template = File.read(template_path)
-      ERB.new(template).result(binding)
+      ERB.new(template, 0, '>').result(binding)
     end
   end
 end
