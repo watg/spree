@@ -70,6 +70,11 @@ module Spree
         add_error(:consignment, :cannot_create_consignment, "Order needs at least one parcel to create consignment")
         return
       end
+
+      if order.shipped?
+        add_error(:consignment, :consignment_already_created, "A consignment has already been created")
+        return
+      end
     end
     
     def order_attrs(hash)
@@ -91,7 +96,7 @@ module Spree
 
     def mark_order_as_shipped(order)
       order.shipment_state = 'shipped'
-      order.save(false)
+      order.save(validate: false)
     end
     
   end
