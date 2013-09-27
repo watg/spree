@@ -12,8 +12,7 @@ module Metapack
         req["SOAPAction"]    = action.to_s.camelize(:lower)
         req["Content-Type"]  = "text/xml;charset=UTF-8"
 
-        body = self.envelope(action, template_binding)
-        req.body = body
+        req.body = self.envelope(action, template_binding)
 
         Metapack::SoapResponse.new(http.request(req))
       }
@@ -24,7 +23,10 @@ module Metapack
     end
 
     def self.envelope(template_name, template_binding)
-      Metapack::SoapTemplate.new(template_name, template_binding).xml
+      xml = Metapack::SoapTemplate.new(template_name, template_binding).xml
+      Rails.logger.info '+'*80
+      Rails.logger.info xml
+      xml
     end
   end
 end

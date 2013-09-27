@@ -11,7 +11,7 @@
           <moreThanOneMetreGoodsFlag xsi:type="xsd:boolean">false</moreThanOneMetreGoodsFlag>
           <moreThanTwentyFiveKgGoodsFlag xsi:type="xsd:boolean">false</moreThanTwentyFiveKgGoodsFlag>
           <twoManLiftFlag xsi:type="xsd:boolean">false</twoManLiftFlag>
-          <consignmentLevelDetailsFlag xsi:type="xsd:boolean">true</consignmentLevelDetailsFlag>
+          <consignmentLevelDetailsFlag xsi:type="xsd:boolean">false</consignmentLevelDetailsFlag>
           <consignmentValue xsi:type="xsd:double"><%= consignment[:value] %></consignmentValue>
           <consignmentWeight xsi:type="xsd:double"><%= consignment[:weight] %></consignmentWeight>
           <maxDimension xsi:type="xsd:double"><%= consignment[:max_dimension] %></maxDimension>
@@ -23,7 +23,7 @@
               <dutyPaid xsi:type="xsd:double">0.0</dutyPaid>
               <parcelDepth xsi:type="xsd:double"><%= parcel[:depth] %></parcelDepth>
               <parcelHeight xsi:type="xsd:double"><%= parcel[:height] %></parcelHeight>
-              <parcelWeight xsi:type="xsd:double">0.1</parcelWeight>
+              <parcelWeight xsi:type="xsd:double"><%= parcel[:weight] %></parcelWeight>
               <parcelWidth xsi:type="xsd:double"><%= parcel[:width] %></parcelWidth>
             </item>
             <% end %>
@@ -36,7 +36,7 @@
             <type xsi:type="soapenc:string">Residential</type>
           </recipientAddress>
           <recipientContactPhone xsi:type="soapenc:string"><%= consignment[:recipient][:phone] %></recipientContactPhone>
-          <recipientEmail xsi:type="soapenc:string"><%= consignment[:recipient][:email] %></recipientEmail> 
+          <recipientEmail xsi:type="soapenc:string"><%= consignment[:recipient][:email] %></recipientEmail>
           <recipientName xsi:type="soapenc:string"><%= consignment[:recipient][:name] %></recipientName>
 
           <senderAddress xsi:type="ns2:Address">
@@ -49,8 +49,7 @@
           <senderEmail xsi:type="soapenc:string" xsi:nil="true"/>
           <senderName xsi:type="soapenc:string">Wool And The Gang</senderName>
           <senderVatNumber xsi:type="soapenc:string" xsi:nil="true"/>
-	  <senderCode xsi:type="soapenc:string">DEFAULT</senderCode>
-          <specialInstructions1 xsi:type="soapenc:string" xsi:nil="true"/>
+          <senderCode xsi:type="soapenc:string">DEFAULT</senderCode>
         </item>
       </consignments>
       <filter xsi:type="ns3:AllocationFilter" xsi:nil="true" xmlns:ns3="urn:DeliveryManager/types"/>

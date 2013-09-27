@@ -8,6 +8,10 @@ module Metapack
       @http_response.code.to_i == 200
     end
 
+    def body
+      @http_response.body
+    end
+
     def find(css_selector)
       doc.at_css(css_selector).text
     end

@@ -25,25 +25,25 @@ module Spree
         weight:        order.weight,
         max_dimension: order.max_dimension.to_f,
         order_number:  order.number,
-        parcels:       parcel(order.parcels),
+        parcels:       parcel(order.parcels, order.weight),
         recipient: {
           address:     address(order.shipping_address),
           phone:       order.shipping_address.phone,
           email:       order.email,
           name:        order.shipping_address.full_name
         },
-        special_instructions: "",
       }
     end
 
-    def parcel(parcels)
+    def parcel(parcels, total_weight)
       total = parcels.size
+      weight = '%0.2f' % (total_weight / total)
       parcels.map.with_index do |p,index|
         {
-          height: p.box.height,
-          depth:  p.box.depth,
-          width:  p.box.width,
-          number: "#{index+1}/#{total}"
+          height: p.box.height.to_f,
+          depth:  p.box.depth.to_f,
+          width:  p.box.width.to_f,
+          weight: weight.to_f
         }
       end
     end
