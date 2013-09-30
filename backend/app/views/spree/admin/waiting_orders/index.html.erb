@@ -17,8 +17,10 @@
   <table class="index responsive" id="listing_orders" data-hook>
     <colgroup>
        <col style="width: 10%;">
-       <col style="width: 20%;">
-       <col style="width: 20%;">
+       <col style="width: 10%;">
+       <col style="width: 10%;">
+       <col style="width: 10%;">
+       <col style="width: 10%;">
        <col style="width: 15%;">
        <col style="width: 35%;">
     </colgroup>
@@ -26,6 +28,8 @@
       <tr data-hook="admin_orders_index_headers">
         <th><%= Spree.t(:batch_number) %></th>
         <th><%= I18n.t(:number, :scope => 'activerecord.attributes.spree/order') %></th>
+        <th><%= I18n.t(:invoice, :scope => 'activerecord.attributes.spree/order') %></th>
+        <th><%= I18n.t(:sticker, :scope => 'activerecord.attributes.spree/order') %></th>
         <th><%= I18n.t(:email, :scope => 'activerecord.attributes.spree/order') %></th>
         <th><%= I18n.t(:total, :scope => 'activerecord.attributes.spree/order') %></th>
         <th><%= Spree.t(:parcels) %></th>
@@ -37,6 +41,8 @@
       <tr data-hook="admin_orders_index_rows" class="state-<%= order.state.downcase %> <%= cycle('odd', 'even') %>">
         <td class="align-center"><%= batch_number(index, @curr_page, @per_page) %></td>
         <td class="align-center"><%= link_to order.number, edit_admin_order_path(order) %></td>
+        <td class="align-center"><%= order.batch_invoice_print_date.present? ? "Printed" : "Not printed" %></td>
+        <td class="align-center"><%= order.batch_sticker_print_date.present? ? "Printed" : "Not printed" %></td>
         <td><%= mail_to order.email %></td>
         <td class="align-center"><%= order.display_total.to_html %></td>
         <td class="align-center"><%= render :partial => 'boxes', :locals => {order: order, all_boxes: @all_boxes} %></td>

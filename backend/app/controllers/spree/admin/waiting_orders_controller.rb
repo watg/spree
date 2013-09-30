@@ -19,11 +19,10 @@ module Spree
       end
 
       def batch
-        filename = 'batch.pdf'
-        batch_pdf = Spree::PDF::OrdersToBeDispatched.to_pdf(filename, load_orders_waiting)
+        outcome = Spree::BulkOrderPrintingService.run
         respond_to do |format|
           format.pdf do
-            send_data batch_pdf, filename: filename,  type: "application/pdf"
+            send_data outcome.result, disposition: :inline, filename: 'invoices.pdf', type: "application/pdf"
           end
         end
       end

@@ -37,9 +37,10 @@ module Spree
 
     attr_accessible :line_items, :bill_address_attributes, :ship_address_attributes,
                     :payments_attributes, :ship_address, :bill_address, :currency,
-                    :line_items_attributes, :number, :email, :use_billing, 
+                    :line_items_attributes, :number, :email, :use_billing,
                     :special_instructions, :shipments_attributes, :coupon_code,
-                    :metapack_consignment_code, :metapack_allocated
+                    :metapack_consignment_code, :metapack_allocated,
+                    :batch_print_id, :batch_invoice_print_date
 
     attr_reader :coupon_code
 
@@ -69,7 +70,7 @@ module Spree
     has_many :adjustments, as: :adjustable, dependent: :destroy, order: "#{Spree::Adjustment.table_name}.created_at ASC"
 
     has_many :parcels
-    
+
     accepts_nested_attributes_for :line_items
     accepts_nested_attributes_for :bill_address
     accepts_nested_attributes_for :ship_address
@@ -99,23 +100,23 @@ module Spree
       def by_number(number)
         where(number: number)
       end
-  
+
       def between(start_date, end_date)
         where(created_at: start_date..end_date)
       end
-  
+
       def by_customer(customer)
         joins(:user).where("#{Spree.user_class.table_name}.email" => customer)
       end
-  
+
       def by_state(state)
         where(state: state)
       end
-  
+
       def complete
         where('completed_at IS NOT NULL')
       end
-  
+
       def incomplete
         where(completed_at: nil)
       end
@@ -123,7 +124,16 @@ module Spree
       def to_be_packed_and_shipped
         includes(:payments).includes(:shipments).where('spree_orders.state' => 'complete', 'spree_payments.state' => 'completed', 'spree_shipments.state' => 'ready').order('spree_orders.created_at DESC')
       end
-      
+
+      def unprinted_invoices
+        to_be_packed_and_shipped.where(:batch_invoice_print_date => nil)
+      end
+
+      def last_batch_id_today
+        last = where(:batch_invoice_print_date => Date.today).order("batch_print_id DESC").first
+        last ? last.batch_print_id.to_i : 0
+      end
+
       # Use this method in other gems that wish to register their own custom logic
       # that should be called after Order#update
       def register_update_hook(hook)
@@ -148,7 +158,7 @@ module Spree
         list
       end
     end
-    
+
     def item_normal_total
       if @item_normal_total.blank?
         line_items.map(&:normal_amount).sum
@@ -591,7 +601,7 @@ module Spree
 
       packages = Spree::Stock::Coordinator.new(self).packages
 
-      # I am trying to track down a bug, which is to do with double shipping costs, hence 
+      # I am trying to track down a bug, which is to do with double shipping costs, hence
       # this could only happen if we ended up with multiple packages for some reason
       if packages.size > 1
         Rails.logger.error(" MULTI-PACKAGE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ")
@@ -618,7 +628,7 @@ module Spree
 
     private
 
-    
+
       def link_by_email
         self.email = user.email if self.user
       end

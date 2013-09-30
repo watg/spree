@@ -44,6 +44,8 @@ en:
         ip_address: IP Address
         item_total: Item Total
         number: Number
+        invoice: Invoice
+        sticker: Sticker
         payment_state: Payment State
         shipment_state: Shipment State
         special_instructions: Special Instructions
