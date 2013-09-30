@@ -47,9 +47,9 @@ module Spree
       parcels.map.with_index do |p,index|
         {
           reference: p.id,
-          height: p.box.height.to_f,
-          depth:  p.box.depth.to_f,
-          width:  p.box.width.to_f,
+          height: p.height.to_f,
+          depth:  p.depth.to_f,
+          width:  p.width.to_f,
           weight: weight.to_f
         }
       end
@@ -97,7 +97,7 @@ module Spree
     def mark_order_as_shipped(order)
       order.shipment_state = 'shipped'
       order.save(validate: false)
-      order.shipment.ship
+      order.shipments.map(&:ship)
     end
     
   end

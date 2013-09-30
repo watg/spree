@@ -168,7 +168,7 @@ module Spree
 
     def weight
       goods_weight = line_items.inject(0.0) { |sum, li| sum + li.variant.weight.to_f }
-      boxes_weight = parcels.inject(0.0)    { |sum, p| sum + p.box.weight.to_f }
+      boxes_weight = parcels.inject(0.0)    { |sum, p| sum + p.weight.to_f }
 
       goods_weight + boxes_weight
     end

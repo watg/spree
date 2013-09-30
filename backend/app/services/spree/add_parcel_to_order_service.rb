@@ -12,7 +12,7 @@ module Spree
       order, box = load_models(order_id, box_id)
       return unless is_addition_allowed?(order)
       
-      quantity.times { Spree::Parcel.create!(box_id: box.id, order_id: order.id) }
+      quantity.times { Spree::Parcel.create!(parcel_attrs(box).merge(order_id: order.id)) }
       reduce_stock_for(box, quantity)
     rescue Exception => error
       add_error(:parcel, :parcel_error, error)
@@ -21,6 +21,16 @@ module Spree
     private
     def load_models(o_id, b_id)
       [Spree::Order.find(o_id), Spree::Product.find(b_id)]
+    end
+
+    def parcel_attrs(box)
+      {
+        weight: box.weight,
+        height: box.height,
+        width:  box.width,
+        depth:  box.depth,
+        box_id: box.id
+      }
     end
 
     def reduce_stock_for(product, qtty)
