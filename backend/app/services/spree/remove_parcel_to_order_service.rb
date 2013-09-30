@@ -8,9 +8,9 @@ module Spree
     end
     
     def execute
-      verify_quantity(quantity)
+      return unless verify_quantity(quantity)
       order, box = load_models(order_id, box_id)
-      is_allowed?(order)
+      return unless is_allowed?(order)
       
       Spree::Parcel.destroy(order.parcels.map(&:id))
       add_stock_for(box, quantity)
@@ -29,11 +29,19 @@ module Spree
     end
 
     def verify_quantity(quantity)
-      add_error(:quantity, :quantity_cannot_be_negative, "Quantity cannot be negative") if quantity < 0
+      if quantity < 0
+        add_error(:quantity, :quantity_cannot_be_negative, "Quantity cannot be negative")
+        return false
+      end
+      true
     end
 
     def is_allowed?(order)
-      add_error(:allocated, :cannot_remove_parcel_from_allocated_order, "Cannot remove parcels from allocated order") if order.metapack_allocated
+      if order.metapack_allocated
+        add_error(:allocated, :cannot_remove_parcel_from_allocated_order, "Cannot remove parcels from allocated order")
+        return false
+      end
+      true
     end
   end
 end

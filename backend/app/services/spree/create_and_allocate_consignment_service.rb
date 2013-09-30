@@ -86,7 +86,7 @@ module Spree
 
     def update_parcels(order, hash)
       order.parcels.each do |parcel|
-        attrs = hash.detect {|h| h[:reference] == parcel.id }
+        attrs = hash.detect {|h| h[:reference].to_i == parcel.id }
         if attrs
           attrs.delete(:reference)
           parcel.update_attributes(attrs)
@@ -97,6 +97,7 @@ module Spree
     def mark_order_as_shipped(order)
       order.shipment_state = 'shipped'
       order.save(validate: false)
+      order.shipment.ship
     end
     
   end
