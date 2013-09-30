@@ -24,7 +24,7 @@
         <td class="align-center"><%= manifest[:carrier] %></td>
         <td class="align-center"><%= manifest[:parcel_count] %></td>
         <td class='actions align-center' data-hook="admin_orders_index_row_actions">
-          <%= button_to 'Create and Print Manifest', admin_shipping_manifests_path(id: manifest[:carrier]) %>
+          <%= button_to 'Create and Print Manifest', admin_shipping_manifests_path(carrier: manifest[:carrier]) %>
         </td>
       </tr>
     <% end %>
