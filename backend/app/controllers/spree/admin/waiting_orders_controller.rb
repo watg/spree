@@ -31,7 +31,7 @@ module Spree
       def create_and_allocate_consignment
         outcome = Spree::CreateAndAllocateConsignmentService.run(order_id: params[:id])
         if outcome.success?
-          send_data outcome.result, filename: "label.pdf", type: "application/pdf"
+          send_data outcome.result, disposition: :inline, filename: "label.pdf", type: "application/pdf"
         else
           handle(outcome)
         end

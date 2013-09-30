@@ -9,9 +9,8 @@ module Spree
       def create
         carrier = params[:carrier]
         pdf = Metapack::Client.create_manifest(carrier)
-        send_data pdf, filename: "#{carrier}-manifest.pdf", type: "application/pdf"
+        send_data pdf, disposition: :inline, filename: "#{carrier}-manifest.pdf", type: "application/pdf"
       end
     end
-
   end
 end
