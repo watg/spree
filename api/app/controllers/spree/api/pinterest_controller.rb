@@ -1,7 +1,7 @@
 module Spree
   module Api
     class PinterestController < Spree::Api::BaseController
-
+      
       def show
         outcome = Spree::PinterestService.run(params)
         
