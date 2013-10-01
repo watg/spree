@@ -44,6 +44,8 @@ en:
         ip_address: IP Address
         item_total: Item Total
         number: Number
+        invoice: Invoice
+        sticker: Sticker
         payment_state: Payment State
         shipment_state: Shipment State
         special_instructions: Special Instructions
@@ -130,6 +132,9 @@ en:
       spree/zone:
         description: Description
         name: Name
+    errors:
+      messages:
+        too_long: Too long
     models:
       spree/address:
         one: Address

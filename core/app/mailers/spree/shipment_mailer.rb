@@ -6,7 +6,7 @@ module Spree
       subject += "#{Spree::Config[:site_name]} #{Spree.t('shipment_mailer.shipped_email.subject')} ##{@shipment.order.number}"
       mail(to: @shipment.order.email, from: from_address, subject: subject)
 
-      mandrill_default_headers(tags: "shipment", template: "#{I18n.locale}_shipped_email")
+      mandrill_default_headers(tags: "shipment", template: "#{I18n.locale}_shipped_metapack_email")
       headers['X-MC-MergeVars'] = shipment_data.to_json
     end
 
@@ -27,6 +27,15 @@ module Spree
 EOF
       t
     end
-    
+
+
+    def tracking_template
+      t=<<EOF
+<% @shipment.order.parcels.each_with_index do |parcel, index| %>
+<tr><td>Parcel <%= index + 1 %> - <%= parcel.metapack_tracking_url %></td></tr>
+<% end %>
+EOF
+      t
+    end
   end
 end

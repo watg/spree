@@ -1,15 +1,9 @@
 <%= render :partial => "spree/admin/variants/split", :formats => :js %>
 <fieldset class="no-border-bottom">
   <legend align="center" class="stock-location" data-hook="stock-location">
-    <span class="shipment-number"><%= shipment.number %></span>
+    <span class="shipment-number"><%= order.metapack_consignment_code %></span>
     -
-    <span class="shipment-state"><%= Spree.t("shipment_states.#{shipment.state}") %></span>
-    <%= Spree.t(:package_from) %>
-    <strong class="stock-location-name" data-hook="stock-location-name">'<%= shipment.stock_location.name %>'</strong>
-    <% if shipment.ready? and can? :update, shipment %>
-      -
-      <%= link_to 'ship', '#', :class => 'ship button icon-arrow-right', :data => {'shipment-number' => shipment.number} %>
-    <% end %>
+    <span class="shipment-state"><%= Spree.t("shipment_states.#{order.shipment_state}") %></span>
   </legend>
 </fieldset>
 
@@ -88,32 +82,20 @@
       <% end %>
     </tr>
 
-    <tr class="edit-tracking hidden total">
-      <td colspan="6">
-        <label><%= Spree.t(:tracking_number) %>:</label>
-        <%= text_field_tag :tracking, shipment.tracking %>
-      </td>
-      <td class="actions">
-        <% if can? :update, shipment %>
-          <%= link_to '', '#', :class => 'save-tracking icon_link icon-ok no-text with-tip', :data => {'shipment-number' => shipment.number, :action => 'save'}, :title => Spree.t('actions.save') %>
-          <%= link_to '', '#', :class => 'cancel-tracking icon_link icon-cancel no-text with-tip', :data => {:action => 'cancel'}, :title => Spree.t('actions.cancel') %>
-        <% end %>
-      </td>
-    </tr>
 
+    <% order.parcels.each do |parcel| %>
     <tr class="show-tracking total">
       <td colspan="6">
-        <% if shipment.tracking.present? %>
-          <strong><%= Spree.t(:tracking) %>:</strong> <%= shipment.tracking %>
+        <% if parcel.metapack_tracking_url.present? %>
+          <%= parcel.id %><strong><%= Spree.t(:tracking) %>:</strong> <%= parcel.metapack_tracking_url %>
         <% else %>
           <%= Spree.t(:no_tracking_present) %>
         <% end %>
       </td>
       <td class="actions">
-        <% if can? :update, shipment %>
-          <%= link_to '', '#', :class => 'edit-tracking icon_link icon-edit no-text with-tip', :data => {:action => 'edit'}, :title => Spree.t('edit') %>
-        <% end %>
       </td>
     </tr>
+
+    <% end %>
   </tbody>
 </table>

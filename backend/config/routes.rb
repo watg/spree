@@ -2,17 +2,23 @@ Spree::Core::Engine.routes.draw do
   root :to => 'home#index'
 
   namespace :admin do
+    namespace :orders do
+
+    end
+  end
+
+  namespace :admin do
     get '/search/users', :to => "search#users", :as => :search_users
 
     resources :product_groups
     resources :gang_members
-    
+
     resources :promotions do
       resources :promotion_rules
       resources :promotion_actions
     end
 
-    resources :displayable_variants 
+    resources :displayable_variants
 
     resources :adjustments
     resources :zones
@@ -28,7 +34,7 @@ Spree::Core::Engine.routes.draw do
     resources :tax_categories
 
     resources :products do
-      
+
       resources :prices, :only => [:index, :create]
 
       resources :product_properties do
@@ -82,6 +88,18 @@ Spree::Core::Engine.routes.draw do
     end
 
     resource :image_settings
+
+    resources :waiting_orders do
+      collection do
+        get :invoices
+        get :image_stickers
+      end
+      member do
+        post :create_and_allocate_consignment
+      end
+    end
+
+    resources :shipping_manifests
 
     resources :orders do
       member do
