@@ -1,7 +1,7 @@
 module Metapack
   class SoapResponse
     def initialize(http_response)
-     @http_response = http_response
+      @http_response = http_response
     end
 
     def success?

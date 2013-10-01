@@ -18,27 +18,41 @@ module Spree
         handle(outcome)
       end
 
-      def batch
-        outcome = Spree::BulkOrderPrintingService.run
-        respond_to do |format|
-          format.pdf do
-            send_data outcome.result, disposition: :inline, filename: 'invoices.pdf', type: "application/pdf"
-          end
-        end
+      def invoices
+        outcome = Spree::BulkOrderPrintingService.run(pdf: :invoices)
+        handle_pdf(outcome, "invoices.pdf")
       end
 
+      def image_stickers
+        outcome = Spree::BulkOrderPrintingService.run(pdf: :image_stickers)
+        handle_pdf(outcome, "image_stickers.pdf")
+      end
+      
       def create_and_allocate_consignment
         outcome = Spree::CreateAndAllocateConsignmentService.run(order_id: params[:id])
-        if outcome.success?
-          send_data outcome.result, disposition: :inline, filename: "label.pdf", type: "application/pdf"
-        else
-          handle(outcome)
-        end
+        handle_pdf(outcome, 'label.pdf')
       end
 
       private
       def load_orders_waiting
         Spree::Order.to_be_packed_and_shipped
+      end
+
+      def pdf_type
+        params[:pdf_type]
+      end
+
+      def handle_pdf(outcome, filename)
+        if outcome.success?
+          send_data outcome.result, disposition: :inline, filename: filename, type: "application/pdf"
+        else          
+          respond_to do |format|
+            format.pdf do
+              flash[:error] = outcome.errors.message_list.join('<br/ >')
+              redirect_to admin_waiting_orders_url
+            end
+          end          
+        end
       end
 
       def handle(outcome)

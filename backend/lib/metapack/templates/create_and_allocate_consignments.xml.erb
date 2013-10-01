@@ -33,14 +33,11 @@
             <countryCode xsi:type="soapenc:string"><%= consignment[:recipient][:address][:country] %></countryCode>
             <line1 xsi:type="soapenc:string"><%= consignment[:recipient][:address][:line1] %></line1>
             <line2 xsi:type="soapenc:string"><%= consignment[:recipient][:address][:line2] %></line2>
-            <town xsi:type="soapenc:string"><%= consignment[:recipient][:address][:town] %></town>
             <postCode xsi:type="soapenc:string"><%= consignment[:recipient][:address][:postcode] %></postCode>
             <type xsi:type="soapenc:string">Residential</type>
           </recipientAddress>
           <recipientContactPhone xsi:type="soapenc:string"><%= consignment[:recipient][:phone] %></recipientContactPhone>
           <recipientEmail xsi:type="soapenc:string"><%= consignment[:recipient][:email] %></recipientEmail>
-          <recipientFirstName xsi:type="soapenc:string"><%= consignment[:recipient][:firstname] %></recipientFirstName>
-          <recipientLastName xsi:type="soapenc:string"><%= consignment[:recipient][:lastname] %></recipientLastName>
           <recipientName xsi:type="soapenc:string"><%= consignment[:recipient][:name] %></recipientName>
 
           <senderAddress xsi:type="ns2:Address">

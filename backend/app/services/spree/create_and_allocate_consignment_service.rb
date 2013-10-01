@@ -7,12 +7,12 @@ module Spree
 
     def execute
       order = Spree::Order.find(order_id)
-      valid_consignment?(order)
+      return unless valid_consignment?(order)
       response = Metapack::Client.create_and_allocate_consignment(allocation_hash(order))
       order.update_attributes!(order_attrs(response))
       update_parcels(order, response[:tracking])
       mark_order_as_shipped(order)   if order.metapack_allocated  
-      Metapack::Client.create_labels_as_pdf(response[:metapack_consignment_id])
+      Metapack::Client.create_labels_as_pdf(response[:metapack_consignment_code])
 
     rescue Exception => error
       Rails.logger.info '-'*80
@@ -57,9 +57,8 @@ module Spree
 
     def address(addr)
       {
-        line1:    addr.address1,
-        line2:    (addr.address2.blank? ? addr.city : addr.address2),
-        town:     addr.city,
+        line1:    [addr.address1, addr.address2].compact.join(', '),
+        line2:    addr.city,
         postcode: addr.zipcode,
         country:  addr.country.iso3,
       }
@@ -68,13 +67,15 @@ module Spree
     def valid_consignment?(order)
       if order.parcels.blank?
         add_error(:consignment, :cannot_create_consignment, "Order needs at least one parcel to create consignment")
-        return
+        return false
       end
 
       if order.shipped?
         add_error(:consignment, :consignment_already_created, "A consignment has already been created")
-        return
+        return false
       end
+
+      true
     end
     
     def order_attrs(hash)

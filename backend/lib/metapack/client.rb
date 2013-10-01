@@ -3,8 +3,8 @@ module Metapack
     def self.create_and_allocate_consignment(consignment)
       response = request(:AllocationService, :create_and_allocate_consignments, consignment: consignment)
       {
-        metapack_consignment_id: result.find("consignmentCode"),
-        tracking:                tracking_info(result)
+        metapack_consignment_code: response.find("consignmentCode"),
+        tracking:                  tracking_info(response)
       }
     end
 

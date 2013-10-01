@@ -91,7 +91,8 @@ Spree::Core::Engine.routes.draw do
 
     resources :waiting_orders do
       collection do
-        get :batch
+        get :invoices
+        get :image_stickers
       end
       member do
         post :create_and_allocate_consignment
