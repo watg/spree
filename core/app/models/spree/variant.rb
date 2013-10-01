@@ -10,7 +10,7 @@ module Spree
 
     attr_accessible :name, :presentation, :cost_price, :lock_version,
                     :position, :option_value_ids,
-                    :product_id, :option_values_attributes, :price,
+                    :product_id, :option_values_attributes,
                     :weight, :height, :width, :depth, :sku, :cost_currency, :in_sale
 
     # from variant options
@@ -24,32 +24,20 @@ module Spree
     has_many :stock_locations, through: :stock_items
     has_many :stock_movements
 
-
     has_many :displayable_variants 
 
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants
     has_many :images, as: :viewable, order: :position, dependent: :destroy, class_name: "Spree::Image"
 
-    has_one :default_price,
-      class_name: 'Spree::Price',
-      conditions: proc { { currency: Spree::Config[:currency] } },
-      dependent: :destroy
-
-    delegate_belongs_to :default_price, :display_price, :display_amount, :price, :price=, :currency if Spree::Price.table_exists?
-
     has_many :prices,
       class_name: 'Spree::Price',
       dependent: :destroy
 
-    validate :check_price
-    validate :check_prices
-    validates :price, numericality: { greater_than_or_equal_to: 0 }, presence: true, if: proc { Spree::Config[:require_master_price] }
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true } if self.table_exists? && self.column_names.include?('cost_price')
 
     before_validation :set_cost_currency
     after_create :create_stock_items
     after_create :set_position
-    after_save :save_default_price
 
     # Regardless of us updating anything, touch so we invalidate cache
     after_save { self.touch } 
@@ -81,7 +69,7 @@ module Spree
     end
 
     def cost_price=(price)
-      self[:cost_price] = parse_price(price) if price.present?
+      self[:cost_price] = parse_price(price)
     end
 
     # returns number of units currently on backorder for this variant.
@@ -111,6 +99,22 @@ module Spree
     def visible_price_types
       price_types - [:part_sale]
     end
+
+    # Hacks to allow the tests to still pass
+    #############################################
+    def price
+      current_price_in( Spree::Config[:currency] ).amount
+    end
+
+    def currency
+      Spree::Config[:currency] 
+    end
+
+    def display_amount
+      current_price_in( Spree::Config[:currency] ).display_amount
+    end
+    #############################################
+
 
     def current_price_in(currency_code)
       self.in_sale? ? price_normal_sale_in(currency_code) : price_normal_in(currency_code)
@@ -172,9 +176,9 @@ module Spree
       values.to_sentence({ words_connector: ", ", two_words_connector: ", " })
     end
 
-    def gross_profit
-      cost_price.nil? ? 0 : (price - cost_price)
-    end
+    #def gross_profit
+    #  cost_price.nil? ? 0 : (price - cost_price)
+    #end
 
     # use deleted? rather than checking the attribute directly. this
     # allows extensions to override deleted? if they want to provide
@@ -218,12 +222,8 @@ module Spree
       self.option_values.detect { |o| o.option_type.name == opt_name }.try(:presentation)
     end
 
-    def has_default_price?
-      !self.default_price.nil?
-    end
-
     def amount_in(currency)
-      price_in(currency).try(:amount)
+      price_normal_in(currency).try(:amount)
     end
 
     def name_and_sku
@@ -265,37 +265,6 @@ module Spree
         price.gsub!(separator, '.') unless separator == '.' # then replace the locale-specific decimal separator with the standard separator if necessary
 
         price.to_d
-      end
-
-      # Ensures a new variant takes the product master price when price is not supplied
-      def check_price
-        if price.nil? && Spree::Config[:require_master_price]
-          raise 'No master variant found to infer price' unless (product && product.master)
-          raise 'Must supply price for variant or master.price for product.' if self == product.master
-          self.price = product.master.price
-        end
-        if currency.nil?
-          self.currency = Spree::Config[:currency]
-        end
-      end
-
-      # Ensure all a variant prices inherit the master prices if not supplied, this is very similar to 
-      # check_price apart from this looks at the prices table
-      def check_prices
-        price_hash = {}
-        self.prices.each do |p| 
-          price_hash[[p.currency,p.is_kit,p.sale]] = p 
-        end
-
-        self.product.master.prices.each do |mp| 
-          if !price_hash[[mp.currency,mp.is_kit,mp.sale]] or price_hash[[mp.currency,mp.is_kit,mp.sale]].amount < 0.01
-            self.prices << mp.dup
-          end
-        end
-      end
-
-      def save_default_price
-        default_price.save if default_price && (default_price.changed? || default_price.new_record?)
       end
 
       def set_cost_currency

@@ -3,6 +3,7 @@ module Spree
   class Price < ActiveRecord::Base
     belongs_to :variant, class_name: 'Spree::Variant', touch: true
     CURRENCY_SYMBOL = {'USD' => '$', 'GBP' => '£', 'EUR' => '€'}
+    TYPES = [:normal,:normal_sale,:part,:part_sale]
     
     validate :check_price
     validates :amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: false

@@ -18,7 +18,6 @@
     <thead data-hook="variants_header">
       <tr>
         <th colspan="2"><%= Spree.t(:options) %></th>
-        <th><%= Spree.t(:price) %></th>
         <th><%= Spree.t(:sku) %></th>
         <th class="actions"></th>
       </tr>
@@ -30,7 +29,6 @@
           <span class="handle"></span>
         </td>
         <td><%= variant.options_text %></td>
-        <td class="align-center"><%= variant.display_price.to_html %></td>
         <td class="align-center"><%= variant.sku %></td>
         <td class="actions">
           <%= link_to_edit(variant, :no_text => true) unless variant.deleted? %>
