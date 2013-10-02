@@ -6,6 +6,7 @@ module Spree
     PART   = 'part'
 
     required do
+      duck  :mp
       duck  :vp
       model :product, class: 'Spree::Product'
       array :variant_in_sale_ids
@@ -18,18 +19,19 @@ module Spree
     def execute
       variant_in_sale_ids_set = variant_in_sale_ids.to_set
 
-      # Validate prices are not zero when sales are enabled
-      inputs[:vp].each do |variant_id, prices_by_type|
+      # Validate master prices are non zero, unless it is sale item and not enabled
+      inputs[:mp].each do |variant_id, prices_by_type|
         validate_prices(prices_by_type, variant_in_sale_ids_set, variant_id) 
       end
-
       return if has_errors?
+
+
 
       inputs[:vp].each do |variant_id, prices_by_type|
         variant = Spree::Variant.find(variant_id)
 
         prices_by_type.each do |type, prices|
-          update_variant_prices(variant, type, prices, supported_currencies)
+          update_variant_prices(master_prices, variant, type, prices, supported_currencies)
         end
       end
 
@@ -44,16 +46,16 @@ module Spree
           price = parse_price(value)
           if price < 0.01
             if type != SALE 
-              add_error(:price, :range_mismatch, 'price can not be less than 0.01' )
+              variant = Spree::Variant.find(variant_id)
+              add_error(:price, :range_mismatch, "variant: #{variant.options_text} price can not be less than 0.01" )
             elsif variant_in_sale_ids_set.include? variant_id.to_s
-              add_error(:price, :range_mismatch, 'price can not be less than 0.01' )
+              variant = Spree::Variant.find(variant_id)
+              add_error(:price, :range_mismatch, "variant: #{variant.options_text} price can not be less than 0.01" )
             end
           end
         end
       end
     end
-
-
 
     def update_variant_sale(product, variant_ids)
       Spree::Variant.where(product_id: product.id).update_all(in_sale: false, updated_at: Time.now)
@@ -61,9 +63,12 @@ module Spree
       product.touch # this is here to invalidate the cache set on taxon through product 
     end
     
-    def update_variant_prices(v, t, p, supported_currencies)
+    def update_variant_prices(master, v, t, p, supported_currencies)
       supported_currencies.each do |currency|
         o = v.price_for_type(t,currency.iso_code)
+        # Ensure that all variant prices that are zero, inherit the master price
+        o.price = master.
+        
         o.price = (p[currency.iso_code].blank? ? nil : p[currency.iso_code])
         o.save if o.changed?
         add_error(:variant, :price, "#{v.options_text} #{t} price: #{o.errors.full_messages.join(', ')}") if o.errors.any?
