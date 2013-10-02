@@ -113,6 +113,11 @@ module Spree
     def display_amount
       current_price_in( Spree::Config[:currency] ).display_amount
     end
+
+    def display_price
+      current_price_in( Spree::Config[:currency] ).display_price
+    end
+
     #############################################
 
 

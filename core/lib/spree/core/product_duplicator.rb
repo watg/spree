@@ -38,8 +38,7 @@ module Spree
         new_master.sku = "COPY OF #{master.sku}"
         new_master.deleted_at = nil
         new_master.images = master.images.map { |image| duplicate_image image }
-        new_master.price = master.price
-        new_master.currency = master.currency
+        new_master.prices = master.prices.map { |price| duplicate_price price }
       end
     end
 
@@ -47,6 +46,11 @@ module Spree
       new_image = image.dup
       new_image.assign_attributes(:attachment => image.attachment.clone)
       new_image
+    end
+
+    def duplicate_price(price)
+      new_price = price.dup
+      new_price
     end
 
     def reset_properties
