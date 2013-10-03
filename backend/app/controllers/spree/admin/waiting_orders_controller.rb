@@ -46,12 +46,8 @@ module Spree
         if outcome.success?
           send_data outcome.result, disposition: :inline, filename: filename, type: "application/pdf"
         else          
-          respond_to do |format|
-            format.pdf do
-              flash[:error] = outcome.errors.message_list.join('<br/ >')
-              redirect_to admin_waiting_orders_url
-            end
-          end          
+          flash[:error] = outcome.errors.message_list.join('<br/ >')
+          redirect_to admin_waiting_orders_url
         end
       end
 
