@@ -1,5 +1,5 @@
 module Spree
-  class ProductUpdateService < Mutations::Command
+  class UpdateProductService < Mutations::Command
     include ServiceTrait::Prices
     required do
       model :product, class: 'Spree::Product'
