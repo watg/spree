@@ -30,8 +30,8 @@ module Spree
         title: product.name,
         description: product.description,
         product_id: product_permalink,
-        price: variant.price,
-        currency_code: variant.currency,
+        price: variant.current_price_in("GBP").amount,
+        currency_code: "GBP",
         availability: variant.in_stock? ? "in stock" : "out of stock"
       })
 

@@ -4,6 +4,10 @@ module Spree
       []
     end
 
+    def self.available
+      where('spree_products.deleted_at IS NOT NULL')
+    end
+    
     def self.add_search_scope(name, &block)
       self.singleton_class.send(:define_method, name.to_sym, &block)
       search_scopes << name.to_sym
