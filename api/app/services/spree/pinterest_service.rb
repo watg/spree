@@ -23,11 +23,11 @@ module Spree
         add_error(:url, :could_not_find_variant, "Could not find variant")
         return
       end
-      
+
       OpenStruct.new({
         provider_name: "Wool and the Gang",
         url: url,
-        title: product.name,
+        title: fancy_title(product.name, variant),
         description: product.description,
         product_id: product_permalink,
         price: variant.current_price_in("GBP").amount,
@@ -65,6 +65,16 @@ module Spree
       end
       
       variant
+    end
+
+    def fancy_title(product_name, variant)
+      if ['kit','virtual_product'].include? variant.product_type 
+        product_name + " Knit Kit"
+      elsif !variant.isa_part?
+        product_name + ' #madeunique by The Gang'
+      else
+        product_name
+      end
     end
 
   end
