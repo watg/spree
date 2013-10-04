@@ -14,7 +14,7 @@
       Gang Member Nickname: <%= item.variant.product.gang_member.nickname %>
       <hr />
       <ul class='assembly_parts' style="list-style:none;">
-        <% ( item.variant.required_parts_for_display + item.variant.product.required_parts_for_display ).each do |v| %>
+        <% ( item.variant.required_parts_for_display ).each do |v| %>
         <li><%= v.count_part %> x <%= v.name + " (" + v.options_text + ")" %> </li>
         <% end %>
         <% line_item.line_item_options.each do |o| %>
