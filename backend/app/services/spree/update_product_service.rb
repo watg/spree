@@ -4,7 +4,7 @@ module Spree
     required do
       model :product, class: 'Spree::Product'
       duck  :details
-      duck  :prices
+      duck  :prices, nils: true
     end
 
     def execute
@@ -13,7 +13,7 @@ module Spree
       ActiveRecord::Base.transaction do
         assign_taxons(product, details[:taxon_ids])               unless details.has_key?(:product_properties_attributes)
         update_details(product, details.dup)
-        update_prices(prices.dup, product.master)
+        update_prices(prices.dup, product.master)                 if prices
         option_type_visibility(product, visible_option_type_ids)  unless details.has_key?(:product_properties_attributes)
       end
       rescue Exception => e
