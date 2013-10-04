@@ -26,7 +26,7 @@ module Spree
     def allocation_hash(order)
       {
         value:         order.value_in_gbp,
-        weight:        order.weight,
+        weight:        order.weight.round(2),
         max_dimension: order.max_dimension.to_f,
         order_number:  order.number,
         parcels:       parcel(order.parcels, order.weight),
@@ -43,7 +43,7 @@ module Spree
 
     def parcel(parcels, total_weight)
       total = parcels.size
-      weight = '%0.2f' % (total_weight / total)
+      weight = (total_weight / total).round(2)
       parcels.map.with_index do |p,index|
         {
           reference: p.id,
