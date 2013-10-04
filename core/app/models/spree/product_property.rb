@@ -1,7 +1,7 @@
 module Spree
   class ProductProperty < ActiveRecord::Base
-    belongs_to :product, class_name: 'Spree::Product'
-    belongs_to :property, class_name: 'Spree::Property'
+    belongs_to :product, class_name: 'Spree::Product', touch: true
+    belongs_to :property, class_name: 'Spree::Property', touch: true
 
     validates :property, presence: true
     validates :value, length: { maximum: 255 }
