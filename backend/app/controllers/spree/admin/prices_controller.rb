@@ -16,8 +16,8 @@ module Spree
         {
           product:              @product,
           vp:                   params[:vp],
-          variant_in_sale_ids:  ( params[:variant_in_sale_ids].blank? ? [] : params[:variant_in_sale_ids] ),
-          supported_currencies: supported_currencies
+          in_sale:              params[:in_sale] || [],
+          commit:               params[:commit],
         }
       end
 

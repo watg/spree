@@ -1,0 +1,26 @@
+<div class="twelve columns alpha omega">
+  <table class="prices">
+    <colgroup>
+      <col style="width: 30%" />
+    </colgroup>
+    <thead>
+      <tr>
+        <th><%= Spree.t(:price_types) %></th>
+        <% supported_currencies.each do |currency| %>
+          <th><%= Spree.t(currency.to_s.to_sym) %></th>
+      <% end %>
+      </tr>
+    </thead>
+    <tbody>
+    <% Spree::Price::TYPES.each do |price_type| %> 
+      <tr class="<%= cycle('odd', 'even')%>">
+      <td> <%= price_type %> </td>
+      <% supported_currencies.each do |currency| %>
+        <% price = variant.price_for_type(price_type, currency.iso_code) %>
+      <td> <%= text_field_tag("prices[#{price_type}][#{currency.iso_code}]", (price ? price.display_amount : '')) %> </td>
+    <% end %>
+    <% end %>
+    </tr>
+    </tbody>
+  </table>
+</div>

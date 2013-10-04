@@ -4,6 +4,15 @@ module Spree
       belongs_to 'spree/product', :find_by => :permalink
       new_action.before :new_before
 
+      def update
+        outcome = Spree::UpdateVariantService.run(variant: @variant, details: params[:variant], prices: params[:prices])
+        if outcome.success?
+          update_success(@variant)
+        else
+          update_failed(@variant, outcome.errors.message_list.join(', '))
+        end
+      end
+
       # override the destory method to set deleted_at value
       # instead of actually deleting the product.
       def destroy
@@ -21,23 +30,39 @@ module Spree
       end
 
       protected
-        def new_before
-          @object.attributes = @object.product.master.attributes.except('id', 'created_at', 'deleted_at', 'updated_at',
-                                                                        'sku', 'is_master')
-          # Shallow Clone of the default price to populate the price field.
-          @object.default_price = @object.product.master.default_price.clone
-        end
 
-        def collection
-          @deleted = (params.key?(:deleted) && params[:deleted] == "on") ? "checked" : ""
+      def new_before
+        @variant.attributes = @product.master.attributes.except('id', 'created_at', 'deleted_at', 'updated_at', 'is_master')
+        @variant.prices = @product.master.prices.dup
+      end
 
-          if @deleted.blank?
-            @collection ||= super
-          else
-            @collection ||= Variant.where(:product_id => parent.id).deleted
-          end
-          @collection
+      def update_success(object)
+        flash[:success] = flash_message_for(object, :successfully_updated)
+
+        respond_with(object) do |format|
+          format.html { redirect_to location_after_save }
+          format.js   { render :layout => false }
         end
+      end
+
+      def update_failed(object, error)
+        flash[:error] = "Could not update object #{object.name} -- #{error}"
+        respond_with(object) do |format|
+          format.html { redirect_to edit_admin_product_variant_url(object.product.permalink, object.id) }
+          format.js   { render :layout => false }
+        end
+      end
+
+      def collection
+        @deleted = (params.key?(:deleted) && params[:deleted] == "on") ? "checked" : ""
+
+        if @deleted.blank?
+          @collection ||= super
+        else
+          @collection ||= Variant.where(:product_id => parent.id).deleted
+        end
+        @collection
+      end
     end
   end
 end

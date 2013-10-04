@@ -17,7 +17,7 @@ module Spree
       end
 
       def update
-        outcome = Spree::ProductUpdateService.run(product: @object, details: params[:product])
+        outcome = Spree::UpdateProductService.run(product: @object, details: params[:product], prices: params[:prices])
         if outcome.success?
           update_success(@object)
         else
@@ -63,13 +63,12 @@ module Spree
 
       def update_success(product)
         flash[:success] = flash_message_for(product, :successfully_updated)
-      
+
         respond_with(product) do |format|
           format.html { redirect_to location_after_save }
           format.js   { render :layout => false }
         end
       end
-
 
       def update_failed(product, error)
         flash[:error] = "Could not update product #{product.name} -- #{error}"
@@ -79,55 +78,54 @@ module Spree
         end
       end
 
-      
-        def find_resource
-          Product.find_by_permalink!(params[:id])
+      def find_resource
+        Product.find_by_permalink!(params[:id])
+      end
+
+      def location_after_save
+        spree.edit_admin_product_url(@product)
+      end
+
+      def load_data
+        @taxons = Taxon.order(:name)
+        @option_types = OptionType.order(:name)
+        @tax_categories = TaxCategory.order(:name)
+        @shipping_categories = ShippingCategory.order(:name)
+        @product_groups = ProductGroup.order(:name)
+        @gang_members = GangMember.order(:firstname, :lastname)
+      end
+
+      def collection
+        return @collection if @collection.present?
+        params[:q] ||= {}
+        params[:q][:deleted_at_null] ||= "1"
+
+        params[:q][:s] ||= "name asc"
+        @collection = super
+        @collection = @collection.with_deleted if params[:q].delete(:deleted_at_null).blank?
+        # @search needs to be defined as this is passed to search_form_for
+        @search = @collection.ransack(params[:q])
+        @collection = @search.result.
+          group_by_products_id.
+          includes(product_includes).
+          page(params[:page]).
+          per(Spree::Config[:admin_products_per_page])
+
+        if params[:q][:s].include?("master_default_price_amount")
+          # PostgreSQL compatibility
+          @collection = @collection.group("spree_prices.amount")
         end
+        @collection
+      end
 
-        def location_after_save
-          spree.edit_admin_product_url(@product)
-        end
+      def create_before
+        return if params[:product][:prototype_id].blank?
+        @prototype = Spree::Prototype.find(params[:product][:prototype_id])
+      end
 
-        def load_data
-          @taxons = Taxon.order(:name)
-          @option_types = OptionType.order(:name)
-          @tax_categories = TaxCategory.order(:name)
-          @shipping_categories = ShippingCategory.order(:name)
-          @product_groups = ProductGroup.order(:name)
-          @gang_members = GangMember.order(:firstname, :lastname)
-        end
-
-        def collection
-          return @collection if @collection.present?
-          params[:q] ||= {}
-          params[:q][:deleted_at_null] ||= "1"
-
-          params[:q][:s] ||= "name asc"
-          @collection = super
-          @collection = @collection.with_deleted if params[:q].delete(:deleted_at_null).blank?
-          # @search needs to be defined as this is passed to search_form_for
-          @search = @collection.ransack(params[:q])
-          @collection = @search.result.
-            group_by_products_id.
-            includes(product_includes).
-            page(params[:page]).
-            per(Spree::Config[:admin_products_per_page])
-
-          if params[:q][:s].include?("master_default_price_amount")
-            # PostgreSQL compatibility
-            @collection = @collection.group("spree_prices.amount")
-          end
-          @collection
-        end
-
-        def create_before
-          return if params[:product][:prototype_id].blank?
-          @prototype = Spree::Prototype.find(params[:product][:prototype_id])
-        end
-
-        def product_includes
-         [{:variants => [:images, {:option_values => :option_type}]}, {:master => [:images, :default_price]}]
-        end
+      def product_includes
+        [{:variants => [:images, {:option_values => :option_type}]}, {:master => [:images, :default_price]}]
+      end
 
     end
   end

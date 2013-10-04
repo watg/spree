@@ -4,44 +4,45 @@
 <%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => 'Prices'} %>
 
 
-<fieldset class="no-border-top">
 
-  <%= form_tag do %>
-    <table class="index">
-      <colgroup>
-        <col style="width: 30%" />
-      </colgroup>
-      <thead>
-        <tr>
-          <th><%= Spree.t(:variant) %></th>
-          <th colspan="2"><%= Spree.t(:price_type) %></th>
-          <% supported_currencies.each do |currency| %>
-            <th><%= Spree.t(currency.to_s.to_sym) %></th>
-          <% end %>
-        </tr>
-      </thead>
-      <tbody>
-        <% @product.variants_including_master.order("is_master desc").each do |variant| %>
-          <tr class="<%= cycle('odd', 'even')%>" >
-            <td rowspan="<%= variant.visible_price_types.size %>" > <%= (variant.options_text.blank? ? Spree.t(:master) : variant.options_text) %>  </td>
-            <% variant.visible_price_types.each do |price_type| %>
-              <td> <%= price_type %> </td>
-              <% if price_type == :normal_sale %>
-                <td><%= check_box_tag 'variant_in_sale_ids[]', variant.id, variant.in_sale? %></td>
-              <% else %>
-                <td></td>
-              <% end %>
-
-            <% supported_currencies.each do |currency| %>
-              <% price = variant.price_for_type(price_type, currency.iso_code) %>
-              <td> <%= text_field_tag("vp[#{variant.id}][#{price_type}][#{currency.iso_code}]", (price ? price.display_amount : '')) %> </td>
-            <% end %>
-          </tr>
-          <% end %>
-        <% end %>
-      <% end %>
+<%= form_tag do %>
+  <fieldset class="no-border-bottom">
+  <legend align="center"><%= Spree.t(:master) %></legend>
+  <table class="index">
+    <colgroup>
+      <col style="width: 30%" />
+      <col style="width: 15%" />
+      <col style="width: 3%" />
+      <col style="width: 13%" />
+      <col style="width: 13%" />
+      <col style="width: 13%" />
+    </colgroup>
+    <%= render :partial => "table_header" %>
+    <tbody>
+    <%= render :partial => "variant_prices", :locals => {:variant => @product.master} %>
     </tbody>
   </table>
-  <%= submit_tag %>
-
+  <%= submit_tag "apply all", :value => :apply_all %>
 </fieldset>
+
+  <fieldset class="no-border-bottom">
+  <legend align="center"><%= Spree.t(:variants) %></legend>
+  <table class="index">
+    <colgroup>
+      <col style="width: 30%" />
+      <col style="width: 15%" />
+      <col style="width: 3%" />
+      <col style="width: 13%" />
+      <col style="width: 13%" />
+        <col style="width: 13%" />
+      </colgroup>
+      <tbody>
+      <%= render :partial => "variant_prices", :collection => @product.variants, :as => :variant %>
+      </tbody>
+    </table>
+
+  <%= submit_tag %>
+</fieldset>
+  <% end %>
+
+

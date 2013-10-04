@@ -88,7 +88,6 @@ module Spree
     accepts_nested_attributes_for :variants, allow_destroy: true
 
     validates :name, :permalink, presence: true
-    validates :price, presence: true, if: proc { Spree::Config[:require_master_price] }
     #validates :shipping_category, presence: true
     #validates :tax_category, presence: true
 
@@ -110,15 +109,11 @@ module Spree
 
     after_initialize :ensure_master
 
-    # from multi currency extension
-    alias amount= price=
-      # end of multi currency extension
 
-
-      # from variant options
-      def option_values
-        @_option_values ||= Spree::OptionValue.for_product(self).order(:position).sort_by {|ov| ov.option_type.position }
-      end
+    # from variant options
+    def option_values
+      @_option_values ||= Spree::OptionValue.for_product(self).order(:position).sort_by {|ov| ov.option_type.position }
+    end
 
     def grouped_option_values
       @_grouped_option_values ||= option_values.group_by(&:option_type)
@@ -291,7 +286,7 @@ module Spree
       values = values.inject(values.shift) { |memo, value| memo.product(value).map(&:flatten) }
 
       values.each do |ids|
-        variant = variants.create({ option_value_ids: ids, price: master.price }, without_protection: true)
+        variant = variants.create({ option_value_ids: ids, prices: master.prices }, without_protection: true)
       end
       save
     end
@@ -313,11 +308,7 @@ module Spree
     # there's a weird quirk with the delegate stuff that does not automatically save the delegate object
     # when saving so we force a save using a hook.
     def save_master
-      if master && (master.changed? ||  
-                    master.new_record? || 
-                    (master.default_price && (master.default_price.changed? || master.default_price.new_record?)
-                    )
-                   )
+      if master && (master.changed? ||  master.new_record? )
         master.save 
       end
     end
