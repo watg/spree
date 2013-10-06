@@ -110,8 +110,10 @@ module Spree
       product_type_totals = generate_product_type_totals(o)
 
       shipped_at = ''
-      if !o.shipment.shipped_at.blank? 
-        shipped_at = o.shipment.shipped_at.to_s(:db)
+      if !o.shipment.nil? 
+        if !o.shipment.shipped_at.blank? 
+          shipped_at = o.shipment.shipped_at.to_s(:db)
+        end
       end
 
       # If the first order they have ever made is equal to this one, then we 
@@ -130,7 +132,9 @@ module Spree
         payment_method = payment.payment_method.name
       end
 
-      shipping_methods = o.shipment.shipping_methods
+      if !o.shipment.nil?
+        shipping_methods = o.shipment.shipping_methods
+      end
 
       [
         o.id, 
@@ -171,8 +175,8 @@ module Spree
 
         o.payments.where( :state => ['completed','pending']).size,
         payment_method,
-        ( shipping_methods.find_by_display_on('front_end') ? shipping_methods.find_by_display_on('front_end').name : '' ),
-        ( shipping_methods.find_by_display_on('back_end') ? shipping_methods.find_by_display_on('back_end').name : '' ),
+        ( shipping_methods && shipping_methods.find_by_display_on('front_end') ? shipping_methods.find_by_display_on('front_end').name : '' ), 
+        ( shipping_methods && shipping_methods.find_by_display_on('back_end') ? shipping_methods.find_by_display_on('back_end').name : '' ),
       ] 
 
     end
