@@ -11,7 +11,7 @@ describe Spree::Core::CalculatedAdjustments do
     assert Spree::ShippingMethod.reflect_on_all_associations(:has_one).map(&:name).include?(:calculator)
   end
 
-  let(:tax_rate) { Spree::TaxRate.new({:calculator => calculator}, :without_protection => true) }
+  let(:tax_rate) { Spree::TaxRate.new(:calculator => calculator) }
 
   context "#create_adjustment and its resulting adjustment" do
     let(:order) { Spree::Order.create }
@@ -59,9 +59,9 @@ describe Spree::Core::CalculatedAdjustments do
 
   context "#update_adjustment" do
     it "should update the adjustment using its calculator (and the specified source)" do
-      adjustment = mock(:adjustment).as_null_object
-      calculable = mock :calculable
-      adjustment.should_receive(:update_attribute_without_callbacks).with(:amount, 10)
+      adjustment = double(:adjustment).as_null_object
+      calculable = double :calculable
+      adjustment.should_receive(:update_column).with(:amount, 10)
       tax_rate.update_adjustment(adjustment, calculable)
     end
   end

@@ -8,15 +8,16 @@
   </li>
 <% end %>
 
-<%= render :partial => 'spree/admin/shared/product_sub_menu' %>
+<%= render 'spree/admin/shared/product_sub_menu' %>
 
 <div id="new_property"></div>
 
+<% if @properties.any? %>
 <table class="index" id='listing_properties' data-hook>
   <colgroup>
+    <col style="width: 40%">
     <col style="width: 45%">
-    <col style="width: 45%">
-    <col style="width: 10%">
+    <col style="width: 15%">
   </colgroup>
   <thead>
     <tr data-hook="listing_properties_header">
@@ -28,8 +29,8 @@
   <tbody>
     <% @properties.each do |property| %>
       <tr id="<%= spree_dom_id property %>" data-hook="listing_properties_row" class="<%= cycle('odd', 'even')%>">
-        <td><%= property.name %></td>
-        <td><%= property.presentation %></td>
+        <td style="padding-left:1em"><%= property.name %></td>
+        <td style="padding-left:1em"><%= property.presentation %></td>
         <td class="actions">
           <%= link_to_edit(property, :no_text => true) %>
           <%= link_to_delete(property, :no_text => true) %>
@@ -38,4 +39,10 @@
     <% end %>
   </tbody>
 </table>
+<% else %>
+  <div class="alpha twelve columns no-objects-found">
+    <%= Spree.t(:no_resource_found, resource: I18n.t(:other, scope: 'activerecord.models.spree/property')) %>,
+    <%= link_to Spree.t(:add_one), spree.new_admin_property_path %>!
+  </div>
+<% end %>
 

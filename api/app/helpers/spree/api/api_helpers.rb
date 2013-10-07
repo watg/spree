@@ -12,7 +12,7 @@ module Spree
       end
 
       def product_attributes
-        [:id, :name, :description, :price, :available_on, :permalink, :meta_description, :meta_keywords, :taxon_ids]
+        [:id, :name, :description, :price, :display_price, :available_on, :permalink, :meta_description, :meta_keywords, :shipping_category_id, :taxon_ids]
       end
 
       def product_property_attributes
@@ -20,7 +20,7 @@ module Spree
       end
 
       def variant_attributes
-        [:id, :name, :sku, :price, :weight, :height, :width, :depth, :is_master, :cost_price, :permalink]
+        [:id, :name, :sku, :price, :weight, :height, :width, :depth, :is_master, :cost_price, :permalink, :description]
       end
 
       def image_attributes
@@ -44,7 +44,7 @@ module Spree
       end
 
       def payment_attributes
-        [:id, :source_type, :source_id, :amount, :payment_method_id, :response_code, :state, :avs_response, :created_at, :updated_at]
+        [:id, :source_type, :source_id, :amount, :display_amount, :payment_method_id, :response_code, :state, :avs_response, :created_at, :updated_at]
       end
 
       def payment_method_attributes
@@ -69,6 +69,10 @@ module Spree
 
       def return_authorization_attributes
         [:id, :number, :state, :amount, :order_id, :reason, :created_at, :updated_at]
+      end
+
+      def address_attributes
+        [:id, :firstname, :lastname, :full_name, :address1, :address2, :city, :zipcode, :phone, :company, :alternative_phone, :country_id, :state_id, :state_name]
       end
 
       def country_attributes
@@ -109,4 +113,3 @@ module Spree
     end
   end
 end
-

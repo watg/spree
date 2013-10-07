@@ -1,54 +1,70 @@
 require 'spec_helper'
+
 describe Spree::Order do
   let(:order) { Spree::Order.new }
 
   context "clear_adjustments" do
-    it "should destroy all previous tax adjustments" do
-      adjustment = stub
-      adjustment.should_receive :destroy
+    let(:adjustment) { double("Adjustment") }
 
-      order.stub_chain :adjustments, :tax => [adjustment]
+    it "destroys all order adjustments" do
+      order.stub(:adjustments => adjustment)
+      adjustment.should_receive(:destroy_all)
       order.clear_adjustments!
     end
 
-    it "should destroy all price adjustments" do
-      adjustment = stub
-      adjustment.should_receive :destroy
-
-      order.stub :price_adjustments => [adjustment]
+    it "destroy all line item adjustments" do
+      order.stub(:line_item_adjustments => adjustment)
+      adjustment.should_receive(:destroy_all)
       order.clear_adjustments!
     end
   end
 
   context "totaling adjustments" do
-    let(:adjustment1) { mock_model(Spree::Adjustment, :amount => 5) }
-    let(:adjustment2) { mock_model(Spree::Adjustment, :amount => 10) }
-
-    context "#ship_total" do
+    describe "#ship_total" do
       it "should return the correct amount" do
-        order.stub_chain :adjustments, :shipping => [adjustment1, adjustment2]
+        order.stub_chain :adjustments, :shipping, :sum => 15
         order.ship_total.should == 15
       end
     end
 
-    context "#tax_total" do
+    describe "#tax_total" do
       it "should return the correct amount" do
-        order.stub_chain :adjustments, :tax => [adjustment1, adjustment2]
+        order.stub_chain :adjustments, :tax, :sum => 15
         order.tax_total.should == 15
       end
     end
-  end
-  
 
-  context "#price_adjustment_totals" do
+    describe "#promo_total" do
+      it "should return the correct amount" do
+        order.stub_chain :adjustments, :eligible, :promotion, :sum => 15
+        order.promo_total.should == 15
+      end
+    end
+
+    describe "#manual_adjustment_total" do
+      it "should return the correct amount" do
+        order.stub_chain :adjustments, :eligible, :manual, :sum => 15
+        order.manual_adjustment_total.should == 15
+      end
+    end
+
+    describe "#discount_total" do
+      it "should return the correct amount" do
+        order.should_receive(:promo_total).and_return(5)
+        order.should_receive(:manual_adjustment_total).and_return(10)
+        order.discount_total.should == 15
+      end
+    end
+  end
+
+  context "line item adjustment totals" do
     before { @order = Spree::Order.create! }
 
-
-    context "when there are no price adjustments" do
-      before { @order.stub :price_adjustments => [] }
+    context "when there are no line item adjustments" do
+      before { @order.stub_chain(:line_item_adjustments, :eligible => []) }
 
       it "should return an empty hash" do
-        @order.price_adjustment_totals.should == {}
+        @order.line_item_adjustment_totals.should == {}
       end
     end
 
@@ -57,16 +73,16 @@ describe Spree::Order do
       let(:adj2) { mock_model Spree::Adjustment, :amount => 20, :label => "Bar" }
 
       before do
-        @order.stub :price_adjustments => [adj1, adj2]
+        @order.stub_chain(:line_item_adjustments, :eligible => [adj1, adj2])
       end
 
       it "should return exactly two totals" do
-        @order.price_adjustment_totals.size.should == 2
+        @order.line_item_adjustment_totals.size.should == 2
       end
 
       it "should return the correct totals" do
-        @order.price_adjustment_totals["Foo"].should == Spree::Money.new(10)
-        @order.price_adjustment_totals["Bar"].should == Spree::Money.new(20)
+        @order.line_item_adjustment_totals["Foo"].should == Spree::Money.new(10)
+        @order.line_item_adjustment_totals["Bar"].should == Spree::Money.new(20)
       end
     end
 
@@ -76,20 +92,20 @@ describe Spree::Order do
       let(:adj3) { mock_model Spree::Adjustment, :amount => 40, :label => "Bar" }
 
       before do
-        @order.stub :price_adjustments => [adj1, adj2, adj3]
+        @order.stub_chain(:line_item_adjustments, :eligible => [adj1, adj2, adj3])
       end
 
       it "should return exactly two totals" do
-        @order.price_adjustment_totals.size.should == 2
+        @order.line_item_adjustment_totals.size.should == 2
       end
       it "should return the correct totals" do
-        @order.price_adjustment_totals["Foo"].should == Spree::Money.new(10)
-        @order.price_adjustment_totals["Bar"].should == Spree::Money.new(60)
+        @order.line_item_adjustment_totals["Foo"].should == Spree::Money.new(10)
+        @order.line_item_adjustment_totals["Bar"].should == Spree::Money.new(60)
       end
     end
   end
 
-  context "#price_adjustments" do
+  context "line item adjustments" do
     before do
       @order = Spree::Order.create!
       @order.stub :line_items => [line_item1, line_item2]
@@ -100,31 +116,50 @@ describe Spree::Order do
 
     context "when there are no line item adjustments" do
       it "should return nothing if line items have no adjustments" do
-        @order.price_adjustments.should be_empty
+        @order.line_item_adjustments.should be_empty
       end
     end
 
     context "when only one line item has adjustments" do
       before do
-        @adj1 = line_item1.adjustments.create({:amount => 2, :source => line_item1, :label => "VAT 5%"}, :without_protection => true)
-        @adj2 = line_item1.adjustments.create({:amount => 5, :source => line_item1, :label => "VAT 10%"}, :without_protection => true)
+        @adj1 = line_item1.adjustments.create(
+          :amount => 2,
+          :source => line_item1,
+          :label => "VAT 5%"
+        )
+
+        @adj2 = line_item1.adjustments.create(
+          :amount => 5,
+          :source => line_item1,
+          :label => "VAT 10%"
+        )
       end
 
       it "should return the adjustments for that line item" do
-         @order.price_adjustments.should =~ [@adj1, @adj2]
+       expect(@order.line_item_adjustments).to include(@adj1)
+       expect(@order.line_item_adjustments).to include(@adj2)
       end
     end
 
     context "when more than one line item has adjustments" do
       before do
-        @adj1 = line_item1.adjustments.create({:amount => 2, :source => line_item1, :label => "VAT 5%"}, :without_protection => true)
-        @adj2 = line_item2.adjustments.create({:amount => 5, :source => line_item2, :label => "VAT 10%"}, :without_protection => true)
+        @adj1 = line_item1.adjustments.create(
+          :amount => 2,
+          :source => line_item1,
+          :label => "VAT 5%"
+        )
+
+        @adj2 = line_item2.adjustments.create(
+          :amount => 5,
+          :source => line_item2,
+          :label => "VAT 10%"
+        )
       end
 
       it "should return the adjustments for each line item" do
-        @order.price_adjustments.should == [@adj1, @adj2]
+        expect(@order.line_item_adjustments).to include @adj1
+        expect(@order.line_item_adjustments).to include @adj2
       end
     end
   end
 end
-

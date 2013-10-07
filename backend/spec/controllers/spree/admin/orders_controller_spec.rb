@@ -7,16 +7,13 @@ class OrderSpecificAbility
   include CanCan::Ability
 
   def initialize(user)
-    can [:admin, :index], Spree::Order
-    can :manage, Spree::Order, :number => 'R987654321'
+    can [:admin, :manage], Spree::Order, :number => 'R987654321'
   end
 end
 
 describe Spree::Admin::OrdersController do
 
-  before { Spree::Order.stub :find_by_number! => order }
-
-  context "without auth" do
+  context "with authorization" do
     stub_authorization!
 
     before do
@@ -29,6 +26,7 @@ describe Spree::Admin::OrdersController do
     end
 
     let(:order) { mock_model(Spree::Order, :complete? => true, :total => 100, :number => 'R123456789') }
+    before { Spree::Order.stub :find_by_number! => order }
 
     context "#fire" do
       it "should fire the requested event on the payment" do
@@ -50,6 +48,29 @@ describe Spree::Admin::OrdersController do
         assigns[:orders].limit_value.should == 10
       end
     end
+
+    # Test for #3346
+    context "#new" do
+      it "a new order has the current user assigned as a creator" do
+        spree_get :new
+        assigns[:order].created_by.should == controller.try_spree_current_user
+      end
+    end
+
+    # Regression test for #3684
+    context "#edit" do
+      it "does not refresh rates if the order is complete" do
+        order.stub :complete? => true
+        order.should_not_receive :refresh_shipment_rates
+        spree_get :edit, :id => order.number
+      end
+
+      it "does refresh the rates if the order is incomplete" do
+        order.stub :complete? => false
+        order.should_receive :refresh_shipment_rates
+        spree_get :edit, :id => order.number
+      end
+    end
   end
 
   context '#authorize_admin' do
@@ -57,17 +78,18 @@ describe Spree::Admin::OrdersController do
     let(:order) { create(:completed_order_with_totals, :number => 'R987654321') }
 
     before do
+      Spree::Order.stub :find_by_number! => order
       controller.stub :spree_current_user => user
     end
 
     it 'should grant access to users with an admin role' do
-      user.spree_roles << Spree::Role.find_or_create_by_name('admin')
+      user.spree_roles << Spree::Role.find_or_create_by(name: 'admin')
       spree_post :index
       response.should render_template :index
     end
 
     it 'should grant access to users with an bar role' do
-      user.spree_roles << Spree::Role.find_or_create_by_name('bar')
+      user.spree_roles << Spree::Role.find_or_create_by(name: 'bar')
       Spree::Ability.register_ability(BarAbility)
       spree_post :index
       response.should render_template :index
@@ -79,7 +101,7 @@ describe Spree::Admin::OrdersController do
       order.stub(:user).and_return Spree.user_class.new
       order.stub(:token).and_return nil
       user.spree_roles.clear
-      user.spree_roles << Spree::Role.find_or_create_by_name('bar')
+      user.spree_roles << Spree::Role.find_or_create_by(name: 'bar')
       Spree::Ability.register_ability(BarAbility)
       spree_put :update, { :id => 'R123' }
       response.should redirect_to('/unauthorized')

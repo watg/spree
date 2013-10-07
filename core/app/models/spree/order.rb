@@ -2,25 +2,9 @@ require 'spree/core/validators/email'
 require 'spree/order/checkout'
 
 module Spree
-  # THIS IS TEMPORARY WHILST WE FIX THE DUPLICATE PACKAGE BUG
-  class DuplicatePackageMailer < BaseMailer
-    def send
-      mail(to: 'david@woolandthegang.com', from: 'info@woolandthegang.com', subject: 'duplicate package!!!!!!!!!!!!!')
-    end
-  end
-  # END OF THIS IS TEMPORARY WHILST WE FIX THE DUPLICATE PACKAGE BUG
-
-
   class Order < ActiveRecord::Base
-    # TODO:
-    # Need to use fully qualified name here because during sandbox migration
-    # there is a class called Checkout which conflicts if you use this:
-    #
-    #   include Checkout
-    #
-    # rather than the qualified name. This will most likely be fixed with the
-    # 1.3 release.
-    include Spree::Order::Checkout
+    include Checkout
+
     checkout_flow do
       go_to_state :address
       go_to_state :delivery
@@ -35,19 +19,14 @@ module Spree
 
     token_resource
 
-    attr_accessible :line_items, :bill_address_attributes, :ship_address_attributes,
-                    :payments_attributes, :ship_address, :bill_address, :currency,
-                    :line_items_attributes, :number, :email, :use_billing,
-                    :special_instructions, :shipments_attributes, :coupon_code,
-                    :metapack_consignment_code, :metapack_allocated,
-                    :batch_print_id, :batch_invoice_print_date
-
     attr_reader :coupon_code
 
     if Spree.user_class
       belongs_to :user, class_name: Spree.user_class.to_s
+      belongs_to :created_by, class_name: Spree.user_class.to_s
     else
       belongs_to :user
+      belongs_to :created_by
     end
 
     belongs_to :bill_address, foreign_key: :bill_address_id, class_name: 'Spree::Address'
@@ -57,19 +36,18 @@ module Spree
     alias_attribute :shipping_address, :ship_address
 
     has_many :state_changes, as: :stateful
-    has_many :line_items, dependent: :destroy, order: "#{Spree::LineItem.table_name}.created_at ASC"
-    has_many :payments, dependent: :destroy, :class_name => "Spree::Payment", order: 'updated_at DESC'
+    has_many :line_items, -> { order('created_at ASC') }, dependent: :destroy
+    has_many :payments, dependent: :destroy
+    has_many :return_authorizations, dependent: :destroy
+    has_many :adjustments, -> { order("#{Adjustment.table_name}.created_at ASC") }, as: :adjustable, dependent: :destroy
+    has_many :line_item_adjustments, through: :line_items, source: :adjustments
+    has_many :inventory_units
 
     has_many :shipments, dependent: :destroy, :class_name => "Shipment" do
       def states
         pluck(:state).uniq
       end
     end
-
-    has_many :return_authorizations, dependent: :destroy
-    has_many :adjustments, as: :adjustable, dependent: :destroy, order: "#{Spree::Adjustment.table_name}.created_at ASC"
-
-    has_many :parcels
 
     accepts_nested_attributes_for :line_items
     accepts_nested_attributes_for :bill_address
@@ -148,6 +126,11 @@ module Spree
     def max_dimension
       parcels_grouped_by_box.map(&:longest_edge).sort{ |a,b| b <=> a }.first
     end
+
+    def self.complete
+      where('completed_at IS NOT NULL')
+    end
+
     def parcels_grouped_by_box
       parcels.inject([]) do |list, parcel|
         current_parcel = list.detect {|e| e.box_id == parcel.box_id}
@@ -163,12 +146,22 @@ module Spree
       end
     end
 
+    def self.incomplete
+      where(completed_at: nil)
+    end
+
     def item_normal_total
       if @item_normal_total.blank?
         line_items.map(&:normal_amount).sum
       else
         @item_normal_total
       end
+	end
+
+    # Use this method in other gems that wish to register their own custom logic
+    # that should be called after Order#update
+    def self.register_update_hook(hook)
+      self.update_hooks.add(hook)
     end
 
     # For compatiblity with Calculator::PriceSack
@@ -220,7 +213,7 @@ module Spree
     end
 
     def completed?
-      !! completed_at
+      completed_at.present? || complete?
     end
 
     def has_ready_made?
@@ -242,7 +235,11 @@ module Spree
 
     # If true, causes the confirmation step to happen during the checkout process
     def confirmation_required?
-      payments.map(&:payment_method).compact.any?(&:payment_profiles_supported?)
+      if payments.empty? and Spree::Config[:always_include_confirm_step]
+        true
+      else
+        payments.map(&:payment_method).compact.any?(&:payment_profiles_supported?)
+      end
     end
 
     # Indicates the number of items in the order
@@ -257,8 +254,7 @@ module Spree
     # Returns the relevant zone (if any) to be used for taxation purposes.
     # Uses default tax zone unless there is a specific match
     def tax_zone
-      zone_address = Spree::Config[:tax_using_ship_address] ? ship_address : bill_address
-      Zone.match(zone_address) || Zone.default_tax
+      Zone.match(tax_address) || Zone.default_tax
     end
 
     # Indicates whether tax should be backed out of the price calcualtions in
@@ -269,21 +265,16 @@ module Spree
       return tax_zone != Zone.default_tax
     end
 
-    # Array of adjustments that are inclusive in the variant price. Useful for when
-    # prices include tax (ex. VAT) and you need to record the tax amount separately.
-    def price_adjustments
-      adjustments = []
-
-      line_items.each { |line_item| adjustments.concat line_item.adjustments }
-
-      adjustments
+    # Returns the address for taxation based on configuration
+    def tax_address
+      Spree::Config[:tax_using_ship_address] ? ship_address : bill_address
     end
 
-    # Array of totals grouped by Adjustment#label. Useful for displaying price
+    # Array of totals grouped by Adjustment#label. Useful for displaying line item
     # adjustments on an invoice. For example, you can display tax breakout for
     # cases where tax is included in price.
-    def price_adjustment_totals
-      Hash[price_adjustments.group_by(&:label).map do |label, adjustments|
+    def line_item_adjustment_totals
+      Hash[self.line_item_adjustments.eligible.group_by(&:label).map do |label, adjustments|
         total = adjustments.sum(&:amount)
         [label, Spree::Money.new(total, { currency: currency })]
       end]
@@ -315,13 +306,6 @@ module Spree
       shipment_state.nil? || %w{ready backorder pending}.include?(shipment_state)
     end
 
-    def allow_resume?
-      # we shouldn't allow resume for legacy orders b/c we lack the information
-      # necessary to restore to a previous state
-      return false if state_changes.empty? || state_changes.last.previous_state.nil?
-      true
-    end
-
     def awaiting_returns?
       return_authorizations.any? { |return_authorization| return_authorization.authorized? }
     end
@@ -346,10 +330,11 @@ module Spree
     def associate_user!(user)
       self.user = user
       self.email = user.email
+      self.created_by = user if self.created_by.blank?
 
       if persisted?
         # immediately persist the changes we just made, but don't use save since we might have an invalid address associated
-        self.class.unscoped.where(id: id).update_all(email: user.email, user_id: user.id)
+        self.class.unscoped.where(id: id).update_all(email: user.email, user_id: user.id, created_by_id: self.created_by_id)
       end
     end
 
@@ -387,17 +372,11 @@ module Spree
     end
 
     def ship_total
-      adjustments.shipping.map(&:amount).sum
+      adjustments.shipping.sum(:amount)
     end
 
     def tax_total
-      adjustments.tax.map(&:amount).sum
-    end
-
-    # Clear shipment when transitioning to delivery step of checkout if the
-    # current shipping address is not eligible for the existing shipping method
-    def remove_invalid_shipments!
-      shipments.each { |s| s.destroy unless s.shipping_method.available_to_order?(self) }
+      adjustments.tax.sum(:amount)
     end
 
     # Creates new tax charges if there are any applicable rates. If prices already
@@ -426,7 +405,7 @@ module Spree
 
     def credit_cards
       credit_card_ids = payments.from_credit_card.pluck(:source_id).uniq
-      CreditCard.scoped(conditions: { id: credit_card_ids })
+      CreditCard.where(id: credit_card_ids)
     end
 
     # Finalizes an in progress order after checkout is complete.
@@ -435,7 +414,7 @@ module Spree
       touch :completed_at
 
       # lock all adjustments (coupon promotions, etc.)
-      adjustments.each { |adjustment| adjustment.update_column('state', "closed") }
+      adjustments.update_all state: 'closed'
 
       # update payment and shipment(s) states, and save
       updater.update_payment_state
@@ -450,12 +429,12 @@ module Spree
 
       deliver_order_confirmation_email
 
-      self.state_changes.create({
+      self.state_changes.create(
         previous_state: 'cart',
         next_state:     'complete',
         name:           'order' ,
         user_id:        self.user_id
-      }, without_protection: true)
+      )
     end
 
     def deliver_order_confirmation_email
@@ -532,10 +511,10 @@ module Spree
       line_items.select &:insufficient_stock?
     end
 
-    def merge!(order)
+    def merge!(order, user = nil)
       order.line_items.each do |line_item|
         next unless line_item.currency == currency
-        current_line_item = self.line_items.find_by_variant_id(line_item.variant_id)
+        current_line_item = self.line_items.find_by(variant: line_item.variant)
         if current_line_item
           current_line_item.quantity += line_item.quantity
           current_line_item.save
@@ -544,21 +523,22 @@ module Spree
           line_item.save
         end
       end
+
+      self.associate_user!(user) if !self.user && !user.blank?
+
       # So that the destroy doesn't take out line items which may have been re-assigned
       order.line_items.reload
       order.destroy
     end
 
     def empty!
-      line_items.destroy_all
       adjustments.destroy_all
+      line_items.destroy_all
     end
 
-    # destroy any previous adjustments.
-    # Adjustments will be recalculated during order update.
     def clear_adjustments!
-      adjustments.tax.each(&:destroy)
-      price_adjustments.each(&:destroy)
+      self.adjustments.destroy_all
+      self.line_item_adjustments.destroy_all
     end
 
     def has_step?(step)
@@ -569,12 +549,12 @@ module Spree
       state = "#{name}_state"
       if persisted?
         old_state = self.send("#{state}_was")
-        self.state_changes.create({
+        self.state_changes.create(
           previous_state: old_state,
           next_state:     self.send(state),
           name:           name,
           user_id:        self.user_id
-        }, without_protection: true)
+        )
       end
     end
 
@@ -589,11 +569,19 @@ module Spree
     # Receives an adjustment +originator+ (here a PromotionAction object) and tells
     # if the order has adjustments from that already
     def promotion_credit_exists?(originator)
-      !! adjustments.promotion.reload.detect { |credit| credit.originator.id == originator.id }
+      !! adjustments.includes(:originator).promotion.reload.detect { |credit| credit.originator.id == originator.id }
     end
 
     def promo_total
-      adjustments.eligible.promotion.map(&:amount).sum
+      adjustments.eligible.promotion.sum(:amount)
+    end
+
+    def manual_adjustment_total
+      adjustments.eligible.manual.sum(:amount)
+    end
+
+    def discount_total
+      promo_total + manual_adjustment_total
     end
 
     def shipped?
@@ -601,37 +589,38 @@ module Spree
     end
 
     def create_proposed_shipments
+      adjustments.shipping.delete_all
       shipments.destroy_all
 
       packages = Spree::Stock::Coordinator.new(self).packages
-
-      # I am trying to track down a bug, which is to do with double shipping costs, hence
-      # this could only happen if we ended up with multiple packages for some reason
-      if packages.size > 1
-        Rails.logger.error(" MULTI-PACKAGE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ")
-        Rails.logger.error(" MULTI-PACKAGE packages: #{packages.inspect}")
-        Rails.logger.error(" MULTI-PACKAGE each package: #{packages.map { |p| p.inspect } }")
-        Rails.logger.error(" MULTI-PACKAGE order: #{self.inspect}")
-        Rails.logger.error(" MULTI-PACKAGE shipments before: #{shipments.inspect}")
-        #DuplicatePackageMailer.delay.send
-      end
-
       packages.each do |package|
         shipments << package.to_shipment
       end
 
-      Rails.logger.error(" MULTI-PACKAGE shipments after: #{shipments.inspect}")
       shipments
     end
 
+    # Clean shipments and make order back to address state
+    #
+    # At some point the might need to force the order to transition from address
+    # to delivery again so that proper updated shipments are created.
+    # e.g. customer goes back from payment step and changes order items
+    def ensure_updated_shipments
+      if shipments.any?
+        self.shipments.destroy_all
+        self.update_column(:state, "address")
+      end
+    end
 
+    def refresh_shipment_rates
+      shipments.map &:refresh_rates
+    end
 
-    def can_attempt_payment?
-      payments.select(&:pending?).blank?
+    def shipping_eq_billing_address?
+      (bill_address.empty? && ship_address.empty?) || bill_address.same_as?(ship_address)
     end
 
     private
-
 
       def link_by_email
         self.email = user.email if self.user
@@ -669,8 +658,12 @@ module Spree
       def after_cancel
         shipments.each { |shipment| shipment.cancel! }
 
-        OrderMailer.cancel_email(self.id).deliver
+        send_cancel_email
         self.payment_state = 'credit_owed' unless shipped?
+      end
+
+      def send_cancel_email
+        OrderMailer.cancel_email(self.id).deliver
       end
 
       def after_resume

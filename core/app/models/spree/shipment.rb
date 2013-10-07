@@ -6,18 +6,16 @@ module Spree
     belongs_to :address, class_name: 'Spree::Address'
     belongs_to :stock_location, class_name: 'Spree::StockLocation'
 
-    has_many :shipping_rates
+    has_many :shipping_rates, dependent: :delete_all
     has_many :shipping_methods, through: :shipping_rates
     has_many :state_changes, as: :stateful
-    has_many :inventory_units, dependent: :destroy
+    has_many :inventory_units, dependent: :delete_all
     has_one :adjustment, as: :source, dependent: :destroy
 
     before_create :generate_shipment_number
     after_save :ensure_correct_adjustment, :update_order
 
     attr_accessor :special_instructions
-    attr_accessible :order, :special_instructions, :stock_location_id, :number,
-                    :tracking, :address, :inventory_units, :selected_shipping_rate_id
 
     accepts_nested_attributes_for :address
     accepts_nested_attributes_for :inventory_units
@@ -105,13 +103,14 @@ module Spree
     def refresh_rates
       return shipping_rates if shipped?
 
-      shipping_method_id = shipping_method.try(:id)
+      # StockEstimator.new assigment below will replace the current shipping_method
+      original_shipping_method_id = shipping_method.try(:id)
+
       self.shipping_rates = Stock::Estimator.new(order).shipping_rates(to_package)
 
-
-      if shipping_method_id
+      if shipping_method
         selected_rate = shipping_rates.detect { |rate|
-          rate.shipping_method_id == shipping_method_id
+          rate.shipping_method_id == original_shipping_method_id
         }
         self.selected_shipping_rate_id = selected_rate.id if selected_rate
       end
@@ -158,7 +157,7 @@ module Spree
     end
 
     def manifest
-      inventory_units.includes(:variant).group_by(&:variant).map do |variant, units|
+      inventory_units.joins(:variant).includes(:variant).group_by(&:variant).map do |variant, units|
         states = {}
         units.group_by(&:state).each { |state, iu| states[state] = iu.count }
         OpenStruct.new(variant: variant, quantity: units.length, states: states)
@@ -227,6 +226,10 @@ module Spree
         package.add inventory_unit.variant, 1, inventory_unit.state_name
       end
       package
+    end
+
+    def set_up_inventory(state, variant, order)
+      self.inventory_units.create(variant_id: variant.id, state: state, order_id: order.id)
     end
 
     private

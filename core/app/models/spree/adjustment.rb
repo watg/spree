@@ -24,8 +24,6 @@
 # it might be reinstated.
 module Spree
   class Adjustment < ActiveRecord::Base
-    attr_accessible :amount, :label
-
     belongs_to :adjustable, polymorphic: true
     belongs_to :source, polymorphic: true
     belongs_to :originator, polymorphic: true
@@ -58,14 +56,18 @@ module Spree
     scope :charge, -> { where('amount >= 0') }
     scope :credit, -> { where('amount < 0') }
     scope :promotion, -> { where(originator_type: 'Spree::PromotionAction') }
+    scope :manual, -> { where(originator_type: nil) }
     scope :return_authorization, -> { where(source_type: "Spree::ReturnAuthorization") }
+
+    def promotion?
+      originator_type == 'Spree::PromotionAction'
+    end
 
     # Update the boolean _eligible_ attribute which determines which adjustments
     # count towards the order's adjustment_total.
     def set_eligibility
-      result = self.mandatory || (self.amount != 0 && self.eligible_for_originator?) ||
-          (self.is_free_ship? && self.eligible_for_originator?)
-      update_attribute_without_callbacks(:eligible, result)
+      result = mandatory || ((amount != 0 || promotion?) && eligible_for_originator?)
+      update_column(:eligible, result)
     end
 
     # Allow originator of the adjustment to perform an additional eligibility of the adjustment
@@ -75,21 +77,27 @@ module Spree
       !originator.respond_to?(:eligible?) || originator.eligible?(source)
     end
 
-    def is_free_ship?
-      self.originator && self.originator.calculator.class == Spree::Calculator::FreeShipping
-    end
-
-    # Update both the eligibility and amount of the adjustment. Adjustments delegate updating of amount to their Originator
-    # when present, but only if +locked+ is false.  Adjustments that are +locked+ will never change their amount.
-    # The new adjustment amount will be set by by the +originator+ and is not automatically saved.  This makes it save
-    # to use this method in an after_save hook for other models without causing an infinite recursion problem.
+    # Update both the eligibility and amount of the adjustment. Adjustments
+    # delegate updating of amount to their Originator when present, but only if
+    # +locked+ is false. Adjustments that are +locked+ will never change their amount.
     #
-    # order#update_adjustments passes self as the src, this is so calculations can
-    # be performed on the # current values. If we used source it would load the old
-    # record from db for the association
-    def update!
+    # Adjustments delegate updating of amount to their Originator when present,
+    # but only if when they're in "open" state, closed or finalized adjustments
+    # are not recalculated.
+    #
+    # It receives +calculable+ as the updated source here so calculations can be
+    # performed on the current values of that source. If we used +source+ it
+    # could load the old record from db for the association. e.g. when updating
+    # more than on line items at once via accepted_nested_attributes the order
+    # object on the association would be in a old state and therefore the
+    # adjustment calculations would not performed on proper values
+    def update!(calculable = nil)
       return if immutable?
-      originator.update_adjustment(self, source) if originator.present?
+      # Fix for #3381
+      # If we attempt to call 'source' before the reload, then source is currently
+      # the order object. After calling a reload, the source is the Shipment.
+      reload
+      originator.update_adjustment(self, calculable || source) if originator.present?
       set_eligibility
     end
 

@@ -1,6 +1,6 @@
 module Spree
   class StockLocation < ActiveRecord::Base
-    has_many :stock_items, dependent: :destroy
+    has_many :stock_items, dependent: :delete_all
     has_many :stock_movements, through: :stock_items
 
     belongs_to :state, class_name: 'Spree::State'
@@ -8,13 +8,21 @@ module Spree
 
     validates_presence_of :name
 
-    attr_accessible :name, :active, :address1, :address2, :city, :zipcode,
-        :backorderable_default, :state_name, :state_id, :country_id, :phone,
-        :country_id
-
     scope :active, -> { where(active: true) }
 
-    after_create :create_stock_items
+    after_create :create_stock_items, :if => "self.propagate_all_variants?"
+
+    # Wrapper for creating a new stock item respecting the backorderable config
+    def propagate_variant(variant)
+      self.stock_items.create!(variant: variant, backorderable: self.backorderable_default)
+    end
+
+    # Return either an existing stock item or create a new one. Useful in
+    # scenarios where the user might not know whether there is already a stock
+    # item for a given variant
+    def set_up_stock_item(variant)
+      self.stock_item(variant) || propagate_variant(variant)
+    end
 
     def stock_item(variant)
       stock_items.where(variant_id: variant).order(:id).first
@@ -65,9 +73,7 @@ module Spree
 
     private
       def create_stock_items
-        Spree::Variant.find_each do |v|
-          self.stock_items.create!(variant: v, backorderable: self.backorderable_default)
-        end
+        Variant.find_each { |variant| self.propagate_variant(variant) }
       end
   end
 end

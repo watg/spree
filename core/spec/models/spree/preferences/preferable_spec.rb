@@ -123,7 +123,7 @@ describe Spree::Preferences::Preferable do
       end
 
       it "retrieves a preference from the database before falling back to default" do
-        preference = mock(:value => "chatreuse", :key => 'a/color/123')
+        preference = double(:value => "chatreuse", :key => 'a/color/123')
         Spree::Preference.should_receive(:find_by_key).and_return(preference)
         @a.preferred_color.should == 'chatreuse'
       end
@@ -306,7 +306,7 @@ describe Spree::Preferences::Preferable do
       @pt.preferred_pref_test_pref = 'lmn'
       @pt.save!
       @pt.destroy
-      @pt1 = PrefTest.new({:col => 'aaaa'}, :without_protection => true)
+      @pt1 = PrefTest.new(:col => 'aaaa')
       @pt1.id = @pt.id
       @pt1.save!
       @pt1.get_preference(:pref_test_pref).should_not == 'lmn'

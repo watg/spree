@@ -6,7 +6,7 @@
   <li>
     <%= button_link_to Spree.t(:new_order), new_admin_order_url, :icon => 'icon-plus', :id => 'admin_new_order' %>
   </li>
-<% end %>
+<% end if can? :edit, Spree::Order.new %>
 
 <%= render :partial => 'spree/admin/shared/order_sub_menu' %>
 
@@ -82,7 +82,7 @@
 
 <%= paginate @orders %>
 
-<% unless @orders.empty? %>
+<% if @orders.any? %>
   <table class="index responsive" id="listing_orders" data-hook>
     <colgroup>
        <col style="width: 13%;">
@@ -129,8 +129,9 @@
     </tbody>
   </table>
 <% else %>
-  <div class="no-objects-found">
-    <%= Spree.t(:no_orders_found)%>
+  <div class="alpha twelve columns no-objects-found">
+    <%= Spree.t(:no_resource_found, resource: I18n.t(:other, scope: 'activerecord.models.spree/order')) %>,
+    <%= link_to Spree.t(:add_one), spree.new_admin_order_path %>!
   </div>
 <% end %>
 

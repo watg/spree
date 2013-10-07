@@ -5,6 +5,8 @@ module Spree
 
       before_filter :load_data, :except => :index
       create.before :create_before
+      update.before :update_before
+      helper_method :clone_object_url
 
       def show
         session[:return_to] ||= request.referer
@@ -123,6 +125,13 @@ module Spree
         @prototype = Spree::Prototype.find(params[:product][:prototype_id])
       end
 
+        def clone_object_url resource
+          clone_admin_product_url resource
+        end
+
+        def permit_attributes
+          params.require(:product).permit!
+        end
       def product_includes
         [{:variants => [:images, {:option_values => :option_type}]}, {:master => [:images, :default_price]}]
       end

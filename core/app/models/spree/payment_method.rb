@@ -2,11 +2,10 @@ module Spree
   class PaymentMethod < ActiveRecord::Base
     acts_as_paranoid
     DISPLAY = [:both, :front_end, :back_end]
-    default_scope where(deleted_at: nil)
+    default_scope -> { where(deleted_at: nil) }
 
     scope :production, -> { where(environment: 'production') }
 
-    attr_accessible :name, :description, :environment, :display_on, :active
     validates :name, presence: true
 
     def self.providers
@@ -41,7 +40,7 @@ module Spree
     end
 
     def self.find_with_destroyed *args
-      self.with_exclusive_scope { find(*args) }
+      unscoped { find(*args) }
     end
 
     def payment_profiles_supported?

@@ -1,10 +1,13 @@
 <div class="row steps-data">
 
   <% if order.has_step?("address") %>
-    <div class="columns alpha four" data-hook="order-ship-address">
-      <h6><%= Spree.t(:shipping_address) %> <%= link_to "(#{Spree.t(:edit)})", checkout_state_path(:address) unless @order.completed? %></h6>
-      <%= render :partial => 'spree/shared/address', :locals => { :address => order.ship_address } %>
-    </div>
+
+    <% if order.has_step?("delivery") %>
+      <div class="columns alpha four" data-hook="order-ship-address">
+        <h6><%= Spree.t(:shipping_address) %> <%= link_to "(#{Spree.t(:edit)})", checkout_state_path(:address) unless @order.completed? %></h6>
+        <%= render :partial => 'spree/shared/address', :locals => { :address => order.ship_address } %>
+      </div>
+    <% end %>
 
     <div class="columns alpha four" data-hook="order-bill-address">
       <h6><%= Spree.t(:billing_address) %> <%= link_to "(#{Spree.t(:edit)})", checkout_state_path(:address) unless @order.completed? %></h6>
@@ -82,9 +85,9 @@
       <td class="total"><span id="order_total"><%= @order.display_total.to_html %></span></td>
     </tr>
   </tfoot>
-  <% if order.price_adjustment_totals.present? %>
+  <% if order.line_item_adjustment_totals.present? %>
     <tfoot id="price-adjustments" data-hook="order_details_price_adjustments">
-      <% @order.price_adjustment_totals.each do |key, total| %>
+      <% @order.line_item_adjustment_totals.each do |key, total| %>
         <tr class="total">
           <td colspan="4"><strong><%= key %></strong></td>
           <td class="total"><span><%= total %></span></td>

@@ -1,11 +1,6 @@
 Spree::Core::Engine.routes.draw do
   root :to => 'home#index'
-
-  namespace :admin do
-    namespace :orders do
-
-    end
-  end
+  get '/admin', :to => 'admin/orders#index', :as => :admin
 
   namespace :admin do
     get '/search/users', :to => "search#users", :as => :search_users
@@ -172,7 +167,7 @@ Spree::Core::Engine.routes.draw do
     end
 
     resources :stock_movements
-    resources :stock_items, :only => [:update, :destroy]
+    resources :stock_items, :only => [:create, :update, :destroy]
     resources :tax_rates
     resource  :tax_settings
 
@@ -182,6 +177,4 @@ Spree::Core::Engine.routes.draw do
       post :testmail, :on => :collection
     end
   end
-
-  match '/admin', :to => 'admin/orders#index', :as => :admin
 end

@@ -3,11 +3,13 @@ module Spree
     before_validation :adjust_quantity
     belongs_to :order, class_name: "Spree::Order"
     belongs_to :variant, class_name: "Spree::Variant"
+    belongs_to :tax_category, class_name: "Spree::TaxCategory"
 
     has_one :product, through: :variant
     has_many :adjustments, as: :adjustable, dependent: :destroy
 
     before_validation :copy_price
+    before_validation :copy_tax_category
 
     validates :variant, presence: true
     validates :quantity, numericality: {
@@ -18,30 +20,27 @@ module Spree
     validates :price, numericality: true
     validates_with Stock::AvailabilityValidator
 
-    attr_accessible :quantity, :variant_id
-
     before_save :update_inventory
 
     after_save :update_order
     after_destroy :update_order
+
+    delegate :name, :description, to: :variant
 
     attr_accessor :target_shipment
 
     def copy_price
       if variant
         self.price = variant.price if price.nil?
+        self.cost_price = variant.cost_price if cost_price.nil?
         self.currency = variant.currency if currency.nil?
       end
     end
 
-    def increment_quantity
-      ActiveSupport::Deprecation.warn("[SPREE] Spree::LineItem#increment_quantity will be deprecated in Spree 2.1, please use quantity.increment! instead.")
-      self.quantity.increment!
-    end
-
-    def decrement_quantity
-      ActiveSupport::Deprecation.warn("[SPREE] Spree::LineItem#decrement_quantity will be deprecated in Spree 2.1, please use quantity.decrement! instead.")
-      self.quantity.decrement!
+    def copy_tax_category
+      if variant
+        self.tax_category = variant.product.tax_category
+      end
     end
 
     # This is assuming we are including kit functionality from spree_product_assembley
@@ -91,15 +90,29 @@ module Spree
       @preferred_shipment = shipment
     end
 
+    # Remove product default_scope `deleted_at: nil`
+    def product
+      variant.product
+    end
+
+    # Remove variant default_scope `deleted_at: nil`
+    def variant
+      Spree::Variant.unscoped { super }
+    end
+
     private
       def update_inventory
-        Spree::OrderInventory.new(self.order).verify(self, target_shipment)
+        if changed?
+          Spree::OrderInventory.new(self.order).verify(self, target_shipment)
+        end
       end
 
       def update_order
-        # update the order totals, etc.
-        order.create_tax_charge!
-        order.update!
+        if changed? || destroyed?
+          # update the order totals, etc.
+          order.create_tax_charge!
+          order.update!
+        end
       end
   end
 end

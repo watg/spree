@@ -1,8 +1,7 @@
 require 'spec_helper'
 
 describe Spree::CreditCard do
-
-  let(:valid_credit_card_attributes) { { number: '4111111111111111', verification_value: '123', month: 12, year: 2014 } }
+  let(:valid_credit_card_attributes) { {:number => '4111111111111111', :verification_value => '123', :expiry => "12 / 14"} }
 
   def self.payment_states
     Spree::Payment.state_machine.states.keys
@@ -17,10 +16,10 @@ describe Spree::CreditCard do
   before(:each) do
 
     @order = create(:order)
-    @payment = Spree::Payment.create({ amount: 100, order: @order }, without_protection: true)
+    @payment = Spree::Payment.create(:amount => 100, :order => @order)
 
-    @success_response = mock('gateway_response', success?: true, authorization: '123', avs_result: { 'code' => 'avs-code' })
-    @fail_response = mock('gateway_response', success?: false)
+    @success_response = double('gateway_response', success?: true, authorization: '123', avs_result: { 'code' => 'avs-code' })
+    @fail_response = double('gateway_response', success?: false)
 
     @payment_gateway = mock_model(Spree::PaymentMethod,
       payment_profiles_supported?: true,
@@ -88,22 +87,29 @@ describe Spree::CreditCard do
       credit_card.month = 1.month.ago.month
       credit_card.year = 1.month.ago.year
       credit_card.should_not be_valid
-      credit_card.errors[:card].should == ["has expired"]
+      credit_card.errors[:base].should == ["Card has expired"]
     end
 
     it "does not run expiration in the past validation if month is not set" do
       credit_card.month = nil
       credit_card.year = Time.now.year
       credit_card.should_not be_valid
-      credit_card.errors[:card].should be_blank
+      credit_card.errors[:base].should be_blank
     end
 
     it "does not run expiration in the past validation if year is not set" do
       credit_card.month = Time.now.month
       credit_card.year = nil
       credit_card.should_not be_valid
-      credit_card.errors[:card].should be_blank
+      credit_card.errors[:base].should be_blank
     end
+    
+    it "does not run expiration in the past validation if year and month are empty" do
+      credit_card.year = ""
+      credit_card.month = ""
+      credit_card.should_not be_valid
+      credit_card.errors[:card].should be_blank
+    end 
 
     it "should only validate on create" do
       credit_card.attributes = valid_credit_card_attributes
@@ -129,55 +135,64 @@ describe Spree::CreditCard do
     end
   end
 
-  context "#spree_cc_type" do
-    before { credit_card.attributes = valid_credit_card_attributes }
+  context "#number=" do
+    it "should strip non-numeric characters from card input" do
+      credit_card.number = "6011000990139424"
+      credit_card.number.should == "6011000990139424"
 
-    context "in development mode" do
-      before do
-        stub_rails_env("production")
-      end
-
-      it "should return visa" do
-        credit_card.save
-        credit_card.spree_cc_type.should == 'visa'
-      end
+      credit_card.number = "  6011-0009-9013-9424  "
+      credit_card.number.should == "6011000990139424"
     end
 
-    context "in production mode" do
-      before { stub_rails_env("production") }
-
-      it "should return the actual cc_type for a valid number" do
-        credit_card.number = '378282246310005'
-        credit_card.save
-        credit_card.spree_cc_type.should == 'american_express'
-      end
+    it "should not raise an exception on non-string input" do
+      credit_card.number = Hash.new
+      credit_card.number.should be_nil
     end
   end
 
-  context "#set_card_type" do
-    before :each do
-      stub_rails_env("production")
-      credit_card.attributes = valid_credit_card_attributes
-    end
+  context "#cc_type=" do
+    it "converts between the different types" do
+      credit_card.cc_type = 'mastercard'
+      credit_card.cc_type.should == 'master'
 
-    it "stores the credit card type after validation" do
-      credit_card.number = '6011000990139424'
-      credit_card.save
-      credit_card.spree_cc_type.should == 'discover'
-    end
+      credit_card.cc_type = 'maestro'
+      credit_card.cc_type.should == 'master'
 
-    it "does not overwrite the credit card type when loaded and saved" do
-      credit_card.number = '5105105105105100'
-      credit_card.save
-      credit_card.number = 'XXXXXXXXXXXX5100'
-      credit_card.save
-      credit_card.spree_cc_type.should == 'master'
+      credit_card.cc_type = 'amex'
+      credit_card.cc_type.should == 'american_express'
+
+      credit_card.cc_type = 'dinersclub'
+      credit_card.cc_type.should == 'diners_club'
+
+      credit_card.cc_type = 'some_outlandish_cc_type'
+      credit_card.cc_type.should == 'some_outlandish_cc_type'
     end
   end
 
   context "#associations" do
     it "should be able to access its payments" do
-      expect { credit_card.payments.all }.not_to raise_error(ActiveRecord::StatementInvalid)
+      expect { credit_card.payments.to_a }.not_to raise_error
+    end
+  end
+  
+  context "#to_active_merchant" do
+    before do
+      credit_card.number = "4111111111111111"
+      credit_card.year = Time.now.year
+      credit_card.month = Time.now.month
+      credit_card.first_name = "Bob"
+      credit_card.last_name = "Boblaw"
+      credit_card.verification_value = 123
+    end
+
+    it "converts to an ActiveMerchant::Billing::CreditCard object" do
+      am_card = credit_card.to_active_merchant
+      am_card.number.should == "4111111111111111"
+      am_card.year.should == Time.now.year
+      am_card.month.should == Time.now.month
+      am_card.first_name.should == "Bob"
+      am_card.last_name = "Boblaw"
+      am_card.verification_value.should == 123
     end
   end
 end

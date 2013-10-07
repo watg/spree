@@ -25,7 +25,7 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
 
   def update
     invoke_callbacks(:update, :before)
-    if @object.update_attributes(params[object_name])
+    if @object.update_attributes(permitted_resource_params)
       invoke_callbacks(:update, :after)
       flash[:success] = flash_message_for(@object, :successfully_updated)
       respond_with(@object) do |format|
@@ -40,7 +40,7 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
 
   def create
     invoke_callbacks(:create, :before)
-    @object.attributes = params[object_name]
+    @object.attributes = permitted_resource_params
     if @object.save
       invoke_callbacks(:create, :after)
       flash[:success] = flash_message_for(@object, :successfully_created)
@@ -70,13 +70,13 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
       invoke_callbacks(:destroy, :after)
       flash[:success] = flash_message_for(@object, :successfully_removed)
       respond_with(@object) do |format|
-        format.html { redirect_to collection_url }
+        format.html { redirect_to location_after_destroy }
         format.js   { render :partial => "spree/admin/shared/destroy" }
       end
     else
       invoke_callbacks(:destroy, :fails)
       respond_with(@object) do |format|
-        format.html { redirect_to collection_url }
+        format.html { redirect_to location_after_destroy }
       end
     end
   end
@@ -198,6 +198,10 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
       end
     end
 
+    def location_after_destroy
+      collection_url
+    end
+
     def location_after_save
       collection_url
     end
@@ -245,6 +249,13 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
       else
         spree.polymorphic_url([:admin, model_class], options)
       end
+    end
+
+    # Allow all attributes to be updatable.
+    #
+    # Other controllers can, should, override it to set custom logic
+    def permitted_resource_params
+      params.require(object_name).permit!
     end
 
     def collection_actions

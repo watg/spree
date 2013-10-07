@@ -19,10 +19,13 @@ module Spree
         redirect_to root_path and return
       end
 
-      if @order.update_attributes(params[:order])
-        return if after_update_attributes
+      if @order.update_attributes(order_params)
         @order.line_items = @order.line_items.select {|li| li.quantity > 0 }
+        @order.ensure_updated_shipments
+        return if after_update_attributes
+
         fire_event('spree.order.contents_changed')
+
         respond_with(@order) do |format|
           format.html do
             if params.has_key?(:checkout)
@@ -38,7 +41,6 @@ module Spree
       end
     end
 
-
     # Shows the current incomplete order from the session
     def edit
       @order = current_order(true)
@@ -49,6 +51,8 @@ module Spree
     def populate
       populator = Spree::OrderPopulator.new(current_order(true), current_currency)
       if populator.populate(params.slice(:products, :variants, :quantity))
+        current_order.ensure_updated_shipments
+
         fire_event('spree.cart.add')
         fire_event('spree.order.contents_changed')
         respond_with(@order) do |format|
@@ -85,16 +89,24 @@ module Spree
 
     private
 
-    def after_update_attributes
-      coupon_result = Spree::Promo::CouponApplicator.new(@order).apply
-      if coupon_result[:coupon_applied?]
-        flash[:success] = coupon_result[:success] if coupon_result[:success].present?
-        return false
-      else
-        flash[:error] = coupon_result[:error]
-        respond_with(@order) { |format| format.html { render :edit } }
-        return true
+      def order_params
+        if params[:order]
+          params[:order].permit(*permitted_order_attributes)
+        else
+          {}
+        end
       end
-    end
+
+      def after_update_attributes
+        coupon_result = Spree::Promo::CouponApplicator.new(@order).apply
+        if coupon_result[:coupon_applied?]
+          flash[:success] = coupon_result[:success] if coupon_result[:success].present?
+          return false
+        else
+          flash[:error] = coupon_result[:error]
+          respond_with(@order) { |format| format.html { render :edit } }
+          return true
+        end
+      end
   end
 end

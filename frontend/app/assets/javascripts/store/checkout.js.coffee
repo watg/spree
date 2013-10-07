@@ -1,10 +1,18 @@
+//= require jquery.payment
+
 Spree.disableSaveOnClick = ->
   ($ 'form.edit_order').submit ->
     ($ this).find(':submit, :image').attr('disabled', true).removeClass('primary').addClass 'disabled'
 
-Spree.Checkout = {}
-
 Spree.ready ($) ->
+  Spree.Checkout = {}
+  $("#card_number").payment('formatCardNumber')
+  $("#card_expiry").payment('formatCardExpiry')
+  $("#card_code").payment('formatCardCVC')
+
+  $("#card_number").change ->
+    $("#cc_type").val($.payment.cardType(@value))
+
   if ($ '#checkout_form_address').is('*')
     ($ '#checkout_form_address').validate()
 
@@ -45,6 +53,7 @@ Spree.ready ($) ->
         statePara.show()
         stateSpanRequired.show()
         stateSelect.addClass('required') if statesRequired
+        stateSelect.removeClass('hidden')
         stateInput.removeClass('required')
       else
         stateSelect.hide().prop 'disabled', true

@@ -4,7 +4,7 @@ module Spree
       before_filter :load_stock_locations, :only => :index
 
       def index
-        @q = StockTransfer.search(params[:q])
+        @q = StockTransfer.ransack(params[:q])
 
         @stock_transfers = @q.result
                              .includes(:stock_movements => { :stock_item => :stock_location })
@@ -30,7 +30,7 @@ module Spree
                                 destination_location,
                                 variants)
 
-        flash[:success] = t(:stock_successfully_transferred)
+        flash[:success] = Spree.t(:stock_successfully_transferred)
         redirect_to admin_stock_transfer_path(stock_transfer)
       end
 

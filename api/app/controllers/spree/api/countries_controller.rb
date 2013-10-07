@@ -1,17 +1,21 @@
 module Spree
   module Api
     class CountriesController < Spree::Api::BaseController
+      skip_before_filter :check_for_user_or_api_key
+      skip_before_filter :authenticate_user
 
       def index
-        @countries = Country.ransack(params[:q]).result.
+        @countries = Country.accessible_by(current_ability, :read).ransack(params[:q]).result.
                      includes(:states).order('name ASC').
                      page(params[:page]).per(params[:per_page])
-
-        respond_with(@countries)
+        country = Country.order("updated_at ASC").last
+        if stale?(country)
+          respond_with(@countries)
+        end
       end
 
       def show
-        @country = Country.find(params[:id])
+        @country = Country.accessible_by(current_ability, :read).find(params[:id])
         respond_with(@country)
       end
     end

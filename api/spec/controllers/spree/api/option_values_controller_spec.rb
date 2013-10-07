@@ -73,14 +73,14 @@ module Spree
                           :option_value => {
                             :name => "Option Value"
                           }
-        assert_unauthorized!
+        assert_not_found!
         option_type.reload.name.should == original_name
       end
 
       it "cannot delete an option value" do
         api_delete :destroy, :id => option_type.id
-        assert_unauthorized!
-        lambda { option_type.reload }.should_not raise_error(ActiveRecord::RecordNotFound)
+        assert_not_found!
+        lambda { option_type.reload }.should_not raise_error
       end
 
       context "as an admin" do

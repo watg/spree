@@ -5,16 +5,12 @@ module Spree
 
     has_many :shipments
 
-    validates :firstname, :lastname, :address1, :city, :zipcode, :country, presence: true
+    validates :firstname, :lastname, :address1, :city, :country, presence: true
+    validates :zipcode, presence: true, if: :require_zipcode?
     validates :phone, presence: true, if: :require_phone?
 
     validate :state_validate
     validate :phone_validate
-
-    attr_accessible :firstname, :lastname, :address1, :address2,
-                    :city, :zipcode, :country_id, :state_id,
-                    :country, :state, :phone, :state_name,
-                    :company, :alternative_phone
 
     alias_attribute :first_name, :firstname
     alias_attribute :last_name, :lastname
@@ -35,7 +31,7 @@ module Spree
 
     def self.default
       country = Spree::Country.find(Spree::Config[:default_country_id]) rescue Spree::Country.first
-      new({ country: country }, without_protection: true)
+      new(country: country)
     end
 
     # Can modify an address if it's not been used in an order (but checkouts controller has finer control)
@@ -103,8 +99,11 @@ module Spree
     end
 
     private
-
       def require_phone?
+        true
+      end
+
+      def require_zipcode?
         true
       end
 
@@ -144,6 +143,5 @@ module Spree
         # ensure at least one state field is populated
         errors.add :state, :blank if state.blank? && state_name.blank?
       end
-
   end
 end

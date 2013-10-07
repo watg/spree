@@ -9,7 +9,7 @@ module Spree
     #  Sale feature
     ## Transfert from spree extension product-assembly with options
     #
-    def add(variant, quantity, currency=nil, shipment=nil, options=nil)
+    def add(variant, quantity=1, currency=nil, shipment=nil, options=nil)
       options_with_qty = (options.blank? ? [] : options)
       #get current line item for variant if exists
       line_item = Spree::LineItem.find_by_order_variant_options(order,variant,options_with_qty)
@@ -21,7 +21,7 @@ module Spree
     
     # Get current line item for variant
     # Remove variant qty from line_item
-    def remove(variant, quantity, shipment=nil)
+    def remove(variant, quantity=1, shipment=nil)
       line_item = order.find_line_item_by_variant(variant)
 
       unless line_item
@@ -41,19 +41,16 @@ module Spree
       
       if line_item
         line_item.target_shipment = shipment
-        line_item.quantity       += quantity
-        line_item.currency        = currency 
-        line_item.save
+        line_item.quantity += quantity.to_i
+        line_item.currency = currency unless currency.nil?
       else
-        line_item = Spree::LineItem.new(quantity: quantity)
+        line_item = order.line_items.new(quantity: quantity, variant: variant)
         line_item.target_shipment = shipment
-        line_item.variant         = variant
-        line_item.currency        = currency
-        line_item.price           = variant.current_price_in(currency).amount
-
-        if variant.in_sale?
-          line_item.in_sale       = variant.in_sale
-          line_item.normal_price  = variant.price_normal_in(currency).amount
+        if currency
+          line_item.currency = currency unless currency.nil?
+          line_item.price    = variant.price_in(currency).amount
+        else
+          line_item.price    = variant.price
         end
 
         line_item.add_options(options,currency) unless options.blank?
@@ -62,6 +59,7 @@ module Spree
         line_item
       end
 
+      line_item.save
       order.reload
       line_item
     end

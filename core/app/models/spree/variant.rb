@@ -1,22 +1,13 @@
 module Spree
   class Variant < ActiveRecord::Base
     acts_as_paranoid
-    
+
     belongs_to :product, touch: true, class_name: 'Spree::Product'
 
     delegate_belongs_to :product, :name, :description, :permalink, :available_on,
                         :tax_category_id, :shipping_category_id, :meta_description,
                         :meta_keywords, :tax_category, :shipping_category
 
-    attr_accessible :name, :presentation, :cost_price, :lock_version,
-                    :position, :option_value_ids,
-                    :product_id, :option_values_attributes,
-                    :weight, :height, :width, :depth, :sku, :cost_currency, :in_sale
-
-    # from variant options
-    attr_accessible :option_values
-    # end variant options
-    
     has_many :inventory_units
     has_many :line_items
 
@@ -27,7 +18,7 @@ module Spree
     has_many :displayable_variants 
 
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants
-    has_many :images, as: :viewable, order: :position, dependent: :destroy, class_name: "Spree::Image"
+    has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
 
     has_many :prices,
       class_name: 'Spree::Price',
@@ -43,7 +34,7 @@ module Spree
     after_save { self.touch } 
 
     # default variant scope only lists non-deleted variants
-    scope :deleted, lambda { where("#{Variant.quoted_table_name}.deleted_at IS NOT NULL") }
+    scope :deleted, lambda { where('deleted_at IS NOT NULL') }
 
     scope :not_deleted, lambda { where("#{Variant.quoted_table_name}.deleted_at IS NULL or #{Variant.quoted_table_name}.deleted_at >= ?", Time.zone.now) }
 
@@ -253,6 +244,15 @@ module Spree
     def product
       Spree::Product.unscoped { super }
     end
+    
+    
+    def total_on_hand
+      Spree::Stock::Quantifier.new(self).total_on_hand
+    end
+
+    def product_price_in(currency)
+      self.product.master.prices.select{ |price| price.currency == currency }.first
+    end
 
     private
     def find_price(currency, type)
@@ -264,10 +264,6 @@ module Spree
     end
 
 
-    def product_price_in(currency)
-      self.product.master.prices.select{ |price| price.currency == currency }.first
-    end
-    
       # strips all non-price-like characters from the price, taking into account locale settings
       def parse_price(price)
         return price unless price.is_a?(String)
@@ -285,8 +281,8 @@ module Spree
       end
 
       def create_stock_items
-        Spree::StockLocation.all.each do |stock_location|
-          stock_location.stock_items.create!(variant: self, backorderable: stock_location.backorderable_default)
+        StockLocation.all.each do |stock_location|
+          stock_location.propagate_variant(self) if stock_location.propagate_all_variants?
         end
       end
 

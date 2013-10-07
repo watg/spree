@@ -4,8 +4,8 @@ describe Spree::Order do
   let(:order) { Spree::Order.new }
 
   context "with default state machine" do
-    it "has the following transitions" do
-      transitions = [
+    let(:transitions) do
+      [
         { :address => :delivery },
         { :delivery => :payment },
         { :payment => :confirm },
@@ -13,6 +13,9 @@ describe Spree::Order do
         { :payment => :complete },
         { :delivery => :complete }
       ]
+    end
+
+    it "has the following transitions" do
       transitions.each do |transition|
         transition = Spree::Order.find_transition(:from => transition.keys.first, :to => transition.values.first)
         transition.should_not be_nil
@@ -22,6 +25,20 @@ describe Spree::Order do
     it "does not have a transition from delivery to confirm" do
       transition = Spree::Order.find_transition(:from => :delivery, :to => :confirm)
       transition.should be_nil
+    end
+
+    it '.find_transition when contract was broken' do
+      Spree::Order.find_transition({foo: :bar, baz: :dog}).should be_false
+    end
+
+    it '.remove_transition' do
+      options = {:from => transitions.first.keys.first, :to => transitions.first.values.first}
+      Spree::Order.stub(:next_event_transition).and_return([options])
+      Spree::Order.remove_transition(options).should be_true
+    end
+
+    it '.remove_transition when contract was broken' do
+      Spree::Order.remove_transition(nil).should be_false
     end
 
     context "#checkout_steps" do
@@ -224,8 +241,32 @@ describe Spree::Order do
     end
   end
 
+  # Regression test for #3665
+  context "with only a complete step" do
+    before do
+      @old_checkout_flow = Spree::Order.checkout_flow
+      Spree::Order.class_eval do
+        checkout_flow do
+          go_to_state :complete
+        end
+      end
+    end
+
+    after do
+      Spree::Order.checkout_flow(&@old_checkout_flow)
+    end
+
+    it "does not attempt to process payments" do
+      order.stub_chain(:line_items, :present?).and_return(true)
+      order.should_not_receive(:payment_required?)
+      order.should_not_receive(:process_payments!)
+      order.next!
+    end
+
+  end
+
   context "insert checkout step" do
-    before do 
+    before do
       @old_checkout_flow = Spree::Order.checkout_flow
       Spree::Order.class_eval do
         insert_checkout_step :new_step, before: :address
@@ -269,7 +310,7 @@ describe Spree::Order do
   end
 
   context "remove checkout step" do
-    before do 
+    before do
       @old_checkout_flow = Spree::Order.checkout_flow
       Spree::Order.class_eval do
         remove_checkout_step :address

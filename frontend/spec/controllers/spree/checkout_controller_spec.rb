@@ -5,6 +5,11 @@ describe Spree::CheckoutController do
   let(:user) { stub_model(Spree::LegacyUser) }
   let(:order) { FactoryGirl.create(:order_with_totals) }
 
+  let(:address_params) do
+    address = FactoryGirl.build(:address)
+    address.attributes.except("created_at", "updated_at")
+  end
+
   before do
     controller.stub :try_spree_current_user => user
     controller.stub :current_order => order
@@ -78,11 +83,6 @@ describe Spree::CheckoutController do
           order.stub :available_payment_methods => [stub_model(Spree::PaymentMethod)]
           order.stub :ensure_available_shipping_rates => true
           order.line_items << FactoryGirl.create(:line_item)
-        end
-
-        let(:address_params) do
-          address = FactoryGirl.build(:address)
-          address.attributes.except("created_at", "updated_at")
         end
 
         it "should assign order" do
@@ -195,12 +195,6 @@ describe Spree::CheckoutController do
         FactoryGirl.create(:order_with_line_items).tap do |order|
           order.next!
           order.state.should == 'address'
-          order.ship_address.tap do |address|
-            # A different country which is not included in the list of shippable countries
-            address.country = FactoryGirl.create(:country, :name => "Australia")
-            address.state_name = 'Victoria'
-            address.save
-          end
         end
       end
 
@@ -209,12 +203,37 @@ describe Spree::CheckoutController do
         controller.stub :check_authorization => true
       end
 
-      it "due to no available shipping rates for any of the shipments" do
-        order.shipments.count.should == 1
-        order.shipments.first.shipping_rates.delete_all
-        spree_put :update, :order => {}
-        flash[:error].should == Spree.t(:items_cannot_be_shipped)
-        response.should redirect_to(spree.checkout_state_path('address'))
+      context "when the country is not a shippable country" do
+        before do
+          order.ship_address.tap do |address|
+            # A different country which is not included in the list of shippable countries
+            address.country = FactoryGirl.create(:country, :name => "Australia")
+            address.state_name = 'Victoria'
+            address.save
+          end
+        end
+
+        it "due to no available shipping rates for any of the shipments" do
+          order.shipments.count.should == 1
+          order.shipments.first.shipping_rates.delete_all
+          spree_put :update, :order => {}
+          flash[:error].should == Spree.t(:items_cannot_be_shipped)
+          response.should redirect_to(spree.checkout_state_path('address'))
+        end
+      end
+
+      context "when the order is invalid" do
+        before do
+          order.stub :update_attributes => true, :next => nil
+          order.errors.add :base, 'Base error'
+          order.errors.add :adjustments, 'error'
+        end
+
+        it "due to the order having errors" do
+          spree_put :update, :order => {}
+          flash[:error].should == "Base error\nAdjustments error"
+          response.should redirect_to(spree.checkout_state_path('address'))
+        end
       end
     end
 
@@ -256,12 +275,10 @@ describe Spree::CheckoutController do
       configure_spree_preferences do |config|
         config.track_inventory_levels = true
       end
-
     end
 
     context "and back orders are not allowed" do
       before do
-        controller.should_receive(:before_payment)
         spree_post :update, { :state => "payment" }
       end
 
@@ -273,5 +290,33 @@ describe Spree::CheckoutController do
         flash[:error].should == Spree.t(:inventory_error_flash_for_insufficient_quantity , :names => "'#{product.name}'" )
       end
     end
+  end
+
+  context "order doesn't have a delivery step" do
+    before do
+      order.stub(:checkout_steps => ["cart", "address", "payment"])
+      order.stub state: "address"
+      controller.stub :check_authorization => true
+    end
+
+    it "doesn't set shipping address on the order" do
+      expect(order).to receive(:bill_address)
+      expect(order).to_not receive(:ship_address)
+      spree_post :update
+    end
+
+    it "doesn't remove unshippable items before payment" do
+      expect {
+        spree_post :update, { :state => "payment" }
+      }.to_not change { order.line_items }
+    end
+  end
+
+  it "does remove unshippable items before payment" do
+    controller.stub :check_authorization => true
+
+    expect {
+      spree_post :update, { :state => "payment" }
+    }.to change { order.line_items }
   end
 end

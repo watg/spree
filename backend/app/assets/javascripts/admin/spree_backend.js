@@ -1,5 +1,7 @@
 //= require jquery-migrate-1.0.0
-//= require jquery-ui
+//= require jquery.ui.datepicker
+//= require jquery.ui.sortable
+//= require jquery.ui.autocomplete
 //= require modernizr
 //= require select2
 //= require jquery.cookie
@@ -14,7 +16,6 @@
 //= require jquery.adaptivemenu
 //= require equalize
 //= require responsive-tables
-//= require jquery.horizontalNav
 //= require spree
+//= require admin/spree-select2
 //= require_tree .
-

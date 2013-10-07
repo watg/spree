@@ -15,7 +15,10 @@ describe Spree::TaxRate do
 
     context "when no rate zones match the tax zone" do
       before do
-        Spree::TaxRate.create({:amount => 1, :zone => create(:zone, :name => 'other_zone')}, :without_protection => true)
+        Spree::TaxRate.create(
+          :amount => 1,
+          :zone => create(:zone, :name => 'other_zone')
+        )
       end
 
       context "when there is no default tax zone" do
@@ -30,18 +33,31 @@ describe Spree::TaxRate do
         end
 
         it "should return the rate that matches the rate zone" do
-          rate = Spree::TaxRate.create({ :amount => 1, :zone => @zone, :tax_category => tax_category,
-                                       :calculator => calculator }, :without_protection => true)
+          rate = Spree::TaxRate.create(
+            :amount => 1,
+            :zone => @zone,
+            :tax_category => tax_category,
+            :calculator => calculator
+          )
 
           order.stub :tax_zone => @zone
           Spree::TaxRate.match(order).should == [rate]
         end
 
         it "should return all rates that match the rate zone" do
-          rate1 = Spree::TaxRate.create({:amount => 1, :zone => @zone, :tax_category => tax_category,
-                                        :calculator => calculator}, :without_protection => true)
-          rate2 = Spree::TaxRate.create({:amount => 2, :zone => @zone, :tax_category => tax_category,
-                                        :calculator => Spree::Calculator::FlatRate.new}, :without_protection => true)
+          rate1 = Spree::TaxRate.create(
+            :amount => 1,
+            :zone => @zone,
+            :tax_category => tax_category,
+            :calculator => calculator
+          )
+
+          rate2 = Spree::TaxRate.create(
+            :amount => 2,
+            :zone => @zone,
+            :tax_category => tax_category,
+            :calculator => Spree::Calculator::FlatRate.new
+          )
 
           order.stub :tax_zone => @zone
           Spree::TaxRate.match(order).should == [rate1, rate2]
@@ -52,8 +68,12 @@ describe Spree::TaxRate do
             sub_zone = create(:zone, :name => "State Zone", :zone_members => [])
             sub_zone.zone_members.create(:zoneable => create(:state, :country => country))
             order.stub :tax_zone => sub_zone
-            @rate = Spree::TaxRate.create({:amount => 1, :zone => @zone, :tax_category => tax_category,
-                                          :calculator => calculator}, :without_protection => true)
+            @rate = Spree::TaxRate.create(
+              :amount => 1,
+              :zone => @zone,
+              :tax_category => tax_category,
+              :calculator => calculator
+            )
           end
 
           it "should return the rate zone" do
@@ -69,14 +89,67 @@ describe Spree::TaxRate do
           @zone.zone_members.create(:zoneable => country)
         end
 
+        let(:included_in_price) { false }
+        let!(:rate) do
+          Spree::TaxRate.create(:amount => 1,
+                                :zone => @zone,
+                                :tax_category => tax_category,
+                                :calculator => calculator,
+                                :included_in_price => included_in_price)
+        end
+
+        subject { Spree::TaxRate.match(order) }
+
+        context "when the order has the same tax zone" do
+          before do
+            order.stub :tax_zone => @zone
+            order.stub :tax_address => tax_address
+          end
+
+          let(:tax_address) { stub_model(Spree::Address) }
+
+          context "when the tax is not a VAT" do
+            it { should == [rate] }
+          end
+
+          context "when the tax is a VAT" do
+            let(:included_in_price) { true }
+            it { should be_empty }
+          end
+        end
+
         context "when there order has a different tax zone" do
-          before { order.stub :tax_zone => create(:zone, :name => "Other Zone") }
+          before do
+            order.stub :tax_zone => create(:zone, :name => "Other Zone")
+            order.stub :tax_address => tax_address
+          end
 
-          it "should return the rates associated with the default tax zone" do
-            rate = Spree::TaxRate.create({:amount => 1, :zone => @zone, :tax_category => tax_category,
-                                         :calculator => calculator}, :without_protection => true)
+          context "when the order has a tax_address" do
+            let(:tax_address) { stub_model(Spree::Address) }
 
-            Spree::TaxRate.match(order).should == [rate]
+            context "when the tax is a VAT" do
+              let(:included_in_price) { true }
+              it { should == [rate] }
+            end
+
+            context "when the tax is not VAT" do
+              it "returns no tax rate" do
+                subject.should be_empty
+              end
+            end
+          end
+
+          context "when the order does not have a tax_address" do
+            let(:tax_address) { nil}
+
+            context "when the tax is not a VAT" do
+              let(:included_in_price) { true }
+              it { should be_empty }
+            end
+
+            context "when the tax is not a VAT" do
+              it { should == [rate] }
+            end
           end
         end
       end
@@ -120,7 +193,12 @@ describe Spree::TaxRate do
           Spree::Config[:default_country_id] = country.id
           @zone = create(:zone, :name => "Country Zone", :default_tax => true)
           @zone.zone_members.create(:zoneable => country)
-          rate = Spree::TaxRate.create({:amount => 1, :zone => @zone, :tax_category => tax_category, :calculator => calculator}, :without_protection => true)
+          rate = Spree::TaxRate.create(
+            :amount => 1,
+            :zone => @zone,
+            :tax_category => tax_category,
+            :calculator => calculator
+          )
         end
 
         it "should return the correct tax_rate" do
@@ -141,7 +219,11 @@ describe Spree::TaxRate do
       @category    = Spree::TaxCategory.create :name => "Taxable Foo"
       @category2   = Spree::TaxCategory.create(:name => "Non Taxable")
       @calculator  = Spree::Calculator::DefaultTax.new
-      @rate        = Spree::TaxRate.create({:amount => 0.10, :calculator => @calculator, :tax_category => @category}, :without_protection => true)
+      @rate        = Spree::TaxRate.create(
+        :amount => 0.10,
+        :calculator => @calculator,
+        :tax_category => @category
+      )
       @order       = Spree::Order.create!
       @taxable     = create(:product, :tax_category => @category)
       @nontaxable  = create(:product, :tax_category => @category2)
@@ -155,9 +237,9 @@ describe Spree::TaxRate do
         @order.adjustments.tax.charge.count.should == 0
       end
 
-      it "should not create a price adjustment" do
+      it "should not create a line item adjustment" do
         @rate.adjust(@order)
-        @order.price_adjustments.count.should == 0
+        @order.line_item_adjustments.count.should == 0
       end
 
       it "should not create a refund" do
@@ -177,7 +259,7 @@ describe Spree::TaxRate do
 
           it "should create one price adjustment" do
             @rate.adjust(@order)
-            @order.price_adjustments.count.should == 1
+            @order.line_item_adjustments.count.should == 1
           end
 
           it "should not create a tax refund" do
@@ -194,9 +276,9 @@ describe Spree::TaxRate do
         context "when zone is not contained by default tax zone" do
           before { Spree::Zone.stub_chain :default_tax, :contains? => false }
 
-          it "should not create a price adjustment" do
+          it "should not create a line item adjustment" do
             @rate.adjust(@order)
-            @order.price_adjustments.count.should == 0
+            @order.line_item_adjustments.count.should == 0
           end
 
           it "should create a tax refund" do
@@ -215,9 +297,9 @@ describe Spree::TaxRate do
       context "when price does not include tax" do
         before { @rate.included_in_price = false }
 
-        it "should not create price adjustment" do
+        it "should not create line item adjustment" do
           @rate.adjust(@order)
-          @order.price_adjustments.count.should == 0
+          @order.line_item_adjustments.count.should == 0
         end
 
         it "should not create a tax refund" do
@@ -240,7 +322,7 @@ describe Spree::TaxRate do
         @order.contents.add(@taxable2.master, 1)
       end
 
-      context "when price includes tax" do
+      context "when line item includes tax" do
         before { @rate.included_in_price = true }
 
         context "when zone is contained by default tax zone" do
@@ -248,7 +330,7 @@ describe Spree::TaxRate do
 
           it "should create multiple price adjustments" do
             @rate.adjust(@order)
-            @order.price_adjustments.count.should == 2
+            @order.line_item_adjustments.count.should == 2
           end
 
           it "should not create a tax refund" do
@@ -267,7 +349,7 @@ describe Spree::TaxRate do
 
           it "should not create a price adjustment" do
             @rate.adjust(@order)
-            @order.price_adjustments.count.should == 0
+            @order.line_item_adjustments.count.should == 0
           end
 
           it "should create a single tax refund" do
@@ -288,7 +370,7 @@ describe Spree::TaxRate do
 
         it "should not create a price adjustment" do
           @rate.adjust(@order)
-          @order.price_adjustments.count.should == 0
+          @order.line_item_adjustments.count.should == 0
         end
 
         it "should not create a tax refund" do

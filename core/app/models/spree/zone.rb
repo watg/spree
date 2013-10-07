@@ -2,9 +2,7 @@ module Spree
   class Zone < ActiveRecord::Base
     has_many :zone_members, dependent: :destroy, class_name: "Spree::ZoneMember"
     has_many :tax_rates, dependent: :destroy
-    has_and_belongs_to_many :shipping_methods, :join_table => 'spree_shipping_methods_zones',
-                                               :class_name => 'Spree::ShippingMethod',
-                                               :foreign_key => 'zone_id'
+    has_and_belongs_to_many :shipping_methods, :join_table => 'spree_shipping_methods_zones'
 
     validates :name, presence: true, uniqueness: true
     after_save :remove_defunct_members
@@ -13,12 +11,9 @@ module Spree
     alias :members :zone_members
     accepts_nested_attributes_for :zone_members, allow_destroy: true, reject_if: proc { |a| a['zoneable_id'].blank? }
 
-    attr_accessible :name, :description, :default_tax, :kind, :zone_members,
-                    :zone_members_attributes
-
     def kind
       if members.any? && !members.any? { |member| member.try(:zoneable_type).nil? }
-        members.last.zoneable_type.demodulize.downcase
+        members.last.zoneable_type.demodulize.underscore
       end
     end
 
@@ -73,6 +68,42 @@ module Spree
     # countries or states depending on the zone type.
     def zoneables
       members.collect(&:zoneable)
+    end
+
+    def country_ids
+      if kind == 'country'
+        members.collect(&:zoneable_id)
+      else
+        []
+      end
+    end
+
+    def state_ids
+      if kind == 'state'
+        members.collect(&:zoneable_id)
+      else
+        []
+      end
+    end
+
+    def country_ids=(ids)
+      zone_members.destroy_all
+      ids.reject{ |id| id.blank? }.map do |id|
+        member = ZoneMember.new
+        member.zoneable_type = 'Spree::Country'
+        member.zoneable_id = id
+        members << member
+      end
+    end
+
+    def state_ids=(ids)
+      zone_members.destroy_all
+      ids.reject{ |id| id.blank? }.map do |id|
+        member = ZoneMember.new
+        member.zoneable_type = 'Spree::State'
+        member.zoneable_id = id
+        members << member
+      end
     end
 
     def self.default_tax

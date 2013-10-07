@@ -56,17 +56,19 @@ module Spree
               end
 
               event :resume do
-                transition :to => :resumed, :from => :canceled, :if => :allow_resume?
+                transition :to => :resumed, :from => :canceled, :if => :canceled?
               end
 
               event :authorize_return do
                 transition :to => :awaiting_return
               end
 
-
-              before_transition :to => :complete do |order|
-                order.process_payments! if order.payment_required?
+              if states[:payment]
+                before_transition :to => :complete do |order|
+                  order.process_payments! if order.payment_required?
+                end
               end
+
               before_transition :from => :cart, :do => :ensure_line_items_present
 
               before_transition :to => :delivery, :do => :create_proposed_shipments
@@ -125,12 +127,11 @@ module Spree
 
           def self.remove_transition(options={})
             self.removed_transitions << options
-            if transition = find_transition(options)
-              self.next_event_transitions.delete(transition)
-            end
+            self.next_event_transitions.delete(find_transition(options))
           end
 
           def self.find_transition(options={})
+            return nil if options.nil? || !options.include?(:from) || !options.include?(:to)
             self.next_event_transitions.detect do |transition|
               transition[options[:from].to_sym] == options[:to].to_sym
             end
@@ -149,15 +150,10 @@ module Spree
           end
 
           def checkout_steps
-            checkout_steps = []
-            # TODO: replace this with each_with_object once Ruby 1.9 is standard
-            self.class.checkout_steps.each do |step, options|
-              if options[:if]
-                next unless options[:if].call(self)
-              end
+            steps = self.class.checkout_steps.each_with_object([]) { |(step, options), checkout_steps|
+              next if options.include?(:if) && !options[:if].call(self)
               checkout_steps << step
-            end
-            steps = checkout_steps.map(&:to_s)
+            }.map(&:to_s)
             # Ensure there is always a complete step
             steps << "complete" unless steps.include?("complete")
             steps

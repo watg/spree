@@ -3,7 +3,7 @@ module Spree
     include Spree::Core::CalculatedAdjustments
     DISPLAY = [:both, :front_end, :back_end]
 
-    default_scope where(deleted_at: nil)
+    default_scope -> { where(deleted_at: nil) }
 
     has_many :shipments
     has_many :shipping_method_categories
@@ -14,25 +14,12 @@ module Spree
                                     :class_name => 'Spree::Zone',
                                     :foreign_key => 'shipping_method_id'
 
-    attr_accessible :name, :zones, :display_on, :shipping_category_id,
-                    :match_none, :match_one, :match_all, :tracking_url
-
     validates :name, presence: true
 
     validate :at_least_one_shipping_category
 
     def adjustment_label
       Spree.t(:shipping)
-    end
-
-    def zone
-      ActiveSupport::Deprecation.warn("[SPREE] ShippingMethod#zone is no longer correct. Multiple zones need to be supported")
-      zones.first
-    end
-
-    def zone=(zone)
-      ActiveSupport::Deprecation.warn("[SPREE] ShippingMethod#zone= is no longer correct. Multiple zones need to be supported")
-      zones = zone
     end
 
     def include?(address)
@@ -47,7 +34,7 @@ module Spree
     end
 
     def self.calculators
-      spree_calculators.send(model_name_without_spree_namespace).select{|c| c.name.start_with?("Spree::Calculator::Shipping::")}
+      spree_calculators.send(model_name_without_spree_namespace).select{ |c| c < Spree::ShippingCalculator }
     end
 
     # Some shipping methods are only meant to be set via backend

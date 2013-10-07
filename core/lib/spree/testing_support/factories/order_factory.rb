@@ -33,14 +33,18 @@ FactoryGirl.define do
         state 'complete'
         completed_at { Time.now }
 
+        after(:create) do |order|
+          order.refresh_shipment_rates
+        end
+
         factory :order_ready_to_ship do
           payment_state 'paid'
           shipment_state 'ready'
           after(:create) do |order|
             create(:payment, amount: order.total, order: order, state: 'completed')
             order.shipments.each do |shipment|
-              shipment.inventory_units.each { |u| u.update_attribute('state', 'on_hand') }
-              shipment.update_attribute('state', 'ready')
+              shipment.inventory_units.each { |u| u.update_column('state', 'on_hand') }
+              shipment.update_column('state', 'ready')
             end
             order.reload
           end
@@ -49,8 +53,8 @@ FactoryGirl.define do
         factory :shipped_order do
           after(:create) do |order|
             order.shipments.each do |shipment|
-              shipment.inventory_units.each { |u| u.update_attribute('state', 'shipped') }
-              shipment.update_attribute('state', 'shipped')
+              shipment.inventory_units.each { |u| u.update_column('state', 'shipped') }
+              shipment.update_column('state', 'shipped')
             end
             order.reload
           end

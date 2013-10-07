@@ -4,8 +4,7 @@ describe Spree::ReturnAuthorization do
   let(:stock_location) {Spree::StockLocation.create(:name => "test")}
   let(:order) { FactoryGirl.create(:shipped_order)}
   let(:variant) { order.shipments.first.inventory_units.first.variant }
-  let(:return_authorization) { Spree::ReturnAuthorization.new({:order => order,
-                                                               :stock_location_id => stock_location.id}, :without_protection => true) }
+  let(:return_authorization) { Spree::ReturnAuthorization.new(:order => order, :stock_location_id => stock_location.id) }
 
     context "save" do
     it "should be invalid when order has no inventory units" do
@@ -69,7 +68,7 @@ describe Spree::ReturnAuthorization do
   end
 
   context "receive!" do
-    let(:inventory_unit) { order.shipment.inventory_units.first }
+    let(:inventory_unit) { order.shipments.first.inventory_units.first }
 
     before  do
       return_authorization.stub(:inventory_units => [inventory_unit], :amount => -20)
@@ -84,7 +83,7 @@ describe Spree::ReturnAuthorization do
 
     it "should add credit for specified amount" do
       return_authorization.amount = 20
-      mock_adjustment = mock
+      mock_adjustment = double
       mock_adjustment.should_receive(:source=).with(return_authorization)
       mock_adjustment.should_receive(:adjustable=).with(order)
       mock_adjustment.should_receive(:save)
@@ -109,7 +108,7 @@ describe Spree::ReturnAuthorization do
   context "after_save" do
     it "should run correct callbacks" do
       return_authorization.should_receive(:force_positive_amount)
-      return_authorization.run_callbacks(:save, :after)
+      return_authorization.run_callbacks(:save)
     end
   end
 

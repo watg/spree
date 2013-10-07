@@ -15,6 +15,11 @@ describe Spree::Money do
     money.to_s.should == "$10.00"
   end
 
+  it "can get cents" do
+    money = Spree::Money.new(10)
+    money.cents.should == 1000
+  end
+
   context "with currency" do
     it "passed in option" do
       money = Spree::Money.new(10, :with_currency => true, :html => false)
@@ -124,6 +129,15 @@ describe Spree::Money do
       money = Spree::Money.new(10)
       # The HTML'ified version of "10.00 €"
       money.to_html.should == "10.00&nbsp;&#x20AC;"
+    end
+  end
+
+  describe "#as_json" do
+    let(:options) { double('options') }
+
+    it "returns the expected string" do
+      money = Spree::Money.new(10)
+      money.as_json(options).should == "$10.00"
     end
   end
 end

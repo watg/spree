@@ -3,34 +3,26 @@ require 'spec_helper'
 describe Spree::Promotion::Actions::CreateLineItems do
   let(:order) { create(:order) }
   let(:action) { Spree::Promotion::Actions::CreateLineItems.create }
+  let(:promotion) { stub_model(Spree::Promotion) }
+  let(:shirt) { create(:variant) }
+  let(:mug) { create(:variant) }
 
   context "#perform" do
-    context "order is not eligible" do
-      before { action.stub(eligible?: false) }
-
-      it "doesn't create line items" do
-        expect(order.line_items.count).to eql 0
-
-        action.perform(:order => order)
-        expect(order.line_items.count).to eql 0
-      end
+    before do
+      action.stub :promotion => promotion
+      action.promotion_action_line_items.create!(
+        :variant => mug,
+        :quantity => 1
+      )
+      action.promotion_action_line_items.create!(
+        :variant => shirt,
+        :quantity => 2
+      )
     end
 
     context "order is eligible" do
-      let(:mug) { create(:variant) }
-      let(:shirt) { create(:variant) }
-
       before do
-        action.stub(eligible?: true)
-
-        action.promotion_action_line_items.create!({
-          :variant => mug,
-          :quantity => 1}, :without_protection => true
-        )
-        action.promotion_action_line_items.create!({
-          :variant => shirt,
-          :quantity => 2}, :without_protection => true
-        )
+        promotion.stub :eligible => true
       end
 
       it "adds line items to order with correct variant and quantity" do

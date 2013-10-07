@@ -1,33 +1,59 @@
-## Spree 2.0.1 (unreleased) ##
+## Spree 2.1.0 ##
 
-*  Sandbox generator and installer now use the correct 2-0-stable branch of spree_auth_devise 
-3179a7ac85d4cfcb76622509fc739a0e17668d5a & 759fa3475f5230da3794aed86503913978dde22d.
+* Product requires `shipping_category_id` on create #3188.
 
-    *John Dyer and Sean Schofield*
+    *Jeff Dutil*
 
-* Revert bump of Rubygems required version which made Spree 2.0.0 unusable on Heroku. 77103dc4f4c93c195ae20f47944f68ef31a7bbe9
+*   No longer set ActiveRecord::Base.include_root_in_json = true during install.
+    Originally set to false back in 2011 according to convention. After
+    https://groups.google.com/forum/#!topic/spree-user/D9dZQayC4z, it
+    was changed. Applications should now decide their own setting for this value.
 
-    *@Actven*
-
-* Improve performance of `Order#payment_required?` by not updating the totals every time. #3040 #3086
-
-    *Washington Luiz*
+    *Weston Platter*
     
-* Remove after_save callback for stock items backorders processing and
+*   Change `order.promotion_credit_exists?` api. Now it receives an adjustment
+    originator (PromotionAction instance) instead of a promotion. Allowing
+    multiple adjustments being created for the same promotion as the current
+    PromotionAction / Promotion api suggests #3262
+
+*   Remove after_save callback for stock items backorders processing and
     fixes count on hand updates when there are backordered units #3066
 
     *Washington Luiz*
 
-* InventoryUnit#backordered_for_stock_item no longer returns readonly objects
+*   InventoryUnit#backordered_for_stock_item no longer returns readonly objects
     neither return an ActiveRecored::Association. It returns only an array of
     writable backordered units for a given stock item #3066
 
     *Washington Luiz*
 
-* Scope shipping rates as per shipping method display_on #3119
+*   Scope shipping rates as per shipping method display_on #3119
     e.g. Shipping methods set to back_end only should not be displayed on frontend too
 
-   *Washington Luiz*
+    *Washington Luiz*
+
+*   Add `propagate_all_variants` attribute to StockLocation. It controls
+    whether a stock items should be created fot the stock location every time
+    a variant or a stock location is created
+
+    *Washington Luiz*
+
+*   Add `backorderable_default` attribute to StockLocation. It sets the
+    backorderable attribute of each new stock item
+
+    *Washington Luiz*
+
+*   Removed `t()` override in `Spree::BaseHelper`. #3083
+
+    *Washington Luiz*
+
+*   Improve performance of `Order#payment_required?` by not updating the totals every time. #3040 #3086
+
+    *Washington Luiz*
+
+*   Fixed the FlexiRate Calculator for cases when max_items is set. #3159
+
+    *Dana Jones*
 
 * Translation for admin tabs are now located under the `spree.admin.tab` key. Previously, they were on the top-level, which lead to conflicts when users wanted to override view translations, like this:
 
@@ -43,13 +69,6 @@ See #3133 for more information.
 
     * Ryan Bigg*
 
-*   Change `order.promotion_credit_exists?` api. Now it receives an adjustment
-    originator (PromotionAction instance) instead of a promotion. Allowing
-    multiple adjustments being created for the same promotion as the current
-    PromotionAction / Promotion api suggests #3262
-
-    * Washington Luiz *
-
 * CreditCard model now validates that the card is not expired.
 
     *Ryan Bigg*
@@ -63,5 +82,17 @@ See #3133 for more information.
     *Ryan Bigg*
 
 * Removed `variants_including_master_and_deleted`, in favour of using the Paranoia gem. This scope would now be achieved using `variants_including_master.with_deleted`.
+
+    *Ryan Bigg*
+
+* You can now find the total amount on hand of a variant by calling `Variant#total_on_hand`. #3427
+
+    *Ruben Ascencio*
+
+* Tax categories are now stored on line items. This should make tax calculations slightly faster. #3481
+
+    *Ryan Bigg*
+
+* `update_attribute(s)_without_callbacks` have gone away, in favour of `update_column(s)`
 
     *Ryan Bigg*

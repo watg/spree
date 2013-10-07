@@ -16,6 +16,7 @@ end
 ENV["RAILS_ENV"] ||= 'test'
 require File.expand_path("../dummy/config/environment", __FILE__)
 require 'rspec/rails'
+require 'ffaker'
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
@@ -38,17 +39,26 @@ require 'spree/testing_support/order_walkthrough'
 
 require 'paperclip/matchers'
 
+require 'capybara/accessible'
+
+if ENV['WEBDRIVER'] == 'accessible'
+  Capybara.javascript_driver = :accessible
+end
+
 RSpec.configure do |config|
   config.color = true
   config.mock_with :rspec
 
   config.fixture_path = File.join(File.expand_path(File.dirname(__FILE__)), "fixtures")
 
-  #config.include Devise::TestHelpers, :type => :controller
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, comment the following line or assign false
   # instead of true.
   config.use_transactional_fixtures = false
+
+  config.around(:each, :inaccessible => true) do |example|
+    Capybara::Accessible.skip_audit { example.run }
+  end
 
   config.before(:each) do
     WebMock.disable!
@@ -57,9 +67,11 @@ RSpec.configure do |config|
     else
       DatabaseCleaner.strategy = :transaction
     end
-  end
-
-  config.before(:each) do
+    # TODO: Find out why open_transactions ever gets below 0
+    # See issue #3428
+    if ActiveRecord::Base.connection.open_transactions < 0
+      ActiveRecord::Base.connection.increment_open_transactions
+    end
     DatabaseCleaner.start
     reset_spree_preferences
   end
@@ -68,7 +80,7 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end
 
-  config.after(:each, :type => :request) do
+  config.after(:each, :type => :feature) do
     missing_translations = page.body.scan(/translation missing: #{I18n.locale}\.(.*?)[\s<\"&]/)
     if missing_translations.any?
       #binding.pry

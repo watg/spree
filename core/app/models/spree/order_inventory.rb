@@ -6,10 +6,13 @@ module Spree
       @order = order
     end
 
-    # Only verify inventory for completed orders
-    # as carts have inventory assigned via create_proposed_shipment methh
+    # Only verify inventory for completed orders (as orders in frontend checkout
+    # have inventory assigned via +order.create_proposed_shipment+) or when
+    # shipment is explicitly passed
     #
-    # or when shipment is explicitly passed
+    # In case shipment is passed the stock location should only unstock or
+    # restock items if the order is completed. That is so because stock items
+    # are always unstocked when the order is completed through +shipment.finalize+
     def verify(line_item, shipment = nil)
       if order.completed? || shipment.present?
 
@@ -29,7 +32,7 @@ module Spree
     end
 
     def inventory_units_for(variant)
-      units = order.shipments.collect{|s| s.inventory_units.all}.flatten
+      units = order.shipments.collect{|s| s.inventory_units.to_a}.flatten
       units.group_by(&:variant_id)[variant.id] || []
     end
 
@@ -51,7 +54,6 @@ module Spree
     #
     # first unshipped that already includes this variant
     # first unshipped that's leaving from a stock_location that stocks this variant
-    #
     def determine_target_shipment(variant)
       shipment = order.shipments.detect do |shipment|
         (shipment.ready? || shipment.pending?) && shipment.include?(variant)
@@ -63,24 +65,16 @@ module Spree
     end
 
     def add_to_shipment(shipment, variant, quantity)
-      #create inventory_units
       on_hand, back_order = shipment.stock_location.fill_status(variant, quantity)
 
-      on_hand.times do
-        shipment.inventory_units.create({variant_id: variant.id,
-                                          state: 'on_hand'}, without_protection: true)
-      end
-
-      back_order.times do
-        shipment.inventory_units.create({variant_id: variant.id,
-                                         state: 'backordered'}, without_protection: true)
-      end
-
+      on_hand.times { shipment.set_up_inventory('on_hand', variant, order) }
+      back_order.times { shipment.set_up_inventory('backordered', variant, order) }
 
       # adding to this shipment, and removing from stock_location
-      shipment.stock_location.unstock variant, quantity, shipment
+      if order.completed?
+        shipment.stock_location.unstock(variant, quantity, shipment)
+      end
 
-      # return quantity added
       quantity
     end
 
@@ -99,14 +93,13 @@ module Spree
         removed_quantity += 1
       end
 
-      if shipment.inventory_units.count == 0
-        shipment.destroy
-      end
+      shipment.destroy if shipment.inventory_units.count == 0
 
       # removing this from shipment, and adding to stock_location
-      shipment.stock_location.restock variant, removed_quantity, shipment
+      if order.completed?
+        shipment.stock_location.restock variant, removed_quantity, shipment
+      end
 
-      # return quantity removed
       removed_quantity
     end
   end

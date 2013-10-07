@@ -18,22 +18,19 @@ describe Spree::Variant do
   end
 
   context "after create" do
-    context "stock items" do
-      let!(:product) { create(:product) }
+    let!(:product) { create(:product) }
 
-      it "creates a new record" do
-        lambda {
-          product.variants.create(:name => "Foobar")
-        }.should change(Spree::StockItem, :count).by(1)
-      end
+    it "propagate to stock items" do
+      Spree::StockLocation.any_instance.should_receive(:propagate_variant)
+      product.variants.create(:name => "Foobar")
+    end
 
-      context "backorderable" do
-        let!(:stock_location) { Spree::StockLocation.create(:name => "Default", backorderable_default: false) }
-        let(:variant) { product.variants.create(:name => "Foobar") }
+    context "stock location has disable propagate all variants" do
+      before { Spree::StockLocation.any_instance.stub(propagate_all_variants?: false) }
 
-        it "sets backorderable based on the stock location config" do
-          stock_location.backorderable?(variant).should be_false
-        end
+      it "propagate to stock items" do
+        Spree::StockLocation.any_instance.should_not_receive(:propagate_variant)
+        product.variants.create(:name => "Foobar")
       end
     end
   end
@@ -260,7 +257,7 @@ describe Spree::Variant do
     end
 
     it "orders options correctly" do
-      variant.option_values.should_receive(:joins).with(:option_type).and_return(scope = stub)
+      variant.option_values.should_receive(:joins).with(:option_type).and_return(scope = double)
       scope.should_receive(:order).with('spree_option_types.position asc').and_return(variant.option_values)
       variant.options_text
     end
@@ -333,6 +330,18 @@ describe Spree::Variant do
           variant.in_stock?.should be_true
         end
       end
+    end
+  end
+
+  describe '#total_on_hand' do
+    it 'should be infinite if track_inventory_levels is false' do
+      Spree::Config[:track_inventory_levels] = false
+      build(:variant).total_on_hand.should eql(Float::INFINITY)
+    end
+
+    it 'should match quantifier total_on_hand' do
+      variant = build(:variant)
+      expect(variant.total_on_hand).to eq(Spree::Stock::Quantifier.new(variant).total_on_hand)
     end
   end
 end

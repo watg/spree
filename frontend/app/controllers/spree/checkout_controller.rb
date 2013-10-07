@@ -16,7 +16,10 @@ module Spree
 
     before_filter :associate_user
     before_filter :check_authorization
-    
+    before_filter :apply_coupon_code
+
+    before_filter :setup_for_current_state
+
     helper 'spree/orders'
 
     rescue_from Spree::Core::GatewayError, :with => :rescue_from_spree_gateway_error
@@ -24,11 +27,8 @@ module Spree
     # Updates the order and advances to the next state (when possible.)
     def update
       if @order.update_attributes(object_params)
-        fire_event('spree.checkout.update')
-        return if after_update_attributes
-
         unless @order.next
-          flash[:error] = @order.errors[:base].join("\n")
+          flash[:error] = @order.errors.full_messages.join("\n")
           redirect_to checkout_state_path(@order.state) and return
         end
 
@@ -77,7 +77,6 @@ module Spree
           redirect_to checkout_state_path(@order.state) if @order.can_go_to_state?(params[:state]) && !skip_state_validation?
           @order.state = params[:state]
         end
-        setup_for_current_state
       end
 
       def ensure_checkout_allowed
@@ -120,7 +119,12 @@ module Spree
             params[:order][:payments_attributes].first[:amount] = @order.total
           end
         end
-        params[:order]
+
+        if params[:order]
+          params[:order].permit(permitted_checkout_attributes)
+        else
+          {}
+        end
       end
 
       def setup_for_current_state
@@ -128,9 +132,14 @@ module Spree
         send(method_name) if respond_to?(method_name, true)
       end
 
+      # Skip setting ship address if order doesn't have a delivery checkout step
+      # to avoid triggering validations on shipping address
       def before_address
         @order.bill_address ||= Address.default
-        @order.ship_address ||= Address.default
+
+        if @order.checkout_steps.include? "delivery"
+          @order.ship_address ||= Address.default
+        end
       end
 
       def before_delivery
@@ -141,10 +150,12 @@ module Spree
       end
 
       def before_payment
-        packages = @order.shipments.map { |s| s.to_package }
-        @differentiator = Spree::Stock::Differentiator.new(@order, packages)
-        @differentiator.missing.each do |variant, quantity|
-          @order.contents.remove(variant, quantity)
+        if @order.checkout_steps.include? "delivery"
+          packages = @order.shipments.map { |s| s.to_package }
+          @differentiator = Spree::Stock::Differentiator.new(@order, packages)
+          @differentiator.missing.each do |variant, quantity|
+            @order.contents.remove(variant, quantity)
+          end
         end
       end
 
@@ -157,15 +168,17 @@ module Spree
         authorize!(:edit, current_order, session[:access_token])
       end
 
-      def after_update_attributes
-        coupon_result = Spree::Promo::CouponApplicator.new(@order).apply
-        if coupon_result[:coupon_applied?]
-          flash[:success] = coupon_result[:success] if coupon_result[:success].present?
-          return false
-        else
-          flash[:error] = coupon_result[:error]
-          respond_with(@order) { |format| format.html { render :edit } }
-          return true
+      def apply_coupon_code
+        if params[:order] && params[:order][:coupon_code]
+          @order.coupon_code = params[:order][:coupon_code]
+
+          coupon_result = Spree::Promo::CouponApplicator.new(@order).apply
+          if coupon_result[:coupon_applied?]
+            flash[:success] = coupon_result[:success] if coupon_result[:success].present?
+          else
+            flash[:error] = coupon_result[:error]
+            respond_with(@order) { |format| format.html { render :edit } } and return
+          end
         end
       end
   end

@@ -41,7 +41,7 @@ module Spree
 
       it "cannot update a return authorization" do
         api_put :update
-        assert_unauthorized!
+        assert_not_found!
       end
 
       it "cannot add a variant to a return authorization" do
@@ -61,7 +61,7 @@ module Spree
 
       it "cannot delete a return authorization" do
         api_delete :destroy
-        assert_unauthorized!
+        assert_not_found!
       end
     end
 
@@ -176,7 +176,7 @@ module Spree
       end
 
       it "can add a new return authorization to an existing order" do
-        api_post :create, :return_autorization => { :order_id => order.number, :amount => 14.22, :reason => "Defective" }
+        api_post :create, :order_id => order.number, :return_authorization => { :amount => 14.22, :reason => "Defective" }
         response.status.should == 201
         json_response.should have_attributes(attributes)
         json_response["state"].should_not be_blank
@@ -202,7 +202,7 @@ module Spree
         return_authorization = order.return_authorizations.first
         api_delete :destroy, :id => return_authorization.id
         assert_unauthorized!
-        lambda { return_authorization.reload }.should_not raise_error(ActiveRecord::RecordNotFound)
+        lambda { return_authorization.reload }.should_not raise_error
       end
     end
   end

@@ -3,7 +3,6 @@ module Spree
     has_many :payments, as: :source
 
     before_save :set_last_digits
-    after_validation :set_card_type
 
     attr_accessor :number, :verification_value
 
@@ -12,28 +11,40 @@ module Spree
     validates :verification_value, presence: true, unless: :has_payment_profile?, on: :create
     validate :expiry_not_in_the_past
 
-    attr_accessible :first_name, :last_name, :number, :verification_value, :year,
-                    :month, :gateway_customer_profile_id, :gateway_payment_profile_id
-
     scope :with_payment_profile, -> { where('gateway_customer_profile_id IS NOT NULL') }
+
+    # needed for some of the ActiveMerchant gateways (eg. SagePay)
+    alias_attribute :brand, :cc_type
+
+    def expiry=(expiry)
+      self[:month], self[:year] = expiry.split(" / ")
+      self[:year] = "20" + self[:year]
+    end
+
+    def number=(num)
+      @number = num.gsub(/[^0-9]/, '') rescue nil
+    end
+
+    # cc_type is set by jquery.payment, which helpfully provides different
+    # types from Active Merchant. Converting them is necessary.
+    def cc_type=(type)
+      real_type = case type
+      when 'mastercard', 'maestro'
+        'master'
+      when 'amex'
+        'american_express'
+      when 'dinersclub'
+        'diners_club'
+      else
+        type
+      end
+      self[:cc_type] = real_type
+    end
 
     def set_last_digits
       number.to_s.gsub!(/\s/,'')
       verification_value.to_s.gsub!(/\s/,'')
       self.last_digits ||= number.to_s.length <= 4 ? number : number.to_s.slice(-4..-1)
-    end
-
-    # cheap hack to get to the type? method from deep within ActiveMerchant
-    # without stomping on potentially existing methods in CreditCard
-    class CardDetector
-      class << self
-        include ActiveMerchant::Billing::CreditCardMethods::ClassMethods
-      end
-    end
-
-    # sets self.cc_type while we still have the card number
-    def set_card_type
-      self.cc_type ||= CardDetector.brand?(number)
     end
 
     def name?
@@ -51,11 +62,6 @@ module Spree
     # Show the card number, with all but last 4 numbers replace with "X". (XXXX-XXXX-XXXX-4338)
     def display_number
       "XXXX-XXXX-XXXX-#{last_digits}"
-    end
-
-    # needed for some of the ActiveMerchant gateways (eg. SagePay)
-    def brand
-      spree_cc_type
     end
 
     def actions
@@ -84,18 +90,24 @@ module Spree
       gateway_customer_profile_id.present?
     end
 
-    def spree_cc_type
-      return 'visa' if Rails.env.development?
-      cc_type
+    def to_active_merchant
+      ActiveMerchant::Billing::CreditCard.new(
+        :number => number,
+        :month => month,
+        :year => year,
+        :verification_value => verification_value,
+        :first_name => first_name,
+        :last_name => last_name
+      )
     end
 
     private
 
     def expiry_not_in_the_past
-      if year && month
+      if year.present? && month.present?
         time = "#{year}-#{month}-1".to_time
-        if time < Time.zone.now.beginning_of_month
-          errors.add("card", "has expired")
+        if time < Time.zone.now.to_time.beginning_of_month
+          errors.add(:base, :card_expired)
         end
       end
     end

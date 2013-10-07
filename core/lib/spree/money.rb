@@ -4,6 +4,8 @@ module Spree
   class Money
     attr_reader :money
 
+    delegate :cents, :to => :money
+
     def initialize(amount, options={})
       @money = ::Money.parse([amount, (options[:currency] || Spree::Config[:currency])].join)
       @options = {}
@@ -29,6 +31,10 @@ module Spree
         output = output.gsub(" ", "&nbsp;").html_safe
       end
       output
+    end
+
+    def as_json(*)
+      to_s
     end
 
     def ==(obj)

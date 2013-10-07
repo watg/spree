@@ -4,7 +4,6 @@ module Spree
   describe Api::VariantsController do
     render_views
 
-
     let!(:product) { create(:product) }
     let!(:variant) do
       variant = product.master
@@ -13,7 +12,7 @@ module Spree
     end
     let!(:attributes) { [:id, :name, :sku, :price, :weight, :height,
                          :width, :depth, :is_master, :cost_price,
-                         :permalink] }
+                         :permalink, :description] }
 
     before do
       stub_authentication!
@@ -77,11 +76,9 @@ module Spree
     end
 
     context "pagination" do
-      default_per_page(1)
-
       it "can select the next page of variants" do
         second_variant = create(:variant)
-        api_get :index, :page => 2
+        api_get :index, :page => 2, :per_page => 1
         json_response["variants"].first.should have_attributes(attributes)
         json_response["total_count"].should == 3
         json_response["current_page"].should == 2
@@ -125,12 +122,12 @@ module Spree
 
     it "cannot update a variant" do
       api_put :update, :id => variant.to_param, :variant => { :sku => "12345" }
-      assert_unauthorized!
+      assert_not_found!
     end
 
     it "cannot delete a variant" do
       api_delete :destroy, :id => variant.to_param
-      assert_unauthorized!
+      assert_not_found!
       lambda { variant.reload }.should_not raise_error
     end
 
@@ -170,7 +167,6 @@ module Spree
         lambda { Spree::Variant.find(variant.id) }.should raise_error(ActiveRecord::RecordNotFound)
       end
     end
-
 
   end
 end

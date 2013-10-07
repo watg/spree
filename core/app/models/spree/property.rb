@@ -2,10 +2,8 @@ module Spree
   class Property < ActiveRecord::Base
     has_and_belongs_to_many :prototypes, join_table: 'spree_properties_prototypes'
 
-    has_many :product_properties, dependent: :destroy
+    has_many :product_properties, dependent: :delete_all
     has_many :products, through: :product_properties
-
-    attr_accessible :name, :presentation
 
     validates :name, :presentation, presence: true
 

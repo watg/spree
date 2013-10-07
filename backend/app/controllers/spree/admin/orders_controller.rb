@@ -47,11 +47,15 @@ module Spree
 
       def new
         @order = Order.create
+        @order.created_by = try_spree_current_user
+        @order.save
         redirect_to edit_admin_order_url(@order)
       end
 
       def edit
-        @order.shipments.map &:refresh_rates
+        unless @order.complete?
+          @order.refresh_shipment_rates
+        end
       end
 
       def show
@@ -127,7 +131,7 @@ module Spree
       private
 
         def load_order
-          @order = Order.find_by_number!(params[:id], :include => :adjustments) if params[:id]
+          @order = Order.includes(:adjustments).find_by_number!(params[:id]) if params[:id]
           authorize! action, @order
         end
 

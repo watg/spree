@@ -98,7 +98,7 @@ describe Spree::Address do
 
     it "state is entered but country does not contain that state" do
       address.state = state
-      address.country = stub_model(Spree::Country)
+      address.country = stub_model(Spree::Country, :states_required => true)
       address.valid?
       address.errors["state"].should == ['is invalid']
     end
@@ -106,7 +106,7 @@ describe Spree::Address do
     it "both state and state_name are entered but country does not contain the state" do
       address.state = state
       address.state_name = 'maryland'
-      address.country = stub_model(Spree::Country)
+      address.country = stub_model(Spree::Country, :states_required => true)
       address.should be_valid
       address.state_id.should be_nil
     end
@@ -125,23 +125,37 @@ describe Spree::Address do
       address.should be_valid
     end
 
-    it "phone is set" do
-      address.phone = "123"
-      address.should have(:no).errors_on(:phone)
-    end
-
-    it "phone is blank" do
+    it "requires phone" do
       address.phone = ""
       address.valid?
       address.errors["phone"].should == ["can't be blank"]
     end
 
-    it "require_phone? returns false and phone is blank" do
-      address.instance_eval{ self.stub :require_phone? => false }
-      address.phone = ""
-      address.should have(:no).errors_on(:phone)
+    it "requires zipcode" do
+      address.zipcode = ""
+      address.valid?
+      address.should have(1).error_on(:zipcode)
     end
 
+    context "phone not required" do
+      before { address.instance_eval{ self.stub :require_phone? => false } }
+
+      it "shows no errors when phone is blank" do
+        address.phone = ""
+        address.valid?
+        address.should have(:no).errors_on(:phone)
+      end
+    end
+
+    context "zipcode not required" do
+      before { address.instance_eval{ self.stub :require_zipcode? => false } }
+
+      it "shows no errors when phone is blank" do
+        address.zipcode = ""
+        address.valid?
+        address.should have(:no).errors_on(:zipcode)
+      end
+    end
   end
 
   context ".default" do

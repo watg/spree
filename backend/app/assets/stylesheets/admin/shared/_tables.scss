@@ -26,6 +26,12 @@ table {
       }
     }
 
+    .handle {
+      display: block !important;
+      text-align: center;
+      padding-right: 0;
+    }
+
     &.actions {
       background-color: transparent;
       border: none !important;
@@ -78,7 +84,7 @@ table {
         background-color: $color-notice;
         color: $color-1;
       }
-      .icon-edit:hover, .icon-capture:hover, .icon-ok:hover, .icon-plus:hover {
+      .icon-edit:hover, .icon-capture:hover, .icon-ok:hover, .icon-plus:hover, .icon-save:hover {
         background-color: $color-success;
         color: $color-1;
       }
@@ -126,6 +132,7 @@ table {
 
   tbody {
     tr {
+      &:first-child th,
       &:first-child td {
         border-top: 1px solid $color-border;
       }

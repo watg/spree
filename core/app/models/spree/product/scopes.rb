@@ -28,7 +28,7 @@ module Spree
         next if name.to_s.include?("master_price")
         parts = name.to_s.match(/(.*)_by_(.*)/)
         order_text = "#{Product.quoted_table_name}.#{parts[2]} #{parts[1] == 'ascend' ?  "ASC" : "DESC"}"
-        self.scope(name.to_s, relation.order(order_text))
+        self.scope(name.to_s, -> { relation.order(order_text) })
       end
     end
 
@@ -72,14 +72,11 @@ module Spree
     #
     #   SELECT COUNT(*) ...
     add_search_scope :in_taxon do |taxon|
-      if ActiveRecord::Base.connection.adapter_name == "PostgreSQL"
-        scope = select("DISTINCT ON (spree_products.id) spree_products.*")
-      else
-        scope = select("DISTINCT(spree_products.id), spree_products.*")
-      end
-
-      scope.joins(:taxons).
-      where(Taxon.table_name => { :id => taxon.self_and_descendants.map(&:id) })
+      select("spree_products.id, spree_products.*").
+      where(id: Classification.select('spree_products_taxons.product_id').
+            joins(:taxon).
+            where(Taxon.table_name => { :id => taxon.self_and_descendants.pluck(:id) })
+           )
     end
 
     # This scope selects products in all taxons AND all its descendants
@@ -131,20 +128,20 @@ module Spree
     add_search_scope :with_option_value do |option, value|
       option_values = OptionValue.table_name
       option_type_id = case option
-        when String then OptionType.find_by_name(option) || option.to_i
+        when String then OptionType.find_by(name: option) || option.to_i
         when OptionType then option.id
         else option.to_i
       end
 
       conditions = "#{option_values}.name = ? AND #{option_values}.option_type_id = ?", value, option_type_id
-      group("spree_products.id").joins(:variants_including_master => :option_values).where(conditions)
+      group('spree_products.id').joins(variants_including_master: :option_values).where(conditions)
     end
 
     # Finds all products which have either:
     # 1) have an option value with the name matching the one given
     # 2) have a product property with a value matching the one given
     add_search_scope :with do |value|
-      includes(:variants_including_master => :option_values).
+      includes(variants_including_master: :option_values).
       includes(:product_properties).
       where("#{OptionValue.table_name}.name = ? OR #{ProductProperty.table_name}.value = ?", value, value)
     end
@@ -167,7 +164,7 @@ module Spree
     # Finds all products that have the ids matching the given collection of ids.
     # Alternatively, you could use find(collection_of_ids), but that would raise an exception if one product couldn't be found
     add_search_scope :with_ids do |*ids|
-      where(:id => ids)
+      where(id: ids)
     end
 
     # Sorts products from most popular (popularity is extracted from how many
@@ -202,11 +199,7 @@ module Spree
 
     # Can't use add_search_scope for this as it needs a default argument
     def self.available(available_on = nil, currency = nil)
-      scope = joins(:master => :prices).where("#{Product.quoted_table_name}.available_on <= ?", available_on || Time.now)
-      unless Spree::Config.show_products_without_price
-        scope = scope.where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
-      end
-      scope
+      joins(:master => :prices).where("#{Product.quoted_table_name}.available_on <= ?", available_on || Time.now)
     end
     search_scopes << :available
 
@@ -256,10 +249,10 @@ module Spree
         taxons = Taxon.table_name
         ids_or_records_or_names.flatten.map { |t|
           case t
-          when Integer then Taxon.find_by_id(t)
+          when Integer then Taxon.find_by(id: t)
           when ActiveRecord::Base then t
           when String
-            Taxon.find_by_name(t) ||
+            Taxon.find_by(name: t) ||
             Taxon.where("#{taxons}.permalink LIKE ? OR #{taxons}.permalink = ?", "%/#{t}/", "#{t}/").first
           end
         }.compact.flatten.uniq

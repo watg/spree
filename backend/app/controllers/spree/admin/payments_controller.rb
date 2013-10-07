@@ -71,12 +71,12 @@ module Spree
         if params[:payment] and params[:payment_source] and source_params = params.delete(:payment_source)[params[:payment][:payment_method_id]]
           params[:payment][:source_attributes] = source_params
         end
-        params[:payment]
+        params.require(:payment).permit(:amount, :payment_method_id, :source_attributes)
       end
 
       def load_data
         @amount = params[:amount] || load_order.total
-        @payment_methods = PaymentMethod.available
+        @payment_methods = PaymentMethod.available(:back_end)
         if @payment and @payment.payment_method
           @payment_method = @payment.payment_method
         else
@@ -85,14 +85,8 @@ module Spree
         @previous_cards = @order.credit_cards.with_payment_profile
       end
 
-      # At this point admin should have passed through Customer Details step
-      # where order.next is called which leaves the order in payment step
-      #
-      # Orders in complete step also allows to access this controller
-      #
-      # Otherwise redirect user to that step
       def can_transition_to_payment
-        unless @order.payment? || @order.complete?
+        unless @order.billing_address.present? 
           flash[:notice] = Spree.t(:fill_in_customer_info)
           redirect_to edit_admin_order_customer_url(@order)
         end
@@ -101,6 +95,7 @@ module Spree
       def load_order
         @order = Order.find_by_number!(params[:order_id])
         authorize! action, @order
+        @order
       end
 
       def load_payment

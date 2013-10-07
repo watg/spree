@@ -3,9 +3,12 @@ require_dependency 'spree/api/controller_setup'
 module Spree
   module Api
     class BaseController < ActionController::Metal
+      include ActionController::StrongParameters
       include Spree::Api::ControllerSetup
       include Spree::Core::ControllerHelpers::SSL
+      include Spree::Core::ControllerHelpers::StrongParameters
       include ::ActionController::Head
+      include ::ActionController::ConditionalGet
 
       self.responder = Spree::Api::Responders::AppResponder
 
@@ -81,6 +84,9 @@ module Spree
       end
 
       def error_during_processing(exception)
+        Rails.logger.error exception.message
+        Rails.logger.error exception.backtrace.join("\n")
+
         render :text => { :exception => exception.message }.to_json,
           :status => 422 and return
       end
@@ -117,12 +123,12 @@ module Spree
 
       def product_scope
         if current_api_user.has_spree_role?("admin")
-          scope = Product
-          if params[:show_deleted]
-            scope = scope.with_deleted
+          scope = Product.with_deleted.accessible_by(current_ability, :read)
+          unless params[:show_deleted]
+            scope = scope.not_deleted
           end
         else
-          scope = Product.active
+          scope = Product.accessible_by(current_ability, :read).active
         end
 
         scope.includes(:master)

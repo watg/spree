@@ -55,7 +55,7 @@ describe Spree::Order do
 
   context "#associate_user!" do
     it "should associate a user with a persisted order" do
-      order = FactoryGirl.create(:order_with_line_items)
+      order = FactoryGirl.create(:order_with_line_items, created_by: nil)
       user = FactoryGirl.create(:user)
 
       order.user = nil
@@ -63,12 +63,34 @@ describe Spree::Order do
       order.associate_user!(user)
       order.user.should == user
       order.email.should == user.email
+      order.created_by.should == user
 
       # verify that the changes we made were persisted
       order.reload
       order.user.should == user
       order.email.should == user.email
+      order.created_by.should == user
     end
+
+    it "should not overwrite the created_by if it already is set" do
+      creator = create(:user)
+      order = FactoryGirl.create(:order_with_line_items, created_by: creator)
+      user = FactoryGirl.create(:user)
+
+      order.user = nil
+      order.email = nil
+      order.associate_user!(user)
+      order.user.should == user
+      order.email.should == user.email
+      order.created_by.should == creator
+
+      # verify that the changes we made were persisted
+      order.reload
+      order.user.should == user
+      order.email.should == user.email
+      order.created_by.should == creator
+    end
+
 
     it "should associate a user with a non-persisted order" do
       order = Spree::Order.new
@@ -177,7 +199,7 @@ describe Spree::Order do
     end
 
     it "should send an order confirmation email" do
-      mail_message = mock "Mail::Message"
+      mail_message = double "Mail::Message"
       Spree::OrderMailer.should_receive(:confirm_email).with(order.id).and_return mail_message
       mail_message.should_receive :deliver
       order.finalize!
@@ -192,13 +214,10 @@ describe Spree::Order do
       # Stub this method as it's called due to a callback
       # and it's irrelevant to this test
       order.stub :has_available_shipment
-
       Spree::OrderMailer.stub_chain :confirm_email, :deliver
-      adjustment1 = mock_model(Spree::Adjustment, :mandatory => true)
-      adjustment2 = mock_model(Spree::Adjustment, :mandatory => false)
-      order.stub :adjustments => [adjustment1, adjustment2]
-      adjustment1.should_receive(:update_column).with("state", "closed")
-      adjustment2.should_receive(:update_column).with("state", "closed")
+      adjustments = double
+      order.stub :adjustments => adjustments
+      expect(adjustments).to receive(:update_all).with(state: 'closed')
       order.finalize!
     end
 
@@ -346,40 +365,6 @@ describe Spree::Order do
 
   end
 
-  context "#remove_variant" do
-    let(:order) { Spree::Order.create }
-    let(:variant) { create(:variant) }
-
-    it 'should reduce line_item quantity if quantity is less the line_item quantity' do
-      line_item = order.contents.add(variant, 3)
-      order.remove_variant(variant, 1)
-
-      line_item.reload.quantity.should == 2
-    end
-
-    it 'should remove line_item if quantity matches line_item quantity' do
-      order.contents.add(variant, 1)
-      order.remove_variant(variant, 1)
-
-      order.reload.find_line_item_by_variant(variant).should be_nil
-    end
-
-    it "should update order totals" do
-      order.item_total.to_f.should == 0.00
-      order.total.to_f.should == 0.00
-
-      order.contents.add(variant, 2)
-
-      order.item_total.to_f.should == 39.98
-      order.total.to_f.should == 39.98
-
-      order.remove_variant(variant,1)
-      order.item_total.to_f.should == 19.99
-      order.total.to_f.should == 19.99
-    end
-
-  end
-
   context "empty!" do
     it "should clear out all line items and adjustments" do
       order = stub_model(Spree::Order)
@@ -449,6 +434,13 @@ describe Spree::Order do
       lambda { order_2.reload }.should raise_error(ActiveRecord::RecordNotFound)
     end
 
+    context "user is provided" do
+      it "assigns user to new order" do
+        order_1.merge!(order_2, user)
+        expect(order_1.user).to eq user
+      end
+    end
+
     context "merging together two orders with line items for the same variant" do
       before do
         order_1.contents.add(variant, 1)
@@ -486,10 +478,31 @@ describe Spree::Order do
   end
 
   context "#confirmation_required?" do
-    it "does not bomb out when an order has an unpersisted payment" do
-      order = Spree::Order.new
-      order.payments.build
-      assert !order.confirmation_required?
+
+    context 'Spree::Config[:always_include_confirm_step] == true' do
+
+      before do
+        Spree::Config[:always_include_confirm_step] = true
+      end
+
+      it "returns true if payments empty" do
+        order = Spree::Order.new
+        assert order.confirmation_required?
+      end
+    end
+
+    context 'Spree::Config[:always_include_confirm_step] == false' do
+
+      it "returns false if payments empty and Spree::Config[:always_include_confirm_step] == false" do
+        order = Spree::Order.new
+        assert !order.confirmation_required?
+      end
+
+      it "does not bomb out when an order has an unpersisted payment" do
+        order = Spree::Order.new
+        order.payments.build
+        assert !order.confirmation_required?
+      end
     end
   end
 
@@ -524,7 +537,7 @@ describe Spree::Order do
     let(:originator) { double("Originator", id: 1) }
     let(:adjustment) { double("Adjustment", originator: originator) }
 
-    before { order.stub_chain(:adjustments, :promotion, reload: [adjustment]) }
+    before { order.stub_chain(:adjustments, :includes, :promotion, reload: [adjustment]) }
 
     context "order has an adjustment from given promo action" do
       it { expect(order.promotion_credit_exists? originator).to be_true }
@@ -572,5 +585,39 @@ describe Spree::Order do
       order.finalize!
     end
   end
-end
 
+  context "ensure shipments will be updated" do
+    before { Spree::Shipment.create!(order: order) }
+
+    it "destroys current shipments" do
+      order.ensure_updated_shipments
+      expect(order.shipments).to be_empty
+    end
+
+    it "puts order back in address state" do
+      order.ensure_updated_shipments
+      expect(order.state).to eql "address"
+    end
+  end
+
+  describe ".tax_address" do
+    before { Spree::Config[:tax_using_ship_address] = tax_using_ship_address }
+    subject { order.tax_address }
+
+    context "when tax_using_ship_address is true" do
+      let(:tax_using_ship_address) { true }
+
+      it 'returns ship_address' do
+        subject.should == order.ship_address
+      end
+    end
+
+    context "when tax_using_ship_address is not true" do
+      let(:tax_using_ship_address) { false }
+
+      it "returns bill_address" do
+        subject.should == order.bill_address
+      end
+    end
+  end
+end

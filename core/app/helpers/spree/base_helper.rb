@@ -18,7 +18,7 @@ module Spree
       text = text ? h(text) : Spree.t('cart')
       css_class = nil
 
-      if current_order.nil? or current_order.line_items.empty?
+      if current_order.nil? or current_order.item_count.zero?
         text = "#{text}: (#{Spree.t('empty')})"
         css_class = 'empty'
       else
@@ -106,7 +106,7 @@ module Spree
     end
 
     def available_countries
-      checkout_zone = Zone.find_by_name(Spree::Config[:checkout_zone])
+      checkout_zone = Zone.find_by(name: Spree::Config[:checkout_zone])
 
       if checkout_zone && checkout_zone.kind == 'country'
         countries = checkout_zone.country_list
@@ -130,11 +130,6 @@ module Spree
        false
     rescue
        Gem.available?(name)
-    end
-
-    def money(amount)
-      ActiveSupport::Deprecation.warn("[SPREE] Spree::BaseHelper#money will be deprecated.  It relies upon a single master currency.  You can instead create a Spree::Money.new(amount, { :currency => your_currency}) or see if the object you're working with returns a Spree::Money object to use.")
-      Spree::Money.new(amount)
     end
 
     def display_price(product_or_variant)
@@ -166,7 +161,6 @@ module Spree
     end
 
     private
-
     # Returns style of image or nil
     def image_style_from_method_name(method_name)
       if style = method_name.to_s.sub(/_image$/, '')
@@ -198,6 +192,5 @@ module Spree
         end
       end
     end
-
   end
 end

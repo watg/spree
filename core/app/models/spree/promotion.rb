@@ -14,11 +14,6 @@ module Spree
 
     accepts_nested_attributes_for :promotion_actions, :promotion_rules
 
-    attr_accessible :name, :event_name, :code, :match_policy,
-                    :path, :advertise, :description, :usage_limit,
-                    :starts_at, :expires_at, :promotion_rules_attributes,
-                    :promotion_actions_attributes
-
     validates_associated :rules
 
     validates :name, presence: true
@@ -81,7 +76,7 @@ module Spree
 
     # Products assigned to all product rules
     def products
-      @products ||= self.rules.all.inject([]) do |products, rule|
+      @products ||= self.rules.to_a.inject([]) do |products, rule|
         rule.respond_to?(:products) ? products << rule.products : products
       end.flatten.uniq
     end

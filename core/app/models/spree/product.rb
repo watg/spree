@@ -52,21 +52,22 @@ module Spree
 
 
     has_one :master,
+      -> { where is_master: true },
       class_name: 'Spree::Variant',
-      conditions: { is_master: true },
       dependent: :destroy
 
     has_many :variants,
-      class_name: 'Spree::Variant',
-      conditions: { is_master: false, deleted_at: nil },
-      order: "#{::Spree::Variant.quoted_table_name}.position ASC"
+      -> { where(is_master: false).order("#{::Spree::Variant.quoted_table_name}.position ASC") },
+      class_name: 'Spree::Variant'
 
     has_many :variants_including_master,
+      -> { order("#{::Spree::Variant.quoted_table_name}.position ASC") },
       class_name: 'Spree::Variant',
       dependent: :destroy
 
-    has_many :prices, through: :variants, order: 'spree_variants.position, spree_variants.id, currency'
-    has_many :stock_items, through: :variants
+    has_many :prices, -> { order('spree_variants.position, spree_variants.id, currency') }, through: :variants
+
+    has_many :stock_items, through: :variants_including_master
 
     delegate_belongs_to :master, :sku, :price, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :amount_in
     delegate_belongs_to :master, :cost_price if Variant.table_exists? && Variant.column_names.include?('cost_price')
@@ -83,23 +84,15 @@ module Spree
     delegate :images, to: :master, prefix: true
     alias_method :images, :master_images
 
-    has_many :variant_images, source: :images, through: :variants_including_master, order: :position
+    has_many :variant_images, -> { order(:position) }, source: :images, through: :variants_including_master
 
     accepts_nested_attributes_for :variants, allow_destroy: true
 
-    validates :name, :permalink, presence: true
-    #validates :shipping_category, presence: true
-    #validates :tax_category, presence: true
+    validates :name, presence: true
+    validates :permalink, presence: true
+    validates :shipping_category_id, presence: true
 
     attr_accessor :option_values_hash
-
-    attr_accessible :name, :description, :available_on, :permalink, :meta_description,
-      :meta_keywords, :price, :sku, :deleted_at, :prototype_id,
-      :option_values_hash, :weight, :height, :width, :depth,
-      :shipping_category_id, :tax_category_id, :product_properties_attributes,
-      :variants_attributes, :taxon_ids, :option_type_ids, :cost_currency
-
-    attr_accessible :cost_price if Variant.table_exists? && Variant.column_names.include?('cost_price')
 
     accepts_nested_attributes_for :product_properties, allow_destroy: true, reject_if: lambda { |pp| pp[:property_name].blank? }
 
@@ -145,6 +138,7 @@ module Spree
       ActiveSupport::Deprecation.warn("[SPREE] Spree::Product#variants_with_only_master will be deprecated in Spree 1.3. Please use Spree::Product#master instead.")
       master
     end
+    before_destroy :punch_permalink
 
     def visible_option_types
       option_types.where('spree_product_option_types.visible' => true)
@@ -178,7 +172,7 @@ module Spree
       return if option_values_hash.nil?
       option_values_hash.keys.map(&:to_i).each do |id|
         self.option_type_ids << id unless option_type_ids.include?(id)
-        product_option_types.create({option_type_id: id}, without_protection: true) unless product_option_types.pluck(:option_type_id).include?(id)
+        product_option_types.create(option_type_id: id) unless product_option_types.pluck(:option_type_id).include?(id)
       end
     end
 
@@ -216,8 +210,11 @@ module Spree
     end
 
     def self.like_any(fields, values)
-      where_str = fields.map { |field| Array.new(values.size, "#{self.quoted_table_name}.#{field} #{LIKE} ?").join(' OR ') }.join(' OR ')
-      self.where([where_str, values.map { |value| "%#{value}%" } * fields.size].flatten)
+      where fields.map { |field|
+        values.map { |value|
+          arel_table[field].matches("%#{value}%")
+        }.inject(:or)
+      }.inject(:or)
     end
 
     # Suitable for displaying only variants that has at least one option value.
@@ -238,14 +235,14 @@ module Spree
     end
 
     def property(property_name)
-      return nil unless prop = properties.find_by_name(property_name)
-      product_properties.find_by_property_id(prop.id).try(:value)
+      return nil unless prop = properties.find_by(name: property_name)
+      product_properties.find_by(property: prop).try(:value)
     end
 
     def set_property(property_name, property_value)
       ActiveRecord::Base.transaction do
         property = Property.where(name: property_name).first_or_create!(presentation: property_name)
-        product_property = ProductProperty.where(product_id: id, property_id: property.id).first_or_initialize
+        product_property = ProductProperty.where(product: self, property: property).first_or_initialize
         product_property.value = property_value
         product_property.save!
       end
@@ -268,7 +265,7 @@ module Spree
     # which would make AR's default finder return nil.
     # This is a stopgap for that little problem.
     def master
-      super || variants_including_master.with_deleted.where(:is_master => true).first
+      super || variants_including_master.with_deleted.where(is_master: true).first
     end
 
     private
@@ -285,18 +282,24 @@ module Spree
       values = option_values_hash.values
       values = values.inject(values.shift) { |memo, value| memo.product(value).map(&:flatten) }
 
-      values.each do |ids|
-        variant = variants.create({ option_value_ids: ids, prices: master.prices }, without_protection: true)
+        values.each do |ids|
+          variant = variants.create(
+            option_value_ids: ids,
+            prices: master.prices
+          )
+        end
+        save
       end
       save
     end
 
-    def add_properties_and_option_types_from_prototype
-      if prototype_id && prototype = Spree::Prototype.find_by_id(prototype_id)
-        prototype.properties.each do |property|
-          product_properties.create({property: property}, without_protection: true)
+      def add_properties_and_option_types_from_prototype
+        if prototype_id && prototype = Spree::Prototype.find_by(id: prototype_id)
+          prototype.properties.each do |property|
+            product_properties.create(property: property)
+          end
+          self.option_types = prototype.option_types
         end
-        self.option_types = prototype.option_types
       end
     end
 
@@ -313,10 +316,14 @@ module Spree
       end
     end
 
-    def ensure_master
-      return unless new_record?
-      self.master ||= Variant.new
-    end
+      def ensure_master
+        return unless new_record?
+        self.master ||= Variant.new
+      end
+
+      def punch_permalink
+        update_attribute :permalink, "#{Time.now.to_i}_#{permalink}" # punch permalink with date prefix
+      end
   end
 end
 

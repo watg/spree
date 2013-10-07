@@ -186,21 +186,22 @@ describe Spree::Promotion do
     let(:promotion) { create(:promotion) }
 
     context "when it has product rules with products associated" do
+      let(:promotion_rule) { Spree::Promotion::Rules::Product.new }
+
       before do
-        promotion_rule = Spree::Promotion::Rules::Product.new
         promotion_rule.promotion = promotion
         promotion_rule.products << create(:product)
         promotion_rule.save
       end
 
       it "should have products" do
-        promotion.products.size.should == 1
+        promotion.reload.products.size.should == 1
       end
     end
 
     context "when there's no product rule associated" do
       before(:each) do
-        promotion.stub_chain(:rules, :all).and_return([mock_model(Spree::Promotion::Rules::User)])
+        promotion.stub_chain(:rules, :to_a).and_return([mock_model(Spree::Promotion::Rules::User)])
       end
 
       it "should not have products but still return an empty array" do
@@ -217,7 +218,7 @@ describe Spree::Promotion do
       promotion.code = "XXX"
       calculator = Spree::Calculator::FlatRate.new
       action_params = { :promotion => promotion, :calculator => calculator }
-      @action = Spree::Promotion::Actions::CreateAdjustment.create(action_params, :without_protection => true)
+      @action = Spree::Promotion::Actions::CreateAdjustment.create(action_params)
     end
 
     context "when it is expired" do
@@ -234,10 +235,12 @@ describe Spree::Promotion do
       before do
         promotion.save!
 
-        @order.adjustments.create({:amount => 1,
-                                  :source => @order,
-                                  :originator => @action,
-                                  :label => "Foo"}, :without_protection => true)
+        @order.adjustments.create(
+          :amount => 1,
+          :source => @order,
+          :originator => @action,
+          :label => "Foo"
+        )
       end
 
       it "should be eligible" do
@@ -276,9 +279,9 @@ describe Spree::Promotion do
       end
 
       it "should have eligible rules if any of the rules is eligible" do
-        true_rule = Spree::PromotionRule.create({:promotion => @promotion}, :without_protection => true)
+        true_rule = Spree::PromotionRule.create(:promotion => @promotion)
         true_rule.stub(:eligible?).and_return(true)
-        false_rule = Spree::PromotionRule.create({:promotion => @promotion}, :without_protection => true)
+        false_rule = Spree::PromotionRule.create(:promotion => @promotion)
         false_rule.stub(:eligible?).and_return(false)
         @promotion.rules << true_rule
         @promotion.rules_are_eligible?(@order).should be_true

@@ -19,10 +19,9 @@ module Spree
         count_on_hand = 0
         if params[:stock_item].has_key?(:count_on_hand)
           count_on_hand = params[:stock_item][:count_on_hand].to_i
-          params[:stock_item].delete(:count_on_hand)
         end
 
-        @stock_item = scope.new(params[:stock_item])
+        @stock_item = scope.new(stock_item_params)
         if @stock_item.save
           @stock_item.adjust_count_on_hand(count_on_hand)
           respond_with(@stock_item, status: 201, default_template: :show)
@@ -32,8 +31,7 @@ module Spree
       end
 
       def update
-        authorize! :update, StockItem
-        @stock_item = StockItem.find(params[:id])
+        @stock_item = StockItem.accessible_by(current_ability, :update).find(params[:id])
 
         count_on_hand = 0
         if params[:stock_item].has_key?(:count_on_hand)
@@ -41,7 +39,10 @@ module Spree
           params[:stock_item].delete(:count_on_hand)
         end
 
-        if @stock_item.adjust_count_on_hand(count_on_hand)
+        updated = params[:stock_item][:force] ? @stock_item.set_count_on_hand(count_on_hand)
+                                              : @stock_item.adjust_count_on_hand(count_on_hand)
+
+        if updated
           respond_with(@stock_item, status: 200, default_template: :show)
         else
           invalid_resource!(@stock_item)
@@ -49,8 +50,7 @@ module Spree
       end
 
       def destroy
-        authorize! :delete, StockItem
-        @stock_item = StockItem.find(params[:id])
+        @stock_item = StockItem.accessible_by(current_ability, :destroy).find(params[:id])
         @stock_item.destroy
         respond_with(@stock_item, status: 204)
       end
@@ -59,11 +59,15 @@ module Spree
 
       def stock_location
         render 'spree/api/shared/stock_location_required', status: 422 and return unless params[:stock_location_id]
-        @stock_location ||= StockLocation.find(params[:stock_location_id])
+        @stock_location ||= StockLocation.accessible_by(current_ability, :read).find(params[:stock_location_id])
       end
 
       def scope
-        @stock_location.stock_items.includes(:variant => :product)
+        @stock_location.stock_items.accessible_by(current_ability, :read).includes(:variant => :product)
+      end
+
+      def stock_item_params
+        params.require(:stock_item).permit(permitted_stock_item_attributes)
       end
     end
   end
