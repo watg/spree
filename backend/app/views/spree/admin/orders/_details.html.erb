@@ -25,10 +25,10 @@
     <th class="orders-actions actions" data-hook="admin_order_form_line_items_header_actions"></th>
   </thead>
 
-  <tbody data-shipment-number="<%= shipment.number %>" data-order-number="<%= order.number %>">
-    <%= render 'spree/admin/orders/shipment_manifest', order: order, shipment: shipment %>
+  <tbody data-shipment-number="<%= shipment.try(:number) %>" data-order-number="<%= order.number %>">
+    <%= render('spree/admin/orders/shipment_manifest', order: order, shipment: shipment) if shipment %>
 
-    <% unless shipment.shipped? %>
+    <% if (shipment && !shipment.shipped?) %>
       <tr class="edit-method hidden total">
         <td colspan="6">
           <div class="field alpha five columns">
@@ -38,7 +38,7 @@
                   {:class => 'select2 fullwidth', :data => {'shipment-number' => shipment.number } } %>
           </div>
 
-          <% if shipment.adjustment && shipment.adjustment.closed? %>
+          <% if  shipment && shipment.adjustment && shipment.adjustment.closed? %>
             <div class="field omega four columns">
               <label><%= Spree.t(:associated_adjustment_closed) %></label>
               <ul>
@@ -61,18 +61,18 @@
 
     <tr class="show-method total">
       <td colspan="5">
-        <% if shipment.adjustment.present? %>
+        <% if shipment && shipment.adjustment.present? %>
           <strong><%= shipment.adjustment.label %>: <%= shipment.shipping_method.name %></strong>
         <% else %>
           <%= Spree.t(:cannot_set_shipping_method_without_address) %>
         <% end %>
       </td>
       <td class="total" align="center">
-        <% if shipment.adjustment.present? %>
+        <% if  shipment && shipment.adjustment.present? %>
           <span><%= shipment.adjustment.display_amount %></span>
         <% end %>
       </td>
-      <% if shipment.adjustment.present? && !shipment.shipped? %>
+      <% if  shipment && shipment.adjustment.present? && !shipment.shipped? %>
         <td class="actions">
           <% if can? :update, shipment %>
             <%= link_to '', '#', :class => 'edit-method icon_link icon-edit no-text with-tip', :data => {:action => 'edit'}, :title => Spree.t('edit') %>
