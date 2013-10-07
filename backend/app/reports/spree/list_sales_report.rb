@@ -17,7 +17,7 @@ module Spree
   quantity
   state
   email
-    )
+    ) unless defined?(HEADER)
 
     def initialize(params)
       @option_types = generate_option_types 

@@ -4,14 +4,15 @@ module Spree
       ASSETS = {
         made_by_gang: File.join(Rails.root, 'app/assets/images/doc/', 'gang.jpg' ),
         made_by_you:  File.join(Rails.root, 'app/assets/images/doc/', 'you.jpg' )
-      }
+      } unless defined?(ASSETS)
 
       FONTS = {
         bold:  File.join(Rails.root, 'app/assets/fonts', 'gillsansmtprobold.ttf'),
         light: File.join(Rails.root, 'app/assets/fonts', 'gillsansmtprolight.ttf'),
-      }
-      STICKER_COORDINATES_BOTTOM_LEFT = {x: 10, y: 40}
-      LINE_HEIGHT = 10
+      } unless defined?(FONTS)
+      
+      STICKER_COORDINATES_BOTTOM_LEFT = {x: 10, y: 40}    unless defined?(STICKER_COORDINATES_BOTTOM_LEFT)
+      LINE_HEIGHT = 10                                    unless defined?(LINE_HEIGHT)
       
       class << self
         def create(pdf, order, batch_index=nil)

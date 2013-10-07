@@ -44,7 +44,7 @@ module Spree
 
   shipping_method_frontend
   shipping_method_backend
-    )
+    ) unless defined?(HEADER)
 
     def initialize(params)
       @from = params[:from].blank? ? Time.now.midnight : Time.parse(params[:from])  
