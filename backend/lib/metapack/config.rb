@@ -1,27 +1,43 @@
 module Metapack
   class Config
-    def self.config
-      @config ||= load_config
-    end
+    class << self
+      def config
+        @config ||= load_config
+      end
+      
+      def load_config
+        YAML::load_file(File.join(Rails.root, "config", "metapack.yml"))[Rails.env]
+      end
+      
+      def host
+        config["host"]
+      end
 
-    def self.load_config
-      YAML::load_file(File.join(Rails.root, "config", "metapack.yml"))[Rails.env]
-    end
+      def service_base_url
+        config["service_base_url"]
+      end
 
-    def self.host
-      self.config["host"]
-    end
+      def username
+        ENV["METAPACK_USERNAME"] || config["username"]
+      end
 
-    def self.service_base_url
-      self.config["service_base_url"]
-    end
+      def password
+        ENV["METAPACK_PASSWORD"] || config["password"]
+      end
+      
+      def active
+        if ENV["METAPACK_ACTIVE"].nil?
+          config["active"]
+        else
+          bool(ENV["METAPACK_ACTIVE"])
+        end
+      end
 
-    def self.username
-      ENV["METAPACK_USERNAME"] || self.config["username"]
+      private
+      def bool(str)
+        str == "true"
+      end
     end
-
-    def self.password
-      ENV["METAPACK_PASSWORD"] || self.config["password"]
-    end
+    
   end
 end
