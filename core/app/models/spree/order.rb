@@ -49,6 +49,9 @@ module Spree
       end
     end
 
+    has_many :parcels
+    
+
     accepts_nested_attributes_for :line_items
     accepts_nested_attributes_for :bill_address
     accepts_nested_attributes_for :ship_address
@@ -269,6 +272,29 @@ module Spree
     def tax_address
       Spree::Config[:tax_using_ship_address] ? ship_address : bill_address
     end
+
+
+
+    # Array of adjustments that are inclusive in the variant price. Useful for when
+    # prices include tax (ex. VAT) and you need to record the tax amount separately.
+    def price_adjustments
+      adjustments = []
+
+      line_items.each { |line_item| adjustments.concat line_item.adjustments }
+
+      adjustments
+    end
+
+    # Array of totals grouped by Adjustment#label. Useful for displaying price
+    # adjustments on an invoice. For example, you can display tax breakout for
+    # cases where tax is included in price.
+    def price_adjustment_totals
+      Hash[price_adjustments.group_by(&:label).map do |label, adjustments|
+        total = adjustments.sum(&:amount)
+        [label, Spree::Money.new(total, { currency: currency })]
+      end]
+    end
+
 
     # Array of totals grouped by Adjustment#label. Useful for displaying line item
     # adjustments on an invoice. For example, you can display tax breakout for
@@ -619,6 +645,12 @@ module Spree
     def shipping_eq_billing_address?
       (bill_address.empty? && ship_address.empty?) || bill_address.same_as?(ship_address)
     end
+   
+
+    def can_attempt_payment?
+      payments.select(&:pending?).blank?
+    end
+
 
     private
 

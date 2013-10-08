@@ -282,24 +282,21 @@ module Spree
       values = option_values_hash.values
       values = values.inject(values.shift) { |memo, value| memo.product(value).map(&:flatten) }
 
-        values.each do |ids|
-          variant = variants.create(
-            option_value_ids: ids,
-            prices: master.prices
-          )
-        end
-        save
+      values.each do |ids|
+        variant = variants.create(
+          option_value_ids: ids,
+          prices: master.prices
+        )
       end
       save
     end
 
-      def add_properties_and_option_types_from_prototype
-        if prototype_id && prototype = Spree::Prototype.find_by(id: prototype_id)
-          prototype.properties.each do |property|
-            product_properties.create(property: property)
-          end
-          self.option_types = prototype.option_types
+    def add_properties_and_option_types_from_prototype
+      if prototype_id && prototype = Spree::Prototype.find_by(id: prototype_id)
+        prototype.properties.each do |property|
+          product_properties.create(property: property)
         end
+        self.option_types = prototype.option_types
       end
     end
 
@@ -316,14 +313,14 @@ module Spree
       end
     end
 
-      def ensure_master
-        return unless new_record?
-        self.master ||= Variant.new
-      end
+    def ensure_master
+      return unless new_record?
+      self.master ||= Variant.new
+    end
 
-      def punch_permalink
-        update_attribute :permalink, "#{Time.now.to_i}_#{permalink}" # punch permalink with date prefix
-      end
+    def punch_permalink
+      update_attribute :permalink, "#{Time.now.to_i}_#{permalink}" # punch permalink with date prefix
+    end
   end
 end
 
