@@ -43,8 +43,12 @@ module Spree
         def set_addresses
           if @current_order.user
             if last_order = @current_order.user.orders.complete.last
-              @current_order.bill_address ||= last_order.bill_address.dup 
-              @current_order.ship_address ||= last_order.ship_address.dup
+              if last_order.bill_address and last_order.bill_address.valid?
+                @current_order.bill_address ||= last_order.bill_address.dup 
+              end
+              if last_order.ship_address and last_order.ship_address.valid?
+                @current_order.ship_address ||= last_order.ship_address.dup
+              end
             end
           end
         end
