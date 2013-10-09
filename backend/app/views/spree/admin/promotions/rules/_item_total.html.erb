@@ -1,14 +1,35 @@
-<div class="field alpha four columns">
-  <%= select_tag "#{param_prefix}[preferred_operator]", options_for_select(Spree::Promotion::Rules::ItemTotal::OPERATORS.map{|o| [Spree.t("item_total_rule.operators.#{o}"),o]}, promotion_rule.preferred_operator), {:class => 'select2 select_item_total_operator fullwidth'} %>
+<div class="field alpha seven columns">
+<table class="index">
+    <colgroup>
+      <col style="width: 30%" />
+      <col style="width: 30%" />
+      <col style="width: 30%" />
+      <col style="width: 10%" />
+    </colgroup>
+    <tbody>
+      <thead>
+        <tr>
+          <th><%= Spree.t(:zone) %></th>
+          <th><%= Spree.t(:currency) %></th>
+          <th><%= Spree.t(:amount) %></th>
+          <th><%= Spree.t(:enabled) %></th>
+        </tr>
+      </thead>
+
+      <% promotion_rule.preferred_attributes.each do |zone_id,currency_amount_enabled| %>
+        <% currency_amount_enabled.each do |currency,amount_enabled| %>
+          <% prefix = "#{param_prefix}[preferred_attributes][#{zone_id}][#{currency}]" %>
+          <tr class="<%= cycle('odd', 'even')%>" >
+            <td> <%= Spree::Zone.find(zone_id).name %></td>
+            <td> <%= currency %></td>
+            <td> <%= text_field_tag "#{prefix}][amount]", amount_enabled['amount'], :class => 'fullwidth' %> </td>
+            <td> <%= check_box_tag "#{prefix}[enabled]", true, amount_enabled['enabled'] %> </td>
+         </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
 </div>
-<div class="field omega two columns">
-  <%= text_field_tag "#{param_prefix}[preferred_amount]", promotion_rule.preferred_amount, :class => 'fullwidth' %>
-</div>
-<div class="field two columns">
-  <%= select_tag "#{param_prefix}[preferred_currency]", options_for_select(Spree::Promotion::Rules::ItemTotal.currencies, promotion_rule.preferred_currency), {:class => 'select2 select_item_total_currency fullwidth'} %>
-</div>
-<div class="field alpha four columns">
-zone ( optional )
-  <%= select_tag "#{param_prefix}[preferred_zone_id]", options_for_select(Spree::Zone.order(:name).map{|z| [z.name, z.id] }, promotion_rule.preferred_zone_id), {:class => 'select2 select_item_total_zone_id fullwidth'} %>
-</div>
+
+
 
