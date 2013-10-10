@@ -145,9 +145,32 @@ module Spree
       end
     end
 
+      def last_order_ship_address
+      if user
+        if last_order = user.orders.complete.last
+          if last_order.ship_address and last_order.ship_address.valid?
+            return last_order.ship_address.dup 
+          end
+        end
+      end
+      Address.default
+    end
+
+    def last_order_bill_address
+      if user
+        if last_order = user.orders.complete.last
+          if last_order.bill_address and last_order.bill_address.valid?
+            return last_order.bill_address.dup 
+          end
+        end
+      end
+      Address.default
+    end
+
     def max_dimension
       parcels_grouped_by_box.map(&:longest_edge).sort{ |a,b| b <=> a }.first
     end
+
     def parcels_grouped_by_box
       parcels.inject([]) do |list, parcel|
         current_parcel = list.detect {|e| e.box_id == parcel.box_id}

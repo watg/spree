@@ -33,23 +33,9 @@ module Spree
           if @current_order
             # Try and add the last billing and shipping address for this user
             @current_order.user ||= try_spree_current_user
-            set_addresses
             @current_order.last_ip_address = ip_address
             session[:order_id] = @current_order.id
             return @current_order
-          end
-        end
-
-        def set_addresses
-          if @current_order.user
-            if last_order = @current_order.user.orders.complete.last
-              if last_order.bill_address and last_order.bill_address.valid?
-                @current_order.bill_address ||= last_order.bill_address.dup 
-              end
-              if last_order.ship_address and last_order.ship_address.valid?
-                @current_order.ship_address ||= last_order.ship_address.dup
-              end
-            end
           end
         end
 
