@@ -9,6 +9,7 @@ module Spree
       end
 
       def shipping_rates(package, frontend_only = true)
+        # debugger
         shipping_rates = calculate_shipping_rates(package)
 
         unless shipping_rates.empty?
@@ -20,7 +21,7 @@ module Spree
         sort_shipping_rates(shipping_rates)
       end
 
-      private
+      #private
       def choose_default_shipping_rate(shipping_rates)
         shipping_rates.min_by(&:cost).selected = true
       end
@@ -30,8 +31,16 @@ module Spree
       end
 
       def calculate_shipping_rates(package)
+        puts "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaaaaaa"
+        # debugger
         shipping_methods(package).map do |shipping_method|
           cost = shipping_method.calculator.compute(package)
+          
+          if cost
+            puts "yesssssssssssssssssssssssss"
+          else
+            puts "nooooooooooooooooooooooo"
+          end
           shipping_method.shipping_rates.new(cost: cost) if cost
         end.compact
       end
@@ -39,10 +48,16 @@ module Spree
       def shipping_methods(package)
         package.shipping_methods.select do |ship_method|
           calculator = ship_method.calculator
+          puts "include?: " + ship_method.include?(order.ship_address).to_s
+          puts "nil? " + calculator.preferences[:currency].nil?.to_s
+          puts "== " + calculator.preferences[:currency] == currency.to_s
+
           calculator.available?(package) &&
           ship_method.include?(order.ship_address) &&
           (calculator.preferences[:currency].nil? ||
            calculator.preferences[:currency] == currency)
+
+
         end
       end
     end

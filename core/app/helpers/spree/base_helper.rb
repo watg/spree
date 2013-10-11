@@ -13,7 +13,6 @@ module Spree
     end
 
     def link_to_cart(text = nil)
-      puts spree.inspect
       return "" if current_spree_page?(spree.cart_path)
 
       text = text ? h(text) : Spree.t('cart')

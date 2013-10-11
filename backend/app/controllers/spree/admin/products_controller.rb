@@ -19,7 +19,7 @@ module Spree
       end
 
       def update
-        outcome = Spree::UpdateProductService.run(product: @object, details: params[:product], prices: params[:prices])
+        outcome = Spree::UpdateProductService.run(product: @object, details: permit_attributes, prices: params[:prices])
         if outcome.success?
           update_success(@object)
         else

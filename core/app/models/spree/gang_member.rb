@@ -1,7 +1,7 @@
 module Spree
   class GangMember < ActiveRecord::Base 
 
-    attr_accessible :firstname, :lastname, :profile, :nickname, :avatar, :visible
+    #attr_accessible :firstname, :lastname, :profile, :nickname, :avatar, :visible
 
     TAXONOMY = 'Gang Makers'
 

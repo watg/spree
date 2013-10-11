@@ -9,12 +9,12 @@ module Spree
 
     validate :name_is_url_safe
 
-    attr_accessible :name, :presentation, :option_type_id
-    attr_accessible :image, :color_code     # from variant options
+    #attr_accessible :name, :presentation, :option_type_id
+    #attr_accessible :image, :color_code     # from variant options
 
     # from variant options
 
-    default_scope order("#{quoted_table_name}.position")
+    default_scope { order("#{quoted_table_name}.position") }
 
     has_attached_file :image,
     :styles        => { :small => '18x18#', :medium => '40x30#', :large => '140x110#' },

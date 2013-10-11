@@ -23,7 +23,7 @@ module Spree
     acts_as_paranoid
     has_many :product_option_types, dependent: :destroy
     has_many :option_types, through: :product_option_types
-    has_many :visible_option_types, through: :product_option_types, conditions: {spree_product_option_types: true }
+    has_many :visible_option_types, -> { where spree_product_option_types: true }, through: :product_option_types
 
     has_many :product_properties, dependent: :destroy
     has_many :properties, through: :product_properties
@@ -41,7 +41,7 @@ module Spree
 
   
     # ---- from marketplace ext --
-    attr_accessible :product_group_id, :gang_member_id
+    # attr_accessible :product_group_id, :gang_member_id
     
     belongs_to :product_group
     belongs_to :gang_member

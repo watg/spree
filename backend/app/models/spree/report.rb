@@ -1,6 +1,6 @@
 module Spree
   class Report < ActiveRecord::Base
-    attr_accessible :job_id, :filename, :file_id, :download_uri
+    #attr_accessible :job_id, :filename, :file_id, :download_uri
 
     REPORTS_FOLDER_ID = '0B9oajy9I3FKQOTE3bnE4OFh4ZmM'
     FINISHED = -1

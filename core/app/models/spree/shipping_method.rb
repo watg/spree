@@ -34,7 +34,11 @@ module Spree
     end
 
     def self.calculators
-      spree_calculators.send(model_name_without_spree_namespace).select{ |c| c < Spree::ShippingCalculator }
+      # puts spree_calculators.send(model_name_without_spree_namespace).inspect
+      # puts "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+      # puts spree_calculators.send(model_name_without_spree_namespace).map{ |c| puts c.inspect; puts Spree::ShippingCalculator.inspect; puts (c < Spree::ShippingCalculator); c < Spree::ShippingCalculator }.inspect
+      # puts "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL"
+      spree_calculators.send(model_name_without_spree_namespace).select{ |c| c.name.start_with?("Spree::Calculator::Shipping::") }
     end
 
     # Some shipping methods are only meant to be set via backend

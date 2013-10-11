@@ -4,7 +4,7 @@ module Spree
     belongs_to :taxon, touch: true
     belongs_to :product, touch: true
     
-    attr_accessible :product_id, :variant_id, :taxon_id
+    #attr_accessible :product_id, :variant_id, :taxon_id
 
     class << self
       def by_product(product)
