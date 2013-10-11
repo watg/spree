@@ -185,11 +185,11 @@ describe Spree::Variant do
     end
   end
 
-  describe '.price_in' do
+  describe '.price_normal_in' do
     before do
       variant.prices << create(:price, :variant => variant, :currency => "EUR", :amount => 33.33)
     end
-    subject { variant.price_in(currency).display_amount }
+    subject { variant.price_normal_in(currency).display_amount }
 
     context "when currency is not specified" do
       let(:currency) { nil }

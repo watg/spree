@@ -7,7 +7,7 @@
         <ul>
           <% @product.variants_and_option_values(current_currency).each_with_index do |variant, index| %>
             <li>
-              <%= radio_button_tag "products[#{@product.id}]", variant.id, index == 0, 'data-price' => variant.price_in(current_currency).display_price %>
+              <%= radio_button_tag "products[#{@product.id}]", variant.id, index == 0, 'data-price' => variant.price_normal_in(current_currency).display_price %>
               <label for="<%= ['products', @product.id, variant.id].join('_') %>">
                 <span class="variant-description">
                   <%= variant_options variant %>
@@ -22,7 +22,7 @@
       </div>
     <% end%>
 
-    <% if @product.price_in(current_currency) and !@product.price.nil? %>
+    <% if @product.price_normal_in(current_currency) and !@product.price.nil? %>
       <div data-hook="product_price" class="columns five <% if !@product.has_variants? %> alpha <% else %> omega <% end %>">
         
         <div id="product-price">
