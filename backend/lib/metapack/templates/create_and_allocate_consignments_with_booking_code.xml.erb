@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <soapenv:Body>
-    <ns1:createAndAllocateConsignments soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:ns1="urn:DeliveryManager/services">
+    <ns1:createAndAllocateConsignmentsWithBookingCode soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:ns1="urn:DeliveryManager/services">
       <consignments soapenc:arrayType="ns2:Consignment[1]" xsi:type="soapenc:Array" xmlns:ns2="urn:DeliveryManager/types" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
         <item xsi:type="ns2:Consignment">
           <alreadyPalletisedGoodsFlag xsi:type="xsd:boolean">false</alreadyPalletisedGoodsFlag>
@@ -55,6 +55,7 @@
       </consignments>
       <filter xsi:type="ns3:AllocationFilter" xsi:nil="true" xmlns:ns3="urn:DeliveryManager/types"/>
       <calculateTaxAndDuty xsi:type="soapenc:boolean">false</calculateTaxAndDuty>
-    </ns1:createAndAllocateConsignments>
+      <bookingCode xsi:type="soapenc:string"><%= consignment[:booking_code] %></bookingCode>
+    </ns1:createAndAllocateConsignmentsWithBookingCode>
   </soapenv:Body>
 </soapenv:Envelope>

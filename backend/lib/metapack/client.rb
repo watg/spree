@@ -1,7 +1,7 @@
 module Metapack
   class Client
-    def self.create_and_allocate_consignment(consignment)
-      response = request(:AllocationService, :create_and_allocate_consignments, consignment: consignment)
+    def self.create_and_allocate_consignment_with_booking_code(consignment)
+      response = request(:AllocationService, :create_and_allocate_consignments_with_booking_code, consignment: consignment)
       {
         metapack_consignment_code: response.find("consignmentCode"),
         tracking:                  tracking_info(response)

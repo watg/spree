@@ -8,10 +8,10 @@ module Spree
     def execute
       order = Spree::Order.find(order_id)
       return unless valid_consignment?(order)
-      response = Metapack::Client.create_and_allocate_consignment(allocation_hash(order))
+      response = Metapack::Client.create_and_allocate_consignment_with_booking_code(allocation_hash(order))
       order.update_attributes!(order_attrs(response))
       update_parcels(order, response[:tracking])
-      mark_order_as_shipped(order)   if order.metapack_allocated  
+      mark_order_as_shipped(order)   if order.metapack_allocated
       Metapack::Client.create_labels_as_pdf(response[:metapack_consignment_code])
 
     rescue Exception => error
@@ -38,6 +38,7 @@ module Spree
           lastname:    order.shipping_address.lastname,
           name:        order.shipping_address.full_name
         },
+        booking_code:  nil
       }
     end
 
@@ -77,7 +78,7 @@ module Spree
 
       true
     end
-    
+
     def order_attrs(hash)
       {
         metapack_consignment_code: hash[:metapack_consignment_code],
@@ -100,6 +101,6 @@ module Spree
       order.save(validate: false)
       order.shipments.map(&:ship)
     end
-    
+
   end
 end
