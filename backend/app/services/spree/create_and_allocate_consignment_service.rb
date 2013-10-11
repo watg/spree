@@ -38,7 +38,7 @@ module Spree
           lastname:    order.shipping_address.lastname,
           name:        order.shipping_address.full_name
         },
-        booking_code:  nil
+        booking_code:  order.metapack_booking_code
       }
     end
 
