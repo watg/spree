@@ -1,12 +1,15 @@
 module Spree
   class ProductGroup < ActiveRecord::Base
-    attr_accessible :name, :description
-    validates :name, :presence => true
+    attr_accessible :name, :description, :title, :permalink
+    validates :name, uniqueness: true
+    validates :name, presence: true
+    validates :permalink, uniqueness: true
     
     has_many :products
 
+    before_save :set_permalink
+
     def ready_made_products
-# 
       products.where("product_type is not 'kit'").displayable_variants
     end
 
@@ -14,8 +17,11 @@ module Spree
       products.where(product_type: :kit)
     end
 
-    def permalink
-      name.downcase.split(' ').map{|e| (e.blank? ? nil : e) }.compact.join('-')
+    private
+    def set_permalink
+      if self.permalink.blank? && self.name
+        self.permalink = '/'+ name.downcase.split(' ').map{|e| (e.blank? ? nil : e) }.compact.join('-')
+      end
     end
   end
 end
