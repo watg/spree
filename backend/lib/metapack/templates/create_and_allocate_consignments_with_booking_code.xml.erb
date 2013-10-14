@@ -53,9 +53,8 @@
           <senderCode xsi:type="soapenc:string">DEFAULT</senderCode>
         </item>
       </consignments>
-      <filter xsi:type="ns3:AllocationFilter" xsi:nil="true" xmlns:ns3="urn:DeliveryManager/types"/>
-      <calculateTaxAndDuty xsi:type="soapenc:boolean">false</calculateTaxAndDuty>
       <bookingCode xsi:type="soapenc:string"><%= consignment[:booking_code] %></bookingCode>
+      <calculateTaxAndDuty xsi:type="soapenc:boolean">false</calculateTaxAndDuty>
     </ns1:createAndAllocateConsignmentsWithBookingCode>
   </soapenv:Body>
 </soapenv:Envelope>
