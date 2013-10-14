@@ -4,5 +4,10 @@
   <%= f.error_message_on :name %>
 <% end %>
 
+<%= f.field_container :taxons do %>
+  <%= f.label :taxon_ids, Spree.t(:taxons) %><br />
+  <%= f.hidden_field :taxon_ids, :value => @product_group.taxon_ids.join(',') %>
+<% end %>
+
 <div class="clear"></div>
 
