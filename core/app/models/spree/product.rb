@@ -28,10 +28,6 @@ module Spree
     has_many :product_properties, dependent: :destroy
     has_many :properties, through: :product_properties
 
-    has_many :displayable_variants
-
-    has_many :classifications, dependent: :delete_all
-    has_many :taxons, through: :classifications
     has_and_belongs_to_many :promotion_rules, join_table: :spree_products_promotion_rules
 
     belongs_to :tax_category,      class_name: 'Spree::TaxCategory'
@@ -39,10 +35,10 @@ module Spree
     belongs_to :gang_member,       class_name: 'Spree::GangMember'
     belongs_to :product_group,     class_name: 'Spree::ProductGroup'
 
-  
+
     # ---- from marketplace ext --
     attr_accessible :product_group_id, :gang_member_id
-    
+
     belongs_to :product_group
     belongs_to :gang_member
 
@@ -77,9 +73,6 @@ module Spree
 
     after_save :save_master
 
-    # This will help us clear the caches if a product is modified
-    after_touch { self.delay.touch_taxons }
-
     delegate :images, to: :master, prefix: true
     alias_method :images, :master_images
 
@@ -97,7 +90,7 @@ module Spree
       :meta_keywords, :price, :sku, :deleted_at, :prototype_id,
       :option_values_hash, :weight, :height, :width, :depth,
       :shipping_category_id, :tax_category_id, :product_properties_attributes,
-      :variants_attributes, :taxon_ids, :option_type_ids, :cost_currency
+      :variants_attributes, :option_type_ids, :cost_currency
 
     attr_accessible :cost_price if Variant.table_exists? && Variant.column_names.include?('cost_price')
 
@@ -272,13 +265,6 @@ module Spree
     end
 
     private
-    def touch_taxons
-      # You should be able to just call self.taxons.each { |t| t.touch } but
-      # for some reason acts_as_nested_set does not walk all the ancestors
-      # correclty
-      self.taxons.each { |t| t.self_and_parents.each { |t2| t2.touch } }
-    end
-
     # Builds variants from a hash of option types & values
     def build_variants_from_option_values_hash
       ensure_option_types_exist_for_values_hash
@@ -309,7 +295,7 @@ module Spree
     # when saving so we force a save using a hook.
     def save_master
       if master && (master.changed? ||  master.new_record? )
-        master.save 
+        master.save
       end
     end
 

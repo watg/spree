@@ -7,7 +7,7 @@ module Spree
     def self.available
       where('spree_products.deleted_at IS NOT NULL')
     end
-    
+
     def self.add_search_scope(name, &block)
       self.singleton_class.send(:define_method, name.to_sym, &block)
       search_scopes << name.to_sym
@@ -52,43 +52,6 @@ module Spree
 
     add_search_scope :master_price_gte do |price|
       joins(:master => :default_price).where("#{price_table_name}.amount >= ?", price)
-    end
-
-    # This scope selects products in taxon AND all its descendants
-    # If you need products only within one taxon use
-    #
-    #   Spree::Product.joins(:taxons).where(Taxon.table_name => { :id => taxon.id })
-    #
-    # If you're using count on the result of this scope, you must use the
-    # `:distinct` option as well:
-    #
-    #   Spree::Product.in_taxon(taxon).count(:distinct => true)
-    #
-    # This is so that the count query is distinct'd:
-    #
-    #   SELECT COUNT(DISTINCT "spree_products"."id") ...
-    #
-    #   vs.
-    #
-    #   SELECT COUNT(*) ...
-    add_search_scope :in_taxon do |taxon|
-      if ActiveRecord::Base.connection.adapter_name == "PostgreSQL"
-        scope = select("DISTINCT ON (spree_products.id) spree_products.*")
-      else
-        scope = select("DISTINCT(spree_products.id), spree_products.*")
-      end
-
-      scope.joins(:taxons).
-      where(Taxon.table_name => { :id => taxon.self_and_descendants.map(&:id) })
-    end
-
-    # This scope selects products in all taxons AND all its descendants
-    # If you need products only within one taxon use
-    #
-    #   Spree::Product.taxons_id_eq([x,y])
-    add_search_scope :in_taxons do |*taxons|
-      taxons = get_taxons(taxons)
-      taxons.first ? prepare_taxon_conditions(taxons) : scoped
     end
 
     # a scope that finds all products having property specified by name, object or id
@@ -215,10 +178,6 @@ module Spree
     end
     search_scopes << :active
 
-    add_search_scope :taxons_name_eq do |name|
-      group("spree_products.id").joins(:taxons).where(Taxon.arel_table[:name].eq(name))
-    end
-
     # This method needs to be defined *as a method*, otherwise it will cause the
     # problem shown in #1247.
     def self.group_by_products_id
@@ -238,31 +197,12 @@ module Spree
         Price.quoted_table_name
       end
 
-      # specifically avoid having an order for taxon search (conflicts with main order)
-      def self.prepare_taxon_conditions(taxons)
-        ids = taxons.map { |taxon| taxon.self_and_descendants.pluck(:id) }.flatten.uniq
-        joins(:taxons).where("#{Taxon.table_name}.id" => ids)
-      end
-
       # Produce an array of keywords for use in scopes.
       # Always return array with at least an empty string to avoid SQL errors
       def self.prepare_words(words)
         return [''] if words.blank?
         a = words.split(/[,\s]/).map(&:strip)
         a.any? ? a : ['']
-      end
-
-      def self.get_taxons(*ids_or_records_or_names)
-        taxons = Taxon.table_name
-        ids_or_records_or_names.flatten.map { |t|
-          case t
-          when Integer then Taxon.find_by_id(t)
-          when ActiveRecord::Base then t
-          when String
-            Taxon.find_by_name(t) ||
-            Taxon.where("#{taxons}.permalink LIKE ? OR #{taxons}.permalink = ?", "%/#{t}/", "#{t}/").first
-          end
-        }.compact.flatten.uniq
       end
     end
 end
