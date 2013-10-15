@@ -171,6 +171,13 @@ module Spree
       parcels_grouped_by_box.map(&:longest_edge).sort{ |a,b| b <=> a }.first
     end
 
+    def metapack_booking_code
+      li_by_product_type = line_items.map {|li| li.variant.product.product_type == 'pattern'}
+      has_only_pattern = li_by_product_type.inject(true) {|res, a| res && a }
+      less_than_ten =( li_by_product_type.select {|e| e }.size < 11)
+      ((has_only_pattern && less_than_ten) ? 'PATTERN' : nil)
+    end
+
     def parcels_grouped_by_box
       parcels.inject([]) do |list, parcel|
         current_parcel = list.detect {|e| e.box_id == parcel.box_id}
