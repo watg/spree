@@ -17,7 +17,7 @@ module Spree
           float :depth
           float :width
           float :weight
-          string :label
+          string :label, nils: true, empty: true
         end
 
       end
