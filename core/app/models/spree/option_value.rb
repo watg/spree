@@ -27,7 +27,7 @@ module Spree
     Spree::OptionValue.attachment_definitions[:image][:url] = Spree::Config[:attachment_url]
     Spree::OptionValue.attachment_definitions[:image][:default_url] = Spree::Config[:attachment_default_url]
     Spree::OptionValue.attachment_definitions[:image][:default_style] = Spree::Config[:attachment_default_style]
-    Spree::OptionValue.attachment_definitions[:image][:s3_host_name] = "s3-eu-west-1.amazonaws.com"
+    Spree::OptionValue.attachment_definitions[:image][:s3_host_name] = Spree::Config[:s3_host_alias]
 
     # At some point we may want to turn auto formatting on
     #def name=(val)

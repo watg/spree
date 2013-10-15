@@ -7,7 +7,6 @@ module Spree
       hash :details do
         required do
           string :sku
-          string :label
           array :option_value_ids do
             string
           end 
@@ -18,6 +17,7 @@ module Spree
           float :depth
           float :width
           float :weight
+          string :label, nils: true, empty: true
         end
 
       end

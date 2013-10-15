@@ -1,11 +1,10 @@
 module Spree
   module PDF
     class CommercialInvoice < Base
-      WATG_LOGO = File.join(Rails.root, 'app/assets/images/', 'logo-watg-135x99.png' )
+      WATG_LOGO = File.join(Rails.root, 'app/assets/images/', 'logo-watg-135x99.png' )   unless defined?(WATG_LOGO)
       
       class << self
         def create(pdf, order, batch_index=nil)
-          logopath = File.join(Rails.root, 'app/assets/images/', 'logo-watg-135x99.png' )
           initial_y = pdf.cursor
           initialmove_y = 5
           address_x = 35

@@ -61,7 +61,12 @@ module Spree
 
     def weight
       if kit?
-        required_parts.inject(0.00) { |sum,part| sum + (part.count_part * part.weight) }
+        kit_weight = required_parts.inject(0.00) do |sum,part| 
+          count_part = part.count_part || 0
+          part_weight =  part.weight || 0
+          sum + (count_part * part_weight) 
+        end
+        BigDecimal.new(kit_weight,2)
       else
         super
       end

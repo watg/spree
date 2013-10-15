@@ -30,7 +30,7 @@ module Spree
   order_revenue_received
 
   email
-    )
+    ) unless defined?(HEADER)
 
     def initialize(params)
       @option_types = generate_option_types 

@@ -60,10 +60,10 @@ module Spree
 
       def show
         @order = Order.find_by_number!(params[:id])
-        invoice = Spree::CommercialInvoice.new.to_pdf(@order)
+        pdf    = get_pdf(@order, type)
         respond_to do |format|
           format.pdf do
-            send_data invoice, :filename => "invoice.pdf",  :type => "application/pdf"
+            send_data pdf, :filename => "#{type}.pdf",  :type => "application/pdf", disposition: :inline
           end
         end
       end
@@ -129,6 +129,17 @@ module Spree
       end
 
       private
+      def type
+        (params[:type] == 'sticker' ? :sticker : :invoice )
+      end
+
+      def get_pdf(order, pdf_type)
+        if pdf_type == :invoice
+          Spree::PDF::CommercialInvoice.to_pdf(order)
+        else
+          Spree::PDF::ImageSticker.to_pdf(order)
+        end
+      end
 
         def load_order
           @order = Order.includes(:adjustments).find_by_number!(params[:id]) if params[:id]

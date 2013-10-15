@@ -266,6 +266,24 @@ module Spree
       super || variants_including_master.with_deleted.where(is_master: true).first
     end
 
+    def variant_options_tree(current_currency)
+      hash={}
+      variants.each do |v|
+        base=hash
+        v.option_values.order(:position).sort_by {|ov| ov.option_type.position }.each_with_index do |o,i|
+          base[o.option_type.name] ||= {}
+          base[o.option_type.name][o.name] ||= {}
+          if ( i + 1 < v.option_values.size )
+            base = base[o.option_type.name][o.name]
+          else
+            base[o.option_type.name][o.name]['variant_id']=v.id
+            base[o.option_type.name][o.name]['price']=v.price_normal_sale_in(current_currency)
+          end
+        end
+      end
+      hash
+    end
+
     private
     def touch_taxons
       # You should be able to just call self.taxons.each { |t| t.touch } but
@@ -281,7 +299,7 @@ module Spree
       values = values.inject(values.shift) { |memo, value| memo.product(value).map(&:flatten) }
 
       values.each do |ids|
-        variant = variants.create(
+        variants.create(
           option_value_ids: ids,
           prices: master.prices
         )
