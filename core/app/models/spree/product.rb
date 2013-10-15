@@ -41,8 +41,6 @@ module Spree
 
   
     # ---- from marketplace ext --
-    # attr_accessible :product_group_id, :gang_member_id
-    
     belongs_to :product_group
     belongs_to :gang_member
 
@@ -69,7 +67,7 @@ module Spree
 
     has_many :stock_items, through: :variants_including_master
 
-    delegate_belongs_to :master, :sku, :price, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :amount_in
+    delegate_belongs_to :master, :sku, :price, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :price_normal_in, :amount_in
     delegate_belongs_to :master, :cost_price if Variant.table_exists? && Variant.column_names.include?('cost_price')
 
     after_create :set_master_variant_defaults
@@ -113,7 +111,7 @@ module Spree
     end
 
     def variants_for_option_value(value)
-      @_variant_option_values ||= variants.includes(:option_values).all
+      @_variant_option_values ||= variants.includes(:option_values)
       @_variant_option_values.select { |i| i.option_value_ids.include?(value.id) }
     end
 

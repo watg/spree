@@ -46,12 +46,14 @@ module Spree
       else
         line_item = order.line_items.new(quantity: quantity, variant: variant)
         line_item.target_shipment = shipment
-        if currency
-          line_item.currency = currency unless currency.nil?
-          line_item.price    = variant.price_normal_in(currency).amount
-        else
-          line_item.price    = variant.price
+        line_item.currency = currency unless currency.nil?
+        line_item.price    = variant.current_price_in(currency).amount
+
+        if variant.in_sale?
+          line_item.in_sale       = variant.in_sale
+          line_item.normal_price  = variant.price_normal_in(currency).amount
         end
+
 
         line_item.add_options(options,currency) unless options.blank?
         order.line_items << line_item

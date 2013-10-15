@@ -1,7 +1,6 @@
 module Spree
   class Report < ActiveRecord::Base
-    #attr_accessible :job_id, :filename, :file_id, :download_uri
-
+    
     REPORTS_FOLDER_ID = '0B9oajy9I3FKQOTE3bnE4OFh4ZmM'
     FINISHED = -1
 
@@ -49,11 +48,5 @@ module Spree
       GoogleDriveStorage.download_data( self.download_uri )
     end
 
-    protected
-
-    # def get_report_instance(name, params)
-    #   klass = "Spree::#{name.camelize}Report".constantize
-    #   klass.new(params)
-    # end
   end
 end

@@ -6,7 +6,12 @@ Spree::Core::Engine.routes.draw do
 
   get '/locale/set', :to => 'locale#set'
 
+  # two routes added from spree auth devise due to override below
+  get '/checkout/registration' => 'checkout#registration', :as => :checkout_registration
+  put '/checkout/registration' => 'checkout#update_registration', :as => :update_checkout_registration
+
   # non-restful checkout stuff
+  
   patch '/checkout/update/:state', :to => 'checkout#update', :as => :update_checkout
   get '/checkout/:state', :to => 'checkout#edit', :as => :checkout_state
   get '/checkout', :to => 'checkout#edit' , :as => :checkout

@@ -50,7 +50,7 @@ module Spree
       end
 
       def options_by_product(product, option_value_name_list)
-        _option_values = Spree::OptionValue.select(:id).where(name: option_value_name_list).all.map(&:id).compact.sort
+        _option_values = Spree::OptionValue.select(:id).where(name: option_value_name_list).map(&:id).compact.sort
         product.variants.detect {|v| v.option_values.map(&:id).sort == _option_values}
       end
     end
@@ -59,13 +59,13 @@ module Spree
       displayable_variants.any?
     end
 
-    # def weight
-    #   if kit?
-    #     required_parts.inject(0.00) { |sum,part| sum + (part.count_part * part.weight) }
-    #   else
-    #     super
-    #   end
-    # end
+    def weight
+      if kit?
+        required_parts.inject(0.00) { |sum,part| sum + (part.count_part * part.weight) }
+      else
+        super
+      end
+    end
 
     def cost_price=(price)
       self[:cost_price] = parse_price(price)

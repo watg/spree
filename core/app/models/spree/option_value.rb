@@ -9,9 +9,6 @@ module Spree
 
     validate :name_is_url_safe
 
-    #attr_accessible :name, :presentation, :option_type_id
-    #attr_accessible :image, :color_code     # from variant options
-
     # from variant options
 
     default_scope { order("#{quoted_table_name}.position") }

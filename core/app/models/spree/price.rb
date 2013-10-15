@@ -8,8 +8,6 @@ module Spree
     validate :check_price
     validates :amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: false
 
-    # attr_accessible :variant_id, :currency, :amount, :sale
-
     def display_amount
       money
     end

@@ -2,6 +2,9 @@ module Spree
   module Core
     module ControllerHelpers
       module Order
+        extend ActiveSupport::Concern
+        include CurrencyHelpers
+
         def self.included(base)
           base.class_eval do
             helper_method :current_order

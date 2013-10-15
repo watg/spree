@@ -1,8 +1,6 @@
 module Spree
   class GangMember < ActiveRecord::Base 
 
-    #attr_accessible :firstname, :lastname, :profile, :nickname, :avatar, :visible
-
     TAXONOMY = 'Gang Makers'
 
     # TODO: Valifations on first name and last name
