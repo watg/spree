@@ -3,7 +3,7 @@ module Spree
     class ProductGroupsController < ResourceController
 
       def update
-        outcome = Spree::UpdateProductGroupService.run(product_group: @object, details: params[:product_group])
+        outcome = Spree::UpdateProductGroupService.run(product_group: @object, details: params[:product_group], tabs: params[:tabs])
         if outcome.success?
           update_success(@object)
         else

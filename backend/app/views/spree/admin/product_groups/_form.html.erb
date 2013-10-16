@@ -4,14 +4,25 @@
   <%= f.error_message_on :name %>
 <% end %>
 
-<%= f.field_container :default_tab do %>
-  <%= f.label :default_tab, Spree.t(:default_tab) %> <span class="required">*</span><br />
-  <%= f.select(:default_tab, Spree::ProductGroupTab::TYPES, { :include_blank => false }, { :class => 'select2 title' }) %>
-  <%= f.error_message_on :default_tab %>
+<%= f.field_container :title do %>
+  <%= f.label :title, Spree.t(:title) %> <span class="required">*</span><br />
+  <%= f.text_field :title, :class => 'fullwidth title' %>
+  <%= f.error_message_on :title %>
 <% end %>
 
-<%= render :partial => 'tab', :locals => {:tab => @product_group.tab(:ready_to_wear)} %>
-<%= render :partial => 'tab', :locals => {:tab => @product_group.tab(:knit_your_own)} %>
+<%= f.field_container :permalink do %>
+  <%= f.label :permalink, Spree.t(:permalink) %> <span class="required">*</span><br />
+  <%= f.text_field :permalink, :class => 'fullwidth title' %>
+  <%= f.error_message_on :permalink %>
+<% end %>
+
+<%= f.field_container :default_tab do %>
+  <%= f.label :default_tab, Spree.t(:default_tab) %> <span class="required">*</span><br />
+  <%= select_tag('product_group[default_tab]', options_for_select(Spree::ProductGroupTab::TYPES, selected: @product_group.default_tab.try(:tab_type)), { :class => 'select2 title' }) %>
+<% end %>
+
+<% Spree::ProductGroupTab::TYPES.each_with_index do |tab_type, position| %>
+<%= render :partial => 'tab', :locals => {:tab => @product_group.tab(tab_type), :position => position} %>
+<% end %>
 
 <div class="clear"></div>
-

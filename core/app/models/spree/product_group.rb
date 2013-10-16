@@ -2,7 +2,7 @@ module Spree
   class ProductGroup < ActiveRecord::Base
     TABS = [:ready_to_wear, :knit_your_own]
 
-    attr_accessible :name, :description, :title, :permalink, :taxon_ids
+    attr_accessible :name, :description, :title, :permalink
     validates :name, uniqueness: true
     validates :name, presence: true
     validates :permalink, uniqueness: true
@@ -28,6 +28,10 @@ module Spree
 
     def kit_products
       products.where(product_type: :kit)
+    end
+
+    def default_tab
+      tabs.where(default: true).first
     end
 
     def tab(tab_type)

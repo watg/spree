@@ -38,11 +38,18 @@ module Spree
       self.taxons.each { |t| t.self_and_parents.each { |t2| t2.touch } }
     end
 
-    def make_default
+    def make_default(opts={})
+      opts[:save] = true if opts[:save].nil?
       self.class.where(product_group_id: self.product_group_id).update_all(default: false)
       self.default = true 
-      self.save
+      self.save if opts[:save]
     end
-    
+
+    def banner_mini_url
+      self.banner.url(:mini) rescue nil
+    end
+    def banner_url
+      self.banner.url(:large) rescue nil
+    end
   end
 end
