@@ -31,7 +31,7 @@ module Spree
           variants + product.variants
         end
       end
-      all_variants.sort_by(&:created_at).reverse
+      all_variants
     end
 
     def kit_product
