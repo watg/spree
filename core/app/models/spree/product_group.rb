@@ -6,7 +6,7 @@ module Spree
     validates :name, uniqueness: true
     validates :name, presence: true
     validates :permalink, uniqueness: true
-    
+
     has_many :products
     has_many :tabs, order: :position, dependent: :destroy, class_name: "Spree::ProductGroupTab"
 
@@ -22,12 +22,20 @@ module Spree
       self.taxons.each { |t| t.self_and_parents.each { |t2| t2.touch } }
     end
 
-    def ready_made_products
-      products.where("product_type is not 'kit'").displayable_variants
+    def ready_to_wear_variants
+      p = products.where(:product_type => 'ready_to_wear').includes(:variants)
+      all_variants = p.inject([]) do |variants, product|
+        if product.variants.size == 0
+          variants + [product.master]
+        else
+          variants + product.variants
+        end
+      end
+      all_variants.sort_by(&:created_at).reverse
     end
 
-    def kit_products
-      products.where(product_type: :kit)
+    def kit_product
+      products.where(product_type: :kit).first
     end
 
     def tab(tab_type)
