@@ -87,8 +87,8 @@ module Spree
         def invoice_details(pdf, order, invoice_header_x)
           
           invoice_header_data = [ 
-                                 ["Invoice #", order.number ],
-                                 ["Invoice Date", order.created_at.to_s(:db) ],
+                                 ["Invoice #",    order.number ],
+                                 ["Invoice Date", Time.now.strftime("%Y/%m/%d") ],
                                  ["Amount Due",   order.display_total.to_s ]
                                 ]
           
