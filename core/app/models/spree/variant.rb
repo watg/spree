@@ -77,7 +77,8 @@ module Spree
         end
         BigDecimal.new(kit_weight,2)
       else
-        super
+        value = super
+        (value.blank? || value.zero?) ? self.product.weight : value
       end
     end
 

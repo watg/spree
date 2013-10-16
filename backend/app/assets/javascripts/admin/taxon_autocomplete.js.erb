@@ -1,6 +1,6 @@
 $(document).ready(function() {
-  if ($("#product_group_taxon_ids").length > 0) {
-    $("#product_group_taxon_ids").select2({
+  if ($(".taxon_ids.tab").length > 0) {
+    $(".taxon_ids.tab").select2({
       placeholder: Spree.translations.taxon_placeholder,
       multiple: true,
       initSelection: function(element, callback) {
