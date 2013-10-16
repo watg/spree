@@ -4,10 +4,14 @@
   <%= f.error_message_on :name %>
 <% end %>
 
-<%= f.field_container :taxons do %>
-  <%= f.label :taxon_ids, Spree.t(:taxons) %><br />
-  <%= f.hidden_field :taxon_ids, :value => @product_group.taxon_ids.join(',') %>
+<%= f.field_container :default_tab do %>
+  <%= f.label :default_tab, Spree.t(:default_tab) %> <span class="required">*</span><br />
+  <%= f.select(:default_tab, Spree::ProductGroupTab::TYPES, { :include_blank => false }, { :class => 'select2 title' }) %>
+  <%= f.error_message_on :default_tab %>
 <% end %>
+
+<%= render :partial => 'tab', :locals => {:tab => @product_group.tab(:ready_to_wear)} %>
+<%= render :partial => 'tab', :locals => {:tab => @product_group.tab(:knit_your_own)} %>
 
 <div class="clear"></div>
 

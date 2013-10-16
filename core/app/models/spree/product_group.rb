@@ -1,13 +1,14 @@
 module Spree
   class ProductGroup < ActiveRecord::Base
+    TABS = [:ready_to_wear, :knit_your_own]
+
     attr_accessible :name, :description, :title, :permalink, :taxon_ids
     validates :name, uniqueness: true
     validates :name, presence: true
     validates :permalink, uniqueness: true
     
     has_many :products
-    has_many :classifications, dependent: :delete_all
-    has_many :taxons, through: :classifications
+    has_many :tabs, order: :position, dependent: :destroy, class_name: "Spree::ProductGroupTab"
 
     before_save :set_permalink
 
@@ -29,11 +30,15 @@ module Spree
       products.where(product_type: :kit)
     end
 
+    def tab(tab_type)
+      ( tabs.where(tab_type: tab_type).first || Spree::ProductGroupTab.new(tab_type: tab_type, product_group_id: self.id))
+    end
+
     private
     def set_permalink
       if self.permalink.blank? && self.name
         self.permalink = '/'+ name.downcase.split(' ').map{|e| (e.blank? ? nil : e) }.compact.join('-')
       end
-
+    end
   end
 end

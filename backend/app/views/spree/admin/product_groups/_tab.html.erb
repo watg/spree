@@ -1,0 +1,22 @@
+<div class="eight columns" style="margin-left: 0;">
+
+  <fieldset><legend><%= tab.tab_type %></legend>
+    <div class="four columns alpha">
+      <div data-hook="file" class="field">
+        <%= label_tag Spree.t(:filename) %><br>
+        <%= file_field_tag "tabs[#{tab.tab_type}][banner]" %>
+      </div>
+    </div>
+
+    <div class="clear"></div>
+
+    <div data-hook='taxons' class='field'>
+    <%= label_tag Spree.t(:taxons) %><br />
+    <%= hidden_field_tag "tabs[#{tab.tab_type}][taxon_ids]", tab.taxon_ids.join(',') %>
+    </div>
+
+    <div class="clear"></div>
+
+    order variants
+  </fieldset>
+</div>
