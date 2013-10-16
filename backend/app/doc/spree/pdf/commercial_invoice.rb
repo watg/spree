@@ -88,7 +88,7 @@ module Spree
           
           invoice_header_data = [ 
                                  ["Invoice #", order.number ],
-                                 ["Invoice Date", order.created_at.to_s(:db) ],
+                                 ["Invoice Date", Time.now.strftime("%Y/%m/%d") ],
                                  ["Amount Due",   order.display_total.to_s ]
                                 ]
           
