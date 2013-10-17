@@ -37,5 +37,5 @@ Spree::Core::Engine.routes.draw do
   match '/content/cvv', :to => 'content#cvv', :as => :cvv
   match '/content/*path', :to => 'content#show', :via => :get, :as => :content
 
-  match '/product_group/:id', :to => 'product_groups#show'
+  match '/product_group/:id/:tab', :to => 'product_groups#show'
 end
