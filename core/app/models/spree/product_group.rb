@@ -34,8 +34,16 @@ module Spree
       all_variants
     end
 
+    def ready_to_wear_banner
+      tab(:ready_to_wear).banner
+    end
+
     def kit_product
       products.where(product_type: :kit).first
+    end
+
+    def kit_banner
+      tab(:kit).banner
     end
 
     def default_tab
