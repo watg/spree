@@ -7,7 +7,7 @@ module Spree
       } unless defined?(ASSETS)
 
       FONTS = {
-        bold:  File.join(Rails.root, 'app/assets/fonts', 'gillsansmtprobold.ttf'),
+        medium:  File.join(Rails.root, 'app/assets/fonts', 'gillsansmtpromedium.ttf'),
         light: File.join(Rails.root, 'app/assets/fonts', 'gillsansmtprolight.ttf'),
       } unless defined?(FONTS)
       
@@ -21,14 +21,14 @@ module Spree
           pdf.move_down  100
           pdf.font('Helvetica')
           pdf.text_box   batch_index.to_s, at: [10, initial_y], height: 30, width: 100 if batch_index
-          pdf.font_size  50
+          pdf.font_size  45
           pdf.font(FONTS[:light])
-          pdf.text_box   "HELLO", at: [10, (initial_y-100)], height: 55, width: 400
-          pdf.font(FONTS[:bold])
-          pdf.font_size  30
-          pdf.text_box   firstname(order), at: [10, (initial_y - 140)], height: 30, width: 400
+          pdf.text_box   "HELLO", at: [23, (initial_y-80)], height: 45, width: 400
+          pdf.font_size  42
+          pdf.font(FONTS[:medium])
+          pdf.text_box   firstname(order), at: [23, (initial_y - 115)], height: 45, width: 400
 
-          pdf.move_down  100
+          pdf.move_down  135
           pdf.image      made_unique_by(order), width: 550
           pdf
         end
