@@ -4,6 +4,7 @@ module Spree
       belongs_to 'spree/product', :find_by => :permalink
       new_action.before :new_before
 
+
       def update
         outcome = Spree::UpdateVariantService.run(variant: @variant, details: params[:variant], prices: params[:prices])
         if outcome.success?
