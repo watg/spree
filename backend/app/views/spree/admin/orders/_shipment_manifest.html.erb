@@ -32,7 +32,7 @@
     </td>
     <% unless shipment.shipped? %>
       <td class="item-qty-edit hidden">
-        <%= number_field_tag :quantity, item.quantity, :min => 0, :class => "line_item_quantity", :size => 5 %>
+        <%= text_field_tag :quantity, item.quantity, :min => 0, :class => "line_item_quantity", :size => 5 %>
       </td>
     <% end %>
     <td class="item-total align-center"> <%= line_item.display_amount.to_html unless line_item.quantity.nil? %></td>
