@@ -57,9 +57,9 @@ module Spree
 
       move_cursor_to last_measured_y
 
-      invoice_header_data = [ 
+      invoice_header_data = [
         ["Invoice #", order.number ],
-        ["Invoice Date", Time.now.strftime("%Y/%m/%d") ],
+        ["Invoice Date",Time.now.strftime("%Y/%m/%d")  ],
         ["Amount Due",   order.display_total.to_s ]
       ]
 
@@ -150,7 +150,7 @@ module Spree
 
       move_down 25
 
-      invoice_terms_data = [ 
+      invoice_terms_data = [
         ["Delivery Terms"],
         ["Goods shipped by Wool and the Gang"]
       ]
@@ -162,7 +162,7 @@ module Spree
 
       move_down 25
 
-      signature_data = [ 
+      signature_data = [
         ["Name", "Signature", "Date"],
         ['','' ,'' ],
       ]

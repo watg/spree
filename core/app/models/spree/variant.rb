@@ -1,7 +1,7 @@
 module Spree
   class Variant < ActiveRecord::Base
     acts_as_paranoid
-    
+
     belongs_to :product, touch: true, class_name: 'Spree::Product'
 
     delegate_belongs_to :product, :name, :description, :permalink, :available_on,
@@ -16,7 +16,7 @@ module Spree
     # from variant options
     attr_accessible :option_values
     # end variant options
-    
+
     has_many :inventory_units
     has_many :line_items
 
@@ -24,7 +24,7 @@ module Spree
     has_many :stock_locations, through: :stock_items
     has_many :stock_movements
 
-    has_many :displayable_variants 
+    has_many :displayable_variants
 
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants
     has_many :images, as: :viewable, order: :position, dependent: :destroy, class_name: "Spree::Image"
@@ -40,7 +40,7 @@ module Spree
     after_create :set_position
 
     # Regardless of us updating anything, touch so we invalidate cache
-    after_save { self.touch } 
+    after_save { self.touch }
 
     # default variant scope only lists non-deleted variants
     scope :deleted, lambda { where("#{Variant.quoted_table_name}.deleted_at IS NOT NULL") }
@@ -53,7 +53,7 @@ module Spree
       def active(currency = nil)
         joins(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
       end
-      
+
       def displayable(product_id)
         where(product_id: product_id, is_master: false).includes(:displayable_variants)
       end
@@ -70,15 +70,19 @@ module Spree
 
     def weight
       if kit?
-        kit_weight = required_parts.inject(0.00) do |sum,part| 
+        kit_weight = required_parts.inject(0.00) do |sum,part|
           count_part = part.count_part || 0
           part_weight =  part.weight || 0
-          sum + (count_part * part_weight) 
+          sum + (count_part * part_weight)
         end
         BigDecimal.new(kit_weight,2)
       else
         value = super
-        (value.blank? || value.zero?) ? self.product.weight : value
+        if !self.is_master && (value.blank? || value.zero?)
+          self.product.weight
+        else
+          value
+        end
       end
     end
 
@@ -94,13 +98,13 @@ module Spree
 
     # from variant options
     def to_hash(currency)
-      { 
-        :id    => self.id, 
+      {
+        :id    => self.id,
         :price => current_price_in(currency).display_price.to_s
       }
     end
-    # end variant options 
-    
+    # end variant options
+
     # TODO move this into a decorator as it is view centric
     def price_types
       types = [:normal,:normal_sale]
@@ -121,7 +125,7 @@ module Spree
     end
 
     def currency
-      Spree::Config[:currency] 
+      Spree::Config[:currency]
     end
 
     def display_amount
@@ -164,12 +168,12 @@ module Spree
     def price_in(currency)
       ActiveSupport::Deprecation.warn("variant#price_in is deprecated use price_normal_in instead")
       price_normal_in(currency)
-    end     
+    end
     def kit_price_in(currency)
       ActiveSupport::Deprecation.warn("variant#kit_price_in is deprecated use price_part_in instead")
       price_part_in(currency)
     end
-       
+
     def display_name
 
       # retrieve all the option type ids which are visible, we have to go up to the product to retrieve this information
@@ -184,7 +188,7 @@ module Spree
 
       values.to_sentence({ words_connector: ", ", two_words_connector: ", " })
     end
-    
+
     def options_text
       values = self.option_values.joins(:option_type).order("#{Spree::OptionType.table_name}.position asc")
 
@@ -264,16 +268,16 @@ module Spree
     def find_price(currency, type)
       prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first
     end
-    
+
     def find_part_price(currency, type)
-      kit_prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first 
+      kit_prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first
     end
 
 
     def product_price_in(currency)
       self.product.master.prices.select{ |price| price.currency == currency }.first
     end
-    
+
       # strips all non-price-like characters from the price, taking into account locale settings
       def parse_price(price)
         return price unless price.is_a?(String)

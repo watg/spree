@@ -11,19 +11,26 @@ module Spree
 
         def eligible?(order, options = {})
 
-          return true if !order.shipping_address
-
           hash = JSON.parse get_preference(:_attributes)
           hash.each do |zone_id,currency_amount_enabled|
 
-            if Spree::Zone.find(zone_id).include? order.shipping_address
+            currency_amount_enabled.each do |currency,amount_enabled|
 
-              currency_amount_enabled.each do |currency,amount_enabled|
+              if order.currency == currency && amount_enabled['enabled'] == "true"
 
-                if order.currency == currency && amount_enabled['enabled'] == "true"
+                order_total = order.line_items.map(&:amount).sum
+                if order_total.send(:>=, BigDecimal.new(amount_enabled['amount'].to_s))
 
-                  order_total = order.line_items.map(&:amount).sum
-                  return order_total.send(:>=, BigDecimal.new(amount_enabled['amount'].to_s))
+                  # If everything else is good but address as not been defined 
+                  # then return true
+                  if order.shipping_address
+                    if Spree::Zone.find(zone_id).include? order.shipping_address
+                      return true
+                    end
+                  else
+                    return true
+                  end
+
                 end
 
               end
@@ -31,7 +38,7 @@ module Spree
             end
 
           end
-          false
+          return false
         end
 
         def self.currencies
