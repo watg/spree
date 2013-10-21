@@ -271,13 +271,16 @@ module Spree
       variants.each do |v|
         base=hash
         v.option_values.order(:position).sort_by {|ov| ov.option_type.position }.each_with_index do |o,i|
-          base[o.option_type.name] ||= {}
-          base[o.option_type.name][o.name] ||= {}
+          base[o.option_type.url_safe_name] ||= {}
+          base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
           if ( i + 1 < v.option_values.size )
-            base = base[o.option_type.name][o.name]
+            base = base[o.option_type.url_safe_name][o.url_safe_name]
           else
-            base[o.option_type.name][o.name]['variant_id']=v.id
-            base[o.option_type.name][o.name]['price']=v.price_normal_sale_in(current_currency)
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant'] ||= {}
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['id']=v.id
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).display_price.to_html
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).display_price.to_html
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
           end
         end
       end

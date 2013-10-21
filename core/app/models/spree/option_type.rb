@@ -12,5 +12,9 @@ module Spree
     # Custom validator which can be found in the backend initializer dir
     # validates_associated_bubbling :option_values
 
+    def url_safe_name
+      name.downcase.parameterize
+    end
+
   end
 end

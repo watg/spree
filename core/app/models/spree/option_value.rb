@@ -47,6 +47,10 @@ module Spree
     # This invalidates the variants cache
     after_save { self.delay.touch_variants }
 
+    def url_safe_name
+      name.downcase.parameterize
+    end
+
     private
 
     def name_is_url_safe
