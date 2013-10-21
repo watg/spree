@@ -2,13 +2,12 @@ module Spree
   class ProductGroup < ActiveRecord::Base
     TABS = [:ready_to_wear, :knit_your_own]
 
-    attr_accessible :name, :description, :title, :permalink
     validates :name, uniqueness: true
     validates :name, presence: true
     validates :permalink, uniqueness: true
 
     has_many :products
-    has_many :tabs, order: :position, dependent: :destroy, class_name: "Spree::ProductGroupTab"
+    has_many :tabs, -> { order(:position) }, dependent: :destroy, class_name: "Spree::ProductGroupTab"
 
     before_save :set_permalink
 

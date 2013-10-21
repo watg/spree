@@ -4,7 +4,7 @@ module Spree
 
     belongs_to :taxonomy, class_name: 'Spree::Taxonomy', :touch => true
     has_many :classifications, dependent: :delete_all
-    has_many :product_groups, through: :classifications
+    has_many :product_group_tabs, through: :classifications
 
     before_create :set_permalink
 

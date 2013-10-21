@@ -1,7 +1,5 @@
 module Spree
   class ProductGroupTab < ActiveRecord::Base
-    attr_accessible :tab_type, :product_group_id
-
     TYPES = [:ready_to_wear, :knit_your_own]
     belongs_to :product_group
     
