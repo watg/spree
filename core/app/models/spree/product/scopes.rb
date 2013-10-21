@@ -7,7 +7,7 @@ module Spree
     def self.available
       where('spree_products.deleted_at IS NOT NULL')
     end
-    
+
     def self.add_search_scope(name, &block)
       self.singleton_class.send(:define_method, name.to_sym, &block)
       search_scopes << name.to_sym
@@ -208,10 +208,6 @@ module Spree
     end
     search_scopes << :active
 
-    add_search_scope :taxons_name_eq do |name|
-      group("spree_products.id").joins(:taxons).where(Taxon.arel_table[:name].eq(name))
-    end
-
     # This method needs to be defined *as a method*, otherwise it will cause the
     # problem shown in #1247.
     def self.group_by_products_id
@@ -229,12 +225,6 @@ module Spree
 
       def self.price_table_name
         Price.quoted_table_name
-      end
-
-      # specifically avoid having an order for taxon search (conflicts with main order)
-      def self.prepare_taxon_conditions(taxons)
-        ids = taxons.map { |taxon| taxon.self_and_descendants.pluck(:id) }.flatten.uniq
-        joins(:taxons).where("#{Taxon.table_name}.id" => ids)
       end
 
       # Produce an array of keywords for use in scopes.
@@ -257,5 +247,6 @@ module Spree
           end
         }.compact.flatten.uniq
       end
+
     end
 end

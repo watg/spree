@@ -1,0 +1,33 @@
+<div class="eight columns" style="margin-left: 0;">
+
+  <fieldset><legend><%= tab.tab_type %></legend>
+    <% if tab.banner_mini_url %>
+    <div>
+      <%= image_tag(tab.banner_mini_url) %>
+    </div>
+    <% end %>
+
+    <%= hidden_field_tag "tabs[#{tab.tab_type}][position]", position %>
+
+    <div class="four columns alpha">
+      <div data-hook="file" class="field">
+        <%= label_tag Spree.t(:filename) %><br>
+        <%= file_field_tag "tabs[#{tab.tab_type}][banner]" %>
+      </div>
+    </div>
+
+    <div class="clear"></div>
+
+    <div data-hook='taxons' class='field'>
+    <%= label_tag Spree.t(:taxons) %><br />
+    <%= hidden_field_tag "tabs[#{tab.tab_type}][taxon_ids]", tab.taxon_ids.join(','), class: 'taxon_ids tab' %>
+    </div>
+
+    <div class="clear"></div>
+
+    <div data-hook='description' class='field'>
+    <%= label_tag Spree.t(:description) %><br />
+    <%= text_area_tag "tabs[#{tab.tab_type}][description]", tab.description, class: 'fullwidth' %>
+    </div>
+  </fieldset>
+</div>

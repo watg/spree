@@ -4,9 +4,8 @@ module Spree
 
     belongs_to :taxonomy, class_name: 'Spree::Taxonomy', :touch => true
     has_many :classifications, dependent: :delete_all
-    has_many :products, through: :classifications
-    has_many :displayable_variants, dependent: :delete_all
-    
+    has_many :product_groups, through: :classifications
+
     before_create :set_permalink
 
     validates :name, presence: true
@@ -33,10 +32,6 @@ module Spree
       fs << Spree::Core::ProductFilters.price_filter if Spree::Core::ProductFilters.respond_to?(:price_filter)
       fs << Spree::Core::ProductFilters.brand_filter if Spree::Core::ProductFilters.respond_to?(:brand_filter)
       fs
-    end
-
-    def displayable_variants
-      Spree::Variant.active.not_deleted.available.includes(:displayable_variants).where([" spree_displayable_variants.taxon_id = ?", self.id ]).order("spree_variants.id desc")
     end
 
     # This is method is here as awesome_nested_set method self_and_ancestors in version 2.1.6 does not seem to work

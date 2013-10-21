@@ -2,9 +2,35 @@ module Spree
   module Admin
     class ProductGroupsController < ResourceController
 
+      def update
+        outcome = Spree::UpdateProductGroupService.run(product_group: @object, details: params[:product_group], tabs: params[:tabs])
+        if outcome.success?
+          update_success(@object)
+        else
+          update_failed(@object, outcome.errors.message_list.join(", "))
+        end
+      end
+
       protected
       def find_resource
         ProductGroup.find_by_id(params[:id])
+      end
+
+      def update_success(product_group)
+        flash[:success] = flash_message_for(product_group, :successfully_updated)
+
+        respond_with(product_group) do |format|
+          format.html { redirect_to spree.admin_product_groups_url }
+          format.js   { render :layout => false }
+        end
+      end
+
+      def update_failed(product_group, error)
+        flash[:error] = "Could not update product group #{product_group.name} -- #{error}"
+        respond_with(product_group) do |format|
+          format.html { redirect_to edit_admin_product_group_url(product_group) }
+          format.js   { render :layout => false }
+        end
       end
 
       def collection

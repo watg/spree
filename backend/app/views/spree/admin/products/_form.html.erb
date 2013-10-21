@@ -1,6 +1,6 @@
 <div data-hook="admin_product_form_fields">
-  
-  <div class="left eight columns alpha" data-hook="admin_product_form_left">    
+
+  <div class="left eight columns alpha" data-hook="admin_product_form_left">
     <%= f.field_container :name do %>
       <%= f.label :name, raw(Spree.t(:name) + content_tag(:span, ' *', :class => 'required')) %>
       <%= f.text_field :name, :class => 'fullwidth title' %>
@@ -107,11 +107,6 @@
   </div>
 
   <div class="twelve columns alpha omega">
-    <%= f.field_container :taxons do %>
-      <%= f.label :taxon_ids, Spree.t(:taxons) %><br />
-      <%= f.hidden_field :taxon_ids, :value => @product.taxon_ids.join(',') %>
-    <% end %>
-
     <%= f.field_container :option_types do %>
       <%= f.label :option_type_ids, Spree.t(:option_types) %>
       <%= f.hidden_field :option_type_ids, :value => @product.option_type_ids.join(',') %>
@@ -152,3 +147,4 @@
   $('.select2-container').css({width: '20em'})
   </script>
 <% end %>
+e

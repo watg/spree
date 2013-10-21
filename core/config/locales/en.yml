@@ -1030,6 +1030,7 @@ en:
     successfully_removed: ! '%{resource} has been successfully removed!'
     successfully_signed_up_for_analytics: Successfully signed up for Spree Analytics
     successfully_updated: ! '%{resource} has been successfully updated!'
+    tag_placeholder: Select a tag
     tax: Tax
     tax_categories: Tax Categories
     tax_category: Tax Category

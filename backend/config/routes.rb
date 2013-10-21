@@ -13,8 +13,6 @@ Spree::Core::Engine.routes.draw do
       resources :promotion_actions
     end
 
-    resources :displayable_variants
-
     resources :adjustments
     resources :zones
     resources :banners do
