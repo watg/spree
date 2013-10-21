@@ -122,7 +122,7 @@ module Spree
       end
 
       def to_be_packed_and_shipped
-        includes(:payments).includes(:shipments).where('spree_orders.state' => 'complete', 'spree_payments.state' => 'completed', 'spree_shipments.state' => 'ready').order('spree_orders.created_at DESC')
+        includes(:payments).includes(:shipments).where('spree_orders.state' => 'complete', 'spree_payments.state' => 'completed', 'spree_shipments.state' => 'ready', 'spree_orders.internal' => false).order('spree_orders.created_at DESC')
       end
 
       def unprinted_invoices
