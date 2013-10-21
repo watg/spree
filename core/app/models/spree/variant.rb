@@ -25,8 +25,6 @@ module Spree
     has_many :stock_locations, through: :stock_items
     has_many :stock_movements
 
-    has_many :displayable_variants
-
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants
     has_many :images, as: :viewable, order: :position, dependent: :destroy, class_name: "Spree::Image"
 
@@ -57,18 +55,10 @@ module Spree
         joins(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
       end
 
-      def displayable(product_id)
-        where(product_id: product_id, is_master: false).includes(:displayable_variants)
-      end
-
       def options_by_product(product, option_value_name_list)
         _option_values = Spree::OptionValue.select(:id).where(name: option_value_name_list).all.map(&:id).compact.sort
         product.variants.detect {|v| v.option_values.map(&:id).sort == _option_values}
       end
-    end
-
-    def visible?
-      displayable_variants.any?
     end
 
     def weight
