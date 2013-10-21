@@ -22,7 +22,8 @@ module Spree
       class_name: 'Spree::Price',
       dependent: :destroy
 
-    has_and_belongs_to_many :tags, join_table: :spree_tags_variants, class_name: "Spree::Tag"
+    has_many :taggings, as: :taggable
+    has_many :tags, through: :taggings
 
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true } if self.table_exists? && self.column_names.include?('cost_price')
 

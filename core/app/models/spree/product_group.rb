@@ -7,6 +7,13 @@ module Spree
     validates :permalink, uniqueness: true
 
     has_many :products
+
+    has_many :variants, through: :products
+
+    has_many :available_tags, through: :variants, class_name: "Spree::Tag", source: :tags, uniq: true
+    has_many :taggings, as: :taggable
+    has_many :tags, through: :taggings
+
     has_many :tabs, -> { order(:position) }, dependent: :destroy, class_name: "Spree::ProductGroupTab"
 
     before_save :set_permalink

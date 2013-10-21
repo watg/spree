@@ -25,4 +25,18 @@
 <%= render :partial => 'tab', :locals => {:tab => @product_group.tab(tab_type), :position => position} %>
 <% end %>
 
+
+<div class="twelve columns alpha omega">
+  <fieldset>
+    <legend align="center"><%= Spree.t(:tags) %></legend>
+    <% @product_group.available_tags.each do |tag| %>
+    <label>
+      <%= hidden_field_tag "product_group[tags][]" %>
+      <%= check_box_tag "product_group[tags][]", tag.id, @product_group.tags.include?(tag), :id => "product_group_tags_#{tag.id}" %>
+      <%= tag.value %>
+    </label>
+    <% end %>
+  </fieldset>
+</div>
+
 <div class="clear"></div>
