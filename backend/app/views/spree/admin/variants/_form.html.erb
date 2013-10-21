@@ -25,6 +25,17 @@
 
     <div class="twelve columns alpha omega">
       <fieldset>
+        <legend align="center"><%= Spree.t(:tags) %></legend>
+	<%= f.field_container :option_types do %>
+	  <%= f.label :tags, Spree.t(:tags) %>
+	  <%= f.hidden_field :tags, :value => @variant.tag_names.join(','), :class => 'fullwidth' %>
+	<% end %>
+	<p><em>Don't put commas into tag names</em></p>
+      </fieldset>
+    </div>
+
+    <div class="twelve columns alpha omega">
+      <fieldset>
         <legend align="center"><%= Spree.t(:prices) %></legend>
         <%= f.field_container :prices do %>
           <%= render :partial => 'spree/admin/shared/prices', :locals => {:variant => @variant} %>

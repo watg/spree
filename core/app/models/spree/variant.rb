@@ -11,7 +11,8 @@ module Spree
     attr_accessible :name, :presentation, :cost_price, :lock_version,
                     :position, :option_value_ids,
                     :product_id, :option_values_attributes,
-                    :weight, :height, :width, :depth, :sku, :cost_currency, :in_sale
+                    :weight, :height, :width, :depth, :sku, :cost_currency, :in_sale,
+                    :tags
 
     # from variant options
     attr_accessible :option_values
@@ -32,6 +33,8 @@ module Spree
     has_many :prices,
       class_name: 'Spree::Price',
       dependent: :destroy
+
+    has_and_belongs_to_many :tags, join_table: :spree_tags_variants, class_name: "Spree::Tag"
 
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true } if self.table_exists? && self.column_names.include?('cost_price')
 
@@ -262,6 +265,10 @@ module Spree
     # This is a stopgap for that little problem.
     def product
       Spree::Product.unscoped { super }
+    end
+
+    def tag_names
+      self.tags.map(&:value)
     end
 
     private

@@ -26,6 +26,8 @@ Spree::Core::Engine.routes.draw do
     resources :variants, :only => [:index] do
     end
 
+    resources :tags
+
     resources :option_types do
       resources :option_values
     end
