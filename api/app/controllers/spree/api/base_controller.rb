@@ -45,6 +45,15 @@ module Spree
         end.with_indifferent_access
       end
 
+      # users should be able to set price when importing orders via api
+      def permitted_line_item_attributes
+        if current_api_user.has_spree_role?("admin")
+          super << [:price]
+        else
+          super
+        end
+      end
+
       private
 
       def set_content_type

@@ -14,17 +14,25 @@ module Spree
     has_many :stock_items, dependent: :destroy
     has_many :stock_locations, through: :stock_items
     has_many :stock_movements
-
     has_many :displayable_variants 
 
-    has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants
+    has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants, class_name: "Spree::OptionValue"
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
+
+    has_one :default_price,
+      -> { where currency: Spree::Config[:currency] },
+      class_name: 'Spree::Price',
+      dependent: :destroy
+
+    delegate_belongs_to :default_price, :display_price, :display_amount, :price, :price=, :currency 
 
     has_many :prices,
       class_name: 'Spree::Price',
       dependent: :destroy
 
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true } if self.table_exists? && self.column_names.include?('cost_price')
+
+    validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
 
     before_validation :set_cost_currency
     after_create :create_stock_items

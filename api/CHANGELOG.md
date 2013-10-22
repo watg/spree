@@ -1,8 +1,22 @@
-<<<<<<< HEAD
-## Spree 2.0.4 (unreleased)
-
 * PUT requests to Checkouts API endpoints now require authorization to alter an order.
-=======
+## Spree 2.1.2 ##
+
+* States and countries endpoints now do not require authentication, even if it is forced with the `requires_authentication` setting. This is so the frontend's checkout address page can still work.
+
+    *Ryan Bigg*
+
+* You can now assign a location to a shipment when creating it through the orders API. f3ef2e1d46bc972442acbbcaae928e6ef2dc0eb5
+
+    *Washington Luiz*
+
+* Stock Items, Stock Movements and Stock Locations are now invisible to non-admin users.
+
+    *Ryan Bigg*
+
+* Fixed issue where X-Spree-Token header was being ignored. #3798
+
+    *Washington Luiz*
+
 ## Spree 2.1.0 ##
 
 * The Products API endpoint now returns an additional key called `shipping_category_id`, and also requires `shipping_category_id` on create.
@@ -46,15 +60,11 @@
     *Ryan Bigg*
 
 * The Shipments API no longer returns inventory units. Instead, it will return manifest objects. This is necessary due to the split shipments changes brought in by Spree 2.
->>>>>>> 2-1-upstream
 
     *Ryan Bigg*
 
 * Checkouts API's update action will now correctly process line item attributes (either `line_items` or `line_item_attributes`)
 
-<<<<<<< HEAD
-    * Ryan Bigg*
-=======
     *Ryan Bigg*
 
 * The structure of shipments data in the API has changed. Shipments can now have many shipping methods, shipping rates (which in turn have many zones and shipping categories), as well as a new key called "manifest" which returns the list of items contained within just this shipment for the order.
@@ -68,7 +78,6 @@
 * Shipments responses now contain a `selected_shipping_rate` key, so that you don't have to sort through the list of `shipping_rates` to get the selected one.
 
     *Ryan Bigg*
->>>>>>> 2-1-upstream
 
 * Checkouts API now correctly processes incoming payment data during the payment step.
 
@@ -80,9 +89,6 @@
 
 * An order can no longer transition past the "cart" state without first having a line item. #3312
 
-<<<<<<< HEAD
-    *Ryan Bigg*
-=======
     *Ryan Bigg*
 
 * Attributes other than "quantity" and "variant_id" will be added to a line item when creating along with an order. #3404
@@ -110,4 +116,3 @@ Now:
 ```
 
     * Ryan Bigg
->>>>>>> 2-1-upstream

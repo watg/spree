@@ -5,6 +5,8 @@ module Spree
     render_views
 
     let!(:order) { create(:order) }
+    let(:variant) { create(:variant) }
+
     let(:attributes) { [:number, :item_total, :display_total, :total,
                         :state, :adjustment_total,
                         :user_id, :created_at, :updated_at,
@@ -12,6 +14,23 @@ module Spree
                         :payment_state, :email, :special_instructions,
                         :total_quantity, :display_item_total] }
 
+    let(:address_params) { { :country_id => Country.first.id, :state_id => State.first.id } }
+
+    let(:billing_address) { { :firstname => "Tiago", :lastname => "Motta", :address1 => "Av Paulista",
+                              :city => "Sao Paulo", :zipcode => "1234567", :phone => "12345678",
+                              :country_id => Country.first.id, :state_id => State.first.id} }
+
+    let(:shipping_address) { { :firstname => "Tiago", :lastname => "Motta", :address1 => "Av Paulista",
+                               :city => "Sao Paulo", :zipcode => "1234567", :phone => "12345678",
+                               :country_id => Country.first.id, :state_id => State.first.id} }
+
+    let!(:payment_method) { create(:payment_method) }
+
+    let(:current_api_user) do
+      user = Spree.user_class.new(:email => "spree@example.com")
+      user.generate_spree_api_key!
+      user
+    end
 
     before do
       stub_authentication!
@@ -68,22 +87,7 @@ module Spree
       assert_unauthorized!
     end
 
-    let(:address_params) { { :country_id => Country.first.id, :state_id => State.first.id } }
-    let(:billing_address) { { :firstname => "Tiago", :lastname => "Motta", :address1 => "Av Paulista",
-                              :city => "Sao Paulo", :zipcode => "1234567", :phone => "12345678",
-                              :country_id => Country.first.id, :state_id => State.first.id} }
-    let(:shipping_address) { { :firstname => "Tiago", :lastname => "Motta", :address1 => "Av Paulista",
-                               :city => "Sao Paulo", :zipcode => "1234567", :phone => "12345678",
-                               :country_id => Country.first.id, :state_id => State.first.id} }
-    let!(:payment_method) { create(:payment_method) }
-    let(:current_api_user) do
-      user = Spree.user_class.new(:email => "spree@example.com")
-      user.generate_spree_api_key!
-      user
-    end
-
     it "can create an order" do
-      variant = create(:variant)
       api_post :create, :order => { :line_items => { "0" => { :variant_id => variant.to_param, :quantity => 5 } } }
       response.status.should == 201
       order = Order.last
@@ -99,7 +103,6 @@ module Spree
 
     # Regression test for #3404
     it "can specify additional parameters for a line item" do
-      variant = create(:variant)
       Order.should_receive(:create!).and_return(order = Spree::Order.new)
       order.stub(:associate_user!)
       order.stub_chain(:contents, :add).and_return(line_item = double('LineItem'))
@@ -116,9 +119,45 @@ module Spree
       response.status.should == 201
     end
 
+    it "cannot arbitrarily set the line items price" do
+      api_post :create, :order => {
+        :line_items => {
+          "0" => {
+            :price => 33.0, :variant_id => variant.to_param, :quantity => 5
+          }
+        }
+      }
+
+      expect(response.status).to eq 201
+      expect(Order.last.line_items.first.price.to_f).to eq(variant.price)
+    end
+
+    context "import" do
+      let(:tax_rate) { create(:tax_rate, amount: 0.05, calculator: Calculator::DefaultTax.create) }
+      let(:other_variant) { create(:variant) }
+
+      let(:order_params) do
+        {
+          :line_items => {
+            "0" => { :variant_id => variant.to_param, :quantity => 5 },
+            "1" => { :variant_id => other_variant.to_param, :quantity => 5 }
+          }
+        }
+      end
+
+      before { Zone.stub default_tax: tax_rate.zone }
+
+      it "doesnt persist any automatic tax adjustment" do
+        expect {
+          api_post :create, :order => order_params.merge(:import => true)
+        }.not_to change { Adjustment.count }
+
+        expect(response.status).to eq 201
+      end
+    end
+
     # Regression test for #3404
     it "does not update line item needlessly" do
-      variant = create(:variant)
       Order.should_receive(:create!).and_return(order = Spree::Order.new)
       order.stub(:associate_user!)
       order.stub_chain(:contents, :add).and_return(line_item = double('LineItem'))
@@ -178,6 +217,19 @@ module Spree
         response.status.should == 200
         json_response['line_items'].count.should == 1
         json_response['line_items'].first['quantity'].should == 10
+      end
+
+      it "cannot change the price of an existing line item" do
+        api_put :update, :id => order.to_param, :order => {
+          :line_items => {
+            line_item.id => { :price => 0 }
+          }
+        }
+
+        response.status.should == 200
+        json_response['line_items'].count.should == 1
+        expect(json_response['line_items'].first['price'].to_f).to_not eq(0)
+        expect(json_response['line_items'].first['price'].to_f).to eq(line_item.variant.price)
       end
 
       it "can add billing address" do
@@ -354,6 +406,21 @@ module Spree
           json_response["count"].should == 1
           json_response["current_page"].should == 1
           json_response["pages"].should == 1
+        end
+      end
+
+      context "creation" do
+        it "can arbitrarily set the line items price" do
+          api_post :create, :order => {
+            :line_items => {
+              "0" => {
+                :price => 33.0, :variant_id => variant.to_param, :quantity => 5
+              }
+            }
+          }
+
+          expect(response.status).to eq 201
+          expect(Order.last.line_items.first.price.to_f).to eq(33.0)
         end
       end
 

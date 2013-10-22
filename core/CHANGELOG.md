@@ -1,3 +1,65 @@
+## Spree 2.1.2 ##
+
+* Payment identifiers are no longer recalculated when they are saved. #3733
+
+    *Ryan Bigg*
+
+* Product#stock_items now returns stock items for the master variant as well. #3737
+
+    *Ryan Bigg*
+
+* Added a default format for datepicker_field_value, in case one is not available in locale file. #3602
+
+    *Peter Goldstein*
+
+* Bumped activemerchant to 1.39.2. #3745
+
+    *Piotr Usewicz*
+
+* Sandbox now references correct branch for spree_auth_devise when it is generated. #3770
+
+    *Wes Ketchum*
+
+* Better accessibility support (for more information, see #3414.)
+
+    *Cameron Cundiff and Trevor John*
+
+* StockItem#process_backorders will now process stock when it is adjusted postively (i.e. -3 => -2).
+
+    *Ryan Bigg*
+
+* Fixed shipping rates losing current rate when refreshing rates. #3766
+
+    *dan-ding*
+
+* Allow any version of the Money gem above 5.1.1. Related to #2737.
+
+    *Ryan Bigg*
+
+* Fixed issue where a stock item for a variant could not be created if one of the same variant had already been created. #3834
+
+    *Washington Luiz*
+
+* Added custom routing code to work around issues described in rails/rails#12367.
+
+    *Ryan Bigg*
+
+* Added Spree::Config[:send_core_emails] preference setting.
+
+This setting allows developers to use standard rails mail configuration (in config
+files) by setting :override_actionmailer_config to false without sending
+spree core emails (e.g. order confirmation). This is useful e.g. in the
+case where devs have opted to use an external mail API such as Mandrill
+for store-related emails but still want to use ActionMailer in other
+parts of their app. #3812
+    
+    *Sean O'Hara*
+
+* Fixed issue where preferences_rescue was living in Frontend, but was necessary in Core. If you had migrations from older versions of Spree, they may have depended on this file. If you did not include the Frontend component, then this file would be unavailable. #3860
+
+    *ayraju*
+
+
 ## Spree 2.1.0 ##
 
 * Product requires `shipping_category_id` on create #3188.
