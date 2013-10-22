@@ -50,7 +50,11 @@ module Spree
         # hence the use of the update_line_items method, defined within order_decorator.rb.
         order_params.delete("line_items_attributes")
         if @order.update_attributes(order_params)
-          @order.update_line_items(params[:order][:line_items])
+          line_item_attributes = params[:order][:line_items].map do |id, attributes|
+            [id, attributes.slice(*permitted_line_item_attributes)]
+          end
+          line_item_attributes = Hash[line_item_attributes].delete_if { |k,v| v.empty? }
+          @order.update_line_items(line_item_attributes)
           @order.line_items.reload
           @order.update!
           respond_with(@order, default_template: :show)
@@ -72,6 +76,10 @@ module Spree
           end
         end
 
+        def permitted_order_attributes
+          super << [:import]
+        end
+
         def next!(options={})
           if @order.valid? && @order.next
             render :show, status: options[:status] || 200
@@ -88,7 +96,6 @@ module Spree
         def before_delivery
           @order.create_proposed_shipments
         end
-
     end
   end
 end

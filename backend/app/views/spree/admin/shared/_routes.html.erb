@@ -18,4 +18,5 @@
 
   Spree.routes.orders_path = "<%= spree.api_orders_url %>";
 
+  Spree.routes.stock_items_api = "<%= spree.api_stock_location_stock_items_url(:format => 'json') if params[:stock_location_id] %>";
 </script>
