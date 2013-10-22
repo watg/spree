@@ -101,6 +101,10 @@ module Spree
     after_initialize :ensure_master
 
 
+    def first_variant_or_master
+      variants[0] || master
+    end
+
     # from variant options
     def option_values
       @_option_values ||= Spree::OptionValue.for_product(self).order(:position).sort_by {|ov| ov.option_type.position }
