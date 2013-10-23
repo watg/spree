@@ -21,7 +21,7 @@ module Spree
     
     class << self
       def find_boxes
-        Spree::Product.joins(:product_group).where('spree_product_groups.name' => 'box').all
+        Spree::Product.where(product_type: :parcel).all
       end
     end
   end

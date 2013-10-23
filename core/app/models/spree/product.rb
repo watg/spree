@@ -110,6 +110,10 @@ module Spree
     after_initialize :ensure_master
 
 
+    def first_variant_or_master
+      variants[0] || master
+    end
+
     # from variant options
     def option_values
       @_option_values ||= Spree::OptionValue.for_product(self).order(:position).sort_by {|ov| ov.option_type.position }
@@ -271,6 +275,27 @@ module Spree
       super || variants_including_master.with_deleted.where(:is_master => true).first
     end
 
+    def variant_options_tree(current_currency)
+      hash={}
+      variants.each do |v|
+        base=hash
+        v.option_values.order(:position).sort_by {|ov| ov.option_type.position }.each_with_index do |o,i|
+          base[o.option_type.url_safe_name] ||= {}
+          base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
+          if ( i + 1 < v.option_values.size )
+            base = base[o.option_type.url_safe_name][o.url_safe_name]
+          else
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant'] ||= {}
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['id']=v.id
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).display_price.to_html
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).display_price.to_html
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
+          end
+        end
+      end
+      hash
+    end
+
     private
     def touch_taxons
       # You should be able to just call self.taxons.each { |t| t.touch } but
@@ -286,7 +311,7 @@ module Spree
       values = values.inject(values.shift) { |memo, value| memo.product(value).map(&:flatten) }
 
       values.each do |ids|
-        variant = variants.create({ option_value_ids: ids, prices: master.prices }, without_protection: true)
+        variants.create({ option_value_ids: ids, prices: master.prices }, without_protection: true)
       end
       save
     end

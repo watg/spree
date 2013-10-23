@@ -4,43 +4,64 @@ module Spree
   class Promotion
     module Rules
       class ItemTotal < PromotionRule
-        preference :amount, :decimal, :default => 100.00
-        preference :operator, :string, :default => '>'
-        preference :currency, :string
-        preference :zone_id,  :string, :default => nil # this is a string so we can set it as nil
 
-        attr_accessible :preferred_amount
-        attr_accessible :preferred_operator
-        attr_accessible :preferred_currency
-        attr_accessible :preferred_zone_id
+        preference :_attributes, :string,  :default => "{}"
 
-        OPERATORS = ['gt', 'gte']
+        attr_accessible :preferred_attributes
 
         def eligible?(order, options = {})
-          item_total_ok?(order) && currency_ok?(order) && location_ok?(order)
+
+          hash = JSON.parse get_preference(:_attributes)
+          hash.each do |zone_id,currency_amount_enabled|
+
+            currency_amount_enabled.each do |currency,amount_enabled|
+
+              if order.currency == currency && amount_enabled['enabled'] == "true"
+
+                order_total = order.line_items.map(&:amount).sum
+                if order_total.send(:>=, BigDecimal.new(amount_enabled['amount'].to_s))
+
+                  # If everything else is good but address as not been defined 
+                  # then return true
+                  if order.shipping_address
+                    if Spree::Zone.find(zone_id).include? order.shipping_address
+                      return true
+                    end
+                  else
+                    return true
+                  end
+
+                end
+
+              end
+
+            end
+
+          end
+          return false
         end
 
         def self.currencies
           Spree::Config.preferences[:supported_currencies].split(',')
         end
 
-
-        private
-        def item_total_ok?(order)
-          order_total = order.line_items.map(&:amount).sum
-          order_total.send(preferred_operator == 'gte' ? :>= : :>, BigDecimal.new(preferred_amount.to_s))
-        end
-
-        def currency_ok?(order)
-          preferred_currency == order.currency
-        end
-
-        def location_ok?(order)
-          if order.shipping_address && !preferred_zone_id.blank?
-            Spree::Zone.find(preferred_zone_id).include? order.shipping_address
-          else
-            true
+        def preferred_attributes
+          hash = JSON.parse get_preference(:_attributes)
+          Spree::Zone.order(:name).each do |preferred_zone|
+            Spree::Promotion::Rules::ItemTotal.currencies.each do |preferred_currency|
+              preferred_zone_id = preferred_zone.id.to_s
+              hash[preferred_zone_id] ||= {}
+              hash[preferred_zone_id][preferred_currency] ||= {}
+              hash[preferred_zone_id][preferred_currency]['amount'] ||= 0
+              hash[preferred_zone_id][preferred_currency]['enabled'] ||= false
+            end
           end
+          hash
+        end
+
+        def preferred_attributes=(hash)
+          set_preference(:_attributes, hash.to_json.to_s)
+          save
         end
 
       end

@@ -11,6 +11,14 @@
   <%= render :partial => 'spree/shared/error_messages', :locals => { :target => @order } %>
 </div>
 
+<div>
+  <% if @order.internal? %>
+    <%= button_to("Use Metapack", :action => "internal" ) %>
+  <% else %>
+    <%= button_to("Make Internal",:action => "internal" ) %>
+  <% end %>   
+</div>
+
 <%= render :partial => 'add_product' %>
 
 <% if @order.line_items.empty? %>

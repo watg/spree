@@ -13,14 +13,15 @@ module Spree
 
         # The current incomplete order from the session for use in cart and during checkout
         def current_order(create_order_if_necessary = false)
+
           return @current_order if @current_order
           if session[:order_id]
             current_order = Spree::Order.find_by_id_and_currency(session[:order_id], current_currency, :include => :adjustments)
             @current_order = current_order unless current_order.try(:completed?)
           end
+
           if create_order_if_necessary and (@current_order.nil? or @current_order.completed?)
             @current_order = Spree::Order.new(:currency => current_currency)
-            @current_order.user ||= try_spree_current_user
             @current_order.save!
 
             # make sure the user has permission to access the order (if they are a guest)
@@ -28,7 +29,10 @@ module Spree
               session[:access_token] = @current_order.token
             end
           end
+         
           if @current_order
+            # Try and add the last billing and shipping address for this user
+            @current_order.user ||= try_spree_current_user
             @current_order.last_ip_address = ip_address
             session[:order_id] = @current_order.id
             return @current_order
