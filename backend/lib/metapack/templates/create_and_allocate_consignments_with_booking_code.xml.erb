@@ -51,6 +51,7 @@
           <senderName xsi:type="soapenc:string">Wool And The Gang</senderName>
           <senderVatNumber xsi:type="soapenc:string" xsi:nil="true"/>
           <senderCode xsi:type="soapenc:string">DEFAULT</senderCode>
+          <termsOfTradeCode xsi:type="soapenc:string"><%= consignment[:terms_of_trade_code]%></termsOfTradeCode>
         </item>
       </consignments>
       <bookingCode xsi:type="soapenc:string"><%= consignment[:booking_code] %></bookingCode>

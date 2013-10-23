@@ -25,7 +25,7 @@ module Spree
     private
     def allocation_hash(order)
       {
-        value:         order.value_in_gbp,
+        value:         order.item_normal_total,
         weight:        order.weight.round(2),
         max_dimension: order.max_dimension.to_f,
         order_number:  order.number,
@@ -38,8 +38,23 @@ module Spree
           lastname:    order.shipping_address.lastname,
           name:        order.shipping_address.full_name
         },
+        terms_of_trade_code: terms_of_trade_code(order),
         booking_code:  order.metapack_booking_code
       }
+    end
+
+    def terms_of_trade_code(order)
+      if order.item_normal_total >= 300 && shipping_to_canada_or_usa(order)
+        # duty paid by watg
+        'DDP'
+      else
+        # duty unpaid
+        'DDU'
+      end
+    end
+
+    def shipping_to_canada_or_usa(order)
+      (Spree::Country.where(iso: ['CA', 'US']).to_a).include?(order.ship_address.country)
     end
 
     def parcel(parcels, total_weight)
