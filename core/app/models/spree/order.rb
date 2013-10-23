@@ -161,7 +161,15 @@ module Spree
       li_by_product_type = line_items.map {|li| li.variant.product.product_type == 'pattern'}
       has_only_pattern = li_by_product_type.inject(true) {|res, a| res && a }
       less_than_ten =( li_by_product_type.select {|e| e }.size < 11)
-      ((has_only_pattern && less_than_ten) ? 'PATTERN' : nil)
+      ((has_only_pattern && less_than_ten) ? 'PATTERN' : shipping_zone_name)
+    end
+
+    def shipping_zone_name
+      country_id = (self.ship_address.try(:country).nil? ? nil : self.ship_address.try(:country).id)
+      if country_id
+        zm = Spree::ZoneMember.where(zoneable_id: country_id, zoneable_type: "Spree::Country").first
+        zm.zone.name if zm
+      end
     end
 
     def parcels_grouped_by_box
