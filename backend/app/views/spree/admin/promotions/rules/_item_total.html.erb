@@ -1,0 +1,35 @@
+<div class="field alpha seven columns">
+<table class="index">
+    <colgroup>
+      <col style="width: 30%" />
+      <col style="width: 30%" />
+      <col style="width: 30%" />
+      <col style="width: 10%" />
+    </colgroup>
+    <tbody>
+      <thead>
+        <tr>
+          <th><%= Spree.t(:zone) %></th>
+          <th><%= Spree.t(:currency) %></th>
+          <th><%= Spree.t(:amount) %></th>
+          <th><%= Spree.t(:enabled) %></th>
+        </tr>
+      </thead>
+
+      <% promotion_rule.preferred_attributes.each do |zone_id,currency_amount_enabled| %>
+        <% currency_amount_enabled.each do |currency,amount_enabled| %>
+          <% prefix = "#{param_prefix}[preferred_attributes][#{zone_id}][#{currency}]" %>
+          <tr class="<%= cycle('odd', 'even')%>" >
+            <td> <%= Spree::Zone.find(zone_id).name %></td>
+            <td> <%= currency %></td>
+            <td> <%= text_field_tag "#{prefix}][amount]", amount_enabled['amount'], :class => 'fullwidth' %> </td>
+            <td> <%= check_box_tag "#{prefix}[enabled]", true, amount_enabled['enabled'] %> </td>
+         </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+
+

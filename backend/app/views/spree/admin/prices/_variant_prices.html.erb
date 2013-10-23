@@ -1,0 +1,19 @@
+<tr class="<%= cycle('odd', 'even')%>" >
+  <td rowspan="<%= variant.visible_price_types.size %>" > <%= (variant.options_text.blank? ? Spree.t(:master) : variant.options_text) %>  </td>
+    <% variant.visible_price_types.each do |price_type| %>
+      <td> <%= price_type %> </td>
+
+      <% if price_type == :normal_sale %>
+          <td><%= check_box_tag "in_sale[]", variant.id, variant.in_sale? %></td>
+      <% else %>
+        <td></td>
+      <% end %>
+
+      <% supported_currencies.each do |currency| %>
+        <% price = variant.price_for_type(price_type, currency.iso_code) %>
+          <td> <%= text_field_tag("vp[#{variant.id}][#{price_type}][#{currency.iso_code}]", (price ? price.display_amount : '')) %> </td>
+      <% end %>
+       </tr>
+      <tr class="<%= cycle('even', 'odd')%>">
+   <% end %>
+</tr>

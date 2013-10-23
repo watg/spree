@@ -1,0 +1,47 @@
+<div data-hook="admin_variant_form_fields" class="label-block left six columns alpha">
+  <div data-hook="variants">
+    <% @product.option_types.each do |option_type| %>
+      <div class="field" data-hook="presentation">
+        <%= label :new_variant, option_type.presentation %>
+        <%= f.collection_select 'option_value_ids', option_type.option_values, :id, :presentation,
+          { :prompt => true }, { :name => 'variant[option_value_ids][]', :class => 'select2 fullwidth' } %>
+      </div>
+    <% end %>
+
+    <div class="field" data-hook="sku">
+      <%= f.label :sku, Spree.t(:sku) %>
+      <%= f.text_field :sku, :class => 'fullwidth' %>
+    </div>
+
+    <div class="field" data-hook="cost_price">
+      <%= f.label :cost_price, Spree.t(:cost_price) %>
+      <%= f.text_field :cost_price, :value => number_to_currency(@variant.cost_price, :unit => '') || 0.0, :class => 'fullwidth' %>
+    </div>
+
+    <div class="field" data-hook="label">
+      <%= f.label :label, Spree.t(:label) %>
+      <%= f.text_field :label, :class => 'fullwidth' %>
+    </div>
+
+    <div class="twelve columns alpha omega">
+      <fieldset>
+        <legend align="center"><%= Spree.t(:prices) %></legend>
+        <%= f.field_container :prices do %>
+          <%= render :partial => 'spree/admin/shared/prices', :locals => {:variant => @variant} %>
+      <% end %>
+      </fieldset>
+    </div>
+
+  </div>
+</div>
+
+<div class="right six columns omega label-block" data-hook="admin_variant_form_additional_fields">
+  <% [:weight, :height, :width, :depth].each do |field| %>
+    <div class="field" data-hook="<%= field %>"><%= f.label field, Spree.t(field) %>
+      <% value = number_with_precision(@variant.send(field), :precision => 2) %>
+      <%= f.text_field field, :value => value || 0.00, :class => 'fullwidth' %>
+    </div>
+  <% end %>
+</div>
+
+<div class="clear"></div>

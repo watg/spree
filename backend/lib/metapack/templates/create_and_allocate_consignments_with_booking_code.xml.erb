@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <ns1:createAndAllocateConsignmentsWithBookingCode soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:ns1="urn:DeliveryManager/services">
+      <consignments soapenc:arrayType="ns2:Consignment[1]" xsi:type="soapenc:Array" xmlns:ns2="urn:DeliveryManager/types" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+        <item xsi:type="ns2:Consignment">
+          <alreadyPalletisedGoodsFlag xsi:type="xsd:boolean">false</alreadyPalletisedGoodsFlag>
+          <fragileGoodsFlag xsi:type="xsd:boolean">false</fragileGoodsFlag>
+          <hazardousGoodsFlag xsi:type="xsd:boolean">false</hazardousGoodsFlag>
+          <liquidGoodsFlag xsi:type="xsd:boolean">false</liquidGoodsFlag>
+          <moreThanOneMetreGoodsFlag xsi:type="xsd:boolean">false</moreThanOneMetreGoodsFlag>
+          <moreThanTwentyFiveKgGoodsFlag xsi:type="xsd:boolean">false</moreThanTwentyFiveKgGoodsFlag>
+          <twoManLiftFlag xsi:type="xsd:boolean">false</twoManLiftFlag>
+          <consignmentLevelDetailsFlag xsi:type="xsd:boolean">false</consignmentLevelDetailsFlag>
+          <consignmentValue xsi:type="xsd:double"><%= consignment[:value] %></consignmentValue>
+          <consignmentWeight xsi:type="xsd:double"><%= consignment[:weight] %></consignmentWeight>
+          <maxDimension xsi:type="xsd:double"><%= consignment[:max_dimension] %></maxDimension>
+          <orderNumber xsi:type="soapenc:string"><%= consignment[:order_number] %></orderNumber>
+          <parcelCount xsi:type="xsd:int"><%= consignment[:parcels].size %></parcelCount>
+          <parcels soapenc:arrayType="ns2:Parcel[<%= consignment[:parcels].size %>]" xsi:type="soapenc:Array">
+            <% consignment[:parcels].each do |parcel| %>
+            <item xsi:type="ns2:Parcel">
+              <dutyPaid xsi:type="xsd:double">0.0</dutyPaid>
+              <reference xsi:type="soapenc:string"><%= parcel[:reference] %></reference>
+              <parcelDepth xsi:type="xsd:double"><%= parcel[:depth] %></parcelDepth>
+              <parcelHeight xsi:type="xsd:double"><%= parcel[:height] %></parcelHeight>
+              <parcelWeight xsi:type="xsd:double"><%= parcel[:weight] %></parcelWeight>
+              <parcelWidth xsi:type="xsd:double"><%= parcel[:width] %></parcelWidth>
+            </item>
+            <% end %>
+          </parcels>
+          <recipientAddress xsi:type="ns2:Address">
+            <countryCode xsi:type="soapenc:string"><%= consignment[:recipient][:address][:country] %></countryCode>
+            <line1 xsi:type="soapenc:string"><%= consignment[:recipient][:address][:line1] %></line1>
+            <line2 xsi:type="soapenc:string"><%= consignment[:recipient][:address][:line2] %></line2>
+            <postCode xsi:type="soapenc:string"><%= consignment[:recipient][:address][:postcode] %></postCode>
+            <type xsi:type="soapenc:string">Residential</type>
+          </recipientAddress>
+          <recipientContactPhone xsi:type="soapenc:string"><%= consignment[:recipient][:phone] %></recipientContactPhone>
+          <recipientEmail xsi:type="soapenc:string"><%= consignment[:recipient][:email] %></recipientEmail>
+          <recipientName xsi:type="soapenc:string"><%= consignment[:recipient][:name] %></recipientName>
+
+          <senderAddress xsi:type="ns2:Address">
+            <countryCode xsi:type="soapenc:string">GBR</countryCode>
+            <line1 xsi:type="soapenc:string">89a Shacklewelll Lane</line1>
+            <line2 xsi:type="soapenc:string">London</line2>
+            <postCode xsi:type="soapenc:string">E8 2EB</postCode>
+          </senderAddress>
+          <senderContactPhone xsi:type="soapenc:string" xsi:nil="true"/>
+          <senderEmail xsi:type="soapenc:string" xsi:nil="true"/>
+          <senderName xsi:type="soapenc:string">Wool And The Gang</senderName>
+          <senderVatNumber xsi:type="soapenc:string" xsi:nil="true"/>
+          <senderCode xsi:type="soapenc:string">DEFAULT</senderCode>
+        </item>
+      </consignments>
+      <bookingCode xsi:type="soapenc:string"><%= consignment[:booking_code] %></bookingCode>
+      <calculateTaxAndDuty xsi:type="soapenc:boolean">false</calculateTaxAndDuty>
+    </ns1:createAndAllocateConsignmentsWithBookingCode>
+  </soapenv:Body>
+</soapenv:Envelope>

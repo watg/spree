@@ -1,0 +1,48 @@
+
+<%= render :partial => 'spree/admin/shared/product_sub_menu' %>
+
+<%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => 'Prices'} %>
+
+
+
+<%= form_tag do %>
+  <fieldset class="no-border-bottom">
+  <legend align="center"><%= Spree.t(:master) %></legend>
+  <table class="index">
+    <colgroup>
+      <col style="width: 30%" />
+      <col style="width: 15%" />
+      <col style="width: 3%" />
+      <col style="width: 13%" />
+      <col style="width: 13%" />
+      <col style="width: 13%" />
+    </colgroup>
+    <%= render :partial => "table_header" %>
+    <tbody>
+    <%= render :partial => "variant_prices", :locals => {:variant => @product.master} %>
+    </tbody>
+  </table>
+  <%= submit_tag "apply all", :value => :apply_all %>
+</fieldset>
+
+  <fieldset class="no-border-bottom">
+  <legend align="center"><%= Spree.t(:variants) %></legend>
+  <table class="index">
+    <colgroup>
+      <col style="width: 30%" />
+      <col style="width: 15%" />
+      <col style="width: 3%" />
+      <col style="width: 13%" />
+      <col style="width: 13%" />
+        <col style="width: 13%" />
+      </colgroup>
+      <tbody>
+      <%= render :partial => "variant_prices", :collection => @product.variants, :as => :variant %>
+      </tbody>
+    </table>
+
+  <%= submit_tag %>
+</fieldset>
+  <% end %>
+
+

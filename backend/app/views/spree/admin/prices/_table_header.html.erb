@@ -1,0 +1,13 @@
+<colgroup>
+  <col style="width: 30%" />
+</colgroup>
+<thead>
+  <tr>
+    <th><%= Spree.t(:variant) %></th>
+    <th colspan="2"><%= Spree.t(:price_type) %></th>
+    <% supported_currencies.each do |currency| %>
+      <th><%= Spree.t(currency.to_s.to_sym) %></th>
+    <% end %>
+  </tr>
+</thead>
+
