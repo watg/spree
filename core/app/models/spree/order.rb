@@ -168,7 +168,7 @@ module Spree
       country_id = (self.ship_address.try(:country).nil? ? nil : self.ship_address.try(:country).id)
       if country_id
         zm = Spree::ZoneMember.where(zoneable_id: country_id, zoneable_type: "Spree::Country").first
-        zm.zone.name if zm
+        zm.zone.name.upcase if zm
       end
     end
 
