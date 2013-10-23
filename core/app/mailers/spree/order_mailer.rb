@@ -60,7 +60,7 @@ EOF
 <% @order.line_items.map do |line_item| %>
 <tr>
 <td align="left" style="font-weight:bold;"><%= line_item.product.name %></td>
-<td align="left"><%= line_item.quantity %></td><td align="left"><%= line_item.variant.options_text %></td><td align="left"><%= line_item.price.to_s %></td>
+<td align="left"><%= line_item.quantity %></td><td align="left"><%= line_item.variant.options_text %></td><td align="left"><%= line_item.display_amount.to_s %></td>
 </tr>
 <% end %>
 EOF
