@@ -46,10 +46,9 @@ module Spree
       end
 
       def update
-        authorize! :update, Taxon
-        outcome = Spree::UpdateTaxonPositionService.run(update_params)
-        if outcome.success?
-          respond_with(taxon, :status => 200, :default_template => :show)
+        authorize! :update, taxon
+        if taxon.update_attributes(taxon_params)
+          respond_with(taxon, status: 200, default_template: :show)
         else
           invalid_resource!(taxon)
         end
