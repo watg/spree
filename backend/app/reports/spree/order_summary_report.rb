@@ -2,50 +2,6 @@ module Spree
   class OrderSummaryReport
     include BaseReport
 
-    HEADER = %w(
-  id
-  email
-  order_number
-  item_quantity
-  completed_at
-  shipped_at
-  location_shipped
-  returning_customer
-  currency
-  revenue_pre_sale_pre_ship_pre_promo 
-  revenue_pre_ship_pre_promo
-  revenue_shipping_pre_promo
-  promos
-  revenue_received
-  kit_revenue_pre_promo
-  virtual_product_pre_promo
-  gang_collection_revenue_pre_promo
-  r2w_revenue_pre_promo
-  supplies_revenue_pre_promo
-
-  billing_address_firstname 
-  billing_address_lastname 
-  billing_address_line_1
-  billing_address_line_2
-  billing_city
-  billing_country
-  billing_postcode
-
-  shipping_address_firstname 
-  shipping_address_lastname 
-  shipping_address_line_1
-  shipping_address_line_2
-  shipping_city
-  shipping_country
-  shipping_postcode
-
-  payment_successes
-  payment_type
-
-  shipping_method_frontend
-  shipping_method_backend
-    ) unless defined?(HEADER)
-
     def initialize(params)
       @from = params[:from].blank? ? Time.now.midnight : Time.parse(params[:from])  
       @to = params[:to].blank? ? Time.now.tomorrow.midnight : Time.parse(params[:to])  
@@ -56,7 +12,50 @@ module Spree
     end
 
     def header
-      HEADER
+      %w(
+        id
+        email
+        order_number
+        item_quantity
+        completed_at
+        shipped_at
+        location_shipped
+        returning_customer
+        currency
+        revenue_pre_sale_pre_ship_pre_promo 
+        revenue_pre_ship_pre_promo
+        revenue_shipping_pre_promo
+        promos
+        promo_code
+        revenue_received
+        kit_revenue_pre_promo
+        virtual_product_pre_promo
+        gang_collection_revenue_pre_promo
+        r2w_revenue_pre_promo
+        supplies_revenue_pre_promo
+
+        billing_address_firstname 
+        billing_address_lastname 
+        billing_address_line_1
+        billing_address_line_2
+        billing_city
+        billing_country
+        billing_postcode
+
+        shipping_address_firstname 
+        shipping_address_lastname 
+        shipping_address_line_1
+        shipping_address_line_2
+        shipping_city
+        shipping_country
+        shipping_postcode
+
+        payment_successes
+        payment_type
+
+        shipping_method_frontend
+        shipping_method_backend
+      )
     end
 
     def retrieve_data
@@ -136,6 +135,7 @@ module Spree
         shipping_methods = o.shipment.shipping_methods
       end
 
+      promo_label = o.adjustments.promotion.first.label if o.adjustments.promotion.first.present?
       [
         o.id, 
         o.email,
@@ -150,6 +150,7 @@ module Spree
         o.item_total.to_f, # Total cost
         o.ship_total,
         o.promo_total,
+        promo_label,
         o.total.to_f, # Over cost
         product_type_totals['kit'] || '',
         product_type_totals['virtual_product'] || '',
