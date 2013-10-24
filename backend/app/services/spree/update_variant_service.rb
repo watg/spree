@@ -52,7 +52,7 @@ module Spree
 
     def update_tags(variant, tag_names)
       tags = tag_names.map do |tag_name|
-        Spree::Tag.find_or_create_by_value(tag_name)
+        Spree::Tag.find_or_create_by(value: tag_name)
       end
       variant.tags = tags
     end
