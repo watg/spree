@@ -11,7 +11,7 @@ Spree::Core::Engine.add_routes do
   put '/checkout/registration' => 'checkout#update_registration', :as => :update_checkout_registration
 
   # non-restful checkout stuff
-  
+
   patch '/checkout/update/:state', :to => 'checkout#update', :as => :update_checkout
   get '/checkout/:state', :to => 'checkout#edit', :as => :checkout_state
   get '/checkout', :to => 'checkout#edit' , :as => :checkout
@@ -38,4 +38,6 @@ Spree::Core::Engine.add_routes do
   get '/unauthorized', :to => 'home#unauthorized', :as => :unauthorized
   get '/content/cvv', :to => 'content#cvv', :as => :cvv
   get '/content/*path', :to => 'content#show', :as => :content
+
+  get '/product-group/:id/:tab', :to => 'product_groups#show', :as => :product_group
 end

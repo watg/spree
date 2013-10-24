@@ -26,6 +26,8 @@ Spree::Core::Engine.add_routes do
 
     resources :variants, :only => [:index]
 
+    resources :tags
+
     resources :option_types do
       resources :option_values
     end

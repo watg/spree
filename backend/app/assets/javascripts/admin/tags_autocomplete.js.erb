@@ -1,0 +1,14 @@
+$(document).ready(function() {
+    if ($("#variant_tags").length > 0) {
+	$.ajax({
+	    url: Spree.routes.tags_search,
+	    dataType: 'json',
+	    success: function(data) {
+		$("#variant_tags").select2({
+		    placeholder: Spree.translations.tag_placeholder,
+		    tags: data
+		});
+	    }
+	});
+    }
+})
