@@ -62,10 +62,12 @@ module Spree
       :order, :special_instructions, :stock_location_id, :id,
       :tracking, :address, :inventory_units, :selected_shipping_rate_id]
 
+    # :adyen_encrypted_hash added by david dawson, to allow the use of the adyen
+    # payment gateway
     # month / year may be provided by some sources, or others may elect to use one field
     @@source_attributes = [
       :number, :month, :year, :expiry, :verification_value,
-      :first_name, :last_name, :cc_type]
+      :first_name, :last_name, :cc_type, :adyen_encrypted_hash]
 
     @@stock_item_attributes = [:variant, :stock_location, :backorderable, :variant_id]
 
