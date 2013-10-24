@@ -10,11 +10,11 @@ module Metapack
       end
       
       def host
-        config["host"]
+        ENV["METAPACK_HOST"] || config["host"]
       end
 
       def service_base_url
-        config["service_base_url"]
+        ENV["METAPACK_SERVICE_BASE_URL"] || config["service_base_url"]
       end
 
       def username
