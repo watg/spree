@@ -5,6 +5,16 @@ module Spree
       new_action.before :new_before
 
 
+      def create
+        invoke_callbacks(:create, :before)
+        outcome = Spree::CreateVariantService.run(product: @product, details: params[:variant], prices: params[:prices])
+        if outcome.success?
+          create_success(@object)
+        else
+          create_failed(@object, outcome.errors.message_list.join(', '))
+        end
+      end
+
       def update
         outcome = Spree::UpdateVariantService.run(variant: @variant, details: params[:variant], prices: params[:prices])
         if outcome.success?
@@ -37,9 +47,24 @@ module Spree
         @variant.prices = @product.master.prices.dup
       end
 
+      def create_success(object)
+        flash[:success] = flash_message_for(object, :successfully_created)
+        respond_with(object) do |format|
+          format.html { redirect_to location_after_save }
+          format.js   { render :layout => false }
+        end
+      end
+
+      def create_failed(object, error)
+        flash[:error] = "Could not create object #{object.name} -- #{error}"
+        respond_with(object) do |format|
+          format.html { redirect_to new_admin_product_variant_url(@object.product.permalink) }
+          format.js   { render :layout => false }
+        end
+      end
+
       def update_success(object)
         flash[:success] = flash_message_for(object, :successfully_updated)
-
         respond_with(object) do |format|
           format.html { redirect_to location_after_save }
           format.js   { render :layout => false }
