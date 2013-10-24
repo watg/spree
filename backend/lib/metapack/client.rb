@@ -4,7 +4,8 @@ module Metapack
       response = request(:AllocationService, :create_and_allocate_consignments_with_booking_code, consignment: consignment)
       {
         metapack_consignment_code: response.find("consignmentCode"),
-        tracking:                  tracking_info(response)
+        tracking:                  tracking_info(response),
+        metapack_status:           response.find("status")
       }
     end
 
