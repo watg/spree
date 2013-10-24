@@ -39,7 +39,7 @@ module Spree
     belongs_to :gang_member,       class_name: 'Spree::GangMember'
     belongs_to :product_group,     class_name: 'Spree::ProductGroup'
 
-  
+
     # ---- from marketplace ext --
     belongs_to :product_group
     belongs_to :gang_member
@@ -62,6 +62,8 @@ module Spree
       -> { order("#{::Spree::Variant.quoted_table_name}.position ASC") },
       class_name: 'Spree::Variant',
       dependent: :destroy
+
+    has_many :all_variants_unscoped, class_name: 'Spree::Variant'
 
     has_many :prices, -> { order('spree_variants.position, spree_variants.id, currency') }, through: :variants
 
@@ -337,7 +339,7 @@ module Spree
     # when saving so we force a save using a hook.
     def save_master
       if master && (master.changed? ||  master.new_record? )
-        master.save 
+        master.save
       end
     end
 

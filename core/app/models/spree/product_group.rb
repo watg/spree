@@ -8,9 +8,9 @@ module Spree
 
     has_many :products
 
-    has_many :variants, through: :products
+    has_many :variants, through: :products, source: :all_variants_unscoped
 
-    has_many :available_tags, -> { select("DISTINCT spree_tags.*, spree_variants.position") }, through: :variants, class_name: "Spree::Tag", source: :tags
+    has_many :available_tags, -> { uniq }, through: :variants, class_name: "Spree::Tag", source: :tags
     has_many :taggings, as: :taggable
     has_many :tags, through: :taggings
 
