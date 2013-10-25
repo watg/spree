@@ -4,7 +4,7 @@ module Spree
     class OrdersController < Spree::Admin::BaseController
       require 'spree/core/gateway_error'
       before_filter :initialize_order_events
-      before_filter :load_order, :only => [:edit, :update, :fire, :resend, :open_adjustments, :close_adjustments]
+      before_filter :load_order, :only => [:edit, :update, :fire, :resend, :open_adjustments, :close_adjustments, :internal]
 
       respond_to :html
 
@@ -49,6 +49,12 @@ module Spree
         @order = Order.create
         @order.created_by = try_spree_current_user
         @order.save
+        redirect_to edit_admin_order_url(@order)
+      end
+      
+      def internal 
+        @order.internal= !@order.internal?
+        @order.save(validation: false)
         redirect_to edit_admin_order_url(@order)
       end
 

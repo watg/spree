@@ -98,6 +98,7 @@ Spree::Core::Engine.routes.draw do
 
     resources :orders do
       member do
+        post :internal
         put :fire
         get :fire
         post :resend

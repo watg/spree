@@ -11,8 +11,13 @@ module Spree
       response = Metapack::Client.create_and_allocate_consignment_with_booking_code(allocation_hash(order))
       order.update_attributes!(order_attrs(response))
       update_parcels(order, response[:tracking])
-      mark_order_as_shipped(order)   if order.metapack_allocated
-      Metapack::Client.create_labels_as_pdf(response[:metapack_consignment_code])
+      if order.metapack_allocated
+        mark_order_as_shipped(order)   
+        Metapack::Client.create_labels_as_pdf(response[:metapack_consignment_code])
+      else
+        msg = "Cannot print Shipping Label for Consignment '#{response[:metapack_consignment_code]}' with status #{response[:metapack_status]}"
+        add_error(:metapack, :metapack_allocation_error, msg)
+      end
 
     rescue Exception => error
       Rails.logger.info '-'*80
@@ -97,7 +102,7 @@ module Spree
     def order_attrs(hash)
       {
         metapack_consignment_code: hash[:metapack_consignment_code],
-        metapack_allocated:        !hash[:tracking].blank?
+        metapack_allocated:        (hash[:metapack_status] == 'Allocated')
       }
     end
 
