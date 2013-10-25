@@ -14,8 +14,7 @@ module Spree
     def shipment_data
       {
         manifest: htmlify(:manifest),
-        tracking: @shipment.tracking,
-        tracking_url: @shipment.tracking_url
+        tracking_details: htmlify(:tracking)
       }
     end
     
