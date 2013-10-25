@@ -105,6 +105,8 @@ module Spree
       product_type_totals
     end
 
+
+
     def generate_csv_line(o,previous_users)
       product_type_totals = generate_product_type_totals(o)
 
@@ -112,17 +114,6 @@ module Spree
       if !o.shipment.nil? 
         if !o.shipment.shipped_at.blank? 
           shipped_at = o.shipment.shipped_at.to_s(:db)
-        end
-      end
-
-      # If the first order they have ever made is equal to this one, then we 
-      # can assume they are a new customer 
-      returning_customer = false
-      if o.user
-        if o.user.orders.size > 1 and o != o.user.orders.order("id").first
-          returning_customer = true
-        elsif previous_users.include? o.user.email.to_s
-          returning_customer = true
         end
       end
 
@@ -144,7 +135,7 @@ module Spree
         o.completed_at.to_s(:db), 
         shipped_at,
         o.shipping_address.country.name,
-        returning_customer,
+        returning_customer(o,previous_users),
         o.currency,
         o.item_normal_total.to_f,
         o.item_total.to_f, # Total cost
@@ -180,6 +171,35 @@ module Spree
         ( shipping_methods && shipping_methods.find_by_display_on('back_end') ? shipping_methods.find_by_display_on('back_end').name : '' ),
       ] 
 
+    end
+
+    private
+
+    def returning_customer(order,previous_users)
+      rtn = !first_order(order)
+      if rtn == false
+        if previous_users.include? order.email.to_s
+          rtn = true
+        end
+      end
+      rtn
+    end
+
+    def first_order(order) 
+      if order.user || order.email
+        orders_complete = completed_orders(order.user, order.email)
+        orders_complete.blank? || orders_complete.first == order
+      else
+        false
+      end
+    end
+
+    def completed_orders(user, email)
+      user ? user.orders.complete : orders_by_email(email)
+    end
+
+    def orders_by_email(email)
+      Spree::Order.where(email: email).complete
     end
     
   end
