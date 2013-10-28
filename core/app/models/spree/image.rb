@@ -25,6 +25,7 @@ module Spree
     Spree::Image.attachment_definitions[:attachment][:default_url] = Spree::Config[:attachment_default_url]
     Spree::Image.attachment_definitions[:attachment][:default_style] = Spree::Config[:attachment_default_style]
 
+
     #used by admin products autocomplete
     def mini_url
       attachment.url(:mini, false)
@@ -48,5 +49,6 @@ module Spree
         false
       end
     end
+
   end
 end

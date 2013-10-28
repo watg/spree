@@ -3,6 +3,17 @@ module Spree
     class ImagesController < ResourceController
       before_filter :load_data
 
+      def s3_callback
+        callback_params = {
+          attachment_file_name: params[:filename], 
+          attachment_content_type: params[:filetype], 
+          attachment_file_size: params[:filesize],
+          direct_upload_url: params[:image][:direct_upload_url],
+          viewable_id: @product.master.id # the Variant ID
+        }
+        @outcome = Spree::UploadImageToS3Service.run(callback_params)
+      end
+
       create.before :set_viewable
       update.before :set_viewable
 
