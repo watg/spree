@@ -17,12 +17,13 @@ module Metapack
     def self.find_ready_to_manifest_records
       manifests = request(:ManifestService, :find_ready_to_manifest_records).find_all(
         "findReadyToManifestRecordsReturn findReadyToManifestRecordsReturn",
-        ["carrierCode", "consignmentCount"]
+        ["carrierCode", "consignmentCount", "parcelCount"]
       )
       manifests.map do |manifest|
         {
           carrier: manifest["carrierCode"],
-          parcel_count: manifest["consignmentCount"]
+          consignment_count: manifest["consignmentCount"],
+          parcel_count: manifest["parcelCount"],
         }
       end
     end
