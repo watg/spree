@@ -7,8 +7,18 @@ $(document).ready(function() {
         progress_bar_target: $('#uploads_container')
       }
     );
+
     $('#s3_uploader').bind('s3_upload_failed', function(e, content) {
       return alert(content.filename + ' failed to upload');
+    });
+
+    $('.icon-refresh').click(function(event) {
+      event.preventDefault();
+      
+      $('.edit_image').each(function() {
+        $(this).submit();
+      });
+      
     });
   });
 
