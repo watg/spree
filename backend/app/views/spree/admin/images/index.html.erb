@@ -3,7 +3,7 @@
 <%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => 'Images'} %>
 
 <% content_for :page_actions do %>
-  <li><%= link_to_with_icon('icon-refresh', Spree.t(:update), '#', :class => 'button') %></li>
+  <li><%= link_to_with_icon('icon-refresh', Spree.t(:update), '#', :class => 'button', :id => 'update_all_images') %></li>
   <li><%= link_to_with_icon('icon-plus', Spree.t(:new_image), new_admin_product_image_url(@product), :id => 'new_image_link', :class => 'button') %></li>
 <% end %>
 
@@ -65,7 +65,7 @@
 
 
   <div class="form-buttons filter-actions actions" data-hook="buttons">
-    <%= button Spree.t('actions.update'), 'icon-refresh' %>
+    <%= button Spree.t('actions.update'), 'icon-refresh', :id => 'update_all_images' %>
     <span class="or"><%= Spree.t(:or) %></span>
     <%= button_link_to Spree.t('actions.cancel'), collection_url, :icon => 'icon-remove' %>
   </div>

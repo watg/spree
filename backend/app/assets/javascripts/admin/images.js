@@ -12,7 +12,7 @@ $(document).ready(function() {
       return alert(content.filename + ' failed to upload');
     });
 
-    $('.icon-refresh').click(function(event) {
+    $('#update_all_images').click(function(event) {
       event.preventDefault();
       
       $('.edit_image').each(function() {

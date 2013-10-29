@@ -29,8 +29,8 @@ module Spree
       image.viewable_type = 'Spree::Variant'
       
       # a call to s3, maybe unneeded as the 
-      # attributes are anyway set in the next call
-      set_attachment_attributes_from_s3
+      # attributes are anyway set from the callback info
+      # set_attachment_attributes_from_s3
       image.save
 
       if !image.persisted?
