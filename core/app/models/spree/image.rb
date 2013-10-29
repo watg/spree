@@ -8,7 +8,9 @@ module Spree
                       default_style: :product,
                       url: '/spree/products/:id/:style/:basename.:extension',
                       path: ':rails_root/public/spree/products/:id/:style/:basename.:extension',
-                      convert_options: { all: '-strip -auto-orient -colorspace sRGB' }
+                      # Commented out the colorspace problem until heroku fix their imageMagick issue
+                      #convert_options: { all: '-strip -auto-orient -colorspace sRGB' }
+                      convert_options: { all: '-strip -auto-orient ' }
 
     # save the w,h of the original image (from which others can be calculated)
     # we need to look at the write-queue for images which have not been saved yet
