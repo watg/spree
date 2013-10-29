@@ -296,6 +296,16 @@ module Spree
       hash
     end
 
+    def option_type_order
+      hash = {}
+      option_type_names = self.option_types.order(:position).map{|o| o.url_safe_name}
+      option_type_names.each_with_index { |o,i| hash[o] = option_type_names[i+1] }
+      hash
+      #hash['colour'] = 'size'
+      #hash['size'] = nil
+      #hash
+    end
+
     private
     def touch_taxons
       # You should be able to just call self.taxons.each { |t| t.touch } but
