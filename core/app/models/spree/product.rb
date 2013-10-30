@@ -301,9 +301,6 @@ module Spree
       option_type_names = self.option_types.order(:position).map{|o| o.url_safe_name}
       option_type_names.each_with_index { |o,i| hash[o] = option_type_names[i+1] }
       hash
-      #hash['colour'] = 'size'
-      #hash['size'] = nil
-      #hash
     end
 
     private
