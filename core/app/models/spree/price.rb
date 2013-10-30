@@ -14,16 +14,16 @@ module Spree
     alias :display_price :display_amount
 
     def money
-      Spree::Money.new(amount || 0, { currency: currency })
+      Spree::Money.new(amount, { currency: currency })
     end
 
     def price
-      amount
+      amount || 0
     end
 
     def in_subunit
       ( price * 100 ).to_i
-      end
+    end
 
     def currency_symbol
       CURRENCY_SYMBOL[currency.to_s.upcase]
