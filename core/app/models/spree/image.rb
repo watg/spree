@@ -8,7 +8,9 @@ module Spree
                       default_style: :product,
                       url: '/spree/products/:id/:style/:basename.:extension',
                       path: ':rails_root/public/spree/products/:id/:style/:basename.:extension',
-                      convert_options: { all: '-strip -auto-orient -colorspace sRGB' }
+                      # Commented out the colorspace problem until heroku fix their imageMagick issue
+                      #convert_options: { all: '-strip -auto-orient -colorspace sRGB' }
+                      convert_options: { all: '-strip -auto-orient ' }
 
     # save the w,h of the original image (from which others can be calculated)
     # we need to look at the write-queue for images which have not been saved yet
@@ -24,6 +26,7 @@ module Spree
     Spree::Image.attachment_definitions[:attachment][:url] = Spree::Config[:attachment_url]
     Spree::Image.attachment_definitions[:attachment][:default_url] = Spree::Config[:attachment_default_url]
     Spree::Image.attachment_definitions[:attachment][:default_style] = Spree::Config[:attachment_default_style]
+
 
     #used by admin products autocomplete
     def mini_url
@@ -48,5 +51,6 @@ module Spree
         false
       end
     end
+
   end
 end
