@@ -4,7 +4,7 @@ module Spree
     class PrintJobsController < Spree::Admin::BaseController
       def index
         @curr_page, @per_page = pagination_helper(params)
-        @print_jobs = Spree::PrintJob.page(@curr_page).per(@per_page)
+        @print_jobs = Spree::PrintJob.order("print_time DESC").page(@curr_page).per(@per_page)
       end
 
       def show
