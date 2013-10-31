@@ -64,8 +64,8 @@
   </table>
 
 
-  <div class="form-buttons filter-actions actions" data-hook="buttons">
-    <%= button Spree.t('actions.update'), 'icon-refresh', :id => 'update_all_images' %>
+  <div class="form-buttons filter-actions actions">
+    <%= button_link_to Spree.t('actions.update'), '#', icon: 'icon-refresh', :id => 'update_all_images' %>
     <span class="or"><%= Spree.t(:or) %></span>
     <%= button_link_to Spree.t('actions.cancel'), collection_url, :icon => 'icon-remove' %>
   </div>
