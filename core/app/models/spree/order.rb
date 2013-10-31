@@ -116,8 +116,8 @@ module Spree
         to_be_packed_and_shipped.where('batch_sticker_print_date IS NULL AND batch_invoice_print_date IS NOT NULL')
       end
 
-      def last_batch_id_today
-        last = where(:batch_invoice_print_date => Date.today).order("batch_print_id DESC").first
+      def last_batch_id
+        last = order("batch_print_id DESC").first
         last ? last.batch_print_id.to_i : 0
       end
 
