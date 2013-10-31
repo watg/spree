@@ -1,4 +1,4 @@
-<nav id="admin-menu" data-hook>
+<nav id="admin-menu" data-hook <%= raw 'style="background-color: #6C2775"' if Rails.env.production? %> >
   <div class="container">
     <div class="sixteen columns main-menu-wrapper">
       <ul data-hook="admin_tabs" class="fullwidth-menu">
