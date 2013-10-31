@@ -303,6 +303,16 @@ module Spree
       hash
     end
 
+    # TODO: make this dynamic once we need it
+    def personalisation_prices 
+       { 'GBP' => '750', 'USD' => '1000', 'EUR' => '1000'} 
+    end
+
+    # TODO: make this dynamic once we need it
+    def personalisation_colour_values 
+      [2,7,9].map{ |id|  Spree::OptionValue.find id }
+    end
+
     private
     def touch_taxons
       # You should be able to just call self.taxons.each { |t| t.touch } but
