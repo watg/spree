@@ -13,6 +13,10 @@ module Metapack
       File.expand_path("../templates/#{@template_name}.xml.erb", __FILE__)
     end
 
+    def escape(str)
+      str.encode(xml: :text)
+    end
+
     def xml
       template = File.read(template_path)
       ERB.new(template, 0, '>').result(binding)
