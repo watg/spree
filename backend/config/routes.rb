@@ -14,6 +14,7 @@ Spree::Core::Engine.routes.draw do
     end
 
     resources :displayable_variants
+    resources :targets
 
     resources :adjustments
     resources :zones
