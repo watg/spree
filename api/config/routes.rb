@@ -17,6 +17,7 @@ Spree::Core::Engine.add_routes do
     end
 
     resources :images
+    
     resources :checkouts do
       member do
         put :next

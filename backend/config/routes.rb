@@ -40,6 +40,9 @@ Spree::Core::Engine.routes.draw do
       end
       resources :images do
         collection do
+         post :s3_callback
+        end
+        collection do
           post :update_positions
         end
       end
@@ -99,6 +102,7 @@ Spree::Core::Engine.routes.draw do
 
     resources :orders do
       member do
+        post :internal
         put :fire
         get :fire
         post :resend

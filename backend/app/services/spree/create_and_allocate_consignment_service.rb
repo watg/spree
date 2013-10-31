@@ -11,8 +11,13 @@ module Spree
       response = Metapack::Client.create_and_allocate_consignment_with_booking_code(allocation_hash(order))
       order.update_attributes!(order_attrs(response))
       update_parcels(order, response[:tracking])
-      mark_order_as_shipped(order)   if order.metapack_allocated
-      Metapack::Client.create_labels_as_pdf(response[:metapack_consignment_code])
+      if order.metapack_allocated
+        mark_order_as_shipped(order)   
+        Metapack::Client.create_labels_as_pdf(response[:metapack_consignment_code])
+      else
+        msg = "Cannot print Shipping Label for Consignment '#{response[:metapack_consignment_code]}' with status #{response[:metapack_status]}"
+        add_error(:metapack, :metapack_allocation_error, msg)
+      end
 
     rescue Exception => error
       Rails.logger.info '-'*80
@@ -39,7 +44,7 @@ module Spree
           name:        order.shipping_address.full_name
         },
         terms_of_trade_code: terms_of_trade_code(order),
-        booking_code:  order.metapack_booking_code
+        booking_code:  booking_code(order)
       }
     end
 
@@ -97,7 +102,7 @@ module Spree
     def order_attrs(hash)
       {
         metapack_consignment_code: hash[:metapack_consignment_code],
-        metapack_allocated:        !hash[:tracking].blank?
+        metapack_allocated:        (hash[:metapack_status] == 'Allocated')
       }
     end
 
@@ -115,6 +120,16 @@ module Spree
       order.shipment_state = 'shipped'
       order.save(validate: false)
       order.shipments.map(&:ship)
+    end
+
+    def booking_code(order)
+      li_by_product_type = order.line_items.map {|li| 
+        li.variant.product.product_type == 'pattern'
+      }
+      has_only_pattern = li_by_product_type.inject(true) {|res, a| res && a }
+      less_than_ten =( li_by_product_type.select {|e| e }.size < 11)
+      b_code = "@" + ((has_only_pattern && less_than_ten) ? 'PATTERN' : order.shipping_zone_name)
+      b_code
     end
 
   end
