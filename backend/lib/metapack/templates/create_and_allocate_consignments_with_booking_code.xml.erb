@@ -30,15 +30,15 @@
             <% end %>
           </parcels>
           <recipientAddress xsi:type="ns2:Address">
-            <countryCode xsi:type="soapenc:string"><%= consignment[:recipient][:address][:country] %></countryCode>
-            <line1 xsi:type="soapenc:string"><%= consignment[:recipient][:address][:line1] %></line1>
-            <line2 xsi:type="soapenc:string"><%= consignment[:recipient][:address][:line2] %></line2>
-            <postCode xsi:type="soapenc:string"><%= consignment[:recipient][:address][:postcode] %></postCode>
+            <countryCode xsi:type="soapenc:string"><%= escape consignment[:recipient][:address][:country] %></countryCode>
+            <line1 xsi:type="soapenc:string"><%= escape consignment[:recipient][:address][:line1] %></line1>
+            <line2 xsi:type="soapenc:string"><%= escape consignment[:recipient][:address][:line2] %></line2>
+            <postCode xsi:type="soapenc:string"><%= escape consignment[:recipient][:address][:postcode] %></postCode>
             <type xsi:type="soapenc:string">Residential</type>
           </recipientAddress>
-          <recipientContactPhone xsi:type="soapenc:string"><%= consignment[:recipient][:phone] %></recipientContactPhone>
-          <recipientEmail xsi:type="soapenc:string"><%= consignment[:recipient][:email] %></recipientEmail>
-          <recipientName xsi:type="soapenc:string"><%= consignment[:recipient][:name] %></recipientName>
+          <recipientContactPhone xsi:type="soapenc:string"><%= escape consignment[:recipient][:phone] %></recipientContactPhone>
+          <recipientEmail xsi:type="soapenc:string"><%= escape consignment[:recipient][:email] %></recipientEmail>
+          <recipientName xsi:type="soapenc:string"><%= escape consignment[:recipient][:name] %></recipientName>
 
           <senderAddress xsi:type="ns2:Address">
             <countryCode xsi:type="soapenc:string">GBR</countryCode>
@@ -51,10 +51,10 @@
           <senderName xsi:type="soapenc:string">Wool And The Gang</senderName>
           <senderVatNumber xsi:type="soapenc:string" xsi:nil="true"/>
           <senderCode xsi:type="soapenc:string">DEFAULT</senderCode>
-          <termsOfTradeCode xsi:type="soapenc:string"><%= consignment[:terms_of_trade_code]%></termsOfTradeCode>
+          <termsOfTradeCode xsi:type="soapenc:string"><%= escape consignment[:terms_of_trade_code]%></termsOfTradeCode>
         </item>
       </consignments>
-      <bookingCode xsi:type="soapenc:string"><%= consignment[:booking_code] %></bookingCode>
+      <bookingCode xsi:type="soapenc:string"><%= escape consignment[:booking_code] %></bookingCode>
       <calculateTaxAndDuty xsi:type="soapenc:boolean">false</calculateTaxAndDuty>
     </ns1:createAndAllocateConsignmentsWithBookingCode>
   </soapenv:Body>
