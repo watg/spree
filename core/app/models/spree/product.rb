@@ -287,12 +287,19 @@ module Spree
           else
             base[o.option_type.url_safe_name][o.url_safe_name]['variant'] ||= {}
             base[o.option_type.url_safe_name][o.url_safe_name]['variant']['id']=v.id
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).display_price.to_html
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).display_price.to_html
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).in_subunit
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
             base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
           end
         end
       end
+      hash
+    end
+
+    def option_type_order
+      hash = {}
+      option_type_names = self.option_types.order(:position).map{|o| o.url_safe_name}
+      option_type_names.each_with_index { |o,i| hash[o] = option_type_names[i+1] }
       hash
     end
 
