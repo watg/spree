@@ -4,9 +4,9 @@
   </td>
   <td>
     <% if image.processed? %>
-      <%= link_to image_tag(image.direct_upload_url, style: "max-width: 180px"), image.attachment.url(:product) %>
-    <% else %>
       <%= link_to image_tag(image.attachment.url(:small), style: "max-width: 180px"), image.attachment.url(:product) %>
+    <% else %>
+      <%= link_to image_tag(image.direct_upload_url, style: "max-width: 180px"), image.attachment.url(:product) %>
     <% end %>
   </td>
   
