@@ -7,6 +7,7 @@ module Spree
 
     has_one :product, through: :variant
     has_many :adjustments, as: :adjustable, dependent: :destroy
+    has_many :line_item_personalisations, dependent: :destroy
 
     before_validation :copy_price
     before_validation :copy_tax_category
@@ -29,6 +30,23 @@ module Spree
 
     attr_accessor :target_shipment
 
+    def add_personalisations(collection)
+      objects = collection.map do |params|
+        puts "VVVVVVVVVVVVVVVVVVVVVVVVVV"
+        puts "VVVVVVVVVVVVVVVVVVVVVVVVVV"
+        puts "VVVVVVVVVVVVVVVVVVVVVVVVVV"
+        puts "VVVVVVVVVVVVVVVVVVVVVVVVVV"
+        puts "VVVVVVVVVVVVVVVVVVVVVVVVVV"
+        puts "VVVVVVVVVVVVVVVVVVVVVVVVVV"
+        puts params.inspect
+        #lip.prices = params[:prices]
+        #lip.data = params[:data]
+        #lip.personalisation_id = params[:personalisation_id]
+        Spree::LineItemPersonalisation.new params
+      end
+      self.line_item_personalisations = objects
+    end
+
     def copy_price
       if variant
         self.price = variant.price if price.nil?
@@ -43,25 +61,44 @@ module Spree
       end
     end
 
+    def unitary_price
+      price + options_and_personalisations_price
+    end
+
+    def options_and_personalisations_price
+      ( line_item_options.blank? ? 0 : amount_all_options ) +
+      ( line_item_personalisations.blank? ? 0 : amount_all_personalisations ) 
+    end
+
+    def amount
+      unitary_price * quantity
+    end
+    alias total amount
+
+    def amount_without_option
+      price * quantity
+    end
+
+    def amount_all_options
+      list_amount = self.line_item_options.map {|e| e.price * e.quantity}
+      list_amount.inject(0){|s,a| s += a; s}
+    end
+
+    def amount_all_personalisations
+      list_amount = self.line_item_personalisations.map {|p| p.prices[currency].to_i }
+      list_amount.sum
+    end
+
     # This is assuming we are including kit functionality from spree_product_assembley
     def normal_unitary_price
-      ( line_item_options.blank? ? normal_price : (normal_price + amount_all_options) )
+      normal_price || price + options_and_personalisations_price
     end
 
     def normal_amount
-      if normal_price.blank?
-        amount
-      else
-        normal_unitary_price * quantity
-      end
+      normal_unitary_price * quantity
     end
     alias normal_total normal_amount
 
-    # Careful this method gets overridden by the spree_product_assembley extension
-    def amount
-      price * quantity
-    end
-    alias total amount
 
     def single_money
       Spree::Money.new(price, { currency: currency })

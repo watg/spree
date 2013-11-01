@@ -7,15 +7,15 @@ module Spree
     end
 
     #  Sale feature
-    ## Transfert from spree extension product-assembly with options
+    ## Transfer from spree extension product-assembly with options
     #
-    def add(variant, quantity=1, currency=nil, shipment=nil, options=nil)
+    def add(variant, quantity=1, currency=nil, shipment=nil, options=nil, personalisations=nil)
       options_with_qty = (options.blank? ? [] : options)
       #get current line item for variant if exists
-      line_item = Spree::LineItem.find_by_order_variant_options(order,variant,options_with_qty)
+      line_item = Spree::LineItem.find_by_order_variant_options(order,variant,options_with_qty, personalisations)
       
       #add variant qty to line_item
-      add_to_line_item(line_item, variant, quantity, currency, shipment, options_with_qty)
+      add_to_line_item(line_item, variant, quantity, currency, shipment, options_with_qty, personalisations)
     end
     ######
     
@@ -36,7 +36,7 @@ module Spree
     #  Sale feature
     ## Transfert from spree extension product-assembly with options
     #
-    def add_to_line_item(line_item, variant, quantity, currency=nil, shipment=nil, options=nil)
+    def add_to_line_item(line_item, variant, quantity, currency=nil, shipment=nil, options=nil, personalisations=nil)
       currency ||= Spree::Config[:currency] # default to that if none is provided
       
       if line_item
@@ -49,13 +49,14 @@ module Spree
         line_item.currency = currency unless currency.nil?
         line_item.price    = variant.current_price_in(currency).amount
 
+        line_item.normal_price = variant.price_normal_in(currency).amount
         if variant.in_sale?
-          line_item.in_sale       = variant.in_sale
-          line_item.normal_price  = variant.price_normal_in(currency).amount
+          line_item.in_sale = variant.in_sale
         end
 
-
         line_item.add_options(options,currency) unless options.blank?
+        line_item.add_personalisations(personalisations) unless personalisations.blank?
+
         order.line_items << line_item
 
         line_item
