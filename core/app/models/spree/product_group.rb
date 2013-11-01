@@ -59,7 +59,7 @@ module Spree
     end
 
     def tag_names
-      available_tags.map(&:value)
+      tags.map(&:value)
     end
 
     private
