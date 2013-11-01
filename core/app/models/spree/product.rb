@@ -85,6 +85,7 @@ module Spree
     alias_method :images, :master_images
 
     has_many :variant_images, -> { order(:position) }, source: :images, through: :variants_including_master
+    has_many :target_images, -> { order(:position) }, source: :target_images, through: :variants_including_master
 
     accepts_nested_attributes_for :variants, allow_destroy: true
 
@@ -102,6 +103,9 @@ module Spree
 
     after_initialize :ensure_master
 
+    def variant_and_target_images
+      variant_images + target_images
+    end
 
     def first_variant_or_master
       variants[0] || master

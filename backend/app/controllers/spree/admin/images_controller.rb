@@ -39,12 +39,19 @@ module Spree
             [variant.options_text, variant.id]
           end
           @variants.insert(0, [Spree.t(:all), @product.master.id])
-          @targets = Target
         end
 
         def set_viewable
-          @image.viewable_type = 'Spree::Variant'
-          @image.viewable_id = params[:image][:viewable_id]
+          if params[:target][:id].empty?
+            @image.viewable_type = 'Spree::Variant'
+            @image.viewable_id = params[:image][:viewable_id]
+          else
+            variant = Variant.find params[:image][:viewable_id]
+            variant_target = variant.variant_targets.where(target_id: params[:target][:id]).first_or_create
+            
+            @image.viewable_id = variant_target.id
+            @image.viewable_type = 'Spree::VariantTarget'
+          end
         end
 
     end
