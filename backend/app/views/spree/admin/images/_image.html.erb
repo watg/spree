@@ -12,10 +12,11 @@
   
   <td>
     <%= form_for [:admin, @product, image], remote: true do |f| %>
+      <%= f.label :viewable_id, Spree.t(:variant) %>
       <%= f.select :viewable_id, @variants, {}, {:class => 'select2'} %><br><br>
       <%# options_text_for(image) %>
-      <%= f.label :alt, Spree.t(:alt_text) %>
-      <%= f.text_field :alt, :class => 'fullwidth' %>
+      <%= f.label :target_id, "Target" %>
+      <%= f.select :target_id, @targets, {}, {:class => 'select2'} %><br><br>
     <% end %>
   </td>           
 

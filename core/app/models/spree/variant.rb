@@ -16,8 +16,13 @@ module Spree
     has_many :stock_movements
     has_many :displayable_variants
 
+    has_many :variant_targets
+    has_many :targets, :through => :variant_targets
+
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants, class_name: "Spree::OptionValue"
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
+
+    has_many :target_images, -> { order(:position) }, source: :images, through: :variant_targets
 
     has_one :default_price,
       -> { where currency: Spree::Config[:currency] },

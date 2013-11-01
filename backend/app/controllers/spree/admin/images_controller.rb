@@ -39,6 +39,7 @@ module Spree
             [variant.options_text, variant.id]
           end
           @variants.insert(0, [Spree.t(:all), @product.master.id])
+          @targets = Target
         end
 
         def set_viewable
