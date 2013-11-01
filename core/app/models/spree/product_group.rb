@@ -1,7 +1,5 @@
 module Spree
   class ProductGroup < ActiveRecord::Base
-    TABS = [:ready_to_wear, :knit_your_own]
-
     validates :name, uniqueness: true
     validates :name, presence: true
     validates :permalink, uniqueness: true
@@ -49,7 +47,7 @@ module Spree
     end
 
     def kit_banner
-      tab(:kit).banner
+      tab(:knit_your_own).banner
     end
 
     def default_tab
