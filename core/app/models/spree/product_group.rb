@@ -58,6 +58,10 @@ module Spree
       ( tabs.where(tab_type: tab_type).first || Spree::ProductGroupTab.new(tab_type: tab_type, product_group_id: self.id))
     end
 
+    def tag_names
+      available_tags.map(&:value)
+    end
+
     private
     def set_permalink
       if self.permalink.blank? && self.name
