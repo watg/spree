@@ -48,6 +48,7 @@ module Spree
     validates :gang_member, :presence => true
     # ----- end marketplace -------
 
+    has_many :personalisations, dependent: :destroy
 
     has_one :master,
       -> { where is_master: true },
@@ -301,16 +302,6 @@ module Spree
       option_type_names = self.option_types.order(:position).map{|o| o.url_safe_name}
       option_type_names.each_with_index { |o,i| hash[o] = option_type_names[i+1] }
       hash
-    end
-
-    # TODO: make this dynamic once we need it
-    def personalisation_prices 
-       { 'GBP' => '750', 'USD' => '1000', 'EUR' => '1000'} 
-    end
-
-    # TODO: make this dynamic once we need it
-    def personalisation_colour_values 
-      [2,7,9].map{ |id|  Spree::OptionValue.find id }
     end
 
     private

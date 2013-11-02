@@ -32,16 +32,6 @@ module Spree
 
     def add_personalisations(collection)
       objects = collection.map do |params|
-        puts "VVVVVVVVVVVVVVVVVVVVVVVVVV"
-        puts "VVVVVVVVVVVVVVVVVVVVVVVVVV"
-        puts "VVVVVVVVVVVVVVVVVVVVVVVVVV"
-        puts "VVVVVVVVVVVVVVVVVVVVVVVVVV"
-        puts "VVVVVVVVVVVVVVVVVVVVVVVVVV"
-        puts "VVVVVVVVVVVVVVVVVVVVVVVVVV"
-        puts params.inspect
-        #lip.prices = params[:prices]
-        #lip.data = params[:data]
-        #lip.personalisation_id = params[:personalisation_id]
         Spree::LineItemPersonalisation.new params
       end
       self.line_item_personalisations = objects

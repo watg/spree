@@ -48,45 +48,18 @@ module Spree
     # This will return an array of hashes incase we have multiple
     # personalisations
     def extract_personalisations(hash)
-      # passed in product_personlisation_ids
-      # id: 33
-      # data: { colour: 'red', initials 'dd' }
-      # ->
-      # Validate the id 
-      #   correct product_id
-      #   for the 
-      # personalisation_id: 1 ( monogram )
-      # product_id: 33 ( zion-lion )
-      # prices { 1231 3 }
-      # data: { colours => [ 'red', 'blue' , 'orange'] , initials_length => 4 }
-      # TODO: do some validations a tthis point
-      # based on product_id
-      #          colours
-      #          number of initials
-      # e.g. product.personalisation.validate(properties)
-      #[{ 
-      #  type: 'monogram',
-      #  prices: { 
-      #      'GBP' => 750,
-      #      'USD' => 1000,
-      #      'EUR' => 1000,
-      #  },
-      #  data: {
-      #    colour: 'red',
-      #    initials: 'DD' 
-      #  }
-      #}]
-      [
+      enabled_pp_ids = hash[:products].delete(:enabled_pp_ids) || []
+      pp_ids = hash[:products].delete(:pp_ids) || {}
+      enabled_pp_ids.map do |pp_id|
+        params = pp_ids[pp_id]
+        pp = Spree::Personalisation.find pp_id
+        safe_params = pp.validate( params )
         {
-          personalisation_id: 12, 
-          prices: { 
-            'GBP' => BigDecimal.new('7.50'),
-            'USD' => BigDecimal.new('10.00'),
-            'EUR' => BigDecimal.new('10.00'),
-          },
-          data:  { colour: 'red', initials: 'DD'},
+          personalisation_id: pp_id, 
+          prices: pp.prices,
+          data: safe_params
         }
-      ]
+      end
     end
 
     # This has modifications for options and personalisations
