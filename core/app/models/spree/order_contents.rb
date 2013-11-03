@@ -11,16 +11,16 @@ module Spree
     #
     def add(variant, quantity=1, currency=nil, shipment=nil, options=nil, personalisations=nil)
       options_with_qty = (options.blank? ? [] : options)
+      uuid = generate_uuid( variant, options_with_qty, personalisations )
+
       #get current line item for variant if exists
-      line_item = Spree::LineItem.find_by_order_variant_options(order,variant,options_with_qty, personalisations)
-      
-      #add variant qty to line_item
-      add_to_line_item(line_item, variant, quantity, currency, shipment, options_with_qty, personalisations)
+      line_item = Spree::LineItem.find_by_order_id_and_variant_id_and_item_uuid( order.id, variant.id, uuid )
+      add_to_line_item(line_item, uuid, variant, quantity, currency, shipment, options_with_qty, personalisations)
     end
-    ######
     
-    # Get current line item for variant
     # Remove variant qty from line_item
+    # We need to fix the method below if we ever plan to use the api for incrementing and 
+    # decrementing line_items
     def remove(variant, quantity=1, shipment=nil)
       line_item = order.find_line_item_by_variant(variant)
 
@@ -33,10 +33,18 @@ module Spree
     
     private
 
+    def generate_uuid( variant, options_with_qty, personalisations )
+      [ 
+        variant.id,
+        Spree::LineItemPersonalisation.generate_uuid( personalisations ),
+        Spree::LineItemOption.generate_uuid( options_with_qty ),
+      ].join('_')
+    end
+
     #  Sale feature
     ## Transfert from spree extension product-assembly with options
     #
-    def add_to_line_item(line_item, variant, quantity, currency=nil, shipment=nil, options=nil, personalisations=nil)
+    def add_to_line_item(line_item, uuid, variant, quantity, currency=nil, shipment=nil, options=nil, personalisations=nil)
       currency ||= Spree::Config[:currency] # default to that if none is provided
       
       if line_item
@@ -56,6 +64,7 @@ module Spree
 
         line_item.add_options(options,currency) unless options.blank?
         line_item.add_personalisations(personalisations) unless personalisations.blank?
+        line_item.item_uuid = uuid
 
         order.line_items << line_item
 

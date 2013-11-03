@@ -26,6 +26,10 @@ module Spree
       super || DEFAULT_DATA
     end
 
+    def selected_data_to_text( selected_data )
+      "Colour: #{selected_data['colour']}, Initials: #{selected_data['initials']}"
+    end
+
     def colours
       #data[:colours].map{ |id|  Spree::OptionValue.find id }
       Spree::OptionValue.find data[:colours]

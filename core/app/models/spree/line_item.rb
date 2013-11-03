@@ -75,7 +75,7 @@ module Spree
     end
 
     def amount_all_personalisations
-      list_amount = self.line_item_personalisations.map {|p| p.prices[currency].to_i }
+      list_amount = self.line_item_personalisations.map {|p| p.amount }
       list_amount.sum
     end
 

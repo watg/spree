@@ -56,7 +56,7 @@ module Spree
         safe_params = pp.validate( params )
         {
           personalisation_id: pp_id, 
-          prices: pp.prices,
+          amount: pp.prices[currency],
           data: safe_params
         }
       end
