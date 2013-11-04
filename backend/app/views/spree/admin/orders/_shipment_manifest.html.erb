@@ -10,18 +10,26 @@
       <strong>    <%= item.variant.product.name %><br><%= "(" + variant_options(item.variant) + ")" unless item.variant.option_values.empty? %></strong>
       SKU: <%= item.variant.sku %>
       <% if item.variant.product.assembly? %>
-      <hr />
-      Gang Member Nickname: <%= item.variant.product.gang_member.nickname %>
-      <hr />
-      <ul class='assembly_parts' style="list-style:none;">
-        <% ( item.variant.required_parts_for_display ).each do |v| %>
-        <li><%= v.count_part %> x <%= v.name + " (" + v.options_text + ")" %> </li>
-        <% end %>
-        <% line_item.line_item_options.each do |o| %>
-        <li><%= o.quantity %> x <%= o.variant.name + " (" + o.variant.options_text + ")" %></li>
-        <% end %>
-      </ul>
-  
+        <hr />
+         Gang Member Nickname: <%= item.variant.product.gang_member.nickname %>
+        <hr />
+        <ul class='assembly_parts' style="list-style:none;">
+          <% ( item.variant.required_parts_for_display ).each do |v| %>
+            <li><%= v.count_part %> x <%= v.name + " (" + v.options_text + ")" %> </li>
+          <% end %>
+          <% line_item.line_item_options.each do |o| %>
+            <li><%= o.quantity %> x <%= o.variant.name + " (" + o.variant.options_text + ")" %></li>
+          <% end %>
+        </ul>
+      <% end %>
+
+      <% if !line_item.line_item_personalisations.blank? %>
+        <h6>Personalisations:</h6>
+        <ul class="personalisations" style="list-style:none;">
+          <% line_item.line_item_personalisations.each do |p| %>
+            <li> <%= p.text %> </li>
+          <% end %>
+        </ul>
       <% end %>
 
     </td>

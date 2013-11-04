@@ -1,6 +1,12 @@
 module Spree
   class Personalisation::Monogram < Personalisation
 
+#    has_many :prices, class_name: 'Spree::Price', dependent: :destroy
+    #has_many 
+    #store_accessor :data
+    #
+    after_initialize :set_defaults
+
     DEFAULT_PRICES = {
         'GBP' => BigDecimal.new('7.50'),
         'USD' => BigDecimal.new('10.00'),
@@ -8,35 +14,32 @@ module Spree
       }
 
     DEFAULT_DATA = {
-      colours: [
+      'colours' => [
         (Spree::OptionValue.find_by_name 'midnight-blue').id,
         (Spree::OptionValue.find_by_name 'checkers-tweed').id,
         (Spree::OptionValue.find_by_name 'ruby-red').id,
         (Spree::OptionValue.find_by_name 'ultra-violet').id,
         (Spree::OptionValue.find_by_name 'ivory-white').id,
-      ],
-      initials: 2
+      ].join(','),
+      'max_initials' => 2
     }
 
-    def prices
-      super || DEFAULT_PRICES
-    end
-
-    def data
-      super || DEFAULT_DATA
+    def set_defaults
+      self.data ||= DEFAULT_DATA
+      self.prices ||= DEFAULT_PRICES
     end
 
     def selected_data_to_text( selected_data )
-      "Colour: #{selected_data['colour']}, Initials: #{selected_data['initials']}"
+      colour = colours.detect{ |c| c.id == selected_data['colour'].to_i }
+      "Colour: #{colour.presentation}, Initials: #{selected_data['initials']}"
     end
 
     def colours
-      #data[:colours].map{ |id|  Spree::OptionValue.find id }
-      Spree::OptionValue.find data[:colours]
+      Spree::OptionValue.find data['colours'].split(',')
     end
 
-    def initials
-      data[:initials]
+    def max_initials
+      data['max_initials']
     end
 
     # TODO: This function should validate the params inputs agains

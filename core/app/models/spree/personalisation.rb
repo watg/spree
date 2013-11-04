@@ -8,7 +8,7 @@ module Spree
     end
 
     def price_in(currency)
-      prices[currency]
+      BigDecimal prices[currency]
     end
 
     def subunit_price_in(currency)
