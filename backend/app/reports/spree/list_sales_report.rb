@@ -2,24 +2,6 @@ module Spree
   class ListSalesReport
     include BaseReport
 
-    HEADER = %w(
-  order_id
-  number
-  line_item_id
-  created_at
-  shipped_at
-  completed_at
-  part_type
-  product_sku
-  variant_sku
-  product_name
-  product_type
-  quantity
-  state
-  returning_customer
-  email
-    ) unless defined?(HEADER)
-
     def initialize(params)
       @option_types = generate_option_types 
       @from = params[:from].blank? ? Time.now.midnight : Time.parse(params[:from])  
@@ -31,7 +13,24 @@ module Spree
     end
 
     def header
-      header = HEADER + @option_types.map { |ot| ot[0] }
+      header = %w(
+        order_id
+        number
+        line_item_id
+        created_at
+        shipped_at
+        completed_at
+        part_type
+        product_sku
+        variant_sku
+        product_name
+        product_type
+        quantity
+        state
+        returning_customer
+        email
+      )
+      header = header + @option_types.map { |ot| ot[0] }
       header = header + %w( promo1 promo2 promo3 promo4 ) 
       header
     end
@@ -127,7 +126,7 @@ module Spree
     def first_order(order) 
       if order.user || order.email
         orders_complete = completed_orders(order.user, order.email)
-        orders_complete.blank? || orders_complete.first == order
+        orders_complete.blank? || (orders_complete.order("completed_at asc").first == order)
       else
         false
       end

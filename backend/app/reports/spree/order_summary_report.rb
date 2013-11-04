@@ -32,6 +32,7 @@ module Spree
         virtual_product_pre_promo
         gang_collection_revenue_pre_promo
         r2w_revenue_pre_promo
+        patterns_revenue_pre_promo
         supplies_revenue_pre_promo
 
         billing_address_firstname 
@@ -85,6 +86,9 @@ module Spree
           # Add the optional parts
           option_costs = li.line_item_options.inject(0) { |acc,val| acc + ( val.price * val.quantity ).to_f }
           product_type_totals[ variant.product_type ] += option_costs 
+        elsif variant.product_type == 'pattern'
+          product_type_totals['pattern'] ||= 0 
+          product_type_totals['pattern'] += cost
         else
           if variant.sku.match(/^GANG-/)
             product_type_totals['gang_collection'] ||= 0 
@@ -147,6 +151,7 @@ module Spree
         product_type_totals['virtual_product'] || '',
         product_type_totals['gang_collection'] || '',
         product_type_totals['ready_to_wear'] || '',
+        product_type_totals['pattern'] || '',
         product_type_totals['part'] || '',
 
         o.billing_address.firstname,
@@ -188,7 +193,7 @@ module Spree
     def first_order(order) 
       if order.user || order.email
         orders_complete = completed_orders(order.user, order.email)
-        orders_complete.blank? || orders_complete.first == order
+        orders_complete.blank? || (orders_complete.order("completed_at asc").first == order)
       else
         false
       end
