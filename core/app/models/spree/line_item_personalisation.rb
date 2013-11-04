@@ -6,6 +6,7 @@ module Spree
     attr_accessor :presentation_id
 
     def self.generate_uuid( personalisations_params )
+      personalisations_params ||= []
       uuids = personalisations_params.sort.map do |pp|
         array = pp[:data].sort.flatten
         array.unshift pp[:personalisation_id]
