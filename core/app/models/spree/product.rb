@@ -48,6 +48,7 @@ module Spree
     validates :gang_member, :presence => true
     # ----- end marketplace -------
 
+    has_many :personalisations, dependent: :destroy
 
     has_one :master,
       -> { where is_master: true },
