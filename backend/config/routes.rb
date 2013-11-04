@@ -97,6 +97,8 @@ Spree::Core::Engine.routes.draw do
       end
     end
 
+    resources :print_jobs, :only => [:index, :show]
+
     resources :shipping_manifests
 
     resources :orders do

@@ -50,7 +50,9 @@ module Spree
     end
 
     has_many :parcels
-    
+
+    belongs_to :invoice_print_job, class_name: "PrintJob"
+    belongs_to :image_sticker_print_job, class_name: "PrintJob"
 
     accepts_nested_attributes_for :line_items
     accepts_nested_attributes_for :bill_address
@@ -114,8 +116,8 @@ module Spree
         to_be_packed_and_shipped.where('batch_sticker_print_date IS NULL AND batch_invoice_print_date IS NOT NULL')
       end
 
-      def last_batch_id_today
-        last = where(:batch_invoice_print_date => Date.today).order("batch_print_id DESC").first
+      def last_batch_id
+        last = order("batch_print_id DESC").first
         last ? last.batch_print_id.to_i : 0
       end
 
@@ -130,7 +132,7 @@ module Spree
       if user
         if last_order = user.orders.complete.last
           if last_order.ship_address and last_order.ship_address.valid?
-            return last_order.ship_address.dup 
+            return last_order.ship_address.dup
           end
         end
       end
@@ -141,7 +143,7 @@ module Spree
       if user
         if last_order = user.orders.complete.last
           if last_order.bill_address and last_order.bill_address.valid?
-            return last_order.bill_address.dup 
+            return last_order.bill_address.dup
           end
         end
       end
@@ -683,7 +685,7 @@ module Spree
     def shipping_eq_billing_address?
       (bill_address.empty? && ship_address.empty?) || bill_address.same_as?(ship_address)
     end
-   
+
 
     def can_attempt_payment?
       payments.select(&:pending?).blank?
