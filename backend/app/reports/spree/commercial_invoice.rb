@@ -3,7 +3,6 @@ module Spree
     def to_pdf(order)
 
       logopath = File.join(Rails.root, 'app/assets/images/', 'logo-watg-135x99.png' )
-      initial_y = cursor
       initialmove_y = 5
       address_x = 35
       invoice_header_x = 325
@@ -16,7 +15,6 @@ module Spree
       font "Helvetica"
       font_size font_size
 
-      #start with EON Media Group
       text_box "WOOL AND THE GANG Ltd", :at => [address_x,  cursor]
       move_down lineheight_y
       text_box "Unit C106", :at => [address_x,  cursor]
@@ -91,6 +89,7 @@ module Spree
           item.variant.required_parts_for_display.each do |p|
             invoice_services_data << [
               '-',
+              '-',
               'part',
               p.name,
               p.option_values.empty? ? '' : p.options_text,
@@ -102,7 +101,8 @@ module Spree
           item.line_item_options.each do |p|
             invoice_services_data << [
               '-',
-              'part',
+              '-',
+              'optional_part',
               p.variant.name,
               p.variant.option_values.empty? ? '' : p.variant.options_text,
               '-',
@@ -110,6 +110,19 @@ module Spree
               '-',
             ]
           end
+          item.line_item_personalisations.each do |p|
+            invoice_services_data << [
+              '-',
+              '-',
+              'personalisation',
+              p.name,
+              p.label,
+              '-',
+              '-',
+              '-',
+            ]
+          end
+
 
         end
 

@@ -3,6 +3,8 @@ module Spree
     belongs_to :line_item, class_name: "Spree::LineItem"
     belongs_to :personalisation, class_name: "Spree::Personalisation"
 
+    delegate :name, :to => :personalisation
+
     attr_accessor :presentation_id
 
     def self.generate_uuid( personalisations_params )
@@ -17,6 +19,10 @@ module Spree
 
     def text
       "#{personalisation.name.capitalize} - #{personalisation.selected_data_to_text( data )}"
+    end
+
+    def data_to_text
+      personalisation.selected_data_to_text( data )
     end
 
   end
