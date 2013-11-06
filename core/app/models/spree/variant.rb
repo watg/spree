@@ -16,13 +16,11 @@ module Spree
     has_many :stock_movements
     has_many :displayable_variants
 
-    has_many :variant_targets
-    has_many :targets, :through => :variant_targets
-
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants, class_name: "Spree::OptionValue"
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
 
-    has_many :target_images, -> { order(:position) }, source: :images, through: :variant_targets
+    has_many :targets, class_name: 'Spree::VariantTarget', dependent: :destroy
+    has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :images, through: :targets
 
     has_one :default_price,
       -> { where currency: Spree::Config[:currency] },
@@ -69,6 +67,12 @@ module Spree
         _option_values = Spree::OptionValue.select(:id).where(name: option_value_name_list).map(&:id).compact.sort
         product.variants.detect {|v| v.option_values.map(&:id).sort == _option_values}
       end
+    end
+
+    def images_in(target_name)
+      targets.joins(:images, :target).
+      select("spree_assets.*").
+      where(spree_targets: {name: target_name})
     end
 
     def visible?

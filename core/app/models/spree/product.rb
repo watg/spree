@@ -34,6 +34,8 @@ module Spree
     has_many :taxons, through: :classifications
     has_and_belongs_to_many :promotion_rules, join_table: :spree_products_promotion_rules
 
+    has_many :targets, class_name: 'Spree::ProductTarget', dependent: :destroy
+    
     belongs_to :tax_category,      class_name: 'Spree::TaxCategory'
     belongs_to :shipping_category, class_name: 'Spree::ShippingCategory'
     belongs_to :gang_member,       class_name: 'Spree::GangMember'
@@ -85,9 +87,10 @@ module Spree
     alias_method :images, :master_images
 
     has_many :variant_images, -> { order(:position) }, source: :images, through: :variants_including_master
-    has_many :target_images, -> { order(:position) }, source: :target_images, through: :variants_including_master
+    has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :target_images, through: :variants_including_master
 
     accepts_nested_attributes_for :variants, allow_destroy: true
+    accepts_nested_attributes_for :targets
 
     validates :name, presence: true
     validates :permalink, presence: true

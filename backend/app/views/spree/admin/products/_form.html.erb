@@ -99,6 +99,21 @@
 
   <div class="twelve columns alpha omega">
     <fieldset>
+      <legend align="center"><%= "Description for Targets" %></legend>
+      <%= f.fields_for :targets do |builder| %>
+        
+          <%= builder.label :target_id, "Target" %>
+          <%= builder.collection_select(:target_id, Spree::Target.all, :id, :name, { :include_blank => Spree.t('match_choices.none') }, { :class => 'select2' }) %>
+
+            <%= builder.label :description, Spree.t(:description) %>
+            <%= builder.text_area :description, {:rows => "10", :class => 'fullwidth'} %>
+
+      <% end %>
+    </fieldset>
+  </div>
+
+  <div class="twelve columns alpha omega">
+    <fieldset>
       <legend align="center"><%= Spree.t(:prices) %></legend>
       <%= f.field_container :prices do %>
         <%= render :partial => 'spree/admin/shared/prices', :locals => {:variant => @product.master} %>
