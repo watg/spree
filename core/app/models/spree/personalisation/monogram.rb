@@ -34,6 +34,10 @@ module Spree
       "Colour: #{colour.presentation}, Initials: #{selected_data['initials']}"
     end
 
+    def options_text
+      "Colours: #{colours.map(&:presentation).join(', ')}\n Max Initials: #{max_initials}"
+    end
+
     def colours
       Spree::OptionValue.find data['colours'].split(',')
     end

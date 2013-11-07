@@ -1,12 +1,42 @@
 module Spree
   module Admin
-    class VariantsController < ResourceController
+    class PersonalisationsController < ResourceController
       belongs_to 'spree/product', :find_by => :permalink
-      new_action.before :new_before
+
+
+      # TODO:
+      # 1. Services for create
+      # 2. dynamic new
+      # 3. tests
+      # 4. form for monogram
+      # 5. image upload
+
+      # We can only create a monogram for now, so let's just hardcode
+      # it 
+      def new
+        @personalisation = Spree::Personalisation::Monogram.new
+      end
 
       def create
+        @personalisation = params[:personalisation][:type].constantize.new
+        @personalisation.product_id = @product.id
+        @personalisation.save
+      end
+
+      def destroy
+        @personalisation = @product.personalisations.find(params[:id])
+        if @personalisation.destroy
+          flash[:success] = Spree.t(:successfully_removed, :resource => Spree.t(:personalisations))
+        end
+        respond_to do |format|
+          format.html { redirect_to spree.admin_product_personalisations_path(@product)}
+          format.js   { render :layout => false }
+        end
+      end
+
+      def xcreate
         invoke_callbacks(:create, :before)
-        outcome = Spree::CreateVariantService.run(product: @product, details: params[:variant], prices: params[:prices])
+        outcome = Spree::CreatePersonalisationService.run(product: @product, params: params[:personalisation])
         if outcome.success?
           create_success(@object)
         else
@@ -14,37 +44,16 @@ module Spree
         end
       end
 
-      def update
-        outcome = Spree::UpdateVariantService.run(variant: @variant, details: params[:variant], prices: params[:prices])
+      def xupdate
+        outcome = Spree::UpdatePersonalisationService.run(personalisation: @personalisations, details: params[:personalisations])
         if outcome.success?
-          update_success(@variant)
+          update_success(@personalisation)
         else
-          update_failed(@variant, outcome.errors.message_list.join(', '))
+          update_failed(@personalisation, outcome.errors.message_list.join(', '))
         end
       end
 
-      # override the destory method to set deleted_at value
-      # instead of actually deleting the product.
-      def destroy
-        @variant = Variant.find(params[:id])
-        if @variant.destroy
-          flash[:success] = Spree.t('notice_messages.variant_deleted')
-        else
-          flash[:success] = Spree.t('notice_messages.variant_not_deleted')
-        end
-
-        respond_with(@variant) do |format|
-          format.html { redirect_to admin_product_variants_url(params[:product_id]) }
-          format.js  { render_js_for_destroy }
-        end
-      end
-
-      protected
-
-      def new_before
-        @variant.attributes = @product.master.attributes.except('id', 'created_at', 'deleted_at', 'updated_at', 'is_master')
-        @variant.prices = @product.master.prices.dup
-      end
+      private
 
       def create_success(object)
         flash[:success] = flash_message_for(object, :successfully_created)
@@ -76,17 +85,6 @@ module Spree
           format.html { redirect_to edit_admin_product_variant_url(object.product.permalink, object.id) }
           format.js   { render :layout => false }
         end
-      end
-
-      def collection
-        @deleted = (params.key?(:deleted) && params[:deleted] == "on") ? "checked" : ""
-
-        if @deleted.blank?
-          @collection ||= super
-        else
-          @collection ||= Variant.where(:product_id => parent.id).deleted
-        end
-        @collection
       end
     end
   end

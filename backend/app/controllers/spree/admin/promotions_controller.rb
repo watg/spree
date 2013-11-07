@@ -17,26 +17,7 @@ module Spree
 
 
         def load_event_names
-          Rails.logger.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-          Rails.logger.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-          Rails.logger.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-          Rails.logger.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-          Rails.logger.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-          Rails.logger.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-          Rails.logger.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-          Rails.logger.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-          Rails.logger.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-          Rails.logger.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-          Rails.logger.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-          Rails.logger.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-          Rails.logger.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-          Rails.logger.info("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
           @event_names = Spree::Activator.event_names.map { |name| [Spree.t("events.#{name}"), name] }
-          Rails.logger.info("aslkjalskdjalskdjalksjdlkasjd")
-          Rails.logger.info("aslkjalskdjalskdjalksjdlkasjd")
-          Rails.logger.info("aslkjalskdjalskdjalksjdlkasjd")
-          Rails.logger.info("aslkjalskdjalskdjalksjdlkasjd")
-          Rails.logger.info("aslkjalskdjalskdjalksjdlkasjd")
         end
     end
   end

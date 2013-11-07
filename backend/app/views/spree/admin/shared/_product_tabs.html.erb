@@ -28,8 +28,11 @@
         <%= link_to_with_icon 'icon-tasks', Spree.t(:stock_management), stock_admin_product_url(@product) %>
       <% end if can?(:stock, Spree::Product) %>
       </li>
-      <li<%== ' class="active"' if current == 'Prices' %>>
+      <li<%== 'class="active"' if current == 'Prices' %>>
         <%= link_to_with_icon 'icon-money', t(:Prices),  admin_product_prices_url(@product) %>
+      </li>
+      <li<%== 'class="active"' if current == 'Personalisations' %>>
+        <%= link_to_with_icon 'icon-edit', t(:Personalisations),  admin_product_personalisations_url(@product) %>
       </li>
     </ul>
   </nav>

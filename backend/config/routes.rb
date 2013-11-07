@@ -31,6 +31,7 @@ Spree::Core::Engine.routes.draw do
     resources :products do
 
       resources :prices, :only => [:index, :create]
+      resources :personalisations
 
       resources :product_properties do
         collection do
