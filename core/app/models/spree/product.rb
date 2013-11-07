@@ -90,7 +90,7 @@ module Spree
     has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :target_images, through: :variants_including_master
 
     accepts_nested_attributes_for :variants, allow_destroy: true
-    accepts_nested_attributes_for :targets
+    accepts_nested_attributes_for :targets, allow_destroy: true
 
     validates :name, presence: true
     validates :permalink, presence: true

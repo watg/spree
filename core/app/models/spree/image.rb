@@ -12,9 +12,6 @@ module Spree
                       #convert_options: { all: '-strip -auto-orient -colorspace sRGB' }
                       convert_options: { all: '-strip -auto-orient ' }
 
-    attr_writer :variant_id, :target_id
-    before_save :set_viewable
-
     # save the w,h of the original image (from which others can be calculated)
     # we need to look at the write-queue for images which have not been saved yet
     after_post_process :find_dimensions
@@ -30,37 +27,6 @@ module Spree
     Spree::Image.attachment_definitions[:attachment][:default_url] = Spree::Config[:attachment_default_url]
     Spree::Image.attachment_definitions[:attachment][:default_style] = Spree::Config[:attachment_default_style]
 
-
-    def set_viewable
-      if target_id
-        v = Variant.find variant_id
-        variant_target = v.targets.where(target_id: target_id).first_or_create
-        
-        self.viewable_id = variant_target.id
-        self.viewable_type = 'Spree::VariantTarget'
-      else
-        self.viewable_id = variant_id
-        self.viewable_type = 'Spree::Variant'
-      end
-    end
-
-    def variant_id
-      if @variant_id
-        @variant_id
-      elsif viewable.kind_of? Spree::Variant
-        viewable.id
-      elsif viewable.kind_of? Spree::VariantTarget
-        viewable.variant_id
-      end
-    end
-
-    def target_id
-      if @target_id 
-        @target_id
-      elsif viewable.kind_of? Spree::VariantTarget
-        viewable.target_id
-      end
-    end
 
     #used by admin products autocomplete
     def mini_url

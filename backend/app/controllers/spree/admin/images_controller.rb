@@ -42,9 +42,21 @@ module Spree
         end
 
         def set_viewable
-          @image.viewable_type = 'Spree::Variant'
-          @image.viewable_id = params[:image][:viewable_id]
+          if image[:target_id].blank?         
+            image[:viewable_id] = image[:variant_id]
+            image[:viewable_type] = 'Spree::Variant'
+          else
+            image[:viewable_id] = Variant.find(image[:variant_id]).targets.where(target_id: image[:target_id]).first_or_create.id
+            image[:viewable_type] = 'Spree::VariantTarget'
+          end
+
+          image.except!(:target_id, :variant_id)
         end
+
+        def image
+          params[:image]
+        end
+
 
     end
   end

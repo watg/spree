@@ -13,10 +13,11 @@
   <td style="vertical-align: top">
     <%= form_for [:admin, @product, image], remote: true do |f| %>
       <%= f.label :variant_id, Spree.t(:variant) %><br>
-      <%= f.select :variant_id, @variants, {}, :class => 'select2' %><br><br>
+      <%= select_tag 'image[variant_id]', options_for_select(@variants, get_variant_id(image), :class => 'select3' %><br><br>
       
       <%= f.label :target_id, "Target" %><br>
-      <%= f.collection_select :target_id, Spree::Target.all, :id, :name, {include_blank: true}, :class => 'select2'%>
+      <%= select_tag 'image[target_id]', options_from_collection_for_select(Spree::Target.all, 'id', 'name', image.try(:target_id)), include_blank: true, class: 'select3' %>
+
     <% end %>
   </td>           
 

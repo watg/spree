@@ -100,15 +100,15 @@
   <div class="twelve columns alpha omega">
     <fieldset>
       <legend align="center"><%= "Description for Targets" %></legend>
-      <%= f.fields_for :targets do |builder| %>
-        
-          <%= builder.label :target_id, "Target" %>
-          <%= builder.collection_select(:target_id, Spree::Target.all, :id, :name, { :include_blank => Spree.t('match_choices.none') }, { :class => 'select2' }) %>
-
-            <%= builder.label :description, Spree.t(:description) %>
-            <%= builder.text_area :description, {:rows => "10", :class => 'fullwidth'} %>
-
-      <% end %>
+      <div id="product_targets" class="row">
+        <%= f.fields_for :targets do |builder| %>
+          <%= render 'target_fields', f: builder %>
+        <% end %>
+      </div>
+      <div class="form-buttons filter-actions actions">
+        <%= link_to_add_fields "Add Description", f, :targets %>
+      </div>
+      <br>
     </fieldset>
   </div>
 
