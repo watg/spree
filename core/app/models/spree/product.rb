@@ -114,6 +114,10 @@ module Spree
       variants[0] || master
     end
 
+    def all_variants_or_master
+      variants.blank? ? [master] : variants
+    end
+
     # from variant options
     def option_values
       @_option_values ||= Spree::OptionValue.for_product(self).order(:position).sort_by {|ov| ov.option_type.position }

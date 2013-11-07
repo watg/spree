@@ -1,0 +1,42 @@
+<% displayed ||= false -%>
+
+  <table class="index">
+    <colgroup>
+      <col style="width: 25%" />
+      <col style="width: 40%" />
+      <col style="width: 30%" />
+      <col style="width: 5%" />
+    </colgroup>
+    <thead data-hook="variants_header">
+      <tr>
+        <th><%= Spree.t(:image) %></th>
+        <th><%= Spree.t(:variant_combination) %></th>
+        <th><%= Spree.t(:description) %></th>
+        <th><%= Spree.t(:visible) %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if displayed -%>
+      <tr class="empty">
+	<td colspan="4">
+	  <p><em>No variants</em></p>
+	</td>
+      </tr>
+      <% end -%>
+      <% if variants.present? -%>
+      <% variants.each do |variant| %>
+        <tr class="variant">
+          <td>
+            <% if variant.images.any? %>
+              <%= image_tag(variant.images.first.attachment.url(:listing)) %>
+            <% else %>
+              No image
+            <% end %>
+          </td>
+          <td><%= variant.is_master? ? "Master variant" : variant.options_text %></td>
+          <td><p title="<%= variant.description %>"><%= truncate(variant.description) %></td>
+          <td><%= check_box_tag 'variant_ids[]', variant.id, displayed, class: "display-toggle" %></td>
+	<% end %>
+	<% end %>
+    </tbody>
+  </table>

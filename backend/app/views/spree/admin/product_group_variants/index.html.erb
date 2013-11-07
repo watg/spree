@@ -1,0 +1,31 @@
+<% content_for :page_actions do %>
+  <li><%= button_link_to "Back to #{@product_group.name}", edit_admin_product_group_url(@product_group), :icon => 'icon-arrow-left' %></li>
+<% end %>
+
+<% content_for :page_title do %>
+  <%= Spree.t(:variants_for) %> &ldquo;<%= @product_group.name %>&rdquo;
+<% end %>
+
+<%= render :partial => 'spree/admin/shared/product_sub_menu' %>
+
+<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @product_group } %>
+
+<%= form_tag admin_product_group_product_group_variants_path do %>
+<% @product_types.each do |product_type| %>
+<section class="product-type">
+  <h2><%= product_type.humanize %></h2>
+  <div class="displayed">
+    <h5>Displayed</h5>
+    <%= render partial: "variants", locals: { variants: @product_group_variants[product_type], displayed: true } %>
+  </div>
+  <div class="available">
+    <h5>Available</h5>
+    <%= render partial: "variants", locals: { variants: @available_variants[product_type] } %>
+  </div>
+</section>
+<% end %>
+
+<p>
+  <%= submit_tag "Save" %>
+</p>
+<% end -%>
