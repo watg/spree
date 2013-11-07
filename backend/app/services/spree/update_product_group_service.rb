@@ -26,7 +26,8 @@ module Spree
       tabs.each do |tab_type, data|
         tab = product_group.tab(tab_type)
         update_tab_banner(tab, data)
-        tab.position    = data[:position]
+        tab.position = data[:position]
+        tab.background_color_code = data[:background_color_code]
         tab.save!
       end
     end
