@@ -3,7 +3,6 @@ module Spree
     TYPES = [:ready_to_wear, :knit_your_own]
     belongs_to :product_group
 
-    validates_uniqueness_of :default,  scope: :product_group_id, if: Proc.new {|tab| tab.default }
     validates_uniqueness_of :position, scope: :product_group_id
 
     has_attached_file :banner,

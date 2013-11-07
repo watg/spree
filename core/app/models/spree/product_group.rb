@@ -2,6 +2,7 @@ module Spree
   class ProductGroup < ActiveRecord::Base
     validates :name, uniqueness: true
     validates :name, presence: true
+    validates :title, presence: true
     validates :permalink, uniqueness: true
 
     has_many :products

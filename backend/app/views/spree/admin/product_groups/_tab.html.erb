@@ -1,4 +1,4 @@
-<div class="eight columns" style="margin-left: 0;">
+<div class="six columns" style="margin-left: 0;">
 
   <fieldset><legend><%= tab.tab_type %></legend>
     <% if tab.banner_mini_url %>
@@ -16,28 +16,5 @@
       </div>
     </div>
 
-    <div class="clear"></div>
-
-    <div data-hook='description' class='field'>
-    <%= label_tag Spree.t(:description) %><br />
-    <%= text_area_tag "tabs[#{tab.tab_type}][description]", tab.description, class: 'fullwidth' %>
-    </div>
-
   </fieldset>
-<% if tab.tab_type == 'ready_to_wear' %>
-    <div class="clear"></div>
-
-    <div class="fullwidth columns alpha omega">
-      <fieldset>
-        <legend align="center">Visible Tags</legend>
-        <% @product_group.available_tags.each do |tag| %>
-        <label class="tag">
-          <%= hidden_field_tag "product_group[tags][]" %>
-          <%= check_box_tag "product_group[tags][]", tag.id, @product_group.tags.include?(tag), :id => "product_group_tags_#{tag.id}" %>
-          <%= tag.value %>
-        </label>
-        <% end %>
-      </fieldset>
-    </div>
-<% end %>
 </div>
