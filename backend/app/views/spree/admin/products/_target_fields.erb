@@ -1,0 +1,16 @@
+<div class="product_description six columns alpha" >
+  <%= f.label :target_id, "Target: ", style: "margin-right: 10px" %>
+  <% if f.object.new_record? %>
+    <%= f.collection_select(:target_id, Spree::Target.not_in(@product), :id, :name, { :prompt => "Choose target" }, { style: "width: 260px"}) %>
+  <% else %>
+    <strong><%= f.object.target.name %></strong>
+  <% end %>
+
+  <br><br>
+  <%= f.label :description, Spree.t(:description) %>
+  <%= f.text_area :description, {:rows => "10", :class => ''} %>
+  
+  <%= f.hidden_field :_destroy %>
+  <%= link_to_with_icon 'icon-trash', "Delete Description", "#", class: "remove_description" %>
+  <br><br>
+</div>
