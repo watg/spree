@@ -20,7 +20,7 @@ module Spree
         flash[:success] = flash_message_for(product_group, :successfully_updated)
 
         respond_with(product_group) do |format|
-          format.html { redirect_to spree.admin_product_groups_url }
+          format.html { redirect_to spree.edit_admin_product_group_url(product_group) }
           format.js   { render :layout => false }
         end
       end

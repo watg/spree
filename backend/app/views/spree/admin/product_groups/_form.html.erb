@@ -16,13 +16,21 @@
   <%= f.error_message_on :permalink %>
 <% end %>
 
-<%= f.field_container :default_tab do %>
-  <%= f.label :default_tab, Spree.t(:default_tab) %> <span class="required">*</span><br />
-  <%= select_tag('product_group[default_tab]', options_for_select(Spree::ProductGroupTab::TYPES, selected: @product_group.default_tab.try(:tab_type)), { :class => 'select2 title' }) %>
-<% end %>
-
 <% Spree::ProductGroupTab::TYPES.each_with_index do |tab_type, position| %>
 <%= render :partial => 'tab', :locals => {:tab => @product_group.tab(tab_type), :position => position} %>
 <% end %>
 
 <div class="clear"></div>
+
+<div class="fullwidth columns alpha omega">
+  <fieldset>
+    <legend align="center">Visible Tags</legend>
+    <% @product_group.available_tags.each do |tag| %>
+    <label class="tag">
+      <%= hidden_field_tag "product_group[tags][]" %>
+      <%= check_box_tag "product_group[tags][]", tag.id, @product_group.tags.include?(tag), :id => "product_group_tags_#{tag.id}" %>
+      <%= tag.value %>
+    </label>
+    <% end %>
+  </fieldset>
+</div>

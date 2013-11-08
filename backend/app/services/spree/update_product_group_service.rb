@@ -26,20 +26,14 @@ module Spree
       tabs.each do |tab_type, data|
         tab = product_group.tab(tab_type)
         update_tab_banner(tab, data)
-        make_tab_default(tab, details)
-        tab.position    = data[:position]
-        tab.description = data[:description]
+        tab.position = data[:position]
+        tab.background_color_code = data[:background_color_code]
         tab.save!
       end
     end
 
     def update_tab_banner(tab, data)
       tab.banner = data[:banner] unless data[:banner].blank?
-      tab
-    end
-
-    def make_tab_default(tab, details)
-      tab.make_default(save: false) if tab.tab_type.to_s == details[:default_tab]
       tab
     end
 

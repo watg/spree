@@ -3,8 +3,8 @@ module Spree
     TYPES = [:ready_to_wear, :knit_your_own]
     belongs_to :product_group
 
-    validates_uniqueness_of :default,  scope: :product_group_id, if: Proc.new {|tab| tab.default }
     validates_uniqueness_of :position, scope: :product_group_id
+    validates :background_color_code, format: { with: /\A[A-Fa-f0-9]{6}\z/ }, allow_blank: true
 
     has_attached_file :banner,
       :styles        => { large: "3200x520>", mini: '320x52>' },

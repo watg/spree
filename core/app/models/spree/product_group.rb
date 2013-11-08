@@ -2,6 +2,7 @@ module Spree
   class ProductGroup < ActiveRecord::Base
     validates :name, uniqueness: true
     validates :name, presence: true
+    validates :title, presence: true
     validates :permalink, uniqueness: true
 
     has_many :products
@@ -52,12 +53,20 @@ module Spree
       tab(:ready_to_wear).banner
     end
 
+    def ready_to_wear_background_color
+      tab(:ready_to_wear).background_color_code
+    end
+
     def kit_product
       products.where(product_type: :kit).first
     end
 
     def kit_banner
       tab(:knit_your_own).banner
+    end
+
+    def kit_background_color
+      tab(:knit_your_own).background_color_code
     end
 
     def default_tab
