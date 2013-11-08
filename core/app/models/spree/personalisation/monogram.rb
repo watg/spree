@@ -3,7 +3,8 @@ module Spree
 
 #    has_many :prices, class_name: 'Spree::Price', dependent: :destroy
     #has_many 
-    #store_accessor :data
+    store_accessor :data, :max_initials
+    store_accessor :data, :colours
     #
     after_initialize :set_defaults
 

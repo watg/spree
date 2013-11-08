@@ -20,15 +20,16 @@
     </fieldset>
   <% end %>
 
-  <fieldset class="no-border-top">
+  <%= form_tag spree.update_all_admin_product_personalisations_path(@product) do %>
+    <fieldset class="no-border-top">
     <div id="personalisations" class="filter_list row">
       <% if @product.personalisations.any? %>
         <%= render :partial => 'personalisation', :collection => @product.personalisations, :locals => {} %>
-      <% else %>
+    <% else %>
         <div class="no-objects-found">
-          <%= Spree.t(:no_personalisations_added) %>
-        </div>
-      <% end %>
+        <%= Spree.t(:no_personalisations_added) %>
+      </div>
+    <% end %>
     </div>
 
     <div class="personalisation-update filter-actions actions">
@@ -36,6 +37,7 @@
     </div>
 
   </fieldset>
+  <% end %>
 
 </fieldset>
 
