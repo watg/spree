@@ -33,7 +33,7 @@ module Spree
 
     @@checkout_attributes = [:email, :use_billing, :shipping_method_id, :coupon_code, :special_instructions]
 
-    @@image_attributes = [:alt, :attachment, :position, :viewable_type, :viewable_id, :variant_id, :target_id]
+    @@image_attributes = [:alt, :attachment, :position, :viewable_type, :viewable_id]
 
     @@inventory_unit_attributes = [:shipment, :variant_id]
 

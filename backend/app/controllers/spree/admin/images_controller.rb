@@ -3,6 +3,9 @@ module Spree
     class ImagesController < ResourceController
       before_filter :load_data
 
+      create.before :set_viewable
+      update.before :set_viewable
+
       def s3_callback
         callback_params = {
           attachment_file_name: params[:filename], 
@@ -14,8 +17,24 @@ module Spree
         @outcome = Spree::UploadImageToS3Service.run(callback_params)
       end
 
-      create.before :set_viewable
-      update.before :set_viewable
+      def update
+        invoke_callbacks(:update, :before)
+        puts "------------------------------------"
+        puts params[:image]
+        puts "------------------------------------"
+        outcome = Spree::UpdateImageService.run(params[:image], image: Spree::Image.find(params[:id]))
+        if outcome.success?
+          invoke_callbacks(:update, :after)
+          flash[:success] = flash_message_for(outcome.result, :successfully_updated)
+          respond_with(outcome.result) do |format|
+            format.html { redirect_to location_after_save }
+            format.js   { render :layout => false }
+          end
+        else
+          invoke_callbacks(:update, :fails)
+          respond_with(outcome.errors.message_list)
+        end
+      end
 
       private
 
@@ -42,21 +61,9 @@ module Spree
         end
 
         def set_viewable
-          if image[:target_id].blank?         
-            image[:viewable_id] = image[:variant_id]
-            image[:viewable_type] = 'Spree::Variant'
-          else
-            image[:viewable_id] = Variant.find(image[:variant_id]).targets.where(target_id: image[:target_id]).first_or_create.id
-            image[:viewable_type] = 'Spree::VariantTarget'
-          end
-
-          image.except!(:target_id, :variant_id)
+          @image.viewable_type = 'Spree::Variant'
+          @image.viewable_id = params[:image][:viewable_id]
         end
-
-        def image
-          params[:image]
-        end
-
 
     end
   end
