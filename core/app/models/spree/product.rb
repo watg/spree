@@ -118,10 +118,12 @@ module Spree
       variants.blank? ? [master] : variants
     end
 
+    # suggestion for query improvement @Martin
+    has_many :option_values, -> { order(:position) }, through: :variants
     # from variant options
-    def option_values
-      @_option_values ||= Spree::OptionValue.for_product(self).order(:position).sort_by {|ov| ov.option_type.position }
-    end
+    # def option_values
+    #   @_option_values ||= Spree::OptionValue.for_product(self).order(:position).sort_by {|ov| ov.option_type.position }
+    # end
 
     def grouped_option_values
       @_grouped_option_values ||= option_values.group_by(&:option_type)
