@@ -84,6 +84,7 @@ module Spree
     alias_method :images, :master_images
 
     has_many :variant_images, -> { order(:position) }, source: :images, through: :variants_including_master
+    has_many :personalisation_images, -> { order(:position) }, source: :images, through: :personalisations
 
     accepts_nested_attributes_for :variants, allow_destroy: true
 

@@ -2,6 +2,7 @@ module Spree
   class Personalisation < ActiveRecord::Base
 
     belongs_to :product, class_name: 'Spree::Product'
+    has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
 
     def name
       self.class.name.split('::').last.downcase
