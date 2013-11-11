@@ -1,11 +1,8 @@
 module Spree
   class Personalisation::Monogram < Personalisation
 
-#    has_many :prices, class_name: 'Spree::Price', dependent: :destroy
-    #has_many 
     store_accessor :data, :max_initials
     store_accessor :data, :colours
-    #
     after_initialize :set_defaults
 
     DEFAULT_PRICES = {
@@ -14,14 +11,13 @@ module Spree
         'EUR' => BigDecimal.new('10.00'),
       }
 
+    DEFAULT_COLOURS = [ 'midnight-blue', 'checkers-tweed', 'ruby-red', 'ultra-violet', 'ivory-white' ]
+
     DEFAULT_DATA = {
-      'colours' => [
-        (Spree::OptionValue.find_by_name 'midnight-blue').id,
-        (Spree::OptionValue.find_by_name 'checkers-tweed').id,
-        (Spree::OptionValue.find_by_name 'ruby-red').id,
-        (Spree::OptionValue.find_by_name 'ultra-violet').id,
-        (Spree::OptionValue.find_by_name 'ivory-white').id,
-      ].join(','),
+      'colours' => DEFAULT_COLOURS.map do |c| 
+        o = Spree::OptionValue.find_by_name c 
+        !o.nil? ? o.id : nil
+      end.compact.join(','),
       'max_initials' => 2
     }
 
