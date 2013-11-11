@@ -58,6 +58,8 @@
 
     <tbody id="images_table_body">
       <%= render partial: 'image', collection: @product.variant_images %>
+
+      <%= render partial: 'image', collection: @product.personalisation_images %>
     </tbody>
   </table>
 
