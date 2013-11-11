@@ -12,10 +12,24 @@
   
   <td>
     <%= form_for [:admin, @product, image], remote: true do |f| %>
-      <%= f.select :viewable_id, @variants, {}, {:class => 'select2'} %><br><br>
-      <%# options_text_for(image) %>
-      <%= f.label :alt, Spree.t(:alt_text) %>
-      <%= f.text_field :alt, :class => 'fullwidth' %>
+      
+      <% if image.viewable_type.kind_of? Spree::Personalisation %>
+        <%= check_box_tag :activate_personalization, value: 1 %>
+      <% else %>
+        <%= check_box_tag :activate_personalization, value: 0 %>
+      <% end %>
+
+
+      <%= f.label :variant_id, Spree.t(:variant) %><br>
+      <%= select_tag 'image[variant_id]', options_for_select(@variants, get_variant_id(image)), :class => 'select3' %>
+      <br><br>
+
+      <div id="image_personalisation">
+        <%= f.label :personalisation, 'personalisation: ' %>
+        <%= select_tag 'image[personalisation_id]', options_for_select( @product.personalisations.map {|p| [p.name, p.id]}, get_personalisation_id(image) ), { :include_blank => Spree.t('match_choices.none'), :class => 'select3 fullwidth'} %>
+      </div>
+      <br><br>
+      
     <% end %>
   </td>           
 
