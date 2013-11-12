@@ -88,16 +88,17 @@ module Spree
           invoice_header_data = [ 
             ["Invoice #", order.number ],
             ["Invoice Date", Time.now.strftime("%Y/%m/%d") ],
+            ["Order Complete  Date", order.completed_at.strftime("%Y/%m/%d") ],
             ["Amount Due",   order.display_total.to_s ]
           ]
 
 
           pdf.table(invoice_header_data, :position => invoice_header_x, :width => 215) do
-            style(row(0..1).columns(0..1), :padding => [1, 5, 1, 5], :borders => [])
-            style(row(2), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
-            style(column(1), :align => :right)
-            style(row(2).columns(0), :borders => [:top, :left, :bottom])
-            style(row(2).columns(1), :borders => [:top, :right, :bottom])
+            style(row(0..2).columns(0..1), :padding => [1, 5, 1, 5], :borders => [])
+            style(row(3), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
+            style(column(2), :align => :right)
+            style(row(3).columns(0), :borders => [:top, :left, :bottom])
+            style(row(3).columns(1), :borders => [:top, :right, :bottom])
           end
 
           pdf.move_down 45
