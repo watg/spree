@@ -11,7 +11,7 @@
   </td>
   
   <td>
-    <%= form_tag spree.admin_product_image_path(@product,image), remote: true, :method => :put, :id => "edit_image_#{image.id}" do %>
+    <%= form_tag spree.admin_product_image_path(@product,image), remote: true, :method => :put, :class => "edit_image", :id => "edit_image_#{image.id}" do %>
 
     <% personalisation = ( image.viewable_type == 'Spree::Personalisation' ) %>
     <%= label_tag :toggle_variant_personalisation, 'Toggle variant / personalisation' %><br>
