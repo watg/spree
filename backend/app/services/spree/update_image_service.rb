@@ -9,6 +9,7 @@ module Spree
       integer :variant_id
       string :target_id, empty: true
       string :personalisation_id, empty: true
+      string :activate_personalisation, empty: true
       string :alt
     end
 
@@ -24,7 +25,7 @@ module Spree
     private
 
     def set_viewable
-      if personalisation_id.present?
+      if personalisation_id.present? and activate_personalisation
         viewable = Spree::Personalisation.find(personalisation_id)
       elsif target_id.present?
         viewable = Spree::Variant.find(variant_id).targets.where(target_id: target_id).first_or_create
@@ -33,8 +34,6 @@ module Spree
       end
       viewable
     end
-
-
 
   end
 end

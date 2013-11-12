@@ -3,12 +3,6 @@ module Spree
     class PersonalisationsController < ResourceController
       belongs_to 'spree/product', :find_by => :permalink
 
-      # TODO:
-      # 3. tests
-      # 4. form for monogram
-      # 5. image upload
-      # 6. pin iterest?
-
       def update_all
         @product = Spree::Product.find_by_permalink params[:product_id]
         outcome = Spree::UpdateAllPersonalisationService.run( params: params[:personalisations])
