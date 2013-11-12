@@ -13,7 +13,7 @@ module Spree
     has_many :taggings, as: :taggable
     has_many :tags, through: :taggings
 
-    # has_many :tabs, -> { order(:position) }, dependent: :destroy, class_name: "Spree::ProductGroupTab"
+    has_many :tabs, -> { order(:position) }, dependent: :destroy, class_name: "Spree::ProductPageTab"
     has_many :product_group_variants
     has_many :display_variants, through: :product_group_variants, class_name: "Spree::Variant", source: :variant
 
