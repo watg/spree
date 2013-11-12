@@ -260,7 +260,10 @@ module Spree
     end
 
     def has_ready_made?
-      line_items.map(&:variant).select {|e| %w(product virtual_product).include?(e.product_type.downcase)}.any?
+      tmp= line_items.map(&:variant).map {|v| 
+        !(v.isa_part? || v.isa_kit? || (v.product_type.to_sym == :pattern))
+      }
+      tmp.inject(false) {|r,a| r= r || a; r}
     end
 
     # Indicates whether or not the user is allowed to proceed to checkout.
