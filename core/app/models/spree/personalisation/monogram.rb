@@ -1,6 +1,5 @@
 module Spree
   class Personalisation::Monogram < Personalisation
-    acts_as_paranoid
 
     store_accessor :data, :max_initials
     store_accessor :data, :colours

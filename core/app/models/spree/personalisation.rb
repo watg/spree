@@ -1,5 +1,6 @@
 module Spree
   class Personalisation < ActiveRecord::Base
+    acts_as_paranoid
 
     belongs_to :product, class_name: 'Spree::Product'
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
