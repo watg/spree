@@ -1,5 +1,5 @@
 Spree.ready ($) ->
-  $('.activate_personalisation:checkbox').click (event) ->
+  $(document).on('click', '.activate_personalisation:checkbox', (  ->
     image_id = $(this).val()
     if $(this).is(':checked')
       $('.image-variant-' + image_id).hide()
@@ -7,3 +7,4 @@ Spree.ready ($) ->
     else
       $('.image-variant-' + image_id).show()
       $('.image-personalisation-' + image_id).hide()
+  ))
