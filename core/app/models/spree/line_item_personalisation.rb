@@ -2,10 +2,13 @@ module Spree
   class LineItemPersonalisation < ActiveRecord::Base
     belongs_to :line_item, class_name: "Spree::LineItem"
     belongs_to :personalisation, class_name: "Spree::Personalisation"
+    #belongs_to :personalisation_including_deleted, class_name: "Spree::Personalisation", :with_deleted => true
 
-    delegate :name, :to => :personalisation
+    delegate :name, :to => :personalisation_including_deleted
 
-    attr_accessor :presentation_id
+    def personalisation_including_deleted
+      Spree::Personalisation.with_deleted.find personalisation_id 
+    end
 
     def self.generate_uuid( personalisations_params )
       personalisations_params ||= []
@@ -18,11 +21,11 @@ module Spree
     end
 
     def text
-      "#{personalisation.name.capitalize} - #{personalisation.selected_data_to_text( data )}"
+      "#{personalisation_including_deleted.name.capitalize} - #{personalisation_including_deleted.selected_data_to_text( data )}"
     end
 
     def data_to_text
-      personalisation.selected_data_to_text( data )
+      personalisation_including_deleted.selected_data_to_text( data )
     end
 
   end
