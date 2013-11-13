@@ -8,8 +8,8 @@ module Spree
 
       def s3_callback
         callback_params = {
-          attachment_file_name: params[:filename], 
-          attachment_content_type: params[:filetype], 
+          attachment_file_name: params[:filename],
+          attachment_content_type: params[:filetype],
           attachment_file_size: params[:filesize],
           direct_upload_url: params[:image][:direct_upload_url],
           viewable_id: @product.master.id # the Variant ID
@@ -19,9 +19,6 @@ module Spree
 
       def update
         invoke_callbacks(:update, :before)
-        puts "------------------------------------"
-        puts params[:image]
-        puts "------------------------------------"
         outcome = Spree::UpdateImageService.run(params[:image], image: Spree::Image.find(params[:id]))
         if outcome.success?
           invoke_callbacks(:update, :after)
@@ -51,7 +48,7 @@ module Spree
           spree.admin_product_images_url(opts)
         end
 
-        
+
         def load_data
           @product = Product.find_by_permalink(params[:product_id])
           @variants = @product.variants.collect do |variant|

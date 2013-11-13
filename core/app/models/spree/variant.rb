@@ -19,8 +19,9 @@ module Spree
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants, class_name: "Spree::OptionValue"
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
 
-    has_many :targets, class_name: 'Spree::VariantTarget', dependent: :destroy
-    has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :images, through: :targets
+    has_many :variant_targets, class_name: 'Spree::VariantTarget', dependent: :destroy
+    has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :images, through: :variant_targets
+    has_many :targets, class_name: 'Spree::Target', through: :variant_targets
 
     has_one :default_price,
       -> { where currency: Spree::Config[:currency] },
@@ -70,7 +71,7 @@ module Spree
     end
 
     def images_in(target_name)
-      targets.joins(:images, :target).
+      variant_targets.joins(:images, :target).
       select("spree_assets.*").
       where(spree_targets: {name: target_name})
     end

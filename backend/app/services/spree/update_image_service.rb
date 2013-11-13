@@ -28,7 +28,7 @@ module Spree
       if personalisation_id.present? and activate_personalisation
         viewable = Spree::Personalisation.find(personalisation_id)
       elsif target_id.present?
-        viewable = Spree::Variant.find(variant_id).targets.where(target_id: target_id).first_or_create
+        viewable = Spree::Variant.find(variant_id).variant_targets.where(target_id: target_id).first_or_create
       else
         viewable = Spree::Variant.find(variant_id)
       end
