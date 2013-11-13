@@ -1,17 +1,17 @@
 <% content_for :page_actions do %>
-  <li><%= button_link_to Spree.t(:back_to_product_groups_list), session[:return_to] || admin_product_groups_url, :icon => 'icon-arrow-left' %></li>
-  <li id="new_product_group_link">
-    <%= button_link_to Spree.t(:new_product_group), new_object_url, { :icon => 'icon-plus', :id => 'admin_new_product_group' } %>
+  <li><%= button_link_to Spree.t(:back_to_product_pages_list), session[:return_to] || admin_product_pages_url, :icon => 'icon-arrow-left' %></li>
+  <li id="new_product_page_link">
+    <%= button_link_to Spree.t(:new_product_page), new_object_url, { :icon => 'icon-plus', :id => 'admin_new_product_page' } %>
   </li>
 <% end %>
 
 <%= render :partial => 'spree/admin/shared/product_sub_menu' %>
 
-<%= render :partial => 'spree/admin/shared/product_group_tabs', :locals => { :product_group => @product_group, :current => 'Product Group Details' } %>
-<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @product_group } %>
+<%= render :partial => 'spree/admin/shared/product_page_tabs', :locals => { :product_page => @product_page, :current => 'Product Group Details' } %>
+<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @product_page } %>
 
-<%= form_for [:admin, @product_group], :method => :put, :html => { :multipart => true } do |f| %>
-<div data-hook="admin_product_group_edit_form">
+<%= form_for [:admin, @product_page], :method => :put, :html => { :multipart => true } do |f| %>
+<div data-hook="admin_product_page_edit_form">
   <%= render :partial => 'form', :locals => { :f => f } %>
 </div>
 <%= render :partial => 'spree/admin/shared/edit_resource_links' %>

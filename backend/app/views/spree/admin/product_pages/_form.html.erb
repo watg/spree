@@ -16,8 +16,8 @@
   <%= f.error_message_on :permalink %>
 <% end %>
 
-<% Spree::ProductGroupTab::TYPES.each_with_index do |tab_type, position| %>
-<%= render :partial => 'tab', :locals => {:tab => @product_group.tab(tab_type), :position => position} %>
+<% Spree::ProductPageTab::TYPES.each_with_index do |tab_type, position| %>
+<%= render :partial => 'tab', :locals => {:tab => @product_page.tab(tab_type), :position => position} %>
 <% end %>
 
 <div class="clear"></div>
@@ -25,10 +25,10 @@
 <div class="fullwidth columns alpha omega">
   <fieldset>
     <legend align="center">Visible Tags</legend>
-    <% @product_group.available_tags.each do |tag| %>
+    <% @product_page.available_tags.each do |tag| %>
     <label class="tag">
-      <%= hidden_field_tag "product_group[tags][]" %>
-      <%= check_box_tag "product_group[tags][]", tag.id, @product_group.tags.include?(tag), :id => "product_group_tags_#{tag.id}" %>
+      <%= hidden_field_tag "product_page[tags][]" %>
+      <%= check_box_tag "product_page[tags][]", tag.id, @product_page.tags.include?(tag), :id => "product_page_tags_#{tag.id}" %>
       <%= tag.value %>
     </label>
     <% end %>

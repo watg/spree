@@ -1,8 +1,8 @@
-<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @product_group } %>
+<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @product_page } %>
 
-<%= form_for [:admin, @product_group] do |f| %>
-  <fieldset data-hook="admin_product_group_new_form">
-    <legend align="center"><%= Spree.t(:new_product_group) %></legend>
+<%= form_for [:admin, @product_page] do |f| %>
+  <fieldset data-hook="admin_product_page_new_form">
+    <legend align="center"><%= Spree.t(:new_product_page) %></legend>
     <%= render :partial => 'form', :locals => { :f => f } %>
     <%= render :partial => 'spree/admin/shared/new_resource_links' %>
   </fieldset>

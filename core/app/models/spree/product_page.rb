@@ -5,17 +5,16 @@ module Spree
     validates :title, presence: true
     validates :permalink, uniqueness: true
 
-    has_many :products
-
     has_many :variants, through: :products, source: :all_variants_unscoped
+    has_and_belongs_to_many :product_groups
 
     has_many :available_tags, -> { uniq }, through: :variants, class_name: "Spree::Tag", source: :tags
     has_many :taggings, as: :taggable
     has_many :tags, through: :taggings
 
     has_many :tabs, -> { order(:position) }, dependent: :destroy, class_name: "Spree::ProductPageTab"
-    has_many :product_group_variants
-    has_many :display_variants, through: :product_group_variants, class_name: "Spree::Variant", source: :variant
+    has_many :product_page_variants
+    has_many :display_variants, through: :product_page_variants, class_name: "Spree::Variant", source: :variant
 
     before_save :set_permalink
 
@@ -69,13 +68,13 @@ module Spree
       tab(:knit_your_own).background_color_code
     end
 
-    # def default_tab
-    #   tabs.where(default: true).first
-    # end
+    def default_tab
+      tabs.where(default: true).first
+    end
 
-    # def tab(tab_type)
-    #   ( tabs.where(tab_type: tab_type).first || Spree::ProductGroupTab.new(tab_type: tab_type, product_group_id: self.id))
-    # end
+    def tab(tab_type)
+      ( tabs.where(tab_type: tab_type).first || Spree::ProductPageTab.new(tab_type: tab_type, product_page_id: self.id))
+    end
 
     def tag_names
       tags.map(&:value)
