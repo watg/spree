@@ -21,11 +21,6 @@ module Spree
       'max_initials' => 2
     }
 
-    def set_defaults
-      self.data ||= DEFAULT_DATA
-      self.prices ||= DEFAULT_PRICES
-    end
-
     def selected_data_to_text( selected_data )
       colour = colours.detect{ |c| c.id == selected_data['colour'].to_i }
       "Colour: #{colour.presentation}, Initials: #{selected_data['initials']}"
@@ -48,6 +43,14 @@ module Spree
     def validate( params )
       params
     end
+
+    private
+    def set_defaults
+      self.data ||= DEFAULT_DATA
+      self.prices ||= DEFAULT_PRICES
+    end
+
+
 
   end
 end
