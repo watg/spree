@@ -1,4 +1,4 @@
-class ProductGroupVariant
+class ProductPageVariant
     constructor: (@list, @elem) ->
         @elem.find("input.display-toggle").change (event) =>
             target = event.target
@@ -18,7 +18,7 @@ class ProductTypeList
         @availableTable = @elem.find(".available table")
 
         @elem.find("tr.variant").each (_, elem) =>
-            new ProductGroupVariant(@, $(elem))
+            new ProductPageVariant(@, $(elem))
 
     moveToDisplayed: (tr) ->
         @displayedTableEmpty.detach()

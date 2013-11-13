@@ -5,9 +5,11 @@ Spree::Core::Engine.routes.draw do
   namespace :admin do
     get '/search/users', :to => "search#users", :as => :search_users
 
-    resources :product_groups do
-      resources :product_group_variants
+    resources :product_pages do
+      resources :product_page_variants
     end
+
+    resources :product_groups
 
     resources :gang_members
 

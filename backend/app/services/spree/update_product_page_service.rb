@@ -1,7 +1,7 @@
 module Spree
-  class UpdateProductGroupService < Mutations::Command
+  class UpdateProductPageService < Mutations::Command
     required do
-      model :product_group, class: 'Spree::ProductGroup'
+      model :product_page, class: 'Spree::ProductPage'
       duck  :details
       duck  :tabs
     end
@@ -17,7 +17,7 @@ module Spree
         update_product_group_tabs
       end
     rescue Exception => e
-      Rails.logger.error "[ProductGroupUpdateService] #{e.message} -- #{e.backtrace}"
+      Rails.logger.error "[ProductPageUpdateService] #{e.message} -- #{e.backtrace}"
       add_error(:product_update, :exception, e.message)
     end
 

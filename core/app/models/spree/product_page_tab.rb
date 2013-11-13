@@ -1,7 +1,7 @@
 module Spree
-  class ProductGroupTab < ActiveRecord::Base
+  class ProductPageTab < ActiveRecord::Base
     TYPES = [:ready_to_wear, :knit_your_own]
-    belongs_to :product_group
+    belongs_to :product_page
 
     validates_uniqueness_of :position, scope: :product_group_id
     validates :background_color_code, format: { with: /\A[A-Fa-f0-9]{6}\z/ }, allow_blank: true
