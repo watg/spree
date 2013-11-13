@@ -4,6 +4,7 @@ module Spree
 
     belongs_to :product, class_name: 'Spree::Product'
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
+    has_many :line_item_personalisations, class_name: "Spree::LineItemPersonalisation"
 
     def name
       self.class.name.split('::').last.downcase
