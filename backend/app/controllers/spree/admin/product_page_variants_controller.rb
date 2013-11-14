@@ -11,7 +11,7 @@ module Spree
 
       def create
         product_page = load_product_page
-        outcome = Spree::ProductGroupVariantsService.run(
+        outcome = Spree::ProductPageVariantsService.run(
           product_page: product_page,
           variant_ids: params["variant_ids"]
         )
@@ -24,7 +24,7 @@ module Spree
       private
 
       def load_product_page
-        Spree::ProductGroup.find(params[:product_page_id])
+        Spree::ProductPage.find(params[:product_page_id])
       end
     end
   end

@@ -38,7 +38,7 @@ module Spree
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
 
     has_many :taggings, as: :taggable
-    has_many :tags, through: :taggings
+    has_many :tags, -> { order(:value) }, through: :taggings
 
     before_validation :set_cost_currency
     after_create :create_stock_items

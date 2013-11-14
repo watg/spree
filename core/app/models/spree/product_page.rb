@@ -7,80 +7,77 @@ module Spree
 
     has_and_belongs_to_many :product_groups, join_table: :spree_product_groups_product_pages
 
-#     has_many :variants, through: :products, source: :all_variants_unscoped
-# 
-#     has_many :available_tags, -> { uniq }, through: :variants, class_name: "Spree::Tag", source: :tags
-#     has_many :taggings, as: :taggable
-#     has_many :tags, through: :taggings
-# 
-#     has_many :tabs, -> { order(:position) }, dependent: :destroy, class_name: "Spree::ProductPageTab"
-#     has_many :product_page_variants
-#     has_many :display_variants, through: :product_page_variants, class_name: "Spree::Variant", source: :variant
-# 
-     before_save :set_permalink
-# 
-#     # This will help us clear the caches if a product is modified
-#     after_touch { self.delay.touch_taxons }
-# 
-#     def touch_taxons
-#       # You should be able to just call self.taxons.each { |t| t.touch } but
-#       # for some reason acts_as_nested_set does not walk all the ancestors
-#       # correclty
-#       self.taxons.each { |t| t.self_and_parents.each { |t2| t2.touch } }
-#     end
-# 
-#     def all_variants
-#       products.map(&:all_variants_or_master).flatten
-#     end
-# 
-#     def available_variants
-#       all_variants - display_variants
-#     end
-# 
-#     def ready_to_wear_variants
-#       p = products.where(:product_type => 'ready_to_wear').includes(:variants)
-#       all_variants = p.inject([]) do |variants, product|
-#         if product.variants.size == 0
-#           variants + [product.master]
-#         else
-#           variants + product.variants
-#         end
-#       end
-#       all_variants
-#     end
-# 
-#     def ready_to_wear_banner
-#       tab(:ready_to_wear).banner
-#     end
-# 
-#     def ready_to_wear_background_color
-#       tab(:ready_to_wear).background_color_code
-#     end
-# 
-#     def kit_product
-#       products.where(product_type: :kit).first
-#     end
-# 
-#     def kit_banner
-#       tab(:knit_your_own).banner
-#     end
-# 
-#     def kit_background_color
-#       tab(:knit_your_own).background_color_code
-#     end
-# 
-#     def default_tab
-#       tabs.where(default: true).first
-#     end
-# 
-#     def tab(tab_type)
-#       ( tabs.where(tab_type: tab_type).first || Spree::ProductPageTab.new(tab_type: tab_type, product_page_id: self.id))
-#     end
-# 
-#     def tag_names
-#       tags.map(&:value)
-#     end
-# 
+    has_many :products, through: :product_groups
+    has_many :variants, through: :products, source: :all_variants_unscoped
+
+    has_many :available_tags, -> { uniq }, through: :variants, class_name: "Spree::Tag", source: :tags
+    has_many :taggings, as: :taggable
+    has_many :tags, through: :taggings
+
+    has_many :tabs, -> { order(:position) }, dependent: :destroy, class_name: "Spree::ProductPageTab"
+    has_many :product_page_variants
+    has_many :display_variants, through: :product_page_variants, class_name: "Spree::Variant", source: :variant
+
+    before_save :set_permalink
+
+    # This will help us clear the caches if a product is modified
+    after_touch { self.delay.touch_taxons }
+
+    def touch_taxons
+      # You should be able to just call self.taxons.each { |t| t.touch } but
+      # for some reason acts_as_nested_set does not walk all the ancestors
+      # correclty
+      self.taxons.each { |t| t.self_and_parents.each { |t2| t2.touch } }
+    end
+
+    def all_variants
+      products.map(&:all_variants_or_master).flatten
+    end
+
+    def available_variants
+      all_variants - display_variants
+    end
+
+    def ready_to_wear_variants
+      p = products.where(:product_type => 'ready_to_wear').includes(:variants)
+      all_variants = p.inject([]) do |variants, product|
+        if product.variants.size == 0
+          variants + [product.master]
+        else
+          variants + product.variants
+        end
+      end
+      all_variants
+    end
+
+    def ready_to_wear_banner
+      tab(:ready_to_wear).banner
+    end
+
+    def ready_to_wear_background_color
+      tab(:ready_to_wear).background_color_code
+    end
+
+    def kit_product
+      products.where(product_type: :kit).first
+    end
+
+    def kit_banner
+      tab(:knit_your_own).banner
+    end
+
+    def kit_background_color
+      tab(:knit_your_own).background_color_code
+    end
+
+    def tab(tab_type)
+      ( tabs.where(tab_type: tab_type).first || Spree::ProductPageTab.new(tab_type: tab_type, product_page_id: self.id))
+    end
+
+    def tag_names
+      tags.map(&:value)
+    end
+
     private
     def set_permalink
       if self.permalink.blank? && self.name
