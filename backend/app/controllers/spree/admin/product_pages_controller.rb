@@ -3,7 +3,7 @@ module Spree
     class ProductPagesController < ResourceController
 
       def update
-        outcome = Spree::UpdateProductPageService.run(product_group: @object, details: params[:product_group], tabs: params[:tabs])
+        outcome = Spree::UpdateProductPageService.run(product_page: @object, details: params[:product_page], tabs: params[:tabs])
         if outcome.success?
           update_success(@object)
         else
@@ -16,19 +16,19 @@ module Spree
         ProductPage.find_by_id(params[:id])
       end
 
-      def update_success(product_group)
-        flash[:success] = flash_message_for(product_group, :successfully_updated)
+      def update_success(product_page)
+        flash[:success] = flash_message_for(product_page, :successfully_updated)
 
-        respond_with(product_group) do |format|
-          format.html { redirect_to spree.edit_admin_product_group_url(product_group) }
+        respond_with(product_page) do |format|
+          format.html { redirect_to spree.edit_admin_product_page_url(product_page) }
           format.js   { render :layout => false }
         end
       end
 
-      def update_failed(product_group, error)
-        flash[:error] = "Could not update product group #{product_group.name} -- #{error}"
-        respond_with(product_group) do |format|
-          format.html { redirect_to edit_admin_product_group_url(product_group) }
+      def update_failed(product_page, error)
+        flash[:error] = "Could not update product page #{product_page.name} -- #{error}"
+        respond_with(product_page) do |format|
+          format.html { redirect_to edit_admin_product_page_url(product_page) }
           format.js   { render :layout => false }
         end
       end

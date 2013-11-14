@@ -8,13 +8,14 @@ module Spree
 
     def execute
       ActiveRecord::Base.transaction do
-        product_group.name        = details[:name]
-        product_group.title       = details[:title]
-        product_group.permalink   = details[:permalink]
-        product_group.tags        = find_tags(details[:tags] || [])
-        product_group.save!
+        product_page.name               = details[:name]
+        product_page.title              = details[:title]
+        product_page.permalink          = details[:permalink]
+        product_page.product_group_ids  = split_params(details[:product_group_ids])
+        product_page.tags               = find_tags(details[:tags] || [])
+        product_page.save!
 
-        update_product_group_tabs
+        update_product_page_tabs
       end
     rescue Exception => e
       Rails.logger.error "[ProductPageUpdateService] #{e.message} -- #{e.backtrace}"
@@ -22,15 +23,19 @@ module Spree
     end
 
     private
-    def update_product_group_tabs
+    def update_product_page_tabs
       tabs.each do |tab_type, data|
-        tab = product_group.tab(tab_type)
+        tab = product_page.tab(tab_type)
         update_tab_banner(tab, data)
         tab.position = data[:position]
         tab.background_color_code = data[:background_color_code]
         tab.save!
       end
     end
+
+    def split_params(input=nil)
+      input.blank? ? [] : input.split(',').map(&:to_i)
+    end  
 
     def update_tab_banner(tab, data)
       tab.banner = data[:banner] unless data[:banner].blank?
