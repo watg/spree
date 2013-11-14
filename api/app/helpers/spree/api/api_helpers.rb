@@ -63,6 +63,10 @@ module Spree
         [:id, :name, :pretty_name, :permalink, :position, :parent_id, :taxonomy_id]
       end
 
+      def product_group_attributes
+        [:id, :name]
+      end
+
       def inventory_unit_attributes
         [:id, :lock_version, :state, :variant_id, :shipment_id, :return_authorization_id]
       end

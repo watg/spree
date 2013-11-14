@@ -1,0 +1,42 @@
+<%= f.field_container :name do %>
+  <%= f.label :name, Spree.t(:name) %> <span class="required">*</span><br />
+  <%= f.text_field :name, :class => 'fullwidth title' %>
+  <%= f.error_message_on :name %>
+<% end %>
+
+<%= f.field_container :title do %>
+  <%= f.label :title, Spree.t(:title) %> <span class="required">*</span><br />
+  <%= f.text_field :title, :class => 'fullwidth title' %>
+  <%= f.error_message_on :title %>
+<% end %>
+
+<%= f.field_container :permalink do %>
+  <%= f.label :permalink, Spree.t(:permalink) %> <span class="required">*</span><br />
+  <%= f.text_field :permalink, :class => 'fullwidth title' %>
+  <%= f.error_message_on :permalink %>
+<% end %>
+
+<%= f.field_container :product_group do %>
+  <%= f.label :product_group_ids, Spree.t(:product_group) %><br />
+  <%= f.hidden_field :product_group_ids, :value => @product_page.product_group_ids.join(','), :class => 'fullwidth title'  %>
+<% end %>
+
+
+<% Spree::ProductPageTab::TYPES.each_with_index do |tab_type, position| %>
+<%= render :partial => 'tab', :locals => {:tab => @product_page.tab(tab_type), :position => position} %>
+<% end %>
+
+<div class="clear"></div>
+
+<div class="fullwidth columns alpha omega">
+  <fieldset>
+    <legend align="center">Visible Tags</legend>
+    <% @product_page.available_tags.each do |tag| %>
+    <label class="tag">
+      <%= hidden_field_tag "product_page[tags][]" %>
+      <%= check_box_tag "product_page[tags][]", tag.id, @product_page.tags.include?(tag), :id => "product_page_tags_#{tag.id}" %>
+      <%= tag.value %>
+    </label>
+    <% end %>
+  </fieldset>
+</div>

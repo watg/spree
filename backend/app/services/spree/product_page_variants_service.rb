@@ -1,8 +1,8 @@
 module Spree
-  class ProductGroupVariantsService < Mutations::Command
+  class ProductPageVariantsService < Mutations::Command
 
     required do
-      model :product_group, class: 'Spree::ProductGroup'
+      model :product_page, class: 'Spree::ProductPage'
       array :variant_ids do
         integer
       end
@@ -11,7 +11,7 @@ module Spree
     def execute
       variants = Spree::Variant.find(variant_ids)
       ActiveRecord::Base.transaction do
-        product_group.display_variants = variants
+        product_page.display_variants = variants
       end
     end
 

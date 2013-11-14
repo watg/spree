@@ -7,13 +7,14 @@
 
 <%= render :partial => 'spree/admin/shared/product_sub_menu' %>
 
-<%= render :partial => 'spree/admin/shared/product_group_tabs', :locals => { :product_group => @product_group, :current => 'Product Group Details' } %>
 <%= render :partial => 'spree/shared/error_messages', :locals => { :target => @product_group } %>
 
 <%= form_for [:admin, @product_group], :method => :put, :html => { :multipart => true } do |f| %>
-<div data-hook="admin_product_group_edit_form">
-  <%= render :partial => 'form', :locals => { :f => f } %>
-</div>
-<%= render :partial => 'spree/admin/shared/edit_resource_links' %>
+  <fieldset class="no-border-top">
+    <div data-hook="admin_product_group_edit_form">
+      <%= render :partial => 'form', :locals => { :f => f } %>
+    </div>
+    <%= render :partial => 'spree/admin/shared/edit_resource_links' %>
+  </fieldset>
 <% end %>
 

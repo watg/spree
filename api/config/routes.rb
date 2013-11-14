@@ -15,6 +15,7 @@ Spree::Core::Engine.add_routes do
       resources :variants
       resources :product_properties
     end
+    resources :product_groups, :only => [:index]
 
     resources :images
     
@@ -84,6 +85,7 @@ Spree::Core::Engine.add_routes do
       end
     end
     resources :taxons, :only => [:index]
+    
     resources :inventory_units, :only => [:show, :update]
     resources :users
     resources :properties

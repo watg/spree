@@ -1,0 +1,2 @@
+object @product_group
+attributes *product_group_attributes

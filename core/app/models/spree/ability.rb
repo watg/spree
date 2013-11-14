@@ -54,6 +54,7 @@ module Spree
         can [:read, :update, :destroy], Spree.user_class, id: user.id
         can [:index, :read], State
         can [:index, :read], Taxon
+        can [:index, :read], ProductGroup
         can [:index, :read], Taxonomy
         can [:index, :read], Variant
         can [:index, :read], Zone
