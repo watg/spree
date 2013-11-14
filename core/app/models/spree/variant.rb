@@ -298,31 +298,31 @@ module Spree
     end
 
 
-      # strips all non-price-like characters from the price, taking into account locale settings
-      def parse_price(price)
-        return price unless price.is_a?(String)
+    # strips all non-price-like characters from the price, taking into account locale settings
+    def parse_price(price)
+      return price unless price.is_a?(String)
 
-        separator, delimiter = I18n.t([:'number.currency.format.separator', :'number.currency.format.delimiter'])
-        non_price_characters = /[^0-9\-#{separator}]/
-        price.gsub!(non_price_characters, '') # strip everything else first
-        price.gsub!(separator, '.') unless separator == '.' # then replace the locale-specific decimal separator with the standard separator if necessary
+      separator, delimiter = I18n.t([:'number.currency.format.separator', :'number.currency.format.delimiter'])
+      non_price_characters = /[^0-9\-#{separator}]/
+      price.gsub!(non_price_characters, '') # strip everything else first
+      price.gsub!(separator, '.') unless separator == '.' # then replace the locale-specific decimal separator with the standard separator if necessary
 
-        price.to_d
+      price.to_d
+    end
+
+    def set_cost_currency
+      self.cost_currency = Spree::Config[:currency] if cost_currency.nil? || cost_currency.empty?
+    end
+
+    def create_stock_items
+      StockLocation.all.each do |stock_location|
+        stock_location.propagate_variant(self) if stock_location.propagate_all_variants?
       end
+    end
 
-      def set_cost_currency
-        self.cost_currency = Spree::Config[:currency] if cost_currency.nil? || cost_currency.empty?
-      end
-
-      def create_stock_items
-        StockLocation.all.each do |stock_location|
-          stock_location.propagate_variant(self) if stock_location.propagate_all_variants?
-        end
-      end
-
-      def set_position
-        self.update_column(:position, product.variants.maximum(:position).to_i + 1)
-      end
+    def set_position
+      self.update_column(:position, product.variants.maximum(:position).to_i + 1)
+    end
   end
 end
 

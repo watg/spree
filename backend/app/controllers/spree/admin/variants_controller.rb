@@ -4,7 +4,6 @@ module Spree
       belongs_to 'spree/product', :find_by => :permalink
       new_action.before :new_before
 
-
       def create
         invoke_callbacks(:create, :before)
         outcome = Spree::CreateVariantService.run(product: @product, details: params[:variant], prices: params[:prices])

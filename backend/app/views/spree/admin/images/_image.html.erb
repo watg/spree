@@ -10,15 +10,39 @@
     <% end %>
   </td>
   
-  <td style="vertical-align: top">
-    <%= form_for [:admin, @product, image], remote: true do |f| %>
-      <%= f.label :variant_id, Spree.t(:variant) %><br>
-      <%= select_tag 'image[variant_id]', options_for_select(@variants, get_variant_id(image)), :class => 'select3' %><br><br>
-      
-      <%= f.label :target_id, "Target" %><br>
-      <%= select_tag 'image[target_id]', options_from_collection_for_select(Spree::Target.all, 'id', 'name', image.try(:target_id)), include_blank: true, class: 'select3' %>
+  <td>
+    <%= form_tag spree.admin_product_image_path(@product,image), remote: true, :method => :put, :class => "edit_image", :id => "edit_image_#{image.id}" do %>
 
+    <% personalisation = ( image.viewable_type == 'Spree::Personalisation' ) %>
+    <%= label_tag :toggle_variant_personalisation, 'Toggle variant / personalisation' %><br>
+    <%= check_box_tag 'image[activate_personalisation]', image.id, personalisation, class: 'activate_personalisation' %>
+
+    <% if personalisation %>
+      <% image_variant_hidden = 'hidden' %>
+      <% image_personalisation_hidden = '' %>
+    <% else %>
+      <% image_variant_hidden = '' %>
+      <% image_personalisation_hidden = 'hidden' %>
     <% end %>
+
+    <fieldset>
+      <div class='<%="image-variant-#{image.id} #{image_variant_hidden}"%>'>
+      <%= label :variant_id, Spree.t(:variant) %><br>
+      <%= select_tag 'image[variant_id]', options_for_select(@variants, get_variant_id(image)), :class => 'select2' %>
+      <br><br>
+      <%= label :target_id, "Target" %><br>
+      <%= select_tag 'image[target_id]', options_from_collection_for_select(Spree::Target.all, 'id', 'name', image.try(:target_id)), include_blank: true, class: 'select2' %>
+      <br><br>
+    </div>
+
+      <div class='<%="image-personalisation-#{image.id} #{image_personalisation_hidden}"%>'>
+      <%= label :personalisation, 'personalisation: ' %>
+      <%= select_tag 'image[personalisation_id]', options_for_select( @product.personalisations.map {|p| [p.name, p.id]}, get_personalisation_id(image) ), { :include_blank => Spree.t('match_choices.none'), :class => 'select2 fullwidth'} %>
+      <br><br>
+    </div>
+    </fieldset>
+
+  <% end %>
   </td>           
 
   <td class="actions">

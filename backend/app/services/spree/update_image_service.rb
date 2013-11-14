@@ -8,13 +8,14 @@ module Spree
     optional do
       integer :variant_id
       string :target_id, empty: true
+      string :personalisation_id, empty: true
+      string :activate_personalisation, empty: true
       string :alt
     end
 
     def execute
-      if variant_id
-        set_viewable
-        image.update_attributes(viewable: @viewable, alt: alt)
+      if variant_id || personalisation_id
+        image.update_attributes(viewable: set_viewable, alt: alt)
       else
         image.update_attributes(alt: alt)
       end
@@ -24,14 +25,15 @@ module Spree
     private
 
     def set_viewable
-      if target_id.present?
-        @viewable = Spree::Variant.find(variant_id).targets.where(target_id: target_id).first_or_create
+      if personalisation_id.present? and activate_personalisation
+        viewable = Spree::Personalisation.find(personalisation_id)
+      elsif target_id.present?
+        viewable = Spree::Variant.find(variant_id).targets.where(target_id: target_id).first_or_create
       else
-        @viewable = Spree::Variant.find(variant_id)
+        viewable = Spree::Variant.find(variant_id)
       end
+      viewable
     end
-
-
 
   end
 end

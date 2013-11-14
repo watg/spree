@@ -8,15 +8,9 @@ class Spree::Admin::PromotionRulesController < Spree::Admin::BaseController
     # Remove type key from this hash so that we don't attempt
     # to set it when creating a new record, as this is raises
     # an error in ActiveRecord 3.2.
-    Rails.logger.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-    Rails.logger.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-    Rails.logger.info("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     promotion_rule_type = params[:promotion_rule].delete(:type)
-    Rails.logger.info("2AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     @promotion_rule = promotion_rule_type.constantize.new(params[:promotion_rule])
-    Rails.logger.info("3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     @promotion_rule.promotion = @promotion
-    Rails.logger.info("4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     if @promotion_rule.save
       flash[:success] = Spree.t(:successfully_created, :resource => Spree.t(:promotion_rule))
     end

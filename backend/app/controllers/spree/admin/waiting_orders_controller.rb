@@ -3,9 +3,14 @@ module Spree
 
     class WaitingOrdersController < Spree::Admin::BaseController
       def index
-        @curr_page, @per_page = pagination_helper(params)
         @all_boxes = Spree::Parcel.find_boxes
-        @orders = load_orders_waiting.page(@curr_page).per(@per_page)
+        if params[:batch_id].present?
+          order = Spree::Order.find_by(batch_print_id: params[:batch_id])
+          @orders = [order]
+        else
+          @curr_page, @per_page = pagination_helper(params)
+          @orders = load_orders_waiting.page(@curr_page).per(@per_page)
+        end
       end
 
       def update
@@ -27,7 +32,7 @@ module Spree
         outcome = Spree::BulkOrderPrintingService.run(pdf: :image_stickers)
         handle_pdf(outcome, "image_stickers.pdf")
       end
-      
+
       def create_and_allocate_consignment
         outcome = Spree::CreateAndAllocateConsignmentService.run(order_id: params[:id])
         handle_pdf(outcome, 'label.pdf')
@@ -45,7 +50,7 @@ module Spree
       def handle_pdf(outcome, filename)
         if outcome.success?
           send_data outcome.result, disposition: :inline, filename: filename, type: "application/pdf"
-        else          
+        else
           flash[:error] = outcome.errors.message_list.join('<br/ >')
           redirect_to admin_waiting_orders_url
         end

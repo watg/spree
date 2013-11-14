@@ -1,0 +1,47 @@
+<% content_for :page_title do %>
+  <%= Spree.t(:print_jobs) %>
+<% end %>
+
+<%= render :partial => 'spree/admin/shared/order_sub_menu' %>
+
+<%= paginate @print_jobs %>
+
+<% unless @print_jobs.empty? %>
+  <table class="index responsive" id="listing_orders" data-hook>
+    <colgroup>
+       <col style="width: 10%;">
+       <col style="width: 10%;">
+       <col style="width: 10%;">
+       <col style="width: 10%;">
+       <col style="width: 10%;">
+       <col style="width: 15%;">
+       <col style="width: 35%;">
+    </colgroup>
+    <thead>
+      <tr data-hook="admin_orders_index_headers">
+        <th><%= Spree.t(:print_time) %></th>
+        <th><%= Spree.t(:type) %></th>
+        <th><%= Spree.t(:invoice_count) %></th>
+        <th data-hook="admin_orders_index_header_actions" class="actions"></th>
+      </tr>
+    </thead>
+    <tbody>
+    <% @print_jobs.each_with_index do |print_job,index| %>
+      <tr data-hook="admin_orders_index_rows" class="<%= cycle('odd', 'even') %>">
+        <td class="align-center"><%= print_job.print_time %></td>
+        <td class="align-center"><%= print_job.job_type %></td>
+        <td class="align-center"><%= print_job.orders.count %></td>
+        <td class='actions align-center' data-hook="admin_print_jobs_index_row_actions">
+          <%= link_to_with_icon 'icon-print', "Reprint", admin_print_job_path(print_job), :title => "Reprint", :no_text => true, :class => 'print', :target => "_blank" %>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="no-objects-found">
+    <%= Spree.t(:no_print_jobs_found)%>
+  </div>
+<% end %>
+
+<%= paginate @print_jobs %>

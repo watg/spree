@@ -2,23 +2,6 @@ module Spree
   class ListSalesReport
     include BaseReport
 
-    HEADER = %w(
-  order_id
-  number
-  line_item_id
-  created_at
-  shipped_at
-  completed_at
-  part_type
-  product_sku
-  variant_sku
-  product_name
-  product_type
-  quantity
-  state
-  email
-    ) unless defined?(HEADER)
-
     def initialize(params)
       @option_types = generate_option_types 
       @from = params[:from].blank? ? Time.now.midnight : Time.parse(params[:from])  
@@ -30,12 +13,32 @@ module Spree
     end
 
     def header
-      header = HEADER + @option_types.map { |ot| ot[0] }
+      header = %w(
+        order_id
+        number
+        line_item_id
+        created_at
+        shipped_at
+        completed_at
+        part_type
+        product_sku
+        variant_sku
+        product_name
+        product_type
+        quantity
+        state
+        returning_customer
+        email
+      )
+      header = header + @option_types.map { |ot| ot[0] }
       header = header + %w( promo1 promo2 promo3 promo4 ) 
       header
     end
 
     def retrieve_data
+      # This is from the old system
+      previous_users = CSV.read(File.join(File.dirname(__FILE__),"unique_previous_users.csv")).flatten
+      previous_users = previous_users.to_set
 
       Spree::Order.where( :state => 'complete', :completed_at => @from..@to ).each do |o| 
         o.line_items.each do |li|
@@ -48,15 +51,15 @@ module Spree
             shipped_at = o.shipment.shipped_at.to_s(:db)
           end
 
-          yield csv_array( li, o, shipped_at, variant, li.quantity )
+          yield csv_array( li, o, shipped_at, variant, li.quantity, previous_users )
 
           if variant.product.product_type == 'kit' or variant.product.product_type == 'virtual_product'
 
             variant.required_parts_for_display.each do |p|
-              yield  csv_array( li, o, shipped_at, p, p.count_part, 'required_part' )
+              yield  csv_array( li, o, shipped_at, p, p.count_part, 'required_part', previous_users )
             end
             li.line_item_options.each do |p|
-              yield csv_array( li, o, shipped_at, p.variant, p.quantity, 'optional_part' )
+              yield csv_array( li, o, shipped_at, p.variant, p.quantity, 'optional_part', previous_users )
             end
 
           end
@@ -90,7 +93,7 @@ module Spree
       end
     end
 
-    def csv_array(li, o, shipped_at, variant, quantity, part_type='')
+    def csv_array(li, o, shipped_at, variant, quantity, part_type='', previous_users)
       [
         o.id, 
         o.number, 
@@ -105,9 +108,38 @@ module Spree
         variant.product.product_type,
         quantity,
         o.state,
+        returning_customer(o,previous_users),
         o.email,
       ] + option_types_for_variant(variant) + adjustments(o)
     end
+
+    def returning_customer(order,previous_users)
+      rtn = !first_order(order)
+      if rtn == false
+        if previous_users.include? order.email.to_s
+          rtn = true
+        end
+      end
+      rtn
+    end
+
+    def first_order(order) 
+      if order.user || order.email
+        orders_complete = completed_orders(order.user, order.email)
+        orders_complete.blank? || (orders_complete.order("completed_at asc").first == order)
+      else
+        false
+      end
+    end
+
+    def completed_orders(user, email)
+      user ? user.orders.complete : orders_by_email(email)
+    end
+
+    def orders_by_email(email)
+      Spree::Order.where(email: email).complete
+    end
+
 
   end
 end

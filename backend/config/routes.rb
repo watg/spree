@@ -35,6 +35,11 @@ Spree::Core::Engine.routes.draw do
     resources :products do
 
       resources :prices, :only => [:index, :create]
+      resources :personalisations do
+        collection do
+          post :update_all
+        end
+      end
 
       resources :product_properties do
         collection do
@@ -98,6 +103,8 @@ Spree::Core::Engine.routes.draw do
         post :create_and_allocate_consignment
       end
     end
+
+    resources :print_jobs, :only => [:index, :show]
 
     resources :shipping_manifests
 

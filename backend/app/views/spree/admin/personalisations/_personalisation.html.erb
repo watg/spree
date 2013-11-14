@@ -1,0 +1,11 @@
+<div class="personalisation_rule personalisation-block alpha omega eight columns" id="<%= dom_id personalisation %>">
+  <% type_name = personalisation.class.name.demodulize.underscore %>
+  <h6 class='personalisation-title'> <%= type_name %> </h6>
+  <%= link_to_with_icon 'icon-trash', '', spree.admin_product_personalisation_path(@product, personalisation), :remote => true, :method => :delete, :class => 'delete' %>
+  
+  <% param_prefix = "personalisations[#{personalisation.id}]" %>
+  <%= hidden_field_tag "#{param_prefix}[id]", personalisation.id %>  
+  <%= hidden_field_tag "#{param_prefix}[type]", personalisation.class %>  
+  <%= render :partial => "spree/shared/error_messages", :locals => { :target => personalisation } %>
+  <%= render :partial => "spree/admin/personalisations/types/#{type_name}", :locals => { :personalisation => personalisation, :param_prefix => param_prefix } %>
+</div>

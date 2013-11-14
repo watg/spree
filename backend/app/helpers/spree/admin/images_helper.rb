@@ -8,6 +8,16 @@ module Spree
           image.variant_id
         end
       end
+
+      def get_personalisation_id(image)
+        if image.viewable_type == 'Spree::Personalisation'
+          image.viewable_id
+        else
+          nil
+        end
+      end
+
+      
     end
   end
 end

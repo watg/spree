@@ -273,6 +273,8 @@ module Spree
       def send_shipped_email
         ShipmentMailer.shipped_email(self.id).deliver
       end
+      handle_asynchronously :send_shipped_email, :run_at => Proc.new { Date.tomorrow.to_time }
+
 
       def ensure_correct_adjustment
         if adjustment

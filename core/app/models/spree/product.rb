@@ -50,6 +50,7 @@ module Spree
     validates :gang_member, :presence => true
     # ----- end marketplace -------
 
+    has_many :personalisations, dependent: :destroy
 
     has_one :master,
       -> { where is_master: true },
@@ -88,6 +89,7 @@ module Spree
 
     has_many :variant_images, -> { order(:position) }, source: :images, through: :variants_including_master
     has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :target_images, through: :variants_including_master
+    has_many :personalisation_images, -> { order(:position) }, source: :images, through: :personalisations
 
     accepts_nested_attributes_for :variants, allow_destroy: true
     accepts_nested_attributes_for :targets, allow_destroy: true
@@ -116,14 +118,12 @@ module Spree
 
     def all_variants_or_master
       variants.blank? ? [master] : variants
+    # from variant options
     end
 
-    # suggestion for query improvement @Martin
-    has_many :option_values, -> { order(:position) }, through: :variants
-    # from variant options
-    # def option_values
-    #   @_option_values ||= Spree::OptionValue.for_product(self).order(:position).sort_by {|ov| ov.option_type.position }
-    # end
+    def option_values
+      @_option_values ||= Spree::OptionValue.for_product(self).order(:position).sort_by {|ov| ov.option_type.position }
+    end
 
     def grouped_option_values
       @_grouped_option_values ||= option_values.group_by(&:option_type)
@@ -302,12 +302,19 @@ module Spree
           else
             base[o.option_type.url_safe_name][o.url_safe_name]['variant'] ||= {}
             base[o.option_type.url_safe_name][o.url_safe_name]['variant']['id']=v.id
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).display_price.to_html
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).display_price.to_html
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).in_subunit
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
             base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
           end
         end
       end
+      hash
+    end
+
+    def option_type_order
+      hash = {}
+      option_type_names = self.option_types.order(:position).map{|o| o.url_safe_name}
+      option_type_names.each_with_index { |o,i| hash[o] = option_type_names[i+1] }
       hash
     end
 

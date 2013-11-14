@@ -2,10 +2,9 @@ module Spree
   module PDF
     class CommercialInvoice < Base
       WATG_LOGO = File.join(Rails.root, 'app/assets/images/', 'logo-watg-135x99.png' )   unless defined?(WATG_LOGO)
-      
+
       class << self
         def create(pdf, order, batch_index=nil)
-          initial_y = pdf.cursor
           initialmove_y = 5
           address_x = 35
           invoice_header_x = 325
@@ -13,7 +12,7 @@ module Spree
 
           set_font(pdf)
           pdf.text_box batch_index.to_s, at: [10, 40], height: 30, width: 100 if batch_index
-          
+
           pdf.move_down initialmove_y
 
           watg_details(pdf, address_x, lineheight_y)
@@ -48,7 +47,7 @@ module Spree
           pdf.move_down lineheight_y
           pdf.move_down lineheight_y
           pdf.text_box "Email: info@woolandthegang.com", :at => [address_x,  pdf.cursor]
-          
+
           pdf
         end
 
@@ -64,7 +63,7 @@ module Spree
         def customer_address(pdf, order, address_x, lineheight_y)
           pdf.move_down 65
           last_measured_y = pdf.cursor
-          
+
           pdf.text_box "#{order.shipping_address.firstname} #{order.shipping_address.lastname} ", :at => [address_x,  pdf.cursor]
           pdf.move_down lineheight_y
           pdf.text_box order.shipping_address.address1, :at => [address_x,  pdf.cursor]
@@ -80,70 +79,83 @@ module Spree
           pdf.text_box order.shipping_address.phone, :at => [address_x,  pdf.cursor]
 
           pdf.move_cursor_to last_measured_y
-          
+
           pdf
         end
 
         def invoice_details(pdf, order, invoice_header_x)
-          
+
           invoice_header_data = [ 
-                                 ["Invoice #", order.number ],
-                                 ["Invoice Date", Time.now.strftime("%Y/%m/%d") ],
-                                 ["Amount Due",   order.display_total.to_s ]
-                                ]
-          
+            ["Invoice #", order.number ],
+            ["Invoice Date", Time.now.strftime("%Y/%m/%d") ],
+            ["Order Complete  Date", order.completed_at.strftime("%Y/%m/%d") ],
+            ["Amount Due",   order.display_total.to_s ]
+          ]
+
 
           pdf.table(invoice_header_data, :position => invoice_header_x, :width => 215) do
-            style(row(0..1).columns(0..1), :padding => [1, 5, 1, 5], :borders => [])
-            style(row(2), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
-            style(column(1), :align => :right)
-            style(row(2).columns(0), :borders => [:top, :left, :bottom])
-            style(row(2).columns(1), :borders => [:top, :right, :bottom])
+            style(row(0..2).columns(0..1), :padding => [1, 5, 1, 5], :borders => [])
+            style(row(3), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
+            style(column(2), :align => :right)
+            style(row(3).columns(0), :borders => [:top, :left, :bottom])
+            style(row(3).columns(1), :borders => [:top, :right, :bottom])
           end
 
           pdf.move_down 45
 
-          invoice_services_data = [ [ 'item', 'sku', 'type', 'contents', 'options', 'price', 'quantity', 'total' ] ]
+          invoice_services_data = [ [ 'item', 'sku', 'type', 'contents', 'options', 'price', 'qty', 'total' ] ]
           order.line_items.each do |item|
             invoice_services_data << [
-                                      item.variant.product.name,
-                                      item.variant.sku,
-                                      item.product.product_type,
-                                      '-',
-                                      item.variant.option_values.empty? ? '' : item.variant.options_text,
-                                      item.single_money.to_s,
-                                      item.quantity,
-                                      item.display_amount.to_s
-                                     ]
-        if item.product.product_type == 'kit' or item.product.product_type == 'virtual_product'
-          
-          item.variant.required_parts_for_display.each do |p|
+              item.variant.product.name,
+              item.variant.sku,
+              item.product.product_type,
+              '-',
+              item.variant.option_values.empty? ? '' : item.variant.options_text,
+              item.single_money.to_s,
+              item.quantity,
+              item.display_amount.to_s
+            ]
+            if item.product.product_type == 'kit' or item.product.product_type == 'virtual_product'
+
+              item.variant.required_parts_for_display.each do |p|
                 invoice_services_data << [
-                                          '-',
-                                          'part',
-                                          p.name,
-                                          p.option_values.empty? ? '' : p.options_text,
-                                          '-',
-                                          p.count_part,
-                                          '-',
-                                         ]
+                  '-',
+                  '-',
+                  'part',
+                  p.name,
+                  p.option_values.empty? ? '' : p.options_text,
+                  '-',
+                  p.count_part,
+                  '-',
+                ]
               end
-          item.line_item_options.each do |p|
+              item.line_item_options.each do |p|
                 invoice_services_data << [
-                                          '-',
-                                          'part',
-                                          p.variant.name,
-                                          p.variant.option_values.empty? ? '' : p.variant.options_text,
-                                          '-',
-                                          p.quantity,
-                                          '-',
-                                         ]
+                  '-',
+                  '-',
+                  'part',
+                  p.variant.name,
+                  p.variant.option_values.empty? ? '' : p.variant.options_text,
+                  '-',
+                  p.quantity,
+                  '-',
+                ]
               end
-          
-        end
-            
+            end
+            item.line_item_personalisations.each do |p|
+              invoice_services_data << [
+                '-',
+                '-',
+                'personalisation',
+                p.name,
+                p.data_to_text,
+                '-',
+                '-',
+                '-',
+              ]
+            end
           end
-          
+
           pdf.table(invoice_services_data, :width => pdf.bounds.width) do
             style(row(1..-1).columns(0..-1), :padding => [4, 5, 4, 5], :borders => [:bottom], :border_color => 'dddddd')
             style(row(0), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
@@ -152,13 +164,15 @@ module Spree
             style(row(0).columns(-1), :borders => [:top, :right, :bottom])
             style(row(-1), :border_width => 2)
             style(column(2..-1), :align => :right)
-            style(columns(0), :width => 50)
-            style(columns(1), :width => 50)
-            style(columns(2), :width => 50)
-            style(columns(3), :width => 50)
+            style(columns(0), :width => 70)
+            style(columns(1), :width => 60)
+            style(columns(2), :width => 70)
+            style(columns(3), :width => 70)
             style(columns(4), :width => 150)
+            style(columns(5), :width => 40)
+            style(columns(6), :width => 30)
           end
-          
+
           pdf.move_down 1
 
           invoice_services_totals_data = [ [ "Sub Total", order.display_item_total.to_s ] ]
@@ -167,7 +181,7 @@ module Spree
             invoice_services_totals_data  << [ adjustment.label ,  adjustment.display_amount.to_s ]
           end
           invoice_services_totals_data.push [ "Order Total", order.display_total.to_s ]
-          
+
           pdf.table(invoice_services_totals_data, :position => invoice_header_x, :width => 215) do
             style(row(0..1).columns(0..1), :padding => [1, 5, 1, 5], :borders => [])
             style(row(0), :font_style => :bold)
@@ -176,24 +190,24 @@ module Spree
             style(row(2).columns(0), :borders => [:top, :left, :bottom])
             style(row(2).columns(1), :borders => [:top, :right, :bottom])
           end
-          
+
           pdf
         end
 
 
         def invoice_terms(pdf)
           pdf.move_down 25
-          
+
           invoice_terms_data = [ 
-                                ["Delivery Terms"],
-                                ["Goods shipped by Wool and the Gang"]
-                               ]
-          
+            ["Delivery Terms"],
+            ["Goods shipped by Wool and the Gang"]
+          ]
+
           pdf.table(invoice_terms_data, :width => 275) do
             style(row(0..-1).columns(0..-1), :padding => [1, 0, 1, 0], :borders => [])
             style(row(0).columns(0), :font_style => :bold)
           end
-          
+
           pdf
         end
 
@@ -201,12 +215,12 @@ module Spree
 
         def invoice_signature(pdf)
           pdf.move_down 25
-          
+
           signature_data = [ 
-                            ["Name", "Signature", "Date"],
-                            ['','' ,'' ],
-                           ]
-          
+            ["Name", "Signature", "Date"],
+            ['','' ,'' ],
+          ]
+
           pdf.table(signature_data, :width => 350) do
             style(row(1..-1).columns(0..-1), :padding => [4, 5, 4, 5], :borders => [:bottom], :border_color => 'dddddd')
             style(row(0), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
@@ -215,11 +229,11 @@ module Spree
             style(row(0).columns(-1), :borders => [:top, :right, :bottom])
             style(row(1), :border_width => 2, :height => 20 )
           end
-          
+
           pdf
         end
 
-        
+
       end
     end
   end

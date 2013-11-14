@@ -19,6 +19,7 @@ module Spree
           float :width
           float :weight
           string :label, nils: true, empty: true
+          integer :part_id
         end
 
       end

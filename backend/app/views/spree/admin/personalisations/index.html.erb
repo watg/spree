@@ -1,0 +1,43 @@
+<%= render :partial => 'spree/admin/shared/product_sub_menu' %>
+<%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => 'personalisations'} %>
+
+<% content_for :page_title do %>
+  <%= Spree.t(:personalisations) %>
+<% end %>
+
+<fieldset id="personalisation_fields" class ="no-border-bottom no-border-top">
+
+  <%= form_tag spree.admin_product_personalisations_path(@product), :remote => true, :id => 'new_product_personalisation_form' do %>
+    <fieldset>
+      <legend align="center"><%= Spree.t(:personalisations) %></legend>
+      <div class="field">
+        <%= label_tag :personalisation_type, Spree.t(:add_personalisation_of_type) %>  
+        <%= select_tag('personalisation[type]', options_for_product_personalisation_types(@product), :class => 'select2 fullwidth') %>
+      </div>
+      <div class="filter-actions actions">
+        <%= button Spree.t(:add), 'icon-plus' %>
+      </div>
+    </fieldset>
+  <% end %>
+
+  <%= form_tag spree.update_all_admin_product_personalisations_path(@product) do %>
+    <fieldset class="no-border-top">
+    <div id="personalisations" class="filter_list row">
+      <% if @product.personalisations.any? %>
+        <%= render :partial => 'personalisation', :collection => @product.personalisations, :locals => {} %>
+    <% else %>
+        <div class="no-objects-found">
+        <%= Spree.t(:no_personalisations_added) %>
+      </div>
+    <% end %>
+    </div>
+
+    <div class="personalisation-update filter-actions actions">
+      <%= button Spree.t('actions.update'), 'icon-refresh' %>
+    </div>
+
+  </fieldset>
+  <% end %>
+
+</fieldset>
+
