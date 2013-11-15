@@ -67,6 +67,10 @@ module Spree
         [:id, :name]
       end
 
+      def index_page_attributes
+        [:id, :name]
+      end
+
       def inventory_unit_attributes
         [:id, :lock_version, :state, :variant_id, :shipment_id, :return_authorization_id]
       end

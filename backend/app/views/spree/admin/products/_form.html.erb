@@ -122,8 +122,14 @@
   </div>
 
   <div class="twelve columns alpha omega">
+    <%= f.field_container :index_pages do %>
+      <%= f.label :index_page_ids, Spree.t(:index_pages) %><br />
+      <%= f.hidden_field :index_page_ids, :value => @product.index_page_ids.join(',') %>
+    <% end %>
+
+
     <%= f.field_container :taxons do %>
-      <%= f.label :taxon_ids, Spree.t(:taxons) %><br />
+      <%= f.label :taxon_ids, Spree.t(:taxons) %> To be deprecated, use index pages instead. <br />
       <%= f.hidden_field :taxon_ids, :value => @product.taxon_ids.join(',') %>
     <% end %>
 

@@ -34,8 +34,12 @@ module Spree
     has_many :taxons, through: :classifications
     has_and_belongs_to_many :promotion_rules, join_table: :spree_products_promotion_rules
 
-    has_many :targets, class_name: 'Spree::ProductTarget', dependent: :destroy
-    
+    # has_many :product_targets, class_name: 'Spree::ProductTarget', dependent: :destroy
+    has_many :targets, class_name: 'Spree::ProductTarget'#, through: :product_targets
+
+    has_many :index_page_items, as: :item, dependent: :delete_all
+    has_many :index_pages, through: :index_page_items
+
     belongs_to :tax_category,      class_name: 'Spree::TaxCategory'
     belongs_to :shipping_category, class_name: 'Spree::ShippingCategory'
     belongs_to :gang_member,       class_name: 'Spree::GangMember'

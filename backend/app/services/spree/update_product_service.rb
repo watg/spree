@@ -22,16 +22,9 @@ module Spree
       end
 
       def update_details(product, product_params)
-        if product_params[:option_type_ids].blank?
-          product_params.delete(:option_type_ids)
-        else
-          product_params[:option_type_ids] = split_params(product_params[:option_type_ids])
-        end
-        if product_params[:taxon_ids].blank?
-          product_params.delete(:taxon_ids)
-        else
-          product_params[:taxon_ids] = split_params(product_params[:taxon_ids])
-        end
+        product_params[:option_type_ids] = split_params(product_params[:option_type_ids])
+        product_params[:taxon_ids] = split_params(product_params[:taxon_ids])
+        product_params[:index_page_ids] = split_params(product_params[:index_page_ids])
 
         update_before(product_params)
 
