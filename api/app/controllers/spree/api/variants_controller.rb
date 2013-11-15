@@ -21,7 +21,7 @@ module Spree
       end
 
       def index
-        @variants = scope.includes(:option_values).ransack(params[:q]).result 
+        @variants = scope.includes({option_values: :option_type}, {stock_items: :stock_location}, :images, :prices, :product).ransack(params[:q]).result 
 
         if params[:page] || params[:per_page]
           @variants = @variants.page(params[:page]).per(params[:per_page])
