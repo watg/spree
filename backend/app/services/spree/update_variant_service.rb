@@ -39,10 +39,6 @@ module Spree
     end
 
     def execute
-      puts "================================"
-      puts details
-      puts "================================"
-      puts "================================"
       ActiveRecord::Base.transaction do
         tags = details.delete(:tags).split(",")
         details[:index_page_ids] = split_params(details[:index_page_ids])
@@ -65,7 +61,7 @@ module Spree
       variant.tags = tags
     end
 
-    def split_params(input=nil)
+    def split_params(input)
       input.blank? ? [] : input.split(',').map(&:to_i)
     end  
 

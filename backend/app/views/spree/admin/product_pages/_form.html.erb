@@ -23,7 +23,7 @@
 
 <%= f.field_container :index_page do %>
   <%= f.label :index_page_ids, "Index Pages" %><br />
-  <%= f.hidden_field :index_page_ids, :value => @product_page.index_page_ids.join(','), :class => 'fullwidth title'  %>
+  <%= f.hidden_field :index_page_ids, :value => @product_page.index_page_ids.join(','), :class => 'index-page-dropdown fullwidth title'  %>
 <% end %>
 
 

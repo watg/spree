@@ -5,6 +5,7 @@ $(document).ready(function () {
     $('#product_page_product_group_ids').select2({
       placeholder: "Choose product groups",
       multiple: true,
+      minimumInputLength: 2,
       initSelection: function (element, callback) {
         var url = Spree.url(Spree.routes.product_groups_search, {
           ids: element.val()
@@ -18,7 +19,7 @@ $(document).ready(function () {
         datatype: 'json',
         data: function (term, page) {
           return {
-            per_page: 50,
+            per_page: 10,
             page: page,
             q: {
               name_cont: term
@@ -26,8 +27,6 @@ $(document).ready(function () {
           };
         },
         results: function (data, page) {
-          // var more = page < data.pages;
-          console.log(data)
           return {
             results: data
           };

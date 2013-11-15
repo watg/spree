@@ -1,19 +1,13 @@
 $(document).ready(function () {
   'use strict';
 
-  var index_page_dropdown = null;
+  var index_page_dropdown = $('.index-page-dropdown').first();
 
-  if ($('#product_index_page_ids').length > 0)
-    index_page_dropdown = $('#product_index_page_ids');
-  else if ($('#variant_index_page_ids').length > 0)
-    index_page_dropdown = $('#variant_index_page_ids');
-  else if ($('#product_page_index_page_ids').length > 0)
-    index_page_dropdown = $('#product_page_index_page_ids');
-
-  if (index_page_dropdown) {
+  if (index_page_dropdown.length > 0) {
     index_page_dropdown.select2({
       placeholder: "Choose index pages to assign",
       multiple: true,
+      minimumInputLength: 2,
       initSelection: function (element, callback) {
         var url = Spree.url(Spree.routes.index_pages_search, {
           ids: element.val()
@@ -27,7 +21,7 @@ $(document).ready(function () {
         datatype: 'json',
         data: function (term, page) {
           return {
-            per_page: 50,
+            per_page: 10,
             page: page,
             q: {
               name_cont: term

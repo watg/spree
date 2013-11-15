@@ -26,7 +26,7 @@
     <div class="twelve columns alpha omega">
       <%= f.field_container :index_pages do %>
         <%= f.label :index_page_ids, "Index Pages" %>
-        <%= f.hidden_field :index_page_ids, :value => @variant.index_page_ids.join(','), :class => 'fullwidth' %>
+        <%= f.hidden_field :index_page_ids, :value => @variant.index_page_ids.join(','), :class => 'index-page-dropdown fullwidth' %>
       <% end %>
     </div>
     <br><br><br>

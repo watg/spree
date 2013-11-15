@@ -124,7 +124,7 @@
   <div class="twelve columns alpha omega">
     <%= f.field_container :index_pages do %>
       <%= f.label :index_page_ids, Spree.t(:index_pages) %><br />
-      <%= f.hidden_field :index_page_ids, :value => @product.index_page_ids.join(',') %>
+      <%= f.hidden_field :index_page_ids, :value => @product.index_page_ids.join(','), class: 'index-page-dropdown' %>
     <% end %>
 
 

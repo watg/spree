@@ -5,5 +5,6 @@ module Spree
     
     acts_as_list :scope => :index_page
 
+    validates_uniqueness_of :index_page, :scope => :item_id, :message => :already_linked
   end
 end
