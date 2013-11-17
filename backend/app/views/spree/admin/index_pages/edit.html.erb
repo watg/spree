@@ -23,27 +23,30 @@
     <%= render 'form', f: f %>
 
     <legend align="center">Items</legend>
-    <table class="index sortable" data-hook data-sortable-link="<%= update_items_positions_admin_index_pages_url %>" data-sortable-link="/admin/index_page_items/update_positions">
-
-      <thead data-hook="option_header">
+    <table class="index sortable" data-hook data-sortable-link="<%= update_items_positions_admin_index_pages_path %>">
+<!--       <colgroup>
+         <col style="width: 15%;">
+         <col style="width: 25%;">
+         <col style="width: 25%;">
+         <col style="width: 15%;">
+      </colgroup> -->
+      <thead>
         <tr>
-          <th colspan="2"><%= Spree.t(:name) %></th>
-          <th>Preview</th>
-          <th>Product Name</th>
-          <th>Options</th>
+          <th colspan="3" style="width: 200px">Name</th>
+          <th>CSS Style</th>
           <th class="actions"></th>
         </tr>
       </thead>
 
       <tbody id="index_page_items">
         <% if @index_page.items.empty? %>
-          <tr id="none" data-hook="option_none" class="<%= cycle('odd', 'even')%>">
+          <tr id="none" class="<%= cycle('odd', 'even')%>">
             <td colspan="5"><%= Spree.t(:none) %></td>
             <td class="actions"></td>
           </tr>
         <% else %>
           <%= f.fields_for :items do |item_form| %>
-            <%= render 'item_fields',f: item_form %>
+            <%= render 'item_fields',f: item_form  if f.object %>
           <% end %>
         <% end %>
       </tbody>

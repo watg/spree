@@ -1,7 +1,6 @@
 module Spree
   module Admin
     class IndexPagesController < ResourceController
-      before_filter :setup_new_index_page_item, :only => [:edit]
 
       def update_items_positions
         params[:positions].each do |id, index|
@@ -22,13 +21,6 @@ module Spree
           else
             admin_index_pages_url
           end
-        end
-
-
-      private
-    
-        def setup_new_index_page_item
-          @index_page.items.new if @index_page.items.empty?
         end
 
    

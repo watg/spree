@@ -9,7 +9,11 @@ module Spree
     default_scope { order('position') }
 
     def image
-      item.images.first
+      item.variant_images.first
+    end
+
+    def name
+      item.name
     end
 
     validates_uniqueness_of :index_page, :scope => :item_id, :message => :already_linked

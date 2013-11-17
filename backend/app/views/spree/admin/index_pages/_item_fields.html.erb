@@ -1,10 +1,12 @@
-<tr class="index_page fields" id="spree_<%# dom_id(f.object) %>"  data-hook="index_page" class="<%= cycle('odd', 'even')%>">
+<tr class="index_page fields" id="spree_<%= dom_id(f.object) %>"  data-hook="index_page" class="<%= cycle('odd', 'even')%>">
   <td class="no-border">
     <span class="handle"></span>
     <%= f.hidden_field :id %>
   </td>
-  <td><%# image_tag f.object.image.url(:small) if f.object.has_image? %></td>
-  <td><%= f.text_field :name %></td>
+  <td><%= image_tag f.object.image.attachment.url(:mini) if f.object.image %></td>
+
+  <td><%= link_to f.object.name, url_for([:admin, f.object.item]) %></td>
+  
   <td><%= f.text_field :css_style %></td>
   
   <td class="actions"><%= link_to_remove_fields Spree.t(:remove), f, :no_text => true %></td>
