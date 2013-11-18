@@ -42,5 +42,5 @@ Spree::Core::Engine.add_routes do
   get '/content/cvv', :to => 'content#cvv', :as => :cvv
   get '/content/*path', :to => 'content#show', :as => :content
 
-  get '/product-group/:id(/:tab)(/*rest)', :to => 'product_groups#show', :as => :product_page
+  get '/product-pages/:id(/:tab)(/*rest)', :to => 'product_pages#show', :as => :product_page
 end
