@@ -10,7 +10,8 @@
   <div class="omega six columns">
     <%= f.field_container :taxon_id do %>
       <%= f.label :taxon_id, "Taxon: " %><br />
-      <%= f.collection_select(:taxon_id, Spree::Taxon.all, :id, :name, { :prompt => "Choose taxon" }, class: 'select2 fullwidth') %>
+      <%= f.hidden_field :taxon_id, value: "" %>
+      <%= f.collection_select(:taxon_id, Spree::Taxon.all.reject{ |t| t.index_page.present? && t != f.object.taxon }, :id, :pretty_name, { :include_blank => true }, class: 'select2 fullwidth') %>
       <%= f.error_message_on :taxon_id %>
     <% end %>
   </div>
