@@ -1,6 +1,6 @@
 <% displayed ||= false -%>
 
-<table class="index variants <%= displayed ? 'displayed' : '' %>">
+<table class="index variants <%= displayed ? 'displayed' : '' %>" data-url="<%= update_positions_admin_product_page_variants_path(@product_page) %>">
     <colgroup>
       <col style="width: 5%" />
       <col style="width: 25%" />
@@ -27,7 +27,7 @@
       <% end -%>
       <% if variants.present? -%>
       <% variants.each do |variant| %>
-        <tr class="variant" id="variant-<%= variant.id %>" data-variant-id="<%= variant.id %>">
+        <tr class="variant" id="variant-<%= variant.id %>" data-variant-id="<%= variant.id %>" data-url="<%= admin_product_page_variants_path(@product_page) %>">
 	  <td class="no-border">
 	    <span class="handle" />
 	  </td>

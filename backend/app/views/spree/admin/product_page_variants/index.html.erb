@@ -10,7 +10,7 @@
 
 <%= render :partial => 'spree/shared/error_messages', :locals => { :target => @product_page } %>
 
-<%= form_tag admin_product_page_product_page_variants_path do %>
+<%= form_tag admin_product_page_variants_path do %>
 <% @product_types.each do |product_type| %>
 <section class="product-type">
   <h2><%= product_type.humanize %></h2>

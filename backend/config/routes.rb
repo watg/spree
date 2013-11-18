@@ -6,7 +6,7 @@ Spree::Core::Engine.routes.draw do
     get '/search/users', :to => "search#users", :as => :search_users
 
     resources :product_pages do
-      resources :product_page_variants do
+      resources :variants, controller: "product_page_variants" do
         collection do
           post :update_positions
         end
