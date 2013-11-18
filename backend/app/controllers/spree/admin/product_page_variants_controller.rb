@@ -42,21 +42,10 @@ module Spree
       def destroy
         product_page = load_product_page
         @variant_id = params["id"]
-        outcome = Spree::DeleteProductPageVariantsService.run(
-          product_page: product_page,
-          variant_id: @variant_id
-        )
-        if outcome.success?
-          respond_to do |format|
-            format.js
-          end
-        else
-          respond_to do |format|
-            format.js {
-              errors = outcome.errors.message_list.join('<br/>')
-              render text: errors, status: 422
-            }
-          end
+        variant = Spree::Variant.find(@variant_id)
+        product_page.display_variants.destroy(variant)
+        respond_to do |format|
+          format.js
         end
       end
 
