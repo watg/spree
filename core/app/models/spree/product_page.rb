@@ -33,15 +33,7 @@ module Spree
     end
 
     def ready_to_wear_variants
-      p = products.where(:product_type => 'ready_to_wear').includes(:variants)
-      all_variants = p.inject([]) do |variants, product|
-        if product.variants.size == 0
-          variants + [product.master]
-        else
-          variants + product.variants
-        end
-      end
-      all_variants
+      display_variants.select { |v| v.product.product_type == 'ready_to_wear' }
     end
 
     def ready_to_wear_banner
