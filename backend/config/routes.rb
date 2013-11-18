@@ -14,7 +14,11 @@ Spree::Core::Engine.routes.draw do
 
 
     resources :product_pages do
-      resources :product_page_variants
+      resources :variants, controller: "product_page_variants" do
+        collection do
+          post :update_positions
+        end
+      end
     end
 
     resources :product_groups

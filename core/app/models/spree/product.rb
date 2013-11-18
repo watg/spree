@@ -34,7 +34,8 @@ module Spree
     has_many :taxons, through: :classifications
     has_and_belongs_to_many :promotion_rules, join_table: :spree_products_promotion_rules
 
-    has_many :targets, class_name: 'Spree::ProductTarget'
+    has_many :product_targets, class_name: 'Spree::ProductTarget', dependent: :destroy
+    has_many :targets, class_name: 'Spree::Target', through: :product_targets
 
     has_many :index_page_items, as: :item, dependent: :delete_all
     has_many :index_pages, through: :index_page_items
@@ -95,7 +96,7 @@ module Spree
     has_many :personalisation_images, -> { order(:position) }, source: :images, through: :personalisations
 
     accepts_nested_attributes_for :variants, allow_destroy: true
-    accepts_nested_attributes_for :targets, allow_destroy: true
+    accepts_nested_attributes_for :product_targets, allow_destroy: true
 
     validates :name, presence: true
     validates :permalink, presence: true

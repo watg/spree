@@ -1,14 +1,16 @@
 <% displayed ||= false -%>
 
-  <table class="index">
+<table class="index variants <%= displayed ? 'displayed' : '' %>" data-url="<%= update_positions_admin_product_page_variants_path(@product_page) %>">
     <colgroup>
+      <col style="width: 5%" />
       <col style="width: 25%" />
-      <col style="width: 40%" />
       <col style="width: 30%" />
+      <col style="width: 35%" />
       <col style="width: 5%" />
     </colgroup>
     <thead data-hook="variants_header">
       <tr>
+	<th/>
         <th><%= Spree.t(:image) %></th>
         <th><%= Spree.t(:variant_combination) %></th>
         <th><%= Spree.t(:description) %></th>
@@ -18,14 +20,17 @@
     <tbody>
       <% if displayed -%>
       <tr class="empty">
-	<td colspan="4">
+	<td colspan="5">
 	  <p><em>No variants</em></p>
 	</td>
       </tr>
       <% end -%>
       <% if variants.present? -%>
       <% variants.each do |variant| %>
-        <tr class="variant">
+        <tr class="variant" id="variant-<%= variant.id %>" data-variant-id="<%= variant.id %>" data-url="<%= admin_product_page_variants_path(@product_page) %>">
+	  <td class="no-border">
+	    <span class="handle" />
+	  </td>
           <td>
             <% if variant.images.any? %>
               <%= image_tag(variant.images.first.attachment.url(:listing)) %>

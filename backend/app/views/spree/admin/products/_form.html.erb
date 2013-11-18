@@ -1,6 +1,6 @@
 <div data-hook="admin_product_form_fields">
-  
-  <div class="left eight columns alpha" data-hook="admin_product_form_left">    
+
+  <div class="left eight columns alpha" data-hook="admin_product_form_left">
     <%= f.field_container :name do %>
       <%= f.label :name, raw(Spree.t(:name) + content_tag(:span, ' *', :class => 'required')) %>
       <%= f.text_field :name, :class => 'fullwidth title' %>
@@ -101,12 +101,12 @@
     <fieldset>
       <legend align="center"><%= "Description for Targets" %></legend>
       <div id="product_targets" class="row">
-        <%= f.fields_for :targets do |builder| %>
-          <%= render 'target_fields', f: builder %>
+        <%= f.fields_for :product_targets do |builder| %>
+          <%= render 'product_target_fields', f: builder %>
         <% end %>
       </div>
       <div class="form-buttons filter-actions actions">
-        <%= link_to_add_description_fields "Add Description", f, :targets %>
+        <%= link_to_add_description_fields "Add Description", f, :product_targets %>
       </div>
       <br>
     </fieldset>

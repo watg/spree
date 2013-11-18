@@ -1,34 +1,40 @@
-class ProductPageVariant
-    constructor: (@list, @elem) ->
-        @elem.find("input.display-toggle").change (event) =>
-            target = event.target
-            @elem.detach()
-            if $(target).prop("checked")
-                @list.moveToDisplayed(@elem)
-            else
-                @list.moveToAvailable(@elem)
-
-class ProductTypeList
-    constructor: (selector) ->
-        @elem = $(selector)
-        @displayedTable = @elem.find(".displayed table")
-        @displayedTableEmpty = @displayedTable.find("tr.empty")
-        if @displayedTable.find("tbody tr").length != 1
-            @displayedTableEmpty.detach()
-        @availableTable = @elem.find(".available table")
-
-        @elem.find("tr.variant").each (_, elem) =>
-            new ProductPageVariant(@, $(elem))
-
-    moveToDisplayed: (tr) ->
-        @displayedTableEmpty.detach()
-        @displayedTable.append(tr)
-
-    moveToAvailable: (tr) ->
-        @availableTable.append(tr)
-        if @displayedTable.find("tbody tr").length == 0
-            @displayedTable.append(@displayedTableEmpty)
-
 $ ->
-    $("section.product-type").each ->
-        new ProductTypeList(@)
+    $(".variant input.display-toggle").change (event) ->
+        target = $(event.target)
+        variant = target.closest(".variant")
+        id = variant.data('variant-id')
+        url = variant.data("url")
+        if target.is(':checked')
+            $.ajax url,
+                type: 'POST'
+                data: { variant_id: id }
+                dataType: "script"
+                error: (xhr) ->
+                    target.removeAttr('checked')
+                    show_flash_error(xhr.responseText)
+        else
+            $.ajax url + "/" + id,
+                type: 'DELETE'
+                dataType: "script"
+                error: (xhr) ->
+                    target.attr('checked', true)
+                    show_flash_error(xhr.responseText)
+
+
+  $("table.variants.displayed tbody").ready ->
+    for table in $("table.variants.displayed")
+        url = $(table).data("url")
+        $(table).find("tbody").sortable
+            handle: '.handle'
+            update: (event, ui) ->
+                tbody = $(ui.item).closest("tbody")
+                positions = {}
+                for variant, idx in tbody.find(".variant")
+                    id = $(variant).data('variant-id')
+                    positions[id] = idx
+                $("#progress").show()
+                $.ajax url,
+                    type: "POST"
+                    dataType: 'script'
+                    data: { positions: positions }
+                    complete: (-> $("#progress").hide())
