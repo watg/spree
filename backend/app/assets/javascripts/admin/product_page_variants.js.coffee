@@ -19,3 +19,19 @@ $ ->
                     target.attr('checked', true)
                     show_flash_error(xhr.responseText)
 
+
+  $("table.variants.displayed tbody").ready ->
+    $("table.variants.displayed tbody").sortable
+        handle: '.handle'
+        update: (event, ui) ->
+            tbody = $(ui.item).closest("tbody")
+            positions = {}
+            for variant, idx in tbody.find(".variant")
+                id = $(variant).attr('id').replace(/variant-/, '')
+                positions[id] = idx
+            $("#progress").show()
+            $.ajax Spree.routes.update_positions_product_page_variants,
+                type: "POST"
+                dataType: 'script'
+                data: { positions: positions }
+                complete: (-> $("#progress").hide())

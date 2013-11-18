@@ -9,6 +9,15 @@ module Spree
         @product_types = (@available_variants.keys + @product_page_variants.keys).uniq.sort
       end
 
+      def update_positions
+        product_page = load_product_page
+        params[:positions].each_pair do |id, pos|
+          v = product_page.product_page_variants.where(variant_id: id).first
+          v.update_attributes(position: pos)
+        end
+        render nothing: true
+      end
+
       def create
         product_page = load_product_page
         @variant_id = params["variant_id"]

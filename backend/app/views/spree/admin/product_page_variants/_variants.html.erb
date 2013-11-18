@@ -1,6 +1,6 @@
 <% displayed ||= false -%>
 
-  <table class="index sortable">
+<table class="index variants <%= displayed ? 'displayed' : '' %>">
     <colgroup>
       <col style="width: 5%" />
       <col style="width: 25%" />
@@ -20,7 +20,7 @@
     <tbody>
       <% if displayed -%>
       <tr class="empty">
-	<td colspan="4">
+	<td colspan="5">
 	  <p><em>No variants</em></p>
 	</td>
       </tr>

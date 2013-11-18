@@ -9,7 +9,13 @@ module Spree
     def execute
       variant = Spree::Variant.find(variant_id)
       ActiveRecord::Base.transaction do
-        product_page.display_variants << variant
+        last_position = product_page.product_page_variants.
+          where.not(position: nil).order('position DESC').first.position
+        Spree::ProductPageVariant.create(
+          product_page: product_page,
+          variant: variant,
+          position: last_position + 1
+        )
       end
     end
   end
