@@ -1,6 +1,6 @@
 module Spree
   module Admin
-    class ProductPageVariantsController < ResourceController
+    class ProductPageVariantsController < BaseController
       def index
         @product_page = load_product_page
 
@@ -9,16 +9,44 @@ module Spree
         @product_types = (@available_variants.keys + @product_page_variants.keys).uniq.sort
       end
 
+      def update_positions
+        product_page = load_product_page
+        params[:positions].each_pair do |id, pos|
+          v = product_page.product_page_variants.where(variant_id: id).first
+          v.update_attributes(position: pos)
+        end
+        render nothing: true
+      end
+
       def create
         product_page = load_product_page
-        outcome = Spree::ProductPageVariantsService.run(
+        @variant_id = params["variant_id"]
+        outcome = Spree::CreateProductPageVariantsService.run(
           product_page: product_page,
-          variant_ids: params["variant_ids"]
+          variant_id: @variant_id
         )
-        if !outcome.success?
-          flash[:error] = outcome.errors.message_list.join('<br/>')
+        if outcome.success?
+          respond_to do |format|
+            format.js
+          end
+        else
+          respond_to do |format|
+            format.js {
+              errors = outcome.errors.message_list.join('<br/>')
+              render text: errors, status: 422
+            }
+          end
         end
-        redirect_to admin_product_page_product_page_variants_url(product_page)
+      end
+
+      def destroy
+        product_page = load_product_page
+        @variant_id = params["id"]
+        variant = Spree::Variant.find(@variant_id)
+        product_page.display_variants.destroy(variant)
+        respond_to do |format|
+          format.js
+        end
       end
 
       private
