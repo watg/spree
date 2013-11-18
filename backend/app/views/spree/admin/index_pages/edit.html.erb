@@ -7,7 +7,8 @@
 <% content_for :page_actions do %>
   <li>
     <span id="new_add_index_page_item" data-hook>
-      <%= link_to_add_fields Spree.t(:add_index_page_item), "tbody#index_page_items", :class => 'button icon-plus' %>
+      <%= button_link_to "Add Product Page", "#", :class => 'button icon-plus' %>
+      <%= button_link_to "Add Variant", "#", :class => 'button icon-plus' %>
     </span>      
   </li>
   <li>
@@ -24,12 +25,6 @@
 
     <legend align="center">Items</legend>
     <table class="index sortable" data-hook data-sortable-link="<%= update_items_positions_admin_index_pages_path %>">
-<!--       <colgroup>
-         <col style="width: 15%;">
-         <col style="width: 25%;">
-         <col style="width: 25%;">
-         <col style="width: 15%;">
-      </colgroup> -->
       <thead>
         <tr>
           <th colspan="3">Name</th>
