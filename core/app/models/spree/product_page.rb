@@ -21,7 +21,7 @@ module Spree
 
     has_many :index_page_items, as: :item, dependent: :delete_all
     has_many :index_pages, through: :index_page_items
-    
+
     before_save :set_permalink
 
     def all_variants
@@ -46,6 +46,10 @@ module Spree
 
     def kit_product
       products.where(product_type: :kit).first
+    end
+
+    def kit_variants
+      display_variants.select { |v| v.product.product_type == 'kit' }
     end
 
     def kit_banner
