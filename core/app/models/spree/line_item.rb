@@ -9,7 +9,9 @@ module Spree
     belongs_to :target, class_name: "Spree::Target"
 
     has_one :product, through: :variant
+
     has_many :adjustments, as: :adjustable, dependent: :destroy
+	has_many :inventory_units
     has_many :line_item_personalisations, dependent: :destroy
 
     before_validation :copy_price
