@@ -1,0 +1,53 @@
+<%= render :partial => 'spree/admin/shared/product_sub_menu' %>
+
+<% content_for :page_title do %>
+  <%= Spree.t(:editing_index_page) %> <span class="green">"<%= @index_page.name %>"</span>
+<% end %>
+
+<% content_for :page_actions do %>
+  <li>
+    <span id="new_add_index_page_item" data-hook>
+      <%= button_link_to "Add Product Page", "#", :class => 'button icon-plus' %>
+      <%= button_link_to "Add Variant", "#", :class => 'button icon-plus' %>
+    </span>      
+  </li>
+  <li>
+    <%= button_link_to Spree.t(:back_to_index_pages_list), spree.admin_index_pages_path, :icon => 'icon-arrow-left' %>
+  </li>
+<% end %>
+
+<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @index_page } %>
+
+<%= form_for [:admin, @index_page] do |f| %>
+  <fieldset>
+    
+    <%= render 'form', f: f %>
+
+    <legend align="center">Items</legend>
+    <table class="index sortable" data-hook data-sortable-link="<%= update_items_positions_admin_index_pages_path %>">
+      <thead>
+        <tr>
+          <th colspan="3">Name</th>
+          <th>Template</th>
+          <th>Inverted</th>
+          <th class="actions"></th>
+        </tr>
+      </thead>
+
+      <tbody id="index_page_items">
+        <% if @index_page.items.empty? %>
+          <tr id="none" class="<%= cycle('odd', 'even')%>">
+            <td colspan="5"><%= Spree.t(:none) %></td>
+            <td class="actions"></td>
+          </tr>
+        <% else %>
+          <%= f.fields_for :items do |item_form| %>
+            <%= render 'item_fields',f: item_form  if f.object %>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+
+    <%= render :partial => 'spree/admin/shared/edit_resource_links' %>
+  </fieldset>
+<% end %>

@@ -24,6 +24,13 @@
     </div>
 
     <div class="twelve columns alpha omega">
+      <%= f.field_container :index_pages do %>
+        <%= f.label :index_page_ids, "Index Pages" %>
+        <%= f.hidden_field :index_page_ids, :value => @variant.index_page_ids.join(','), :class => 'index-page-dropdown fullwidth' %>
+      <% end %>
+    </div>
+    <br><br><br>
+    <div class="twelve columns alpha omega">
       <fieldset>
         <legend align="center"><%= Spree.t(:tags) %></legend>
 	<%= f.field_container :option_types do %>

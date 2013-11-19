@@ -19,6 +19,9 @@ module Spree
     has_many :product_page_variants
     has_many :display_variants, through: :product_page_variants, class_name: "Spree::Variant", source: :variant
 
+    has_many :index_page_items, as: :item, dependent: :delete_all
+    has_many :index_pages, through: :index_page_items
+    
     before_save :set_permalink
 
     # This will help us clear the caches if a product is modified

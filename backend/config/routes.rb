@@ -5,6 +5,14 @@ Spree::Core::Engine.routes.draw do
   namespace :admin do
     get '/search/users', :to => "search#users", :as => :search_users
 
+    resources :index_pages do
+      collection do
+        post :update_items_positions
+      end
+    end
+    delete '/index_page_items/:id', :to => "index_page_items#destroy", :as => :index_page_item
+
+
     resources :product_pages do
       member do
         post :s3_callback

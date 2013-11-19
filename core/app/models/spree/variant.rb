@@ -23,6 +23,9 @@ module Spree
     has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :images, through: :variant_targets
     has_many :targets, class_name: 'Spree::Target', through: :variant_targets
 
+    has_many :index_page_items, as: :item, dependent: :delete_all
+    has_many :index_pages, through: :index_page_items
+    
     has_one :default_price,
       -> { where currency: Spree::Config[:currency] },
       class_name: 'Spree::Price',
