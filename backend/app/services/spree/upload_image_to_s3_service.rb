@@ -69,8 +69,7 @@ module Spree
       image.find_dimensions
       image.save!
       
-      image.processed = true
-      image.save!
+      image.update_column(:processed, true)
 
       s3.buckets[Rails.configuration.aws[:bucket]].objects[direct_upload_url_data[:path]].delete
     end

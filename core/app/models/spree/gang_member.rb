@@ -41,7 +41,6 @@ module Spree
     Spree::GangMember.attachment_definitions[:avatar][:url] = Spree::Config[:attachment_url]
     Spree::GangMember.attachment_definitions[:avatar][:default_url] = Spree::Config[:attachment_default_url]
     Spree::GangMember.attachment_definitions[:avatar][:default_style] = Spree::Config[:attachment_default_style]
-    Spree::GangMember.attachment_definitions[:avatar][:s3_host_name] = Spree::Config[:s3_host_alias]
 
     def name
       nickname 

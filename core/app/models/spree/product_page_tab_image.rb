@@ -8,6 +8,8 @@ module Spree
       :path          => ":rails_root/public/spree/product_page_tabs/:id/:style/:basename.:extension",
       :convert_options =>  { :all => '-strip -auto-orient' }
 
+    supports_s3 :attachment
+    Spree::ProductPageTabImage.attachment_definitions[:attachment][:url] = Spree::Config[:attachment_url]
     
     # to do: delete the previous image from the file system
     def destroy_image!
