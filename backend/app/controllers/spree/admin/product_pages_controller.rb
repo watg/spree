@@ -11,6 +11,16 @@ module Spree
         end
       end
 
+      def s3_callback
+        callback_params = {
+          attachment_file_name: params[:filename],
+          attachment_content_type: params[:filetype],
+          attachment_file_size: params[:filesize],
+          direct_upload_url: params[:image][:direct_upload_url]
+        }
+        @outcome = Spree::UploadImageToS3Service.run(callback_params, image: ProductPageImage.first_or_create(viewable: @object))
+      end
+
       protected
       def find_resource
         ProductPage.find_by_id(params[:id])

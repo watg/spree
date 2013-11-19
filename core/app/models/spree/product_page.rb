@@ -7,6 +7,7 @@ module Spree
 
     has_and_belongs_to_many :product_groups, join_table: :spree_product_groups_product_pages
 
+    has_one :image, as: :viewable, dependent: :destroy, class_name: "Spree::ProductPageImage"
     has_many :products, through: :product_groups
     has_many :variants, through: :products, source: :all_variants_unscoped
 

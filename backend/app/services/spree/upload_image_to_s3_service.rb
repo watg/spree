@@ -6,32 +6,26 @@ module Spree
     
     required do
       string  :direct_upload_url
-      integer :viewable_id
+      duck :image
     end
 
     optional do
-      model :image
       string :attachment_file_name
       integer :attachment_file_size
       string :attachment_content_type
     end
 
     def execute
-      temp = direct_upload_url
-      self.direct_upload_url = CGI.unescape(temp)
+      self.direct_upload_url = CGI.unescape(direct_upload_url)
       
       unless DIRECT_UPLOAD_URL_FORMAT.match(direct_upload_url)
         add_error(:direct_upload_url, :incorrect_format, "Url not correctly formatted")
         return
       end
       
-      self.image = Image.new(inputs)
-      image.viewable_type = 'Spree::Variant'
-      
-      # a call to s3, maybe unneeded as the 
-      # attributes are anyway set from the callback info
+      # call to s3 to obtain details for the image (largely unneeded)
       # set_attachment_attributes_from_s3
-      image.save
+      image.update_attributes(inputs.except(:image))
 
       if !image.persisted?
         add_error(:image, :not_persisted, "Image was not persisted")
@@ -72,10 +66,12 @@ module Spree
       s3 = AWS::S3.new
 
       image.attachment = URI.parse(URI.escape(image.direct_upload_url))
-      image.processed = true
       image.find_dimensions
       image.save
       
+      image.processed = true
+      image.save
+
       s3.buckets[Rails.configuration.aws[:bucket]].objects[direct_upload_url_data[:path]].delete
     end
 
