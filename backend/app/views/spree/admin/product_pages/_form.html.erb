@@ -19,9 +19,8 @@
     <% end %>
   </div>
 
-  <div class="right six columns omega">
-    <%= image_tag(@product_page.image.attachment.url(:mini)) if @product_page.image.present? %>
-
+  <div class="dropzone right six columns omega" id="product_page_image_container">
+    <%= image_tag(@product_page.image.attachment.url(:small)) if @product_page.image.present? %>
   </div>
 </div>
 

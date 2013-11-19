@@ -3,6 +3,32 @@
 
 $ = jQuery
 
+
+$(document).bind 'dragover', (e) ->
+  $('.dropzone').each ->  
+    dropZone = $(this)
+
+    found = false
+    node = e.target
+
+    if node.nodeName.toLowerCase() == 'img'
+      node = node.parentNode
+    while true
+      if node == dropZone[0]
+        found = true;
+        break;
+      node = node.parentNode
+      break if node != null
+    
+    if found
+      dropZone.addClass('hover')
+    else
+      dropZone.removeClass('hover')
+
+$(document).bind 'drop dragover', (e) ->
+    e.preventDefault()
+
+
 $.fn.S3Uploader = (options) ->
 
   # support multiple elements
@@ -23,6 +49,7 @@ $.fn.S3Uploader = (options) ->
     progress_bar_target: null
     click_submit_target: null
     allow_multiple_files: true
+    drop_zone: null
 
   $.extend settings, options
 
@@ -35,6 +62,7 @@ $.fn.S3Uploader = (options) ->
 
   setUploadForm = ->
     $uploadForm.fileupload
+      dropZone: settings.drop_zone
 
       add: (e, data) ->
         file = data.files[0]

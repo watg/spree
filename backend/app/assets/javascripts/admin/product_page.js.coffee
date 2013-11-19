@@ -4,9 +4,13 @@ jQuery ->
       { 
         remove_completed_progress_bar: false,
         allow_multiple_files: false,
-        progress_bar_target: $('#uploads_container')
+        progress_bar_target: $('#uploads_container'),
+        drop_zone: $($(this).data('dropZone')),
+        additional_data: { 
+          tab_id: $(this).data('tab'),
+          drop_zone: $(this).data('dropZone')
+        }
       }
     )
-
     $(this).bind 's3_upload_failed', (e, content) ->
       alert(content.filename + ' failed to upload')

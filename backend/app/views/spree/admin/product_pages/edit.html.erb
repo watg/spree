@@ -24,24 +24,30 @@
 <%= s3_uploader_form callback_url: s3_callback_admin_product_page_path(@product_page),
   id: "s3_uploader_product_page",
   class: "s3_uploader_form",
+  data: {drop_zone: "#product_page_image_container"}, 
   callback_param: "image[direct_upload_url]",
   expiration: 24.hours.from_now.utc.iso8601,
   max_file_size: 100.megabytes do %>
-  <%= file_field_tag :file, multiple: true %>
-  <%= label_tag Spree.t(:filename) %><br>
+  <%= file_field_tag :file, multiple: true, style: "display:none" %>
+<% end %>
+
+<% @product_page.tabs.each do |tab| %>
+  <%= s3_uploader_form callback_url: s3_callback_admin_product_page_path(@product_page),
+    id: "s3_uploader_product_page",
+    class: "s3_uploader_form",
+    data: {
+      tab: tab.id,
+      drop_zone: "##{tab.tab_type}_image_container"
+    }, 
+    callback_param: "image[direct_upload_url]",
+    expiration: 24.hours.from_now.utc.iso8601,
+    max_file_size: 100.megabytes do %>
+    <%= file_field_tag :file, multiple: true, style: "display:none" %>
+  <% end %>
 <% end %>
 
 
-<%= s3_uploader_form callback_url: s3_callback_admin_product_page_path(@product_page),
-  id: "s3_uploader_product_tab",
-  class: "s3_uploader_form",
-  data: { tab: "1" },
-  callback_param: "image[direct_upload_url]",
-  expiration: 24.hours.from_now.utc.iso8601,
-  max_file_size: 100.megabytes do %>
-  <%= file_field_tag :file, multiple: true %>
-  <%= label_tag Spree.t(:filename) %><br>
-<% end %>
+
 
 <%= form_for [:admin, @product_page], :method => :put, :html => { :multipart => true } do |f| %>
 <div data-hook="admin_product_page_edit_form">

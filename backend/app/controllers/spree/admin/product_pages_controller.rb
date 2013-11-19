@@ -18,7 +18,14 @@ module Spree
           attachment_file_size: params[:filesize],
           direct_upload_url: params[:image][:direct_upload_url]
         }
-        @outcome = Spree::UploadImageToS3Service.run(callback_params, image: ProductPageImage.first_or_create(viewable: @object))
+        if params[:tab_id]
+          tab = ProductPageTab.find params[:tab_id]
+          image = ProductPageTabImage.where(viewable: tab).first_or_create
+        else
+          image = ProductPageImage.where(viewable: @object).first_or_create
+        end
+
+        @outcome = UploadImageToS3Service.run(callback_params, image: image)
       end
 
       protected

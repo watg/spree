@@ -1,26 +1,17 @@
-<div class="six columns" style="margin-left: 0;">
+<div class="six columns alpha">
 
   <fieldset><legend><%= tab.tab_type %></legend>
-    <% if tab.banner_mini_url %>
-    <div>
-      <%= image_tag(tab.banner_mini_url) %>
-    </div>
-    <% end %>
 
     <%= hidden_field_tag "tabs[#{tab.tab_type}][position]", position %>
 
-    <div class="four columns alpha">
-      <div data-hook="file" class="field">
-
-
-        <%= label_tag Spree.t(:filename) %><br>
-        <%= file_field_tag "tabs[#{tab.tab_type}][banner]" %>
+    <div class="six columns alpha">
+      <div class="dropzone" id="<%= tab.tab_type %>_image_container">
+        <%= image_tag(tab.image.attachment.url(:small)) if tab.image.present? %>
       </div>
-    </div>
 
-    <div class="six columns">
+      <br>
       <label>Background color</label>
-      #<%= text_field_tag "tabs[#{tab.tab_type}][background_color_code]", tab.background_color_code, size: 6, maxlength: 6 %>
+      # &nbsp; <%= text_field_tag "tabs[#{tab.tab_type}][background_color_code]", tab.background_color_code, size: 6, maxlength: 6 %>
     </div>
 
   </fieldset>

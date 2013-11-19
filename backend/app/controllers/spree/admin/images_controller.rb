@@ -12,9 +12,9 @@ module Spree
           attachment_content_type: params[:filetype],
           attachment_file_size: params[:filesize],
           direct_upload_url: params[:image][:direct_upload_url],
-          viewable_id: @product.master.id # the Variant ID
         }
-        @outcome = Spree::UploadImageToS3Service.run(callback_params)
+        image = Image.new(viewable: Variant.find(@product.master))
+        @outcome = UploadImageToS3Service.run(callback_params, image: image)
       end
 
       def update
