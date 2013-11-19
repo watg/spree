@@ -25,8 +25,8 @@ $(document).bind 'dragover', (e) ->
     else
       dropZone.removeClass('hover')
 
-$(document).bind 'drop dragover', (e) ->
-    e.preventDefault()
+# $(document).bind 'drop dragover', (e) ->
+#     e.preventDefault()
 
 
 $.fn.S3Uploader = (options) ->
@@ -49,7 +49,7 @@ $.fn.S3Uploader = (options) ->
     progress_bar_target: null
     click_submit_target: null
     allow_multiple_files: true
-    drop_zone: null
+    drop_zone: document
 
   $.extend settings, options
 
