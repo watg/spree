@@ -9,6 +9,5 @@ module Spree
       :convert_options =>  { :all => '-strip -auto-orient' }
 
     supports_s3 :attachment
-    Spree::ProductPageImage.attachment_definitions[:attachment][:url] = Spree::Config[:attachment_url]
   end
 end

@@ -17,6 +17,9 @@ module Spree
             self.attachment_definitions[field][:bucket] = config[:s3_bucket]
             self.attachment_definitions[field][:s3_protocol] = config[:s3_protocol].downcase unless config[:s3_protocol].blank?
             self.attachment_definitions[field][:s3_host_alias] = config[:s3_host_alias] unless config[:s3_host_alias].blank?
+            
+            self.attachment_definitions[field][:url] = config[:attachment_url]
+            self.attachment_definitions[field][:path].sub!(':rails_root', 'app')
           end
         end
       end

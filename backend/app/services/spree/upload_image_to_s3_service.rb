@@ -25,6 +25,7 @@ module Spree
       
       # call to s3 to obtain details for the image (largely unneeded)
       # set_attachment_attributes_from_s3
+      image.processed = false
       image.update_attributes(inputs.except(:image))
 
       if !image.persisted?
