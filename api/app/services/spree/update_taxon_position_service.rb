@@ -20,7 +20,7 @@ module Spree
     end
 
     def insert_taxon_in_order_list(parent_id, taxon_id, position)
-      taxons = Spree::Taxon.where(parent_id: parent_id).order('position').all
+      taxons = Spree::Taxon.where(parent_id: parent_id).order('position').to_a
       selected_taxon = Spree::Taxon.find(taxon_id)
 
       list_without_selected_taxon = taxons.reject {|t| t.id == selected_taxon.id}
