@@ -1,9 +1,7 @@
 module Spree
   class ProductPage < ActiveRecord::Base
-    validates :name, uniqueness: true
-    validates :name, presence: true
-    validates :title, presence: true
-    validates :permalink, uniqueness: true
+    validates_uniqueness_of :name, :permalink
+    validates_presence_of :name, :title
 
     has_and_belongs_to_many :product_groups, join_table: :spree_product_groups_product_pages
 
@@ -44,32 +42,22 @@ module Spree
       all_variants
     end
 
-    def ready_to_wear_banner
-      tab(:ready_to_wear).banner
+    def lowest_price
+      display_variants.active.joins(:prices).minimum(:amount)
     end
 
-    def ready_to_wear_background_color
-      tab(:ready_to_wear).background_color_code
-    end
-
+    
     def kit_product
       products.where(product_type: :kit).first
     end
 
-    def kit_banner
-      tab(:knit_your_own).banner
-    end
-
-    def kit_background_color
-      tab(:knit_your_own).background_color_code
-    end
 
     def tab(tab_type)
       ( tabs.where(tab_type: tab_type).first || Spree::ProductPageTab.new(tab_type: tab_type, product_page_id: self.id))
     end
 
     def tag_names
-      tags.map(&:value)
+      tags.pluck(:value)
     end
 
     private

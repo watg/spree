@@ -3,7 +3,7 @@
     <span class="handle"></span>
     <%= f.hidden_field :id %>
   </td>
-  <td><%= image_tag f.object.image.attachment.url(:mini) if f.object.image %></td>
+  <td><%= image_tag first_image_url(f.object.item) %></td>
 
   <td><%= link_to f.object.name, url_for([:admin, f.object.item]) %></td>
   

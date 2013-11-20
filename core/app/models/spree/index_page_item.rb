@@ -8,13 +8,7 @@ module Spree
     
     validates_uniqueness_of :index_page, :scope => :item_id, :message => :already_linked
 
-    def image
-      item.variant_images.first
-    end
-
-    def name
-      item.name
-    end
-
+    delegate :name, to: :item
+    
   end
 end
