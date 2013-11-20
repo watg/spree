@@ -3,6 +3,7 @@ module Spree
     validates :name, uniqueness: true
     validates :name, presence: true
     validates :title, presence: true
+    validates :target_id, presence: true
     validates :permalink, uniqueness: true
 
     has_and_belongs_to_many :product_groups, join_table: :spree_product_groups_product_pages
@@ -17,10 +18,12 @@ module Spree
 
     has_many :tabs, -> { order(:position) }, dependent: :destroy, class_name: "Spree::ProductPageTab"
     has_many :product_page_variants
-    has_many :display_variants, through: :product_page_variants, class_name: "Spree::Variant", source: :variant
+    has_many :displayed_variants, through: :product_page_variants, class_name: "Spree::Variant", source: :variant
 
     has_many :index_page_items, as: :item, dependent: :delete_all
     has_many :index_pages, through: :index_page_items
+
+    belongs_to :target
 
     before_save :set_permalink
 
@@ -28,12 +31,14 @@ module Spree
       products.map(&:all_variants_or_master).flatten
     end
 
-    def available_variants
-      all_variants - display_variants
+    def non_kit_variants_with_target
+      all_variants.select do |v|
+        v.product.product_type != 'kit' && v.targets.include?(self.target)
+      end
     end
 
-    def ready_to_wear_variants
-      display_variants.select { |v| v.product.product_type == 'ready_to_wear' }
+    def available_variants
+      non_kit_variants_with_target - displayed_variants
     end
 
     def ready_to_wear_banner
@@ -46,10 +51,6 @@ module Spree
 
     def kit_product
       products.where(product_type: :kit).first
-    end
-
-    def kit_variants
-      display_variants.select { |v| v.product.product_type == 'kit' }
     end
 
     def kit_banner

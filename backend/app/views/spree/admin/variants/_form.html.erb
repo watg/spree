@@ -29,7 +29,14 @@
         <%= f.hidden_field :index_page_ids, :value => @variant.index_page_ids.join(','), :class => 'index-page-dropdown fullwidth' %>
       <% end %>
     </div>
-    <br><br><br>
+
+    <div class="twelve columns alpha omega">
+      <%= f.field_container :targets do %>
+        <%= f.label :targets, "Available for targets..." %>
+	<%= f.hidden_field :target_ids, :value => @variant.targets.map(&:id).join(','), :class => 'target-dropdown fullwidth', :data => { :multiple => "true" } %>
+      <% end %>
+    </div>
+
     <div class="twelve columns alpha omega">
       <fieldset>
         <legend align="center"><%= Spree.t(:tags) %></legend>

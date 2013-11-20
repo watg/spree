@@ -24,6 +24,13 @@
   </div>
 </div>
 
+<div class="twelve columns alpha omega">
+  <%= f.field_container :target do %>
+    <%= f.label :target_id, "Target" %>
+    <%= f.hidden_field :target_id, :class => 'fullwidth target-dropdown' %>
+  <% end %>
+</div>
+
 <%= f.field_container :product_group do %>
   <%= f.label :product_group_ids, Spree.t(:product_group) %><br />
   <%= f.hidden_field :product_group_ids, :value => @product_page.product_group_ids.join(','), :class => 'fullwidth title'  %>

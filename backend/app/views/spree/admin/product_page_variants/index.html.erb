@@ -10,19 +10,13 @@
 
 <%= render :partial => 'spree/shared/error_messages', :locals => { :target => @product_page } %>
 
-<%= form_tag admin_product_page_variants_path do %>
-<% @product_types.each do |product_type| %>
 <section class="product-type">
-  <h2><%= product_type.humanize %></h2>
   <div class="displayed">
     <h5>Displayed</h5>
-    <%= render partial: "variants", locals: { variants: @product_page_variants[product_type], displayed: true } %>
+    <%= render partial: "variants", locals: { variants: @displayed_variants, displayed: true } %>
   </div>
   <div class="available">
     <h5>Available</h5>
-    <%= render partial: "variants", locals: { variants: @available_variants[product_type] } %>
+    <%= render partial: "variants", locals: { variants: @available_variants } %>
   </div>
 </section>
-<% end %>
-
-<% end -%>

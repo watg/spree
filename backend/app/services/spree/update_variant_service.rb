@@ -12,6 +12,7 @@ module Spree
           end
           string :index_page_ids, empty: true
           string :tags, empty: true
+          string :target_ids, empty: true
         end
 
         optional do
@@ -40,12 +41,14 @@ module Spree
 
     def execute
       ActiveRecord::Base.transaction do
-        tags = details.delete(:tags).split(",")
+        tags = split_params(details.delete(:tags))
+        target_ids = split_params(details.delete(:target_ids))
         details[:index_page_ids] = split_params(details[:index_page_ids])
 
         variant.update_attributes(details)
         update_prices(prices, variant)
         update_tags(variant, tags)
+        assign_targets(variant, target_ids)
       end
     rescue Exception => e
       Rails.logger.error "[NewVariantService] #{e.message} -- #{e.backtrace}"
@@ -61,9 +64,16 @@ module Spree
       variant.tags = tags
     end
 
+    def assign_targets(product, ids)
+      variant.variant_targets.where.not(target_id: ids).delete_all
+      ids.each do |id|
+        variant.variant_targets.find_or_create_by(target_id: id)
+      end
+    end
+
     def split_params(input)
-      input.blank? ? [] : input.split(',').map(&:to_i)
-    end  
+      input.blank? ? [] : input.split(',')
+    end
 
   end
 end
