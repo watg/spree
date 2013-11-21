@@ -19,7 +19,7 @@ module Spree
     
     class << self
       def find_boxes
-        Spree::Product.where(product_type: :parcel).all
+        Spree::Product.where(product_type: :parcel)
       end
     end
   end

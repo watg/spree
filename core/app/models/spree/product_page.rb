@@ -30,12 +30,18 @@ module Spree
       all_variants - display_variants
     end
 
+    # def lowest_variant_price
+    #   displayed_variants.active.joins(:prices).minimum(:amount)
+    # end
 
-    def lowest_price
-      display_variants.active.joins(:prices).minimum(:amount)
+    def ready_to_wear
+      tab(:ready_to_wear)
     end
 
-    
+    def knit_your_own
+      tab(:knit_your_own)
+    end
+
     def kit_product
       products.where(product_type: :kit).first
     end
