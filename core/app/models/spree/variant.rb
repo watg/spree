@@ -73,10 +73,10 @@ module Spree
       end
     end
 
-    def images_in(target_name)
-      variant_targets.joins(:images, :target).
-      select("spree_assets.*").
-      where(spree_targets: {name: target_name})
+    def images_for(target)
+      variant_target = variant_targets.where(target_id: target.id).first
+      targeted_images = variant_target ? variant_target.images : []
+      targeted_images + self.images
     end
 
     def out_of_stock?
