@@ -25,7 +25,7 @@ module Spree
 
     has_many :index_page_items, as: :item, dependent: :delete_all
     has_many :index_pages, through: :index_page_items
-    
+
     has_one :default_price,
       -> { where currency: Spree::Config[:currency] },
       class_name: 'Spree::Price',
@@ -73,10 +73,10 @@ module Spree
       end
     end
 
-    def images_in(target_name)
-      variant_targets.joins(:images, :target).
-      select("spree_assets.*").
-      where(spree_targets: {name: target_name})
+    def images_for(target)
+      variant_target = variant_targets.where(target_id: target.id).first
+      targeted_images = variant_target ? variant_target.images : []
+      targeted_images + self.images
     end
 
     def visible?
