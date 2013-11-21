@@ -12,7 +12,7 @@ module Spree
       order.update_attributes!(order_attrs(response))
       update_parcels(order, response[:tracking])
       if order.metapack_allocated
-        mark_order_as_shipped(order)   
+        mark_order_as_shipped(order)
         Metapack::Client.create_labels_as_pdf(response[:metapack_consignment_code])
       else
         msg = "Cannot print Shipping Label for Consignment '#{response[:metapack_consignment_code]}' with status #{response[:metapack_status]}"
@@ -77,12 +77,22 @@ module Spree
     end
 
     def address(addr)
-      {
-        line1:    [addr.address1, addr.address2].compact.join(', '),
-        line2:    addr.city,
-        postcode: addr.zipcode,
-        country:  addr.country.iso3,
-      }
+      if addr.address2.blank?
+        {
+          line1:    addr.address1,
+          line2:    addr.city,
+          postcode: addr.zipcode,
+          country:  addr.country.iso3,
+        }
+      else
+        {
+          line1:    addr.address1,
+          line2:    addr.address2,
+          line3:    addr.city,
+          postcode: addr.zipcode,
+          country:  addr.country.iso3,
+        }
+      end
     end
 
     def valid_consignment?(order)
@@ -123,7 +133,7 @@ module Spree
     end
 
     def booking_code(order)
-      li_by_product_type = order.line_items.map {|li| 
+      li_by_product_type = order.line_items.map {|li|
         li.variant.product.product_type == 'pattern'
       }
       has_only_pattern = li_by_product_type.inject(true) {|res, a| res && a }
