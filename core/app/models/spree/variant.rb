@@ -14,24 +14,17 @@ module Spree
     has_many :stock_items, dependent: :destroy
     has_many :stock_locations, through: :stock_items
     has_many :stock_movements
-    has_many :displayable_variants
+    has_many :displayable_variants 
 
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants, class_name: "Spree::OptionValue"
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
 
-    has_many :variant_targets, class_name: 'Spree::VariantTarget', dependent: :destroy
-    has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :images, through: :variant_targets
-    has_many :targets, class_name: 'Spree::Target', through: :variant_targets
-
-    has_many :index_page_items, as: :item, dependent: :delete_all
-    has_many :index_pages, through: :index_page_items
-    
     has_one :default_price,
       -> { where currency: Spree::Config[:currency] },
       class_name: 'Spree::Price',
       dependent: :destroy
 
-    delegate_belongs_to :default_price, :display_price, :display_amount, :price, :price=, :currency
+    delegate_belongs_to :default_price, :display_price, :display_amount, :price, :price=, :currency 
 
     has_many :prices,
       class_name: 'Spree::Price',
@@ -41,15 +34,12 @@ module Spree
 
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
 
-    has_many :taggings, as: :taggable
-    has_many :tags, -> { order(:value) }, through: :taggings
-
     before_validation :set_cost_currency
     after_create :create_stock_items
     after_create :set_position
 
     # Regardless of us updating anything, touch so we invalidate cache
-    after_save { self.touch }
+    after_save { self.touch } 
 
     # default variant scope only lists non-deleted variants
     scope :deleted, lambda { where('deleted_at IS NOT NULL') }
@@ -62,7 +52,7 @@ module Spree
       def active(currency = nil)
         joins(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
       end
-
+      
       def displayable(product_id)
         where(product_id: product_id, is_master: false).includes(:displayable_variants)
       end
@@ -73,10 +63,26 @@ module Spree
       end
     end
 
-    def images_in(target_name)
-      variant_targets.joins(:images, :target).
-      select("spree_assets.*").
-      where(spree_targets: {name: target_name})
+    def out_of_stock?
+      !self.stock_items.first.in_stock?
+    end
+
+    def next_variant_in_stock_in_product
+      Spree::Variant.
+        includes(:stock_items, :product).
+        where("spree_products.id = ? AND spree_stock_items.count_on_hand > 0 AND spree_stock_items.count_on_hand < 500 AND spree_products.individual_sale = ?", self.product.id, true).
+        references(:stock_items, :product).
+        first
+    end
+
+    def next_variant_in_stock_in_product_group
+      pg = self.product.product_group
+      Spree::Variant.
+        includes(:stock_items, :product).
+        joins('LEFT OUTER JOIN spree_product_groups ON spree_product_groups.id = spree_products.product_group_id').
+        where("spree_product_groups.id = ? AND spree_stock_items.count_on_hand > 0 AND spree_stock_items.count_on_hand < 500 AND spree_products.individual_sale = ?", pg.id, true).
+        references(:stock_items, :product).
+        first
     end
 
     def visible?
@@ -85,10 +91,10 @@ module Spree
 
     def weight
       if kit?
-        kit_weight = required_parts.inject(0.00) do |sum,part|
+        kit_weight = required_parts.inject(0.00) do |sum,part| 
           count_part = part.count_part || 0
           part_weight =  part.weight || 0
-          sum + (count_part * part_weight)
+          sum + (count_part * part_weight) 
         end
         BigDecimal.new(kit_weight,2)
       else
@@ -113,13 +119,13 @@ module Spree
 
     # from variant options
     def to_hash(currency)
-      {
-        :id    => self.id,
+      { 
+        :id    => self.id, 
         :price => current_price_in(currency).display_price.to_s
       }
     end
-    # end variant options
-
+    # end variant options 
+    
     # TODO move this into a decorator as it is view centric
     def price_types
       types = [:normal,:normal_sale]
@@ -140,7 +146,7 @@ module Spree
     end
 
     def currency
-      Spree::Config[:currency]
+      Spree::Config[:currency] 
     end
 
     def display_amount
@@ -183,12 +189,12 @@ module Spree
     def price_in(currency)
       ActiveSupport::Deprecation.warn("variant#price_in is deprecated use price_normal_in instead")
       price_normal_in(currency)
-    end
+    end     
     def kit_price_in(currency)
       ActiveSupport::Deprecation.warn("variant#kit_price_in is deprecated use price_part_in instead")
       price_part_in(currency)
     end
-
+       
     def display_name
 
       # retrieve all the option type ids which are visible, we have to go up to the product to retrieve this information
@@ -203,7 +209,7 @@ module Spree
 
       values.to_sentence({ words_connector: ", ", two_words_connector: ", " })
     end
-
+    
     def options_text
       values = self.option_values.joins(:option_type).order("#{Spree::OptionType.table_name}.position asc")
 
@@ -278,8 +284,8 @@ module Spree
     def product
       Spree::Product.unscoped { super }
     end
-
-
+    
+    
     def total_on_hand
       Spree::Stock::Quantifier.new(self).total_on_hand
     end
@@ -288,17 +294,13 @@ module Spree
       self.product.master.prices.select{ |price| price.currency == currency }.first
     end
 
-    def tag_names
-      self.tags.map(&:value)
-    end
-
     private
     def find_price(currency, type)
       prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first
     end
-
+    
     def find_part_price(currency, type)
-      kit_prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first
+      kit_prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first 
     end
 
 

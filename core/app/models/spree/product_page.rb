@@ -1,7 +1,7 @@
 module Spree
   class ProductPage < ActiveRecord::Base
     validates_uniqueness_of :name, :permalink
-    validates_presence_of :name, :title
+    validates_presence_of :name, :title, :target_id
 
     has_and_belongs_to_many :product_groups, join_table: :spree_product_groups_product_pages
 
@@ -30,17 +30,6 @@ module Spree
       all_variants - display_variants
     end
 
-    def ready_to_wear_variants
-      p = products.where(:product_type => 'ready_to_wear').includes(:variants)
-      all_variants = p.inject([]) do |variants, product|
-        if product.variants.size == 0
-          variants + [product.master]
-        else
-          variants + product.variants
-        end
-      end
-      all_variants
-    end
 
     def lowest_price
       display_variants.active.joins(:prices).minimum(:amount)

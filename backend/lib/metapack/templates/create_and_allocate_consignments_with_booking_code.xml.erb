@@ -33,6 +33,9 @@
             <countryCode xsi:type="soapenc:string"><%= escape consignment[:recipient][:address][:country] %></countryCode>
             <line1 xsi:type="soapenc:string"><%= escape consignment[:recipient][:address][:line1] %></line1>
             <line2 xsi:type="soapenc:string"><%= escape consignment[:recipient][:address][:line2] %></line2>
+<% if consignment[:recipient][:address][:line3].present? %>
+            <line3 xsi:type="soapenc:string"><%= escape consignment[:recipient][:address][:line3] %></line3>
+<% end %>
             <postCode xsi:type="soapenc:string"><%= escape consignment[:recipient][:address][:postcode] %></postCode>
             <type xsi:type="soapenc:string">Residential</type>
           </recipientAddress>

@@ -21,12 +21,8 @@ module Spree
       end
 
       def index
-        @variants = scope.includes(:option_values).ransack(params[:q]).result 
-
-        if params[:page] || params[:per_page]
-          @variants = @variants.page(params[:page]).per(params[:per_page])
-        end
-
+        @variants = scope.includes(:option_values).ransack(params[:q]).result.
+          page(params[:page]).per(params[:per_page])
         respond_with(@variants)
       end
 

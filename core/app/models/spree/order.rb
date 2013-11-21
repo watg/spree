@@ -117,7 +117,7 @@ module Spree
       end
 
       def last_batch_id
-        last = order("batch_print_id DESC").first
+        last = where.not(batch_print_id: nil).order("batch_print_id DESC").first
         last ? last.batch_print_id.to_i : 0
       end
 
@@ -260,7 +260,7 @@ module Spree
     end
 
     def has_ready_made?
-      tmp= line_items.map(&:variant).map {|v| 
+      tmp= line_items.map(&:variant).map {|v|
         !(v.isa_part? || v.isa_kit? || (v.product_type.to_sym == :pattern))
       }
       tmp.inject(false) {|r,a| r= r || a; r}
