@@ -19,7 +19,7 @@ Spree::Core::Engine.add_routes do
     resources :index_pages, :only => [:index]
 
     resources :images
-    
+
     resources :checkouts do
       member do
         put :next
@@ -30,6 +30,7 @@ Spree::Core::Engine.add_routes do
     resources :variants, :only => [:index]
 
     resources :tags
+    resources :targets
 
     resources :option_types do
       resources :option_values
@@ -86,7 +87,7 @@ Spree::Core::Engine.add_routes do
       end
     end
     resources :taxons, :only => [:index]
-    
+
     resources :inventory_units, :only => [:show, :update]
     resources :users
     resources :properties

@@ -15,24 +15,34 @@ module Spree
 
     has_many :tabs, -> { order(:position) }, dependent: :destroy, class_name: "Spree::ProductPageTab"
     has_many :product_page_variants
-    has_many :display_variants, through: :product_page_variants, class_name: "Spree::Variant", source: :variant
+    has_many :displayed_variants, through: :product_page_variants, class_name: "Spree::Variant", source: :variant
 
     has_many :index_page_items, as: :item, dependent: :delete_all
     has_many :index_pages, through: :index_page_items
-    
+
+    belongs_to :target
+
     before_save :set_permalink
 
     def all_variants
       products.map(&:all_variants_or_master).flatten
     end
 
-    def available_variants
-      all_variants - display_variants
+    def non_kit_variants_with_target
+      all_variants.select do |v|
+        v.product.product_type != 'kit' && v.targets.include?(self.target)
+      end
     end
+
 
     # def lowest_variant_price
     #   displayed_variants.active.joins(:prices).minimum(:amount)
     # end
+
+
+    def available_variants
+      non_kit_variants_with_target - displayed_variants
+    end
 
     def ready_to_wear
       tab(:ready_to_wear)
