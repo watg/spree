@@ -1,11 +1,12 @@
 module Spree
   class Taxon < ActiveRecord::Base
+    acts_as_paranoid
     acts_as_nested_set dependent: :destroy
 
     belongs_to :taxonomy, class_name: 'Spree::Taxonomy', :touch => true
-    has_many :classifications, dependent: :delete_all
+    has_many :classifications, :dependent => :destroy 
     has_many :products, through: :classifications
-    has_many :displayable_variants, dependent: :delete_all
+    has_many :displayable_variants, :dependent => :destroy 
     
     before_create :set_permalink
 

@@ -1,5 +1,6 @@
 module Spree
   class DisplayableVariant < ActiveRecord::Base
+    acts_as_paranoid
     belongs_to :variant, touch: true
     belongs_to :taxon, touch: true
     belongs_to :product, touch: true

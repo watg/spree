@@ -1,6 +1,7 @@
 module Spree
   class Taxonomy < ActiveRecord::Base
     ORDER = { 'Men' => 1, 'Women' => 0, 'Collections' => 2, 'Knit Your Own' => 3, 'Sales' => 4 }
+    acts_as_paranoid
 
     validates :name, presence: true
 
