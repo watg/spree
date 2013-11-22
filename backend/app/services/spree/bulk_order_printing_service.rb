@@ -1,5 +1,8 @@
 module Spree
   class BulkOrderPrintingService < Mutations::Command
+
+    BATCH_SIZE = 25
+
     required do
       string :pdf
     end
@@ -20,7 +23,7 @@ module Spree
 
 
     def print_invoices
-      orders = Spree::Order.unprinted_invoices
+      orders = Spree::Order.unprinted_invoices.first(BATCH_SIZE)
       print_date = Time.now
 
       print_job = Spree::PrintJob.create!(job_type: :invoice)
@@ -38,7 +41,7 @@ module Spree
 
     def print_image_stickers
       return unless invoices_have_been_printed?
-      orders = Spree::Order.unprinted_image_stickers
+      orders = Spree::Order.unprinted_image_stickers.first(BATCH_SIZE)
       print_date = Time.now
 
       print_job = Spree::PrintJob.create!(job_type: :image_sticker)

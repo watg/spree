@@ -113,7 +113,7 @@ module Spree
       end
 
       def unprinted_image_stickers
-        to_be_packed_and_shipped.where('batch_sticker_print_date IS NULL AND batch_invoice_print_date IS NOT NULL')
+        to_be_packed_and_shipped.where('batch_sticker_print_date IS NULL AND batch_invoice_print_date IS NOT NULL').order(:batch_print_id)
       end
 
       def last_batch_id
