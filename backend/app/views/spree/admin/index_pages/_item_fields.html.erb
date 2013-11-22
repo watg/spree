@@ -8,7 +8,7 @@
   <td><%= link_to f.object.name, url_for([:admin, f.object.item]) %></td>
   
   <td>
-    <% Spree::IndexPage::TEMPLATES.each do |template| %>
+    <% Spree::IndexPageItem::TEMPLATES.each do |template| %>
       <%= f.radio_button :template_id, template[:id] %>
       <%= f.label :template_id, template[:name] %><br>
     <% end %>
