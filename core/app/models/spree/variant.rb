@@ -101,7 +101,6 @@ module Spree
         first
     end
 
-    
     def visible?
       displayable_variants.any?
     end
