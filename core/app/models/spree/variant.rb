@@ -101,28 +101,7 @@ module Spree
         first
     end
 
-    def out_of_stock?
-      !self.stock_items.first.in_stock?
-    end
-
-    def next_variant_in_stock_in_product
-      Spree::Variant.
-        includes(:stock_items, :product).
-        where("spree_products.id = ? AND spree_stock_items.count_on_hand > 0 AND spree_stock_items.count_on_hand < 500 AND spree_products.individual_sale = ?", self.product.id, true).
-        references(:stock_items, :product).
-        first
-    end
-
-    def next_variant_in_stock_in_product_group
-      pg = self.product.product_group
-      Spree::Variant.
-        includes(:stock_items, :product).
-        joins('LEFT OUTER JOIN spree_product_groups ON spree_product_groups.id = spree_products.product_group_id').
-        where("spree_product_groups.id = ? AND spree_stock_items.count_on_hand > 0 AND spree_stock_items.count_on_hand < 500 AND spree_products.individual_sale = ?", pg.id, true).
-        references(:stock_items, :product).
-        first
-    end
-
+    
     def visible?
       displayable_variants.any?
     end
