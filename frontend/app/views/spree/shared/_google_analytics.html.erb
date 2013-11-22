@@ -17,7 +17,7 @@
         'revenue': '<%= @order.total %>',                                // Grand Total.
         'shipping': '<%= @order.adjustments.shipping.sum(:amount) %>',  // Shipping.
         'tax': '<%= @order.adjustments.tax.sum(:amount) %>',           // Tax.
-        'currency': '<%= @order.currency %>'                     //  currency code.
+        'currencyCode': '<%= @order.currency %>'                     //  currency code.
       });
       <% @order.line_items.each do |line_item| %>
         ga('ecommerce:addItem', {
