@@ -4,8 +4,14 @@
 
 <% content_for :page_actions do %>
   <li>
-    <%= button_link_to Spree.t(:print_invoices), invoices_admin_waiting_orders_url(format: :pdf), :icon => 'icon-plus', :id => 'invoices-pdf', :target => "_blank" %>
-    <%= button_link_to Spree.t(:print_stickers), image_stickers_admin_waiting_orders_url(format: :pdf), :icon => 'icon-plus', :id => 'image-stickers-pdf', :target => "_blank" %>
+    <%= button_link_to "Print next #{[@batch_size, @unprinted_invoice_count].min} invoices", invoices_admin_waiting_orders_url(format: :pdf), :icon => 'icon-plus', :id => 'invoices-pdf', :target => "_blank" %>
+    <br/>
+    <em><%= @unprinted_invoice_count %> unprinted</em>
+  </li>
+  <li>
+    <%= button_link_to "Print next #{[@batch_size, @unprinted_image_count].min} stickers", image_stickers_admin_waiting_orders_url(format: :pdf), :icon => 'icon-plus', :id => 'image-stickers-pdf', :target => "_blank" %>
+    <br/>
+    <em><%= @unprinted_image_count %> ready to print</em>
   </li>
 <% end %>
 

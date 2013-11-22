@@ -4,6 +4,9 @@ module Spree
     class WaitingOrdersController < Spree::Admin::BaseController
       def index
         @all_boxes = Spree::Parcel.find_boxes
+        @batch_size = Spree::BulkOrderPrintingService::BATCH_SIZE
+        @unprinted_invoice_count = Spree::Order.unprinted_invoices.count
+        @unprinted_image_count = Spree::Order.unprinted_image_stickers.count
         if params[:batch_id].present?
           order = Spree::Order.find_by(batch_print_id: params[:batch_id])
           @orders = [order]
