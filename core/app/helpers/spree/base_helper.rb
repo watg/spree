@@ -121,7 +121,11 @@ module Spree
     end
 
     def seo_url(taxon)
-      return spree.nested_taxons_path(taxon.permalink)
+      if Flip.product_pages? && taxon.index_page.present?
+        spree.index_page_path(taxon.permalink)
+      else
+        spree.nested_taxons_path(taxon.permalink)
+      end
     end
 
     def gem_available?(name)
