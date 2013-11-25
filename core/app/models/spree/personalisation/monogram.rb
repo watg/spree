@@ -13,14 +13,6 @@ module Spree
 
     DEFAULT_COLOURS = [ 'midnight-blue', 'checkers-tweed', 'ruby-red', 'ultra-violet', 'ivory-white' ]
 
-    DEFAULT_DATA = {
-      'colours' => DEFAULT_COLOURS.map do |c| 
-        o = Spree::OptionValue.find_by_name c 
-        !o.nil? ? o.id : nil
-      end.compact.join(','),
-      'max_initials' => 2
-    }
-
     def selected_data_to_text( selected_data )
       colour = colours.detect{ |c| c.id == selected_data['colour'].to_i }
       "Colour: #{colour.presentation}, Initials: #{selected_data['initials']}"
@@ -45,12 +37,21 @@ module Spree
     end
 
     private
+
     def set_defaults
-      self.data ||= DEFAULT_DATA
+      self.data ||= default_data
       self.prices ||= DEFAULT_PRICES
     end
 
-
+    def default_data
+      @default_data ||= {
+        'colours' => DEFAULT_COLOURS.map do |c| 
+          o = Spree::OptionValue.find_by_name c 
+          !o.nil? ? o.id : nil
+        end.compact.join(','),
+        'max_initials' => 2
+      }
+    end
 
   end
 end
