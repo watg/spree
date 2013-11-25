@@ -2,15 +2,16 @@
 <% order.parcels_grouped_by_box.each do |parcel| %>
 <li>
 <%= parcel.quantity %> - <%= parcel.box.sku %>
-<%= button_to 'X', admin_waiting_order_path(order.id, 'box[id]' => parcel.box.id, 'box[quantity]' => parcel.quantity, 'page' => params[:page]) , method: :delete, data: { confirm: "Are you sure to delete parcels?" } %>
+<%= button_to 'X', admin_waiting_order_path(order.id, 'box[id]' => parcel.box.id, 'box[quantity]' => parcel.quantity, 'page' => params[:page], 'batch_id' => params[:batch_id]) , method: :delete, data: { confirm: "Are you sure to delete parcels?" } %>
 </li>
 <% end %>
 </ul>
 <div id=<%= "order-#{order.id}" %> class="add-box" style="display:none;">
 <%= form_tag admin_waiting_order_path(order.id), method: :put do |f| %>
-<%= text_field_tag('box[quantity]',nil, width: 2) %>
+<%= text_field_tag('box[quantity]',nil, width: 2, autocomplete: "off") %>
 <%= select_tag('box[id]', options_from_collection_for_select(all_boxes, "id", "sku")) %>
 <%= hidden_field_tag "page", params[:page] %>
+<%= hidden_field_tag "batch_id", params[:batch_id] %>
 <%= submit_tag('save') %>
 <% end %>
 </div>
