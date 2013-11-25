@@ -112,6 +112,9 @@ module Spree
 
     after_initialize :ensure_master
 
+    TYPES = [ :kit, :product, :virtual_product, :pattern, :parcel, :ready_to_wear, :accessory ] unless defined?(TYPES)
+
+
     def variant_and_target_images
       variant_images + target_images
     end
