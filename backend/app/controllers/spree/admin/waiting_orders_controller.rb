@@ -12,7 +12,7 @@ module Spree
           @orders = [order]
         else
           @curr_page, @per_page = pagination_helper(params)
-          @orders = load_orders_waiting.page(@curr_page).per(@per_page)
+          @orders = load_orders_waiting.order('batch_print_id DESC').page(@curr_page).per(@per_page)
         end
       end
 
@@ -62,7 +62,9 @@ module Spree
       def handle(outcome)
         if outcome.success?
           respond_to do |format|
-            format.html { redirect_to admin_waiting_orders_url(page: params[:page]) }
+            format.html {
+              redirect_to admin_waiting_orders_url(page: params[:page], batch_id: params[:batch_id])
+            }
             format.json { render :json => {success: true}.to_json}
           end
         else
