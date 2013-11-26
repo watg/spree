@@ -41,7 +41,9 @@ module Spree
     end
 
     def displayable_variants(currency=nil)
-      Spree::Variant.active(currency).not_deleted.available.includes(:displayable_variants).where([" spree_displayable_variants.taxon_id = ?", self.id ]).order("spree_variants.id desc")
+      Spree::Variant.active(currency).not_deleted.available.includes(:displayable_variants).
+        where([" spree_displayable_variants.taxon_id = ? and spree_displayable_variants.deleted_at is null", self.id ]).
+        order("spree_variants.id desc")
     end
 
     # This is method is here as awesome_nested_set method self_and_ancestors in version 2.1.6 does not seem to work
