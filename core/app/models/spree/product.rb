@@ -157,6 +157,15 @@ module Spree
     end
     # end variant options
 
+    ## target variant options
+    def targeted_option_values(target)
+      @_targeted_option_values ||= Spree::OptionValue.for_product(self).with_target(target).order(:position).sort_by {|ov| ov.option_type.position }
+    end
+
+    def grouped_option_values_for_target(target)
+      @_targeted_grouped_option_values ||= targeted_option_values(target).group_by(&:option_type)
+    end
+    ## target variant options
 
     def variants_with_only_master
       ActiveSupport::Deprecation.warn("[SPREE] Spree::Product#variants_with_only_master will be deprecated in Spree 1.3. Please use Spree::Product#master instead.")

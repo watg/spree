@@ -39,9 +39,17 @@ module Spree
     end
     
     scope :for_product, lambda { |product|
-      select("DISTINCT #{table_name}.*").where("spree_option_values_variants.variant_id IN (?)", product.variant_ids).joins(:variants)
+      select("DISTINCT #{table_name}.*").
+      where("spree_option_values_variants.variant_id IN (?)", product.variant_ids).
+      joins(:variants)
     }
 
+    scope :with_target, lambda {|target|
+      joins("LEFT OUTER JOIN spree_variant_targets ON spree_variants.id = spree_variant_targets.variant_id").
+      joins("LEFT OUTER JOIN spree_targets ON spree_targets.id = spree_variant_targets.target_id").
+      where("spree_variant_targets.target_id = (?)", target.id)
+    }
+    
     # end variant options
     
     # This invalidates the variants cache
