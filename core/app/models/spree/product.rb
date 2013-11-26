@@ -114,6 +114,9 @@ module Spree
 
     TYPES = [ :kit, :product, :virtual_product, :pattern, :parcel, :ready_to_wear, :accessory ] unless defined?(TYPES)
 
+    def lowest_priced_variant(currency = nil)
+      variants.blank? ? master : all_variants_or_master.active(currency).joins(:prices).order("spree_prices.amount").first
+    end
 
     def variant_and_target_images
       variant_images + target_images

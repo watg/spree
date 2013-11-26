@@ -33,7 +33,7 @@ module Spree
 
     delegate_belongs_to :default_price, :display_price, :display_amount, :price, :price=, :currency
 
-    has_many :prices,
+    has_many :price_normal_sale_in,
       class_name: 'Spree::Price',
       dependent: :destroy
 
