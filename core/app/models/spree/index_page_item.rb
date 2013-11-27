@@ -6,6 +6,7 @@ module Spree
     
     belongs_to :item, polymorphic: true
     belongs_to :index_page
+    belongs_to :target
 
     default_scope { order('position') }
     acts_as_list :scope => :index_page

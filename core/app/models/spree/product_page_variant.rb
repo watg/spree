@@ -4,6 +4,7 @@ module Spree
 
     belongs_to :product_page
     belongs_to :variant
+    belongs_to :target
 
     default_scope { order(:position) }
   end
