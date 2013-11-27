@@ -5,8 +5,8 @@
   </td>
   <td><%= image_tag first_image_url(f.object.item) %></td>
 
-  <td><%= link_to f.object.name, url_for([:admin, f.object.item]) %></td>
-  
+  <td><%= link_to f.object.name, link_to_edit_item(f.object.item) %></td>
+
   <td>
     <% Spree::IndexPageItem::TEMPLATES.each do |template| %>
       <%= f.radio_button :template_id, template[:id] %>
@@ -14,6 +14,6 @@
     <% end %>
   </td>
   <td><%= f.check_box :inverted %> Inverted colours</td>
-  
+
   <td class="actions"><%= link_to_remove_fields Spree.t(:remove), f, :no_text => true %></td>
 </tr>
