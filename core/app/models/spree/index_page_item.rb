@@ -1,5 +1,7 @@
 module Spree
   class IndexPageItem < ActiveRecord::Base
+    acts_as_paranoid
+
     delegate :name, to: :item
     
     belongs_to :item, polymorphic: true
