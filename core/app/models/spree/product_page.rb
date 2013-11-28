@@ -72,7 +72,7 @@ module Spree
     private
     def set_permalink
       if self.permalink.blank? && self.name
-        self.permalink = '/'+ name.downcase.split(' ').map{|e| (e.blank? ? nil : e) }.compact.join('-')
+        self.permalink = name.downcase.split(' ').map{|e| (e.blank? ? nil : e) }.compact.join('-')
       end
     end
   end
