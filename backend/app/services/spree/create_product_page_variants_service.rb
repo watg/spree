@@ -10,13 +10,17 @@ module Spree
       variant = Spree::Variant.find(variant_id)
       ActiveRecord::Base.transaction do
         last_variant = product_page.product_page_variants.
-          where.not(position: nil).order('position DESC').first
+          where(deleted_at: nil).
+          where.not(position: nil).
+          order('position DESC').
+          first
         last_position = last_variant ? last_variant.position : 0
-        Spree::ProductPageVariant.create(
+        ppv = Spree::ProductPageVariant.with_deleted.find_or_create_by(
           product_page: product_page,
           variant: variant,
-          position: last_position + 1
+          target: product_page.target
         )
+        ppv.update_attributes(deleted_at: nil, position: (last_position + 1))
       end
     end
   end

@@ -1,7 +1,7 @@
 module Spree
   class ProductPage < ActiveRecord::Base
     validates_uniqueness_of :name, :permalink
-    validates_presence_of :name, :title, :target_id
+    validates_presence_of :name, :title
 
     has_and_belongs_to_many :product_groups, join_table: :spree_product_groups_product_pages
 
