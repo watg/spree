@@ -13,11 +13,11 @@ module Spree
         end
       end
 
-      def add_product_page
+      def add_item
         @index_page = IndexPage.find params[:id]
-        product_page = Spree::ProductPage.find params[:product_page_id]
-        @index_page.items.create(item: product_page)
-
+        outcome = Spree::AddIndexPageItemService.run(item_id:   params[:item_id],
+                                                     item_type: params[:item_type],
+                                                     index_page: @index_page)
         respond_to do |format|
           format.html { redirect_to location_after_save }
           format.js  { render :text => 'Ok' }

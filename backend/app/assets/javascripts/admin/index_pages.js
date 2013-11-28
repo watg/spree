@@ -1,29 +1,49 @@
 $(document).ready(function () {
   'use strict';
 
+  function selectContext(){
+    var options = {};
+    if ($('#item_type').val() == 'Spree::ProductPage'){
+      options = {
+        url: Spree.routes.product_pages_search,
+        param_name: "name_cont",
+        template: '#item_autocomplete_template',
+        d: null
+      }
+    }else{
+      options = {
+        url:  Spree.routes.variants_search,
+        param_name: "product_name_or_sku_cont",
+        template: '#variant_autocomplete_template',
+        d: 'variants'
+      }
+    }
+    return options;
+  }
+  
+
   $.fn.itemAutocomplete = function() {
-    // this.parent().children(".options_placeholder").attr('id', this.parent().data('index'))
+    var context = selectContext();
     this.select2({
       placeholder: "Search item",
       minimumInputLength: 3,
       ajax: {
-        url: Spree.url(Spree.routes.product_pages_search),
+        url: context.url,
         datatype: 'json',
         data: function(term, page) {
-          return {
+          var params = {
             q: {
-              "name_cont": term
             }
-          }
+          };
+          params['q'][context.param_name] = term;
+          return params;
         },
         results: function (data, page) {
-          return { results: data }
-        }
+          return { results: (context.d ? data.variants : data) }}
       },
       formatResult: function (item) {
-        console.log("formatting");
-        var itemTemplate = Handlebars.compile($('#item_autocomplete_template').text());
-        return itemTemplate({ item: item });
+        var itemTemplate = Handlebars.compile($(context.template).text());
+        return itemTemplate({ item: item , variant: item});
       },
       formatSelection: function (item) {
         return item.name;
@@ -32,6 +52,10 @@ $(document).ready(function () {
 
   }
 
+  
+  $('#item_type').on('change', function(){
+    $('#item_autocomplete').itemAutocomplete();  
+  });
+  
   $('#item_autocomplete').itemAutocomplete();
-
 });
