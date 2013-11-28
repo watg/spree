@@ -23,8 +23,8 @@ module Spree
         end
       end
 
-      # override the destory method to set deleted_at value
-      # instead of actually deleting the product.
+      # Please note this is being overridden by the decorator for assemblies
+      # 2 man weeks and counting probably been wasted by this misuse of decrators
       def destroy
         @variant = Variant.find(params[:id])
         if @variant.destroy
