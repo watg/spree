@@ -8,7 +8,18 @@ module Spree
         end
 
         respond_to do |format|
-          format.html { redirect_to admin_index_pages_url(params[:index_page_id]) }
+          format.html { redirect_to location_after_save }
+          format.js  { render :text => 'Ok' }
+        end
+      end
+
+      def add_product_page
+        @index_page = IndexPage.find params[:id]
+        product_page = Spree::ProductPage.find params[:product_page_id]
+        @index_page.items.create(item: product_page)
+
+        respond_to do |format|
+          format.html { redirect_to location_after_save }
           format.js  { render :text => 'Ok' }
         end
       end

@@ -1,6 +1,7 @@
 module Spree
   module Api
     module ApiHelpers
+
       def required_fields_for(model)
         required_fields = model._validators.select do |field, validations|
           validations.any? { |v| v.is_a?(ActiveModel::Validations::PresenceValidator) }
@@ -64,6 +65,10 @@ module Spree
       end
 
       def product_group_attributes
+        [:id, :name]
+      end
+
+      def product_page_attributes
         [:id, :name]
       end
 

@@ -60,7 +60,6 @@ module Spree
       products.where(product_type: :kit).first
     end
 
-
     def tab(tab_type)
       ( tabs.where(tab_type: tab_type).first || Spree::ProductPageTab.new(tab_type: tab_type, product_page_id: self.id))
     end

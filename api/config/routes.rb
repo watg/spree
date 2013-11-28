@@ -17,6 +17,7 @@ Spree::Core::Engine.add_routes do
     end
     resources :product_groups, :only => [:index]
     resources :index_pages, :only => [:index]
+    resources :product_pages, :only => [:index]
 
     resources :images
 
