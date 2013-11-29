@@ -44,7 +44,7 @@ $(document).ready(function () {
       formatResult: function (item) {
         var itemTemplate = Handlebars.compile($(context.template).text());
 
-        if (item["images"][0] != undefined && item["images"][0].urls != undefined) {
+        if (item["images"] != undefined && item["images"][0] != undefined && item["images"][0].urls != undefined) {
           item.image = item.images[0].urls.mini
         }
         
