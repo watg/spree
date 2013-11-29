@@ -1,5 +1,7 @@
 module Spree
   class ProductPage < ActiveRecord::Base
+    acts_as_paranoid
+
     validates_uniqueness_of :name, :permalink
     validates_presence_of :name, :title
 

@@ -1,10 +1,12 @@
 module Spree
   class ProductPageTab < ActiveRecord::Base
+    acts_as_paranoid
+
     TYPES = [:ready_to_wear, :knit_your_own]
-    
+
     belongs_to :product_page
     has_one :image, as: :viewable, dependent: :destroy, class_name: "Spree::ProductPageTabImage"
-    
+
     validates_uniqueness_of :position, scope: :product_page_id
     validates :background_color_code, format: { with: /\A[A-Fa-f0-9]{6}\z/ }, allow_blank: true
 
