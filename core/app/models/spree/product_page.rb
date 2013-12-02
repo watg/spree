@@ -32,7 +32,11 @@ module Spree
 
     def non_kit_variants_with_target
       all_variants.select do |v|
-        v.product.product_type != 'kit' && v.targets.include?(self.target)
+        keep = v.product.product_type != 'kit'
+        if self.target.present?
+          keep = keep && v.targets.include?(self.target)
+        end
+        keep
       end
     end
 

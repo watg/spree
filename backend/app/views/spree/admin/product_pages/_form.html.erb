@@ -35,9 +35,15 @@
   <%= f.label :product_group_ids, Spree.t(:product_group) %><br />
   <%= f.hidden_field :product_group_ids, :value => @product_page.product_group_ids.join(','), :class => 'fullwidth title'  %>
 <% end %>
+
 <%= f.field_container :index_page do %>
   <%= f.label :index_page_ids, "Index Pages" %><br />
   <%= f.hidden_field :index_page_ids, :value => @product_page.index_page_ids.join(','), :class => 'index-page-dropdown fullwidth title'  %>
+<% end %>
+
+<%= f.field_container :index_page do %>
+  <%= f.check_box :accessories  %>
+  <%= f.label :accessories, "Show accessories instead of Ready To Wear products" %>
 <% end %>
 
 
