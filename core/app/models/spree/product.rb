@@ -122,6 +122,11 @@ module Spree
       variant_images + target_images
     end
 
+    def images_for(target)
+      targeted_images = target_images.where("spree_variant_targets.target_id = ?", target.id)
+      targeted_images + variant_images
+    end
+
     def first_variant_or_master
       variants[0] || master
     end
