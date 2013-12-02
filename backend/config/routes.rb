@@ -11,7 +11,7 @@ Spree::Core::Engine.routes.draw do
       end
       
       member do
-        post :add_product_page
+        post :add_item
       end
     end
     delete '/index_page_items/:id', :to => "index_page_items#destroy", :as => :index_page_item

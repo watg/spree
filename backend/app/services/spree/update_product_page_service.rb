@@ -47,11 +47,10 @@ puts "[ProductPageUpdateService] #{e.message} -- #{e.backtrace}"
       (pg_ids - list)
     end
 
-    
+
     def update_product_page_tabs
       tabs.each do |tab_type, data|
         tab = product_page.tab(tab_type)
-        update_tab_banner(tab, data)
         tab.position = data[:position]
         tab.background_color_code = data[:background_color_code]
         tab.save!
@@ -60,11 +59,6 @@ puts "[ProductPageUpdateService] #{e.message} -- #{e.backtrace}"
 
     def split_params(input=nil)
       input.blank? ? [] : input.split(',').map(&:to_i)
-    end
-
-    def update_tab_banner(tab, data)
-      tab.banner = data[:banner] unless data[:banner].blank?
-      tab
     end
 
     def find_tags(tag_ids)
