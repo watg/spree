@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 module Spree
   class Price < ActiveRecord::Base
+    acts_as_paranoid
+    
     belongs_to :variant, class_name: 'Spree::Variant', touch: true
     CURRENCY_SYMBOL = {'USD' => '$', 'GBP' => '£', 'EUR' => '€'}
     TYPES = [:normal,:normal_sale,:part,:part_sale]
