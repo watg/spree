@@ -11,7 +11,7 @@ module Spree
         'EUR' => BigDecimal.new('10.00'),
       }
 
-    DEFAULT_COLOURS = [ 'midnight-blue', 'checkers-tweed', 'ruby-red', 'ultra-violet', 'ivory-white' ]
+    DEFAULT_COLOURS = [ 'midnight-blue', 'checkers-tweed', 'ruby-red', 'ultra-violet', 'ivory-white', 'highlighter-yellow', 'fluoro-pink' ]
 
     def selected_data_to_text( selected_data )
       colour = colours.detect{ |c| c.id == selected_data['colour'].to_i }

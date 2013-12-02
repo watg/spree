@@ -1,7 +1,7 @@
 module Spree
   class ProductPage < ActiveRecord::Base
     validates_uniqueness_of :name, :permalink
-    validates_presence_of :name, :title, :target_id
+    validates_presence_of :name, :title
 
     has_and_belongs_to_many :product_groups, join_table: :spree_product_groups_product_pages
 
@@ -60,7 +60,6 @@ module Spree
       products.where(product_type: :kit).first
     end
 
-
     def tab(tab_type)
       ( tabs.where(tab_type: tab_type).first || Spree::ProductPageTab.new(tab_type: tab_type, product_page_id: self.id))
     end
@@ -72,7 +71,7 @@ module Spree
     private
     def set_permalink
       if self.permalink.blank? && self.name
-        self.permalink = '/'+ name.downcase.split(' ').map{|e| (e.blank? ? nil : e) }.compact.join('-')
+        self.permalink = name.downcase.split(' ').map{|e| (e.blank? ? nil : e) }.compact.join('-')
       end
     end
   end

@@ -1,0 +1,25 @@
+<%= render :partial => "spree/admin/product_pages/autocomplete", :formats => :js %>
+<%= render :partial => "spree/admin/variants/autocomplete", :formats => :js %>
+
+<div id="add-line-item">
+  <fieldset class="no-border-bottom">
+    <legend align="center">Add Items</legend>
+
+    <%= form_tag add_item_admin_index_page_path(@index_page) do %>
+      <div class="field ten columns alpha">
+        <%= hidden_field_tag :item_id, "", :class => "fullwidth", id: "item_autocomplete" %>        
+      </div>
+      <div class="field three columns alpha">
+        <% types = ['Spree::ProductPage','Spree::Variant'] %>
+        <%= select_tag :item_type, options_for_select(types, types.first) %>
+      </div>
+      <div class="field two columns alpha">
+        <%= button_tag "Add Item", class: "button", id: "add_product_page_to_index_page" %>
+      </div>
+    <% end %>
+
+  </fieldset>
+
+  <div id="item_details"></div>
+</div>
+

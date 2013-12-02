@@ -65,15 +65,26 @@ module Spree
     end
 
     def assign_targets(product, ids)
+      target_list = targets_to_remove(variant, ids)
       variant.variant_targets.where.not(target_id: ids).delete_all
       ids.each do |id|
         variant.variant_targets.find_or_create_by(target_id: id)
       end
+      remove_targeted_variant_from_product_pages(variant, target_list)
     end
 
     def split_params(input)
       input.blank? ? [] : input.split(',')
     end
 
+    def targets_to_remove(variant, list)
+      list ||= []
+      target_ids = (variant.targets.blank? ? [] : variant.targets.map(&:id))
+      (target_ids - list)
+    end
+
+    def remove_targeted_variant_from_product_pages(variant, target_list)
+      Spree::ProductPageVariant.where(variant_id: variant.id, target_id: target_list).update_all(deleted_at: Time.now)
+    end
   end
 end
