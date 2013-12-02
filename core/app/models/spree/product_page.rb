@@ -12,6 +12,8 @@ module Spree
     has_many :variants, through: :products, source: :all_variants_unscoped
 
     has_many :available_tags, -> { uniq }, through: :variants, class_name: "Spree::Tag", source: :tags
+    has_many :visible_tags, -> { uniq.select("spree_product_page_variants.position") }, through: :displayed_variants, class_name: "Spree::Tag", source: :tags
+
     has_many :taggings, as: :taggable
     has_many :tags, through: :taggings
 
@@ -68,6 +70,15 @@ module Spree
 
     def tag_names
       tags.pluck(:value)
+    end
+
+    def visible_tag_names
+      Spree::Tag.
+        joins("LEFT JOIN spree_taggings ON spree_taggings.tag_id = spree_tags.id AND spree_taggings.taggable_type= 'Spree::Variant'").
+        joins("LEFT JOIN spree_product_page_variants ON spree_product_page_variants.variant_id = spree_taggings.taggable_id ").
+        where("spree_product_page_variants.product_page_id = (?)", self.id).
+        uniq.
+        pluck(:value)
     end
 
     private
