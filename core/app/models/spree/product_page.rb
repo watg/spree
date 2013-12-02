@@ -12,8 +12,6 @@ module Spree
     has_many :variants, through: :products, source: :all_variants_unscoped
 
     has_many :available_tags, -> { uniq }, through: :variants, class_name: "Spree::Tag", source: :tags
-    has_many :visible_tags, -> { uniq.select("spree_product_page_variants.position") }, through: :displayed_variants, class_name: "Spree::Tag", source: :tags
-
     has_many :taggings, as: :taggable
     has_many :tags, through: :taggings
 
