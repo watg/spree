@@ -164,10 +164,11 @@ module Spree
       @_variant_options_hash = hash
     end
     # end variant options
+    #
 
     ## target variant options
     def targeted_option_values(target)
-      selector = Spree::OptionValue.for_product(self)
+      selector = Spree::OptionValue.includes(:option_type).for_product(self)
       selector = selector.with_target(target) if target.present?
       @_targeted_option_values ||= selector.order( "spree_option_types.position", "spree_option_values.position" )
     end
