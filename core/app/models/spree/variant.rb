@@ -74,13 +74,9 @@ module Spree
     end
 
     def images_for(target)
-      if target
-        variant_target = variant_targets.where(target_id: target.id).first
-        targeted_images = variant_target ? variant_target.images : []
-        targeted_images + self.images
-      else
-        images
-      end
+      variant_target = variant_targets.where(target_id: target.id).first
+      targeted_images = variant_target ? variant_target.images : []
+      targeted_images + self.images
     end
 
     def out_of_stock?
