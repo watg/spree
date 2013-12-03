@@ -1,4 +1,4 @@
-<tr class="index_page fields" id="spree_<%= dom_id(f.object) %>"  data-hook="index_page" class="<%= cycle('odd', 'even')%>">
+<tr class="index_page fields <%= item_class(f.object.item) %>" id="spree_<%= dom_id(f.object) %>"  data-hook="index_page" class="<%= cycle('odd', 'even')%>">
   <td class="no-border">
     <span class="handle"></span>
     <%= f.hidden_field :id %>
@@ -6,6 +6,7 @@
   <td><%= image_tag first_image_url(f.object.item) %></td>
 
   <td><%= link_to f.object.name, link_to_edit_item(f.object.item) %></td>
+  <td><%= item_name(f.object.item) %></td>
 
   <td>
     <% Spree::IndexPageItem::TEMPLATES.each do |template| %>
