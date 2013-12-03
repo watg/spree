@@ -162,7 +162,7 @@ module Spree
 
     ## target variant options
     def targeted_option_values(target)
-      @_targeted_option_values ||= Spree::OptionValue.for_product(self).with_target(target).order(:position).sort_by {|ov| ov.option_type.position }
+      @_targeted_option_values ||= Spree::OptionValue.for_product(self).with_target(target).in_stock.order(:position).sort_by {|ov| ov.option_type.position }
     end
 
     def grouped_option_values_for_target(target)
