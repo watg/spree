@@ -74,6 +74,15 @@ module Spree
       tags.pluck(:value)
     end
 
+    def visible_tag_names
+      Spree::Tag.
+        joins("LEFT JOIN spree_taggings ON spree_taggings.tag_id = spree_tags.id AND spree_taggings.taggable_type= 'Spree::Variant'").
+        joins("LEFT JOIN spree_product_page_variants ON spree_product_page_variants.variant_id = spree_taggings.taggable_id ").
+        where("spree_product_page_variants.product_page_id = (?)", self.id).
+        uniq.
+        pluck(:value)
+    end
+
     private
     def set_permalink
       if self.permalink.blank? && self.name
