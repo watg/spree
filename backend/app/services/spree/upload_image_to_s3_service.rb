@@ -22,6 +22,10 @@ module Spree
         add_error(:direct_upload_url, :incorrect_format, "Url not correctly formatted")
         return
       end
+
+      if image.attachment.exists?
+        image.attachment.destroy
+      end
       
       # call to s3 to obtain details for the image (largely unneeded)
       # set_attachment_attributes_from_s3
