@@ -25,6 +25,7 @@ module Spree
     belongs_to :target
 
     before_save :set_permalink
+    after_create :create_tabs
 
     def all_variants
       products.map(&:all_variants_or_master).flatten
@@ -49,6 +50,10 @@ module Spree
       kit_product.lowest_priced_variant
     end
 
+    def create_tabs
+      tabs.create(position: 0, tab_type: :ready_to_wear)
+      tabs.create(position: 1, tab_type: :knit_your_own)
+    end
 
     def available_variants
       non_kit_variants_with_target - displayed_variants
