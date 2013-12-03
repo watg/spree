@@ -20,6 +20,13 @@ module Spree
     has_many :tabs, -> { order(:position) }, dependent: :destroy, class_name: "Spree::ProductPageTab"
     has_many :product_page_variants
     has_many :displayed_variants, through: :product_page_variants, class_name: "Spree::Variant", source: :variant
+    has_many :displayed_variants_in_stock , -> {
+      joins("LEFT OUTER JOIN spree_stock_items ON spree_stock_items.variant_id = spree_product_page_variants.variant_id").
+      where("spree_stock_items.count_on_hand > 0")
+    }, 
+    through: :product_page_variants, 
+    class_name: "Spree::Variant", 
+    source: :variant
 
     has_many :index_page_items, as: :item, dependent: :delete_all
     has_many :index_pages, through: :index_page_items
@@ -38,7 +45,6 @@ module Spree
       end
     end
 
-
     def lowest_priced_ready_to_wear(currency = nil)
       displayed_variants.active(currency).joins(:prices).order("spree_prices.amount").first
     end
@@ -46,7 +52,6 @@ module Spree
     def lowest_priced_kit(currency = nil)
       kit_product.lowest_priced_variant
     end
-
 
     def available_variants
       non_kit_variants_with_target - displayed_variants
