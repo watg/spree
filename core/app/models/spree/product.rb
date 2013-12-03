@@ -122,6 +122,11 @@ module Spree
       variant_images + target_images
     end
 
+    def images_for(target)
+      targeted_images = target_images.where("spree_variant_targets.target_id = ?", target.id)
+      targeted_images + variant_images
+    end
+
     def first_variant_or_master
       variants[0] || master
     end
@@ -132,8 +137,6 @@ module Spree
     end
 
     def option_values
-      #@_option_values ||= Spree::OptionValue.for_product(self).order(:position).sort_by {|ov| ov.option_type.position }
-      #@_option_values ||= Spree::OptionValue.for_product(self).order( "spree_option_types.position", "spree_option_values.position" )
       @_option_values ||= Spree::OptionValue.for_product(self).includes(:option_type).order( "spree_option_types.position", "spree_option_values.position" )
     end
 
@@ -164,9 +167,9 @@ module Spree
 
     ## target variant options
     def targeted_option_values(target)
-      #@_targeted_option_values ||= Spree::OptionValue.for_product(self).with_target(target).order(:position).sort_by {|ov| ov.option_type.position }
-      @_targeted_option_values ||= Spree::OptionValue.for_product(self).includes(:option_type).
-        with_target(target).order( "spree_option_types.position", "spree_option_values.position" )
+      selector = Spree::OptionValue.for_product(self)
+      selector = selector.with_target(target) if target.present?
+      @_targeted_option_values ||= selector.order( "spree_option_types.position", "spree_option_values.position" )
     end
 
     def grouped_option_values_for_target(target)

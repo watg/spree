@@ -1,5 +1,7 @@
 module Spree
   class ProductPage < ActiveRecord::Base
+    acts_as_paranoid
+
     validates_uniqueness_of :name, :permalink
     validates_presence_of :name, :title
 
@@ -30,7 +32,11 @@ module Spree
 
     def non_kit_variants_with_target
       all_variants.select do |v|
-        v.product.product_type != 'kit' && v.targets.include?(self.target)
+        keep = v.product.product_type != 'kit'
+        if self.target.present?
+          keep = keep && v.targets.include?(self.target)
+        end
+        keep
       end
     end
 
@@ -66,6 +72,15 @@ module Spree
 
     def tag_names
       tags.pluck(:value)
+    end
+
+    def visible_tag_names
+      Spree::Tag.
+        joins("LEFT JOIN spree_taggings ON spree_taggings.tag_id = spree_tags.id AND spree_taggings.taggable_type= 'Spree::Variant'").
+        joins("LEFT JOIN spree_product_page_variants ON spree_product_page_variants.variant_id = spree_taggings.taggable_id ").
+        where("spree_product_page_variants.product_page_id = (?)", self.id).
+        uniq.
+        pluck(:value)
     end
 
     private
