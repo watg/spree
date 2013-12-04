@@ -7,8 +7,16 @@ module Spree
     belongs_to :product_page
     has_one :image, as: :viewable, dependent: :destroy, class_name: "Spree::ProductPageTabImage"
 
+    accepts_nested_attributes_for :image, allow_destroy: true
+    
     validates_uniqueness_of :position, scope: :product_page_id
     validates :background_color_code, format: { with: /\A[A-Fa-f0-9]{6}\z/ }, allow_blank: true
+
+    before_create :assign_position
+
+    def assign_position
+      self.position = (ProductPageTab.where(product_page: product_page).maximum(:position) || -1) + 1
+    end
 
     def make_default(opts={})
       opts[:save] = true if opts[:save].nil?

@@ -6,14 +6,10 @@ module Spree
       :default_style => :large,
       :url           => "/spree/product_page_tabs/:id/:style/:basename.:extension",
       :path          => ":rails_root/public/spree/product_page_tabs/:id/:style/:basename.:extension",
-      :convert_options =>  { :all => '-strip -auto-orient' }
+      :convert_options =>  { :all => '-strip -auto-orient' },
+      :keep_old_files => false
 
     supports_s3 :attachment
-    
-    # to do: delete the previous image from the file system
-    def destroy_image!
-      self.attachment.destroy
-    end
 
   end
 end

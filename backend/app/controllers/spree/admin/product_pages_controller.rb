@@ -3,7 +3,7 @@ module Spree
     class ProductPagesController < ResourceController
 
       def update
-        outcome = Spree::UpdateProductPageService.run(product_page: @object, details: params[:product_page], tabs: params[:tabs])
+        outcome = Spree::UpdateProductPageService.run(product_page: @object, details: params[:product_page])
         if outcome.success?
           update_success(@object)
         else
@@ -48,6 +48,10 @@ module Spree
           format.html { redirect_to edit_admin_product_page_url(product_page) }
           format.js   { render :layout => false }
         end
+      end
+
+      def location_after_save
+        edit_admin_product_page_url(@product_page)
       end
 
       def collection

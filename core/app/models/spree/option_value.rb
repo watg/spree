@@ -13,6 +13,8 @@ module Spree
 
     default_scope { order("#{quoted_table_name}.position") }
 
+    after_touch :touch_all_variants
+
     has_attached_file :image,
     :styles        => { :small => '18x18#', :medium => '40x30#', :large => '140x110#' },
     :default_style => :small,
@@ -55,8 +57,6 @@ module Spree
       where("spree_stock_items.count_on_hand > 0")
     }
     
-    # This invalidates the variants cache
-    after_save { self.delay.touch_variants }
 
     def url_safe_name
       name.downcase.parameterize
@@ -70,8 +70,13 @@ module Spree
       end
     end
 
-    def touch_variants
-      self.variants.each { |v| v.touch }
+    def touch_all_variants
+      # This can cause a cascade of products to be updated
+      # To disable it in Rails 4.1, we can do this:
+      # https://github.com/rails/rails/pull/12772
+      # Spree::Product.no_touching do
+        variants.find_each(&:touch)
+      # end
     end
     
   end

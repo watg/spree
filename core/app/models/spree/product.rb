@@ -43,16 +43,10 @@ module Spree
     belongs_to :tax_category,      class_name: 'Spree::TaxCategory'
     belongs_to :shipping_category, class_name: 'Spree::ShippingCategory'
     belongs_to :gang_member,       class_name: 'Spree::GangMember'
-    belongs_to :product_group,     class_name: 'Spree::ProductGroup'
-
-
-    # ---- from marketplace ext --
-    belongs_to :product_group
-    belongs_to :gang_member
+    belongs_to :product_group,     class_name: 'Spree::ProductGroup', touch: true
 
     validates :product_group, :presence => true
     validates :gang_member, :presence => true
-    # ----- end marketplace -------
 
     has_many :personalisations, dependent: :destroy
 
@@ -86,7 +80,7 @@ module Spree
     after_save :save_master
 
     # This will help us clear the caches if a product is modified
-    after_touch { self.delay.touch_taxons }
+    after_touch { self.touch_taxons }
 
     delegate :images, to: :master, prefix: true
     alias_method :images, :master_images
@@ -363,14 +357,18 @@ module Spree
       hash
     end
 
-    private
     def touch_taxons
       # You should be able to just call self.taxons.each { |t| t.touch } but
       # for some reason acts_as_nested_set does not walk all the ancestors
       # correclty
-      self.taxons.each { |t| t.self_and_parents.each { |t2| t2.touch } }
+      self.taxons.each do |t| 
+        t.self_and_parents.each do |t2| 
+          t2.touch 
+        end
+      end
     end
 
+    private
     # Builds variants from a hash of option types & values
     def build_variants_from_option_values_hash
       ensure_option_types_exist_for_values_hash
