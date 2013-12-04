@@ -77,7 +77,7 @@ module Spree
       if target
         variant_target = variant_targets.where(target_id: target.id).first
         targeted_images = variant_target ? variant_target.images : []
-        targeted_images + self.images
+        targeted_images + images
       else
         images
       end

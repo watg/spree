@@ -21,6 +21,14 @@ module Spree
           url_for([:edit, :admin, item])
         end
       end
+
+      def item_name(item)
+        item.class.name.demodulize.titleize
+      end
+
+      def item_class(item)
+        item.class.name.demodulize.underscore.dasherize
+      end
     end
   end
 end

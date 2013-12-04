@@ -56,5 +56,11 @@ module Spree
     def get_taxonomies
       @taxonomies ||= Spree::Taxonomy.visible.includes(root: :children)
     end
+    
+    def get_taxon(name)
+      if name.present?
+        @taxon ||= get_taxonomies.find_by_name name
+      end
+    end
   end
 end

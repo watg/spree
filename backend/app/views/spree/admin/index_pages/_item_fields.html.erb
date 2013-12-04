@@ -1,4 +1,4 @@
-<tr class="index_page fields" id="spree_<%= dom_id(f.object) %>"  data-hook="index_page" class="<%= cycle('odd', 'even')%>">
+<tr class="index_page fields <%= item_class(f.object.item) %>" id="spree_<%= dom_id(f.object) %>"  data-hook="index_page" class="<%= cycle('odd', 'even')%>">
   <td class="no-border">
     <span class="handle"></span>
     <%= f.hidden_field :id %>
@@ -6,14 +6,17 @@
   <td><%= image_tag first_image_url(f.object.item) %></td>
 
   <td><%= link_to f.object.name, link_to_edit_item(f.object.item) %></td>
+  <td><%= item_name(f.object.item) %></td>
 
   <td>
     <% Spree::IndexPageItem::TEMPLATES.each do |template| %>
       <%= f.radio_button :template_id, template[:id] %>
       <%= f.label :template_id, template[:name] %><br>
     <% end %>
+    <br>
+    <%= f.check_box :inverted %> Inverted colours
   </td>
-  <td><%= f.check_box :inverted %> Inverted colours</td>
+  <td><%= f.collection_select(:target_id, Spree::Target.all, :id, :name, { :prompt => "" }, { class: "select2 fullwidth",}) unless f.object.item.class == Spree::ProductPage %></td>
 
   <td class="actions"><%= link_to_remove_fields Spree.t(:remove), f, :no_text => true %></td>
 </tr>
