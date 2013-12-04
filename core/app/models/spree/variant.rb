@@ -57,7 +57,7 @@ module Spree
     scope :not_deleted, lambda { where("#{Variant.quoted_table_name}.deleted_at IS NULL or #{Variant.quoted_table_name}.deleted_at >= ?", Time.zone.now) }
 
     scope :available, lambda { joins(:product).where("spree_products.available_on <= ?", Time.zone.now)  }
-
+    
     class << self
       def active(currency = nil)
         joins(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')

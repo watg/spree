@@ -48,7 +48,7 @@ module Spree
     end
 
     def lowest_priced_ready_to_wear(currency = nil)
-      displayed_variants.active(currency).joins(:prices).order("spree_prices.amount").first
+      displayed_variants_in_stock.active(currency).joins(:prices).order("spree_prices.amount").first
     end
 
     def lowest_priced_kit(currency = nil)
