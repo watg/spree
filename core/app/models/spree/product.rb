@@ -43,7 +43,7 @@ module Spree
     belongs_to :tax_category,      class_name: 'Spree::TaxCategory'
     belongs_to :shipping_category, class_name: 'Spree::ShippingCategory'
     belongs_to :gang_member,       class_name: 'Spree::GangMember'
-    belongs_to :product_group,     class_name: 'Spree::ProductGroup'
+    belongs_to :product_group,     class_name: 'Spree::ProductGroup', touch: true
 
     validates :product_group, :presence => true
     validates :gang_member, :presence => true
@@ -80,7 +80,7 @@ module Spree
     after_save :save_master
 
     # This will help us clear the caches if a product is modified
-    after_touch { self.touch_taxons }
+    #after_touch { self.touch_taxons }
 
     delegate :images, to: :master, prefix: true
     alias_method :images, :master_images
@@ -116,6 +116,11 @@ module Spree
       variant_images + target_images
     end
 
+    def images_for(target)
+      targeted_images = target_images.where("spree_variant_targets.target_id = ?", target.id)
+      targeted_images + variant_images
+    end
+
     def first_variant_or_master
       variants[0] || master
     end
@@ -126,8 +131,6 @@ module Spree
     end
 
     def option_values
-      #@_option_values ||= Spree::OptionValue.for_product(self).order(:position).sort_by {|ov| ov.option_type.position }
-      #@_option_values ||= Spree::OptionValue.for_product(self).order( "spree_option_types.position", "spree_option_values.position" )
       @_option_values ||= Spree::OptionValue.for_product(self).includes(:option_type).order( "spree_option_types.position", "spree_option_values.position" )
     end
 
@@ -155,12 +158,13 @@ module Spree
       @_variant_options_hash = hash
     end
     # end variant options
+    #
 
     ## target variant options
     def targeted_option_values(target)
-      #@_targeted_option_values ||= Spree::OptionValue.for_product(self).with_target(target).order(:position).sort_by {|ov| ov.option_type.position }
-      @_targeted_option_values ||= Spree::OptionValue.for_product(self).includes(:option_type).
-        with_target(target).order( "spree_option_types.position", "spree_option_values.position" )
+      selector = Spree::OptionValue.includes(:option_type).for_product(self)
+      selector = selector.with_target(target) if target.present?
+      @_targeted_option_values ||= selector.order( "spree_option_types.position", "spree_option_values.position" )
     end
 
     def grouped_option_values_for_target(target)

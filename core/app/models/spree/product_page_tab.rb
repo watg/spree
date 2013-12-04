@@ -1,5 +1,7 @@
 module Spree
   class ProductPageTab < ActiveRecord::Base
+    acts_as_paranoid
+
     TYPES = [:ready_to_wear, :knit_your_own]
 
     belongs_to :product_page

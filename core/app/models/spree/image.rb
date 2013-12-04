@@ -1,5 +1,7 @@
 module Spree
   class Image < Asset
+    acts_as_paranoid
+    
     validates_attachment_presence :attachment
     validate :no_attachment_errors
 
