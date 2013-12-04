@@ -10,6 +10,6 @@ module Spree
       :keep_old_files => false
 
     supports_s3 :attachment
-   
+
   end
 end
