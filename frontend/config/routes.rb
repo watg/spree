@@ -37,7 +37,7 @@ Spree::Core::Engine.add_routes do
   get '/t', :to => 'home#index'
 
   # new product index pages
-  get '/t2/*id', :to => 'index_pages#show', :as => :index_page
+  get '/knitwear/*id', :to => 'index_pages#show', :as => :index_page
 
   get '/unauthorized', :to => 'home#unauthorized', :as => :unauthorized
   get '/content/cvv', :to => 'content#cvv', :as => :cvv
