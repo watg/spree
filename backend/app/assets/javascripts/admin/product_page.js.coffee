@@ -1,4 +1,10 @@
 jQuery ->
+  $('form.edit_product_page').on 'click', '.remove_image', (event) ->
+    $(this).prev('input[type=hidden]').val('1')
+    $(this).parent().find('img').hide()
+    $(this).hide()
+    event.preventDefault()
+
   $('.s3_uploader_form').each ->
     $(this).S3Uploader(
       { 

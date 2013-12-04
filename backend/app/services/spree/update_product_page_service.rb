@@ -3,7 +3,6 @@ module Spree
     required do
       model :product_page, class: 'Spree::ProductPage'
       duck  :details
-      duck  :tabs
     end
 
     def execute
@@ -19,10 +18,12 @@ module Spree
         product_page.product_group_ids  = pg_ids
         product_page.index_page_ids     = split_params(details[:index_page_ids])
         product_page.tags               = find_tags(details[:tags] || [])
+
+        product_page.image_attributes   = details[:image_attributes]
+        product_page.tabs_attributes    = details[:tabs_attributes]
         product_page.save!
 
         update_product_page_variants(deleted_product_group_list)
-        update_product_page_tabs
       end
     rescue Exception => e
 puts "[ProductPageUpdateService] #{e.message} -- #{e.backtrace}"
@@ -48,15 +49,6 @@ puts "[ProductPageUpdateService] #{e.message} -- #{e.backtrace}"
       (pg_ids - list)
     end
 
-
-    def update_product_page_tabs
-      tabs.each do |tab_type, data|
-        tab = product_page.tab(tab_type)
-        tab.position = data[:position]
-        tab.background_color_code = data[:background_color_code]
-        tab.save!
-      end
-    end
 
     def split_params(input=nil)
       input.blank? ? [] : input.split(',').map(&:to_i)
