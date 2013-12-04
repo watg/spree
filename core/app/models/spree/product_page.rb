@@ -32,6 +32,7 @@ module Spree
     belongs_to :target
 
     before_save :set_permalink
+    after_create :create_tabs
 
     def all_variants
       products.map(&:all_variants_or_master).flatten
@@ -47,12 +48,18 @@ module Spree
       end
     end
 
+
     def lowest_priced_ready_to_wear(currency = nil)
-      displayed_variants.active(currency).joins(:prices).order("spree_prices.amount").first
+      displayed_variants_in_stock.active(currency).joins(:prices).order("spree_prices.amount").first
     end
 
     def lowest_priced_kit(currency = nil)
       kit_product.lowest_priced_variant
+    end
+
+    def create_tabs
+      tabs.create(tab_type: :ready_to_wear)
+      tabs.create(tab_type: :knit_your_own)
     end
 
     def available_variants

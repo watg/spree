@@ -50,6 +50,10 @@ module Spree
         end
       end
 
+      def location_after_save
+        edit_admin_product_page_url(@product_page)
+      end
+
       def collection
         return @collection if @collection.present?
         params[:q] ||= {}

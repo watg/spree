@@ -126,8 +126,7 @@ module Spree
     end
 
     def all_variants_or_master
-      variants.blank? ? [master] : variants
-    # from variant options
+      variants.blank? ? Spree::Variant.where(is_master: true, product_id: self.id) : variants
     end
 
     def option_values

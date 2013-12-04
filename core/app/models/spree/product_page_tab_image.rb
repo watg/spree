@@ -10,11 +10,6 @@ module Spree
       :keep_old_files => false
 
     supports_s3 :attachment
-    
-    # to do: delete the previous image from the file system
-    # def destroy_image!
-    #   self.attachment.destroy
-    # end
 
   end
 end
