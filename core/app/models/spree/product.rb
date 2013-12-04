@@ -345,7 +345,6 @@ module Spree
       # correclty
       self.taxons.each do |t| 
         t.self_and_parents.each do |t2| 
-          puts t2.inspect
           t2.touch 
         end
       end
