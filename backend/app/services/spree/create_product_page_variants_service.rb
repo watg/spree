@@ -18,7 +18,7 @@ module Spree
         ppv = Spree::ProductPageVariant.with_deleted.find_or_create_by(
           product_page: product_page,
           variant: variant,
-          target: product_page.target
+          target_id: product_page.target ? product_page.target.id : nil
         )
         ppv.update_attributes(deleted_at: nil, position: (last_position + 1))
       end

@@ -122,6 +122,11 @@ module Spree
       variant_images + target_images
     end
 
+    def images_for(target)
+      targeted_images = target_images.where("spree_variant_targets.target_id = ?", target.id)
+      targeted_images + variant_images
+    end
+
     def first_variant_or_master
       variants[0] || master
     end
@@ -132,7 +137,7 @@ module Spree
     end
 
     def option_values
-      @_option_values ||= Spree::OptionValue.for_product(self).order(:position).sort_by {|ov| ov.option_type.position }
+      @_option_values ||= Spree::OptionValue.for_product(self).includes(:option_type).order( "spree_option_types.position", "spree_option_values.position" )
     end
 
     def grouped_option_values
@@ -159,14 +164,17 @@ module Spree
       @_variant_options_hash = hash
     end
     # end variant options
+    #
 
     ## target variant options
     def targeted_option_values(target)
-      @_targeted_option_values ||= Spree::OptionValue.for_product(self).with_target(target).in_stock.order(:position).sort_by {|ov| ov.option_type.position }
+      selector = Spree::OptionValue.includes(:option_type).for_product(self).in_stock
+      selector = selector.with_target(target) if target.present?
+      @_targeted_option_values ||= selector.order( "spree_option_types.position", "spree_option_values.position" )
     end
 
     def grouped_option_values_for_target(target)
-      @_targeted_grouped_option_values ||= targeted_option_values(target).group_by(&:option_type)
+      @_grouped_option_values_for_target ||= targeted_option_values(target).group_by(&:option_type)
     end
     ## target variant options
 
@@ -311,9 +319,9 @@ module Spree
 
     def variant_options_tree(current_currency)
       hash={}
-      variants.each do |v|
+      variants.includes(:prices, :option_values => [:option_type]).order( "spree_option_types.position", "spree_option_values.position" ).each do |v|
         base=hash
-        v.option_values.order(:position).sort_by {|ov| ov.option_type.position }.each_with_index do |o,i|
+        v.option_values.each_with_index do |o,i|
           base[o.option_type.url_safe_name] ||= {}
           base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
           if ( i + 1 < v.option_values.size )

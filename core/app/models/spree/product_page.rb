@@ -12,8 +12,6 @@ module Spree
     has_many :variants, through: :products, source: :all_variants_unscoped
 
     has_many :available_tags, -> { uniq }, through: :variants, class_name: "Spree::Tag", source: :tags
-    has_many :visible_tags, -> { uniq.select("spree_product_page_variants.position") }, through: :displayed_variants, class_name: "Spree::Tag", source: :tags
-
     has_many :taggings, as: :taggable
     has_many :tags, through: :taggings
 
@@ -41,7 +39,11 @@ module Spree
 
     def non_kit_variants_with_target
       all_variants.select do |v|
-        v.product.product_type != 'kit' && v.targets.include?(self.target)
+        keep = v.product.product_type != 'kit'
+        if self.target.present?
+          keep = keep && v.targets.include?(self.target)
+        end
+        keep
       end
     end
 
