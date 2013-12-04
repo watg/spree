@@ -116,7 +116,7 @@ module Spree
 
     def lowest_priced_variant(currency = nil)
       all_variants_or_master.
-       # in_stock(self.product_type).
+        in_stock(self.product_type).
         active(currency).
         where("spree_prices.sale = spree_variants.in_sale").
         order("spree_prices.amount").
