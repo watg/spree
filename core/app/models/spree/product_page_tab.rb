@@ -10,6 +10,12 @@ module Spree
     validates_uniqueness_of :position, scope: :product_page_id
     validates :background_color_code, format: { with: /\A[A-Fa-f0-9]{6}\z/ }, allow_blank: true
 
+    before_create :assign_position
+
+    def assign_position
+      self.position = (ProductPageTab.maximum(:position) || -1) + 1
+    end
+
     def make_default(opts={})
       opts[:save] = true if opts[:save].nil?
       self.class.where(product_page_id: self.product_page_id).update_all(default: false)
