@@ -58,8 +58,8 @@ module Spree
     end
 
     def create_tabs
-      tabs.create(position: 0, tab_type: :ready_to_wear)
-      tabs.create(position: 1, tab_type: :knit_your_own)
+      tabs.create(tab_type: :ready_to_wear)
+      tabs.create(tab_type: :knit_your_own)
     end
 
     def available_variants

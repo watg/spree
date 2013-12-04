@@ -13,7 +13,7 @@ module Spree
     before_create :assign_position
 
     def assign_position
-      self.position = (ProductPageTab.maximum(:position) || -1) + 1
+      self.position = (ProductPageTab.where(product_page: product_page).maximum(:position) || -1) + 1
     end
 
     def make_default(opts={})
