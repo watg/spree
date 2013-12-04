@@ -51,8 +51,11 @@ module Spree
       joins("LEFT OUTER JOIN spree_targets ON spree_targets.id = spree_variant_targets.target_id").
       where("spree_variant_targets.target_id = (?)", target.id)
     }
-    
-    # end variant options
+
+    scope :in_stock, lambda {
+      joins("LEFT OUTER JOIN spree_stock_items ON spree_stock_items.variant_id = spree_option_values_variants.variant_id").
+      where("spree_stock_items.count_on_hand > 0")
+    }
     
 
     def url_safe_name
