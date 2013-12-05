@@ -115,12 +115,7 @@ module Spree
           active(currency).
           where("spree_prices.sale = spree_variants.in_sale").
           order("spree_prices.amount").
-          detect {|v|
-             total = v.required_parts.map do |part|
-                         count_part = part.count_part || 0
-                         Spree::Stock::Quantifier.new(part).can_supply?(count_part)
-                     end
-             total.inject(true) {|have_stock, item| have_stock && item } }
+          detect {|v| kit_variant_with_stock?(v) }
       else
         all_variants_or_master.
           simple_product_in_stock.
@@ -369,6 +364,18 @@ module Spree
     end
 
     private
+    def kit_variant_with_stock?(variant)
+      part_stock_check = variant.required_parts.map do |part|
+        count_part = part.count_part || 0
+        Spree::Stock::Quantifier.new(part).can_supply?(count_part)
+      end
+
+      kit_varaint_has_stock = part_stock_check.inject(true) {|have_stock, part| 
+        have_stock && part }
+
+      kit_varaint_has_stock
+    end
+    
     # Builds variants from a hash of option types & values
     def build_variants_from_option_values_hash
       ensure_option_types_exist_for_values_hash
