@@ -17,19 +17,24 @@
       <%= f.text_field :permalink, :class => 'fullwidth title' %>
       <%= f.error_message_on :permalink %>
     <% end %>
+
+    <%= f.field_container :target do %>
+      <%= f.label :target_id, "Target" %>
+      <%= f.hidden_field :target_id, :class => 'fullwidth target-dropdown' %>
+    <% end %>
   </div>
 
-  <div class="dropzone right six columns omega" id="product_page_image_container">
-    <%= image_tag(@product_page.image.attachment.url(:small)) if @product_page.image.present? %>
+  <div class="right six columns omega">
+    <div class="dropzone" id="product_page_image_container">
+      <%= image_tag(@product_page.image.attachment.url(:small)) if @product_page.image.present? %>
+    </div>
+    <%= f.fields_for :image do |image_fields| %>
+      <%= image_fields.hidden_field :_destroy %>
+      <%= link_to_with_icon 'icon-trash', "Delete Image", "#", class: "remove_image" %>
+    <% end %>
   </div>
 </div>
 
-<div class="twelve columns alpha omega">
-  <%= f.field_container :target do %>
-    <%= f.label :target_id, "Target" %>
-    <%= f.hidden_field :target_id, :class => 'fullwidth target-dropdown' %>
-  <% end %>
-</div>
 
 <%= f.field_container :product_group do %>
   <%= f.label :product_group_ids, Spree.t(:product_group) %><br />
@@ -47,8 +52,8 @@
 <% end %>
 
 
-<% Spree::ProductPageTab::TYPES.each_with_index do |tab_type, position| %>
-<%= render :partial => 'tab', :locals => {:tab => @product_page.tab(tab_type), :position => position} %>
+<%= f.fields_for :tabs do |builder| %>
+  <%= render 'tab', f: builder %>
 <% end %>
 
 <div class="clear"></div>

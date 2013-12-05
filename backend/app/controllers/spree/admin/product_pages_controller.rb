@@ -3,7 +3,7 @@ module Spree
     class ProductPagesController < ResourceController
 
       def update
-        outcome = Spree::UpdateProductPageService.run(product_page: @object, details: params[:product_page], tabs: params[:tabs])
+        outcome = Spree::UpdateProductPageService.run(product_page: @object, details: params[:product_page])
         if outcome.success?
           update_success(@object)
         else

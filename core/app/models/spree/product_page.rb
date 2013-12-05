@@ -28,11 +28,13 @@ module Spree
 
     has_many :index_page_items, as: :item, dependent: :delete_all
     has_many :index_pages, through: :index_page_items
-
     belongs_to :target
 
     before_save :set_permalink
     after_create :create_tabs
+
+    accepts_nested_attributes_for :tabs, allow_destroy: true
+    accepts_nested_attributes_for :image, allow_destroy: true
 
     def all_variants
       products.map(&:all_variants_or_master).flatten
@@ -79,7 +81,7 @@ module Spree
     end
 
     def tab(tab_type)
-      ( tabs.where(tab_type: tab_type).first || Spree::ProductPageTab.new(tab_type: tab_type, product_page_id: self.id))
+      tabs.where(tab_type: tab_type).first
     end
 
     def tag_names
