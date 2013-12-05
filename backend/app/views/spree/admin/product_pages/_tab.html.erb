@@ -1,17 +1,25 @@
 <div class="six columns alpha">
+  <fieldset>
+    <legend><%= tab_type(f.object) %></legend>
 
-  <fieldset><legend><%= tab_type(tab) %></legend>
-
-    <%= hidden_field_tag "tabs[#{tab.tab_type}][position]", position %>
-
+    
     <div class="six columns alpha">
-      <div class="dropzone" id="<%= tab.tab_type %>_image_container">
-        <%= image_tag(tab.image.attachment.url(:small)) if tab.image.present? %>
+      <div class="dropzone" id="<%= f.object.tab_type %>_image_container">
+        <div class="product_page_item_image">
+          <%= f.fields_for :image do |image_fields| %>
+            <%= image_tag(image_fields.object.attachment.url(:small))%>
+          <% end %>
+        </div>
       </div>
 
+      <%= f.fields_for :image do |image_fields| %>
+        <%= image_fields.hidden_field :_destroy %>
+        <%= link_to_with_icon 'icon-trash', "Delete Image", "#", class: "remove_image" %>
+      <% end %>
+      
       <br>
       <label>Background color</label>
-      # &nbsp; <%= text_field_tag "tabs[#{tab.tab_type}][background_color_code]", tab.background_color_code, size: 6, maxlength: 6 %>
+      # &nbsp; <%= f.text_field :background_color_code, size: 6, maxlength: 6 %>
     </div>
 
   </fieldset>

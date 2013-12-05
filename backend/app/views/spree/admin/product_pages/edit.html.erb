@@ -50,10 +50,10 @@
 
 
 
-<%= form_for [:admin, @product_page], :method => :put, :html => { :multipart => true } do |f| %>
-<div data-hook="admin_product_page_edit_form">
-  <%= render :partial => 'form', :locals => { :f => f } %>
-</div>
-<%= render :partial => 'spree/admin/shared/edit_resource_links' %>
+<%= form_for [:admin, @product_page] do |f| %>
+  <div data-hook="admin_product_page_edit_form">
+    <%= render 'form', f: f  %>
+  </div>
+  <%= render :partial => 'spree/admin/shared/edit_resource_links' %>
 <% end %>
 
