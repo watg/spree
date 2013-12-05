@@ -109,7 +109,26 @@ module Spree
     TYPES = [ :kit, :product, :virtual_product, :pattern, :parcel, :ready_to_wear, :accessory ] unless defined?(TYPES)
 
     def lowest_priced_variant(currency = nil)
-      variants.blank? ? master : all_variants_or_master.active(currency).joins(:prices).order("spree_prices.amount").first
+      if self.product_type.to_s.downcase == 'kit'
+        # TODO: refactor this bit no very performant
+        all_variants_or_master.
+          active(currency).
+          where("spree_prices.sale = spree_variants.in_sale").
+          order("spree_prices.amount").
+          detect {|v|
+             total = v.required_parts.map do |part|
+                         count_part = part.count_part || 0
+                         Spree::Stock::Quantifier.new(part).can_supply?(count_part)
+                     end
+             total.inject(true) {|have_stock, item| have_stock && item } }
+      else
+        all_variants_or_master.
+          simple_product_in_stock.
+          active(currency).
+          where("spree_prices.sale = spree_variants.in_sale").
+          order("spree_prices.amount").
+          first
+      end
     end
 
     def variant_and_target_images

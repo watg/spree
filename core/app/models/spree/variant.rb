@@ -59,6 +59,11 @@ module Spree
     scope :available, lambda { joins(:product).where("spree_products.available_on <= ?", Time.zone.now)  }
     
     class << self
+      def simple_product_in_stock
+        joins("LEFT OUTER JOIN spree_stock_items ON spree_stock_items.variant_id = spree_variants.id").
+          where("spree_stock_items.count_on_hand > 0")
+      end
+
       def active(currency = nil)
         joins(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
       end
