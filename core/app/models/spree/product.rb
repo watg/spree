@@ -108,6 +108,18 @@ module Spree
 
     TYPES = [ :kit, :product, :virtual_product, :pattern, :parcel, :ready_to_wear, :accessory ] unless defined?(TYPES)
 
+    def memoized_gang_member
+      @_memoized_gang_member ||= gang_member
+    end
+
+    def memoized_images
+      @_memoized_images ||= images
+    end
+
+    def memoized_variant_images
+      @_memoized_variant_images ||= variant_images
+    end
+
     def lowest_priced_variant(currency = nil)
       if self.product_type.to_s.downcase == 'kit'
         # TODO: refactor this bit no very performant

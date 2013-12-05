@@ -323,6 +323,11 @@ module Spree
       self.tags.map(&:value)
     end
 
+    def option_types_and_values
+      option_values.includes(:option_type).order( "spree_option_types.position", "spree_option_values.position" )
+        .map{ |ov| [ ov.option_type.url_safe_name, ov.url_safe_name, ov.presentation] }
+    end
+
     private
     def find_price(currency, type)
       prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first
