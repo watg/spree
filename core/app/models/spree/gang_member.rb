@@ -20,9 +20,11 @@ module Spree
     #before_save :set_nickname_as_taxon
 
     validates :firstname, :presence => true
-    validates_uniqueness_of :firstname, :scope => :lastname
+    validates_uniqueness_of :firstname, :scope => :lastname #? are you sure about this validation?
 
     has_many :products
+
+    make_permalink order: :firstname
 
     default_styles = ActiveSupport::JSON.decode(Spree::Config[:attachment_styles]).symbolize_keys!
 
@@ -52,6 +54,19 @@ module Spree
 
     def visible?
       visible
+    end
+
+    def to_param
+      if permalink.present? 
+        permalink
+      else
+        other = GangMember.where("permalink LIKE ?", "#{firstname.to_s.to_url}%").first
+        if other.present?
+          return firstname.to_s.to_url
+        else
+          return firstname.to_s.to_url + "-1"
+        end
+      end
     end
 
     private
