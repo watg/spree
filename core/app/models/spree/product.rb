@@ -126,6 +126,14 @@ module Spree
       end
     end
 
+    def variant_in_stock
+      if self.product_type.to_s.downcase == 'kit'
+        self.variants.select {|v| kit_variant_with_stock?(v) }
+      else
+        self.variants.simple_product_in_stock
+      end
+    end
+
     def variant_and_target_images
       variant_images + target_images
     end
@@ -175,7 +183,8 @@ module Spree
 
     ## target variant options
     def targeted_option_values(target)
-      selector = Spree::OptionValue.includes(:option_type).for_product(self).in_stock
+      check_stock = true
+      selector = Spree::OptionValue.includes(:option_type).for_product(self, check_stock)
       selector = selector.with_target(target) if target.present?
       @_targeted_option_values ||= selector.order( "spree_option_types.position", "spree_option_values.position" )
     end

@@ -17,7 +17,8 @@ module Spree
       end
 
       def backorderable?
-        stock_items.any?(&:backorderable)
+        # stock_items.any?(&:backorderable)
+        false
       end
 
       def can_supply?(required)
