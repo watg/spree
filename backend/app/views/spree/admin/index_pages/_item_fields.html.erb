@@ -1,12 +1,32 @@
-<tr class="index_page fields <%= item_class(f.object.item) %>" id="spree_<%= dom_id(f.object) %>"  data-hook="index_page" class="<%= cycle('odd', 'even')%>">
+<% item = f.object %>
+<tr class="index_page fields" id="spree_<%= dom_id(f.object) %>"  data-hook="index_page" class="<%= cycle('odd', 'even')%>">
+
   <td class="no-border">
     <span class="handle"></span>
     <%= f.hidden_field :id %>
   </td>
-  <td><%= image_tag first_image_url(f.object.item) %></td>
 
-  <td><%= link_to f.object.name, link_to_edit_item(f.object.item) %></td>
-  <td><%= item_name(f.object.item) %></td>
+  <td>
+    <%= s3_uploader_form callback_url: url_for([:s3_callback, :admin, @index_page, item]),
+        id: "s3_uploader_product_page",
+	class: "s3_uploader_form",
+	data: {drop_zone: "#item_#{item.id}_image_container"},
+	callback_param: "image[direct_upload_url]",
+	expiration: 24.hours.from_now.utc.iso8601,
+	max_file_size: 100.megabytes do %>
+      <%= file_field_tag :file, multiple: true, style: "display:none" %>
+    <% end %>
+
+    <div class="dropzone" id="item_<%= item.id %>_image_container">
+      <div class="item_image">
+        <%= f.fields_for :image do |image_fields| %>
+        <%= image_tag(image_fields.object.attachment.url(:small))%>
+        <% end %>
+      </div>
+    </div>
+  </td>
+
+  <td><%= item.title %></td>
 
   <td>
     <% Spree::IndexPageItem::TEMPLATES.each do |template| %>
@@ -16,7 +36,14 @@
     <br>
     <%= f.check_box :inverted %> Inverted colours
   </td>
-  <td><%= f.collection_select(:target_id, Spree::Target.all, :id, :name, { :prompt => "" }, { class: "select2 fullwidth",}) unless f.object.item.class == Spree::ProductPage %></td>
 
-  <td class="actions"><%= link_to_remove_fields Spree.t(:remove), f, :no_text => true %></td>
+  <td>
+    <% if item.product_page %>
+    <%= link_to item.product_page.name, [:edit, :admin, item.product_page] %>
+    <% end %>
+  </td>
+
+  <td>(optional) Link to Variant <%#= item_name(f.object.item) %></td>
+
+  <td class="actions"><%= link_to Spree.t(:remove), [:admin, @index_page, f.object], method: :delete %></td>
 </tr>

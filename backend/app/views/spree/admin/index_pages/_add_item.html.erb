@@ -1,25 +1,33 @@
 <%= render :partial => "spree/admin/product_pages/autocomplete", :formats => :js %>
 <%= render :partial => "spree/admin/variants/autocomplete", :formats => :js %>
 
-<div id="add-line-item">
+<div id="new-line-item">
   <fieldset class="no-border-bottom">
-    <legend align="center">Add Items</legend>
+    <legend align="center">Add Item</legend>
 
-    <%= form_tag add_item_admin_index_page_path(@index_page) do %>
-      <div class="field ten columns alpha">
-        <%= hidden_field_tag :item_id, "", :class => "fullwidth", id: "item_autocomplete" %>        
+    <%= form_for [:admin, @index_page, Spree::IndexPageItem.new] do |f| %>
+      <%= f.field_container :title do %>
+        <%= f.label :title, Spree.t(:title) %> <span class="required">*</span><br />
+        <%= f.text_field :title, :class => 'fullwidth title' %>
+        <%= f.error_message_on :title %>
+      <% end %>
+
+      <div class="field twelve columns alpha">
+	<%= f.label :product_page_id, "Product page" %>
+	<%= f.hidden_field :product_page_id, :class => "fullwidth", id: "product_page_autocomplete" %>
       </div>
-      <div class="field three columns alpha">
-        <% types = ['Spree::ProductPage','Spree::Variant'] %>
-        <%= select_tag :item_type, options_for_select(types, types.first) %>
+
+      <div class="field twelve columns alpha">
+	<%= f.label :variant_id, "Variant (optional)" %>
+	<%= f.hidden_field :variant_id, :class => "fullwidth", id: "variant_autocomplete" %>
       </div>
+
       <div class="field two columns alpha">
-        <%= button_tag "Add Item", class: "button", id: "add_product_page_to_index_page" %>
+	<%= button_tag "Add Product Page", class: "button", id: "add_product_page_to_index_page" %>
       </div>
+
     <% end %>
 
   </fieldset>
-
-  <div id="item_details"></div>
 </div>
 
