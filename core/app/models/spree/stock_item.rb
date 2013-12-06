@@ -3,13 +3,24 @@ module Spree
     acts_as_paranoid
 
     belongs_to :stock_location, class_name: 'Spree::StockLocation'
-    belongs_to :variant, class_name: 'Spree::Variant', touch: true
+    belongs_to :variant, class_name: 'Spree::Variant'
     has_many :stock_movements
 
     validates_presence_of :stock_location, :variant
     validates_uniqueness_of :variant_id, scope: [:stock_location_id, :deleted_at]
 
     delegate :weight, to: :variant
+
+    after_save :touch_variant
+
+    def touch_variant
+      was, now = self.changes['count_on_hand']
+      if ( was.to_i > 0 and now.to_i <= 0 ) and !self.backorderable? 
+        variant.touch
+      elsif ( was.to_i <= 0 and now.to_i > 0 )
+        variant.touch
+      end
+    end
 
     def backordered_inventory_units
       Spree::InventoryUnit.backordered_for_stock_item(self)
