@@ -47,7 +47,7 @@ module Spree
     end
 
 
-    def lowest_priced_ready_to_wear(currency = nil)
+    def lowest_priced_made_by_the_gang(currency = nil)
       displayed_variants_in_stock.active(currency).joins(:prices).order("spree_prices.amount").first
     end
 
@@ -56,7 +56,7 @@ module Spree
     end
 
     def create_tabs
-      tabs.create(tab_type: :ready_to_wear)
+      tabs.create(tab_type: :made_by_the_gang)
       tabs.create(tab_type: :knit_your_own)
     end
 
@@ -64,8 +64,8 @@ module Spree
       non_kit_variants_with_target - displayed_variants
     end
 
-    def ready_to_wear
-      tab(:ready_to_wear)
+    def made_by_the_gang
+      tab(:made_by_the_gang)
     end
 
     def knit_your_own
