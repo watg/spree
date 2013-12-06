@@ -21,8 +21,6 @@ module Spree
         if params[:tab_id]
           tab = ProductPageTab.find params[:tab_id]
           image = ProductPageTabImage.where(viewable: tab).first_or_create
-        else
-          image = ProductPageImage.where(viewable: @object).first_or_create
         end
 
         @outcome = UploadImageToS3Service.run(callback_params, image: image)

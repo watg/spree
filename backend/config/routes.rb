@@ -9,13 +9,13 @@ Spree::Core::Engine.routes.draw do
       collection do
         post :update_items_positions
       end
-      
-      member do
-        post :add_item
+
+      resources :index_page_items do
+        member do
+          post :s3_callback
+        end
       end
     end
-    delete '/index_page_items/:id', :to => "index_page_items#destroy", :as => :index_page_item
-
 
     resources :product_pages do
       member do

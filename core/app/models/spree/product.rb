@@ -37,9 +37,6 @@ module Spree
     has_many :product_targets, class_name: 'Spree::ProductTarget', dependent: :destroy
     has_many :targets, class_name: 'Spree::Target', through: :product_targets
 
-    has_many :index_page_items, as: :item, dependent: :delete_all
-    has_many :index_pages, through: :index_page_items
-
     belongs_to :tax_category,      class_name: 'Spree::TaxCategory'
     belongs_to :shipping_category, class_name: 'Spree::ShippingCategory'
     belongs_to :gang_member,       class_name: 'Spree::GangMember'
@@ -377,9 +374,9 @@ module Spree
       # You should be able to just call self.taxons.each { |t| t.touch } but
       # for some reason acts_as_nested_set does not walk all the ancestors
       # correclty
-      self.taxons.each do |t| 
-        t.self_and_parents.each do |t2| 
-          t2.touch 
+      self.taxons.each do |t|
+        t.self_and_parents.each do |t2|
+          t2.touch
         end
       end
     end
@@ -391,12 +388,12 @@ module Spree
         Spree::Stock::Quantifier.new(part).can_supply?(count_part)
       end
 
-      kit_varaint_has_stock = part_stock_check.inject(true) {|have_stock, part| 
+      kit_varaint_has_stock = part_stock_check.inject(true) {|have_stock, part|
         have_stock && part }
 
       kit_varaint_has_stock
     end
-    
+
     # Builds variants from a hash of option types & values
     def build_variants_from_option_values_hash
       ensure_option_types_exist_for_values_hash

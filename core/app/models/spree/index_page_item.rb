@@ -2,17 +2,18 @@ module Spree
   class IndexPageItem < ActiveRecord::Base
     acts_as_paranoid
 
-    delegate :name, to: :item
-    
-    belongs_to :item, polymorphic: true
-    belongs_to :index_page
-    belongs_to :target
+    has_one :image, as: :viewable, dependent: :destroy, class_name: "Spree::IndexPageItemImage"
+    accepts_nested_attributes_for :image, allow_destroy: true
+
+    belongs_to :index_page, touch: true
+    belongs_to :product_page
+    belongs_to :variant
 
     default_scope { order('position') }
     acts_as_list :scope => :index_page
-    
-    validates_uniqueness_of :index_page, :scope => [:item_id, :item_type], :message => :already_linked
-    
+
+    validates_uniqueness_of :index_page, :scope => [:product_page_id, :variant_id], :message => :already_linked
+
     LARGE_TOP = 1
     SMALL_BOTTOM = 2
 

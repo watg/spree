@@ -7,7 +7,6 @@ module Spree
 
     has_and_belongs_to_many :product_groups, join_table: :spree_product_groups_product_pages
 
-    has_one :image, as: :viewable, dependent: :destroy, class_name: "Spree::ProductPageImage"
     has_many :products, through: :product_groups
     has_many :variants, through: :products, source: :all_variants_unscoped
 
@@ -21,20 +20,17 @@ module Spree
     has_many :displayed_variants_in_stock , -> {
       joins("LEFT OUTER JOIN spree_stock_items ON spree_stock_items.variant_id = spree_product_page_variants.variant_id").
       where("spree_stock_items.count_on_hand > 0")
-    }, 
-    through: :product_page_variants, 
-    class_name: "Spree::Variant", 
+    },
+    through: :product_page_variants,
+    class_name: "Spree::Variant",
     source: :variant
 
-    has_many :index_page_items, as: :item, dependent: :delete_all
-    has_many :index_pages, through: :index_page_items
     belongs_to :target
 
     before_validation :set_permalink
     after_create :create_tabs
 
     accepts_nested_attributes_for :tabs, allow_destroy: true
-    accepts_nested_attributes_for :image, allow_destroy: true
 
     def all_variants
       products.map(&:all_variants_or_master).flatten

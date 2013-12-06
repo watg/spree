@@ -23,9 +23,6 @@ module Spree
     has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :images, through: :variant_targets
     has_many :targets, class_name: 'Spree::Target', through: :variant_targets
 
-    has_many :index_page_items, as: :item, dependent: :delete_all
-    has_many :index_pages, through: :index_page_items
-
     has_one :default_price,
       -> { where currency: Spree::Config[:currency] },
       class_name: 'Spree::Price',
@@ -58,7 +55,7 @@ module Spree
     scope :not_deleted, lambda { where("#{Variant.quoted_table_name}.deleted_at IS NULL or #{Variant.quoted_table_name}.deleted_at >= ?", Time.zone.now) }
 
     scope :available, lambda { joins(:product).where("spree_products.available_on <= ?", Time.zone.now)  }
-    
+
     class << self
       def simple_product_in_stock
         joins("LEFT OUTER JOIN spree_stock_items ON spree_stock_items.variant_id = spree_variants.id").
