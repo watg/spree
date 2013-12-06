@@ -1,0 +1,17 @@
+$("#new_index_page_item").html('<%= escape_javascript(render :template => "spree/admin/index_page_items/new", :formats => [:html], :handlers => [:erb]) %>');
+$("#new_index_page_item_link").parent().hide();
+
+$('#product_page_autocomplete').itemAutocomplete({
+  url: Spree.routes.product_pages_search,
+  param_name: "name_cont",
+  template: '#item_autocomplete_template',
+  d: null
+});
+
+$('#variant_autocomplete').itemAutocomplete({
+  url:  Spree.routes.variants_search,
+  include_product_page: true,
+  param_name: "product_name_or_sku_cont",
+  template: '#variant_autocomplete_template',
+  d: 'variants'
+});

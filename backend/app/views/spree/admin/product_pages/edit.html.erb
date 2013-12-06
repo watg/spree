@@ -23,7 +23,6 @@
 
 <% @product_page.tabs.each do |tab| %>
   <%= s3_uploader_form callback_url: s3_callback_admin_product_page_path(@product_page),
-    id: "s3_uploader_product_page",
     class: "s3_uploader_form",
     data: {
       tab: tab.id,

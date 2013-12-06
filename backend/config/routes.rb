@@ -6,13 +6,12 @@ Spree::Core::Engine.routes.draw do
     get '/search/users', :to => "search#users", :as => :search_users
 
     resources :index_pages do
-      collection do
-        post :update_items_positions
-      end
-
-      resources :index_page_items do
+      resources :items, controller: "index_page_items" do
         member do
           post :s3_callback
+        end
+        collection do
+          post :update_positions
         end
       end
     end
