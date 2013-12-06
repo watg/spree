@@ -10,7 +10,6 @@ module Spree
           array :option_value_ids do
             string
           end
-          string :index_page_ids, empty: true
           string :tags, empty: true
           string :target_ids, empty: true
         end
@@ -43,7 +42,6 @@ module Spree
       ActiveRecord::Base.transaction do
         tags = split_params(details.delete(:tags))
         target_ids = split_params(details.delete(:target_ids))
-        details[:index_page_ids] = split_params(details[:index_page_ids])
 
         variant.update_attributes(details)
         update_prices(prices, variant)

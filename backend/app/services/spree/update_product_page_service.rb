@@ -16,10 +16,8 @@ module Spree
         product_page.target_id          = details[:target_id]
         product_page.accessories        = details[:accessories]
         product_page.product_group_ids  = pg_ids
-        product_page.index_page_ids     = split_params(details[:index_page_ids])
         product_page.tags               = find_tags(details[:tags] || [])
 
-        product_page.image_attributes   = details[:image_attributes] if details[:image_attributes]
         product_page.tabs_attributes    = details[:tabs_attributes]
         product_page.save!
 
