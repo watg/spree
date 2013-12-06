@@ -24,7 +24,6 @@ module Spree
     def update_details(product, product_params)
       product_params[:option_type_ids] = split_params(product_params[:option_type_ids])
       product_params[:taxon_ids] = split_params(product_params[:taxon_ids])
-      product_params[:index_page_ids] = split_params(product_params[:index_page_ids])
 
       update_before(product_params)
 
