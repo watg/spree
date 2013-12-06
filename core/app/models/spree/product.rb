@@ -164,7 +164,8 @@ module Spree
     end
 
     def option_values
-      @_option_values ||= Spree::OptionValue.for_product(self).includes(:option_type).order( "spree_option_types.position", "spree_option_values.position" )
+      check_stock = true
+      @_option_values ||= Spree::OptionValue.for_product(self,check_stock).includes(:option_type).order( "spree_option_types.position", "spree_option_values.position" )
     end
 
     def grouped_option_values
