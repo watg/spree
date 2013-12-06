@@ -5,7 +5,7 @@ module Spree
     has_one :image, as: :viewable, dependent: :destroy, class_name: "Spree::IndexPageItemImage"
     accepts_nested_attributes_for :image, allow_destroy: true
 
-    belongs_to :index_page
+    belongs_to :index_page, touch: true
     belongs_to :product_page
     belongs_to :variant
 
