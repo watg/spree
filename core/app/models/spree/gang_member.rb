@@ -60,11 +60,13 @@ module Spree
       if permalink.present? 
         permalink
       else
-        other = GangMember.where("permalink LIKE ?", "#{firstname.to_s.to_url}%").first
-        if other.present?
-          return firstname.to_s.to_url
-        else
-          return firstname.to_s.to_url + "-1"
+        self.with_lock do
+          other = GangMember.where("permalink LIKE ?", "#{firstname.to_s.to_url}%").first
+          if other.present?
+            return firstname.to_s.to_url
+          else
+            return firstname.to_s.to_url + "-1"
+          end
         end
       end
     end
