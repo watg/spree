@@ -40,9 +40,10 @@ module Spree
       image_file_name && !image_file_name.empty?
     end
     
-    scope :for_product, lambda { |product|
+    scope :for_product, lambda { |product, stock|
+      v_ids = (stock ? product.variant_in_stock : product.variants).map(&:id)
       select("DISTINCT #{table_name}.*").
-      where("spree_option_values_variants.variant_id IN (?)", product.variant_ids).
+      where("spree_option_values_variants.variant_id IN (?)", v_ids).
       joins(:variants)
     }
 
@@ -52,11 +53,10 @@ module Spree
       where("spree_variant_targets.target_id = (?)", target.id)
     }
 
-    scope :in_stock, lambda {
+    scope :simple_product_in_stock, lambda {
       joins("LEFT OUTER JOIN spree_stock_items ON spree_stock_items.variant_id = spree_option_values_variants.variant_id").
       where("spree_stock_items.count_on_hand > 0")
     }
-    
 
     def url_safe_name
       name.downcase.parameterize

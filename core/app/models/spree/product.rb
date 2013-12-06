@@ -108,6 +108,18 @@ module Spree
 
     TYPES = [ :kit, :product, :virtual_product, :pattern, :parcel, :ready_to_wear, :accessory ] unless defined?(TYPES)
 
+    def memoized_gang_member
+      @_memoized_gang_member ||= gang_member
+    end
+
+    def memoized_images
+      @_memoized_images ||= images
+    end
+
+    def memoized_variant_images
+      @_memoized_variant_images ||= variant_images
+    end
+
     def lowest_priced_variant(currency = nil)
       if self.product_type.to_s.downcase == 'kit'
         # TODO: refactor this bit no very performant
@@ -115,12 +127,7 @@ module Spree
           active(currency).
           where("spree_prices.sale = spree_variants.in_sale").
           order("spree_prices.amount").
-          detect {|v|
-             total = v.required_parts.map do |part|
-                         count_part = part.count_part || 0
-                         Spree::Stock::Quantifier.new(part).can_supply?(count_part)
-                     end
-             total.inject(true) {|have_stock, item| have_stock && item } }
+          detect {|v| kit_variant_with_stock?(v) }
       else
         all_variants_or_master.
           simple_product_in_stock.
@@ -128,6 +135,14 @@ module Spree
           where("spree_prices.sale = spree_variants.in_sale").
           order("spree_prices.amount").
           first
+      end
+    end
+
+    def variant_in_stock
+      if self.product_type.to_s.downcase == 'kit'
+        self.variants.select {|v| kit_variant_with_stock?(v) }
+      else
+        self.variants.simple_product_in_stock
       end
     end
 
@@ -180,7 +195,8 @@ module Spree
 
     ## target variant options
     def targeted_option_values(target)
-      selector = Spree::OptionValue.includes(:option_type).for_product(self).in_stock
+      check_stock = true
+      selector = Spree::OptionValue.includes(:option_type).for_product(self, check_stock)
       selector = selector.with_target(target) if target.present?
       @_targeted_option_values ||= selector.order( "spree_option_types.position", "spree_option_values.position" )
     end
@@ -369,6 +385,18 @@ module Spree
     end
 
     private
+    def kit_variant_with_stock?(variant)
+      part_stock_check = variant.required_parts.map do |part|
+        count_part = part.count_part || 0
+        Spree::Stock::Quantifier.new(part).can_supply?(count_part)
+      end
+
+      kit_varaint_has_stock = part_stock_check.inject(true) {|have_stock, part| 
+        have_stock && part }
+
+      kit_varaint_has_stock
+    end
+    
     # Builds variants from a hash of option types & values
     def build_variants_from_option_values_hash
       ensure_option_types_exist_for_values_hash
