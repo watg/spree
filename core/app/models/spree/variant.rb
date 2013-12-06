@@ -325,12 +325,13 @@ module Spree
     end
 
     def generate_permalink
-      gang_member_permalink = product.gang_member.permalink
+      return permalink if permalink?
 
-      last_variant = Spree::Variant.where.not(permalink: nil).order("id desc").first
+      last_variant = Spree::Variant.where.not(permalink: nil).order("id").last
       last_permalink_number = last_variant.blank? ? 0 : last_variant.permalink.split("-").last.to_i
       padded_number = (last_permalink_number + 1).to_s.rjust(5, '0')
 
+      gang_member_permalink = product.gang_member.permalink
       self.permalink = gang_member_permalink + "-" + padded_number
     end
 
