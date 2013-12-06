@@ -10,6 +10,8 @@ module Spree
     has_many :products, through: :product_groups
     has_many :variants, through: :products, source: :all_variants_unscoped
 
+    has_many :index_page_items
+
     has_many :available_tags, -> { uniq }, through: :variants, class_name: "Spree::Tag", source: :tags
     has_many :taggings, as: :taggable
     has_many :tags, through: :taggings
@@ -29,6 +31,7 @@ module Spree
 
     before_validation :set_permalink
     after_create :create_tabs
+    after_save :touch_index_page_items
 
     accepts_nested_attributes_for :tabs, allow_destroy: true
 
@@ -98,6 +101,10 @@ module Spree
       if self.permalink.blank? && self.name
         self.permalink = name.downcase.split(' ').map{|e| (e.blank? ? nil : e) }.compact.join('-')
       end
+    end
+
+    def touch_index_page_items
+      index_page_items.each { |item| item.touch }
     end
   end
 end

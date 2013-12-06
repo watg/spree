@@ -41,6 +41,9 @@ module Spree
     has_many :tags, -> { order(:value) }, through: :taggings
 
     before_validation(:on => :create) { generate_permalink }
+
+    has_many :index_page_items
+
     before_validation :set_cost_currency
 
     after_create :create_stock_items
@@ -48,6 +51,7 @@ module Spree
 
     # Regardless of us updating anything, touch so we invalidate cache
     after_save { self.touch }
+    after_save :touch_index_page_items
 
     # default variant scope only lists non-deleted variants
     scope :deleted, lambda { where('deleted_at IS NOT NULL') }
@@ -374,6 +378,9 @@ module Spree
       self.update_column(:position, product.variants.maximum(:position).to_i + 1)
     end
 
+    def touch_index_page_items
+      index_page_items.each { |item| item.touch }
+    end
   end
 end
 
