@@ -4,7 +4,7 @@ module Spree
 
     belongs_to :product, touch: true, class_name: 'Spree::Product'
 
-    delegate_belongs_to :product, :name, :description, :permalink, :available_on,
+    delegate_belongs_to :product, :name, :description, :available_on,
                         :tax_category_id, :shipping_category_id, :meta_description,
                         :meta_keywords, :tax_category, :shipping_category
 
@@ -34,14 +34,15 @@ module Spree
       class_name: 'Spree::Price',
       dependent: :destroy
 
-    validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true } if self.table_exists? && self.column_names.include?('cost_price')
-
+    validates_uniqueness_of :permalink
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
 
     has_many :taggings, as: :taggable
     has_many :tags, -> { order(:value) }, through: :taggings
 
+    before_validation(:on => :create) { generate_permalink }
     before_validation :set_cost_currency
+
     after_create :create_stock_items
     after_create :set_position
 
@@ -325,6 +326,18 @@ module Spree
         .map{ |ov| [ ov.option_type.url_safe_name, ov.url_safe_name, ov.presentation] }
     end
 
+    def generate_permalink
+      return permalink if permalink?
+      self.with_lock do
+        last_variant = Spree::Variant.where.not(permalink: nil).order("id").last
+        last_permalink_number = last_variant.blank? ? 0 : last_variant.permalink.split("-").last.to_i
+        padded_number = (last_permalink_number + 1).to_s.rjust(5, '0')
+
+        gang_member_permalink = product.gang_member.permalink
+        self.permalink = gang_member_permalink + "-" + padded_number
+      end
+    end
+
     private
     def find_price(currency, type)
       prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first
@@ -360,6 +373,7 @@ module Spree
     def set_position
       self.update_column(:position, product.variants.maximum(:position).to_i + 1)
     end
+
   end
 end
 
