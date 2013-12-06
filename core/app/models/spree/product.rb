@@ -103,7 +103,7 @@ module Spree
 
     after_initialize :ensure_master
 
-    TYPES = [ :kit, :product, :virtual_product, :pattern, :parcel, :ready_to_wear, :accessory ] unless defined?(TYPES)
+    TYPES = [ :kit, :product, :virtual_product, :pattern, :parcel, :made_by_the_gang, :accessory ] unless defined?(TYPES)
 
     def memoized_gang_member
       @_memoized_gang_member ||= gang_member
