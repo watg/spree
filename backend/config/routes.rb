@@ -16,6 +16,8 @@ Spree::Core::Engine.routes.draw do
       end
     end
 
+    resources :gift_cards
+
     resources :product_pages do
       member do
         post :s3_callback

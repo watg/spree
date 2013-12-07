@@ -1,0 +1,130 @@
+<% content_for :page_title do %>
+ Gift Cards Listing
+<% end %>
+
+<% content_for :page_actions do %>
+  <li>
+    <%= button_link_to Spree.t(:new_order), new_admin_order_url, :icon => 'icon-plus', :id => 'admin_new_order' %>
+  </li>
+<% end if can? :edit, Spree::Order.new %>
+
+<% content_for :table_filter_title do %>
+  <%= Spree.t(:search) %>
+<% end %>
+
+<% content_for :table_filter do %>
+  <div data-hook="admin_gift_cards_index_search">
+    <%= search_form_for [:admin, @search] do |f| %>
+      <div class="field-block alpha four columns">
+        <div class="date-range-filter field">
+          <%= label_tag nil, Spree.t(:date_range) %>
+          <div class="date-range-fields">
+            <%= f.text_field :created_at_gt, :class => 'datepicker datepicker-from', :value => params[:q][:created_at_gt], :placeholder => Spree.t(:start) %>
+
+            <span class="range-divider">
+              <i class="icon-arrow-right"></i>
+            </span>
+
+            <%= f.text_field :created_at_lt, :class => 'datepicker datepicker-to', :value => params[:q][:created_at_lt], :placeholder => Spree.t(:stop) %>
+          </div>
+        </div>
+
+        <div class="field">
+          <%= label_tag nil, Spree.t(:status) %>
+          <%= f.select :state_eq, Spree::GiftCard::STATES, {:include_blank => true}, :class => 'select2' %>
+        </div>
+      </div>
+
+      <div class="four columns">
+        <div class="field">
+          <%= label_tag nil, 'Buyer Order' %>
+          <%= f.text_field :buyer_order_number_cont %>
+        </div>
+        <div class="field">
+          <%= label_tag nil, 'Buyer Email' %>
+          <%= f.email_field :buyer_email_cont %>
+        </div>
+      </div>
+
+      <div class="four columns">
+        <div class="field">
+          <%= label_tag nil, 'Beneficiary Order' %>
+          <%= f.text_field :beneficiary_order_number_cont %>
+        </div>
+        <div class="field">
+          <%= label_tag nil, 'Beneficiary Email' %>
+          <%= f.email_field :beneficiary_email_cont %>
+        </div>
+      </div>
+
+      <div class="clearfix"></div>
+
+      <div class="actions filter-actions">
+        <div data-hook="admin_gift_cards_index_search_buttons">
+          <%= button Spree.t(:filter_results), 'icon-search' %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<%= paginate @gift_cards %>
+
+<% if @gift_cards.any? %>
+  <table class="index responsive" id="listing_gift_cards" data-hook>
+    <colgroup>
+       <col style="width: 13%;">
+       <col style="width: 10%;">
+       <col style="width: 10%;">
+       <col style="width: 12%;">
+       <col style="width: 12%;">
+       <col style="width: 25%;">
+       <col style="width: 10%;">
+       <col style="width: 8%;">
+    </colgroup>
+    <thead>
+      <tr data-hook="admin_gift_cards_index_headers">
+        <th><%= sort_link @search, :created_at, I18n.t(:created_at, :scope => 'activerecord.attributes.spree/order') %></th>
+        <th><%= sort_link @search, :buyer_order_number,         'Buyer Order Number'    %></th>
+        <th><%= sort_link @search, :buyer_email,                'Buyer Email' %></th>
+        <th><%= sort_link @search, :state,                      I18n.t(:state, :scope => 'activerecord.attributes.spree/order') %></th>
+        <th><%= sort_link @search, :value,                      'Value' %></th>
+        <th><%= sort_link @search, :expiry_date,                'Expiry Date' %></th>
+        <th><%= sort_link @search, :beneficiary_order_number,   'Beneficiary Order'%></th>
+        <th><%= sort_link @search, :beneficiary_email,          'Beneficiary Email' %></th>
+
+        <th data-hook="admin_gift_cards_index_header_actions" class="actions"></th>
+      </tr>
+    </thead>
+    <tbody>
+    <% @gift_cards.each do |gift_card| %>
+      <tr data-hook="admin_gift_cards_index_rows" class="state-<%= gift_card.state.downcase %> <%= cycle('odd', 'even') %>">
+        <td class="align-center"><%= l  gift_card.created_at.to_date %></td>
+        <td class="align-center"><%= link_to gift_card.buyer_order.number, edit_admin_order_path(gift_card.buyer_order) %></td>
+        <td><%= mail_to gift_card.buyer_email %></td>
+        <td class="align-center"><span class="state <%= gift_card.state.downcase %>"><%= gift_card.state.downcase %></span></td>
+        <td class="align-center"><%= Spree::Money.new(gift_card.value, currency: gift_card.currency).to_html %></td>
+        <td class="align-center"><%= l  gift_card.expiry_date.to_date %></td>
+        <td class="align-center">
+          <% if gift_card.beneficiary_order %>
+          <%= link_to gift_card.beneficiary_order.number, edit_admin_order_path(gift_card.beneficiary_order) %>
+          <% end %>
+        </td>
+        <td><%= mail_to gift_card.beneficiary_email %></td>
+        <td class='actions align-center' data-hook="admin_gift_cards_index_row_actions">
+          <a href="#">Pause</a>
+          <a href="#">Cancel</a>
+          <a href="#">Refund</a>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="alpha twelve columns no-objects-found">
+    <%= Spree.t(:no_resource_found, resource: 'Gift Card') %>,
+    <%= link_to Spree.t(:add_one), spree.new_admin_order_path %>!
+  </div>
+<% end %>
+
+<%= paginate @gift_cards %>

@@ -1,5 +1,6 @@
 module Spree
   class GiftCard < ActiveRecord::Base
+    STATES = %w(not_redeemed redeemed on_hold cancelled refunded)
     acts_as_paranoid
     
     belongs_to :variant
@@ -13,6 +14,7 @@ module Spree
     def creation_setup
       self.expiry_date = 1.year.from_now        if self.expiry_date.blank?
       self.buyer_email = self.buyer_order.email if self.buyer_email.blank? 
+      self.state = STATES.first if self.state.blank?
     end
 
     def generate_code
