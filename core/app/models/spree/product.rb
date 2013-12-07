@@ -21,6 +21,9 @@
 module Spree
   class Product < ActiveRecord::Base
     acts_as_paranoid
+
+    TYPES = [ :kit, :product, :virtual_product, :pattern, :parcel, :made_by_the_gang, :accessory, :gift_card ] unless defined?(TYPES)
+
     has_many :product_option_types, dependent: :destroy
     has_many :option_types, through: :product_option_types
     has_many :visible_option_types, -> { where spree_product_option_types: true }, through: :product_option_types
@@ -103,7 +106,7 @@ module Spree
 
     after_initialize :ensure_master
 
-    TYPES = [ :kit, :product, :virtual_product, :pattern, :parcel, :made_by_the_gang, :accessory ] unless defined?(TYPES)
+
 
     def memoized_gang_member
       @_memoized_gang_member ||= gang_member
