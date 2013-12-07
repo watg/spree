@@ -13,7 +13,9 @@ module Spree
     after_touch :touch_all_products
 
     def touch_all_products
-      products.find_each(&:touch)
+      products.find_each do |p|
+        p.delay.touch
+      end
     end
 
     # Custom validator which can be found in the backend initializer dir

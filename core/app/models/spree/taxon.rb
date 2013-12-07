@@ -4,8 +4,8 @@ module Spree
     acts_as_nested_set dependent: :destroy
 
     belongs_to :taxonomy, class_name: 'Spree::Taxonomy', :touch => true
+    belongs_to :page, polymorphic: true
 
-    has_one :index_page
     has_many :classifications, :dependent => :destroy
     has_many :products, through: :classifications
     has_many :displayable_variants, :dependent => :destroy

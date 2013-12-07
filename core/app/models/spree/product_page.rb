@@ -9,7 +9,7 @@ module Spree
 
     has_many :products, through: :product_groups
     has_many :variants, through: :products, source: :all_variants_unscoped
-
+    has_many :taxons, as: :page
     has_many :index_page_items
 
     has_many :available_tags, -> { uniq }, through: :variants, class_name: "Spree::Tag", source: :tags
@@ -31,12 +31,12 @@ module Spree
 
     before_validation :set_permalink
     after_create :create_tabs
-    after_save :touch_index_page_items
+    after_touch :touch_index_page_items
 
     accepts_nested_attributes_for :tabs, allow_destroy: true
 
     def all_variants
-      products.map(&:all_variants_or_master).flatten
+      products.where("product_type <> 'virtual_product' ").map(&:all_variants_or_master).flatten
     end
 
     def non_kit_variants_with_target
@@ -75,6 +75,7 @@ module Spree
       tab(:knit_your_own)
     end
 
+    #TODO add targeting and add a test
     def kit_product
       products.where(product_type: :kit).first
     end
