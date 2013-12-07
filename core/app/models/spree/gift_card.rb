@@ -10,6 +10,8 @@ module Spree
     before_validation :creation_setup
     before_create     :generate_code
 
+    validates :state, inclusion: { in: STATES }
+
     private
     def creation_setup
       self.expiry_date = 1.year.from_now        if self.expiry_date.blank?
