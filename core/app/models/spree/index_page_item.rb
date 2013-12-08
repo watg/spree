@@ -12,6 +12,8 @@ module Spree
     default_scope { order('position') }
     acts_as_list :scope => :index_page
 
+    validates_uniqueness_of :index_page, :scope => [:product_page_id, :variant_id], :message => :already_linked
+
     LARGE_TOP = 1
     SMALL_BOTTOM = 2
 
