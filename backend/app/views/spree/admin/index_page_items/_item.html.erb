@@ -31,9 +31,11 @@
     <% if item.product_page %>
       <%= link_to item.product_page.name, [:edit, :admin, item.product_page] %>
     <% end %>
+    <br>
+    <% if item.variant %>
+      <%= link_to item.variant.name, [:edit, :admin, item.variant.product, item.variant] %>
+    <% end %>
   </td>
-
-  <td>(optional) Link to Variant <%#= item_name(f.object.item) %></td>
 
   <td class="actions"><%= link_to_delete item, { :url => admin_index_page_item_url(@index_page, item), :no_text => true } %></td>
 </tr>

@@ -6,6 +6,8 @@
   <fieldset>
     <legend align="center">Add Item</legend>
     <div class="row">
+      <%= f.hidden_field :index_page_id %>
+
       <%= f.field_container :title do %>
         <%= f.label :title, Spree.t(:title) %> <span class="required">*</span><br />
         <%= f.text_field :title, :class => 'fullwidth title' %>

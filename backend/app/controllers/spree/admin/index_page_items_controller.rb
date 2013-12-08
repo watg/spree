@@ -1,6 +1,7 @@
 module Spree
   module Admin
     class IndexPageItemsController < ResourceController
+      belongs_to 'spree/index_page'
 
       def s3_callback
         item = @index_page.items.find(params[:id])
@@ -14,15 +15,8 @@ module Spree
         @outcome = UploadImageToS3Service.run(callback_params, image: image)
       end
 
-      def update_positions
-        params[:positions].each do |id, index|
-          IndexPageItem.where(:id => id).update_all(:position => index)
-        end
-
-        respond_to do |format|
-          format.html { redirect_to location_after_save }
-          format.js  { render :text => 'Ok' }
-        end
+      def location_after_save
+        edit_admin_index_page_path(@index_page)
       end
 
       def location_after_destroy
