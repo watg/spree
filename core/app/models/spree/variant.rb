@@ -333,7 +333,8 @@ module Spree
     def generate_permalink
       return permalink if permalink?
       self.with_lock do
-        last_variant = Spree::Variant.where.not(permalink: nil).order("id").last
+
+        last_variant = product.gang_member.variants.where.not(permalink: nil).last        
         last_permalink_number = last_variant.blank? ? 0 : last_variant.permalink.split("-").last.to_i
         padded_number = (last_permalink_number + 1).to_s.rjust(5, '0')
 
