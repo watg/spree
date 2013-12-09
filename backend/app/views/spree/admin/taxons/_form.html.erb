@@ -28,6 +28,15 @@
   </div>
 
   <div class="twelve columns alpha omega">
+    <div class="field four columns alpha">
+      <% types = ['Spree::ProductPage','Spree::IndexPage'] %>
+      <%= f.select :page_type, options_for_select(types, types.first) %>
+    </div>
+
+    <div class="field eight columns alpha">
+      <%= f.hidden_field :page_id, :class => "fullwidth" %>
+    </div>
+
     <%= f.field_container :meta_title do %>
       <%= f.label :meta_title, Spree.t(:meta_title) %><br />
       <%= f.text_field :meta_title, :class => 'fullwidth', :rows => 6 %>
