@@ -1,12 +1,7 @@
 module Spree
   module Admin
-    class IndexPageItemsController < Spree::Admin::BaseController
-      before_filter :load_index_page
-
-      def create
-        @index_page.items.create!(item_params)
-        redirect_to [:edit, :admin, @index_page]
-      end
+    class IndexPageItemsController < ResourceController
+      belongs_to 'spree/index_page'
 
       def s3_callback
         item = @index_page.items.find(params[:id])
@@ -20,21 +15,15 @@ module Spree
         @outcome = UploadImageToS3Service.run(callback_params, image: image)
       end
 
-      def destroy
-        item = @index_page.items.find(params[:id])
-        item.destroy
-        redirect_to [:edit, :admin, @index_page]
+      def location_after_save
+        edit_admin_index_page_path(@index_page)
       end
 
-      private
-
-      def load_index_page
-        @index_page = Spree::IndexPage.find(params[:index_page_id])
+      def location_after_destroy
+        edit_admin_index_page_path(@index_page)
       end
 
-      def item_params
-        params.require(:index_page_item).permit(:title, :product_page_id, :variant_id)
-      end
+
     end
   end
 end

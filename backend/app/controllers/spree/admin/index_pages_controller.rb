@@ -16,7 +16,7 @@ module Spree
       protected
 
       def location_after_save
-        edit_admin_index_page_url(@index_page)
+        edit_admin_index_page_path(@index_page)
       end
 
     end

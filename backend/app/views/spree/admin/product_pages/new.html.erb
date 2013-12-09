@@ -1,7 +1,7 @@
 <%= render :partial => 'spree/shared/error_messages', :locals => { :target => @product_page } %>
 
 <%= form_for [:admin, @product_page] do |f| %>
-  <fieldset data-hook="admin_product_page_new_form">
+  <fieldset>
     <legend align="center"><%= Spree.t(:new_product_page) %></legend>
     <div class="row">
       <div class="left six columns alpha">

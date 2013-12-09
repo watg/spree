@@ -1,0 +1,34 @@
+<%= render :partial => "spree/admin/product_pages/autocomplete", :formats => :js %>
+<%= render :partial => "spree/admin/variants/autocomplete", :formats => :js %>
+
+
+<%= form_for [:admin, @index_page_item ] do |f| %>
+  <fieldset>
+    <legend align="center">Add Item</legend>
+    <div class="row">
+      <%= f.hidden_field :index_page_id %>
+
+      <%= f.field_container :title do %>
+        <%= f.label :title, Spree.t(:title) %> <span class="required">*</span><br />
+        <%= f.text_field :title, :class => 'fullwidth title' %>
+        <%= f.error_message_on :title %>
+      <% end %>
+
+      <div class="field eight columns alpha">
+      	<%= f.label :product_page_id, "Product page" %> <span class="required">*</span>
+      	<%= f.hidden_field :product_page_id, :class => "fullwidth", id: "product_page_autocomplete" %>
+      </div>
+
+      <div class="field eight columns alpha">
+      	<%= f.label :variant_id, "Variant (optional)" %>
+      	<%= f.hidden_field :variant_id, :class => "fullwidth", id: "variant_autocomplete" %>
+      </div>
+    </div>
+
+    <div class="form-buttons filter-actions actions">
+      <%= button "Add it !", 'icon-ok', id: "add_product_page_to_index_page" %>
+    </div>
+
+  </fieldset>
+<% end %>
+

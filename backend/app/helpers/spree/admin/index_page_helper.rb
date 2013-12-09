@@ -14,14 +14,6 @@ module Spree
         end
       end
 
-      def link_to_edit_item(item)
-        if item.is_a?(Spree::Variant)
-          url_for([:edit, :admin, item.product, item])
-        else
-          url_for([:edit, :admin, item])
-        end
-      end
-
       def item_name(item)
         item.class.name.demodulize.titleize
       end

@@ -7,20 +7,10 @@
   </td>
 
   <td>
-    <%= s3_uploader_form callback_url: url_for([:s3_callback, :admin, @index_page, item]),
-        id: "s3_uploader_product_page",
-	class: "s3_uploader_form",
-	data: {drop_zone: "#item_#{item.id}_image_container"},
-	callback_param: "image[direct_upload_url]",
-	expiration: 24.hours.from_now.utc.iso8601,
-	max_file_size: 100.megabytes do %>
-      <%= file_field_tag :file, multiple: true, style: "display:none" %>
-    <% end %>
-
     <div class="dropzone" id="item_<%= item.id %>_image_container">
       <div class="item_image">
         <%= f.fields_for :image do |image_fields| %>
-        <%= image_tag(image_fields.object.attachment.url(:small))%>
+          <%= image_tag(image_fields.object.attachment.url(:small))%>
         <% end %>
       </div>
     </div>
@@ -39,11 +29,13 @@
 
   <td>
     <% if item.product_page %>
-    <%= link_to item.product_page.name, [:edit, :admin, item.product_page] %>
+      <%= link_to item.product_page.name, [:edit, :admin, item.product_page] %>
+    <% end %>
+    <br>
+    <% if item.variant %>
+      <%= link_to item.variant.name, [:edit, :admin, item.variant.product, item.variant] %>
     <% end %>
   </td>
 
-  <td>(optional) Link to Variant <%#= item_name(f.object.item) %></td>
-
-  <td class="actions"><%= link_to Spree.t(:remove), [:admin, @index_page, f.object], method: :delete %></td>
+  <td class="actions"><%= link_to_delete item, { :url => admin_index_page_item_url(@index_page, item), :no_text => true } %></td>
 </tr>
