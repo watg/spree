@@ -14,28 +14,27 @@
       </span>
     <% end %>
 
+  </div>
+
+  <div class="omega seven columns">
+    <%= f.field_container :description do %>
+      <%= f.label :description, Spree.t(:description) %><br />
+      <%= f.text_area :description, :class => 'fullwidth', :rows => 2 %>
+    <% end %>
+
     <%= f.field_container :icon do %>
       <%= f.label :icon, Spree.t(:icon) %><br />
       <%= f.file_field :icon %>
     <% end %>
   </div>
 
-  <div class="omega seven columns">
-    <%= f.field_container :description do %>
-      <%= f.label :description, Spree.t(:description) %><br />
-      <%= f.text_area :description, :class => 'fullwidth', :rows => 6 %>
-    <% end %>
-  </div>
-
   <div class="twelve columns alpha omega">
-    <div class="field four columns alpha">
-      <% types = ['Spree::ProductPage','Spree::IndexPage'] %>
-      <%= f.select :page_type, options_for_select(types, types.first) %>
-    </div>
+    <%= f.label :page_type, "Point to page of type:" %> &nbsp; 
+    <%= f.select :page_type, [['Product Page', 'Spree::ProductPage'],['Index Page', 'Spree::IndexPage' ]] %>
 
-    <div class="field eight columns alpha">
+    <%= f.field_container :page_id do %>
       <%= f.hidden_field :page_id, :class => "fullwidth" %>
-    </div>
+    <% end %>
 
     <%= f.field_container :meta_title do %>
       <%= f.label :meta_title, Spree.t(:meta_title) %><br />

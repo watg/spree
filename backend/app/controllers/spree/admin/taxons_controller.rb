@@ -114,7 +114,7 @@ module Spree
 
         def permitted_params
           [:name, :parent_id, :position, :icon, :description, :permalink,
-           :taxonomy_id, :meta_description, :meta_keywords, :meta_title]
+           :taxonomy_id, :meta_description, :meta_keywords, :meta_title, :page_type, :page_id]
         end
     end
   end

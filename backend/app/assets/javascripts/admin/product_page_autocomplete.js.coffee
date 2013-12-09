@@ -3,15 +3,15 @@ $ = jQuery
 $.fn.productPageAutocomplete = ->
   this.select2({
     placeholder: "Choose product pages to assign"
-    multiple: true
+    multiple: false
     minimumInputLength: 2
     
     initSelection: (element, callback) ->
       url = Spree.url(Spree.routes.product_pages_search, {
-        ids: element.val()
+        id: element.val()
       })
       $.getJSON(url, null, (data) ->
-        callback(data)
+        callback(data[0])
       )
 
     ajax: 
@@ -27,9 +27,7 @@ $.fn.productPageAutocomplete = ->
         }
       
       results: (data, page) ->
-        {
-          results: data
-        }
+        {results: data}
 
     formatResult: (product_page) ->
       return product_page.name

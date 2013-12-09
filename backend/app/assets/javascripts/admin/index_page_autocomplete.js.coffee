@@ -3,15 +3,15 @@ $ = jQuery
 $.fn.indexPageAutocomplete = ->
   this.select2({
     placeholder: "Choose index pages to assign"
-    multiple: true
+    multiple: false
     minimumInputLength: 2
     
     initSelection: (element, callback) ->
       url = Spree.url(Spree.routes.index_pages_search, {
-        ids: element.val()
+        id: element.val()
       })
       $.getJSON(url, null, (data) ->
-        callback(data)
+        callback(data[0])
       )
 
     ajax: 
@@ -27,9 +27,7 @@ $.fn.indexPageAutocomplete = ->
         }
       
       results: (data, page) ->
-        {
-          results: data
-        }
+        {results: data}
 
     formatResult: (index_page) ->
       return index_page.name
