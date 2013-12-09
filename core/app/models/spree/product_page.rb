@@ -36,7 +36,7 @@ module Spree
     accepts_nested_attributes_for :tabs, allow_destroy: true
 
     def all_variants
-      products.map(&:all_variants_or_master).flatten
+      products.where("product_type <> 'virtual_product' ").map(&:all_variants_or_master).flatten
     end
 
     def non_kit_variants_with_target
