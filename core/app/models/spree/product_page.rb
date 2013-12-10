@@ -9,7 +9,7 @@ module Spree
 
     has_many :products, through: :product_groups
     has_many :variants, through: :products, source: :all_variants_unscoped
-
+    has_many :taxons, as: :page
     has_many :index_page_items
 
     has_many :available_tags, -> { uniq }, through: :variants, class_name: "Spree::Tag", source: :tags

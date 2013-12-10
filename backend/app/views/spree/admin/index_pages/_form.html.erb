@@ -1,5 +1,5 @@
 <div class="row">
-  <div class="alpha four columns">
+  <div class="alpha seven columns">
     <%= f.field_container :name do %>
       <%= f.label :name, Spree.t(:name) %> <span class="required">*</span><br />
       <%= f.text_field :name, :class => "fullwidth" %>
@@ -7,7 +7,7 @@
     <% end %>
   </div>
   
-  <div class="alpha four columns">
+  <div class="alpha seven columns">
     <%= f.field_container :title do %>
       <%= f.label :title, Spree.t(:title) %> <br />
       <%= f.text_field :title, :class => "fullwidth" %>
@@ -15,16 +15,7 @@
     <% end %>
   </div>
 
-  <div class="omega five columns">
-    <%= f.field_container :taxon_id do %>
-      <%= f.label :taxon_id, "Taxon: " %><br />
-      <%= f.hidden_field :taxon_id, value: "" %>
-      <%= f.collection_select(:taxon_id, Spree::Taxon.all.reject{ |t| t.index_page.present? && t != f.object.taxon }, :id, :pretty_name, { :include_blank => true }, class: 'select2 fullwidth') %>
-      <%= f.error_message_on :taxon_id %>
-    <% end %>
-  </div>
-
-  <div class="omega three columns">
+  <div class="omega four columns">
     <%= f.field_container :background_color do %>
       <%= f.label :background_color, "Background Colour #" %><br />
       <%= f.text_field :background_color, :class => "fullwidth" %>

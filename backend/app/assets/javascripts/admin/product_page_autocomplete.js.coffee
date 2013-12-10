@@ -2,7 +2,7 @@ $ = jQuery
 
 $.fn.productPageAutocomplete = ->
   this.select2({
-    placeholder: "Choose product pages to assign"
+    placeholder: "Choose product page to assign"
     multiple: false
     minimumInputLength: 2
     

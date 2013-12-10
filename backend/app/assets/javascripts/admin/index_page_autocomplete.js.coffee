@@ -2,7 +2,7 @@ $ = jQuery
 
 $.fn.indexPageAutocomplete = ->
   this.select2({
-    placeholder: "Choose index pages to assign"
+    placeholder: "Choose index page to assign"
     multiple: false
     minimumInputLength: 2
     
