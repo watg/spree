@@ -4,7 +4,7 @@ module Spree
     has_many :index_page_items
     has_many :taxons, as: :page
 
-    belongs_to :taxon # remove after migration and drop the column
+    belongs_to :taxon, touch: true # remove after migration and drop the column
     validates_presence_of :name, :title, :permalink
     validates_uniqueness_of :name, :permalink
 

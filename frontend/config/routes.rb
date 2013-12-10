@@ -41,7 +41,8 @@ Spree::Core::Engine.add_routes do
   get '/content/*path', :to => 'content#show', :as => :content
 
   get '/items/:id(/:tab)(/*rest)', :to => 'product_pages#show', :as => :product_page
-  
+
+
   # Top-level navigation to static pages
   get 'women', :to => 'navigation#product_top_women'
   get 'men', :to => 'navigation#product_top_men'
@@ -59,5 +60,5 @@ Spree::Core::Engine.add_routes do
     knitting].each do |page|
       get (page + "/:id"), :to => 'index_pages#show'
   end  
-
+  
 end
