@@ -31,7 +31,7 @@ module Spree
 
     before_validation :set_permalink
     after_create :create_tabs
-    after_save :touch_index_page_items
+    after_touch :touch_index_page_items
 
     accepts_nested_attributes_for :tabs, allow_destroy: true
 
@@ -75,6 +75,7 @@ module Spree
       tab(:knit_your_own)
     end
 
+    #TODO add targeting and add a test
     def kit_product
       products.where(product_type: :kit).first
     end
