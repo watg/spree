@@ -334,11 +334,12 @@ module Spree
       return permalink if permalink?
       self.with_lock do
 
-        last_variant = product.gang_member.variants.where.not(permalink: nil).last        
+        gang_member_permalink = product.gang_member.permalink
+        last_permalink_matcher =  "#{gang_member_permalink}-%"
+
+        last_variant = product.gang_member.variants.with_deleted.where("spree_variants.permalink like ?", last_permalink_matcher).order('id').last
         last_permalink_number = last_variant.blank? ? 0 : last_variant.permalink.split("-").last.to_i
         padded_number = (last_permalink_number + 1).to_s.rjust(5, '0')
-
-        gang_member_permalink = product.gang_member.permalink
         self.permalink = gang_member_permalink + "-" + padded_number
       end
     end
