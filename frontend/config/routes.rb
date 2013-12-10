@@ -36,12 +36,21 @@ Spree::Core::Engine.add_routes do
   get '/t/*id', :to => 'taxons#show', :as => :nested_taxons
   get '/t', :to => 'home#index'
 
-  # new product index pages
-  get '/knitwear/*id', :to => 'index_pages#show', :as => :index_page
-
   get '/unauthorized', :to => 'home#unauthorized', :as => :unauthorized
   get '/content/cvv', :to => 'content#cvv', :as => :cvv
   get '/content/*path', :to => 'content#show', :as => :content
 
   get '/items/:id(/:tab)(/*rest)', :to => 'product_pages#show', :as => :product_page
+
+
+  # Top-level navigation to static pages
+  get 'women', :to => 'navigation#product_top_women'
+  get 'men', :to => 'navigation#product_top_men'
+  get 'kids', :to => 'navigation#product_top_kids'
+  get 'whats-new', :to => 'navigation#product_top_new'
+  get 'gifts', :to => 'navigation#product_top_gifts'
+  get 'knitting', :to => 'navigation#product_top_knitting'
+
+  get '*id', :to => 'index_pages#show', :as => :index_page
+  
 end

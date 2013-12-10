@@ -1,7 +1,7 @@
 <div class="row">
-  <div class="alpha four columns">
+  <div class="alpha five columns">
     <%= f.field_container :name do %>
-      <%= f.label :name, Spree.t(:name) %> <span class="required">*</span><br />
+      <%= f.label :name, Spree.t(:name) %> <span class="required">(backend only)</span><br />
       <%= f.text_field :name, :class => "fullwidth" %>
       <%= f.error_message_on :name %>
     <% end %>
@@ -9,18 +9,17 @@
   
   <div class="alpha four columns">
     <%= f.field_container :title do %>
-      <%= f.label :title, Spree.t(:title) %> <br />
+      <%= f.label :title, Spree.t(:title) %> <span class="required">(frontend)</span> <br />
       <%= f.text_field :title, :class => "fullwidth" %>
       <%= f.error_message_on :title %>
     <% end %>
   </div>
 
-  <div class="omega five columns">
-    <%= f.field_container :taxon_id do %>
-      <%= f.label :taxon_id, "Taxon: " %><br />
-      <%= f.hidden_field :taxon_id, value: "" %>
-      <%= f.collection_select(:taxon_id, Spree::Taxon.all.reject{ |t| t.index_page.present? && t != f.object.taxon }, :id, :pretty_name, { :include_blank => true }, class: 'select2 fullwidth') %>
-      <%= f.error_message_on :taxon_id %>
+  <div class="alpha four columns">
+    <%= f.field_container :permalink do %>
+      <%= f.label :permalink, Spree.t(:permalink) %><br />
+      <%= f.text_field :permalink, :class => 'fullwidth' %>
+      <%= f.error_message_on :permalink %>
     <% end %>
   </div>
 
@@ -31,4 +30,8 @@
       <%= f.error_message_on :background_color %>
     <% end %>
   </div>
+
+
+
+
 </div>
