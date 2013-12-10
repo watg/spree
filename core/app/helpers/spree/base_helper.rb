@@ -121,9 +121,8 @@ module Spree
     end
 
     def seo_url(taxon)
-      if Flip.product_pages? && taxon.page.present?
+      if Flip.product_pages? && taxon.index_page.present?
         spree.index_page_path(taxon.permalink)
-        [@page, taxon.permalink]
       else
         spree.nested_taxons_path(taxon.permalink)
       end
