@@ -51,14 +51,6 @@ Spree::Core::Engine.add_routes do
   get 'gifts', :to => 'navigation#product_top_gifts'
   get 'knitting', :to => 'navigation#product_top_knitting'
 
-  %w[women
-    men
-    contact-us
-    kids
-    whats-new
-    gifts
-    knitting].each do |page|
-      get (page + "/:id"), :to => 'index_pages#show'
-  end  
+  get '*id', :to => 'index_pages#show', :as => :index_page
   
 end
