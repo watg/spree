@@ -7,7 +7,8 @@
       <col style="width: 15%" />
       <col style="width: 10%" />
       <col style="width: 20%" />
-      <col style="width: 25%" />
+      <col style="width: 20%" />
+      <col style="width: 5%" />
       <col style="width: 5%" />
     </colgroup>
     <thead data-hook="variants_header">
@@ -19,13 +20,14 @@
         <th><%= Spree.t(:sku) %></th>
         <th><%= Spree.t(:variant_combination) %></th>
         <th><%= Spree.t(:description) %></th>
+        <th><%= Spree.t(:count) %></th>
         <th><%= Spree.t(:visible) %></th>
       </tr>
     </thead>
     <tbody>
       <% if displayed -%>
       <tr class="empty">
-	<td colspan="8">
+	<td colspan="9">
 	  <p><em>No variants</em></p>
 	</td>
       </tr>
@@ -48,6 +50,7 @@
           <td><%= variant.sku %></td>
           <td><%= link_to ( variant.is_master? ? "Master variant" : variant.options_text), edit_admin_product_variant_path(variant.product,variant)  %></td>
           <td><p title="<%= variant.description %>"><%= truncate(variant.description) %></td>
+          <td><%= variant.total_on_hand %></td>
           <td><%= check_box_tag 'variant_ids[]', variant.id, displayed, class: "display-toggle" %></td>
 	<% end %>
 	<% end %>
