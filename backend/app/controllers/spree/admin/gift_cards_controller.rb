@@ -25,7 +25,6 @@ module Spree
       private
       def load_search
         params[:q] ||= {}
-        params[:q][:state_eq] = GiftCard::STATES.first if params[:q][:state].blank?
         GiftCard.accessible_by(current_ability, :index).ransack(params[:q])
       end
 

@@ -98,11 +98,11 @@
     </thead>
     <tbody>
     <% @gift_cards.each do |gift_card| %>
-      <tr data-hook="admin_gift_cards_index_rows" class="state-<%= gift_card.state.downcase %> <%= cycle('odd', 'even') %>">
+      <tr data-hook="admin_gift_cards_index_rows" class="state-<%= gift_card.state %> <%= cycle('odd', 'even') %>">
         <td class="align-center"><%= l  gift_card.created_at.to_date %></td>
         <td class="align-center"><%= link_to gift_card.buyer_order.number, edit_admin_order_path(gift_card.buyer_order) %></td>
         <td><%= mail_to gift_card.buyer_email %></td>
-        <td class="align-center"><span class="state <%= gift_card.state.downcase %>"><%= gift_card.state.downcase %></span></td>
+        <td class="align-center"><span class="state <%= gift_card.state %>"><%= gift_card.state.try(:downcase) %></span></td>
         <td class="align-center"><%= Spree::Money.new(gift_card.value, currency: gift_card.currency).to_html %></td>
         <td class="align-center"><%= l  gift_card.expiry_date.to_date %></td>
         <td class="align-center">
@@ -112,9 +112,15 @@
         </td>
         <td><%= mail_to gift_card.beneficiary_email %></td>
         <td class='actions align-center' data-hook="admin_gift_cards_index_row_actions">
-          <a href="#">Pause</a>
-          <a href="#">Cancel</a>
-          <a href="#">Refund</a>
+          <% states_allowed.each do |state| %>
+          <% if gift_card.change_state_to?(state) %>
+            <%= button_to('', admin_gift_card_path(gift_card, gift_card: {state: state}),
+                method: :patch,
+                remote: true,
+                data: { confirm: state_confirm_message[state] },
+                title: title_text[state]) %>
+          <% end %>
+          <% end %>
         </td>
       </tr>
     <% end %>

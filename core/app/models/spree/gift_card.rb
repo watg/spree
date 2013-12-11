@@ -1,6 +1,6 @@
 module Spree
   class GiftCard < ActiveRecord::Base
-    STATES = %w(not_redeemed redeemed on_hold cancelled refunded)
+    STATES = %w(not_redeemed redeemed paused cancelled refunded)
     acts_as_paranoid
     
     belongs_to :variant
@@ -11,6 +11,38 @@ module Spree
     before_create     :generate_code
 
     validates :state, inclusion: { in: STATES }
+
+    state_machine :state, initial: :not_redeemed do
+      event :redeem do
+        transition from: [:not_redeemed], to: :redeemed
+      end
+      event :pause do
+        transition from: [:not_redeemed], to: :paused
+      end
+      event :activate do
+        transition from: [:paused], to: :not_redeemed
+      end
+      event :refund do
+        transition from: [:not_redeemed, :redeemed, :paused], to: :refunded
+      end
+      event :cancel do
+        transition from: [:not_redeemed, :paused], to: :cancelled
+      end
+    end
+
+    def change_state_to?(desired_state)
+      _state  = {
+        'not_redeemed' => 'activate',
+        'redeemed' => 'redeem',
+        'paused'   => 'pause',
+        'cancelled'=> 'cancel',
+        'refunded' => 'refund'
+      }[desired_state]
+      return false if _state.blank?
+      self.send("can_#{_state}?".to_sym)
+      rescue
+      false
+    end
 
     private
     def creation_setup
