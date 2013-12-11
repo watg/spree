@@ -51,5 +51,6 @@ Spree::Core::Engine.add_routes do
   get 'gifts', :to => 'navigation#product_top_gifts'
   get 'knitting', :to => 'navigation#product_top_knitting'
 
+  get '/knitwear/*id', :to => 'index_pages#show', :as => :index_page
   
 end
