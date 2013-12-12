@@ -499,9 +499,11 @@ module Spree
 
       deliver_order_confirmation_email
       
-      if self.has_gift_card?
-        job = IssueGiftCardJob.new(self)
-        ::Delayed::Job.enqueue job, :queue => 'gift_card'
+      self.gift_card_line_items.each do |item|
+        item.quantity.times {|position| 
+          job = IssueGiftCardJob.new(self, item, position)
+          ::Delayed::Job.enqueue job, :queue => 'gift_card'
+        }
       end
 
       self.state_changes.create(

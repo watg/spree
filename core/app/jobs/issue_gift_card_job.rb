@@ -1,9 +1,8 @@
 module Spree
-  class IssueGiftCardJob < Struct.new(:order)
+  class IssueGiftCardJob < Struct.new(:order, :item, :position)
     def perform
-      order.gift_card_line_items.each do |item|
-        Spree::IssueGiftCardService.run(line_item: item, order: order)
-      end
+      outcome = Spree::IssueGiftCardService.run(order: order, line_item: item, position: position)
+      raise outcome.errors.message_list.join(" || ") unless outcome.success?
     end
   end
 end

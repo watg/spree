@@ -2,7 +2,7 @@ module Spree
   class GiftCard < ActiveRecord::Base
     STATES = %w(not_redeemed redeemed paused cancelled refunded)
     acts_as_paranoid
-    
+
     belongs_to :buyer_order_line_item, class_name: "Spree::LineItem"
     belongs_to :buyer_order, class_name: 'Spree::Order'
     belongs_to :beneficiary_order,  class_name: 'Spree::Order'
@@ -30,6 +30,12 @@ module Spree
       end
     end
 
+    class << self
+      def match_gift_card_format?(code)
+        code =~ /\w{4}\-\w{6}\-\w{4}/
+      end
+    end
+
     def change_state_to?(desired_state)
       _state  = {
         'not_redeemed' => 'activate',
@@ -44,11 +50,37 @@ module Spree
       false
     end
 
+    def create_adjustment(label, target, calculable, mandatory=false, state="closed")
+      amount = compute_amount(calculable)
+      return if amount == 0 && !mandatory
+      target.adjustments.create(
+                                amount:     amount,
+                                source:     calculable,
+                                originator: self,
+                                label:      label,
+                                mandatory:  mandatory,
+                                state:      state
+                                )
+    end
+
+    def update_adjustment(adjustment, calculable)
+      adjustment.update_column(:amount, compute_amount(calculable))
+    end
+
+    def eligible?
+      true
+    end
+
+    # Calculate the amount to be used when creating an adjustment
+    def compute_amount(calculable)
+      (calculable.item_total > self.value ? self.value : calculable.item_total) * -1
+    end
+
     private
     def creation_setup
       self.expiry_date = 1.year.from_now        if self.expiry_date.blank?
       self.buyer_email = self.buyer_order.email if self.buyer_email.blank? 
-      self.state = STATES.first if self.state.blank?
+      self.state = STATES.first                 if self.state.blank?
     end
 
     def generate_code
@@ -70,11 +102,11 @@ module Spree
     end
 
     def expiry_date_time_now
-      encode([expiry_date, Time.now].join, 4)
+      encode([expiry_date, Time.now].join, 4, -4)
     end
     
-    def encode(string, length)
-      Digest::MD5.hexdigest(string).upcase[0,length]
+    def encode(string, length, offset=0)
+      Digest::MD5.hexdigest(string).upcase[offset, length]
     end
 
     def set_expiry_date
