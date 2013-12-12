@@ -154,7 +154,8 @@ module Spree
 
     def description_for(target)
       return description unless target
-      product_target = product_targets.where("spree_product_targets.target_id = ?", target.id).first
+      product_target = product_targets.find_by(target_id: target.id)
+      return description unless product_target
       product_target.description
     end
 
