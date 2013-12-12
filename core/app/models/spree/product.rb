@@ -381,11 +381,12 @@ module Spree
       # You should be able to just call self.taxons.each { |t| t.touch } but
       # for some reason acts_as_nested_set does not walk all the ancestors
       # correclty
-      self.taxons.each do |t|
-        t.self_and_parents.each do |t2|
-          t2.touch
-        end
-      end
+      #self.taxons.each do |t|
+      #  t.self_and_parents.each do |t2|
+      #    t2.touch
+      #  end
+      #end
+      self.taxons.map(&:touch)
     end
 
     private
