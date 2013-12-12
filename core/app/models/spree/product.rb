@@ -152,6 +152,12 @@ module Spree
       targeted_images + variant_images
     end
 
+    def description_for(target)
+      return description unless target
+      product_target = product_targets.where("spree_product_targets.target_id = ?", target.id).first
+      product_target.description
+    end
+
     def first_variant_or_master
       variants[0] || master
     end
