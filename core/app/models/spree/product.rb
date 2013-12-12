@@ -152,6 +152,12 @@ module Spree
       targeted_images + variant_images
     end
 
+    def description_for(target)
+      return description unless target
+      product_target = product_targets.where("spree_product_targets.target_id = ?", target.id).first
+      product_target.description
+    end
+
     def first_variant_or_master
       variants[0] || master
     end
@@ -375,11 +381,12 @@ module Spree
       # You should be able to just call self.taxons.each { |t| t.touch } but
       # for some reason acts_as_nested_set does not walk all the ancestors
       # correclty
-      self.taxons.each do |t|
-        t.self_and_parents.each do |t2|
-          t2.touch
-        end
-      end
+      #self.taxons.each do |t|
+      #  t.self_and_parents.each do |t2|
+      #    t2.touch
+      #  end
+      #end
+      self.taxons.map(&:touch)
     end
 
     private
