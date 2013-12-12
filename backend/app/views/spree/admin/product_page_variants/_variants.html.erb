@@ -39,8 +39,8 @@
 	    <span class="handle" />
 	  </td>
           <td>
-            <% if variant.images.any? %>
-              <%= image_tag(variant.images_for(@product_page.target).first.attachment.url(:listing)) %>
+            <% if (images = variant.images_for(@product_page.target)).any? %>
+              <%= image_tag(images.first.attachment.url(:listing)) %>
             <% else %>
               No image
             <% end %>

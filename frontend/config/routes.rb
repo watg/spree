@@ -44,12 +44,12 @@ Spree::Core::Engine.add_routes do
 
 
   # Top-level navigation to static pages
-  get 'women', :to => 'navigation#product_top_women'
-  get 'men', :to => 'navigation#product_top_men'
-  get 'kids', :to => 'navigation#product_top_kids'
-  get 'whats-new', :to => 'navigation#product_top_new'
-  get 'gifts', :to => 'navigation#product_top_gifts'
-  get 'knitting', :to => 'navigation#product_top_knitting'
+  get '/knitwear/women', :to => 'navigation#product_top_women'
+  get '/knitwear/men', :to => 'navigation#product_top_men'
+  get '/knitwear/kids', :to => 'navigation#product_top_kids'
+  get '/knitwear/whats-new', :to => 'navigation#product_top_new'
+  get '/knitwear/gifts', :to => 'navigation#product_top_gifts'
+  get '/knitwear/knitting', :to => 'navigation#product_top_knitting'
 
   get '/knitwear/*id', :to => 'index_pages#show', :as => :index_page
   
