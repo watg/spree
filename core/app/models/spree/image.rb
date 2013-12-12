@@ -28,6 +28,13 @@ module Spree
     Spree::Image.attachment_definitions[:attachment][:default_url] = Spree::Config[:attachment_default_url]
     Spree::Image.attachment_definitions[:attachment][:default_style] = Spree::Config[:attachment_default_style]
 
+    def variant_id
+      if viewable_type == "Spree::Variant"
+        return viewable_id
+      elsif viewable_type == "Spree::VariantTarget"
+        return viewable.variant_id
+      end
+    end
 
     #used by admin products autocomplete
     def mini_url
