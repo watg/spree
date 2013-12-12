@@ -3,7 +3,7 @@ module Spree
     STATES = %w(not_redeemed redeemed paused cancelled refunded)
     acts_as_paranoid
     
-    belongs_to :variant
+    belongs_to :buyer_order_line_item, class_name: "Spree::LineItem"
     belongs_to :buyer_order, class_name: 'Spree::Order'
     belongs_to :beneficiary_order,  class_name: 'Spree::Order'
 

@@ -1,0 +1,9 @@
+Gift Card Issuance email related to your order <%= @card.buyer_order.number %>
+
+To redeem this card worth <%= "#{@card.value} #{@card.currency}" %> go to http://woolandthegang.com and enter the following code at checkout:
+======================================
+          <%= @card.code %>
+======================================
+
+This card is valid until <%= @card.expiry_date %> and can only be used once in its entirety.
+

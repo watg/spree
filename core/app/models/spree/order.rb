@@ -1,5 +1,6 @@
 require 'spree/core/validators/email'
 require 'spree/order/checkout'
+require  File.join(Rails.root,'vendor/spree/core/app/jobs/issue_gift_card_job.rb')
 
 module Spree
   class Order < ActiveRecord::Base
@@ -497,6 +498,11 @@ module Spree
       updater.run_hooks
 
       deliver_order_confirmation_email
+      
+      if self.has_gift_card?
+        job = IssueGiftCardJob.new(self)
+        ::Delayed::Job.enqueue job, :queue => 'gift_card'
+      end
 
       self.state_changes.create(
         previous_state: 'cart',
@@ -504,6 +510,18 @@ module Spree
         name:           'order' ,
         user_id:        self.user_id
       )
+    end
+
+    def has_gift_card?
+      gift_card_line_items.any?
+    end
+
+    def gift_card_line_items
+      self.line_items.
+        includes(:variant, :product).
+        where("spree_products.product_type" => :gift_card).
+        reorder('spree_line_items.created_at ASC').
+        references(:variant, :product)
     end
 
     def deliver_order_confirmation_email
