@@ -27,6 +27,7 @@ module Spree
       
       update_promotion_adjustments
       update_shipping_adjustments
+      update_gift_card_adjustments
       # update totals a second time in case updated adjustments have an effect on the total
       update_totals
 
@@ -138,6 +139,11 @@ module Spree
       order.adjustments.reload.shipping.each { |adjustment| adjustment.update! }
     end
 
+    # 
+    #
+    def update_gift_card_adjustments
+      order.adjustments.reload.gift_card.each { |adjustment| adjustment.update! }
+    end
     private
 
       # Picks one (and only one) promotion to be eligible for this order

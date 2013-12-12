@@ -50,7 +50,7 @@ module Spree
       false
     end
 
-    def create_adjustment(label, target, calculable, mandatory=false, state="closed")
+    def create_adjustment(label, target, calculable, mandatory=false, state="open")
       amount = compute_amount(calculable)
       return if amount == 0 && !mandatory
       target.adjustments.create(
@@ -61,22 +61,38 @@ module Spree
                                 mandatory:  mandatory,
                                 state:      state
                                 )
+      set_beneficiary(calculable)
     end
 
-    def update_adjustment(adjustment, calculable)
-      adjustment.update_column(:amount, compute_amount(calculable))
+    def update_adjustment(adjustment, order)
+      set_beneficiary(order)
+      adjustment.update_column(:amount, compute_amount(order))
     end
 
-    def eligible?
+    def eligible?(source)
+      # TODO: Define eligibility rules
+      # adjustment.created_at less than 2 hours
+      # gift_card.expiry_date less than 1 year
+      # gift_card.state in [not_redeemed, in_basket]
       true
     end
 
     # Calculate the amount to be used when creating an adjustment
     def compute_amount(calculable)
-      (calculable.item_total > self.value ? self.value : calculable.item_total) * -1
+      ( item_and_promo_total(calculable) > self.value ? self.value : item_and_promo_total(calculable)) * -1
+    end
+
+    def item_and_promo_total(calculable)
+      calculable.item_total + calculable.promo_total
     end
 
     private
+    def set_beneficiary(order)
+      self.beneficiary_order = order
+      self.beneficiary_email = order.email
+      self.save
+    end
+
     def creation_setup
       self.expiry_date = 1.year.from_now        if self.expiry_date.blank?
       self.buyer_email = self.buyer_order.email if self.buyer_email.blank? 

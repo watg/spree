@@ -8,8 +8,6 @@ module Spree
     def execute
       card = find_redeemable_card
       if card
-        ## TODO: card state
-        # introduce state card in basket before redeemed
         card.redeem!
         card.create_adjustment(adjustment_label(card), order, order, true)
         # TODO: so that we keep track of who used the card
@@ -20,7 +18,6 @@ module Spree
         add_error(:card_not_found, :card_not_found, "Gift card not found!")
       end
       rescue Exception => e
-      Rails.logger.info "---------870897----------- #{e.inspect}"
       add_error(:could_not_apply, :could_not_apply, "Could not apply this gift card code")
     end
 
