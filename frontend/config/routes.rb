@@ -40,7 +40,7 @@ Spree::Core::Engine.add_routes do
   get '/content/cvv', :to => 'content#cvv', :as => :cvv
   get '/content/*path', :to => 'content#show', :as => :content
 
-  get '/items/:id(/:tab)(/*rest)', :to => 'product_pages#show', :as => :product_page
+  get '/items/:id(/:tab)(/:variant_id)', :to => 'product_pages#show', :as => :product_page
 
 
   # Top-level navigation to static pages
