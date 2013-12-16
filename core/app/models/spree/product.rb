@@ -123,14 +123,14 @@ module Spree
         all_variants_or_master.
           active(currency).
           where("spree_prices.sale = spree_variants.in_sale").
-          order("spree_prices.amount").
+          reorder("spree_prices.amount").
           detect {|v| kit_variant_with_stock?(v) }
       else
         all_variants_or_master.
           simple_product_in_stock.
           active(currency).
           where("spree_prices.sale = spree_variants.in_sale").
-          order("spree_prices.amount").
+          reorder("spree_prices.amount").
           first
       end
     end
