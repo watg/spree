@@ -1,6 +1,6 @@
 require 'spree/core/validators/email'
 require 'spree/order/checkout'
-require  File.join(Rails.root,'vendor/spree/core/app/jobs/issue_gift_card_job.rb')
+require  File.join(Rails.root,'vendor/spree/core/app/jobs/spree/issue_gift_card_job.rb')
 
 module Spree
   class Order < ActiveRecord::Base

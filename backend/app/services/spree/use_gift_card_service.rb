@@ -1,3 +1,4 @@
+require  File.join(Rails.root,'vendor/spree/core/app/jobs/spree/gift_card_order_ttl_job.rb')
 module Spree
   class UseGiftCardService < Mutations::Command
     required do
@@ -10,9 +11,7 @@ module Spree
       if card
         card.redeem!
         card.create_adjustment(adjustment_label(card), order, order, true)
-        # TODO: so that we keep track of who used the card
-        # if order is not (complete or paid) in 10m rerun 30m 
-        # ::DelayedJob.enqueue UpdateGiftCardBeneficiaryJob.new(order, card), queue: 'gift_card', run_at: 10.minutes.from_now
+        ::Delayed::Job.enqueue Spree::GiftCardOrderTTLJob.new(order, card), queue: 'gift_card', run_at: 2.hours.from_now
         return success_message(card)
       else
         add_error(:card_not_found, :card_not_found, "Gift card not found!")

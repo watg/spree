@@ -69,12 +69,8 @@ module Spree
       adjustment.update_column(:amount, compute_amount(order))
     end
 
-    def eligible?(source)
-      # TODO: Define eligibility rules
-      # adjustment.created_at less than 2 hours
-      # gift_card.expiry_date less than 1 year
-      # gift_card.state in [not_redeemed, in_basket]
-      true
+    def eligible?(order)
+      (self.expiry_date > Time.now ) && in_valid_state_for_use?(order)
     end
 
     # Calculate the amount to be used when creating an adjustment
@@ -86,11 +82,25 @@ module Spree
       calculable.item_total + calculable.promo_total
     end
 
+    def reactivate
+      self.beneficiary_email = nil
+      self.beneficiary_order = nil
+      self.state = STATES.first
+      self.save
+    end
     private
     def set_beneficiary(order)
       self.beneficiary_order = order
       self.beneficiary_email = order.email
       self.save
+    end
+
+    def in_valid_state_for_use?(order)
+      if self.state == 'redeemed'
+        return order == self.beneficiary_order
+      else
+        !%w(paused cancelled refunded).include?(self.state)
+      end
     end
 
     def creation_setup
