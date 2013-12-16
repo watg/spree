@@ -106,7 +106,15 @@ module Spree
       end
 
       def to_be_packed_and_shipped
-        includes(:payments).includes(:shipments).where('spree_orders.state' => 'complete', 'spree_payments.state' => 'completed', 'spree_shipments.state' => 'ready', 'spree_orders.internal' => false).order('spree_orders.created_at DESC')
+        # only physical line item to be dispatched
+        includes(:payments, :line_items).
+          includes(:shipments).
+          where('spree_orders.state'    => 'complete', 
+                'spree_payments.state'  => 'completed', 
+                'spree_shipments.state' => 'ready', 
+                'spree_orders.internal' => false,
+                'spree_line_items.product_nature' => :physical).
+          order('spree_orders.created_at DESC')
       end
 
       def unprinted_invoices

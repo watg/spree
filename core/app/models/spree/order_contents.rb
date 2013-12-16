@@ -65,6 +65,7 @@ module Spree
         line_item.add_options(options,currency) unless options.blank?
         line_item.add_personalisations(personalisations) unless personalisations.blank?
         line_item.item_uuid = uuid
+        line_item.product_nature = variant.product.nature
 
         order.line_items << line_item
 
@@ -75,7 +76,6 @@ module Spree
       order.reload
       line_item
     end
-    ###### 
 
     def remove_from_line_item(line_item, variant, quantity, shipment=nil)
       line_item.quantity += -quantity
