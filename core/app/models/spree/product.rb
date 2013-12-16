@@ -117,6 +117,13 @@ module Spree
       @_memoized_variant_images ||= variant_images
     end
 
+    def next_variant_in_stock
+      variants.includes(:stock_items, :product).
+        where("spree_stock_items.count_on_hand > 0 AND spree_stock_items.count_on_hand < 500 AND spree_products.individual_sale = ?", true).
+        references(:stock_items, :product).
+        first
+    end
+
     def lowest_priced_variant(currency = nil)
       if self.product_type.to_s.downcase == 'kit'
         # TODO: refactor this bit no very performant
