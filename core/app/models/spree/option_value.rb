@@ -42,9 +42,10 @@ module Spree
     
     scope :for_product, lambda { |product, stock|
       v_ids = (stock ? product.variant_in_stock : product.variants).map(&:id)
-      select("DISTINCT #{table_name}.*").
-      where("spree_option_values_variants.variant_id IN (?)", v_ids).
-      joins(:variants)
+      select("DISTINCT #{table_name}.*, spree_option_types.*").includes(:option_type)
+      where("spree_option_values_variants.variant_id IN (?)", v_ids).references(:option_values_variants).
+      joins(:variants, :option_type).
+      order( "spree_option_types.position", "spree_option_values.position" )
     }
 
     scope :with_target, lambda {|target|

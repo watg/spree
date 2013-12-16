@@ -12,7 +12,7 @@ module Spree
         last_variant = product_page.product_page_variants.
           where(deleted_at: nil).
           where.not(position: nil).
-          order('position DESC').
+          reorder('position DESC').
           first
         last_position = last_variant ? last_variant.position : 0
         ppv = Spree::ProductPageVariant.with_deleted.find_or_create_by(

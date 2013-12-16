@@ -170,7 +170,7 @@ module Spree
 
     def option_values
       check_stock = true
-      @_option_values ||= Spree::OptionValue.for_product(self,check_stock).includes(:option_type).order( "spree_option_types.position", "spree_option_values.position" )
+      @_option_values ||= Spree::OptionValue.for_product(self,check_stock)
     end
 
     def grouped_option_values
@@ -202,9 +202,9 @@ module Spree
     ## target variant options
     def targeted_option_values(target)
       check_stock = true
-      selector = Spree::OptionValue.includes(:option_type).for_product(self, check_stock)
+      selector = Spree::OptionValue.for_product(self, check_stock)
       selector = selector.with_target(target) if target.present?
-      @_targeted_option_values ||= selector.order( "spree_option_types.position", "spree_option_values.position" )
+      @_targeted_option_values ||= selector
     end
 
     def grouped_option_values_for_target(target)
