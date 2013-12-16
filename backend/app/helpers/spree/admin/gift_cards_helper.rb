@@ -3,7 +3,7 @@ module Spree
     module GiftCardsHelper
       def state_confirm_message
         {
-          'paused'      => 'Put this gift card on hold?',
+          'paused'       => 'Put this gift card on hold?',
           'not_redeemed' => 'Reactivate this gift card?',
           'refunded'     => 'Refund this gift card?'
         }
