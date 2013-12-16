@@ -129,20 +129,27 @@ module Spree
       @_memoized_variant_images ||= variant_images
     end
 
+    def next_variant_in_stock
+      variants.includes(:stock_items, :product).
+        where("spree_stock_items.count_on_hand > 0 AND spree_stock_items.count_on_hand < 500 AND spree_products.individual_sale = ?", true).
+        references(:stock_items, :product).
+        first
+    end
+
     def lowest_priced_variant(currency = nil)
       if self.product_type.to_s.downcase == 'kit'
         # TODO: refactor this bit no very performant
         all_variants_or_master.
           active(currency).
           where("spree_prices.sale = spree_variants.in_sale").
-          order("spree_prices.amount").
+          reorder("spree_prices.amount").
           detect {|v| kit_variant_with_stock?(v) }
       else
         all_variants_or_master.
           simple_product_in_stock.
           active(currency).
           where("spree_prices.sale = spree_variants.in_sale").
-          order("spree_prices.amount").
+          reorder("spree_prices.amount").
           first
       end
     end
@@ -182,7 +189,7 @@ module Spree
 
     def option_values
       check_stock = true
-      @_option_values ||= Spree::OptionValue.for_product(self,check_stock).includes(:option_type).order( "spree_option_types.position", "spree_option_values.position" )
+      @_option_values ||= Spree::OptionValue.for_product(self,check_stock)
     end
 
     def grouped_option_values
@@ -214,9 +221,9 @@ module Spree
     ## target variant options
     def targeted_option_values(target)
       check_stock = true
-      selector = Spree::OptionValue.includes(:option_type).for_product(self, check_stock)
+      selector = Spree::OptionValue.for_product(self, check_stock)
       selector = selector.with_target(target) if target.present?
-      @_targeted_option_values ||= selector.order( "spree_option_types.position", "spree_option_values.position" )
+      @_targeted_option_values ||= selector
     end
 
     def grouped_option_values_for_target(target)
