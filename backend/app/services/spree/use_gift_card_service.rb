@@ -43,7 +43,7 @@ module Spree
       [
        "#{adjustment_label(card)} applied",
        "Your gift card was successfully registered",
-       "Happy days! and don't forget to thank somenoe",
+       "Happy days! and don't forget to thank someone",
       ][ rand(3) ]
     end
   end
