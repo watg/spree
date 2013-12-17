@@ -40,7 +40,11 @@ module Spree
     end
 
     def success_message(card)
-      "#{adjustment_label(card)} applied"
+      [
+       "#{adjustment_label(card)} applied",
+       "Your gift card was successfully registered",
+       "Happy days! and don't forget to thank somenoe",
+      ][ rand(3) ]
     end
   end
 end
