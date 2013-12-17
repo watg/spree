@@ -66,6 +66,14 @@ module Spree
           where("spree_stock_items.count_on_hand > 0")
       end
 
+      def physical
+        includes(:product).where('spree_products.product_type' => Spree::Product::NATURE[:physical])
+      end
+
+      def digital
+        includes(:product).where('spree_products.product_type' => Spree::Product::NATURE[:digital])
+      end
+
       def active(currency = nil)
         joins(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
       end

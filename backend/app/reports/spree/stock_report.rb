@@ -48,7 +48,7 @@ module Spree
 
     # Retrieve the stock that is in the warehouses
     def retrieve_data
-      Spree::Variant.all.each do |variant| 
+      Spree::Variant.physical.each do |variant|
         row = variant_details(variant)
 
         count_on_location = {}
