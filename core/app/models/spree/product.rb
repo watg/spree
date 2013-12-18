@@ -176,48 +176,28 @@ module Spree
     end
 
     def option_values
+      option_values_for(nil)
+    end
+
+    def option_values_for(target)
       check_stock = true
-      @_option_values ||= Spree::OptionValue.for_product(self,check_stock)
+      selector =  Spree::OptionValue.for_product(self,check_stock).includes(:option_type).joins(:option_type)
+      selector = selector.with_target(target) if target.present?
+      @_option_values ||= selector.reorder( "spree_option_types.position", "spree_option_values.position" )
     end
 
     def grouped_option_values
-      @_grouped_option_values ||= option_values.group_by(&:option_type)
+      @_option_values ||= option_values.group_by(&:option_type)
+    end
+
+    def grouped_option_values_for(target)
+      @_grouped_option_values ||= option_values_for(target).group_by(&:option_type)
     end
 
     def variants_for_option_value(value)
       @_variant_option_values ||= variants.includes(:option_values)
       @_variant_option_values.select { |i| i.option_value_ids.include?(value.id) }
     end
-
-    def variant_options_hash(currency = Spree::Config[:currency])
-      return @_variant_options_hash if @_variant_options_hash
-      hash = {}
-      variants.includes(:option_values).each do |variant|
-        variant.option_values.each do |ov|
-          otid = ov.option_type_id.to_s
-          ovid = ov.id.to_s
-          hash[otid] ||= {}
-          hash[otid][ovid] ||= {}
-          hash[otid][ovid][variant.id.to_s] = variant.to_hash(currency)
-        end
-      end
-      @_variant_options_hash = hash
-    end
-    # end variant options
-    #
-
-    ## target variant options
-    def targeted_option_values(target)
-      check_stock = true
-      selector = Spree::OptionValue.for_product(self, check_stock)
-      selector = selector.with_target(target) if target.present?
-      @_targeted_option_values ||= selector
-    end
-
-    def grouped_option_values_for_target(target)
-      @_grouped_option_values_for_target ||= targeted_option_values(target).group_by(&:option_type)
-    end
-    ## target variant options
 
     def variants_with_only_master
       ActiveSupport::Deprecation.warn("[SPREE] Spree::Product#variants_with_only_master will be deprecated in Spree 1.3. Please use Spree::Product#master instead.")
@@ -357,6 +337,28 @@ module Spree
     def master
       super || variants_including_master.with_deleted.where(is_master: true).first
     end
+
+    # TODO: need to implement 
+    #def variant_options_tree_for(target, current_currency)
+    #  hash={}
+    #  variants.includes(:prices, :option_values => [:option_type]).order( "spree_option_types.position", "spree_option_values.position" ).each do |v|
+    #    base=hash
+    #    v.option_values.each_with_index do |o,i|
+    #      base[o.option_type.url_safe_name] ||= {}
+    ##      base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
+    #      if ( i + 1 < v.option_values.size )
+    #        base = base[o.option_type.url_safe_name][o.url_safe_name]
+    #      else
+    #        base[o.option_type.url_safe_name][o.url_safe_name]['variant'] ||= {}
+    #        base[o.option_type.url_safe_name][o.url_safe_name]['variant']['id']=v.id
+    ##        base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).in_subunit
+    #        base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
+    #        base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
+    #      end
+    #    end
+    #  end
+    #  hash
+    #end
 
     def variant_options_tree(current_currency)
       hash={}
