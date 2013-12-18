@@ -4,7 +4,7 @@ module Spree
       isolate_namespace Spree
       engine_name 'spree'
 
-      config.autoload_paths += %W(#{config.root}/lib)
+      config.autoload_paths += %W(#{config.root}/lib #{config.root}/app/jobs/*)
 
       config.after_initialize do
         ActiveSupport::Notifications.subscribe(/^spree\./) do |*args|

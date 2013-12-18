@@ -8,6 +8,7 @@ module Spree
         :order_summary => { :name => Spree.t(:order_summary), :description => Spree.t(:order_summary_description), date: true },
         :list_sales => { :name => Spree.t(:list_sales), :description => Spree.t(:list_sales_description), date: true },
         :stock => { :name => Spree.t(:stock), :description => Spree.t(:stock_description), date: false },
+        :gift_card => { :name => "Gift Card", :description => "Export all registered gift cards", date: false },
         :gang_sales => { :name => Spree.t(:gang_sales), :description => Spree.t(:gang_sales_description), date: true },
       }.with_indifferent_access
 

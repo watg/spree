@@ -9,16 +9,20 @@ module Spree
 
       def apply
         if @order.coupon_code.present?
-          # check if coupon code is already applied
-          if @order.adjustments.promotion.eligible.detect { |p| p.originator.promotion.code == @order.coupon_code }.present?
-            return { :coupon_applied? => true, :notice => Spree.t(:coupon_code_already_applied) }
-          else
-            promotion = Spree::Promotion.find_by(code: @order.coupon_code)
-            if promotion.present?
-              handle_present_promotion(promotion)
+          if Spree::GiftCard.match_gift_card_format?(@order.coupon_code)
+            outcome = Spree::UseGiftCardService.run(order: @order, code: @order.coupon_code)
+            if outcome.success?
+              return { :coupon_applied? => true, :notice => outcome.result}
             else
-              return { :coupon_applied? => false, :error => Spree.t(:coupon_code_not_found) }
+              if outcome.errors.keys.include?('card_not_found')
+                handle_promotion
+              else
+                return { :coupon_applied? => false, :error => Spree.t(:coupon_code_not_found) }
+              end
             end
+
+          else
+            handle_promotion
           end
         else
           return { :coupon_applied? => true }
@@ -26,7 +30,20 @@ module Spree
       end
 
       private
-
+      def handle_promotion
+        # check if coupon code is already applied
+        if @order.adjustments.promotion.eligible.detect { |p| p.originator.promotion.code == @order.coupon_code }.present?
+          return { :coupon_applied? => true, :notice => Spree.t(:coupon_code_already_applied) }
+        else
+          promotion = Spree::Promotion.find_by(code: @order.coupon_code)
+          if promotion.present?
+            handle_present_promotion(promotion)
+          else
+            return { :coupon_applied? => false, :error => Spree.t(:coupon_code_not_found) }
+          end
+        end
+      end
+ 
       def handle_present_promotion(promotion)
         return promotion_expired if promotion.expired?
         return promotion_usage_limit_exceeded if promotion.usage_limit_exceeded?
