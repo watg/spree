@@ -319,16 +319,16 @@ module Spree
     end
 
     def generate_permalink
-      return permalink if permalink?
+      return permalink if permalink.present?
       self.with_lock do
+        gang_member = product.gang_member
+        gang_member_permalink_length = gang_member.permalink.length + 2
 
-        gang_member_permalink = product.gang_member.permalink
-        last_permalink_matcher =  "#{gang_member_permalink}-%"
+        row = gang_member.variants.reload.select("max(substr(spree_variants.permalink, #{gang_member_permalink_length})::integer) as last_permalink_number").with_deleted.reorder('last_permalink_number').first
+        last_permalink_number = row.last_permalink_number || 0
 
-        last_variant = product.gang_member.variants.with_deleted.where("spree_variants.permalink like ?", last_permalink_matcher).order('id').last
-        last_permalink_number = last_variant.blank? ? 0 : last_variant.permalink.split("-").last.to_i
         padded_number = (last_permalink_number + 1).to_s.rjust(5, '0')
-        self.permalink = gang_member_permalink + "-" + padded_number
+        self.permalink = gang_member.permalink + "-" + padded_number
       end
     end
 
