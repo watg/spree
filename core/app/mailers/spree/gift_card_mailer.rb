@@ -4,7 +4,7 @@ module Spree
       order = gift_card.buyer_order
       @card = gift_card
       subject = (resend ? "[#{Spree.t(:resend).upcase}] " : '')
-      subject += "#{Spree::Config[:site_name]} #{Spree.t('gift_card_mailer.issuance_email.subject')} ##{order.number}"
+      subject += "Nice one - a WOOL AND THE GANG Gift Card for you"
       mail(to: order.email, from: from_address, subject: subject)
 
       tag = (resend ? 'issuance' : 're-issuance')
