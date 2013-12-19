@@ -350,28 +350,31 @@ module Spree
       super || variants_including_master.with_deleted.where(is_master: true).first
     end
 
-    # TODO: need to implement 
-    #def variant_options_tree_for(target, current_currency)
-    #  hash={}
-    #  variants.includes(:prices, :option_values => [:option_type]).order( "spree_option_types.position", "spree_option_values.position" ).each do |v|
-    #    base=hash
-    #    v.option_values.each_with_index do |o,i|
-    #      base[o.option_type.url_safe_name] ||= {}
-    ##      base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
-    #      if ( i + 1 < v.option_values.size )
-    #        base = base[o.option_type.url_safe_name][o.url_safe_name]
-    #      else
-    #        base[o.option_type.url_safe_name][o.url_safe_name]['variant'] ||= {}
-    #        base[o.option_type.url_safe_name][o.url_safe_name]['variant']['id']=v.id
-    ##        base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).in_subunit
-    #        base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
-    #        base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
-    #      end
-    #    end
-    #  end
-    #  hash
-    #end
+    def variant_options_tree_for(target, current_currency)
+      hash={}
+      variants.includes(:prices, :option_values => [:option_type]).
+      joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id).
+      order( "spree_option_types.position", "spree_option_values.position" ).each do |v|
+        base=hash
+        v.option_values.each_with_index do |o,i|
+          base[o.option_type.url_safe_name] ||= {}
+          base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
+          if ( i + 1 < v.option_values.size )
+            base = base[o.option_type.url_safe_name][o.url_safe_name]
+          else
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant'] ||= {}
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['id']=v.id
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).in_subunit
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_stock']= Spree::Stock::Quantifier.new(v).can_supply?(1)
+          end
+        end
+      end
+      hash
+    end
 
+    # Need to retire once the new product_pages are live
     def variant_options_tree(current_currency)
       hash={}
       variants.includes(:prices, :option_values => [:option_type]).order( "spree_option_types.position", "spree_option_values.position" ).each do |v|
@@ -393,6 +396,8 @@ module Spree
       hash
     end
 
+    # This does not need to be targetted as you can not have variants without
+    # populating each of the option types
     def option_type_order
       hash = {}
       option_type_names = self.option_types.order(:position).map{|o| o.url_safe_name}
