@@ -99,5 +99,32 @@ module Spree
       end
     end
 
+
+    def check_stock_levels_for_variant_and_options(variant, quantity, options=[])
+      stock_check = [check_stock_levels(variant, quantity)]
+
+      # Check stock for optional parts
+      options_check = options.map do |e|
+        check_stock_levels(e[0], e[1])
+      end
+
+      stock_check += options_check if options_check
+
+      are_all_parts_in_stock?(stock_check)
+    end
+
+    def add_quantity_for_each_option(variant, options)
+      options.map do |o|
+        [o, part_quantity(variant,o)]
+      end
+    end
+
+    def part_quantity(variant, option)
+      variant.product.optional_parts_for_display.detect{|e| e.id == option.id}.count_part
+    end
+
+    def are_all_parts_in_stock?(check_list)
+      check_list.inject(true) { |result, bool| bool && result}
+    end
   end
 end
