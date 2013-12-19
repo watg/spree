@@ -3,7 +3,7 @@ module Spree
     acts_as_paranoid
 
     validates_uniqueness_of :name, :permalink
-    validates_presence_of :name, :title
+    validates_presence_of :name, :permalink, :title
 
     has_and_belongs_to_many :product_groups, join_table: :spree_product_groups_product_pages
 
@@ -96,13 +96,14 @@ module Spree
         uniq.
         pluck(:value)
     end
-
-    private
+    
     def set_permalink
       if self.permalink.blank? && self.name
         self.permalink = name.downcase.split(' ').map{|e| (e.blank? ? nil : e) }.compact.join('-')
       end
     end
+
+    private
 
     def touch_index_page_items
       index_page_items.each { |item| item.touch }
