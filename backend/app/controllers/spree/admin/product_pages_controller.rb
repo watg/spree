@@ -28,7 +28,7 @@ module Spree
 
       protected
       def find_resource
-        ProductPage.find_by_id(params[:id])
+        ProductPage.find_by(permalink: params[:id])
       end
 
       def update_success(product_page)
