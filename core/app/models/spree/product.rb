@@ -350,11 +350,14 @@ module Spree
       super || variants_including_master.with_deleted.where(is_master: true).first
     end
 
+
     def variant_options_tree_for(target, current_currency)
       hash={}
-      variants.includes(:prices, :option_values => [:option_type]).
-      joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id).
-      order( "spree_option_types.position", "spree_option_values.position" ).each do |v|
+      selector = variants.includes(:prices, :option_values => [:option_type])
+      if !target.blank?
+        selector = selector.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
+      end
+      selector.order( "spree_option_types.position", "spree_option_values.position" ).each do |v|
         base=hash
         v.option_values.each_with_index do |o,i|
           base[o.option_type.url_safe_name] ||= {}
