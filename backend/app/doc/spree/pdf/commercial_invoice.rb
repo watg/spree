@@ -1,6 +1,8 @@
 module Spree
   module PDF
-    class CommercialInvoice < Base
+    class CommercialInvoice
+      extend Common
+
       WATG_LOGO = File.join(Rails.root, 'app/assets/images/', 'logo-watg-135x99.png' )   unless defined?(WATG_LOGO)
 
       class << self

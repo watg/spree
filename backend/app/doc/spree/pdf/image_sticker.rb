@@ -1,6 +1,8 @@
 module Spree
   module PDF
-    class ImageSticker < Base
+    class ImageSticker
+      extend Common
+
       ASSETS = {
         made_by_gang: File.join(Rails.root, 'app/assets/images/doc/', 'gang.jpg' ),
         made_by_you:  File.join(Rails.root, 'app/assets/images/doc/', 'you.jpg' )
