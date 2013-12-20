@@ -23,7 +23,6 @@ module Spree
     validates_uniqueness_of :firstname, :scope => :lastname #? are you sure about this validation?
 
     has_many :products
-    has_many :variants, source: :variants_including_master, through: :products
 
     make_permalink order: :firstname
 
