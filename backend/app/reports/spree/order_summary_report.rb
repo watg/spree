@@ -123,7 +123,9 @@ module Spree
 
       payment_method = ''
       if payment = o.payments.find_by_state('completed')
-        payment_method = payment.payment_method.name
+        if !payment.payment_method.nil?
+          payment_method = payment.payment_method.name
+        end
       end
 
       if !o.shipment.nil?
