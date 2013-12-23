@@ -325,9 +325,8 @@ module Spree
       self.with_lock do
         gang_member = product.gang_member
         gang_member_permalink_length = gang_member.permalink.length + 2
-
-        row = gang_member.variants.reload.select("max(substr(spree_variants.permalink, #{gang_member_permalink_length})::integer) as last_permalink_number").with_deleted.reorder('last_permalink_number').first
-        last_permalink_number = row.last_permalink_number || 0
+        result = ActiveRecord::Base.connection.execute('SELECT max(substr(spree_variants.permalink, ' + gang_member_permalink_length.to_s + ')::integer) as last_permalink_number FROM "spree_products" INNER JOIN "spree_variants" ON "spree_variants"."product_id" = "spree_products"."id" WHERE "spree_products"."gang_member_id" = ' + gang_member.id.to_s)
+        last_permalink_number = result[0]["last_permalink_number"].to_i || 0
 
         padded_number = (last_permalink_number + 1).to_s.rjust(5, '0')
         self.permalink = gang_member.permalink + "-" + padded_number
