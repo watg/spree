@@ -49,9 +49,10 @@ module Spree
     after_create :create_stock_items
     after_create :set_position
 
-    # Regardless of us updating anything, touch so we invalidate cache
-    after_save { self.touch }
-    after_save :touch_index_page_items
+    after_touch :touch_index_page_items
+
+    # This can take a while so run it asnyc with a low priority for now
+    after_touch { delay(:priority => 20).touch_assemblies_parts if self.assemblies.any? }
 
     # default variant scope only lists non-deleted variants
     scope :deleted, lambda { where('deleted_at IS NOT NULL') }
@@ -318,6 +319,7 @@ module Spree
         .map{ |ov| [ ov.option_type.url_safe_name, ov.url_safe_name, ov.presentation] }
     end
 
+
     def generate_permalink
       return permalink if permalink.present?
       self.with_lock do
@@ -341,6 +343,9 @@ module Spree
       kit_prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first
     end
 
+    def touch_assemblies_parts
+      Spree::AssembliesPart.where(part_id: self.id).map(&:touch)
+    end
 
     # strips all non-price-like characters from the price, taking into account locale settings
     def parse_price(price)
