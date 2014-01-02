@@ -41,8 +41,7 @@ module Spree
     def execute
       ActiveRecord::Base.transaction do
         tags = split_params(details.delete(:tags))
-        target_ids = split_params(details.delete(:target_ids))
-
+        target_ids = split_params(details.delete(:target_ids)).map(&:to_i)
         variant.update_attributes(details)
         update_prices(prices, variant)
         update_tags(variant, tags)
