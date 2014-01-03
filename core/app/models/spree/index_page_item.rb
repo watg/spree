@@ -18,8 +18,8 @@ module Spree
     SMALL_BOTTOM = 2
 
     TEMPLATES = [
-      { id: LARGE_TOP, name: "Up there in the corner" },
-      { id: SMALL_BOTTOM, name: "Down in the middle" }
+      { id: LARGE_TOP, name: "top left hand" },
+      { id: SMALL_BOTTOM, name: "bottom centre" }
     ]
 
   end
