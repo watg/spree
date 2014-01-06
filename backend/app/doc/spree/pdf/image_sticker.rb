@@ -21,6 +21,7 @@ module Spree
           initial_y = pdf.cursor
 
           pdf.move_down  100
+          pdf.font_size  12
           pdf.font('Helvetica')
           pdf.text_box   batch_index.to_s, at: [10, initial_y], height: 30, width: 100 if batch_index
           pdf.font_size  45
