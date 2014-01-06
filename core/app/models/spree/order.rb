@@ -109,8 +109,8 @@ module Spree
         # only physical line item to be dispatched
         includes(:payments, :line_items).
           includes(:shipments).
-          where('spree_orders.state'    => 'complete', 
-                'spree_payments.state'  => 'completed', 
+          where('spree_orders.state'    => 'complete',
+                'spree_orders.payment_state'  => 'paid',
                 'spree_shipments.state' => 'ready', 
                 'spree_orders.internal' => false,
                 'spree_line_items.product_nature' => :physical).
