@@ -534,6 +534,14 @@ module Spree
         references(:variant, :product)
     end
 
+    def line_items_without_gift_cards
+      (line_items - gift_card_line_items)
+    end
+
+    def item_total_without_gift_cards
+      line_items_without_gift_cards.sum(&:amount)
+    end
+
     def deliver_order_confirmation_email
       begin
         OrderMailer.confirm_email(self.id).deliver
