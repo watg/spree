@@ -51,7 +51,7 @@ module Spree
       private
 
       def load_product_page
-        Spree::ProductPage.find(params[:product_page_id])
+        Spree::ProductPage.find_by(permalink: params[:product_page_id])
       end
     end
   end

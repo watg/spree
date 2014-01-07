@@ -1,41 +1,42 @@
-<div class="row">
-  <div class="left six columns alpha">
-    <%= f.field_container :name do %>
-      <%= f.label :name, Spree.t(:name) %> <span class="required">*</span><br />
-      <%= f.text_field :name, :class => 'fullwidth title' %>
-      <%= f.error_message_on :name %>
-    <% end %>
+<div class="left six columns alpha">
+  <%= f.field_container :name do %>
+    <%= f.label :name, Spree.t(:name) %> <span class="required">*</span><br />
+    <%= f.text_field :name, :class => 'fullwidth title' %>
+    <%= f.error_message_on :name %>
+  <% end %>
 
-    <%= f.field_container :title do %>
-      <%= f.label :title, Spree.t(:title) %> <span class="required">*</span><br />
-      <%= f.text_field :title, :class => 'fullwidth title' %>
-      <%= f.error_message_on :title %>
-    <% end %>
-
-    <%= f.field_container :permalink do %>
-      <%= f.label :permalink, Spree.t(:permalink) %> <span class="required">*</span><br />
-      <%= f.text_field :permalink, :class => 'fullwidth title' %>
-      <%= f.error_message_on :permalink %>
-    <% end %>
-
-    <%= f.field_container :target do %>
-      <%= f.label :target_id, "Target" %>
-      <%= f.hidden_field :target_id, :class => 'fullwidth target-dropdown' %>
-    <% end %>
-  </div>
+  <%= f.field_container :permalink do %>
+    <%= f.label :permalink, Spree.t(:permalink) %> <span class="required">*</span><br />
+    <%= f.text_field :permalink, :class => 'fullwidth title' %>
+    <%= f.error_message_on :permalink %>
+    <%= link_to_with_icon 'icon-arrow-right', "to frontend page", product_page_path(id: @product_page.permalink), target: :blank %>
+  <% end %>
 </div>
 
+<div class="right six columns alpha">
+  <%= f.field_container :title do %>
+    <%= f.label :title, Spree.t(:title) %> <span class="required">*</span><br />
+    <%= f.text_field :title, :class => 'fullwidth title' %>
+    <%= f.error_message_on :title %>
+  <% end %>
 
-<%= f.field_container :product_group do %>
-  <%= f.label :product_group_ids, Spree.t(:product_group) %><br />
-  <%= f.hidden_field :product_group_ids, :value => @product_page.product_group_ids.join(','), :class => 'fullwidth title'  %>
-<% end %>
+  <%= f.field_container :target do %>
+    <%= f.label :target_id, "Target" %><br>
+    <%= f.collection_select(:target_id, Spree::Target.all, :id, :name, {}, { class: 'select2 fullwidth'}) %>
+  <% end %>
+</div>
 
-<%= f.field_container :index_page do %>
-  <%= f.check_box :accessories  %>
-  <%= f.label :accessories, "Show accessories instead of Ready To Wear products" %>
-<% end %>
+<div class="twelve columns alpha omega">
+  <%= f.field_container :product_group do %>
+    <%= f.label :product_group_ids, Spree.t(:product_group) %><br />
+    <%= f.hidden_field :product_group_ids, :value => @product_page.product_group_ids.join(','), :class => 'fullwidth title'  %>
+  <% end %>
 
+  <%= f.field_container :index_page do %>
+    <%= f.check_box :accessories  %>
+    <%= f.label :accessories, "Show accessories instead of Ready To Wear products" %>
+  <% end %>
+</div>
 
 <%= f.fields_for :tabs do |builder| %>
   <%= render 'tab', f: builder %>
