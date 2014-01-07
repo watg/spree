@@ -1,5 +1,5 @@
 object @product_page
-node(:productId) { |pp| pp.id }
+node(:productId) { |pp| pp.permalink }
 node(:name) { |pp| pp.name }
 node(:productUrl) do |pp| 
   spree.product_page_url(pp.permalink, :host => root_url)
