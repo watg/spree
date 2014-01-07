@@ -49,6 +49,12 @@ module Spree
       end
     end
 
+    def banner_url
+      url = made_by_the_gang.banner_url
+      url ||= knit_your_own.banner_url
+      url
+    end
+
     def highest_normal_price_made_by_the_gang(currency)
       price_id = variant_prices(currency, in_sale: false).last
       Spree::Price.find(price_id) if price_id

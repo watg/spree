@@ -11,6 +11,8 @@ Spree::Core::Engine.add_routes do
   namespace :api, :defaults => { :format => 'json' } do
     get 'pinterest' => 'pinterest#show', :as => 'pinterest'
 
+    resources :olapic, :only => [:index]
+
     resources :products do
       resources :variants
       resources :product_properties
