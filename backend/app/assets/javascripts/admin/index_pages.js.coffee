@@ -10,15 +10,9 @@ jQuery ->
     
     $(this).on 'change', ->
       setVariantAutocomplete($(this))
-  
 
-
-  # $('.index-page-variant-ids').each ->
-  #   product_page_id = variant.parent().find('input[type=hidden]').first().val()
-  #   variant.variantAutocomplete(product_page_id)
-  #   console.log product_page_id
-
-  window.bindIndexPageItemVariantId = ->
+  window.bindIndexPageItemNewActions = ->
+    $('#index_page_item_product_page_id').productPageAutocomplete();
     $('#index_page_item_variant_id').variantAutocomplete()
 
     $('#index_page_item_product_page_id').change ->
