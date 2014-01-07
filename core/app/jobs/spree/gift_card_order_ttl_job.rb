@@ -7,7 +7,7 @@ module Spree
         adjustment = self.order.adjustments.gift_card.where(originator_id: self.gift_card.id).first
         if adjustment
           adjustment.amount = 0
-          adjustment.label = "[VOID] NOT USE WITHIN ALLOWED TIME -- #{adjustment.label}"
+          adjustment.label = "[VOID] NOT USED WITHIN ALLOWED TIME -- #{adjustment.label}"
           adjustment.finalize!
         end
       end
