@@ -11,7 +11,7 @@
 <%= render :partial => 'spree/admin/shared/product_sub_menu' %>
 <%= render :partial => 'spree/shared/error_messages', :locals => { :target => @index_page } %>
 
-
+<%= render :partial => "spree/admin/variants/autocomplete", :formats => :js %>
 
 <div id="uploads_container"></div>
 
@@ -48,16 +48,15 @@
     <table class="index sortable" data-hook data-sortable-link="<%= update_positions_admin_index_page_items_path(@index_page) %>">
       <colgroup>
         <col style="width: 5%">
-        <col style="width: 40%">
         <col style="width: 20%">
-        <col style="width: 20%">
-        <col style="width: 15%">
+        <col style="width: 25%">
+        <col style="width: 45%">
+        <col style="width: 5%">
       </colgroup>
       <thead>
         <tr>
           <th colspan="2">Image</th>
-          <th>Title</th>
-          <th>Template</th>
+          <th>Title &amp; Position</th>
           <th>Links</th>
           <th class="actions"></th>
         </tr>
