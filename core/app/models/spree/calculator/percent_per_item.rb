@@ -14,7 +14,7 @@ module Spree
 
     def compute(object=nil)
       return 0 if object.nil?
-      object.line_items.reduce(0) do |sum, line_item|
+      object.line_items_without_gift_cards.reduce(0) do |sum, line_item|
         sum += value_for_line_item(line_item)
       end
     end

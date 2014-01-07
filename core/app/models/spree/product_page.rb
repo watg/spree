@@ -113,6 +113,12 @@ module Spree
         pluck(:value)
     end
     
+    def to_param
+      permalink.present? ? permalink : name.to_s.to_url
+    end
+
+    private
+
     def set_permalink
       if self.permalink.blank? && self.name
         self.permalink = name.downcase.split(' ').map{|e| (e.blank? ? nil : e) }.compact.join('-')

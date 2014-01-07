@@ -109,8 +109,8 @@ module Spree
         # only physical line item to be dispatched
         includes(:payments, :line_items).
           includes(:shipments).
-          where('spree_orders.state'    => 'complete', 
-                'spree_payments.state'  => 'completed', 
+          where('spree_orders.state'    => 'complete',
+                'spree_orders.payment_state'  => 'paid',
                 'spree_shipments.state' => 'ready', 
                 'spree_orders.internal' => false,
                 'spree_line_items.product_nature' => :physical).
@@ -532,6 +532,14 @@ module Spree
         where("spree_products.product_type" => :gift_card).
         reorder('spree_line_items.created_at ASC').
         references(:variant, :product)
+    end
+
+    def line_items_without_gift_cards
+      (line_items - gift_card_line_items)
+    end
+
+    def item_total_without_gift_cards
+      line_items_without_gift_cards.sum(&:amount)
     end
 
     def deliver_order_confirmation_email
