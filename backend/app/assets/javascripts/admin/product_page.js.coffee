@@ -27,4 +27,4 @@ jQuery ->
   kit.kitAutocomplete(product_group.val())
 
   product_group.on 'change', ->
-    kit.kitAutocomplete(product_group_ids)
+    kit.kitAutocomplete(product_group.val())

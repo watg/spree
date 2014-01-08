@@ -21,12 +21,12 @@ jQuery.fn.kitAutocomplete =(product_group_ids) ->
           q: {
             name_cont: term, 
             product_type_eq: 'kit', 
-            product_group_id_in: product_group_ids 
+            product_group_id_in: product_group_ids.split(',') 
           }
         }
 
       results: (data, page) ->
-        {results: data.products}
+        {results: data.products || []}
 
     formatResult: (product) ->
       variant = product["variant"]
@@ -38,7 +38,6 @@ jQuery.fn.kitAutocomplete =(product_group_ids) ->
       variantTemplate({ variant: variant })
 
     formatSelection: (product) ->
-      console.log "tra la " + product.name
       product.name
   }) 
 
