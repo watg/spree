@@ -21,5 +21,10 @@ jQuery ->
     $(this).bind 's3_upload_failed', (e, content) ->
       alert(content.filename + ' failed to upload')
 
-  $('#product_page_product_group_ids').productGroupAutocomplete()
-  $('#product_page_kit_id').kitAutocomplete()
+  product_group = $('#product_page_product_group_ids')
+  product_group.productGroupAutocomplete()
+  kit = $('#product_page_kit_id')
+  kit.kitAutocomplete(product_group.val())
+
+  product_group.on 'change', ->
+    kit.kitAutocomplete(product_group_ids)

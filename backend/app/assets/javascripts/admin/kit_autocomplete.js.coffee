@@ -1,4 +1,4 @@
-jQuery.fn.kitAutocomplete = ->
+jQuery.fn.kitAutocomplete =(product_group_ids) ->
   this.select2({
     placeholder: "Choose a kit"
     minimumInputLength: 2
@@ -19,7 +19,9 @@ jQuery.fn.kitAutocomplete = ->
           per_page: 10,
           page: page,
           q: {
-            name_cont: term 
+            name_cont: term, 
+            type_eq: 'kit', 
+            product_group_in: product_group_ids 
           }
         }
 

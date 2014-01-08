@@ -16,9 +16,9 @@
     </span>
   <% end %>
 
-  <%= f.field_container :kit do %>
-    <%= f.label :kit_id, "Kit" %><br>
-    <%= f.hidden_field :kit_id, :class => "fullwidth" %>
+  <%= f.field_container :product_group do %>
+    <%= f.label :product_group_ids, Spree.t(:product_group) %><br />
+    <%= f.hidden_field :product_group_ids, :value => @product_page.product_group_ids.join(','), :class => 'fullwidth title'  %>
   <% end %>
 </div>
 
@@ -35,10 +35,11 @@
   <% end %>
 
   <p style="margin-top: 14px"><br></p>
-  <%= f.field_container :product_group do %>
-    <%= f.label :product_group_ids, Spree.t(:product_group) %><br />
-    <%= f.hidden_field :product_group_ids, :value => @product_page.product_group_ids.join(','), :class => 'fullwidth title'  %>
+  <%= f.field_container :kit do %>
+    <%= f.label :kit_id, "Kit" %><br>
+    <%= f.hidden_field :kit_id, :class => "fullwidth" %>
   <% end %>
+
 </div>
 
 <div class="twelve columns alpha omega">
