@@ -29,9 +29,18 @@
 <div class="twelve columns alpha omega">
   <%= f.field_container :product_group do %>
     <%= f.label :product_group_ids, Spree.t(:product_group) %><br />
-    <%= f.hidden_field :product_group_ids, :value => @product_page.product_group_ids.join(','), :class => 'fullwidth title'  %>
+    <%= f.hidden_field :product_group_ids, :value => @product_page.product_group_ids.join(','), :class => 'product-page-product-group-ids fullwidth title'  %>
   <% end %>
+</div>
 
+<div class="right six columns alpha">
+  <%= f.field_container :kit do %>
+    <%= f.label :kit_id, "Target" %><br>
+    <%= f.hidden_field :kit_id, :class => "product-page-kit-id fullwidth" %>
+  <% end %>
+</div>
+
+<div class="twelve columns alpha omega">
   <%= f.field_container :index_page do %>
     <%= f.check_box :accessories  %>
     <%= f.label :accessories, "Show accessories instead of Ready To Wear products" %>
