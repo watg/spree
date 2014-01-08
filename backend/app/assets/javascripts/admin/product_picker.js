@@ -1,8 +1,18 @@
+formatProductResult = function(product) {
+  var variant = product["variant"];
+  if (variant["images"][0] != undefined && variant["images"][0].mini_url != undefined) {
+    variant.image = variant.images[0].mini_url
+  }
+
+  variantTemplate = Handlebars.compile($('#variant_autocomplete_template').text());
+  return variantTemplate({ variant: variant })
+}
+
 $.fn.productAutocomplete = function () {
   'use strict';
 
   this.select2({
-    minimumInputLength: 1,
+    minimumInputLength: 2,
     multiple: true,
     initSelection: function (element, callback) {
       $.get(Spree.routes.product_search, {
@@ -29,11 +39,9 @@ $.fn.productAutocomplete = function () {
         };
       }
     },
-    formatResult: function (product) {
-      return product.name;
-    },
+    formatResult: formatProductResult,
     formatSelection: function (product) {
-      return product.name;
+      return product["variant"].name;
     }
   });
 };
