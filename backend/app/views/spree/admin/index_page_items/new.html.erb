@@ -1,3 +1,6 @@
+<%= render :partial => 'spree/admin/shared/product_sub_menu' %>
+<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @index_page_item } %>
+
 <%= form_for [:admin, @index_page_item ] do |f| %>
   <fieldset>
     <legend align="center">Add Item</legend>

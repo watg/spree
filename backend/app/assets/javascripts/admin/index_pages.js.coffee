@@ -18,3 +18,6 @@ jQuery ->
     $('#index_page_item_product_page_id').change ->
       product_page_id = $(this).val()
       $('#index_page_item_variant_id').variantAutocomplete(product_page_id)
+
+
+  bindIndexPageItemNewActions()
