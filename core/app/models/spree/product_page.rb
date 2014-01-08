@@ -71,7 +71,7 @@ module Spree
     end
 
     def lowest_priced_kit(currency = nil)
-      kit_product.lowest_priced_variant
+      kit.lowest_priced_variant
     end
 
     def create_tabs
@@ -91,9 +91,16 @@ module Spree
       tab(:knit_your_own)
     end
 
-    #TODO add targeting and add a test
-    def kit_product
-      products.where(product_type: :kit).first
+    def kit
+      return unless self.kit_id
+      products.find(self.kit_id)
+    end
+
+    def kit=(product)
+      self.kit_id = product.id
+      unless self.product_groups.find( product.product_group.id )
+        self.product_groups << product.product_group
+      end
     end
 
     def tab(tab_type)
