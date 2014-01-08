@@ -20,7 +20,7 @@ jQuery.fn.kitAutocomplete =(product_group_ids) ->
           page: page,
           q: {
             name_cont: term, 
-            type_eq: 'kit', 
+            product_type_eq: 'kit', 
             product_group_in: product_group_ids 
           }
         }
