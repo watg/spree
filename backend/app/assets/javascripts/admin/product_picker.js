@@ -1,11 +1,12 @@
 formatProductResult = function(product) {
   var variant = product["variant"];
+  variant.name = product.name;
   if (variant["images"][0] != undefined && variant["images"][0].mini_url != undefined) {
-    variant.image = variant.images[0].mini_url
+    variant.image = variant.images[0].mini_url;
   }
 
   variantTemplate = Handlebars.compile($('#variant_autocomplete_template').text());
-  return variantTemplate({ variant: variant })
+  return variantTemplate({ variant: variant });
 }
 
 $.fn.productAutocomplete = function () {
@@ -41,7 +42,7 @@ $.fn.productAutocomplete = function () {
     },
     formatResult: formatProductResult,
     formatSelection: function (product) {
-      return product["variant"].name;
+      return product.name;
     }
   });
 };

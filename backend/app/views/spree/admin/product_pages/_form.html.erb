@@ -1,3 +1,5 @@
+<%= render :partial => "spree/admin/variants/autocomplete", :formats => :js %>
+
 <div class="left six columns alpha">
   <%= f.field_container :name do %>
     <%= f.label :name, Spree.t(:name) %> <span class="required">*</span><br />
@@ -9,7 +11,14 @@
     <%= f.label :permalink, Spree.t(:permalink) %> <span class="required">*</span><br />
     <%= f.text_field :permalink, :class => 'fullwidth title' %>
     <%= f.error_message_on :permalink %>
-    <%= link_to_with_icon 'icon-arrow-right', "to frontend page", product_page_path(id: @product_page.permalink), target: :blank %>
+    <span class="info">
+      <%= link_to_with_icon 'icon-external-link', "Jump to frontpage", product_page_path(id: @product_page.permalink), target: :blank %>
+    </span>
+  <% end %>
+
+  <%= f.field_container :kit do %>
+    <%= f.label :kit_id, "Kit" %><br>
+    <%= f.hidden_field :kit_id, :class => "fullwidth" %>
   <% end %>
 </div>
 
@@ -24,19 +33,11 @@
     <%= f.label :target_id, "Target" %><br>
     <%= f.collection_select(:target_id, Spree::Target.all, :id, :name, {}, { class: 'select2 fullwidth'}) %>
   <% end %>
-</div>
 
-<div class="twelve columns alpha omega">
+  <p style="margin-top: 14px"><br></p>
   <%= f.field_container :product_group do %>
     <%= f.label :product_group_ids, Spree.t(:product_group) %><br />
-    <%= f.hidden_field :product_group_ids, :value => @product_page.product_group_ids.join(','), :class => 'product-page-product-group-ids fullwidth title'  %>
-  <% end %>
-</div>
-
-<div class="right six columns alpha">
-  <%= f.field_container :kit do %>
-    <%= f.label :kit_id, "Target" %><br>
-    <%= f.hidden_field :kit_id, :class => "product-page-kit-id fullwidth" %>
+    <%= f.hidden_field :product_group_ids, :value => @product_page.product_group_ids.join(','), :class => 'fullwidth title'  %>
   <% end %>
 </div>
 

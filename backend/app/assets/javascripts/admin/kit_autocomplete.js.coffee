@@ -1,17 +1,14 @@
-$ = jQuery
-
-$.fn.kitAutocomplete = (product_group_ids) ->
+jQuery.fn.kitAutocomplete = ->
   this.select2({
-    placeholder: "Choose kit"
-    multiple: false
+    placeholder: "Choose a kit"
     minimumInputLength: 2
 
     initSelection: (element, callback) ->
       url = Spree.url(Spree.routes.product_search, {
-        id: element.val()
+        ids: element.val()
       })
       $.getJSON(url, null, (data) ->
-        callback(data[0])
+        callback(data.products[0])
       )
 
     ajax: 
@@ -22,17 +19,24 @@ $.fn.kitAutocomplete = (product_group_ids) ->
           per_page: 10,
           page: page,
           q: {
-            name_cont: 'moby' 
+            name_cont: term 
           }
         }
 
       results: (data, page) ->
-        {results: data}
+        {results: data.products}
 
     formatResult: (product) ->
-      return product.name
+      variant = product["variant"]
+      variant.name = product.name
+      if variant["images"][0] and variant["images"][0].mini_url
+        variant.image = variant.images[0].mini_url
+
+      variantTemplate = Handlebars.compile($('#variant_autocomplete_template').text());
+      variantTemplate({ variant: variant })
 
     formatSelection: (product) ->
-      return product.name
+      console.log "tra la " + product.name
+      product.name
   }) 
 

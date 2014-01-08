@@ -15,6 +15,7 @@ module Spree
         product_page.permalink          = details[:permalink]
         product_page.target_id          = details[:target_id]
         product_page.accessories        = details[:accessories]
+        product_page.kit_id             = details[:kit_id]
         product_page.product_group_ids  = pg_ids
         product_page.tags               = find_tags(details[:tags] || [])
 

@@ -20,3 +20,6 @@ jQuery ->
     )
     $(this).bind 's3_upload_failed', (e, content) ->
       alert(content.filename + ' failed to upload')
+
+  $('#product_page_product_group_ids').productGroupAutocomplete()
+  $('#product_page_kit_id').kitAutocomplete()
