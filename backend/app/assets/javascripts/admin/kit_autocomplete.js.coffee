@@ -1,7 +1,7 @@
 jQuery.fn.kitAutocomplete =(product_group_ids) ->
   this.select2({
     placeholder: "Choose a kit"
-    minimumInputLength: 2
+    minimumInputLength: 0
 
     initSelection: (element, callback) ->
       url = Spree.url(Spree.routes.product_search, {
@@ -21,7 +21,7 @@ jQuery.fn.kitAutocomplete =(product_group_ids) ->
           q: {
             name_cont: term, 
             product_type_eq: 'kit', 
-            product_group_in: product_group_ids 
+            product_group_id_in: product_group_ids 
           }
         }
 

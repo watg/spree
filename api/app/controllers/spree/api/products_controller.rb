@@ -8,7 +8,6 @@ module Spree
         else
           @products = product_scope.includes(variants: :images).ransack(params[:q]).result.uniq
         end
-
         @products = @products.page(params[:page]).per(params[:per_page])
       end
 
