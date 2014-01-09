@@ -98,7 +98,7 @@ module Spree
 
     def kit=(product)
       self.kit_id = product.id
-      unless self.product_groups.find( product.product_group.id )
+      unless self.product_groups.where( id: product.product_group.id ).first
         self.product_groups << product.product_group
       end
     end
