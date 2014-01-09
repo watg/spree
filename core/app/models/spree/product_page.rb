@@ -31,6 +31,9 @@ module Spree
 
     before_validation :set_permalink
     after_create :create_tabs
+
+    # For some reason when you are saving the record the after_touch is not being triggered
+    after_save :touch_index_page_items
     after_touch :touch_index_page_items
 
     accepts_nested_attributes_for :tabs, allow_destroy: true
