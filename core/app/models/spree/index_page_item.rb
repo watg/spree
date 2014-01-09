@@ -13,7 +13,7 @@ module Spree
     acts_as_list :scope => :index_page
 
     validates_uniqueness_of :index_page, :scope => [:product_page, :variant, :deleted_at]
-
+    
     LARGE_TOP = 1
     SMALL_BOTTOM = 2
 

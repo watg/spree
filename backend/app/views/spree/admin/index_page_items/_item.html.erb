@@ -36,9 +36,13 @@
 
     <span class="required">*</span>
     <%= f.hidden_field :product_page_id, :class => "index-page-product-page-ids fullwidth" %>
+    
+    <% if item.product_page %>
     <span class="info">
       <%= link_to_with_icon 'icon-external-link', "Jump to product page", [:edit, :admin, item.product_page], target: :blank  %>
     </span>
+    <% end %>
+    
     <p style="margin: 12px 0 12px 0"><hr></p>
 
     <%= f.label :variant_id, "Variant (optional)" %>
