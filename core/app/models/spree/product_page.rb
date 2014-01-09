@@ -32,7 +32,6 @@ module Spree
     before_validation :set_permalink
     after_create :create_tabs
 
-    # For some reason when you are saving the record the after_touch is not being triggered
     after_save :touch_index_page_items
     after_touch :touch_index_page_items
 
@@ -134,8 +133,6 @@ module Spree
         self.permalink = name.downcase.split(' ').map{|e| (e.blank? ? nil : e) }.compact.join('-')
       end
     end
-
-    private
 
     def variant_prices(currency, in_sale: false )
       selector = displayed_variants_in_stock.select('spree_prices.id').joins(:prices)
