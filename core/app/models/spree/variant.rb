@@ -23,6 +23,11 @@ module Spree
     has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :images, through: :variant_targets
     has_many :targets, class_name: 'Spree::Target', through: :variant_targets
 
+     # Hack for the old pages, remove once the new pages are live
+    def images_including_targetted
+      @_images_including_targetted ||= [self.images, self.target_images].flatten.sort_by { |i| i.position }
+    end
+
     has_one :default_price,
       -> { where currency: Spree::Config[:currency] },
       class_name: 'Spree::Price',

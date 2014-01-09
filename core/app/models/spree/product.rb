@@ -91,6 +91,11 @@ module Spree
     has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :target_images, through: :variants_including_master
     has_many :personalisation_images, -> { order(:position) }, source: :images, through: :personalisations
 
+     # Hack for the old pages, remove once the new pages are live
+    def variant_images_including_targetted
+      @_images_including_targetted ||= [self.variant_images, self.target_images].flatten.sort_by { |i| i.position }
+    end
+
     accepts_nested_attributes_for :variants, allow_destroy: true
     accepts_nested_attributes_for :product_targets, allow_destroy: true
 
