@@ -4,7 +4,7 @@ module Spree
     class OrdersController < Spree::Admin::BaseController
       require 'spree/core/gateway_error'
       before_filter :initialize_order_events
-      before_filter :load_order, :only => [:edit, :update, :fire, :resend, :open_adjustments, :close_adjustments, :internal]
+      before_filter :load_order, :only => [:edit, :update, :fire, :resend, :open_adjustments, :close_adjustments, :internal, :gift_card_reissue]
 
       respond_to :html
 
@@ -55,6 +55,12 @@ module Spree
       def internal 
         @order.internal= !@order.internal?
         @order.save(validation: false)
+        redirect_to edit_admin_order_url(@order)
+      end
+
+      def gift_card_reissue
+        @order.deliver_gift_card_emails
+        flash[:success] = "All gift cards will be re-issued for order #{@order.number}"
         redirect_to edit_admin_order_url(@order)
       end
 

@@ -506,13 +506,7 @@ module Spree
       updater.run_hooks
 
       deliver_order_confirmation_email
-      
-      self.gift_card_line_items.each do |item|
-        item.quantity.times {|position| 
-          job = IssueGiftCardJob.new(self, item, position)
-          ::Delayed::Job.enqueue job, :queue => 'gift_card'
-        }
-      end
+      deliver_gift_card_emails
 
       self.state_changes.create(
         previous_state: 'cart',
@@ -520,6 +514,15 @@ module Spree
         name:           'order' ,
         user_id:        self.user_id
       )
+    end
+
+    def deliver_gift_card_emails
+      self.gift_card_line_items.each do |item|
+        item.quantity.times {|position| 
+          job = Spree::IssueGiftCardJob.new(self, item, position)
+          ::Delayed::Job.enqueue job, :queue => 'gift_card'
+        }
+      end
     end
 
     def has_gift_card?

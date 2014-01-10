@@ -23,7 +23,11 @@
     <%= button_to("Use Metapack", :action => "internal" ) %>
   <% else %>
     <%= button_to("Make Internal",:action => "internal" ) %>
-  <% end %>   
+  <% end %>
+
+  <% if @order.has_gift_card? %>
+   <%= button_to('Re-Issue Gift Card', :action => 'gift_card_reissue') %>
+  <% end %>
 </div>
 
 <%= render :partial => 'add_product' if can?(:update, @order) %>
