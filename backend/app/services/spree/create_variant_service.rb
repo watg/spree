@@ -9,6 +9,8 @@ module Spree
           array :option_value_ids do
             string
           end 
+          string :tags, empty: true
+          string :target_ids, empty: true
         end
 
         optional do
@@ -38,12 +40,49 @@ module Spree
     def execute
       variant = Spree::Variant.new( product_id: product.id )
       ActiveRecord::Base.transaction do
+        tags = split_params(details.delete(:tags)).map(&:to_i)
+        target_ids = split_params(details.delete(:target_ids)).map(&:to_i)
         variant.update_attributes(details)
         update_prices(prices, variant)
+        update_tags(variant, tags)
+        assign_targets(variant, target_ids)
+        variant
       end
     rescue Exception => e
       Rails.logger.error "[NewVariantService] #{e.message} -- #{e.backtrace}"
       add_error(:variant, :exception, e.message)
+    end
+
+    private
+
+    def update_tags(variant, tag_ids)
+      tags = tag_ids.map do |tag_id|
+        Spree::Tag.find(tag_id)
+      end
+      variant.tags = tags
+    end
+
+    def assign_targets(variant, ids)
+      target_list = targets_to_remove(variant, ids)
+      variant.variant_targets.where.not(target_id: ids).delete_all
+      ids.each do |id|
+        variant.variant_targets.find_or_create_by(target_id: id)
+      end
+      remove_targeted_variant_from_product_pages(variant, target_list)
+    end
+
+    def split_params(input)
+      input.blank? ? [] : input.split(',')
+    end
+
+    def targets_to_remove(variant, list)
+      list ||= []
+      target_ids = (variant.targets.blank? ? [] : variant.targets.map(&:id))
+      (target_ids - list)
+    end
+
+    def remove_targeted_variant_from_product_pages(variant, target_list)
+      Spree::ProductPageVariant.where(variant_id: variant.id, target_id: target_list).update_all(deleted_at: Time.now)
     end
 
   end

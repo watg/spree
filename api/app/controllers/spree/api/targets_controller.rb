@@ -1,12 +1,17 @@
 module Spree
   module Api
     class TargetsController < Spree::Api::BaseController
-      respond_to :json
 
       def index
-        @targets = Spree::Target.all
-        respond_with @targets
+        if params[:ids]
+          @targets = Spree::Target.where(id: params[:ids].split(','))
+        else
+          @targets = Spree::Target.order(:name).ransack(params[:q]).result
+        end
+        @targets = @targets.page(params[:page]).per(params[:per_page])
+        respond_with(@targets)
       end
+
     end
   end
 end

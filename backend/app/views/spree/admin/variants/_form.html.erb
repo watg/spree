@@ -26,17 +26,17 @@
     <div class="twelve columns alpha omega">
       <%= f.field_container :targets do %>
         <%= f.label :targets, "Available for targets..." %>
-	<%= f.hidden_field :target_ids, :value => @variant.targets.map(&:id).join(','), :class => 'target-dropdown fullwidth', :data => { :multiple => "true" } %>
+	      <%= f.hidden_field :target_ids, :value => @variant.targets.map(&:id).join(','), :class => 'targets-autocomplete fullwidth' %>
       <% end %>
     </div>
 
     <div class="twelve columns alpha omega">
       <fieldset>
         <legend align="center"><%= Spree.t(:tags) %></legend>
-	<%= f.field_container :option_types do %>
-	  <%= f.label :tags, Spree.t(:tags) %>
-	  <%= f.hidden_field :tags, :value => @variant.tag_names.join(','), :class => 'fullwidth' %>
-	<% end %>
+	      <%= f.field_container :option_types do %>
+	        <%= f.label :tags, Spree.t(:tags) %>
+	        <%= f.hidden_field :tags, :value => @variant.tags.map(&:id).join(','), :class => 'tags-autocomplete fullwidth' %>
+	      <% end %>
 	<p><em>Don't put commas into tag names</em></p>
       </fieldset>
     </div>
