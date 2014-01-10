@@ -2,7 +2,7 @@ module Spree
   class UpdateVariantService < Mutations::Command
     include ServiceTrait::Prices
     required do
-      model :variant, class: 'Spree::Variant'
+      duck :variant#, class: 'Spree::Variant'
 
       hash :details do
         required do
@@ -48,9 +48,9 @@ module Spree
         assign_targets(variant, target_ids)
         variant
       end
-    rescue Exception => e
-      Rails.logger.error "[NewVariantService] #{e.message} -- #{e.backtrace}"
-      add_error(:variant, :exception, e.message)
+    #rescue Exception => e
+    #  Rails.logger.error "[NewVariantService] #{e.message} -- #{e.backtrace}"
+    #  add_error(:variant, :exception, e.message)
     end
 
     private

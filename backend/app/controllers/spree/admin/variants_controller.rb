@@ -6,7 +6,8 @@ module Spree
 
       def create
         invoke_callbacks(:create, :before)
-        outcome = Spree::CreateVariantService.run(product: @product, details: params[:variant], prices: params[:prices])
+        @variant = Spree::Variant.new( product_id: @product.id )
+        outcome = Spree::UpdateVariantService.run(variant: @variant, details: params[:variant], prices: params[:prices])
         if outcome.success?
           create_success(@object)
         else
