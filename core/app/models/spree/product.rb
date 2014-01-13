@@ -429,11 +429,12 @@ module Spree
     def kit_variant_with_stock?(variant)
       part_stock_check = variant.required_parts.map do |part|
         count_part = part.count_part || 0
-        Spree::Stock::Quantifier.new(part).can_supply?(count_part)
+        part.in_stock?(count_part)
       end
 
-      kit_varaint_has_stock = part_stock_check.inject(true) {|have_stock, part|
-        have_stock && part }
+      kit_varaint_has_stock = part_stock_check.inject(true) do |have_stock, part|
+        have_stock && part
+      end
 
       kit_varaint_has_stock
     end
