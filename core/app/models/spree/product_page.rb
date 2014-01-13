@@ -23,13 +23,6 @@ module Spree
     has_many :tabs, -> { order(:position) }, dependent: :destroy, class_name: "Spree::ProductPageTab"
     has_many :product_page_variants
     has_many :displayed_variants, through: :product_page_variants, class_name: "Spree::Variant", source: :variant
-    has_many :displayed_variants_in_stock , -> {
-      joins("LEFT OUTER JOIN spree_stock_items ON spree_stock_items.variant_id = spree_product_page_variants.variant_id").
-      where("spree_stock_items.count_on_hand > 0")
-    },
-    through: :product_page_variants,
-    class_name: "Spree::Variant",
-    source: :variant
 
     belongs_to :target
 
@@ -41,6 +34,10 @@ module Spree
     after_touch :touch_index_page_items
 
     accepts_nested_attributes_for :tabs, allow_destroy: true
+
+    def displayed_variants_in_stock
+      displayed_variants.in_stock
+    end
 
     def all_variants
       products.where("product_type <> 'virtual_product' ").map(&:all_variants_or_master).flatten
@@ -129,7 +126,7 @@ module Spree
     end
 
     def variant_prices(currency, in_sale: false )
-      selector = displayed_variants_in_stock.select('spree_prices.id').joins(:prices)
+      selector = displayed_variants.in_stock.select('spree_prices.id').joins(:prices)
         .where('spree_prices.currency = ? and sale = ? and is_kit = ?', currency, in_sale, false )
 
       selector = selector.where('spree_variants.in_sale = ?', in_sale) if in_sale == true
