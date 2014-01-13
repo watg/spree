@@ -31,7 +31,7 @@
 
   <%= f.field_container :target do %>
     <%= f.label :target_id, "Target" %><br>
-    <%= f.collection_select(:target_id, Spree::Target.all, :id, :name, {}, { class: 'select2 fullwidth'}) %>
+    <%= f.collection_select(:target_id, Spree::Target.all, :id, :name, {include_blank: true},  { class: 'select2 fullwidth'}) %>
   <% end %>
 
   <p style="margin-top: 14px"><br></p>
