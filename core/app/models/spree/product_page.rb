@@ -5,6 +5,10 @@ module Spree
     validates_uniqueness_of :name, :permalink
     validates_presence_of :name, :permalink, :title
 
+    belongs_to :kit, class_name: "Spree::Product", dependent: :destroy
+    validate :kit_validation
+
+    
     has_and_belongs_to_many :product_groups, join_table: :spree_product_groups_product_pages
 
     has_many :products, through: :product_groups
@@ -29,6 +33,7 @@ module Spree
 
     belongs_to :target
 
+    before_save :set_product_group_from_kit
     before_validation :set_permalink
     after_create :create_tabs
 
@@ -73,7 +78,7 @@ module Spree
     end
 
     def lowest_priced_kit(currency = nil)
-      kit.lowest_priced_variant
+      kit.lowest_priced_variant(currency)
     end
 
     def create_tabs
@@ -93,18 +98,7 @@ module Spree
       tab(:knit_your_own)
     end
 
-    def kit
-      return unless self.kit_id
-      products.find(self.kit_id)
-    end
-
-    def kit=(product)
-      self.kit_id = product.id
-      unless self.product_groups.where( id: product.product_group.id ).first
-        self.product_groups << product.product_group
-      end
-    end
-
+    
     def tab(tab_type)
       tabs.where(tab_type: tab_type).first
     end
@@ -145,6 +139,18 @@ module Spree
 
     def touch_index_page_items
       index_page_items.each { |item| item.touch }
+    end
+
+    def kit_validation
+      if self.kit
+        self.kit.product_type == 'kit'
+      end
+    end
+
+    def set_product_group_from_kit
+      if self.kit
+        self.product_groups << kit.product_group
+      end
     end
 
   end
