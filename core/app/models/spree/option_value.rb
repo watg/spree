@@ -41,7 +41,7 @@ module Spree
     end
     
     scope :for_product, lambda { |product, stock|
-      v_ids = (stock ? product.variant_in_stock : product.variants).map(&:id)
+      v_ids = (stock ? product.variants_in_stock : product.variants).map(&:id)
       select("#{table_name}.*").
       where("spree_option_values_variants.variant_id IN (?)", v_ids).references(:option_values_variants).
       joins(:variants).uniq
@@ -51,11 +51,6 @@ module Spree
       joins("LEFT OUTER JOIN spree_variant_targets ON spree_variants.id = spree_variant_targets.variant_id").
       joins("LEFT OUTER JOIN spree_targets ON spree_targets.id = spree_variant_targets.target_id").
       where("spree_variant_targets.target_id = (?)", target.id)
-    }
-
-    scope :simple_product_in_stock, lambda {
-      joins("LEFT OUTER JOIN spree_stock_items ON spree_stock_items.variant_id = spree_option_values_variants.variant_id").
-      where("spree_stock_items.count_on_hand > 0")
     }
 
     def url_safe_name

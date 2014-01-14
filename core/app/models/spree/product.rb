@@ -142,29 +142,15 @@ module Spree
     end
 
     def lowest_priced_variant(currency = nil)
-      if self.product_type.to_s.downcase == 'kit'
-        # TODO: refactor this bit no very performant
-        all_variants_or_master.
-          active(currency).
-          where("spree_prices.sale = spree_variants.in_sale").
-          reorder("spree_prices.amount").
-          detect {|v| kit_variant_with_stock?(v) }
-      else
-        all_variants_or_master.
-          simple_product_in_stock.
-          active(currency).
-          where("spree_prices.sale = spree_variants.in_sale").
-          reorder("spree_prices.amount").
-          first
-      end
+      # TODO: This actually does not make sence
+      all_variants_or_master.in_stock.
+        active(currency).
+        where("spree_prices.sale = spree_variants.in_sale").
+        reorder("spree_prices.amount").first
     end
 
-    def variant_in_stock
-      if self.product_type.to_s.downcase == 'kit'
-        self.variants.select {|v| kit_variant_with_stock?(v) }
-      else
-        self.variants.simple_product_in_stock
-      end
+    def variants_in_stock
+      self.variants.in_stock
     end
 
     def variant_and_target_images
@@ -198,7 +184,7 @@ module Spree
 
     def option_values_for(target)
       check_stock = true
-      selector =  Spree::OptionValue.for_product(self,check_stock).includes(:option_type).joins(:option_type)
+      selector = Spree::OptionValue.for_product(self,check_stock).includes(:option_type).joins(:option_type)
       selector = selector.with_target(target) if target.present?
       @_option_values ||= selector.reorder( "spree_option_types.position", "spree_option_values.position" )
     end
@@ -375,7 +361,7 @@ module Spree
             base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).in_subunit
             base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
             base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_stock']= Spree::Stock::Quantifier.new(v).can_supply?(1)
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_stock']= v.in_stock_cache 
           end
         end
       end
@@ -426,18 +412,6 @@ module Spree
     end
 
     private
-    def kit_variant_with_stock?(variant)
-      part_stock_check = variant.required_parts.map do |part|
-        count_part = part.count_part || 0
-        Spree::Stock::Quantifier.new(part).can_supply?(count_part)
-      end
-
-      kit_varaint_has_stock = part_stock_check.inject(true) {|have_stock, part|
-        have_stock && part }
-
-      kit_varaint_has_stock
-    end
-
     # Builds variants from a hash of option types & values
     def build_variants_from_option_values_hash
       ensure_option_types_exist_for_values_hash

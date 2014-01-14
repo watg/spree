@@ -69,11 +69,6 @@ module Spree
     scope :in_stock, lambda { where(in_stock_cache: true) }
 
     class << self
-      def simple_product_in_stock
-        joins("LEFT OUTER JOIN spree_stock_items ON spree_stock_items.variant_id = spree_variants.id").
-          where("spree_stock_items.count_on_hand > 0")
-      end
-
       def physical
         includes(:product).where('spree_products.product_type' => Spree::Product::NATURE[:physical])
       end
