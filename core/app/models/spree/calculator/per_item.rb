@@ -2,10 +2,18 @@ require_dependency 'spree/calculator'
 
 module Spree
   class Calculator::PerItem < Calculator
-    preference :amount, :decimal, default: 0
-    preference :amount_in_eur, :decimal, default: 0
-    preference :amount_in_usd, :decimal, default: 0
+    
+    def self.default_amount
+      Spree::Promotion::Rules::ItemTotal.currencies.map do |preferred_currency|
+        hash = {}
+        hash[:type] = :integer
+        hash[:name] = preferred_currency
+        hash[:value] = 0
+        hash
+      end
+    end
 
+    preference :amount, :array, :default => default_amount
 
     def self.description
       Spree.t(:flat_rate_per_item)
@@ -13,8 +21,8 @@ module Spree
 
     def compute(object=nil)
       return 0 if object.nil? || object.currency.nil?
-      preferred_amount_in_currency = "preferred_amount_in_" + object.currency.downcase
-      self.send(preferred_amount_in_currency) * object.line_items_without_gift_cards.reduce(0) do |sum, value|
+      amount = self.preferred_amount.find { |e| e[:name] == object.currency }[:value]
+      amount * object.line_items_without_gift_cards.reduce(0) do |sum, value|
         if matching_products.blank? || matching_products.include?(value.product)
           value_to_add = value.quantity
         else
