@@ -2,9 +2,16 @@ require_dependency 'spree/calculator'
 
 module Spree
   class Calculator::FlatRate < Calculator
-    preference :amount_in_gbp, :decimal, default: 0
-    preference :amount_in_eur, :decimal, default: 0
-    preference :amount_in_usd, :decimal, default: 0
+
+    def self.default_amount
+      hash = {}
+      Spree::Promotion::Rules::ItemTotal.currencies.each do |preferred_currency|
+        hash[preferred_currency] ||= 0
+      end
+      hash
+    end
+
+    preference :amount, :hash, :default => default_amount
 
     def self.description
       Spree.t(:flat_rate_per_order)
@@ -12,9 +19,8 @@ module Spree
 
     def compute(object=nil)
       return 0 if object.nil? || object.currency.nil?
-      
-      preferred_amount_in_currency = "preferred_amount_in_" + object.currency.downcase
-      self.send(preferred_amount_in_currency)
+      self.preferred_amount[object.currency]
     end
+
   end
 end

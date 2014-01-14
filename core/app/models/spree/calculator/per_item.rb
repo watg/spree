@@ -2,9 +2,10 @@ require_dependency 'spree/calculator'
 
 module Spree
   class Calculator::PerItem < Calculator
-    preference :amount_in_gbp, :decimal, default: 0
+    preference :amount, :decimal, default: 0
     preference :amount_in_eur, :decimal, default: 0
     preference :amount_in_usd, :decimal, default: 0
+
 
     def self.description
       Spree.t(:flat_rate_per_item)

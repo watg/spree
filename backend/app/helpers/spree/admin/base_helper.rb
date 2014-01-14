@@ -91,6 +91,10 @@ module Spree
           password_field_tag(name, value, preference_field_options(options))
         when :text
           text_area_tag(name, value, preference_field_options(options))
+        when :hash
+          value.each do |key, sub_value|
+            text_field_tag(key, sub_value, preference_field_options(options))
+          end
         else
           text_field_tag(name, value, preference_field_options(options))
         end

@@ -99,7 +99,7 @@ module Spree
 
       variant_target = variant_targets.where(target_id: target.id).first
       targeted_images = variant_target ? variant_target.images : []
-      targeted_images + images
+      (targeted_images + images).sort_by(&:position)
     end
 
     def visible?
@@ -320,7 +320,7 @@ module Spree
     end
 
     def option_types_and_values
-      option_values.includes(:option_type).order( "spree_option_types.position", "spree_option_values.position" )
+      option_values.includes(:option_type).references(:option_type).reorder( "spree_option_types.position", "spree_option_values.position" )
         .map{ |ov| [ ov.option_type.url_safe_name, ov.url_safe_name, ov.presentation] }
     end
 
