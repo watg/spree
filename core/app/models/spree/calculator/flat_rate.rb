@@ -20,8 +20,12 @@ module Spree
     end
 
     def compute(object=nil)
+      d { object.currency }
       return 0 if object.nil? || object.currency.nil?
-      self.preferred_amount.find { |e| e[:name] == object.currency }[:value]
+      amount_in_currency = self.preferred_amount.find { |e| e[:name] == object.currency }
+      d { amount_in_currency }
+      return 0 if amount_in_currency.nil?
+      amount_in_currency[:value]
     end
 
   end
