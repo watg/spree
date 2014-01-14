@@ -18,14 +18,6 @@ module Spree
           order.products.any? {|p| eligible_product_types.include?(p.product_type) }
         end
 
-        # def product_type_ids_string
-        #   product_type_ids.join(',')
-        # end
-
-        # def product_type_ids_string=(s)
-        #   self.product_type_ids = s.to_s.split(',').map(&:strip)
-        # end
-
         private
 
           def only_one_promotion_per_product_type
