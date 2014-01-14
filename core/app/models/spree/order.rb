@@ -611,6 +611,10 @@ module Spree
       line_items.map(&:product)
     end
 
+    def product_groups
+      line_items.map(&:product).map(&:product_group)
+    end
+
     def variants
       line_items.map(&:variant)
     end
