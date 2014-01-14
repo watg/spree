@@ -13,9 +13,9 @@ module Spree
     private
     def update_assembly(count, assembly_list)
       result = Spree::Stock::Quantifier.new(stock_item.variant).can_supply?(count)
-      assembly_lists.each do |e|
-        list = (e.assembly_type == 'Spree::Variant' ? [e.assembly] : Spree::Variant.where(product_id: e.assembly_id) )
-        list.each {|obj| obj.update_attributes(result) }
+      assembly_list.each do |e|
+        list = (e.assembly_type == 'Spree::Variant' ? [e.assembly] : Spree::Variant.where(product_id: e.assembly_id) ).compact
+        list.each {|obj| obj.update_attributes(in_stock_cache: result) }
       end
     end
   end
