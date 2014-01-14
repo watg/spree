@@ -117,13 +117,13 @@ module Spree
       permalink.present? ? permalink : name.to_s.to_url
     end
 
-    private
-
     def set_permalink
       if self.permalink.blank? && self.name
         self.permalink = name.downcase.split(' ').map{|e| (e.blank? ? nil : e) }.compact.join('-')
       end
     end
+
+    private
 
     def variant_prices(currency, in_sale: false )
       selector = displayed_variants.in_stock.select('spree_prices.id').joins(:prices)
