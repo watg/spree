@@ -57,7 +57,7 @@ module Spree
 
     private
     def check_variant_stock
-      ::Delayed::Job.enqueue Spree::StockCheckJob.new(self), queue: 'stock_check'
+      ::Delayed::Job.enqueue Spree::StockCheckJob.new(self), queue: 'stock_check', priority: 10
     end
 
       def count_on_hand=(value)
