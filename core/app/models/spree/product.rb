@@ -135,14 +135,10 @@ module Spree
     end
 
     def next_variant_in_stock
-      variants.includes(:stock_items, :product).
-        where("spree_stock_items.count_on_hand > 0 AND spree_stock_items.count_on_hand < 500 AND spree_products.individual_sale = ?", true).
-        references(:stock_items, :product).
-        first
+      variants.in_stock.active(currency).includes(:product).references(:product).first
     end
 
     def lowest_priced_variant(currency = nil)
-      # TODO: This actually does not make sence
       all_variants_or_master.in_stock.
         active(currency).
         where("spree_prices.sale = spree_variants.in_sale").
@@ -154,13 +150,13 @@ module Spree
     end
 
     def variant_and_target_images
-      variant_images + target_images
+      memoized_variant_images + target_images
     end
 
     def images_for(target)
-      return variant_images unless target
+      return memoized_variant_images unless target
       targeted_images = target_images.where("spree_variant_targets.target_id = ?", target.id)
-      targeted_images + variant_images
+      targeted_images + memoized_variant_images
     end
 
     def description_for(target)
