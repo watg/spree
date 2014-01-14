@@ -6,7 +6,7 @@ module Spree
     module Rules
       class ProductGroup < PromotionRule
         has_and_belongs_to_many :product_groups, class_name: '::Spree::ProductGroup', join_table: 'spree_product_groups_promotion_rules', foreign_key: 'promotion_rule_id'
-        validate :only_one_promotion_per_product_group
+
 
         MATCH_POLICIES = %w(any all)
         preference :match_policy, :string, default: MATCH_POLICIES.first
@@ -32,14 +32,6 @@ module Spree
         def product_group_ids_string=(s)
           self.product_group_ids = s.to_s.split(',').map(&:strip)
         end
-
-        private
-
-          def only_one_promotion_per_product_group
-            if Spree::Promotion::Rules::ProductGroup.all.map(&:product_groups).flatten.uniq!
-              errors[:base] << "You can't create two promotions for the same product group"
-            end
-          end
       end
     end
   end
