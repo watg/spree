@@ -2,7 +2,7 @@ $ = jQuery
 
 $.fn.productGroupAutocomplete = ->
   this.select2({
-    placeholder: "Choose product groups"
+    placeholder: ""
     multiple: true
     minimumInputLength: 2
  

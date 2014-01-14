@@ -156,7 +156,7 @@ module Spree
     def images_for(target)
       return memoized_variant_images unless target
       targeted_images = target_images.where("spree_variant_targets.target_id = ?", target.id)
-      targeted_images + memoized_variant_images
+      (targeted_images + memoized_variant_images).sort_by(&:position)
     end
 
     def description_for(target)
