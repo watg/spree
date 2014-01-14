@@ -21,6 +21,11 @@ class Spree::Preference < ActiveRecord::Base
         self[:value].to_i
       when :boolean
         (self[:value].to_s =~ /^[t|1]/i) != nil
+      # when :array
+      #   self[:value].each do |hash|
+      #     hash[:value] = convert_preference_value(hash[:value], hash[:type])
+      #   end
+      #   self[:value]
       else
         self[:value].is_a?(String) ? YAML.load(self[:value]) : self[:value]
       end

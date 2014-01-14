@@ -6,7 +6,7 @@ module Spree
     def self.default_amount
       Spree::Promotion::Rules::ItemTotal.currencies.map do |preferred_currency|
         hash = {}
-        hash[:type] = :integer
+        hash[:type] = :decimal
         hash[:name] = preferred_currency
         hash[:value] = 0
         hash
@@ -20,12 +20,10 @@ module Spree
     end
 
     def compute(object=nil)
-      d { object.currency }
       return 0 if object.nil? || object.currency.nil?
       amount_in_currency = self.preferred_amount.find { |e| e[:name] == object.currency }
-      d { amount_in_currency }
       return 0 if amount_in_currency.nil?
-      amount_in_currency[:value]
+      BigDecimal.new(amount_in_currency[:value].to_s).round(2, BigDecimal::ROUND_HALF_UP)
     end
 
   end
