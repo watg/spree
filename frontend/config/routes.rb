@@ -49,6 +49,8 @@ Spree::Core::Engine.add_routes do
   get '/knitwear/kids', :to => 'navigation#product_top_kids'
   get '/knitwear/collections', :to => 'navigation#product_top_collections'
   get '/knitwear/knitting', :to => 'navigation#product_top_knitting'
+  get '/knitwear/knitting/women', :to => 'navigation#product_top_knitting_women'
+  get '/knitwear/knitting/men', :to => 'navigation#product_top_knitting_men'
 
   get '/knitwear/*id', :to => 'index_pages#show', :as => :index_page
   

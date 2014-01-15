@@ -16,7 +16,6 @@ module Spree
           return true if eligible_product_types.empty?
           order.products.any? {|p| eligible_product_types.include?(p.product_type) }
         end
-
       end
     end
   end
