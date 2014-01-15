@@ -60,18 +60,15 @@ module Spree
     end
 
     def highest_normal_price_made_by_the_gang(currency)
-      price_id = variant_prices(currency, in_sale: false).last
-      Spree::Price.find(price_id) if price_id
+      variant_prices(currency, in_sale: false).last
     end
 
     def lowest_normal_price_made_by_the_gang(currency)
-      price_id = variant_prices(currency, in_sale: false).first
-      Spree::Price.find(price_id) if price_id
+      variant_prices(currency, in_sale: false).first
     end
 
     def lowest_sale_price_made_by_the_gang(currency)
-      price_id = variant_prices(currency, in_sale: true).first
-      Spree::Price.find(price_id) if price_id
+      variant_prices(currency, in_sale: true).first
     end
 
     def lowest_priced_kit(currency = nil)
@@ -125,9 +122,10 @@ module Spree
 
     private
 
+
     def variant_prices(currency, in_sale: false )
-      selector = displayed_variants.in_stock.select('spree_prices.id').joins(:prices)
-        .where('spree_prices.currency = ? and sale = ? and is_kit = ?', currency, in_sale, false )
+      selector = Spree::Price.where('spree_prices.currency = ? and sale = ? and is_kit = ?', currency, in_sale, false )
+       .where(variant_id: displayed_variants.in_stock.active('GBP').map(&:id) ).joins(:variant)
 
       selector = selector.where('spree_variants.in_sale = ?', in_sale) if in_sale == true
 

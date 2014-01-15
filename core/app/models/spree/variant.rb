@@ -78,7 +78,8 @@ module Spree
       end
 
       def active(currency = nil)
-        joins(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
+        #joins(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
+        includes(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
       end
 
       def displayable(product_id)
@@ -89,6 +90,16 @@ module Spree
         _option_values = Spree::OptionValue.select(:id).where(name: option_value_name_list).map(&:id).compact.sort
         product.variants.detect {|v| v.option_values.map(&:id).sort == _option_values}
       end
+
+      def lowest_priced_variant(currency, in_sale: false )
+        selector = in_stock.active(currency).select('spree_prices.id').joins(:prices)
+          .where('spree_prices.currency = ? and sale = ? and is_kit = ?', currency, in_sale, false )
+
+        selector = selector.where('spree_variants.in_sale = ?', in_sale) if in_sale == true
+
+        selector.reorder('amount').first
+      end
+
     end
 
     def images_for(target)

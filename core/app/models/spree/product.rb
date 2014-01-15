@@ -138,11 +138,8 @@ module Spree
       variants.in_stock.active(currency).includes(:product).references(:product).first
     end
 
-    def lowest_priced_variant(currency = nil)
-      all_variants_or_master.in_stock.
-        active(currency).
-        where("spree_prices.sale = spree_variants.in_sale").
-        reorder("spree_prices.amount").first
+    def lowest_priced_variant(currency, in_sale: false )
+      all_variants_or_master.lowest_priced_variant(currency, in_sale: in_sale)
     end
 
     def variants_in_stock
