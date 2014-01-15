@@ -4,7 +4,7 @@ module Spree
   class Calculator::FlatRate < Calculator
 
     def self.default_amount
-      Spree::Promotion::Rules::ItemTotal.currencies.map do |preferred_currency|
+      Spree::Config[:supported_currencies].map do |preferred_currency|
         hash = {}
         hash[:type] = :decimal
         hash[:name] = preferred_currency
