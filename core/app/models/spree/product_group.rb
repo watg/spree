@@ -10,11 +10,11 @@ module Spree
 
     def next_variant_in_stock
       Spree::Variant.
-        includes(:stock_items, :product).
+        in_stock.
+        includes(:product).
         joins('LEFT OUTER JOIN spree_product_groups ON spree_product_groups.id = spree_products.product_group_id').
-        where("spree_product_groups.id = ? AND spree_stock_items.count_on_hand > 0 AND spree_stock_items.count_on_hand < 500 AND spree_products.individual_sale = ?", self, true).
-        where("spree_variants.is_master = ?", false).
-        references(:stock_items, :product).
+        where("spree_product_groups.id = ? AND spree_products.individual_sale = ? AND spree_variants.is_master = ?", self, true, false).
+        references(:product).
         first
     end
 

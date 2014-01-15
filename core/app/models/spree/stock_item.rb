@@ -11,7 +11,7 @@ module Spree
 
     delegate :weight, to: :variant
 
-    after_save :touch_variant
+    after_save :check_variant_stock
 
     def touch_variant
       was, now = self.changes['count_on_hand']
@@ -56,6 +56,10 @@ module Spree
     end
 
     private
+    def check_variant_stock
+      ::Delayed::Job.enqueue Spree::StockCheckJob.new(self), queue: 'stock_check'
+    end
+
       def count_on_hand=(value)
         write_attribute(:count_on_hand, value)
       end

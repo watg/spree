@@ -23,13 +23,6 @@ module Spree
     has_many :tabs, -> { order(:position) }, dependent: :destroy, class_name: "Spree::ProductPageTab"
     has_many :product_page_variants
     has_many :displayed_variants, through: :product_page_variants, class_name: "Spree::Variant", source: :variant
-    has_many :displayed_variants_in_stock , -> {
-      joins("LEFT OUTER JOIN spree_stock_items ON spree_stock_items.variant_id = spree_product_page_variants.variant_id").
-      where("spree_stock_items.count_on_hand > 0")
-    },
-    through: :product_page_variants,
-    class_name: "Spree::Variant",
-    source: :variant
 
     belongs_to :target
 
@@ -41,6 +34,10 @@ module Spree
     after_touch :touch_index_page_items
 
     accepts_nested_attributes_for :tabs, allow_destroy: true
+
+    def displayed_variants_in_stock
+      displayed_variants.in_stock
+    end
 
     def all_variants
       products.where("product_type <> 'virtual_product' ").map(&:all_variants_or_master).flatten
@@ -62,23 +59,16 @@ module Spree
       url
     end
 
-    def highest_normal_price_made_by_the_gang(currency)
-      price_id = variant_prices(currency, in_sale: false).last
-      Spree::Price.find(price_id) if price_id
+    def highest_normal_price(currency, flavour)
+      variant_prices(flavour, currency, in_sale: false).last
     end
 
-    def lowest_normal_price_made_by_the_gang(currency)
-      price_id = variant_prices(currency, in_sale: false).first
-      Spree::Price.find(price_id) if price_id
+    def lowest_normal_price(currency, flavour)
+      variant_prices(flavour, currency, in_sale: false).first
     end
 
-    def lowest_sale_price_made_by_the_gang(currency)
-      price_id = variant_prices(currency, in_sale: true).first
-      Spree::Price.find(price_id) if price_id
-    end
-
-    def lowest_priced_kit(currency = nil)
-      kit.lowest_priced_variant(currency)
+    def lowest_sale_price(currency, flavour)
+      variant_prices(flavour, currency, in_sale: true).first
     end
 
     def create_tabs
@@ -98,7 +88,6 @@ module Spree
       tab(:knit_your_own)
     end
 
-    
     def tab(tab_type)
       tabs.where(tab_type: tab_type).first
     end
@@ -128,9 +117,19 @@ module Spree
 
     private
 
-    def variant_prices(currency, in_sale: false )
-      selector = displayed_variants_in_stock.select('spree_prices.id').joins(:prices)
-        .where('spree_prices.currency = ? and sale = ? and is_kit = ?', currency, in_sale, false )
+    def variants_for_flavour(flavour, currency)
+      if flavour == :made_by_the_gang
+        displayed_variants.in_stock.active(currency)
+      elsif flavour == :knit_your_own
+        kit.variants.in_stock.active(currency)
+      end
+    end
+
+    def variant_prices(flavour, currency, in_sale: false)
+      variants = variants_for_flavour(flavour, currency)
+
+      selector = Spree::Price.where('spree_prices.currency = ? and sale = ? and is_kit = ?', currency, in_sale, false )
+       .where(variant_id: variants.map(&:id) ).joins(:variant)
 
       selector = selector.where('spree_variants.in_sale = ?', in_sale) if in_sale == true
 

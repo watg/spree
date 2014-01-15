@@ -32,7 +32,7 @@ module Spree
         product_id: product_permalink,
         price: variant.current_price_in("GBP").amount,
         currency_code: "GBP",
-        availability: variant.in_stock? ? "in stock" : "out of stock"
+        availability: variant.in_stock_cache ? "in stock" : "out of stock"
       })
 
     end
