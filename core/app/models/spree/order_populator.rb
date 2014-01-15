@@ -21,7 +21,6 @@ module Spree
       # product_assembly
       options = extract_kit_options(from_hash)
       personalisations = extract_personalisations(from_hash)
-      d { from_hash }
       target_id = from_hash[:products].delete(:target_id)
 
       from_hash[:products].each do |product_id,variant_id|
