@@ -21,13 +21,15 @@ module Spree
       # product_assembly
       options = extract_kit_options(from_hash)
       personalisations = extract_personalisations(from_hash)
+      d { from_hash }
+      target_id = from_hash[:products].delete(:target_id)
 
       from_hash[:products].each do |product_id,variant_id|
-        attempt_cart_add(variant_id, from_hash[:quantity], options, personalisations)
+        attempt_cart_add(variant_id, from_hash[:quantity], options, personalisations, target_id)
       end if from_hash[:products]
 
       from_hash[:variants].each do |variant_id, quantity|
-        attempt_cart_add(variant_id, quantity, options, personalisations )
+        attempt_cart_add(variant_id, quantity, options, personalisations, target_id )
       end if from_hash[:variants]
 
       valid?
@@ -63,7 +65,7 @@ module Spree
     end
 
     # This has modifications for options and personalisations
-    def attempt_cart_add(variant_id, quantity, option_ids=[], personalisations=[])
+    def attempt_cart_add(variant_id, quantity, option_ids=[], personalisations=[], target_id)
       quantity = quantity.to_i
       # 2,147,483,647 is crazy.
       # See issue #2695.
@@ -78,7 +80,7 @@ module Spree
       if quantity > 0
         if check_stock_levels_for_variant_and_options(variant, quantity, options_with_qty)
           shipment = nil
-          line_item = @order.contents.add(variant, quantity, currency, shipment, options_with_qty, personalisations)
+          line_item = @order.contents.add(variant, quantity, currency, shipment, options_with_qty, personalisations, target_id)
           unless line_item.valid?
             errors.add(:base, line_item.errors.messages.values.join(" "))
             return false
