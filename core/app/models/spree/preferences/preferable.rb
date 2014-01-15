@@ -128,6 +128,11 @@ module Spree::Preferences::Preferable
       else
          true
       end
+    # when :array
+    #   value.each do |hash|
+    #     hash[:value] = convert_preference_value(hash[:value], hash[:type])
+    #   end
+    #   value
     else
       value
     end
