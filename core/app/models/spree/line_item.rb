@@ -4,6 +4,7 @@ module Spree
     belongs_to :order, class_name: "Spree::Order"
     belongs_to :variant, class_name: "Spree::Variant"
     belongs_to :tax_category, class_name: "Spree::TaxCategory"
+    belongs_to :target, class_name: "Spree::Target"
 
     has_one :product, through: :variant
     has_many :adjustments, as: :adjustable, dependent: :destroy
