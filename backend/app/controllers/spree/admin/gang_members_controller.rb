@@ -5,7 +5,7 @@ module Spree
       protected
 
       def find_resource
-        GangMember.find_by_id(params[:id])
+        GangMember.find_by_permalink(params[:id])
       end
 
       def collection
