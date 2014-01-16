@@ -81,9 +81,6 @@ module Spree
 
     after_save :save_master
 
-    # This will help us clear the caches if a product is modified
-    after_touch { self.touch_taxons }
-
     delegate :images, to: :master, prefix: true
     alias_method :images, :master_images
 
@@ -390,18 +387,6 @@ module Spree
       option_type_names = self.option_types.order(:position).map{|o| o.url_safe_name}
       option_type_names.each_with_index { |o,i| hash[o] = option_type_names[i+1] }
       hash
-    end
-
-    def touch_taxons
-      # You should be able to just call self.taxons.each { |t| t.touch } but
-      # for some reason acts_as_nested_set does not walk all the ancestors
-      # correclty
-      #self.taxons.each do |t|
-      #  t.self_and_parents.each do |t2|
-      #    t2.touch
-      #  end
-      #end
-      self.taxons.map(&:touch)
     end
 
     private
