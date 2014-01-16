@@ -6,6 +6,9 @@ module Spree
     belongs_to :variant
     belongs_to :target
 
-    default_scope { order(:position) }
+    # We order by id as well, in case there is race condition which 
+    # gives us 2 variants with the same position, otherwise this breaks 
+    # pagination further up the stack
+    default_scope { order(:position,:id) }
   end
 end

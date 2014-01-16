@@ -9,7 +9,10 @@ module Spree
     belongs_to :product_page
     belongs_to :variant
 
-    default_scope { order('position') }
+    # We order by id as well, in case there is race condition which 
+    # gives us 2 variants with the same position, otherwise this breaks 
+    # pagination further up the stack
+    default_scope { order(:position,:id) }
     acts_as_list :scope => :index_page
 
     validates_uniqueness_of :index_page, :scope => [:product_page, :variant, :deleted_at]
