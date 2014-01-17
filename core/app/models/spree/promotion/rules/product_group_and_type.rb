@@ -4,7 +4,7 @@
 module Spree
   class Promotion
     module Rules
-      class ProductItem < PromotionRule
+      class ProductGroupAndType < PromotionRule
         has_and_belongs_to_many :product_groups, class_name: '::Spree::ProductGroup', join_table: 'spree_product_groups_promotion_rules', foreign_key: 'promotion_rule_id'
         has_and_belongs_to_many :product_types, class_name: '::Spree::ProductType', join_table: 'spree_product_types_promotion_rules', foreign_key: 'promotion_rule_id'
 
@@ -18,8 +18,17 @@ module Spree
             eligible_product_type?(order, options)
         end
 
-        private
+        def product_group_ids_string
+          product_group_ids.join(',')
+        end
 
+        def product_group_ids_string=(s)
+          self.product_group_ids = s.to_s.split(',').map(&:strip)
+        end
+
+
+        private
+        
         def eligible_product_group?(order, options)
           return true if eligible_product_groups.empty?
           if preferred_match_policy == 'all'
@@ -34,13 +43,6 @@ module Spree
           order.products.any? {|p| eligible_product_types.include?(p.product_type) }
         end
 
-        def product_group_ids_string
-          product_group_ids.join(',')
-        end
-
-        def product_group_ids_string=(s)
-          self.product_group_ids = s.to_s.split(',').map(&:strip)
-        end
 
         def eligible_product_groups
           product_groups
