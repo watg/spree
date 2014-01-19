@@ -2,9 +2,6 @@
   <%= label_tag "#{param_prefix}_product_group_ids_string", Spree.t('product_group_rule.choose_product_groups') %>
   <%= hidden_field_tag "#{param_prefix}[product_group_ids_string]", promotion_rule.product_group_ids.join(","), :class => "product_group_picker fullwidth" %>
   <br><br>
-  <label>
-    <%= Spree.t('product_group_rule.label', :select => select_tag("#{param_prefix}[preferred_match_policy]", options_for_select(Spree::Promotion::Rules::ProductGroup::MATCH_POLICIES.map{|s| [Spree.t("product_group_rule.match_#{s}"),s] }, promotion_rule.preferred_match_policy), {:class => 'select2'})).html_safe %>
-  </label>
 </div>
 <br><br><br>
 <div class="field alpha omega eight columns">
