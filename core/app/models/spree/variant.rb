@@ -39,7 +39,6 @@ module Spree
       class_name: 'Spree::Price',
       dependent: :destroy
 
-    validates_uniqueness_of :permalink
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
 
     has_many :taggings, as: :taggable
