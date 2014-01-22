@@ -27,13 +27,14 @@ module Spree
     belongs_to :target
 
     before_save :set_product_group_from_kit
-    before_validation :set_permalink
     after_create :create_tabs
 
     after_save :touch_index_page_items
     after_touch :touch_index_page_items
 
     accepts_nested_attributes_for :tabs, allow_destroy: true
+
+    make_permalink
 
     def displayed_variants_in_stock
       displayed_variants.in_stock
@@ -106,13 +107,7 @@ module Spree
     end
     
     def to_param
-      permalink.present? ? permalink : name.to_s.to_url
-    end
-
-    def set_permalink
-      if self.permalink.blank? && self.name
-        self.permalink = name.downcase.split(' ').map{|e| (e.blank? ? nil : e) }.compact.join('-')
-      end
+      permalink.present? ? permalink.to_s.to_url : name.to_s.to_url
     end
 
     private
