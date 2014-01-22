@@ -525,6 +525,14 @@ module Spree
       end
     end
 
+    def tax
+      if %w(UK EU).include?(shipping_zone_name)
+        total * 0.2
+      else
+        0
+      end
+    end
+
     def has_gift_card?
       gift_card_line_items.any?
     end
