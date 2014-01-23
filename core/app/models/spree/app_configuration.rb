@@ -111,6 +111,9 @@ module Spree
     preference :variant_options_allow_select_outofstock, :boolean, :default => false
     preference :variant_options_default_instock, :boolean, :default => false
     # end variant options
+
+    # for the asset cdn which contains all our common images 
+    preference :asset_cdn_url, :string, :default => ''
     
     # searcher_class allows spree extension writers to provide their own Search class
     def searcher_class
