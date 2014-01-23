@@ -1,6 +1,6 @@
 require File.join(Rails.root, 'lib/google_analytic.rb')
 module Spree
-  class AnalyticsJob
+  class AnalyticJob
     GA = GoogleAnalytic.new(YAML.load_file(File.join(Rails.root, 'config/ga.yaml'))[Rails.env])
 
     attr_reader :params, :user_id
@@ -52,7 +52,7 @@ module Spree
         ip:  li.price.to_f,
         iq:  li.quantity,
         ic:  li.variant.sku,
-        iv:  (li.variant.product.product_type.respond_to?(:name) ? li.variant.product.product_type.name : li.variant.product.product_type)
+        iv:  (li.variant.product.product_type.respond_to?(:name) ? li.variant.product.product_type.name : li.variant.product.product_type),
         cu:  li.order.currency
       }
     end
