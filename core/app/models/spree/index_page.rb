@@ -11,6 +11,7 @@ module Spree
     accepts_nested_attributes_for :items, allow_destroy: true
 
     before_validation :set_permalink
+    validates_format_of :permalink, :with => /\A[-a-z0-9_]+\Z/i
 
     private
     def set_permalink
