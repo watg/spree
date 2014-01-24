@@ -15,7 +15,8 @@ module Spree
 
     def transaction
       # TODO: track: - sales discount
-      # TODO: track: - b2b discount
+      # TODO: track: - b2b/affiliates discount [JL, ]
+      # TODO: product collection [TS x watg, tartan, ...]
       if params[:order].completed_at
         GA.transaction(ga_transaction_details(params[:order], user_id))
         params[:order].line_items.each  {|i| GA.item(ga_item_details(i, user_id))}
@@ -31,7 +32,7 @@ module Spree
     def event
       return @event if @event
       _e = params[:event].downcase.to_sym rescue :no_event_error
-      @event = _e if [:transaction, :no_event_error].include?(_e)
+      @event = ( [:transaction, :no_event_error].include?(_e) ? _e : :no_event_error)
     end
 
     def ga_transaction_details(o, cid)
