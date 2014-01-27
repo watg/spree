@@ -6,6 +6,8 @@ module Spree
   class Order < ActiveRecord::Base
     include Checkout
 
+    UK_EU_TAX_RATE = 0.2
+
     checkout_flow do
       go_to_state :address
       go_to_state :delivery
@@ -527,7 +529,7 @@ module Spree
 
     def tax
       if %w(UK EU).include?(shipping_zone_name)
-        total * 0.2
+        total * UK_EU_TAX_RATE
       else
         0
       end
