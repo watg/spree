@@ -65,8 +65,10 @@ module Spree
         line_item.normal_price = variant.price_normal_in(currency).amount
 
         amount_all_options = line_item.options_and_personalisations_price
-        line_item.price += amount_all_options
-        line_item.normal_price += amount_all_options
+        if amount_all_options > 0
+          line_item.price += amount_all_options
+          line_item.normal_price += amount_all_options
+        end
        
         line_item.in_sale = variant.in_sale if variant.in_sale?
 
