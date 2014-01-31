@@ -8,7 +8,6 @@ module Spree
 
     before_filter :load_order
 
-    before_filter :check_payment_status
     before_filter :ensure_order_not_completed
     before_filter :ensure_checkout_allowed
     before_filter :ensure_sufficient_stock_lines
@@ -26,7 +25,11 @@ module Spree
 
     # Updates the order and advances to the next state (when possible.)
     def update
+      update_mailchimp(params[:mc]) unless params[:mc].blank?
+      
       if @order.update_attributes(object_params)
+        persist_user_address
+
         unless @order.next
           flash[:error] = @order.errors.full_messages.join("\n")
           redirect_to checkout_state_path(@order.state) and return
@@ -35,7 +38,10 @@ module Spree
         if @order.completed?
           session[:order_id] = nil
           flash.notice = Spree.t(:order_processed_successfully)
-          flash[:commerce_tracking] = "nothing special"
+          ::Delayed::Job.enqueue Spree::DigitalOnlyOrderShipperJob.new(@order), queue: 'order_shipper'
+          # This is a hack to ensure that both google analytics and google remarketing javascript snippets
+          # are rendered, we can not use completion_route to pass a param as it is overridden in the auth plugin 
+          flash[:commerce_tracking] = "checkout_complete"
           redirect_to completion_route
         else
           redirect_to checkout_state_path(@order.state)
@@ -46,6 +52,20 @@ module Spree
     end
 
     private
+
+    def update_mailchimp(hash)
+      mc_data = {
+        email:          hash[:signupEmail],
+        action:         (!hash[:subscribe].blank? && hash[:subscribe] ? :subscribe : :unsubscribe ),
+        request_params: hash.to_json
+      }
+      mc = Mailchimp.new(mc_data)
+      if mc && mc.valid?
+        mc.save
+        mc.delay.process_request
+      end
+    end
+    
     def check_payment_status
       if params[:state] == 'payment' && !@order.can_attempt_payment?
         flash[:error] = Spree.t(:we_have_already_a_payment_for_this_order)
@@ -63,124 +83,141 @@ module Spree
         end
       end
 
-      # Should be overriden if you have areas of your checkout that don't match
-      # up to a step within checkout_steps, such as a registration step
-      def skip_state_validation?
-        false
+      # Fix for #4117
+      # If confirmation of payment fails, redirect back to payment screen
+      if params[:state] == "confirm" && @order.payment_required? && @order.payments.valid.empty?
+        flash.keep
+        redirect_to checkout_state_path("payment")
       end
+    end
 
-      def load_order
-        @order = current_order
-        redirect_to spree.cart_path and return unless @order
+    # Should be overriden if you have areas of your checkout that don't match
+    # up to a step within checkout_steps, such as a registration step
+    def skip_state_validation?
+      false
+    end
 
-        if params[:state]
-          redirect_to checkout_state_path(@order.state) if @order.can_go_to_state?(params[:state]) && !skip_state_validation?
-          @order.state = params[:state]
-        end
+    def load_order
+      @order = current_order
+      redirect_to spree.cart_path and return unless @order
+
+      if params[:state]
+        redirect_to checkout_state_path(@order.state) if @order.can_go_to_state?(params[:state]) && !skip_state_validation?
+        @order.state = params[:state]
       end
+    end
 
-      def ensure_checkout_allowed
-        unless @order.checkout_allowed?
-          redirect_to spree.cart_path
-        end
+    def ensure_checkout_allowed
+      unless @order.checkout_allowed?
+        redirect_to spree.cart_path
       end
+    end
 
-      def ensure_order_not_completed
-        redirect_to spree.cart_path if @order.completed?
+    def ensure_order_not_completed
+      redirect_to spree.cart_path if @order.completed?
+    end
+
+    def ensure_sufficient_stock_lines
+      if @order.insufficient_stock_lines.present?
+        flash[:error] = Spree.t(:inventory_error_flash_for_insufficient_quantity)
+        redirect_to spree.cart_path
       end
+    end
 
-      def ensure_sufficient_stock_lines
-        if @order.insufficient_stock_lines.present?
-          flash[:error] = Spree.t(:inventory_error_flash_for_insufficient_quantity)
-          redirect_to spree.cart_path
-        end
-      end
+    # Provides a route to redirect after order completion
+    def completion_route
+      spree.order_path(@order)
+    end
 
-      # Provides a route to redirect after order completion
-      def completion_route
-        spree.order_path(@order)
-      end
+    # For payment step, filter order parameters to produce the expected nested
+    # attributes for a single payment and its source, discarding attributes
+    # for payment methods other than the one selected
+    def object_params
+      # has_checkout_step? check is necessary due to issue described in #2910
+      if @order.has_checkout_step?("payment") && @order.payment?
+        if params[:payment_source].present?
+          source_params = params.delete(:payment_source)[params[:order][:payments_attributes].first[:payment_method_id].underscore]
 
-      # For payment step, filter order parameters to produce the expected nested
-      # attributes for a single payment and its source, discarding attributes
-      # for payment methods other than the one selected
-      def object_params
-        # respond_to check is necessary due to issue described in #2910
-        if @order.has_checkout_step?("payment") && @order.payment?
-          if params[:payment_source].present?
-            source_params = params.delete(:payment_source)[params[:order][:payments_attributes].first[:payment_method_id].underscore]
-
-            if source_params
-              params[:order][:payments_attributes].first[:source_attributes] = source_params
-            end
+          if source_params
+            params[:order][:payments_attributes].first[:source_attributes] = source_params
           end
-
-          if (params[:order][:payments_attributes])
-            params[:order][:payments_attributes].first[:amount] = @order.total
-          end
         end
 
-        if params[:order]
-          params[:order].permit(permitted_checkout_attributes)
-        else
-          {}
+        if (params[:order][:payments_attributes])
+          params[:order][:payments_attributes].first[:amount] = @order.total
         end
       end
 
-      def setup_for_current_state
-        method_name = :"before_#{@order.state}"
-        send(method_name) if respond_to?(method_name, true)
+      if params[:order]
+        params[:order].permit(permitted_checkout_attributes)
+      else
+        {}
       end
+    end
 
-      # Skip setting ship address if order doesn't have a delivery checkout step
-      # to avoid triggering validations on shipping address
-      def before_address
-        @order.bill_address ||= Address.default
+    def setup_for_current_state
+      method_name = :"before_#{@order.state}"
+      send(method_name) if respond_to?(method_name, true)
+    end
 
-        if @order.checkout_steps.include? "delivery"
-          @order.ship_address ||= Address.default
-        end
+    # Skip setting ship address if order doesn't have a delivery checkout step
+    # to avoid triggering validations on shipping address
+    def before_address
+      @order.bill_address ||= Address.default(try_spree_current_user, "bill")
+
+      if @order.checkout_steps.include? "delivery"
+        @order.ship_address ||= Address.default(try_spree_current_user, "ship")
       end
+    end
 
-      def before_delivery
-        return if params[:order].present?
+    def before_delivery
+      return if params[:order].present?
 
+      packages = @order.shipments.map { |s| s.to_package }
+      @differentiator = Spree::Stock::Differentiator.new(@order, packages)
+    end
+
+    def before_payment
+      if @order.checkout_steps.include? "delivery"
         packages = @order.shipments.map { |s| s.to_package }
         @differentiator = Spree::Stock::Differentiator.new(@order, packages)
-      end
-
-      def before_payment
-        if @order.checkout_steps.include? "delivery"
-          packages = @order.shipments.map { |s| s.to_package }
-          @differentiator = Spree::Stock::Differentiator.new(@order, packages)
-          @differentiator.missing.each do |variant, quantity|
-            @order.contents.remove(variant, quantity)
-          end
+        @differentiator.missing.each do |variant, quantity|
+          @order.contents.remove(variant, quantity)
         end
       end
+    end
 
-      def rescue_from_spree_gateway_error(exception)
-        flash[:error] = Spree.t(:spree_gateway_error_flash_for_checkout)
-        @order.errors.add(:base, exception.message)
-        render :edit
-      end
+    def rescue_from_spree_gateway_error(exception)
+      flash.now[:error] = Spree.t(:spree_gateway_error_flash_for_checkout)
+      @order.errors.add(:base, exception.message)
+      render :edit
+    end
 
-      def check_authorization
-        authorize!(:edit, current_order, session[:access_token])
-      end
+    def check_authorization
+      authorize!(:edit, current_order, session[:access_token])
+    end
 
-      def apply_coupon_code
-        if params[:order] && params[:order][:coupon_code]
-          @order.coupon_code = params[:order][:coupon_code]
+    def apply_coupon_code
+      if params[:order] && params[:order][:coupon_code]
+        @order.coupon_code = params[:order][:coupon_code]
 
-          coupon_result = Spree::Promo::CouponApplicator.new(@order).apply
-          if coupon_result[:coupon_applied?]
-            flash[:success] = coupon_result[:success] if coupon_result[:success].present?
-          else
-            flash[:error] = coupon_result[:error]
-            respond_with(@order) { |format| format.html { render :edit } } and return
-          end
+        coupon_result = Spree::Promo::CouponApplicator.new(@order).apply
+        if coupon_result[:coupon_applied?]
+          flash[:success] = coupon_result[:success] if coupon_result[:success].present?
+        else
+          flash.now[:error] = coupon_result[:error]
+          respond_with(@order) { |format| format.html { render :edit } } and return
         end
       end
+    end
+
+    def persist_user_address
+      if @order.checkout_steps.include? "address"
+        if @order.address? && try_spree_current_user.respond_to?(:persist_order_address)
+          try_spree_current_user.persist_order_address(@order) if params[:save_user_address]
+        end
+      end
+    end
+
   end
 end

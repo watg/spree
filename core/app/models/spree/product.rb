@@ -54,15 +54,18 @@ module Spree
 
     has_one :master,
       -> { where is_master: true },
+      inverse_of: :product,
       class_name: 'Spree::Variant',
       dependent: :destroy
 
     has_many :variants,
       -> { where(is_master: false).order("#{::Spree::Variant.quoted_table_name}.position ASC") },
+      inverse_of: :product,
       class_name: 'Spree::Variant'
 
     has_many :variants_including_master,
       -> { order("#{::Spree::Variant.quoted_table_name}.position ASC") },
+      inverse_of: :product,
       class_name: 'Spree::Variant',
       dependent: :destroy
 
@@ -317,10 +320,10 @@ module Spree
     end
 
     def total_on_hand
-      if Spree::Config.track_inventory_levels
-        self.stock_items.sum(&:count_on_hand)
-      else
+      if self.variants_including_master.any? { |v| !v.should_track_inventory? }
         Float::INFINITY
+      else
+        self.stock_items.sum(&:count_on_hand)
       end
     end
 

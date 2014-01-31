@@ -152,8 +152,9 @@ describe Spree::Order do
 
       context "without shipped items" do
         it "should set payment state to 'credit owed'" do
+          # Regression test for #3711
+          order.should_receive(:update_column).with(:payment_state, 'credit_owed')
           order.cancel!
-          order.payment_state.should == 'credit_owed'
         end
       end
 
@@ -165,6 +166,16 @@ describe Spree::Order do
         it "should not alter the payment state" do
           order.cancel!
           order.payment_state.should be_nil
+        end
+      end
+
+      context "with payments" do
+        let(:payment) { create(:payment) }
+
+        it "should automatically refund all payments" do
+          order.stub_chain(:payments, :completed).and_return([payment])
+          payment.should_receive(:credit!)
+          order.cancel!
         end
       end
     end

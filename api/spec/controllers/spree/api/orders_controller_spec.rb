@@ -6,6 +6,7 @@ module Spree
 
     let!(:order) { create(:order) }
     let(:variant) { create(:variant) }
+    let(:line_item) { create(:line_item) }
 
     let(:attributes) { [:number, :item_total, :display_total, :total,
                         :state, :adjustment_total,
@@ -41,6 +42,40 @@ module Spree
       assert_unauthorized!
     end
 
+    context "the current api user is not persisted" do
+      let(:current_api_user) { double(persisted?: false) }
+
+      it "returns a 401" do
+        api_get :mine
+
+        response.status.should == 401
+      end
+    end
+
+    context "the current api user is authenticated" do
+      let(:current_api_user) { order.user }
+      let(:order) { create(:order, line_items: [line_item]) }
+
+      it "can view all of their own orders" do
+        api_get :mine
+
+        response.status.should == 200
+        json_response["pages"].should == 1
+        json_response["current_page"].should == 1
+        json_response["orders"].length.should == 1
+        json_response["orders"].first["number"].should == order.number
+        json_response["orders"].first["line_items"].length.should == 1
+        json_response["orders"].first["line_items"].first["id"].should == line_item.id
+      end
+
+      it "can filter the returned results" do
+        api_get :mine, q: {completed_at_not_null: 1}
+
+        response.status.should == 200
+        json_response["orders"].length.should == 0
+      end
+    end
+
     it "can view their own order" do
       Order.any_instance.stub :user => current_api_user
       api_get :show, :id => order.to_param
@@ -72,6 +107,12 @@ module Spree
 
     it "can view an order if the token is known" do
       api_get :show, :id => order.to_param, :order_token => order.token
+      response.status.should == 200
+    end
+
+    it "can view an order if the token is passed in header" do
+      request.headers["X-Spree-Order-Token"] = order.token
+      api_get :show, :id => order.to_param
       response.status.should == 200
     end
 
@@ -109,7 +150,7 @@ module Spree
       line_item.should_receive(:update_attributes).with("special" => true)
 
       controller.stub(permitted_line_item_attributes: [:id, :variant_id, :quantity, :special])
-      api_post :create, :order => { 
+      api_post :create, :order => {
         :line_items => {
           "0" => {
             :variant_id => variant.to_param, :quantity => 5, :special => true
@@ -145,13 +186,30 @@ module Spree
         }
       end
 
-      before { Zone.stub default_tax: tax_rate.zone }
+      before do
+        Zone.stub default_tax: tax_rate.zone
+        current_api_user.stub has_spree_role?: true
+      end
+
+      it "sets channel" do
+        api_post :create, :order => { channel: "amazon" }
+        expect(json_response['channel']).to eq "amazon"
+      end
 
       it "doesnt persist any automatic tax adjustment" do
         expect {
           api_post :create, :order => order_params.merge(:import => true)
         }.not_to change { Adjustment.count }
 
+        expect(response.status).to eq 201
+      end
+
+      it "doesnt blow up when passing a sku into line items hash" do
+        order_params[:line_items]["0"][:sku] = variant.sku
+        order_params[:line_items]["0"][:variant_id] = nil
+        order_params[:line_items]["1"][:sku] = other_variant.sku
+
+        api_post :create, :order => order_params
         expect(response.status).to eq 201
       end
     end
@@ -162,7 +220,7 @@ module Spree
       order.stub(:associate_user!)
       order.stub_chain(:contents, :add).and_return(line_item = double('LineItem'))
       line_item.should_not_receive(:update_attributes)
-      api_post :create, :order => { 
+      api_post :create, :order => {
         :line_items => {
           "0" => {
             :variant_id => variant.to_param, :quantity => 5
@@ -207,10 +265,20 @@ module Spree
         address
       end
 
+      context "line_items hash not present in request" do
+        it "responds successfully" do
+          api_put :update, :id => order.to_param, :order => {
+            :email => "hublock@spreecommerce.com"
+          }
+
+          expect(response).to be_success
+        end
+      end
+
       it "updates quantities of existing line items" do
         api_put :update, :id => order.to_param, :order => {
           :line_items => {
-            line_item.id => { :quantity => 10 }
+            0 => { :id => line_item.id, :quantity => 10 }
           }
         }
 
@@ -219,10 +287,26 @@ module Spree
         json_response['line_items'].first['quantity'].should == 10
       end
 
+      it "adds an extra line item" do
+        variant2 = create(:variant)
+        api_put :update, :id => order.to_param, :order => {
+          :line_items => {
+            0 => { :id => line_item.id, :quantity => 10 },
+            1 => { :variant_id => variant2.id, :quantity => 1}
+          }
+        }
+
+        response.status.should == 200
+        json_response['line_items'].count.should == 2
+        json_response['line_items'][0]['quantity'].should == 10
+        json_response['line_items'][1]['variant_id'].should == variant2.id
+        json_response['line_items'][1]['quantity'].should == 1
+      end
+
       it "cannot change the price of an existing line item" do
         api_put :update, :id => order.to_param, :order => {
           :line_items => {
-            line_item.id => { :price => 0 }
+            0 => { :id => line_item.id, :price => 0 }
           }
         }
 
@@ -274,7 +358,7 @@ module Spree
           previous_shipments = order.shipments
           api_put :update, :id => order.to_param, :order => {
             :line_items => {
-              line_item.id => { :quantity => 10 }
+              0 => { :id => line_item.id, :quantity => 10 }
             }
           }
           expect(order.reload.shipments).to be_empty
@@ -311,6 +395,13 @@ module Spree
           json_response['line_items'].first['variant'].should have_attributes([:product_id])
         end
 
+        it "includes the tax_total in the response" do
+          api_get :show, :id => order.to_param
+
+          json_response['tax_total'].should == '0.0'
+          json_response['display_tax_total'].should == '$0.00'
+        end
+
         context "when in delivery" do
           let!(:shipping_method) do
             FactoryGirl.create(:shipping_method).tap do |shipping_method|
@@ -323,6 +414,13 @@ module Spree
             order.ship_address = FactoryGirl.create(:address)
             order.state = 'delivery'
             order.save
+          end
+
+          it "includes the ship_total in the response" do
+            api_get :show, :id => order.to_param
+
+            json_response['ship_total'].should == '10.0'
+            json_response['display_ship_total'].should == '$10.00'
           end
 
           it "returns available shipments for an order" do
@@ -366,6 +464,14 @@ module Spree
           api_get :index
           json_response["orders"].should == []
         end
+      end
+
+      it "responds with orders updated_at with miliseconds precision" do
+        api_get :index
+        milisecond = order.updated_at.strftime("%L")
+        updated_at = json_response["orders"].first["updated_at"]
+
+        expect(updated_at.split("T").last).to have_content(milisecond)
       end
 
       context "with two orders" do

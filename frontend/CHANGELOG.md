@@ -1,30 +1,17 @@
-## Spree 2.1.2 ##
+## Spree 2.1.4 (unreleased) ##
 
-* References to cart.png will now reference the precompiled asset.
+* Checkout now may remember user address
+    
+    Washington Luiz / Peter Berkenbosch
 
-    *Dan Kubb*
+* Checkout now no longer redirects back to address state if confirmation step fails. #4117
 
-* Special instructions are no longer ignored when specified in the checkout.
+    Ryan Bigg
 
-    *Dan Kubb*
+* Orders are only created now when there is a product added to the cart. #4136
 
-* Use `display_price` more consistently. #3822
+    Washington Luiz
 
-* When a payment fails, it will now include the message from the gateway as a validation error. This potentially provides additional information to the user, which may guide them to correcting the data they're inputting, allowing the payment to go through successfully. #3851
+* Added Deface Hook for Payment Method fields so that they can be defaced. #42222
 
-    *Ryan Bigg*
-
-## Spree 2.1.0 ##
-
-*  Fix issue where "Use Billing Address" checkbox was unticked when certain
-   browsers autocompleted the checkout form. #3068 #3085
-
-   *Washington Luiz*
-
-*  Switch to new Google Analytics analytics.js SDK from ga.js SDK for custom dimensions & metrics.
-
-   *Jeff Dutil*
-
-*  We now use [jQuery.payment](https://stripe.com/blog/jquery-payment) (from Stripe) to provide slightly better formatting on credit card number, expiry and CVV fields.
-
-   *Ryan Bigg*
+    Dave Kiss

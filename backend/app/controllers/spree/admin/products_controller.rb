@@ -84,10 +84,6 @@ module Spree
         Product.find_by_permalink!(params[:id])
       end
 
-      def location_after_save
-        spree.edit_admin_product_url(@product)
-      end
-
       def load_data
         @taxons = Taxon.order(:name)
         @option_types = OptionType.order(:name)
@@ -108,15 +104,11 @@ module Spree
         # @search needs to be defined as this is passed to search_form_for
         @search = @collection.ransack(params[:q])
         @collection = @search.result.
-          group_by_products_id.
+          distinct_by_product_ids(params[:q][:s]).
           includes(product_includes).
           page(params[:page]).
           per(Spree::Config[:admin_products_per_page])
 
-        if params[:q][:s].include?("master_default_price_amount")
-          # PostgreSQL compatibility
-          @collection = @collection.group("spree_prices.amount")
-        end
         @collection
       end
 
@@ -125,16 +117,16 @@ module Spree
         @prototype = Spree::Prototype.find(params[:product][:prototype_id])
       end
 
+      def product_includes
+        [{ :variants => [:images, { :option_values => :option_type }], :master => [:images, :default_price]}]
+      end
+
       def clone_object_url resource
         clone_admin_product_url resource
       end
 
       def permit_attributes
         params.require(:product).permit!
-      end
-
-      def product_includes
-        [{:variants => [:images, {:option_values => :option_type}]}, {:master => [:images, :default_price]}]
       end
 
     end

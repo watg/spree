@@ -1,67 +1,54 @@
-## Spree 2.1.2 ##
+## Spree 2.1.4 (unreleased) ##
 
-*   Added ability to edit payment amount on the payments listing. #3765
+* Don't serve JS to non XHR requests. Prevents sentive data leaking. Thanks to
+  Egor Homakov for pointing that out in Spree codebase.
+  See http://homakov.blogspot.com.br/2013/05/do-not-use-rjs-like-techniques.html
+  for details.
 
-    *Dan Kubb*
+* 'Only show completed orders' checkbox status will now persist when paging through orders.
 
-*   Added ability to create and delete countries via the backend.
+    darbs + Ryan Bigg
 
-    *Washington Luiz*
+* Implemented a basic Risk Assessment feature in Spree Backend. Viewing any Order's edit page now shows the following, with a status indicator:
 
-*   Fixed issue where rules select box was not being reloaded after a rule was selected.
+        Payments; link_to new log feature (ie. Number of multiple failed authorization requests)
+        AVS response (ie. Billing address not matching credit card)
+        CVV response (ie. code not matching)
 
-    *Washington Luiz*
+    Ben Radler (aka lordnibbler)
 
-*   Fixed issue where API calls to stock locations endpoint were not passing through a token. #3828
+* Log entries are now displayed in the admin backend for payments.
 
-    *Alain Pilon*
+    Ryan Bigg
 
-*   Fixed admin top menu spacing. #3839
+* Orders without shipments will now display their line items properly in the admin backend.
 
-    *Ramon Roche*
+    Ryan Bigg
 
-*   The name of the controller is now used rather than `Object` in authorize_admin. #3622
-    
-    *Ryan Bigg*
-    
+* Fix issue where a controller that inherited from Spree::ResourceController may not be able to find its class.
 
-## Spree 2.1.0 ##
+    Ryan Bigg, tomkrus, Michael Tucker
 
-*   layouts/admin.html.erb was broken into partials for each section. e.g.
-    header, menu, submenu, sidebar. Extensions should update their deface
-    overrides accordingly
+* Payment amounts are now displayed as "$50.00" Rather than "50.0" on the payments show screen.
 
-    *Washington Luiz*
+    Ryan Bigg
 
-*   No longer requires all jquery ui modules. Extensions should include the
-    ones they need on their own manifest file. #3237
+* Shipment states for items on the order screen can now be translated.
 
-    *Washington Luiz*
-    
-*   Symbolize attachment style keys on ImageSettingController otherwise users
-    would get *undefined method `processors' for "48x48>":String>* since
-    paperclip can't handle key strings. #3069 #3080
+    Tiago Amaro
 
-    *Washington Luiz*
+* JavaScript destroy action flash messages are shown once again. #4032
 
-*   Split line items across shipments. Use this to move line items between 
-    existing shipments or to create a new shipment on an order from existing
-    line items.
+    Ryan Bigg
 
-    *John Dyer*
+* The page title for admin screens can now be set with a `content_for :title` block. 
 
-*   Fixed display of "Total" price for a line item on a shipment. #3135
+    Ryan Bigg
 
-    *John Dyer*
+* Items' SKUs are now displayed on the shipment manifest list. #4045
 
-*   Fixed issue where selecting an existing user in the customer details step would not associate them with an order.
-    
-    *Ryan Bigg and dan-ding*
+    Peter Berkenbosch
 
-*   We now use [jQuery.payment](https://stripe.com/blog/jquery-payment) (from Stripe) to provide slightly better formatting on credit card number, expiry and CVV fields.
+* Spaces inside shipment tracking numbers are now accounted for.
 
-    *Ryan Bigg*
-
-*   "Infinite scrolling" now implemented for products taxon search to prevent loading all taxons at once. Only 50 taxons are loaded at a time now.
-    
-    *Ryan Bigg*
+    Daniel Pritchett

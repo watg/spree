@@ -3,13 +3,13 @@ module Spree
     acts_as_paranoid
 
     belongs_to :stock_location, class_name: 'Spree::StockLocation'
-    belongs_to :variant, class_name: 'Spree::Variant'
+    belongs_to :variant, class_name: 'Spree::Variant', touch: true
     has_many :stock_movements
 
     validates_presence_of :stock_location, :variant
     validates_uniqueness_of :variant_id, scope: [:stock_location_id, :deleted_at]
 
-    delegate :weight, to: :variant
+    delegate :weight, :should_track_inventory?, to: :variant
 
     after_save :check_variant_stock
 

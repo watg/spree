@@ -32,7 +32,7 @@ Spree::Core::Engine.add_routes do
       end
     end
 
-    resources :variants, :only => [:index]
+    resources :variants, :only => [:index, :show]
 
     resources :tags
     resources :targets
@@ -40,6 +40,8 @@ Spree::Core::Engine.add_routes do
     resources :option_types do
       resources :option_values
     end
+
+    get '/orders/mine', :to => 'orders#mine', :as => 'my_orders'
 
     resources :orders do
       resources :addresses, :only => [:show, :update]

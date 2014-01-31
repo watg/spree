@@ -12,6 +12,7 @@ describe Spree::CheckoutController do
 
   before do
     controller.stub :try_spree_current_user => user
+    controller.stub :spree_current_user => user
     controller.stub :current_order => order
   end
 
@@ -73,16 +74,30 @@ describe Spree::CheckoutController do
     end
 
     context "save successful" do
+
+      def spree_post_address
+        spree_post :update, {
+          :state => "address",
+          :order => {
+            :bill_address_attributes => address_params,
+            :use_billing => true
+          }
+        }
+      end
+
+      before do
+        # Must have *a* shipping method and a payment method so updating from address works
+        order.stub :available_shipping_methods => [stub_model(Spree::ShippingMethod)]
+        order.stub :available_payment_methods => [stub_model(Spree::PaymentMethod)]
+        order.stub :ensure_available_shipping_rates => true
+        order.line_items << FactoryGirl.create(:line_item)
+      end
+
+
       context "with the order in the cart state" do
         before do
           order.update_column(:state, "cart")
           order.stub :user => user
-
-          # Must have *a* shipping method and a payment method so updating from address works
-          order.stub :available_shipping_methods => [stub_model(Spree::ShippingMethod)]
-          order.stub :available_payment_methods => [stub_model(Spree::PaymentMethod)]
-          order.stub :ensure_available_shipping_rates => true
-          order.line_items << FactoryGirl.create(:line_item)
         end
 
         it "should assign order" do
@@ -91,25 +106,42 @@ describe Spree::CheckoutController do
         end
 
         it "should advance the state" do
-          spree_post :update, {
-            :state => "address",
-            :order => {
-              :bill_address_attributes => address_params,
-              :use_billing => true
-            }
-          }
+          spree_post_address
           order.reload.state.should == "delivery"
         end
 
         it "should redirect the next state" do
-          spree_post :update, {
-            :state => "address",
-            :order => {
-              :bill_address_attributes => address_params,
-              :use_billing => true
-            }
-          }
+          spree_post_address
           response.should redirect_to spree.checkout_state_path("delivery")
+        end
+
+        context "current_user respond to save address method" do
+          it "calls persist order address on user" do
+            expect(user).to receive(:persist_order_address)
+            spree_post :update, {
+              :state => "address",
+              :order => {
+                :bill_address_attributes => address_params,
+                :use_billing => true
+              },
+              :save_user_address => "1"
+            }
+          end
+        end
+
+        context "current_user doesnt respond to persist_order_address" do
+          it "doesnt raise any error" do
+            expect {
+              spree_post :update, {
+                :state => "address",
+                :order => {
+                  :bill_address_attributes => address_params,
+                  :use_billing => true
+                },
+                :save_user_address => "1"
+              }
+            }.to_not raise_error
+          end
         end
       end
 
@@ -186,7 +218,7 @@ describe Spree::CheckoutController do
 
       it "should render the edit template and display exception message" do
         response.should render_template :edit
-        flash[:error].should == Spree.t(:spree_gateway_error_flash_for_checkout)
+        flash.now[:error].should == Spree.t(:spree_gateway_error_flash_for_checkout)
         assigns(:order).errors[:base].should include("Invalid something or other.")
       end
     end
@@ -257,7 +289,7 @@ describe Spree::CheckoutController do
       end
 
       it "when GatewayError is raised" do
-        order.payments.first.stub(:process!).and_raise(Spree::Core::GatewayError.new(Spree.t(:payment_processing_failed)))
+        order.payments.any_instance.stub(:process!).and_raise(Spree::Core::GatewayError.new(Spree.t(:payment_processing_failed)))
         spree_put :update, :order => {}
         flash[:error].should == Spree.t(:payment_processing_failed)
       end

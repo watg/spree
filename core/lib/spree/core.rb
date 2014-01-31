@@ -16,9 +16,9 @@ module Spree
 
   def self.user_class
     if @@user_class.is_a?(Class)
-      raise "Spree.user_class MUST be a String object, not a Class object."
-    elsif @@user_class.is_a?(String)
-      @@user_class.constantize
+      raise "Spree.user_class MUST be a String or Symbol object, not a Class object."
+    elsif @@user_class.is_a?(String) || @@user_class.is_a?(Symbol)
+      @@user_class.to_s.constantize
     end
   end
 
@@ -38,6 +38,7 @@ module Spree
 end
 
 require 'spree/core/version'
+require 'spree/migrations'
 require 'spree/core/engine'
 
 require 'spree/i18n'
@@ -45,11 +46,12 @@ require 'spree/money'
 require 'spree/promo/coupon_applicator'
 
 require 'spree/core/delegate_belongs_to'
-require 'spree/core/ext/active_record'
 require 'spree/core/permalinks'
 require 'spree/core/token_resource'
 require 'spree/core/calculated_adjustments'
 require 'spree/core/product_duplicator'
+require 'spree/core/mail_method'
+require 'spree/core/mail_settings'
 
 ActiveRecord::Base.class_eval do
   include CollectiveIdea::Acts::NestedSet

@@ -60,7 +60,7 @@ Spree::Order.class_eval do
         shipment.shipping_rates.create!(:shipping_method => shipping_method,
                                         :cost => s[:cost])
       rescue Exception => e
-        raise "#{e.message} #{s}"
+        raise "Order import shipments: #{e.message} #{s}"
       end
     end
   end
@@ -74,7 +74,7 @@ Spree::Order.class_eval do
         payment.payment_method = Spree::PaymentMethod.find_by_name!(p[:payment_method])
         payment.save!
       rescue Exception => e
-        raise "#{e.message} #{p}"
+        raise "Order import payments: #{e.message} #{p}"
       end
     end
   end
@@ -85,11 +85,11 @@ Spree::Order.class_eval do
         line_item = line_items_hash[k]
         self.class.ensure_variant_id_from_api(line_item)
 
-        extra_params = line_item.except(:variant_id, :quantity)
+        extra_params = line_item.except(:variant_id, :quantity, :sku)
         line_item = self.contents.add(Spree::Variant.find(line_item[:variant_id]), line_item[:quantity])
         line_item.update_attributes(extra_params) unless extra_params.empty?
       rescue Exception => e
-        raise "#{e.message} #{line_item}"
+        raise "Order import line items: #{e.message} #{line_item}"
       end
     end
   end
@@ -102,7 +102,7 @@ Spree::Order.class_eval do
         adjustment.save!
         adjustment.finalize!
       rescue Exception => e
-        raise "#{e.message} #{a}"
+        raise "Order import adjustments: #{e.message} #{a}"
       end
     end
   end
@@ -114,7 +114,7 @@ Spree::Order.class_eval do
         hash.delete(:sku)
       end
     rescue Exception => e
-      raise "#{e.message} #{hash}"
+      raise "Ensure order import variant: #{e.message} #{hash}"
     end
   end
 
@@ -137,7 +137,7 @@ Spree::Order.class_eval do
       address[:country_id] = Spree::Country.where(search).first!.id
 
     rescue Exception => e
-      raise "#{e.message} #{search}"
+      raise "Ensure order import address country: #{e.message} #{search}"
     end
   end
 
@@ -153,16 +153,26 @@ Spree::Order.class_eval do
       end
 
       address.delete(:state)
-      address[:state_id] = Spree::State.where(search).first!.id
+      search[:country_id] = address[:country_id]
+
+      if state = Spree::State.where(search).first
+        address[:state_id] = state.id
+      else
+        address[:state_name] = search[:name] || search[:abbr]
+      end
     rescue Exception => e
-      raise "#{e.message} #{search}"
+      raise "Ensure order import address state: #{e.message} #{search}"
     end
   end
 
   def update_line_items(line_item_params)
     return if line_item_params.blank?
-    line_item_params.each do |id, attributes|
-      self.line_items.find(id).update_attributes!(attributes)
+    line_item_params.each_value do |attributes|
+      if attributes[:id].present?
+        self.line_items.find(attributes[:id]).update_attributes!(attributes)
+      else
+        self.line_items.create!(attributes)
+      end
     end
     self.ensure_updated_shipments
   end

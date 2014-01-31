@@ -2,7 +2,7 @@ require 'ostruct'
 
 module Spree
   class Shipment < ActiveRecord::Base
-    belongs_to :order, class_name: 'Spree::Order'
+    belongs_to :order, class_name: 'Spree::Order', touch: true
     belongs_to :address, class_name: 'Spree::Address'
     belongs_to :stock_location, class_name: 'Spree::StockLocation'
 
@@ -12,7 +12,6 @@ module Spree
     has_many :inventory_units, dependent: :delete_all
     has_one :adjustment, as: :source, dependent: :destroy
 
-    before_create :generate_shipment_number
     after_save :ensure_correct_adjustment, :update_order
 
     attr_accessor :special_instructions
@@ -20,7 +19,7 @@ module Spree
     accepts_nested_attributes_for :address
     accepts_nested_attributes_for :inventory_units
 
-    make_permalink field: :number
+    make_permalink field: :number, length: 11, prefix: 'H'
 
     scope :shipped, -> { with_state('shipped') }
     scope :ready,   -> { with_state('ready') }
@@ -64,9 +63,7 @@ module Spree
     end
 
     def to_param
-      number if number
-      generate_shipment_number unless number
-      number.to_s.to_url.upcase
+      number
     end
 
     def backordered?
@@ -166,8 +163,8 @@ module Spree
     end
 
     def line_items
-      if order.complete? and Spree::Config[:track_inventory_levels]
-        order.line_items.select { |li| inventory_units.pluck(:variant_id).include?(li.variant_id) }
+      if order.complete? and Spree::Config.track_inventory_levels
+        order.line_items.select { |li| !li.should_track_inventory? || inventory_units.pluck(:variant_id).include?(li.variant_id) }
       else
         order.line_items
       end
@@ -240,27 +237,17 @@ module Spree
       end
 
       def manifest_restock(item)
-        stock_location.restock item.variant, item.quantity, self
-      end
-
-      def generate_shipment_number
-        return number unless number.blank?
-        record = true
-        while record
-          random = "H#{Array.new(11) { rand(9) }.join}"
-          record = self.class.where(number: random).first
+        if item.states["on_hand"].to_i > 0
+         stock_location.restock item.variant, item.states["on_hand"], self
         end
-        self.number = random
+
+        if item.states["backordered"].to_i > 0
+          stock_location.restock_backordered item.variant, item.states["backordered"]
+        end
       end
 
       def description_for_shipping_charge
         "#{Spree.t(:shipping)} (#{shipping_method.name})"
-      end
-
-      def validate_shipping_method
-        unless shipping_method.nil?
-          errors.add :shipping_method, Spree.t(:is_not_available_to_shipment_address) unless shipping_method.include?(address)
-        end
       end
 
       def after_ship

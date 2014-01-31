@@ -6,7 +6,7 @@ module Spree
 
     attr_accessor :number, :verification_value
 
-    validates :month, :year, numericality: { only_integer: true }
+    validates :month, :year, numericality: { only_integer: true }, unless: :has_payment_profile?
     validates :number, presence: true, unless: :has_payment_profile?, on: :create
     validates :verification_value, presence: true, unless: :has_payment_profile?, on: :create
     validate :expiry_not_in_the_past
@@ -16,9 +16,22 @@ module Spree
     # needed for some of the ActiveMerchant gateways (eg. SagePay)
     alias_attribute :brand, :cc_type
 
+    CARD_TYPES = {
+      visa: /^4[0-9]{12}(?:[0-9]{3})?$/,
+      master: /(^5[1-5][0-9]{14}$)|(^6759[0-9]{2}([0-9]{10})$)|(^6759[0-9]{2}([0-9]{12})$)|(^6759[0-9]{2}([0-9]{13})$)/,
+      diners_club: /^3(?:0[0-5]|[68][0-9])[0-9]{11}$/,
+      american_express: /^3[47][0-9]{13}$/,
+      discover: /^6(?:011|5[0-9]{2})[0-9]{12}$/,
+      jcb: /^(?:2131|1800|35\d{3})\d{11}$/
+    }
+
     def expiry=(expiry)
-      self[:month], self[:year] = expiry.split(" / ")
-      self[:year] = "20" + self[:year]
+      if expiry.present?
+        self[:month], self[:year] = expiry.delete(' ').split('/')
+        self[:year] = "20" + self[:year] if self[:year].length == 2
+        self[:year] = self[:year].to_i
+        self[:month] = self[:month].to_i
+      end
     end
 
     def number=(num)
@@ -28,23 +41,24 @@ module Spree
     # cc_type is set by jquery.payment, which helpfully provides different
     # types from Active Merchant. Converting them is necessary.
     def cc_type=(type)
-      real_type = case type
-      when 'mastercard', 'maestro'
-        'master'
-      when 'amex'
-        'american_express'
-      when 'dinersclub'
-        'diners_club'
-      else
-        type
+      self[:cc_type] = case type
+      when 'mastercard', 'maestro' then 'master'
+      when 'amex' then 'american_express'
+      when 'dinersclub' then 'diners_club'
+      when '' then try_type_from_number
+      else type
       end
-      self[:cc_type] = real_type
     end
 
     def set_last_digits
       number.to_s.gsub!(/\s/,'')
       verification_value.to_s.gsub!(/\s/,'')
       self.last_digits ||= number.to_s.length <= 4 ? number : number.to_s.slice(-4..-1)
+    end
+
+    def try_type_from_number
+      numbers = number.delete(' ') if number
+      CARD_TYPES.find{|type, pattern| return type.to_s if numbers =~ pattern}.to_s
     end
 
     def name?
@@ -87,7 +101,7 @@ module Spree
     end
 
     def has_payment_profile?
-      gateway_customer_profile_id.present?
+      gateway_customer_profile_id.present? || gateway_payment_profile_id.present?
     end
 
     def to_active_merchant

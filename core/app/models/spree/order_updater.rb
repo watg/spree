@@ -25,16 +25,14 @@ module Spree
         update_shipment_state
       end
       
-      update_promotion_adjustments
-      update_shipping_adjustments
+      update_adjustments
       update_gift_card_adjustments
       # update totals a second time in case updated adjustments have an effect on the total
       update_totals
 
-      order.update_attributes_without_callbacks({
+      order.update_columns({
         payment_state: order.payment_state,
         shipment_state: order.shipment_state,
-        item_normal_total: order.item_normal_total,
         item_total: order.item_total,
         adjustment_total: order.adjustment_total,
         payment_total: order.payment_total,
@@ -59,6 +57,7 @@ module Spree
       order.item_normal_total = line_items.map(&:normal_amount).sum
       order.item_total = line_items.map(&:amount).sum
       order.adjustment_total = adjustments.eligible.map(&:amount).sum
+      order.tax_total = order.all_adjustments.tax.map(&:amount).sum
       order.total = order.item_total + order.adjustment_total
     end
 
@@ -128,22 +127,16 @@ module Spree
     #
     # Adjustments will check if they are still eligible. Ineligible adjustments
     # are preserved but not counted towards adjustment_total.
-    def update_promotion_adjustments
-      order.adjustments.reload.promotion.each { |adjustment| adjustment.update!(order) }
+    def update_adjustments
+      order.adjustments.reload.each { |adjustment| adjustment.update!(order) }
       choose_best_promotion_adjustment
     end
 
-    # Shipping adjustments don't receive order on update! because they calculated
-    # over a shipping / package object rather than an order object
-    def update_shipping_adjustments
-      order.adjustments.reload.shipping.each { |adjustment| adjustment.update! }
-    end
-
-    # 
-    #
     def update_gift_card_adjustments
       order.adjustments.reload.gift_card.each { |adjustment| adjustment.update! }
     end
+
+
     private
 
       # Picks one (and only one) promotion to be eligible for this order

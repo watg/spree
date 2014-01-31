@@ -46,6 +46,33 @@ describe Spree::Order do
     end
   end
 
+  context "#payments" do
+    # For the reason of this test, please see spree/spree_gateway#132
+    it "does not have inverse_of defined" do
+      expect(Spree::Order.reflections[:payments].options[:inverse_of]).to be_nil
+    end
+
+    it "keeps source attributes after updating" do
+      persisted_order = Spree::Order.create
+      credit_card_payment_method = create(:bogus_payment_method)
+      attributes = {
+        :payments_attributes => [
+          { 
+            :payment_method_id => credit_card_payment_method.id,
+            :source_attributes => {
+              :number => "41111111111111111111",
+              :expiry => "01 / 15",
+              :verification_value => "123"
+            }
+          }
+        ]
+      }
+
+      persisted_order.update_attributes(attributes)
+      expect(persisted_order.pending_payments.last.source.number).to be_present
+    end
+  end
+
   context "#generate_order_number" do
     it "should generate a random string" do
       order.generate_order_number.is_a?(String).should be_true
@@ -222,7 +249,7 @@ describe Spree::Order do
     end
 
     it "should log state event" do
-      order.state_changes.should_receive(:create).exactly(3).times #order, shipment & payment state changes
+      order.state_changes.should_receive(:create).exactly(1).times # payment state change
       order.finalize!
     end
   end
@@ -479,6 +506,14 @@ describe Spree::Order do
 
   context "#confirmation_required?" do
 
+    # Regression test for #4117
+    it "is required if the state is currently 'confirm'" do
+      order = Spree::Order.new
+      assert !order.confirmation_required?
+      order.state = 'confirm'
+      assert order.confirmation_required?
+    end
+
     context 'Spree::Config[:always_include_confirm_step] == true' do
 
       before do
@@ -618,6 +653,115 @@ describe Spree::Order do
       it "returns bill_address" do
         subject.should == order.bill_address
       end
+    end
+  end
+
+  describe ".restart_checkout_flow" do
+    it "updates the state column to the first checkout_steps value" do
+      order = create(:order, :state => "delivery")
+      expect(order.checkout_steps).to eql ["address", "delivery", "complete"]
+      expect{ order.restart_checkout_flow }.to change{order.state}.from("delivery").to("address")
+    end
+
+    context "with custom checkout_steps" do
+      it "updates the state column to the first checkout_steps value" do
+        order = create(:order, :state => "delivery")
+        order.should_receive(:checkout_steps).and_return ["custom_step", "address", "delivery", "complete"]
+        expect{ order.restart_checkout_flow }.to change{order.state}.from("delivery").to("custom_step")
+      end
+    end
+  end
+
+  describe ".is_risky?" do
+    context "Not risky order" do
+      let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, avs_response: "D")]) }
+      it "returns false if the order's avs_response == 'A'" do
+        order.is_risky?.should == false
+      end
+    end
+
+    context "AVS response message" do
+      let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, avs_response: "A")]) }
+      it "returns true if the order has an avs_response" do
+        order.is_risky?.should == true
+      end
+    end
+
+    context "CVV response message" do
+      let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, cvv_response_message: "foobar'd")]) }
+      it "returns true if the order has an cvv_response_message" do
+        order.is_risky?.should == true
+      end
+    end
+
+    context "CVV response code" do
+      let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, cvv_response_code: "N")]) }
+      it "returns true if the order has an cvv_response_code" do
+        order.is_risky?.should == true
+      end
+    end
+
+    context "state == 'failed'" do
+      let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, state: 'failed')]) }
+      it "returns true if the order has state == 'failed'" do
+        order.is_risky?.should == true
+      end
+    end
+  end
+
+  # Regression tests for #4072
+  context "#state_changed" do
+    let(:order) { FactoryGirl.create(:order) }
+
+    it "logs state changes" do
+      order.update_column(:payment_state, 'balance_due')
+      order.payment_state = 'paid'
+      expect(order.state_changes).to be_empty
+      order.state_changed('payment')
+      state_change = order.state_changes.find_by(:name => 'payment')
+      expect(state_change.previous_state).to eq('balance_due')
+      expect(state_change.next_state).to eq('paid')
+    end
+
+    it "does not do anything if state does not change" do
+      order.update_column(:payment_state, 'balance_due')
+      expect(order.state_changes).to be_empty
+      order.state_changed('payment')
+      expect(order.state_changes).to be_empty
+    end
+  end
+
+  # Regression test for #4199
+  context "#available_payment_methods" do
+    it "includes frontend payment methods" do
+      payment_method = Spree::PaymentMethod.create!({
+        :name => "Fake",
+        :active => true,
+        :display_on => "front_end",
+        :environment => Rails.env
+      })
+      expect(order.available_payment_methods).to include(payment_method)
+    end
+
+    it "includes 'both' payment methods" do
+      payment_method = Spree::PaymentMethod.create!({
+        :name => "Fake",
+        :active => true,
+        :display_on => "both",
+        :environment => Rails.env
+      })
+      expect(order.available_payment_methods).to include(payment_method)
+    end
+
+    it "does not include a payment method twice if display_on is blank" do
+      payment_method = Spree::PaymentMethod.create!({
+        :name => "Fake",
+        :active => true,
+        :display_on => "both",
+        :environment => Rails.env
+      })
+      expect(order.available_payment_methods.count).to eq(1)
+      expect(order.available_payment_methods).to include(payment_method)
     end
   end
 end

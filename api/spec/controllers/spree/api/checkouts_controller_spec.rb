@@ -38,21 +38,18 @@ module Spree
     end
 
     context "PUT 'update'" do
-      let(:order) { create(:order_with_line_items) }
+      let(:order) do
+        order = create(:order_with_line_items)
+        # Order should be in a pristine state
+        # Without doing this, the order may transition from 'cart' straight to 'delivery'
+        order.shipments.delete_all
+        order
+      end
+
 
       before(:each) do
         Order.any_instance.stub(:confirmation_required? => true)
         Order.any_instance.stub(:payment_required? => true)
-      end
-
-      it "will return an error if the recently created order cannot transition from cart to address" do
-        order.state.should eq "cart"
-        order.update_column(:email, nil) # email is necessary to transition from cart to address
-
-        api_put :update, :id => order.to_param, :order_token => order.token
-
-        # Order has not transitioned
-        json_response['state'].should == 'cart'
       end
 
       it "should transition a recently created order from cart to address" do
@@ -62,10 +59,18 @@ module Spree
         order.reload.state.should eq "address"
       end
 
+      it "should transition a recently created order from cart to address with order token in header" do
+        order.state.should eq "cart"
+        order.email.should_not be_nil
+        request.headers["X-Spree-Order-Token"] = order.token
+        api_put :update, :id => order.to_param
+        order.reload.state.should eq "address"
+      end
+
       it "can take line_items_attributes as a parameter" do
         line_item = order.line_items.first
         api_put :update, :id => order.to_param, :order_token => order.token,
-                         :order => { :line_items_attributes => { line_item.id => { :quantity => 1 } } }
+                         :order => { :line_items_attributes => { 0 => { :id => line_item.id, :quantity => 1 } } }
         response.status.should == 200
         order.reload.state.should eq "address"
       end
@@ -73,7 +78,7 @@ module Spree
       it "can take line_items as a parameter" do
         line_item = order.line_items.first
         api_put :update, :id => order.to_param, :order_token => order.token,
-                         :order => { :line_items => { line_item.id => { :quantity => 1 } } }
+                         :order => { :line_items => { 0 => { :id => line_item.id, :quantity => 1 } } }
         response.status.should == 200
         order.reload.state.should eq "address"
       end
@@ -244,7 +249,10 @@ module Spree
       end
 
       it "cannot transition if order email is blank" do
-        order.update_column(:email, nil)
+        order.update_columns(
+          state: 'address',
+          email: nil
+        )
 
         api_put :next, :id => order.to_param, :order_token => order.token
         response.status.should == 422

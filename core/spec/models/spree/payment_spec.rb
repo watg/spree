@@ -1,10 +1,7 @@
 require 'spec_helper'
 
 describe Spree::Payment do
-  let(:order) do
-    order = Spree::Order.new(:bill_address => Spree::Address.new,
-                             :ship_address => Spree::Address.new)
-  end
+  let(:order) { Spree::Order.create }
 
   let(:gateway) do
     gateway = Spree::Gateway::Bogus.new(:environment => 'test', :active => true)
@@ -701,6 +698,46 @@ describe Spree::Payment do
       let(:amount) { nil }
 
       its(:amount) { should be_nil }
+    end
+  end
+
+  describe "is_avs_risky?" do
+    it "should return false if avs_response == 'D'" do
+      payment.update_attribute(:avs_response, "D")
+      payment.is_avs_risky?.should == false
+    end
+
+    it "should return false if avs_response == nil" do
+      payment.update_attribute(:avs_response, nil)
+      payment.is_avs_risky?.should == false
+    end
+
+    it "should return true if avs_response == A-Z, omitting D" do
+      # should use avs_response_code helper
+      ('A'..'Z').reject{ |x| x == 'D' }.to_a.each do |char|
+        payment.update_attribute(:avs_response, char)
+        payment.is_avs_risky?.should == true
+      end
+    end
+  end
+
+  describe "is_cvv_risky?" do
+    it "should return false if cvv_response_code == 'M'" do
+      payment.update_attribute(:cvv_response_code, "M")
+      payment.is_cvv_risky?.should == false
+    end
+
+    it "should return false if cvv_response_code == nil" do
+      payment.update_attribute(:cvv_response_code, nil)
+      payment.is_cvv_risky?.should == false
+    end
+
+    it "should return true if cvv_response_code == A-Z, omitting D" do
+      # should use cvv_response_code helper
+      (%w{N P S U} << '').each do |char|
+        payment.update_attribute(:cvv_response_code, char)
+        payment.is_cvv_risky?.should == true
+      end
     end
   end
 end

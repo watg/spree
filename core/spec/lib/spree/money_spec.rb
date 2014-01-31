@@ -81,6 +81,24 @@ describe Spree::Money do
     end
   end
 
+  context "sign before symbol" do
+    it "defaults to -$10.00" do
+      money = Spree::Money.new(-10)
+      money.to_s.should == "-$10.00"
+    end
+
+    it "passed in option" do
+      money = Spree::Money.new(-10, :sign_before_symbol => false)
+      money.to_s.should == "$-10.00"
+    end
+
+    it "config option" do
+      Spree::Config[:currency_sign_before_symbol] = false
+      money = Spree::Money.new(-10)
+      money.to_s.should == "$-10.00"
+    end
+  end
+
   context "JPY" do
     before do
       configure_spree_preferences do |config|
@@ -138,6 +156,21 @@ describe Spree::Money do
     it "returns the expected string" do
       money = Spree::Money.new(10)
       money.as_json(options).should == "$10.00"
+    end
+  end
+
+  describe ".parse" do
+    subject { Spree::Money.parse input, currency  }
+
+    context "when currency nil" do
+      let(:currency) { nil }
+
+      context "when input value is a number" do
+        let(:input) { 42 }
+
+        it { should be_a ::Money }
+        its(:currency) { should == ::Money.default_currency }
+      end
     end
   end
 end
