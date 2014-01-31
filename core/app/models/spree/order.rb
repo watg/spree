@@ -678,6 +678,10 @@ module Spree
       (bill_address.empty? && ship_address.empty?) || bill_address.same_as?(ship_address)
     end
 
+    def can_attempt_payment?
+      payments.select(&:pending?).blank?
+    end
+
     def is_risky?
       self.payments.where(%{
         (avs_response IS NOT NULL and avs_response != 'D') or
