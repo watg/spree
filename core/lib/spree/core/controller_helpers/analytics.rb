@@ -13,7 +13,7 @@ module Spree
         def set_tracking_cookie(user=nil)
           data = {value: nil, expires: 1.year.from_now }
           data[:value] = UUID.generate(:compact)     if cookies[:watgtc].blank?
-          data[:value] = try_spree_current_user.uuid if try_spree_current_user
+          data[:value] = try_spree_current_user.uuid if (try_spree_current_user rescue nil)
           data[:value] = user.uuid                   if user
 
           cookies[:watgtc]= data unless data[:value].blank?
