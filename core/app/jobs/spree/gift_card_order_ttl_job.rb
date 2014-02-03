@@ -1,5 +1,5 @@
 module Spree
-  class GiftCardOrderTTLJob < Struct.new(:order, :gift_card)
+  GiftCardOrderTTLJob = Struct.new(:order, :gift_card) do
     def perform
       if not self.order.payments.completed.any?
         self.gift_card.reactivate
