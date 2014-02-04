@@ -51,22 +51,29 @@ module Spree
       end
     end
 
-    def unitary_price
-      price + options_and_personalisations_price
+    def base_price
+      price - options_and_personalisations_price
     end
+
+    def base_normal_price
+      (normal_price || price) - options_and_personalisations_price
+    end
+
+    # price includes Optional Parts and Personalisations
+    def amount
+      price * quantity
+    end
+    alias total amount
+
+    # normal price includes Optional Parts and Personalisations
+    def normal_amount
+      (normal_price || price) * quantity
+    end
+    alias normal_total normal_amount
 
     def options_and_personalisations_price
       ( line_item_options.blank? ? 0 : amount_all_options ) +
       ( line_item_personalisations.blank? ? 0 : amount_all_personalisations ) 
-    end
-
-    def amount
-      unitary_price * quantity
-    end
-    alias total amount
-
-    def amount_without_option
-      price * quantity
     end
 
     def amount_all_options
@@ -78,16 +85,6 @@ module Spree
       list_amount = self.line_item_personalisations.map {|p| p.amount }
       list_amount.sum
     end
-
-    # This is assuming we are including kit functionality from spree_product_assembley
-    def normal_unitary_price
-      normal_price || price + options_and_personalisations_price
-    end
-
-    def normal_amount
-      normal_unitary_price * quantity
-    end
-    alias normal_total normal_amount
 
 
     def single_money

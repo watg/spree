@@ -55,18 +55,22 @@ module Spree
         line_item = order.line_items.new(quantity: quantity, variant: variant)
         line_item.target_shipment = shipment
         line_item.currency = currency unless currency.nil?
-        line_item.price    = variant.current_price_in(currency).amount
-
-        line_item.normal_price = variant.price_normal_in(currency).amount
-        if variant.in_sale?
-          line_item.in_sale = variant.in_sale
-        end
-
         line_item.add_options(options,currency) unless options.blank?
         line_item.add_personalisations(personalisations) unless personalisations.blank?
         line_item.item_uuid = uuid
         line_item.product_nature = variant.product.nature
         line_item.target_id = target_id
+
+        line_item.price = variant.current_price_in(currency).amount
+        line_item.normal_price = variant.price_normal_in(currency).amount
+
+        amount_all_options = line_item.options_and_personalisations_price
+        if amount_all_options > 0
+          line_item.price += amount_all_options
+          line_item.normal_price += amount_all_options
+        end
+       
+        line_item.in_sale = variant.in_sale if variant.in_sale?
 
         order.line_items << line_item
 

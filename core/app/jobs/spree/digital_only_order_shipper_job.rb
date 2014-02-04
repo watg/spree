@@ -1,5 +1,5 @@
 module Spree
-  class DigitalOnlyOrderShipperJob < Struct.new(:order)
+  DigitalOnlyOrderShipperJob = Struct.new(:order) do
     
     def perform
       li_pn_list = order.line_items.map {|li| li.product_nature == 'digital'}
