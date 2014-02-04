@@ -1,5 +1,5 @@
 module Spree
-  class StockCheckJob < Struct.new(:stock_item)
+ StockCheckJob = Struct.new(:stock_item) do
     def perform
       variant_in_stock = Spree::Stock::Quantifier.new(stock_item.variant).can_supply?(1)
       stock_item.variant.update_attributes(in_stock_cache: variant_in_stock)
