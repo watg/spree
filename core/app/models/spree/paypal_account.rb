@@ -12,8 +12,9 @@ class Spree::PaypalAccount < ActiveRecord::Base
   def can_credit?(payment)
     return false unless payment.state == "completed"
     return false unless payment.order.payment_state == "credit_owed"
-    payment.credit_allowed > 0
-    !payment.payment_method.find_capture(payment).nil?
+    # payment.credit_allowed > 0
+    # !payment.payment_method.find_capture(payment).nil?
+    return nil
   end
 
   # fix for Payment#payment_profiles_supported?
@@ -22,14 +23,15 @@ class Spree::PaypalAccount < ActiveRecord::Base
   end
 
   def echeck?(payment)
-    logs = payment.log_entries.all(:order => 'created_at DESC')
-    logs.each do |log|
-      details = YAML.load(log.details) # return the transaction details
-      if details.params['payment_type'] == 'echeck'
-        return true
-      end
-    end
-    return false
+    # logs = payment.log_entries.all(:order => 'created_at DESC')
+    # logs.each do |log|
+    #   details = YAML.load(log.details) # return the transaction details
+    #   if details.params['payment_type'] == 'echeck'
+    #     return true
+    #   end
+    # end
+    # return false
+    return nil
   end
 
 end
