@@ -1,4 +1,5 @@
 require File.join(Rails.root, 'lib/google_analytic.rb')
+require File.join(Rails.root, 'lib/runners/analytics/helpers.rb')
 module Spree
   class AnalyticJob
     include AnalyticManual::Helpers
