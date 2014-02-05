@@ -2,6 +2,7 @@
 $(document).ready(function () {
   'use strict';
 
+
   // handle variant selection, show stock level.
   $('#add_variant_id').change(function(){
     var variant_id = $(this).val();
@@ -126,7 +127,6 @@ $(document).ready(function () {
       console.log(msg);
     });
   });
-
 });
 
 adjustShipmentItems = function(shipment_number, variant_id, quantity){
@@ -160,12 +160,14 @@ toggleTrackingEdit = function(){
   var link = $(this);
   link.parents('tbody').find('tr.edit-tracking').toggle();
   link.parents('tbody').find('tr.show-tracking').toggle();
+  return false;
 }
 
 toggleMethodEdit = function(){
   var link = $(this);
   link.parents('tbody').find('tr.edit-method').toggle();
   link.parents('tbody').find('tr.show-method').toggle();
+  return false;
 }
 
 toggleItemEdit = function(){
@@ -312,5 +314,5 @@ addVariantFromStockLocation = function() {
     //add to existing shipment
     adjustShipmentItems(shipment.number, variant_id, quantity);
   }
-  return 1
+  return 1;
 }

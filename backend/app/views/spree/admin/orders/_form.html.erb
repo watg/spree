@@ -2,14 +2,12 @@
   <% if @line_item.try(:errors).present? %>
     <%= render :partial => 'spree/shared/error_messages', :locals => { :target => @line_item } %>
   <% end %>
-  <% if Metapack::Config.active && !order.internal? %>
-  <%= render :partial => "spree/admin/orders/details", :collection => @order.shipments, :as => :shipment, :locals => { :order => order } %>
-  <% else %>
-  <%= render :partial => "spree/admin/orders/shipment", :collection => @order.shipments, :locals => { :order => order } %>
-  <% end %>
-
   <% if Spree::Order.checkout_step_names.include?(:delivery) %>
-    <%= render :partial => "spree/admin/orders/shipment", :collection => @order.shipments, :locals => { :order => order } %>
+    <% if Metapack::Config.active && !order.internal? %>
+      <%= render :partial => "spree/admin/orders/details", :collection => @order.shipments, :as => :shipment, :locals => { :order => order } %>
+    <% else %>
+      <%= render :partial => "spree/admin/orders/shipment", :collection => @order.shipments, :locals => { :order => order } %>
+    <% end %>
   <% else %>
     <%= render :partial => "spree/admin/orders/line_items", :locals => { :order => order } %>
   <% end %>
