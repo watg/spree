@@ -93,7 +93,7 @@ module Spree
         in:  ad.label,
         ip:  ad.amount.to_f,
         iq:  1,
-        ic:  ad.originator.name,
+        ic:  name(ad),
         iv:  ad.originator_type,
         cu:  order.currency
       }
@@ -102,6 +102,14 @@ module Spree
 
     def maker(variant)
       variant.product.gang_member.name
+    end
+
+    def name(adjustment)
+      if adjustment.kind_of?(Spree::Promotion::Actions::CreateAdjustment)
+        adjustment.originator.promotion.description
+      else
+        adjustment.originator.name
+      end
     end
 
     def original_cohort(email)
