@@ -1,6 +1,7 @@
 module Spree
   module Admin
     module IndexPageHelper
+      include CdnHelper
 
       def first_image_url(item)
         if item.class == Spree::ProductPage && item.image
@@ -10,7 +11,7 @@ module Spree
         elsif item.class == Spree::Variant && item.images.any?
           item.images.first.attachment.url(:mini)
         else
-          "noimage/small.png"
+          cdn_url("noimage/small.png")
         end
       end
 
