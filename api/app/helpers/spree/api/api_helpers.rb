@@ -16,19 +16,22 @@ module Spree
         :taxonomy_attributes,
         :taxon_attributes,
         :inventory_unit_attributes,
-        :return_authorization_attributes,
         :address_attributes,
         :country_attributes,
         :state_attributes,
         :adjustment_attributes,
-        :inventory_unit_attributes,
         :return_authorization_attributes,
         :creditcard_attributes,
         :user_attributes,
         :property_attributes,
         :stock_location_attributes,
         :stock_movement_attributes,
-        :stock_item_attributes
+        :stock_item_attributes,
+        :product_group_attributes,
+        :product_page_attributes,
+        :index_page_attributes,
+        :target_attributes,
+        :tag_attributes
       ]
 
       mattr_reader *ATTRIBUTES
@@ -101,12 +104,12 @@ module Spree
         :return_authorization_id
       ]
 
-     @@product_group_attributes = [:id, :name]
+      @@product_group_attributes = [:id, :name]
 
       @@product_page_attributes = [:id, :name]
 
       @@index_page_attributes = [:id, :name]
-      
+
       @@target_attributes = [:id, :name]
 
       @@tag_attributes = [:id, :value] 
