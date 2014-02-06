@@ -66,7 +66,7 @@ module Spree
         ts: o.shipments.last.cost.to_f,
         cd1: original_cohort(o.email),
         cm1: latency(o.email),
-        cm2: lifetime_spend(o.email),
+        cm2: lifetime_spend(o),
         cd3: payment_method(o)
       }
     end
@@ -116,7 +116,7 @@ module Spree
     end
 
     def lifetime_spend(o)
-      o.payment_total
+      o.payment_total.to_f
     end
 
     def payment_method(o)
