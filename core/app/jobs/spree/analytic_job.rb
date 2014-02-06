@@ -93,7 +93,7 @@ module Spree
         in:  ad.label,
         ip:  ad.amount.to_f,
         iq:  1,
-        ic:  name(ad),
+#        ic:  name(ad),
         iv:  ad.originator_type,
         cu:  order.currency
       }
