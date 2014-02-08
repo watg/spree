@@ -84,6 +84,10 @@ module Spree
         Product.find_by_permalink!(params[:id])
       end
 
+      def location_after_save
+        spree.edit_admin_product_url(@product)
+      end
+
       def load_data
         @taxons = Taxon.order(:name)
         @option_types = OptionType.order(:name)
