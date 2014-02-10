@@ -24,6 +24,10 @@ module Spree
     #   Payment Method
     #   var dimensionValue = 'SOME_DIMENSION_VALUE';
     #   ga('set', 'dimension3', dimensionValue);
+    
+    #   First Order Date
+    #   var dimensionValue = 'SOME_DIMENSION_VALUE';
+    #   ga('set', 'dimension4', dimensionValue);
 
     attr_reader :params, :user_id
     def initialize(params={})
@@ -67,7 +71,8 @@ module Spree
         cd1: original_cohort(o.email),
         cm1: latency(o.email),
         cm2: lifetime_spend(o),
-        cd3: payment_method(o)
+        cd3: payment_method(o),
+        cm4: customer_first_order_date(o.email)
       }
     end
 
@@ -129,6 +134,11 @@ module Spree
 
     def payment_method(o)
       o.payments.where(state: :completed).last.source_type
+    end
+
+    def customer_first_order_date(email)
+      o = Spree::Order.complete.where(email: email).reorder('completed_at ASC').first
+      o.completed_at rescue nil
     end
   end
 end
