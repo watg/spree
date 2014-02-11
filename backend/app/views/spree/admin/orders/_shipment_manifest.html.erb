@@ -1,7 +1,5 @@
 <% # THERE IS A HACK BELOW AS KITS ARE NOT HANDLED BY SHIPMENT MANIFEST %>
-<% shipment.manifest.each do |item| %>
-  <% line_item = order.find_line_item_by_variant(item.variant) %>
-  <% next unless line_item %>
+<% order.line_items.each do |item| %>
 
   <tr class="stock-item" data-item-quantity="<%= item.quantity %>">
     <td class="item-type"><%= item.variant.product_type %></td>
@@ -17,33 +15,33 @@
           <% ( item.variant.required_parts_for_display ).each do |v| %>
             <li><%= v.count_part %> x <%= v.name + " (" + v.options_text + ")" %> </li>
           <% end %>
-          <% line_item.line_item_options.each do |o| %>
+          <% item.line_item_options.each do |o| %>
             <li><%= o.quantity %> x <%= o.variant.name + " (" + o.variant.options_text + ")" %></li>
           <% end %>
         </ul>
       <% end %>
 
-      <% if !line_item.line_item_personalisations.blank? %>
+      <% if !item.line_item_personalisations.blank? %>
         <h6>Personalisations:</h6>
         <ul class="personalisations" style="list-style:none;">
-          <% line_item.line_item_personalisations.each do |p| %>
+          <% item.line_item_personalisations.each do |p| %>
             <li> <%= p.text %> </li>
           <% end %>
         </ul>
       <% end %>
 
     </td>
-    <td class="item-price align-center"><%= line_item.single_money.to_html %></td>
+    <td class="item-price align-center"><%= item.single_money.to_html %></td>
     <td class="item-qty-show align-center">
       <% # This is a hack, as shipments can not deal with kits %>
-      <%= line_item.quantity %> 
+      <%= item.quantity %> 
     </td>
     <% unless shipment.shipped? %>
       <td class="item-qty-edit hidden">
         <%= text_field_tag :quantity, item.quantity, :min => 0, :class => "line_item_quantity", :size => 5 %>
       </td>
     <% end %>
-    <td class="item-total align-center"> <%= line_item.display_amount.to_html unless line_item.quantity.nil? %></td>
+    <td class="item-total align-center"> <%= item.display_amount.to_html unless item.quantity.nil? %></td>
     <% unless shipment.shipped? %>
       <td class="cart-item-delete actions" data-hook="cart_item_delete">
         <% if can? :update, item %>

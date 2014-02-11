@@ -146,7 +146,7 @@ module Spree
     end
 
     def variant_and_target_images
-      memoized_variant_images + target_images
+      (memoized_variant_images + target_images).sort_by(&:position)
     end
 
     def images_for(target)
