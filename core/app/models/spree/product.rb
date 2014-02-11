@@ -334,6 +334,13 @@ module Spree
       super || variants_including_master.with_deleted.where(is_master: true).first
     end
 
+    def variants_for(target)
+      if !target.blank?
+        variants.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
+      else
+        variants
+      end
+    end
 
     def variant_options_tree_for(target, current_currency)
       hash={}
