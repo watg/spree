@@ -6,14 +6,25 @@
   <fieldset data-hook="new_product">
 
     <legend align="center"><%= Spree.t(:new_product) %></legend>
+    <div class="row" data-hook="new_product_attrs">
+      <div class="alpha twelve columns">
+        <%= f.field_container :name do %>
+          <%= f.label :name, Spree.t(:name) %> <span class="required">*</span><br />
+          <%= f.text_field :name, :class => 'fullwidth title' %>
+          <%= f.error_message_on :name %>
+        <% end %>
+      </div>
 
-    <%= f.field_container :name do %>
-      <%= f.label :name, Spree.t(:name) %> <span class="required">*</span><br />
-      <%= f.text_field :name, :class => 'fullwidth title' %>
-      <%= f.error_message_on :name %>
-    <% end %>
+      <div class="omega four columns">
+        <%= f.field_container :type do %>
+          <%= f.label :martin_type_id, Spree.t(:type) %><br />
+          <%= f.collection_select :martin_type_id, Spree::MartinProductType.all, :id, :name, {:include_blank => false}, {:class => 'select2 fullwidth'} %>
+          <%= f.error_message_on :martin_type_id %>
+        <% end %>
+      </div>
+    </div>
 
-    <div data-hook="new_product_attrs" class="row">
+    <div class="row">
       <% unless @product.has_variants? %>
         <div class="alpha four columns">
           <%= f.field_container :sku do %>
@@ -24,46 +35,56 @@
         </div>
       <% end %>
 
-      <div class="four columns">
-        <%= f.field_container :prototype do %>
-          <%= f.label :prototype_id, Spree.t(:prototype) %><br />
-          <%= f.collection_select :prototype_id, Spree::Prototype.all, :id, :name, {:include_blank => true}, {:class => 'select2 fullwidth'} %>
-        <% end %>
-      </div>
 
       <div class="four columns">
-        <%= f.field_container :available_on do %>
-          <%= f.label :available_on, Spree.t(:available_on) %>
-          <%= f.error_message_on :available_on %>
-          <%= f.text_field :available_on, :class => 'datepicker fullwidth' %>
-        <% end %>
-      </div>
-
-      <div data-hook="new_product_group_attrs" class="row">
-        <div class="alpha four columns">
-          <%= f.field_container :product_group do %>
-          <%= f.label :product_group_id, Spree.t(:product_group) %><br />
+        <%= f.field_container :product_group do %>
+          <%= f.label :product_group_id, "Product Group" %><span class="required">*</span><br />
           <%= f.collection_select :product_group_id, Spree::ProductGroup.all, :id, :name, {:include_blank => true}, {:class => 'select2 fullwidth product-group-id'} %>
-          <% end %>
-        </div>
-        
-        
-        <div class="four columns">
-          <%= f.field_container :gang_member do %>
-          <%= f.label :gang_member_id, Spree.t(:gang_member) %><br />
+          <%= f.error_message_on :product_group_id %>
+        <% end %>
+      </div>
+      
+      <div class="four columns">
+        <%= f.field_container :gang_member do %>
+          <%= f.label :gang_member_id, "Gang Member" %><span class="required">*</span><br />
           <%= f.collection_select :gang_member_id, Spree::GangMember.all, :id, :name, {:include_blank => true}, {:class => 'select2 fullwidth gang-member-id'} %>
-          <% end %>
-        </div>
+          <%= f.error_message_on :gang_member_id %>
+        <% end %>
+      </div>
+
+      <div class="omega four columns">
+        <%= f.field_container :shipping_category do %>
+          <%= f.label :shipping_category_id, Spree.t(:shipping_category) %><span class="required">*</span><br />
+          <%= f.collection_select(:shipping_category_id, @shipping_categories, :id, :name, { :include_blank => Spree.t('match_choices.none') }, { :class => 'select2 fullwidth' }) %>
+          <%= f.error_message_on :shipping_category_id %>
+        <% end %>
       </div>
       
     </div>
-
-    <div class='row'>
+    
+    <div class="row">
       <div class="alpha four columns">
-        <%= f.field_container :shipping_category do %>
-          <%= f.label :shipping_category_id, Spree.t(:shipping_categories) %><span class="required">*</span><br />
-          <%= f.collection_select(:shipping_category_id, @shipping_categories, :id, :name, { :include_blank => Spree.t('match_choices.none') }, { :class => 'select2 fullwidth' }) %>
-          <%= f.error_message_on :shipping_category_id %>
+        <%= f.field_container :available_on do %>
+          <%= f.label :available_on, Spree.t(:available_on) %>
+          <%= f.text_field :available_on, :class => 'datepicker fullwidth' %>
+          <%= f.error_message_on :available_on %>
+        <% end %>
+      </div>
+
+
+      <div class="four columns">
+        <%= f.field_container :type do %>
+          <%= f.label :product_type, "Deprecated Type" %><br />
+          <%= f.select :product_type, Spree::Product::types.collect {|p| [ Spree.t(p),p ] }, {:include_blank => false}, {:class => 'select2 fullwidth'} %>
+          <%= f.error_message_on :product_type %>
+        <% end %>
+      </div>
+
+
+      <div class="four columns">
+        <%= f.field_container :prototype do %>
+          <%= f.label :prototype_id, Spree.t(:prototype) %><br />
+        <%= f.collection_select :prototype_id, Spree::Prototype.all, :id, :name, {:include_blank => true}, {:class => 'select2 fullwidth'} %>
         <% end %>
       </div>
     </div>

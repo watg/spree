@@ -5,6 +5,9 @@ Spree::Core::Engine.routes.draw do
   namespace :admin do
     get '/search/users', :to => "search#users", :as => :search_users
 
+    get '/products_overview', :to => 'products_overview#index'
+    post '/products_overview', :to => 'products_overview#update'
+
     resources :index_pages do
       resources :items, controller: "index_page_items" do
         member do
