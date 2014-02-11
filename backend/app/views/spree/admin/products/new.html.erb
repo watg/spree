@@ -18,7 +18,7 @@
       <div class="omega four columns">
         <%= f.field_container :type do %>
           <%= f.label :martin_type_id, Spree.t(:type) %><br />
-          <%= f.collection_select :martin_type_id, Spree::MartinProductType.all, :id, :name, {:include_blank => false}, {:class => 'select2 fullwidth'} %>
+          <%= f.collection_select :martin_type_id, Spree::MartinProductType.all, :id, :title, {:include_blank => false}, {:class => 'select2 fullwidth'} %>
           <%= f.error_message_on :martin_type_id %>
         <% end %>
       </div>
@@ -70,16 +70,6 @@
           <%= f.error_message_on :available_on %>
         <% end %>
       </div>
-
-
-      <div class="four columns">
-        <%= f.field_container :type do %>
-          <%= f.label :product_type, "Deprecated Type" %><br />
-          <%= f.select :product_type, Spree::Product::types.collect {|p| [ Spree.t(p),p ] }, {:include_blank => false}, {:class => 'select2 fullwidth'} %>
-          <%= f.error_message_on :product_type %>
-        <% end %>
-      </div>
-
 
       <div class="four columns">
         <%= f.field_container :prototype do %>
