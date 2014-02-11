@@ -192,7 +192,7 @@ module Spree
             if product.is_a?(Variant) && !product.product.variant_images_including_targetted.empty?
               create_product_image_tag(product.product.variant_images_including_targetted.first, product, options, style)
             else
-              image_tag "noimage/#{style}.png", options
+              cdn_image_tag "noimage/#{style}.png", options
             end
           end
         else

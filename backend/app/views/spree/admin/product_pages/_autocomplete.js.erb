@@ -4,7 +4,7 @@
       {{#if item.image_url }}
         <img src='{{item.image_url}}' />
       {{ else }}
-        <img src='<%= image_path("noimage/mini.png") %>' />
+        <img src='<%= image_path(cdn_url("noimage/mini.png")) %>' />
       {{/if}}
     </figure>
 
