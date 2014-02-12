@@ -47,6 +47,7 @@ module Spree
     has_many :index_page_items
 
     before_validation :set_cost_currency
+    before_validation :generate_variant_number, on: :create
 
     after_create :create_stock_items
     after_create :set_position
@@ -64,6 +65,8 @@ module Spree
     scope :available, lambda { joins(:product).where("spree_products.available_on <= ?", Time.zone.now)  }
 
     scope :in_stock, lambda { where(in_stock_cache: true) }
+
+    NUMBER_PREFIX = 'V'
 
     class << self
       def physical
@@ -97,6 +100,21 @@ module Spree
         selector.reorder('amount').first
       end
 
+    end
+
+    def generate_variant_number(force: false)
+      record = true
+      while record
+        random = "#{NUMBER_PREFIX}#{Array.new(9){rand(9)}.join}"
+        record = self.class.where(number: random).first
+      end
+      self.number = random if self.number.blank? || force
+      self.number
+    end
+
+
+    def self.is_number(variant_id)
+      !variant_id.match(/^#{NUMBER_PREFIX}\d+/).nil?
     end
 
     def images_for(target)
