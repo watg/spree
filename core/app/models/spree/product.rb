@@ -47,6 +47,8 @@ module Spree
     belongs_to :gang_member,       class_name: 'Spree::GangMember'
     belongs_to :product_group,     class_name: 'Spree::ProductGroup', touch: true
 
+    belongs_to :martin_type, class_name: 'Spree::MartinProductType'
+
     validates :product_group, :presence => true
     validates :gang_member, :presence => true
 
