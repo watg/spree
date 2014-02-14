@@ -52,7 +52,10 @@ module Spree
     end
 
     def credit(credit_cents, source, response_code, gateway_options = {})
-      true
+      Class.new do
+        def success?; true; end
+        def authorization; nil; end
+      end.new
     end
   end
 end
