@@ -47,8 +47,8 @@ module Spree
           variant = Variant.unscoped.find(li.variant_id)
 
           shipped_at = ''
-          if !o.shipment.shipped_at.blank? 
-            shipped_at = o.shipment.shipped_at.to_s(:db)
+          if !o.shipments.last.shipped_at.blank? 
+            shipped_at = o.shipments.last.shipped_at.to_s(:db)
           end
 
           yield csv_array( li, o, shipped_at, variant, li.quantity, previous_users )
