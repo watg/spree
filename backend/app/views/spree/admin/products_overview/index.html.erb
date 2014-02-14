@@ -4,6 +4,30 @@
 
 <%= render :partial => 'spree/admin/shared/product_sub_menu' %>
 
+<% content_for :table_filter do %>
+  <div>
+
+    <%= form_tag('products_overview', method: :get) do |f| %>
+
+        <div data-hook="admin_product_pages_index_search">
+          <div class="alpha nine columns">
+            <div class="field">
+              <%= label_tag :name_cont, Spree.t(:name) %>
+              <%= text_field_tag :name_cont %>
+            </div>
+          </div>
+        </div>
+
+        <div class="clear"></div>
+
+        <div class="form-buttons actions filter-actions">
+          <%= button Spree.t(:search), 'icon-search' %>
+        </div>
+    <% end %>
+  </div>
+<% end %>
+
+
 <%= form_tag do |f| %>
   
   <%= paginate @products %>
@@ -36,6 +60,7 @@
             <%= product.id %>
             <%= hidden_field_tag "products[]id", product.id %>
             <%= hidden_field_tag "page", params[:page] %>
+            <%= hidden_field_tag "name_cont", params[:name_cont] %>
           <td class="align-center"><%= link_to product.name, edit_admin_product_path(product) %></td>
           <td class="align-center"><%= product.product_type %></td>
           <td class="align-center"><%= product.first_variant_or_master.in_stock_cache %></td>
