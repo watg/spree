@@ -5,7 +5,7 @@ describe Spree::Calculator::PercentPerItem do
   let!(:product1) { double("Product") }
   let!(:product2) { double("Product") }
   let!(:line_items) { [double("LineItem", :quantity => 5, :product => product1, :price => 10), double("LineItem", :quantity => 1, :product => product2, :price => 10)] }
-  let!(:object) { double("Order", :line_items => line_items) }
+  let!(:object) { double("Order", :line_items_without_gift_cards => line_items) }
 
   let!(:promotion_calculable) { double("Calculable", :promotion => promotion) }
 

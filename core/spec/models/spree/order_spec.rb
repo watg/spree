@@ -16,6 +16,18 @@ describe Spree::Order do
     Spree::LegacyUser.stub(:current => mock_model(Spree::LegacyUser, :id => 123))
   end
 
+  context "#internal?" do
+    it "returns true when order is marked as such" do
+      order = build(:order, internal: true)
+      expect(order.internal?).to be_true 
+    end
+
+    it "return false by default" do
+      order = build(:order)
+      expect(order.internal?).to be_false
+    end
+  end
+
   context "#products" do
     before :each do
       @variant1 = mock_model(Spree::Variant, :product => "product1")
@@ -547,7 +559,7 @@ describe Spree::Order do
     let!(:line_item) { create(:line_item) }
     let!(:shipping_method) do
       sm = create(:shipping_method)
-      sm.calculator.preferred_amount = 10
+      sm.calculator.preferred_amount = [{type: :integer, name: "USD", value: 10}]
       sm.save
       sm
     end
@@ -704,6 +716,7 @@ describe Spree::Order do
     context "state == 'failed'" do
       let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, state: 'failed')]) }
       it "returns true if the order has state == 'failed'" do
+        DatabaseCleaner.clean # otherwise stack level too deep error with :state => 'failed'
         order.is_risky?.should == true
       end
     end
@@ -757,10 +770,10 @@ describe Spree::Order do
       payment_method = Spree::PaymentMethod.create!({
         :name => "Fake",
         :active => true,
-        :display_on => "both",
+        :display_on => nil,
         :environment => Rails.env
       })
-      expect(order.available_payment_methods.count).to eq(1)
+      expect(order.available_payment_methods.select{ |m| m.name == 'Fake'}.count).to eq(1)
       expect(order.available_payment_methods).to include(payment_method)
     end
   end

@@ -47,6 +47,14 @@ describe Spree::StockItem do
       copy.count_on_hand.should eq(current_on_hand + 10)
     end
 
+
+    context "Delayed Job" do
+      it "creates a job after save" do
+        expect(::Delayed::Job).to receive(:enqueue)
+        subject.save
+      end
+    end
+
     context "item out of stock (by two items)" do
       let(:inventory_unit) { double('InventoryUnit') }
       let(:inventory_unit_2) { double('InventoryUnit2') }
