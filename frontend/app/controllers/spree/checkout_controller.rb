@@ -56,13 +56,13 @@ module Spree
     def update_mailchimp(hash)
       mc_data = {
         email:          hash[:signupEmail],
+        source:         hash[:source],
         action:         (!hash[:subscribe].blank? && hash[:subscribe] ? :subscribe : :unsubscribe ),
         request_params: hash.to_json
       }
       mc = Mailchimp.new(mc_data)
       if mc && mc.valid?
         mc.save
-        mc.delay.process_request
       end
     end
     
