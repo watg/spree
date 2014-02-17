@@ -4,7 +4,7 @@ module Spree
 
     belongs_to :product, touch: true, class_name: 'Spree::Product'
 
-    delegate_belongs_to :product, :name, :description, :available_on,
+    delegate_belongs_to :product, :name, :description, :permalink, :available_on,
                         :tax_category_id, :shipping_category_id, :meta_description,
                         :meta_keywords, :tax_category, :shipping_category
 
@@ -58,7 +58,7 @@ module Spree
     after_touch { delay(:priority => 20).touch_assemblies_parts if self.assemblies.any? }
 
     # default variant scope only lists non-deleted variants
-    scope :deleted, lambda { where('deleted_at IS NOT NULL') }
+    scope :deleted, lambda { where.not(deleted_at: nil) }
 
     scope :not_deleted, lambda { where("#{Variant.quoted_table_name}.deleted_at IS NULL or #{Variant.quoted_table_name}.deleted_at >= ?", Time.zone.now) }
 
@@ -271,6 +271,12 @@ module Spree
       deleted_at
     end
 
+    def options=(options = {})
+      options.each do |option|
+        set_option_value(option[:name], option[:value])
+      end
+    end
+
     def set_option_value(opt_name, opt_value)
       # no option values on master
       return if self.is_master
@@ -289,7 +295,6 @@ module Spree
         # then we have to check to make sure that the product has the option type
         unless self.product.option_types.include? option_type
           self.product.option_types << option_type
-          self.product.save
         end
       end
 
@@ -322,6 +327,10 @@ module Spree
       !in_stock?(quantity)
     end
 
+    def sku_and_options_text
+      "#{sku} #{options_text}".strip
+    end
+
     # Product may be created with deleted_at already set,
     # which would make AR's default finder return nil.
     # This is a stopgap for that little problem.
@@ -347,6 +356,11 @@ module Spree
         .map{ |ov| [ ov.option_type.url_safe_name, ov.url_safe_name, ov.presentation] }
     end
 
+    # Shortcut method to determine if inventory tracking is enabled for this variant
+    # This considers both variant tracking flag and site-wide inventory tracking settings
+    def should_track_inventory?
+      self.track_inventory? && Spree::Config.track_inventory_levels
+    end
 
     private
     def find_price(currency, type)

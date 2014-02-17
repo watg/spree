@@ -1,0 +1,87 @@
+<% content_for :page_title do %>
+  <%= "Products Overview" %>
+<% end %>
+
+<%= render :partial => 'spree/admin/shared/product_sub_menu' %>
+
+<% content_for :table_filter do %>
+  <div>
+
+    <%= form_tag('products_overview', method: :get) do |f| %>
+
+        <div data-hook="admin_product_pages_index_search">
+          <div class="alpha nine columns">
+            <div class="field">
+              <%= label_tag :name_cont, Spree.t(:name) %>
+              <%= text_field_tag :name_cont %>
+            </div>
+          </div>
+        </div>
+
+        <div class="clear"></div>
+
+        <div class="form-buttons actions filter-actions">
+          <%= button Spree.t(:search), 'icon-search' %>
+        </div>
+    <% end %>
+  </div>
+<% end %>
+
+
+<%= form_tag do |f| %>
+  
+  <%= paginate @products %>
+
+  <table>
+    <colgroup>
+      <col style="width: 5%">
+      <col style="width: 15%">
+      <col style="width: 15%">
+      <col style="width: 15%">
+      <col style="width: 20%">
+      <col style="width: 20%">
+      <col style="width: 10%">
+    </colgroup>
+    <thead>
+      <tr data-hook="option_header">
+        <th>Number</th>
+        <th>Name</th>
+        <th>Current type</th>
+        <th>First variant in stock?</th>
+        <th>Product Group</th>
+        <th>New Product Type</th>
+        <th>Check to update</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @products.each do |product| %>
+        <tr class="<%= cycle('odd', 'even')%>">
+          <td class="align-center">
+            <%= product.id %>
+            <%= hidden_field_tag "products[]id", product.id %>
+            <%= hidden_field_tag "page", params[:page] %>
+            <%= hidden_field_tag "name_cont", params[:name_cont] %>
+          <td class="align-center"><%= link_to product.name, edit_admin_product_path(product) %></td>
+          <td class="align-center"><%= product.product_type %></td>
+          <td class="align-center"><%= product.first_variant_or_master.in_stock_cache %></td>
+          <td class="align-center">
+          <%= select_tag "products[][product_group]", options_from_collection_for_select(Spree::ProductGroup.all, "id", "name", product.product_group_id), {include_blank: true, :class => 'select2 fullwidth'} %>
+          </td>
+          <td class="align-center">
+          <%= select_tag "products[][martin_type]", options_from_collection_for_select(Spree::MartinProductType.all, "id", "name", product.martin_type_id), {include_blank: true, :class => 'select2 fullwidth'} %>
+          </td>          
+          <td class="align-center">
+            <%= check_box_tag "products[]update_flag" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  
+  <%= paginate @products %>
+  
+  <div class="form-buttons filter-actions actions" data-hook="buttons">
+    <%= button Spree.t('actions.update'), 'icon-refresh' %>
+  </div>
+
+<% end %>

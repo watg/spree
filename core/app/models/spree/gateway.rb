@@ -1,6 +1,6 @@
 module Spree
   class Gateway < PaymentMethod
-    delegate_belongs_to :provider, :authorize, :purchase, :capture, :void, :credit
+    delegate :authorize, :purchase, :capture, :void, to: :provider
 
     validates :name, :type, presence: true
 
@@ -49,6 +49,13 @@ module Spree
       return true unless provider_class.respond_to? :supports?
       return false unless source.brand
       provider_class.supports?(source.brand)
+    end
+
+    def credit(credit_cents, source, response_code, gateway_options = {})
+      Class.new do
+        def success?; true; end
+        def authorization; nil; end
+      end.new
     end
   end
 end

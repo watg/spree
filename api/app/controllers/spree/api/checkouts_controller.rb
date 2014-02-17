@@ -16,7 +16,7 @@ module Spree
       end
 
       def next
-        authorize! :update, @order, params[:order_token]
+        authorize! :update, @order, order_token
         @order.next!
         respond_with(@order, default_template: 'spree/api/orders/show', status: 200)
       rescue StateMachine::InvalidTransition
@@ -24,7 +24,7 @@ module Spree
       end
 
       def advance
-        authorize! :update, @order, params[:order_token]
+        authorize! :update, @order, order_token
         while @order.next; end
         respond_with(@order, default_template: 'spree/api/orders/show', status: 200)
       end
@@ -34,10 +34,10 @@ module Spree
       end
 
       def update
-        authorize! :update, @order, params[:order_token]
+        authorize! :update, @order, order_token
         order_params = object_params
         line_items = order_params.delete('line_items_attributes')
-        if @order.update_attributes(object_params)
+        if @order.update_attributes(order_params)
           @order.update_line_items(line_items)
           if current_api_user.has_spree_role?('admin') && user_id.present?
             @order.associate_user!(Spree.user_class.find(user_id))
@@ -67,12 +67,7 @@ module Spree
               object_params[:payments_attributes].first[:amount] = @order.total.to_s
             end
           end
-
-          if params[:order]
-            params.require(:order).permit(permitted_checkout_attributes)
-          else
-            {}
-          end
+          object_params
         end
 
         def user_id
@@ -135,6 +130,10 @@ module Spree
             end
           end
           false
+        end
+
+        def order_token
+          request.headers["X-Spree-Order-Token"] || params[:order_token]
         end
     end
   end

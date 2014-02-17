@@ -2,7 +2,7 @@ Spree::Core::Engine.add_routes do
 
   # root :to => 'home#index'
 
-  resources :products
+  resources :products, :only => [:index, :show]
 
   get '/locale/set', :to => 'locale#set'
 
@@ -24,7 +24,7 @@ Spree::Core::Engine.add_routes do
   get '/orders/populate', :to => populate_redirect
   get '/orders/:id/token/:token' => 'orders#show', :as => :token_order
 
-  resources :orders, :except => [:new, :create] do
+  resources :orders, :except => [:new, :create, :destroy] do
     post :populate, :on => :collection
   end
 

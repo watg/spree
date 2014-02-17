@@ -2,8 +2,8 @@ module Spree
   class TestMailer < BaseMailer
     def test_email(user)
       subject = "#{Spree::Config[:site_name]} #{Spree.t('test_mailer.test_email.subject')}"
-
-      mail(to: user.email, from: from_address, subject: subject)
+      recipient = user.respond_to?(:id) ? user : Spree.user_class.find(user)
+      mail(to: recipient.email, from: from_address, subject: subject)
 
       mandrill_default_headers(tags: "test", template: "#{I18n.locale}_test_email")
       headers['X-MC-MergeVars'] = data.to_json

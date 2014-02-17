@@ -108,21 +108,38 @@ module Spree
         # @search needs to be defined as this is passed to search_form_for
         @search = @collection.ransack(params[:q])
         @collection = @search.result.
-          group_by_products_id.
+          distinct_by_product_ids(params[:q][:s]).
           includes(product_includes).
           page(params[:page]).
           per(Spree::Config[:admin_products_per_page])
 
-        if params[:q][:s].include?("master_default_price_amount")
-          # PostgreSQL compatibility
-          @collection = @collection.group("spree_prices.amount")
-        end
         @collection
       end
 
       def create_before
+        type = Spree::MartinProductType.find(params[:product][:martin_type_id])
+        params[:product][:product_type] = mapping[type.name]
+
         return if params[:product][:prototype_id].blank?
         @prototype = Spree::Prototype.find(params[:product][:prototype_id])
+      end
+
+      def product_includes
+        [{ :variants => [:images, { :option_values => :option_type }], :master => [:images, :default_price]}]
+      end
+
+      def mapping
+        {
+          'peruvian'  => 'product',
+          'gang'      => 'made_by_the_gang',
+          'kit'       => 'kit',
+          'yarn'      => 'accessory',
+          'needle'    => 'accessory',
+          'pattern'   => 'pattern',
+          'e_gift_card' => 'gift_card',
+          'clasp'     => 'accessory',
+          'parcel'    => 'parcel'
+        }
       end
 
       def clone_object_url resource
@@ -131,10 +148,6 @@ module Spree
 
       def permit_attributes
         params.require(:product).permit!
-      end
-
-      def product_includes
-        [{:variants => [:images, {:option_values => :option_type}]}, {:master => [:images, :default_price]}]
       end
 
     end

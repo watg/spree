@@ -27,6 +27,7 @@ module Spree
     belongs_to :adjustable, polymorphic: true
     belongs_to :source, polymorphic: true
     belongs_to :originator, polymorphic: true
+    belongs_to :order, :class_name => 'Spree::Order'
 
     validates :label, presence: true
     validates :amount, numericality: true
@@ -48,17 +49,19 @@ module Spree
       end
     end
 
-    scope :tax, -> { where(originator_type: 'Spree::TaxRate', adjustable_type: 'Spree::Order') }
+    scope :tax, -> { where(originator_type: 'Spree::TaxRate') }
     scope :price, -> { where(adjustable_type: 'Spree::LineItem') }
     scope :shipping, -> { where(originator_type: 'Spree::ShippingMethod') }
     scope :optional, -> { where(mandatory: false) }
     scope :eligible, -> { where(eligible: true) }
-    scope :charge, -> { where('amount >= 0') }
-    scope :credit, -> { where('amount < 0') }
+    scope :charge, -> { where("#{quoted_table_name}.amount >= 0") }
+    scope :credit, -> { where("#{quoted_table_name}.amount < 0") }
     scope :promotion, -> { where(originator_type: 'Spree::PromotionAction') }
     scope :gift_card, -> { where(originator_type: 'Spree::GiftCard') }
     scope :manual, -> { where(originator_type: nil) }
     scope :return_authorization, -> { where(source_type: "Spree::ReturnAuthorization") }
+    scope :included, -> { where(included: true)  }
+    scope :additional, -> { where(included: false) }
 
     def promotion?
       originator_type == 'Spree::PromotionAction'
@@ -98,7 +101,8 @@ module Spree
       # If we attempt to call 'source' before the reload, then source is currently
       # the order object. After calling a reload, the source is the Shipment.
       reload
-      originator.update_adjustment(self, calculable || source) if originator.present?
+      calculable = source unless calculable == source
+      originator.update_adjustment(self, calculable) if originator.present?
       set_eligibility
     end
 

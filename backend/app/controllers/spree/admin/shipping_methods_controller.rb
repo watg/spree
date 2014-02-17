@@ -39,12 +39,6 @@ module Spree
       def load_data
         @available_zones = Spree::Zone.order(:name)
         @calculators = Spree::ShippingMethod.calculators.sort_by(&:name)
-        puts Rails.application.config.spree.calculators.inspect
-        puts "-----------------------------------------------------"
-        puts Spree::ShippingMethod.calculators.inspect
-        puts "-----------------------------------------------------"
-
-        puts @calculators.inspect
       end
     end
   end

@@ -86,9 +86,6 @@ module Spree
     end
 
     def pretty_name
-      self.self_and_parents.map(&:name).reverse.join(' -> ')
-    end
-    def pretty_name_old
       ancestor_chain = self.ancestors.inject("") do |name, ancestor|
         name += "#{ancestor.name} -> "
       end
@@ -104,6 +101,5 @@ module Spree
     def child_index=(idx)
       move_to_child_with_index(parent, idx.to_i) unless self.new_record?
     end
-
   end
 end

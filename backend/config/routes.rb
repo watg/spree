@@ -5,6 +5,9 @@ Spree::Core::Engine.routes.draw do
   namespace :admin do
     get '/search/users', :to => "search#users", :as => :search_users
 
+    get '/products_overview', :to => 'products_overview#index'
+    post '/products_overview', :to => 'products_overview#update'
+
     resources :index_pages do
       resources :items, controller: "index_page_items" do
         member do
@@ -43,11 +46,7 @@ Spree::Core::Engine.routes.draw do
 
     resources :adjustments
     resources :zones
-    resources :banners do
-      member do
-        post :dismiss
-      end
-    end
+
     resources :countries do
       resources :states
     end
@@ -83,6 +82,7 @@ Spree::Core::Engine.routes.draw do
           post :update_positions
         end
       end
+      resources :variants_including_master, :only => [:update]
     end
 
     get '/variants/search', :to => "variants#search", :as => :search_variants
@@ -158,6 +158,8 @@ Spree::Core::Engine.routes.draw do
         member do
           put :fire
         end
+
+        resources :log_entries
       end
     end
 

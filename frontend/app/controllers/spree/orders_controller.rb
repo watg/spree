@@ -29,7 +29,7 @@ module Spree
         respond_with(@order) do |format|
           format.html do
             if params.has_key?(:checkout)
-              @order.next_transition.run_callbacks if @order.cart?
+              @order.next if @order.cart?
               redirect_to checkout_state_path(@order.checkout_steps.first)
             else
               redirect_to cart_path
@@ -43,7 +43,7 @@ module Spree
 
     # Shows the current incomplete order from the session
     def edit
-      @order = current_order(true)
+      @order = current_order || Order.new
       associate_user
     end
 
@@ -73,7 +73,11 @@ module Spree
     end
 
     def accurate_title
-      @order && @order.completed? ? "#{Spree.t(:order)} #{@order.number}" : Spree.t(:shopping_cart)
+      if @order && @order.completed?
+        Spree.t(:order_number, :number => @order.number)
+      else
+        Spree.t(:shopping_cart)
+      end
     end
 
     def check_authorization
@@ -103,7 +107,7 @@ module Spree
           flash[:success] = coupon_result[:success] if coupon_result[:success].present?
           return false
         else
-          flash[:error] = coupon_result[:error]
+          flash.now[:error] = coupon_result[:error]
           respond_with(@order) { |format| format.html { render :edit } }
           return true
         end

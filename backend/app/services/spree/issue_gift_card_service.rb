@@ -9,7 +9,6 @@ module Spree
 
     def execute
       return unless valid_gift_card_variant?
-
       issuance_email(create_gift_card)
     end
     

@@ -32,6 +32,19 @@ describe "Checkout", inaccessible: true do
       end
     end
 
+    # Regression test for #4079
+    context "persists state when on address page" do
+      before do
+        add_mug_to_cart
+        click_button "Checkout"
+      end
+
+      specify do
+        Spree::Order.count.should == 1
+        Spree::Order.last.state.should == "address"
+      end
+    end
+
     # Regression test for #1596
     context "full checkout" do
       before do
@@ -64,9 +77,31 @@ describe "Checkout", inaccessible: true do
         Spree::Order.last.shipments.first.adjustment.state.should_not == "closed"
       end
     end
+
+    #regression test for #3945
+    context "when Spree::Config[:always_include_confirm_step] is true" do
+      before do
+        Spree::Config[:always_include_confirm_step] = true
+      end
+
+      it "displays confirmation step", :js => true do
+        add_mug_to_cart
+        click_button "Checkout"
+
+        fill_in "order_email", :with => "ryan@spreecommerce.com"
+        fill_in_address
+
+        click_button "Save and Continue"
+        click_button "Save and Continue"
+        click_button "Save and Continue"
+
+        continue_button = find(".continue")
+        continue_button.value.should == "Place Order"
+      end
+    end
   end
 
-  #regression test for #2694
+  # Regression test for #2694 and #4117
   context "doesn't allow bad credit card numbers" do
     before(:each) do
       order = OrderWalkthrough.up_to(:delivery)
@@ -79,7 +114,6 @@ describe "Checkout", inaccessible: true do
 
       Spree::CheckoutController.any_instance.stub(:current_order => order)
       Spree::CheckoutController.any_instance.stub(:try_spree_current_user => user)
-      Spree::CheckoutController.any_instance.stub(:skip_state_validation? => true)
     end
 
     it "redirects to payment page", inaccessible: true do
@@ -92,22 +126,24 @@ describe "Checkout", inaccessible: true do
       click_button "Save and Continue"
       click_button "Place Order"
       page.should have_content("Bogus Gateway: Forced failure")
-      click_button "Place Order"
-      page.should have_content("No pending payments")
+      page.current_url.should include("/checkout/payment")
     end
   end
 
   context "and likes to double click buttons" do
-    before(:each) do
-      user = create(:user)
-
+    let!(:user) { create(:user) }
+    
+    let!(:order) do
       order = OrderWalkthrough.up_to(:delivery)
       order.stub :confirmation_required? => true
 
       order.reload
       order.user = user
       order.update!
+      order
+    end
 
+    before(:each) do
       Spree::CheckoutController.any_instance.stub(:current_order => order)
       Spree::CheckoutController.any_instance.stub(:try_spree_current_user => user)
       Spree::CheckoutController.any_instance.stub(:skip_state_validation? => true)
@@ -125,6 +161,7 @@ describe "Checkout", inaccessible: true do
     end
 
     it "prevents double clicking the confirm button on checkout", :js => true do
+      order.payments << create(:payment)
       visit spree.checkout_state_path(:confirm)
 
       # prevent form submit to verify button is disabled
@@ -297,6 +334,41 @@ describe "Checkout", inaccessible: true do
         click_on "Save and Continue"
         expect(current_path).to eql(spree.order_path(Spree::Order.last))
       end
+    end
+  end
+
+  context "order has only payment step" do
+    before do
+      create(:bogus_payment_method)
+      @old_checkout_flow = Spree::Order.checkout_flow
+      Spree::Order.class_eval do
+        checkout_flow do
+          go_to_state :payment
+          go_to_state :confirm
+        end
+      end
+
+      Spree::Order.any_instance.stub email: "spree@commerce.com"
+
+      add_mug_to_cart
+      click_on "Checkout"
+    end
+
+    after do
+      Spree::Order.checkout_flow(&@old_checkout_flow)
+    end
+
+    it "goes right payment step and place order just fine" do
+      expect(current_path).to eq spree.checkout_state_path('payment')
+
+      choose "Credit Card"
+      fill_in "Card Number", :with => '4111111111111111'
+      fill_in "card_expiry", :with => '04 / 20'
+      fill_in "Card Code", :with => '123'
+      click_button "Save and Continue"
+
+      expect(current_path).to eq spree.checkout_state_path('confirm')
+      click_button "Place Order"
     end
   end
 

@@ -83,11 +83,12 @@ module Spree
 
           credit_amount ||= credit_allowed >= order.outstanding_balance.abs ? order.outstanding_balance.abs : credit_allowed.abs
           credit_amount = credit_amount.to_f
+          credit_cents = Spree::Money.new(credit_amount, currency: currency).money.cents
 
           if payment_method.payment_profiles_supported?
-            response = payment_method.credit((credit_amount * 100).round, source, response_code, gateway_options)
+            response = payment_method.credit(credit_cents, source, response_code, gateway_options)
           else
-            response = payment_method.credit((credit_amount * 100).round, response_code, gateway_options)
+            response = payment_method.credit(credit_cents, response_code, gateway_options)
           end
 
           record_response(response)
@@ -114,14 +115,15 @@ module Spree
       end
 
       def gateway_options
-        options = { :email    => order.email,
-                    :customer => order.email,
-                    :ip       => order.last_ip_address,
+        options = { :email       => order.email,
+                    :customer    => order.email,
+                    :customer_id => order.user_id,
+                    :ip          => order.last_ip_address,
                     # Need to pass in a unique identifier here to make some
                     # payment gateways happy.
                     #
                     # For more information, please see Spree::Payment#set_unique_identifier
-                    :order_id => gateway_order_id }
+                    :order_id    => gateway_order_id }
 
         options.merge!({ :shipping => order.ship_total * 100,
                          :tax      => order.tax_total * 100,
@@ -141,7 +143,7 @@ module Spree
         protect_from_connection_error do
           check_environment
 
-          response = payment_method.send(action, (amount * 100).round,
+          response = payment_method.send(action, money.money.cents,
                                          source,
                                          gateway_options)
           handle_response(response, success_state, :failure)

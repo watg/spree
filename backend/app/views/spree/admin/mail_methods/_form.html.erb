@@ -53,22 +53,22 @@
         <div class="field">
           <%= label_tag :mail_port, Spree.t(:smtp_port) %><br />
           <%= text_field_tag :mail_port, Spree::Config[:mail_port], :class => 'fullwidth' %>
-        </div>
+        </div>  
         <div class="field">
           <%= label_tag :secure_connection_type, Spree.t(:secure_connection_type) %><br />
-          <%= select_tag(:secure_connection_type, options_from_collection_for_select(Spree::Core::MailSettings::SECURE_CONNECTION_TYPES.map{|w| Spree.t(w.downcase.to_sym, :default => w)}, :to_s, :to_s, Spree::Config[:secure_connection_type]), :class => 'select2 fullwidth') %>
+          <%= select_tag(:secure_connection_type, options_from_collection_for_select(Spree::Core::MailSettings::SECURE_CONNECTION_TYPES.map{|w| Spree.t(w.downcase.to_sym, :default => w, :scope => 'mail_settings.security')}, :to_s, :to_s, Spree::Config[:secure_connection_type]), :class => 'select2 fullwidth') %>
         </div>
         <div class="field">
           <%= label_tag :mail_auth_type, Spree.t(:smtp_authentication_type) %><br />
-          <%= select_tag(:mail_auth_type, options_from_collection_for_select(Spree::Core::MailSettings::MAIL_AUTH.map{|w| Spree.t(w.downcase.to_sym, :default => w)}, :to_s, :to_s, Spree::Config[:mail_auth_type]), :class => 'select2 fullwidth') %>
+          <%= select_tag(:mail_auth_type, options_from_collection_for_select(Spree::Core::MailSettings::MAIL_AUTH.map{|w| Spree.t(w.downcase.to_sym, :default => w, :scope => 'mail_settings.auth')}, :to_s, :to_s, Spree::Config[:mail_auth_type]), :class => 'select2 fullwidth') %>
         </div>
         <div class="field">
           <%= label_tag :smtp_username, Spree.t(:smtp_username) %><br />
-          <%= text_field_tag :smtp_username, Spree::Config[:smtp_username], :class => 'fullwidth' %>
+          <%= text_field_tag :smtp_username, Spree::Config[:smtp_username], :class => 'fullwidth', :autocomplete => 'off' %>
         </div>
         <div class="field">
           <%= label_tag :preferred_smtp_password, Spree.t(:smtp_password) %><br />
-          <%= password_field_tag :smtp_password, Spree::Config[:smtp_password], :class => 'fullwidth' %>
+          <%= password_field_tag :smtp_password, Spree::Config[:smtp_password], :class => 'fullwidth', :autocomplete => 'off' %>
         </div>
       </fieldset>
     </div>

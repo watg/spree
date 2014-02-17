@@ -23,6 +23,5 @@ module Spree
     def touch_all_products
       products.each(&:touch)
     end
-
   end
 end
