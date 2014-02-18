@@ -61,6 +61,10 @@ module Spree
       order.total = order.item_total + order.adjustment_total
     end
 
+    def self.shipment_states
+      %w{shipped partial ready backorder pending}
+    end
+
     # Updates the +shipment_state+ attribute according to the following logic:
     #
     # shipped   when all Shipments are in the "shipped" state
@@ -92,6 +96,10 @@ module Spree
       end
 
       order.state_changed('shipment')
+    end
+
+    def self.payment_states
+      %w{paid balance_due credit_owed failed}
     end
 
     # Updates the +payment_state+ attribute according to the following logic:
