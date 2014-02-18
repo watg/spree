@@ -39,6 +39,7 @@ module Spree
         new_master.deleted_at = nil
         new_master.images = master.images.map { |image| duplicate_image image }
         new_master.prices = master.prices.map { |price| duplicate_price price }
+        new_master.generate_variant_number(force: true)
       end
     end
 

@@ -3,7 +3,12 @@ module Spree
   module Admin
     class ProductsOverviewController < Spree::Admin::BaseController
       def index
-        @products = Spree::Product.order("id").page(params[:page]).per(50)
+        if params[:name_cont]
+          params[:name_cont] = '%' + params[:name_cont] + '%'
+          @products = Spree::Product.where("spree_products.name ILIKE ?", params[:name_cont]).order("id").page(params[:page]).per( 50 )
+        else
+          @products = Spree::Product.order("id").page(params[:page]).per( 50 )
+        end
       end
 
       def update
@@ -13,7 +18,7 @@ module Spree
             p.update_attributes(martin_type_id: product[:martin_type], product_group_id: product[:product_group])
           end
         end
-        redirect_to action: "index", page: params[:page]
+        redirect_to action: "index", page: params[:page], name_cont: params[:name_cont]
       end
 
     end

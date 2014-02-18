@@ -115,9 +115,9 @@ module Spree
       product_type_totals = generate_product_type_totals(o)
 
       shipped_at = ''
-      if !o.shipment.nil? 
-        if !o.shipment.shipped_at.blank? 
-          shipped_at = o.shipment.shipped_at.to_s(:db)
+      if !o.shipments.last.nil? 
+        if !o.shipments.last.shipped_at.blank? 
+          shipped_at = o.shipments.last.shipped_at.to_s(:db)
         end
       end
 
@@ -128,8 +128,8 @@ module Spree
         end
       end
 
-      if !o.shipment.nil?
-        shipping_methods = o.shipment.shipping_methods
+      if !o.shipments.last.nil?
+        shipping_methods = o.shipments.last.shipping_methods
       end
 
       promo_label = o.adjustments.promotion.first.label if o.adjustments.promotion.first.present?
