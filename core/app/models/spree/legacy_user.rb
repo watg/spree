@@ -14,6 +14,15 @@ module Spree
       true
     end
 
+    def self.find_or_create_unenrolled(email, tracking_cookie)
+      Spree::LegacyUser.where(email: email).first_or_create do |user|
+        user.email = email
+        user.uuid = tracking_cookie
+        user.enrolled = false
+        user.password_salt = 'random_salt'
+      end
+    end
+
     attr_accessor :password
     attr_accessor :password_confirmation
 
