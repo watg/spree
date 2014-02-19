@@ -90,7 +90,7 @@ module Spree
       :meta_description, :meta_keywords, :meta_title, :child_index, :page_id, :page_type]
 
     # TODO Should probably use something like Spree.user_class.attributes
-    @@user_attributes = [:email, :password, :password_confirmation]
+    @@user_attributes = [:email, :password, :password_confirmation, :subscribed]
 
     @@variant_attributes = [
       :name, :presentation, :cost_price, :lock_version,

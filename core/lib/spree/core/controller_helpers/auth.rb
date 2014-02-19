@@ -24,7 +24,7 @@ module Spree
         def unauthorized
           if try_spree_current_user
             flash[:error] = Spree.t(:authorization_failure)
-            redirect_to '/unauthorized'
+            redirect_to spree.unauthorized_path
           else
             store_location
             redirect_to respond_to?(:spree_login_path) ? spree_login_path : spree.root_path
