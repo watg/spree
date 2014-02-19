@@ -81,7 +81,7 @@ module Spree
               variants = variants.active
             end
           end
-          variants
+          variants.where('spree_products.product_type <> ?', 'virtual_product' )
         end
 
         def variant_params
