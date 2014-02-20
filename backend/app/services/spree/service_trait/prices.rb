@@ -15,23 +15,18 @@ module Spree
         end
       end
 
-    # Not in use yet but maybe one day it will come in handy
-    #  def validate_prices(prices_by_type, variant_in_sale_ids_set, variant_id )
-    #    prices_by_type.each do |type, prices|
-    #      prices.each do |currency,value|
-    #        price = parse_price(value)
-    #        if price < 0.01
-    #          if type != SALE 
-    #            variant = Spree::Variant.find(variant_id)
-    #            add_error(:price, :range_mismatch, "variant: #{variant.options_text} price can not be less than 0.01" )
-    #          elsif variant_in_sale_ids_set.include? variant_id.to_s
-    #            variant = Spree::Variant.find(variant_id)
-    #            add_error(:price, :range_mismatch, "variant: #{variant.options_text} price can not be less than 0.01" )
-    #          end
-    #        end
-    #      end
-    #    end
-    #  end
+      def validate_prices(prices)
+        Spree::Config[:supported_currencies].split(',').each do |currency|
+          p = prices[:normal][currency]
+          if p.nil?
+            add_error(:variant, :price, "price not set for type: normal, currency: #{currency}") 
+          else
+            if Spree::Price.parse_price(p) <= 0
+              add_error(:variant, :price, "amount can not be <= 0 for currency: #{currency} and normal price")
+            end
+          end
+        end
+      end
 
     end
   end

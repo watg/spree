@@ -51,7 +51,6 @@ module Spree
 
     after_create :create_stock_items
     after_create :set_position
-
     after_touch :touch_index_page_items
 
     # This can take a while so run it asnyc with a low priority for now
@@ -78,7 +77,6 @@ module Spree
       end
 
       def active(currency = nil)
-        #joins(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
         includes(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
       end
 

@@ -6,7 +6,7 @@ module Spree
       def create
         outcome = Spree::VariantPricesService.run(filtered_params)
         if !outcome.success?
-          flash[:error] = outcome.errors.message_list.join(', ')
+          flash.now[:error] = outcome.errors.message_list.join(', ')
         end
         render :index
       end
