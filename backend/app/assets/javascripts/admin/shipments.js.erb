@@ -2,7 +2,6 @@
 $(document).ready(function () {
   'use strict';
 
-
   // handle variant selection, show stock level.
   $('#add_variant_id').change(function(){
     var variant_id = $(this).val();
@@ -179,6 +178,7 @@ toggleItemEdit = function(){
   link.parent().find('a.delete-item').toggle();
   link.parents('tr').find('td.item-qty-show').toggle();
   link.parents('tr').find('td.item-qty-edit').toggle();
+  link.parents('tr').find('td.item-qty-edit input').width('60px');
 
   return false;
 }
