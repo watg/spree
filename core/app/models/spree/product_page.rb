@@ -41,7 +41,7 @@ module Spree
     end
 
     def all_variants
-      products.where("product_type <> 'virtual_product' ").map(&:all_variants_or_master).flatten
+      products.where("product_type <> 'virtual_product' ").map(&:all_variants_or_master).flatten.uniq
     end
 
     def non_kit_variants_with_target

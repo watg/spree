@@ -60,19 +60,19 @@ module Spree
       ::Delayed::Job.enqueue Spree::StockCheckJob.new(self), queue: 'stock_check', priority: 10
     end
 
-      def count_on_hand=(value)
-        write_attribute(:count_on_hand, value)
-      end
+    def count_on_hand=(value)
+      write_attribute(:count_on_hand, value)
+    end
 
-      # Process backorders based on amount of stock received
-      # If stock was -20 and is now -15 (increase of 5 units), then we should process 5 inventory orders.
-      # If stock was -20 but then was -25 (decrease of 5 units), do nothing.
-      def process_backorders(number)
-        if number > 0
-          backordered_inventory_units.first(number).each do |unit|
-            unit.fill_backorder
-          end
+    # Process backorders based on amount of stock received
+    # If stock was -20 and is now -15 (increase of 5 units), then we should process 5 inventory orders.
+    # If stock was -20 but then was -25 (decrease of 5 units), do nothing.
+    def process_backorders(number)
+      if number > 0
+        backordered_inventory_units.first(number).each do |unit|
+          unit.fill_backorder
         end
       end
+    end
   end
 end
