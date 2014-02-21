@@ -1,6 +1,69 @@
-<footer id="footer" class="sixteen columns" data-hook>
-  <div id="footer-left" class="columns alpha eight" data-hook>
-    <p><%= Spree.t :powered_by  %> <%= link_to 'Spree', 'http://spreecommerce.com/' %></p>
+<% cache Spree::Taxonomy.all do %>
+  <!-- Global footer -->
+  <footer class="row">
+  <!-- Newsletter signup / social media -->
+  <div class="marketing large-6 columns">
+
+    <form action="http://woolandthegang.us7.list-manage.com/subscribe/post?u=cdf3865c6f399972e5d491ea2&amp;id=ab2a39b40c" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="newsletter-subscribe">
+      <label for="mce-EMAIL">Sign up for wooly news</label>
+      <input type="email" value="" name="EMAIL" id="mce-EMAIL" placeholder="Enter your email here" />
+      <button type="submit">Submit</button>
+    </form>
+
+    <section class="social">
+    <h6 class="watg-font">Hang out with The Gang</h6>
+    <%= link_to(:twitter,"http://twitter.com/woolandthegang", {target: '_blank', class: 'twitter'}) %>
+    <%= link_to(:facebook,"http://www.facebook.com/pages/Wool-and-the-Gang/45057178937?ref=ts", {target: '_blank', class: 'facebook'}) %>
+    <%= link_to(:pinterest,"http://www.pinterest.com/woolandthegang/", {target: '_blank', class: 'pinterest'}) %>
+    <%= link_to(:youtube,"http://www.youtube.com/user/WOOLANDTHEGANGsa", {target: '_blank', class: 'youtube'}) %>
+    <%= link_to(:tumblr,"http://blog.woolandthegang.com/", {target: '_blank', class: 'tumblr'}) %>
+    <%= link_to(:instagram,"http://instagram.com/woolandthegang", {target: '_blank', class: 'instagram'}) %>
+    </section>
+
   </div>
-  <div id="footer-right" class="columns omega eight" data-hook></div>
-</footer>
+
+  <section class="footer-global-unit gang-culture large-2 columns">
+  <h6>Gang Culture</h6>
+  <ul class="sub-menu">
+    <li><%= link_to('Our Blog', 'http://blog.woolandthegang.com/') %></li>
+    <li><%= link_to('Meet the Gang', '/meet-the-gang') %></li>
+    <li><%= link_to('Gang Manifesto', '/gang-manifesto') %></li>
+	  <li><%= link_to('Become a Gang Maker', '/become-a-gang-maker') %></li>
+    <li><%= link_to('Video Tutorials', '/video-tutorials') %></li>
+    <li><%= link_to('Bespoke Projects', '/bespoke-projects') %></li>
+    <li><%= link_to('Press', '/press') %></li>
+  </ul>
+  </section>
+  <section class="footer-global-unit shop large-2 columns">
+  <h6>Shop</h6>
+  <ul class="sub-menu">
+    <% if !Flip.product_pages? %>
+      <% get_taxonomies.each do |taxonomy| %>
+        <li><%= link_to( Spree.t(taxonomy.name), seo_url(taxonomy.root) ) %></li>
+      <% end %>
+    <% else %>
+      <li><%= link_to('Collections', '/shop/knitwear/collections') %></li>
+      <li><%= link_to('Women', '/shop/knitwear/women') %></li>
+      <li><%= link_to('Men', '/shop/knitwear/men') %></li>
+      <li><%= link_to('Kids', '/shop/knitwear/kids') %></li>
+      <li><%= link_to('Knitting', '/shop/knitwear/knitting') %></li>
+    <% end %>
+  </ul>
+  </section>
+  <section class="footer-global-unit help large-2 columns">
+  <h6>Help</h6>
+  <ul class="sub-menu">
+    <li><%= link_to('FAQs', '/faqs') %></li>
+    <li><%= link_to('Careers', '/careers') %></li>
+    <li><%= link_to('Contact Us', '/contact-us') %></li>
+    <li><%= link_to('T’s & C’s', '/terms-and-conditions') %></li>
+    <li><%= link_to('Privacy', '/privacy') %></li>
+  </ul>
+  </section>	
+  </footer>
+<% end %>
+
+<!-- Cookie message -->
+<div class="row row-cookie">
+	<p><span>Hello there!</span> This website uses cookies. If you're down with that, just carry on as you were. <a href="#">Don't show this message again</a>.</p>
+</div>

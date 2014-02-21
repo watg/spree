@@ -1,0 +1,80 @@
+<!-- Primary global navigation -->
+<!-- main menu -->
+<% cache [Spree::Taxonomy.all, Flip.product_pages?] do %>
+<nav class="row nav-global" id="navGlobal">
+  <% if !Flip.product_pages? %>
+	<ul class="primary-menu">
+		<% get_taxonomies.each do |taxonomy| %>
+		<li class="nav-global-section <%= taxonomy.name.sub(/\s+/,'-').downcase %>">
+			<%= link_to( taxonomy.name, seo_url(taxonomy.root) ) %>
+			<ul class="sub-menu">
+				<% if taxonomy.root.children.any? %>
+				<% taxonomy.root.children.each do |sub_taxonomy| %>
+				<li><%= link_to( sub_taxonomy.name, seo_url(sub_taxonomy) ) %></li>
+				<% end %>
+				<% end %>
+			</ul>
+		</li>
+		<% end %>
+		<li class="nav-global-section gang-culture">
+			<a href="/meet-the-gang">Gang Culture</a>
+			<ul class="sub-menu">
+				<li><a href="http://blog.woolandthegang.com/">Our Blog</a></li>
+				<li><a href="/meet-the-gang">Meet The Gang</a></li>
+				<li><a href="/gang-manifesto">Gang Manifesto</a></li>
+				<li><a href="/become-a-gang-maker">Become a Gang Maker</a></li>
+				<li><a href="/video-tutorials">Video Tutorials</a></li>
+				<li><a href="/bespoke-projects">Bespoke Projects</a></li>
+				<li><a href="/press">Press</a></li>
+			</ul>
+		</li>
+	</ul>
+  <% else %>
+
+	<ul class="primary-menu">
+		<li class="nav-global-section collections">
+			<a href="/shop/knitwear/collections">Collections</a>
+			<ul class="sub-menu">
+				<%= render 'spree/navigation/collections' %>
+			</ul>
+		</li>
+		<li class="nav-global-section women">
+			<a href="/shop/knitwear/women">Women</a>
+			<ul class="sub-menu">
+				<%= render 'spree/navigation/women' %>
+			</ul>
+		</li>
+		<li class="nav-global-section men">
+			<a href="/shop/knitwear/men">Men</a>
+			<ul class="sub-menu">
+				<%= render 'spree/navigation/men' %>
+			</ul>
+		</li>
+		<li class="nav-global-section kids">
+			<a href="/shop/knitwear/kids">Kids</a>
+			<ul class="sub-menu">
+				<%= render 'spree/navigation/kids' %>
+			</ul>
+		</li>
+		<li class="nav-global-section knitting">
+			<a href="/shop/knitwear/knitting">Knitting</a>
+			<ul class="sub-menu">
+				<%= render 'spree/navigation/knitting' %>
+			</ul>
+		</li>
+		<li class="nav-global-section gang-culture">
+			<a href="/meet-the-gang">Gang Culture</a>
+			<ul class="sub-menu">
+				<li><a href="http://blog.woolandthegang.com/">Our Blog</a></li>
+				<li><a href="/meet-the-gang">Meet The Gang</a></li>
+				<li><a href="/gang-manifesto">Gang Manifesto</a></li>
+				<li><a href="/become-a-gang-maker">Become a Gang Maker</a></li>
+				<li><a href="/video-tutorials">Video Tutorials</a></li>
+				<li><a href="/bespoke-projects">Bespoke Projects</a></li>
+				<li><a href="/press">Press</a></li>
+			</ul>
+		</li>
+	</ul>
+  <% end %>
+</nav>
+<% end %>
