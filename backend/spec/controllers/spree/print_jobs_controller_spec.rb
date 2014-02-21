@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::Admin::PrintJobsController, type: :controller do
-  stub_admin_user
+  stub_authorization!
 
   describe "#index" do
     let!(:print_jobs) { [FactoryGirl.create(:print_job)] }

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::Admin::IndexPageItemsController,  type: :controller do
-  stub_admin_user
+  stub_authorization!
   let(:index_page) { create(:index_page) }
 
   describe "POST #create" do

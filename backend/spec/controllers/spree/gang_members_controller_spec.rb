@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Spree::Admin::GangMembersController, type: :controller do
   let(:gang_member) {create(:gang_member)}
-  stub_admin_user
+  stub_authorization!
 
   it 'can edit gang member' do
     spree_get :edit, id: gang_member.permalink

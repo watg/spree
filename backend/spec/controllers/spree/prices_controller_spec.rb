@@ -2,7 +2,7 @@
 require 'spec_helper'
 
 describe Spree::Admin::PricesController, type: :controller do
-  stub_admin_user
+  stub_authorization!
   let(:product) { FactoryGirl.create(:product_with_variants, product_type: :part) }
   let(:outcome) { OpenStruct.new(:success? => true) }
   

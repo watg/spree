@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'alerts', type: :controller  do
-  stub_admin_user
+  stub_authorization!
 
   controller(Spree::Admin::BaseController) do
     def index

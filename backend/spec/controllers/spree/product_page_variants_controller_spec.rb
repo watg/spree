@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::Admin::ProductPageVariantsController, type: :controller do
-  stub_admin_user
+  stub_authorization!
   let(:product_page) { create(:product_page) }
 
   describe "GET #index" do

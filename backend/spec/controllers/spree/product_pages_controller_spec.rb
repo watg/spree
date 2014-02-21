@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::Admin::ProductPagesController, type: :controller do
-  stub_admin_user
+  stub_authorization!
 
   describe "#update" do
     let(:product_page) { create(:product_page) }

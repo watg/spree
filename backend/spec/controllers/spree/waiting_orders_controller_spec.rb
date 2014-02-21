@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::Admin::WaitingOrdersController, type: :controller do
-  stub_admin_user
+  stub_authorization!
   let(:box_group) { create(:product_group, name: 'box')}
   let(:small_box) { create(:product, product_type: :product, individual_sale: false, product_group_id: box_group.id) }
   let(:params) { build_valid_params }

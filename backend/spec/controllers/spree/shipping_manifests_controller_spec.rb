@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::Admin::ShippingManifestsController, type: :controller do
-  stub_admin_user
+  stub_authorization!
   context "#index" do
     it "should find available manifests" do
       expect(Metapack::Client).to receive(:find_ready_to_manifest_records).and_return(:manifests)

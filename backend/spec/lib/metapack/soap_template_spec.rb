@@ -8,7 +8,7 @@ describe Metapack::SoapTemplate do
   its(:template_path) { should match(%r{/templates/manifest.xml.erb$}) }
 
   describe "xml" do
-    let(:fixture_path) { File.join(Rails.root, "spec", "fixtures", "xml", "label.xml.erb") }
+    let(:fixture_path) { get_fixture('label.xml.erb') }
     let(:fixture) { File.read(fixture_path) }
     subject { Metapack::SoapTemplate.new(:manifest) }
 

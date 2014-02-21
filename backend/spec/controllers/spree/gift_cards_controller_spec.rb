@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::Admin::GiftCardsController, type: :controller do
-  stub_admin_user
+  stub_authorization!
 
   it 'list all gift_cards' do
     spree_get :index

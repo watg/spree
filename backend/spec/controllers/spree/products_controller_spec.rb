@@ -2,7 +2,7 @@
 require 'spec_helper'
 
 describe Spree::Admin::ProductsController, type: :controller do
-  stub_admin_user
+  stub_authorization!
 
   context "#update" do
     let(:product) { create(:product) }
