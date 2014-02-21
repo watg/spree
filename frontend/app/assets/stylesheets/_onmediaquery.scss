@@ -1,0 +1,38 @@
+/* Very base declarations       
+----------------------------------- */
+html {
+	font-family: 'tiny';
+}
+/* support Opera */
+body:after {
+	content: 'tiny';
+	display: none;
+}
+
+/* CONSIDERATION: FORCE DESKTOP ON LEGACY IE? */
+
+/* Queries for supported browsers.       
+----------------------------------- */
+/* small == 768+ */
+@media screen and (min-width: $small-screen) {
+	html {
+		font-family: 'small';
+	}
+	body:after { content: 'small'; }
+}
+/* medium == 1280+ */
+/*
+@media screen and (min-width: $medium-screen) {
+	html {
+		font-family: 'medium';
+	}
+	body:after { content: 'medium'; }
+}*/
+/* large == 1440+ */
+/*
+@media screen and (min-width: $large-screen) {
+	html {
+		font-family: 'large';
+	}
+	body:after { content: 'large'; }
+}*/
