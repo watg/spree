@@ -353,4 +353,21 @@ describe Spree::CheckoutController do
       spree_post :update, { :state => "payment" }
     }.to change { order.line_items }
   end
+
+  context "order with a pending payment" do
+    let(:order) { create(:order_with_pending_payment) }
+  	before do
+  	  subject.stub :authorize! => true, :ensure_api_key => true
+  	  order.stub :can_go_to_state? => false
+  	  subject.stub(:current_order).and_return(order)
+  	  subject.stub(:set_current_order).and_return(order)
+  	end
+
+    it "should not display payment page" do
+      get :edit, state: 'payment', :use_route => :spree
+      expect(response.status).to eq(302)
+      flash[:error].should_not be_blank
+    end
+
+  end
 end
