@@ -78,6 +78,7 @@ module Spree
       new_variant.should_receive(:deleted_at=).with(nil)
       new_variant.should_receive(:images=).with([new_image])
       new_variant.should_receive(:prices=).with([new_price])
+      new_variant.should_receive(:generate_variant_number).with(force: true)
 
       image.attachment.should_receive(:clone).and_return(image.attachment)
 

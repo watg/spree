@@ -32,19 +32,29 @@
         </div>
 
         <div class="field">
-          <%= label_tag nil, Spree.t(:status) %>
-          <%= f.select :state_eq, Spree::Order.state_machines[:state].states.collect {|s| [Spree.t("order_state.#{s.name}"), s.value]}, {:include_blank => true}, :class => 'select2' %>
-        </div>
-      </div>
-
-      <div class="four columns">
-        <div class="field">
           <%= label_tag nil, Spree.t(:order_number, :number => '') %>
           <%= f.text_field :number_cont %>
         </div>
         <div class="field">
           <%= label_tag nil, Spree.t(:email) %>
           <%= f.email_field :email_cont %>
+        </div>
+      </div>
+
+      <div class="four columns">
+        <div class="field">
+          <%= label_tag nil, Spree.t(:order_status) %>
+          <%= f.select :state_eq, Spree::Order.state_machines[:state].states.collect {|s| [Spree.t("order_state.#{s.name}"), s.value]}, {:include_blank => true}, :class => 'select2' %>
+        </div>
+
+        <div class="field">
+          <%= label_tag nil, Spree.t(:shipment_status) %>
+          <%= f.select :shipment_state_eq, Spree::OrderUpdater.shipment_states.map {|s| [s.humanize, s]}, {:include_blank => true}, :class => 'select2' %>
+        </div>
+
+        <div class="field">
+          <%= label_tag nil, Spree.t(:payment_status) %>
+          <%= f.select :payment_state_eq, Spree::OrderUpdater.payment_states.map {|s| [s.humanize, s]}, {:include_blank => true}, :class => 'select2' %>
         </div>
       </div>
 

@@ -16,6 +16,33 @@ describe Spree::Variant do
 
   end
 
+  context "#generate_variant_number" do
+    it "should generate a random string" do
+      variant.generate_variant_number.is_a?(String).should be_true
+      (variant.generate_variant_number.to_s.length > 0).should be_true
+    end
+
+    it "should not if one already exists" do
+      variant.number = 123
+      expect(variant.generate_variant_number).to eq 123
+    end
+
+    it "should if one already exists but force is true" do
+      variant.number = 123
+      expect(variant.generate_variant_number(force: true)).to_not eq 123
+    end
+  end
+
+  context "#is_number" do
+    it "should return true if number" do
+      expect(Spree::Variant.is_number('V123123123')).to eq true
+    end
+
+    it "should return false if not a number" do
+      expect(Spree::Variant.is_number('123123123')).to eq false
+    end
+  end
+
   context "weight" do
 
     context "for product" do

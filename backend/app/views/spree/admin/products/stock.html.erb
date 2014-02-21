@@ -24,7 +24,7 @@
     </tr>
   </thead>
   <tbody>
-    <% @variants.each do |variant| %>
+    <% Spree::Admin::VariantDecorator.decorate_collection(@variants).each do |variant| %>
       <% if variant.stock_items.present? %>
         <tr id="<%= spree_dom_id variant %>" data-hook="admin_product_stock_management_index_rows" class="<%= cycle('odd', 'even') %>">
           <td class="align-center">
@@ -64,7 +64,7 @@
                   <% next unless @stock_locations.include?(item.stock_location) %>
 
                   <tr id="stock-item-<%= item.id %>" class="<%= cycle('odd', 'even', :name => 'stock_locations')%>">
-                    <td><%= number_of_shipment_pending(variant.sku) %></td>
+                    <td><%= variant.number_of_shipment_pending %></td>
                     <td><%= item.stock_location.name %></td>
                     <td class="align-center"><%= item.count_on_hand %></td>
                     <td class="align-center">

@@ -5,6 +5,30 @@ class Spree::PaypalAccount < ActiveRecord::Base
     %w{capture credit}
   end
 
+  def transaction_id
+    nil
+  end
+
+  def token
+    nil
+  end
+
+  def refund_transaction_id
+    nil
+  end
+
+  def refunded_at
+    nil
+  end
+
+  def refunded_type
+    nil
+  end
+
+  def state
+    nil
+  end
+
   def can_capture?(payment)
     !echeck?(payment) && payment.state == "pending"
   end
