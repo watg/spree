@@ -151,7 +151,7 @@ module Spree
           end
         end
 
-        if (params[:order][:payments_attributes])
+        if params[:order] && params[:order][:payments_attributes]
           params[:order][:payments_attributes].first[:amount] = @order.total
         end
       end
