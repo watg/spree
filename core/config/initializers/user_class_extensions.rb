@@ -20,6 +20,25 @@ Spree::Core::Engine.config.to_prepare do
         spree_orders.incomplete.where(:created_by_id => self.id).order('created_at DESC').first
       end
 
+      def self.find_or_create_unenrolled(email, tracking_cookie)
+        # if the same user is trying to register another e-mail address, we want to assign a different uuid
+        if Spree.user_class.where(uuid: tracking_cookie).first
+          tracking_cookie = UUID.generate
+        end
+        Spree.user_class.where(email: email).first_or_create do |user|
+          password = UUID.generate
+          user.email = email
+          user.uuid = tracking_cookie
+          user.enrolled = false
+          user.password = password
+          user.password_confirmation = password
+        end
+      end
+      
+      def self.customer_has_subscribed?(email)
+        where(email: email, subscribed: true).any?
+      end
+
     end
   end
 end
