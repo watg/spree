@@ -1,0 +1,300 @@
+/* VERY VERY base level settings - universal or fundamental layout / element / type styles / mixins for Wool and the Gang */
+
+/* Browser highlight colour */
+::selection {
+	background: #fff200;
+	color: #000;
+}
+::-moz-selection {
+	background: #fff200;
+	color: #000;
+}
+
+/* Stop vertical scrollbar judder */
+body {
+	overflow-y: scroll;
+}
+
+h1, h2, h3, h4, h5, h5, h6 {
+	text-transform: uppercase;
+}
+
+/* WATG will have outline */
+a:focus {
+	outline: thin dotted;
+}
+a:hover {
+	text-decoration: underline;
+}
+
+/* Zero out lists when required */
+nav ul,
+nav ol,
+nav li,
+footer ul,
+footer ol,
+footer li,
+ul.zero-out,
+ol.zero-out,
+.zero-out li {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+/* also as a mixin */
+@mixin zero-out-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+/* allow an image to be "full bleed" (i.e. go OVER 100% width if necessary) */
+img.full-bleed {
+	width: 100%;
+}
+
+/* Sale colour */
+$sale-color: #ff0054;
+.sale-price {
+	color: $sale-color;
+}
+.price.was + .price.now, 
+.was + .price.selling {
+	color: $sale-color;
+}
+.price.was, #product-price .was {
+	text-decoration: line-through;
+}
+
+/* Buttons - using Foundation mixins. CSS classes set to FALSE in _settings */
+button,
+.button {
+	@include button($padding: 0.3em, $bg: $primary-color, $radius: false, $full-width: false, $disabled: false, $is-input: false);
+	font-size: 1em;
+	text-transform: uppercase;
+}
+input[type="submit"] {
+	@include button($padding: 0.5em, $bg: $primary-color, $radius: false, $full-width: false, $disabled: false, $is-input: true);
+	font-size: 1em;
+	text-transform: uppercase;
+}
+button.inverse,
+.button.inverse {
+	text-decoration: none;
+	color: $primary-color;
+	background-color: $body-bg;
+	border-color: $primary-color;
+}
+input[type="submit"].inverse {
+	color: $primary-color;
+	background-color: $body-bg;
+	border-color: $primary-color;
+}
+
+/* CSS only select list styling */
+
+/* Default */
+select {
+	font-size: 0.875em;
+	outline: none;
+	padding: 0.5em 15px 0.5em 0.5em;
+	border: 1px solid #ccc;
+	-webkit-appearance:none;
+	-moz-appearance:none;
+	appearance: none;
+	-webkit-border-radius: 0;
+	-webkit-box-shadow: 0;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	cursor: pointer;
+	background: #fff image-url('watg-img/icon-currency.svg') right center no-repeat;
+}
+/* IE10 */
+select::-ms-expand {
+    display: none;
+}
+/**************************** Fallbacks *****************************/
+/* Defensive: Mozilla */
+@-moz-document url-prefix() {
+	select { padding-right: 0.25em; }
+}
+/* Defensive: Opera */
+doesnotexist:-o-prefocus,
+select { padding-right: 0; }
+/* Defensive: IE9, 8, 7 */
+/*.ie9 select {}
+.ie8 select {}
+.ie7 select {}*/
+
+/* Tables */
+table {
+	width: 100%;
+	border-collapse: collapse;
+	border: none;
+	margin-bottom: 0;
+	th {
+		padding: 1em;
+		font-weight: normal;
+		background-color: $watg-tint-med;
+	}
+	td {
+		padding: 1em;
+		border-top: 1px dotted $primary-color;
+		background-color: $watg-tint-light;
+	}
+	tbody tr:first-child td {
+		border-top: none;
+	}
+}
+
+/*************************************************************************************/
+
+/* Email signup block */
+.no-delay {
+	transition-delay: 0s !important;
+}
+.signup-promo {
+	height: 0em;
+	overflow: hidden;
+	text-align: center;
+	background-color: #fafafa;
+	-moz-transition: height 0.4s 2s cubic-bezier(0.230, 1.000, 0.320, 1.000);
+	-webkit-transition: height 0.4s 2s cubic-bezier(0.230, 1.000, 0.320, 1.000);
+	-o-transition: height 0.4s 2s cubic-bezier(0.230, 1.000, 0.320, 1.000);
+	transition: height 0.4s 2s cubic-bezier(0.230, 1.000, 0.320, 1.000);
+	&.open {
+		height: 14.375em;
+	}
+	.signup-close {
+		position: absolute;
+		z-index: 1;
+		top: 0.938em;
+		right: 0.938em;
+		width: 1.813em;
+		height: 1.813em;
+		overflow: hidden;
+		text-indent: -999em;
+		background: transparent image-url('watg-img/touch-icon-close.svg') no-repeat center;
+		-webkit-background-size: 50% 50%;
+		-moz-background-size: 50% 50%;
+		-o-background-size: 50% 50%;
+		background-size: 50% 50%;
+	}
+	label + div {
+		padding-top: 1em;
+	}
+	label {
+		display: block;
+		padding-top: 2.400em;
+		font-family: "Gill Sans W01 Light";
+		font-size: 1.563em;
+		line-height: 1.1;
+		text-transform: uppercase;
+	}
+	input {
+		float: left;
+		width: 75%;
+		margin-bottom: 0;
+	}
+	button {
+		float: right;
+		width: 20%;
+		margin-bottom: 0;
+		padding: 0.5em;
+		background: transparent;
+	}
+	.signup-response {
+		display: none;
+		p {
+			padding-top: 2.400em;
+			font-family: "Gill Sans W01 Light";
+			font-size: 1.563em;
+			line-height: 1.1;
+			text-transform: uppercase;
+		}
+	}
+	@media only screen and (min-width: 48em) {
+		&.open {
+			height: 14.375em;
+		}
+		label + div {
+			width: 22.375em;
+			margin: 0 auto;
+			padding-top: 1.875em;
+			text-align: left;
+			border-bottom: 1px solid #000;
+		}
+		input,
+		input:focus {
+			display: inline;
+			text-align: left;
+			vertical-align: bottom;
+			float: none;
+			padding-left: 0;
+			width: 19.286em;
+			border: none;
+			background-color: transparent;
+			-webkit-box-shadow: none;
+			box-shadow: none;
+			-webkit-transition: none;
+			-moz-transition: none;
+			transition: none;
+		}
+		button {
+			display: inline;
+			vertical-align: bottom;
+			float: right;
+			width: auto;
+			padding: 0.5em;
+			border-bottom: none;
+		}
+	}
+}
+
+.free-shipping-promo {
+	margin-top: 2.4em;
+	p {
+		font-family: "Gill Sans W01 Light";
+		font-size: 1.563em;
+		line-height: 1.1;
+		text-transform: uppercase;
+		text-align: center;
+	}
+
+	p + p {
+		margin-bottom: 0;
+		font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+		font-size: 1em;
+		text-transform: none;
+		color: #767676;
+		line-height: 1.6em;
+	}
+}
+
+/* Cookie message */
+.row-cookie {
+	position: fixed;
+	bottom: 0;
+	background-color: #fff;
+	width: 100%;
+	max-width: none !important; /* Full width */
+		-webkit-box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+		-moz-box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+	z-index: 100;
+	text-align: center;
+	display: none;
+	p {
+		margin-top: 1.25em;
+		font-family: $watg-font-light;
+		text-transform: uppercase;
+		span {
+			font-family: $watg-font;
+		}
+		a {
+			font-family: $watg-font;
+			text-decoration: underline;
+		}
+	}
+}

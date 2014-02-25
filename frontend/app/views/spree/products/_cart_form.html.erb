@@ -1,57 +1,83 @@
 <%= form_for :order, :url => populate_orders_path do |f| %>
-  <div id="inside-product-cart-form" data-hook="inside_product_cart_form" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
 
-    <% if @product.variants_and_option_values(current_currency).any? %>
-      <div id="product-variants" class="columns five alpha">
-        <h6 class="product-section-title"><%= Spree.t(:variants) %></h6>
-        <ul>
-          <% @product.variants_and_option_values(current_currency).each_with_index do |variant, index| %>
-            <li>
-              <%= radio_button_tag "products[#{@product.id}]", variant.id, index == 0, 'data-price' => variant.price_normal_in(current_currency).display_price %>
-              <label for="<%= ['products', @product.id, variant.id].join('_') %>">
-                <span class="variant-description">
-                  <%= variant_options variant %>
-                </span>
-                <% if variant_price variant %>
-                  <span class="price diff"><%= variant_price variant %></span>
-                <% end %>
-              </label>
-            </li>
-          <% end%>
-        </ul>
-      </div>
-    <% end%>
+   <div id="product-price" data-hook="product_price">
+     <% if @selected_variant.price_normal_in(current_currency) %>
+       <% if @selected_variant.in_sale? %>
+         <% normal_price_classes = ['price', 'was'] %>
+         <% sale_price_classes = ['price','now','selling'] %>
+       <% else %>
+         <% normal_price_classes = ['price','selling'] %>
+         <% sale_price_classes = ['price', 'hide'] %>
+       <% end %>
+       <% normal_price = @selected_variant.price_normal_in(current_currency) %>
+       <span id="normal-price" class=<%="#{normal_price_classes.join(' ')}"%> data-price="<%= normal_price.in_subunit %>" data-currency="<%= normal_price.currency_symbol %>"> <%= normal_price.display_price.to_html %></span>
+       <% sale_price = @selected_variant.price_normal_sale_in(current_currency) %>
+	     <span id="sale-price" class=<%="#{sale_price_classes.join(' ')}"%> data-price="<%= sale_price.in_subunit %>" data-currency="<%= sale_price.currency_symbol %>"><%= sale_price.display_price.to_html %></span>
+     <% end %>
+   </div>
+   
+   <div id="inside-product-cart-form" data-hook="inside_product_cart_form" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+     <% if @product.variants_and_option_values(current_currency).any? %>
 
-    <% if @product.price_normal_in(current_currency) and !@product.price.nil? %>
-      <div data-hook="product_price" class="columns five <% if !@product.has_variants? %> alpha <% else %> omega <% end %>">
-        
-        <div id="product-price">
-          <h6 class="product-section-title"><%= Spree.t(:price) %></h6>
-          <div>
-            <span class="price selling" itemprop="price">
-              <%= display_price(@product.master) %>
-            </span>
-            <span itemprop="priceCurrency" content="<%= @product.currency %>"></span>
-          </div>
+       <% tree = @product.variant_options_tree(current_currency) %>
+       <% option_type_order = @product.option_type_order %>
+       <div id="product-variants" data-tree=<%= tree.to_json %> data-option_type_order=<%= option_type_order.to_json %> >
+       <h2><%= t('variants') %></h2>
+       <% index = 0 %>
+       <% selected_option_values = @selected_variant.option_values.inject({}) { |hash,o| hash[o.option_type.url_safe_name] = o; hash } %>
 
-          <% if @product.master.in_stock? %>
-            <link itemprop="availability" href="http://schema.org/InStock" />
-          <% end %> 
-        </div>
+       <% previous_type=nil %>
+       <% @product.grouped_option_values.each do |type, values|  %>
+         <div id="<%= dom_id(type) %>" class="variant-options index-<%= index %> <%= type.url_safe_name.downcase %>">
 
-        <div class="add-to-cart">
-          <%= number_field_tag (@product.variants_and_option_values.any? ? :quantity : "variants[#{@product.master.id}]"),
-            1, :class => 'title', :min => 1 %>
-          <%= button_tag :class => 'large primary', :id => 'add-to-cart-button', :type => :submit do %>
-            <%= Spree.t(:add_to_cart) %>
-          <% end %>
-        </div>
-      </div>
-    <% else %>
-        <div id="product-price">
-          <br>
-          <div><span class="price selling" itemprop="price"><%= Spree.t('product_not_available_in_this_currency') %></span></div>
-        </div>
-    <% end %>    
-  </div>
+           <% selected_value = selected_option_values[type.url_safe_name] %>
+           <h6 class="variant-option-type"><%= type.presentation %>
+           <% if type.name.downcase == 'colour'%>
+             <span class="color-text" style="display: inline;">: </span>
+             <span class="color-value"> <%= selected_value.presentation %> </span>
+           <% end %>
+           </h6>
+ 
+             <ul class="variant-option-values">
+             <% values.sort_by(&:position).each do |value| %>
+
+               <% classes = ["option-value", value.url_safe_name, type.url_safe_name] %>
+               <% classes << 'unavailable' if !tree[type.url_safe_name][value.url_safe_name] %>
+               <% classes << 'locked' if !tree[type.url_safe_name][value.url_safe_name] %>
+               <% if selected_value.url_safe_name == value.url_safe_name %>
+                <% classes << "selected" %>
+               <% end %>
+               <li>
+               <%= link_to value.has_image? ? image_tag(value.image.url, :alt => value.presentation) : content_tag(:span, value.presentation), "#", :title => value.presentation, :class => classes.join(" "), data: {type: type.url_safe_name, value: value.url_safe_name, presentation: value.presentation } %>
+               </li>
+             <% end %>
+             <% tree = tree[type.url_safe_name][selected_value.url_safe_name] %>
+           </ul>
+         </div>
+         <% index += 1 %>
+       <% end %>
+       <%= hidden_field_tag "products[#{@product.id}]", @selected_variant.try(:id), :id => "variant_id", :class => "hidden" %>
+     </div>
+   <% end %>
+   <% if !@product.personalisations.blank? %>
+     <div class="personalisations">
+     <h5>Personalise</h5>
+     <% @product.personalisations.each do |p| %>
+       <%= render partial: p.name, locals: { personalisation: p }  %>
+     <% end %>
+     </div>
+   <% end %>
+
+ </div>
+
+ <% if @product.price_normal_in(current_currency) and !@product.price.nil? %>
+   <div class="add-to-cart">
+   <label for="qty">Quantity:</label>
+   <%= number_field_tag (@product.variants_and_option_values.any? ? :quantity : "variants[#{@product.master.id}]"), 1, :id => 'qty', :min => 1 %>
+   <%= button_tag :id => 'add-to-cart-button', :class => 'small', :type => :submit do %>
+     <%= Spree.t(:add_to_cart) %>
+ <% end %>
+ </div>
+  <% end %>
+
 <% end %>

@@ -1,0 +1,50 @@
+core.productTop = {};
+
+$(document).ready(function() {
+	if (!$('body').hasClass('product-top')) return false;
+
+	core.productTop.readyBackground();
+});
+
+/* ----- Init methods ----- */
+
+core.productTop.readyBackground = function() {
+	var body = $('body');
+	var prefix = 'background-';
+		
+	if (core.isMobileWidthOrLess() === true) {
+		prefix = 'mobile/background-';
+	}
+
+	prefix = '<%= cdn_prefix %>' + 'product-top/' + prefix 
+	
+	var background = prefix + 'women.jpg'; // Women by default
+	
+	if (body.hasClass('men')) {
+		background = prefix + 'men.jpg';
+	} else if (body.hasClass('kids')) {
+		background = prefix + 'kids.jpg';
+	} else if (body.hasClass('new')) {
+		background = prefix + 'new.jpg';
+	} else if (body.hasClass('collections')) {
+		background = prefix + 'collections.jpg';
+	} else if (body.hasClass('knitting')) {
+		background = prefix + 'knitting.jpg';
+	} else if (body.hasClass('knitting-women')) {
+		background = prefix + 'knitting-women.jpg';
+	} else if (body.hasClass('knitting-men')) {
+		background = prefix + 'knitting-men.jpg';
+	}
+	
+	$('html').css('background', 'url(' + background + ') no-repeat center center fixed');
+	$('html').css('height', '100%');
+	$('html').css('background-size', 'cover');
+
+	// Adjust background for mobile/tablet
+	if (core.isTabletWidthOrLess() === true) {
+		if (core.isMobileWidthOrLess() === true) {
+			$('html').css('background-position', '0 0');
+			$('html').css('background-size', '320px');
+		}
+	}
+}

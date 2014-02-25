@@ -1,0 +1,26 @@
+<li id="product_variant_<%= variant.id %>" class="product-list-item" itemscope itemtype="http://schema.org/Product">
+  <%= link_to(product_variant_options_path(variant)) do %>
+    <div class="product-image">
+      <% variant.images_including_targetted.first.blank? ?  image = variant.product : image = variant %>
+      <%= product_image image, :itemprop => "image", :alt => variant.name %>
+    </div>
+    <div class="product-details">
+      <div class="product-name">
+        <%= variant.name %>
+        <div><%= variant.display_name %></div>
+      </div>
+    <div class="product-detail">
+    <% if variant.in_sale? %>
+      <span class="price was"><%= variant.price_normal_in(currency).display_price.to_html %></span> 
+      <span class="price now" itemprop="price"><%= variant.price_normal_sale_in(currency).display_price.to_html %></span>
+    <% else %>
+      <span class="price now" itemprop="price"><%= variant.price_normal_in(currency).display_price.to_html %></span>
+    <% end %>
+    <!-- if it's a set, render the difficulty -->
+    <% if variant.product.property('level') %>
+      <span class="kit-level"><%= variant.product.property('level') %></span>
+    <% end %>
+  </div>
+</div>
+<% end %> <%# link_to %>
+</li>

@@ -1,0 +1,35 @@
+<% selected_colour_value = personalisation.colours.first %>
+<% pp_id = personalisation.id %>
+<% price = personalisation.subunit_price_in(current_currency) %>
+<div class="personalisation-monogram" data-price=<%= price %> >
+	<label>
+		<%= check_box_tag "products[enabled_pp_ids][]", pp_id, false, data: { price: price } %> 
+		Add a monogram 
+	</label>
+	<div class="personalisation-options colour">
+		<h5>Colour
+			<span class="personalisation-color-value"><%= selected_colour_value.presentation %></span>
+		</h5>
+
+		<ul class="personalisation-option-values colour">
+			<% personalisation.colours.each do |value| %>
+			<li>
+				<% classes = ["personalisation-option-value", 'colour', value.url_safe_name] %>
+				<% if value == selected_colour_value %>
+				<% classes << "selected" %>
+				<% end %>
+				<%= link_to value.has_image? ? image_tag(value.image.url, :alt => value.presentation) : content_tag(:span, value.presentation), "#", title: value.presentation, class: classes.join(" "), data: { id: value.id, type: 'colour', value: value.url_safe_name, presentation: value.presentation } %>
+			</li>
+			<% end %>
+		</ul>
+		<%= hidden_field_tag "products[pp_ids][#{pp_id}][colour]", selected_colour_value.id, :class => "hidden personalisation-colour" %>
+	</div>
+	<div class="personalisation-options initials">
+		<h5>Max. <%= personalisation.max_initials %> Characters</h5>
+		<ul class="personalisation-option-values initials">
+			<li> <%= text_field_tag "products[pp_ids][#{pp_id}][initials]", nil, maxlength: personalisation.max_initials, size: 10%> </li>
+		</ul>
+	</div>
+	<div class="clearing"></div>
+</div>
+

@@ -8,6 +8,7 @@ module Spree
 
     before_filter :load_order
 
+    before_filter :check_payment_status
     before_filter :ensure_order_not_completed
     before_filter :ensure_checkout_allowed
     before_filter :ensure_sufficient_stock_lines
@@ -26,7 +27,7 @@ module Spree
     # Updates the order and advances to the next state (when possible.)
     def update
       update_mailchimp(params[:mc]) unless params[:mc].blank?
-      
+
       if @order.update_attributes(object_params)
         persist_user_address
 
@@ -38,10 +39,12 @@ module Spree
         if @order.completed?
           session[:order_id] = nil
           flash.notice = Spree.t(:order_processed_successfully)
-          ::Delayed::Job.enqueue Spree::DigitalOnlyOrderShipperJob.new(@order), queue: 'order_shipper'
-          # This is a hack to ensure that both google analytics and google remarketing javascript snippets
-          # are rendered, we can not use completion_route to pass a param as it is overridden in the auth plugin 
+          # This is a hack to ensure that both google analytics and google
+          # remarketing javascript snippets
+          # are rendered, we can not use completion_route to pass a
+          # param as it is overridden in the auth plugin 
           flash[:commerce_tracking] = "checkout_complete"
+          send_delayed_jobs
           redirect_to completion_route
         else
           redirect_to checkout_state_path(@order.state)
@@ -52,7 +55,13 @@ module Spree
     end
 
     private
-
+    def send_delayed_jobs
+      ::Delayed::Job.enqueue Spree::AnalyticJob.new(event: :transaction, 
+                                                     order: @order,
+                                                     user_id: tracking_cookie), queue: 'analytics'
+      ::Delayed::Job.enqueue Spree::DigitalOnlyOrderShipperJob.new(@order), queue: 'order_shipper'
+    end
+    
     def update_mailchimp(hash)
       mc_data = {
         email:          hash[:signupEmail],
@@ -65,21 +74,20 @@ module Spree
         mc.delay.process_request
       end
     end
-    
+
     def check_payment_status
       if params[:state] == 'payment' && !@order.can_attempt_payment?
         flash[:error] = Spree.t(:we_have_already_a_payment_for_this_order)
         redirect_to spree.cart_path
       end
     end
-    
-      def ensure_valid_state
-        unless skip_state_validation?
-          if (params[:state] && !@order.has_checkout_step?(params[:state])) ||
-             (!params[:state] && !@order.has_checkout_step?(@order.state))
-            @order.state = 'cart'
-            redirect_to checkout_state_path(@order.checkout_steps.first)
-          end
+
+    def ensure_valid_state
+      unless skip_state_validation?
+        if (params[:state] && !@order.has_checkout_step?(params[:state])) ||
+          (!params[:state] && !@order.has_checkout_step?(@order.state))
+          @order.state = 'cart'
+          redirect_to checkout_state_path(@order.checkout_steps.first)
         end
       end
 
@@ -143,7 +151,7 @@ module Spree
           end
         end
 
-        if (params[:order][:payments_attributes])
+        if params[:order] && params[:order][:payments_attributes]
           params[:order][:payments_attributes].first[:amount] = @order.total
         end
       end

@@ -28,8 +28,8 @@ module Spree
       belongs_to :user, class_name: Spree.user_class.to_s
       belongs_to :created_by, class_name: Spree.user_class.to_s
     else
-      belongs_to :user
-      belongs_to :created_by
+      belongs_to :user, class_name: "Spree::User"
+      belongs_to :created_by, class_name: "Spree::User"
     end
 
     belongs_to :bill_address, foreign_key: :bill_address_id, class_name: 'Spree::Address'

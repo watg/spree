@@ -1,6 +1,17 @@
-<nav class="columns sixteen">
-  <ul id="main-nav-bar" class="inline" data-hook>
-    <li id="home-link" data-hook><%= link_to Spree.t(:home), spree.root_path %></li>
-    <li id="link-to-cart" data-hook><%= link_to_cart %></li>
-  </ul>
-</nav>
+<ul id="main-nav-bar" data-hook>
+  <li id="link-to-cart" data-hook><%= link_to_cart %></li>
+  
+  <% if Spree::Config[:show_currency_selector] && supported_currencies.size > 1 %>
+
+  <li id="currency-select" class="currency-setting" style="float: right; margin-right: 10px;" data-hook>
+    <%= form_tag(set_currency_path(:format => :html)) do %>
+    <label for="currency"><%= t(:currency) %>:</label> <%= select_tag(:currency, options_for_select(supported_currencies, current_currency), :data => { :href => set_currency_path(:format => :json) }) %>
+    <noscript>
+      <%= submit_tag %>
+    </noscript>
+    <% end %>
+  </li>
+
+  <% end %>
+  
+</ul>

@@ -299,7 +299,7 @@ describe Spree::CheckoutController do
   context "When last inventory item has been purchased" do
     let(:product) { mock_model(Spree::Product, :name => "Amazing Object") }
     let(:variant) { mock_model(Spree::Variant) }
-    let(:line_item) { mock_model Spree::LineItem, :insufficient_stock? => true, :amount => 0 }
+    let(:line_item) { mock_model Spree::LineItem, :insufficient_stock? => true, :amount => 0, :normal_amount => 0 }
     let(:order) { create(:order) }
 
     before do
@@ -346,10 +346,28 @@ describe Spree::CheckoutController do
   end
 
   it "does remove unshippable items before payment" do
+    pending "figure out what the behaviour should be"
     controller.stub :check_authorization => true
 
     expect {
       spree_post :update, { :state => "payment" }
     }.to change { order.line_items }
+  end
+
+  context "order with a pending payment" do
+    let(:order) { create(:order_with_pending_payment) }
+  	before do
+  	  subject.stub :authorize! => true, :ensure_api_key => true
+  	  order.stub :can_go_to_state? => false
+  	  subject.stub(:current_order).and_return(order)
+  	  subject.stub(:set_current_order).and_return(order)
+  	end
+
+    it "should not display payment page" do
+      get :edit, state: 'payment', :use_route => :spree
+      expect(response.status).to eq(302)
+      flash[:error].should_not be_blank
+    end
+
   end
 end
