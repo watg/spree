@@ -2,7 +2,10 @@ require 'spec_helper'
 require 'webmock/rspec'
 
 describe Metapack::SoapRequest do
+  include WebMock::API
   subject { Metapack::SoapRequest }
+
+  before { WebMock.enable! }
 
   describe ".do" do
     let(:envelope) { :soap_envelope }
@@ -17,7 +20,7 @@ describe Metapack::SoapRequest do
         and_return(envelope)
     end
 
-    xit "makes an http request to metapack" do
+    it "makes an http request to metapack" do
       stub = stub_request(
             :post,
             "http://test_username:test_password@test.host/ServiceBase/ServiceName").
@@ -32,7 +35,7 @@ describe Metapack::SoapRequest do
       expect(stub).to have_been_requested
     end
 
-    xit "returns a SoapResponse created from the http response" do
+    it "returns a SoapResponse created from the http response" do
       stub_request(:post, "http://test_username:test_password@test.host/ServiceBase/ServiceName").to_return(status: 200, body: "response body")
 
       expect(Metapack::SoapResponse).to receive(:new) do |response|
