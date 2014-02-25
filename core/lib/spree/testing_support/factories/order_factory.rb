@@ -67,6 +67,10 @@ FactoryGirl.define do
         state 'complete'
         completed_at { Time.now }
 
+        after(:create) do |order|
+          order.refresh_shipment_rates
+        end
+
         factory :order_with_pending_payment do
           payment_state 'balance due'
           shipment_state 'pending'

@@ -100,7 +100,6 @@ module Spree
       end
     end
 
-
     def check_stock_levels_for_variant_and_options(variant, quantity, options=[])
       stock_check = [check_stock_levels(variant, quantity)]
 

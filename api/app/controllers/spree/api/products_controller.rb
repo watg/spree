@@ -54,7 +54,7 @@ module Spree
         authorize! :create, Product
         params[:product][:available_on] ||= Time.now
         set_up_shipping_category
-        
+
         begin
           @product = Product.new(product_params)
           if @product.save
@@ -85,7 +85,7 @@ module Spree
       def update
         @product = find_product(params[:id])
         authorize! :update, @product
-      
+
         if @product.update_attributes(product_params)
           respond_with(@product, :status => 200, :default_template => :show)
         else
@@ -102,36 +102,37 @@ module Spree
       end
 
       private
-        def product_params
-          product_params = params.require(:product).permit(permitted_product_attributes)
-          if product_params[:taxon_ids].present?
-            product_params[:taxon_ids] = product_params[:taxon_ids].split(',')
-          end
-          product_params
+      def product_params
+        product_params = params.require(:product).permit(permitted_product_attributes)
+        if product_params[:taxon_ids].present?
+          product_params[:taxon_ids] = product_params[:taxon_ids].split(',')
         end
+        product_params
+      end
 
-        def variants_params
-          variants_key = if params[:product].has_key? :variants
-            :variants
-          else
-            :variants_attributes
-          end
+      def variants_params
+        variants_key = if params[:product].has_key? :variants
+                         :variants
+                       else
+                         :variants_attributes
+                       end
 
-          params.require(:product).permit(
-            variants_key => permitted_variant_attributes,
-          ).delete(variants_key) || []
+        params.require(:product).permit(
+          variants_key => permitted_variant_attributes,
+        ).delete(variants_key) || []
+      end
+
+      def option_types_params
+        params[:product].fetch(:option_types, [])
+      end
+
+      def set_up_shipping_category
+        if shipping_category = params[:product].delete(:shipping_category)
+          id = ShippingCategory.find_or_create_by(name: shipping_category).id
+          params[:product][:shipping_category_id] = id
         end
+      end
 
-        def option_types_params
-          params[:product].fetch(:option_types, [])
-        end
-
-        def set_up_shipping_category
-          if shipping_category = params[:product].delete(:shipping_category)
-            id = ShippingCategory.find_or_create_by(name: shipping_category).id
-            params[:product][:shipping_category_id] = id
-          end
-        end
     end
   end
 end

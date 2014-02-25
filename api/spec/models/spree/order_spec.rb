@@ -10,9 +10,7 @@ module Spree
     let(:shipping_method) { create(:shipping_method) }
     let(:payment_method) { create(:payment_method) }
 
-    let(:product) { product = Spree::Product.create(:name => 'Test',
-                                           :sku => 'TEST-1',
-                                           :price => 33.22)
+    let(:product) { product = create(:product) 
                     product.shipping_category = create(:shipping_category)
                     product.save
                     product }

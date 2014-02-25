@@ -22,6 +22,7 @@ module Spree
     validates :price, numericality: true
     validates_with Stock::AvailabilityValidator
 
+    before_save :set_item_uuid
     after_save :update_inventory
     after_save :update_order
     after_destroy :update_order
@@ -29,6 +30,14 @@ module Spree
     delegate :name, :description, :should_track_inventory?, to: :variant
 
     attr_accessor :target_shipment
+
+    def self.generate_uuid( variant, options_with_qty, personalisations )
+      [ 
+        variant.id,
+        Spree::LineItemPersonalisation.generate_uuid( personalisations ),
+        Spree::LineItemOption.generate_uuid( options_with_qty ),
+      ].join('_')
+    end
 
     def add_personalisations(collection)
       objects = collection.map do |params|
@@ -125,19 +134,42 @@ module Spree
     end
 
     private
-      def update_inventory
-        if changed?
+    def update_inventory
+      if changed?
+        # We do not call self.product as when save is called on the line_item object it for some reason
+        # causes the product to update due to the has_one through variant relationship
+        if variant.product.can_have_parts?
+          Spree::OrderInventoryAssembly.new(self).verify(self, target_shipment)
+        else
           Spree::OrderInventory.new(self.order).verify(self, target_shipment)
-        end
+        end 
+      end 
+    end
+
+    def update_order
+      if changed? || destroyed?
+        # update the order totals, etc.
+        order.create_tax_charge!
+        order.update!
+      end
+    end
+
+    def set_item_uuid
+      self.item_uuid = generate_uuid
+    end
+
+    def generate_uuid
+      options_with_qty = line_item_options.map do |o|
+        [o.variant, o.quantity]
       end
 
-      def update_order
-        if changed? || destroyed?
-          # update the order totals, etc.
-          order.create_tax_charge!
-          order.update!
-        end
+      personalisations_params = line_item_personalisations.map do |p|
+        { data: p.data, personalisation_id: p.personalisation_id }
       end
+
+      self.class.generate_uuid( variant, options_with_qty, personalisations_params )
+    end
+
   end
 end
 
