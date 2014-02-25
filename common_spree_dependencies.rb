@@ -29,4 +29,5 @@ group :test do
   gem 'simplecov'
   gem 'webmock', '1.8.11'
   gem 'poltergeist', '1.4.1'
+  gem "fuubar", "~> 1.2.1"
 end

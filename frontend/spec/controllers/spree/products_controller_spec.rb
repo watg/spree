@@ -64,11 +64,13 @@ describe Spree::ProductsController do
         response.status.should == 301
       end
     end
+  end
 
-	context "Flip stuff"
+
+	context "Flip stuff" do
 	  let(:product) { create(:product_with_variants_displayable, product_type: :kit) }
 	  let(:variant) { product.variants.first }
-	  let(:params)  { valid_params } 
+	  let(:params)  { {product_id: product.permalink,option_values: 'Magic-Mint/Large' } } 
 	  let(:order)   { create(:order_with_pending_payment) }
 	  
 	  before do
@@ -116,13 +118,8 @@ describe Spree::ProductsController do
   		end
 	  end
 
-	  # ==================
-
-	  def valid_params
-		{
-		  product_id: product.permalink,
-		  option_values: 'Magic-Mint/Large'
-		}
-	  end		
   end
+
+
+
 end
