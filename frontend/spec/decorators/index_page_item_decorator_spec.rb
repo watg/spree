@@ -28,9 +28,8 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
 
   describe "#made_by_the_gang_link?" do
     context "with a variant" do
-      let(:variant) { create(:variant, product: product) }
+      let(:variant) { create(:variant, product: product, in_stock_cache: true) }
       before :each do
-        variant.stub(:in_stock_cache) { true }
         index_page_item.variant = variant
       end
 
@@ -43,7 +42,7 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
         end
 
         context "has_no_stock" do
-          before { variant.stub(:in_stock_cache) { false } }
+          before { variant.in_stock_cache = false; variant.save  }
           its(:made_by_the_gang_link?) { should be_false }
         end
 
@@ -66,11 +65,10 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
       end
 
       context "with displayed_variants without stock on the product page" do
+        let(:variant) { create(:variant, in_stock_cache: false) }
+
         before :each do
-          product_page.displayed_variants.delete_all
-          product_page.kit = nil
-          product_page.save!
-          product_page.displayed_variants << create(:variant)
+          product_page.displayed_variants << variant
         end
 
         its(:made_by_the_gang_link?) { should be_false }
@@ -84,13 +82,12 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
 
   describe "#made_by_the_gang_url" do
     let(:made_by_the_gang_url) { spree.product_page_path(product_page, tab: "made-by-the-gang") }
-    let(:variant) { create(:variant) }
+    let(:variant) { create(:variant, in_stock_cache: true) }
     let(:made_by_the_gang_url_with_variant) { spree.product_page_path(product_page, tab: "made-by-the-gang", variant_id: variant.id) }
 
     context "with a variant" do
       context "in  stock" do
         before :each do 
-          variant.stub(:in_stock_cache) { true } 
           index_page_item.variant = variant
           allow(helpers).to receive(:product_page_path).
             with(id: product_page.permalink, tab: "made-by-the-gang", variant_id: variant.id).and_return(made_by_the_gang_url_with_variant)
@@ -102,7 +99,8 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
       context "out of stock" do
         before :each do 
           index_page_item.variant = variant
-          variant.stub(:in_stock_cache) { false } 
+          variant.in_stock_cache = false
+          variant.save
           allow(helpers).to receive(:product_page_path).
             with(id: product_page.permalink, tab: "made-by-the-gang", variant_id: nil).and_return(made_by_the_gang_url)
         end
@@ -126,10 +124,9 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
     
     let(:product) { create(:product_with_prices) }
     let(:product2) { create(:product_with_stock_and_prices, usd_price: 3.00, gbp_price: 7.50) }
-    let(:variant) { create(:variant, in_sale: true) }
+    let(:variant) { create(:variant, in_sale: true, in_stock_cache: true) }
 
     before :each do
-      variant.stub(:in_stock_cache) { true }
       create(:price, variant: variant, price: 2.99, sale: true)
 
       sale_price = create(:price, sale: true, amount: 2.00, currency: 'USD', variant: product2.master )
@@ -146,7 +143,8 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
     end
 
     it "returns out-of-stock from prices with a variant with no stock" do
-      variant.stub(:in_stock_cache) { false }
+      variant.in_stock_cache = false
+      variant.save
       index_page_item.variant = variant
       expect(subject.made_by_the_gang_prices).to eq '<span class="price" itemprop="price">out-of-stock</span>'
     end
@@ -169,9 +167,8 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
 
   describe "#knit_your_own_link?" do
     context "with a variant" do
-      let(:variant) { create(:variant, product: product) }
+      let(:variant) { create(:variant, product: product, in_stock_cache: true) }
       before :each do
-        variant.stub(:in_stock_cache) { true }
         index_page_item.variant = variant
       end
 
@@ -185,7 +182,7 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
         end
 
         context "has_no_stock" do
-          before { variant.stub(:in_stock_cache) { false } }
+          before { variant.in_stock_cache = false; variant.save } 
           its(:knit_your_own_link?) { should be_false }
         end
 
@@ -269,7 +266,8 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
     end
 
     it "returns out-of-stock from prices with a variant with no stock" do
-      kit_variant.stub(:in_stock_cache) { false }
+      kit.variants.each { |k| k.in_stock_cache = false; k.save }
+      kit_variant.in_stock_cache = false
       index_page_item.variant = kit_variant
       expect(subject.knit_your_own_prices).to eq '<span class="price" itemprop="price">out-of-stock</span>'
     end
@@ -279,10 +277,7 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
     end
 
     it "returns out-of-stock from prices without a variant and no stock" do
-      #kit.variant.in_stock_cache = false
-      kit_variant.stub(:in_stock_cache) { false }
       kit.variants.each { |k| k.in_stock_cache = false; k.save }
-      #kit_variant.save
       expect(subject.knit_your_own_prices).to eq '<span class="price" itemprop="price">out-of-stock</span>'
     end
     
