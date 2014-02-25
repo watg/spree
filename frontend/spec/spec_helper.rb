@@ -91,6 +91,7 @@ RSpec.configure do |config|
     end
     DatabaseCleaner.start
     reset_spree_preferences
+    Delayed::Worker.delay_jobs = true
   end
 
   config.after(:each) do

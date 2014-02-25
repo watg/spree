@@ -11,6 +11,7 @@ FactoryGirl.define do
       before(:create) { create(:stock_location) if Spree::StockLocation.count == 0 }
       
       # on_hand 5
+      in_stock_cache false
       product
 
       ignore do

@@ -10,8 +10,6 @@ describe MailchimpController, type: :controller do
     Delayed::Worker.delay_jobs = true 
   end
 
-  after{ Delayed::Worker.delay_jobs = false  }
-
   context "subscribe" do
     it "should registration customer" do
       post :subscribe, {list_name: 'Testing', signupEmail: 'tester@woolandthegang.com'}
