@@ -67,6 +67,9 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
 
       context "with displayed_variants without stock on the product page" do
         before :each do
+          product_page.displayed_variants.delete_all
+          product_page.kit = nil
+          product_page.save!
           product_page.displayed_variants << create(:variant)
         end
 
