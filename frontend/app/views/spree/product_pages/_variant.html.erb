@@ -58,7 +58,8 @@
 	<a href="#">
 		<% url = image_url(variant.memoized_first_image, :product) %>
 		<%= image_tag(variant.placeholder_image, :itemprop => 'image', :class => 'lazy-load', alt: variant.memoized_placeholder_image_alt, :data => { :original => url }) %>
-		<h4><%= variant.name %><br/> by <%= product.memoized_gang_member_nickname %><br/>
+    <h4><%= variant.display_name_including_options %><br/> by <%= product.memoized_gang_member_nickname %><br/>
+
       <% if variant.in_sale? %>
         <span class="price was"><%= variant.price_html %></span>
         <span class="price now" itemprop="price"><%= variant.sale_price_html %></span>

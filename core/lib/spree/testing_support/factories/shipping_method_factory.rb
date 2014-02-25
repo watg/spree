@@ -8,12 +8,11 @@ FactoryGirl.define do
     end
 
     factory :shipping_method, class: Spree::ShippingMethod do
-      association(:calculator, factory: :calculator, strategy: :build)
-      # shipping_categories [(Spree::ShippingCategory.first || FactoryGirl.create(:shipping_category))]
+      association(:calculator, factory: :shipping_calculator, strategy: :build)
     end
 
     factory :free_shipping_method, class: Spree::ShippingMethod do
-      association(:calculator, factory: :no_amount_calculator, strategy: :build)
+      association(:calculator, factory: :no_amount_shipping_calculator, strategy: :build)
     end
   end
 end

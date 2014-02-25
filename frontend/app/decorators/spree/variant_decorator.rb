@@ -5,6 +5,14 @@ class Spree::VariantDecorator < Draper::Decorator
     context[:current_currency] || Spree::Config[:currency]
   end
 
+  def display_name_including_options
+    data = [ object.name ]
+    if object.display_name
+      data.unshift object.display_name
+    end
+    data.join("<br>").html_safe
+  end
+
   def target
     context[:target]
   end

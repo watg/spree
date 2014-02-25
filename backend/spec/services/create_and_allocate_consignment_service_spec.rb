@@ -67,7 +67,7 @@ describe Spree::CreateAndAllocateConsignmentService do
       parcel_weight = (order.weight / order.parcels.size).round(2)
 
       p1,p2 = [order.parcels[0],order.parcels[1]]
-      address = { line1: "10 Lovely Street", line2: "Northwest", line3: "Herndon", postcode: "20170", country: "GBP" }
+      address = { line1: "10 Lovely Street", line2: "Northwest", line3: "Herndon", postcode: "20170", country: "USA" }
       expected  = {
         value:         order.amount,
         weight:        ( variants_weight.to_f + 0.6 ).round(2),
@@ -92,7 +92,7 @@ describe Spree::CreateAndAllocateConsignmentService do
       expect(consignment.send(:allocation_hash, order)).to eql(expected)
 
       order.shipping_address.update_attributes(address2: nil)
-      address = { line1: "10 Lovely Street", line2: "Herndon", postcode: "20170", country: "GBP" }
+      address = { line1: "10 Lovely Street", line2: "Herndon", postcode: "20170", country: "USA" }
       expected[:recipient][:address] = address
       expect(consignment.send(:allocation_hash, order)).to eql(expected)
     end

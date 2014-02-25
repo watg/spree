@@ -27,7 +27,6 @@ describe Spree::LineItemPersonalisation do
     end
   end
 
-
   context "#text" do
     subject { lip.name }
 
@@ -52,7 +51,6 @@ describe Spree::LineItemPersonalisation do
       lip2.reload
       subject.should == monogram 
     end
-
 
     context "when persoanlisation is deleted" do
       before do

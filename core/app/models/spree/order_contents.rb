@@ -11,11 +11,8 @@ module Spree
     #
     def add(variant, quantity=1, currency=nil, shipment=nil, options=nil, personalisations=nil, target_id=nil)
       options_with_qty = (options.blank? ? [] : options)
-      uuid = generate_uuid( variant, options_with_qty, personalisations )
-
-      #get current line item for variant if exists
-      line_item = Spree::LineItem.find_by(order_id: order.id, variant_id: variant.id, item_uuid: uuid, target_id: target_id )
-      add_to_line_item(line_item, uuid, variant, quantity, currency, shipment, options_with_qty, personalisations, target_id)
+      line_item = order.find_existing_line_item(variant, target_id, options_with_qty, personalisations)
+      add_to_line_item(line_item, variant, quantity, currency, shipment, options_with_qty, personalisations, target_id)
     end
     
     # Remove variant qty from line_item
@@ -33,18 +30,10 @@ module Spree
     
     private
 
-    def generate_uuid( variant, options_with_qty, personalisations )
-      [ 
-        variant.id,
-        Spree::LineItemPersonalisation.generate_uuid( personalisations ),
-        Spree::LineItemOption.generate_uuid( options_with_qty ),
-      ].join('_')
-    end
-
     #  Sale feature
     ## Transfert from spree extension product-assembly with options
     #
-    def add_to_line_item(line_item, uuid, variant, quantity, currency=nil, shipment=nil, options=nil, personalisations=nil, target_id=nil)
+    def add_to_line_item(line_item, variant, quantity, currency=nil, shipment=nil, options=nil, personalisations=nil, target_id=nil)
       currency ||= Spree::Config[:currency] # default to that if none is provided
       
       if line_item
@@ -57,7 +46,6 @@ module Spree
         line_item.currency = currency unless currency.nil?
         line_item.add_options(options,currency) unless options.blank?
         line_item.add_personalisations(personalisations) unless personalisations.blank?
-        line_item.item_uuid = uuid
         line_item.product_nature = variant.product.nature
         line_item.target_id = target_id
 

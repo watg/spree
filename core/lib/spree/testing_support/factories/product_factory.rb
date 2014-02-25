@@ -2,6 +2,7 @@ FactoryGirl.define do
   factory :base_product, class: Spree::Product do
     sequence(:name) { |n| "Tala Tank product #{n}" }
     sku 'ABC'
+
     available_on { 1.day.ago }
     deleted_at nil
     product_type 'product'
@@ -18,6 +19,9 @@ FactoryGirl.define do
       
       # ensure stock item will be created for this products master
       before(:create) { create(:stock_location) if Spree::StockLocation.count == 0 }
+      after :create do |i,evaluator|
+        create(:price, variant: i.master, :currency => 'USD', :amount => 19.99)
+      end
       
       factory :product_with_option_types do
         after(:create) { |product| create(:product_option_type, product: product) }
