@@ -25,8 +25,8 @@ require 'rspec/rails'
 require 'database_cleaner'
 # require 'ffaker'
 
-require "support/big_decimal"
-require "support/test_gateway"
+require File.expand_path("../support/big_decimal", __FILE__)
+require File.expand_path("../support/test_gateway", __FILE__)
 
 if ENV["CHECK_TRANSLATIONS"]
   require "spree/testing_support/i18n"
@@ -38,7 +38,14 @@ require 'spree/testing_support/preferences'
 RSpec.configure do |config|
   config.color = true
   config.mock_with :rspec
-
+  config.backtrace_exclusion_patterns = [
+    /\/lib\d*\/ruby\//,
+    /bin\//,
+    /gems/,
+    /custom_plan/,
+    /spec\/spec_helper\.rb/,
+    /lib\/rspec\/(core|expectations|matchers|mocks)/
+  ]
   config.fixture_path = File.join(File.expand_path(File.dirname(__FILE__)), "fixtures")
 
   # If you're not using ActiveRecord, or you'd prefer not to run each of your

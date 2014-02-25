@@ -22,12 +22,12 @@ describe Spree::CheckoutController do
       before do
         # Using a let block won't acknowledge the currency setting
         # Therefore we just do it like this...
+        pending "have a look at views/spree/checkout/_delivery.html.erb. Spree is actually listing a shipping manifest, which would be really useful in our case"
         order = OrderWalkthrough.up_to(:address)
         controller.stub :current_order => order
       end
 
       it "displays rate cost in correct currency" do
-        pending "to fix"
         spree_get :edit
         html = Nokogiri::HTML(response.body)
         html.css('.rate-cost').text.should == "£10.00"

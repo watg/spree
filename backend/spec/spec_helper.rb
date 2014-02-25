@@ -49,6 +49,7 @@ RSpec.configure do |config|
     /\/lib\d*\/ruby\//,
     /bin\//,
     /gems/,
+    /custom_plan/,
     /spec\/spec_helper\.rb/,
     /lib\/rspec\/(core|expectations|matchers|mocks)/
   ]
