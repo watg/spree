@@ -49,4 +49,9 @@ describe Metapack::SoapResponse do
       end
     end
   end
+
+  
+  def xml_fixture(file)
+    File.read(File.join(fixture_path, "xml", file)) 
+  end
 end

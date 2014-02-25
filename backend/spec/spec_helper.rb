@@ -114,12 +114,3 @@ RSpec.configure do |config|
     Spree::Admin::BaseController.any_instance.stub(:spree_current_user).and_return(current_user)
   end
 end
-
-
-def xml_fixture(file)
-  File.read(get_fixture(file))
-end
-
-def get_fixture(file)
-  Rails.root + 'vendor/spree/core/lib/spree/testing_support/fixtures/xml' + file
-end

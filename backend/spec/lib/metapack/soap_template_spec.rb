@@ -8,14 +8,13 @@ describe Metapack::SoapTemplate do
   its(:template_path) { should match(%r{/templates/manifest.xml.erb$}) }
 
   describe "xml" do
-    let(:fixture_path) { 'xml/label.xml.erb' }
-    let(:fixture) { File.read(fixture_path) }
+    let(:label_path) { File.join(fixture_path, "xml/label.xml.erb") }
+    let(:fixture) { File.read(label_path) }
     subject { Metapack::SoapTemplate.new(:manifest) }
 
     it "calls ERB#result with the binding" do
-      allow(subject).to receive(:template_path).and_return(fixture_path)
+      allow(subject).to receive(:template_path).and_return(label_path)
       allow(subject).to receive(:binding).and_return(:binding)
-
       erb = double
       allow(ERB).to receive(:new).with(fixture, 0, '>').and_return(erb)
 

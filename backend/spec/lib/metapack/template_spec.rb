@@ -37,4 +37,9 @@ describe "Erb Template" do
     subject { Metapack::SoapTemplate.new(:create_labels_as_pdf, consignment_code: 12345) }
     its(:xml) { should eq(xml_fixture('create_labels_as_pdf.xml')) }
   end
+
+  
+  def xml_fixture(file)
+    File.read(File.join(fixture_path, "xml", file)) 
+  end
 end

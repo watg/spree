@@ -123,4 +123,8 @@ describe Metapack::Client do
       expect(Metapack::Client.create_manifest("DHL")).to eq("decoded content")
     end
   end
+
+  def xml_fixture(file)
+    File.read(File.join(fixture_path, "xml", file)) 
+  end
 end
