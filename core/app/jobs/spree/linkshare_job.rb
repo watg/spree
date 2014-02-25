@@ -6,7 +6,7 @@ module Spree
     FEED_NAME = 'linkshare_feed'
 
     def perform
-      Rails.cache.write(FEED_NAME, feed)
+      set_cache(FEED_NAME, feed)
     end
 
     def feed
@@ -15,7 +15,7 @@ module Spree
                  "xmlns"    => "http://www.w3.org/2005/Atom", 
                  "xmlns:g"  => "http://base.google.com/ns/1.0", 
                  "xmlns:c"  => "http://base.google.com/cns/1.0") { 
-          xml.id_ ""
+          xml.id_ "linkshare-atom-feed"
           xml.title "Wool And The Gang Atom Feed"
           xml.updated_at Time.now.iso8601
           xml.link(rel: "alternate", type: "text/html", href: host)
@@ -65,8 +65,18 @@ module Spree
     end
 
     private
+    def set_cache(key, value)
+      puts "SIZE: #{value.size}"
+      puts  value[2..500]
+      puts "key: #{key}"
+      
+      open(File.join(Rails.root, 'tmp/atom.xml'), 'w'){|f| f.write(value); f.flush }
+      Rails.cache.write(key, value)
+      puts "real result #{res}"
+    end
+
     def host
-      "//www.woolandthegang.com"
+      "http://www.woolandthegang.com"
     end
 
     def product_page_url(v)

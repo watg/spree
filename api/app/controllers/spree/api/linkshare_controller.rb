@@ -8,8 +8,13 @@ module Spree
       def index
         data = Rails.cache.read(Spree::LinkshareJob::FEED_NAME)
         respond_to do |format|
-          format.xml  { data }
-          format.atom { data }
+          format.xml  { 
+            render xml: proc {|response, output|
+              output.write data
+            }}
+          format.atom { render atom: proc {|response, output|
+              output.write data
+            }}
         end
       end
     end
