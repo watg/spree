@@ -6,13 +6,11 @@ module Spree
       respond_to :xml, :atom, only: :index
 
       def index
-        variants = Spree::Variant.
-          accessible_by(current_ability, :read).
-          page(params[:page]).
-          per(params[:per_page])
-        
-        @variants = VariantDecorator.decorate_collection(variants)
-        respond_with(@variants)
+        data = Rails.cache.read(Spree::LinkshareJob::FEED_NAME)
+        respond_to do |format|
+          format.xml  { data }
+          format.atom { data }
+        end
       end
     end
   end
