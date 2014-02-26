@@ -87,7 +87,7 @@ module Spree
         objects[  CONFIG[:name]     ].
         write(value)
     rescue
-      notify("Linkshare Atom feed could no be saved on S3: #{value[0..100]}...")
+      notify("Linkshare Atom feed could no be saved on S3: #{value[0..400]}...")
     end
 
     def persist(value, storage_method=:s3)
