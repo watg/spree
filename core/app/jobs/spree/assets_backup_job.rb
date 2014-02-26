@@ -1,4 +1,4 @@
-AssetsBackupJob = Struct.new(:action) do
+Spree::AssetsBackupJob = Struct.new(:action) do
   include ActiveModel::Validations
 
   validates_inclusion_of :action, in: [:capture], message: "Cannot perform action."
