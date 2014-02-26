@@ -28,6 +28,14 @@ core.productGroup.readyVariantOptions = (entity) ->
   entity.find('.personalisation-option-value').click (event) ->
     toggle_personalisation_option_value(entity, $(this), event)
 
+  # Friendly flash message in case user tries to checkout without the add-to-cart button
+  # being enabled
+  entity.find('.add-to-cart-button').click (event) -> 
+    console.log($(this).attr("disabled"))
+    if $(this).hasClass('disabled')
+      $('<p class="error"><strong>Please select COLOUR and SIZE</p>').hide().insertBefore('.product-variants').fadeIn('slow').delay(1500).fadeOut('slow')
+      false
+
   entity.find('.option-value').click (event)->
     event.preventDefault()
     selected_type = $(this).data('type')
@@ -59,7 +67,7 @@ toggle_option_values = (entity, selected_type, selected_value, selected_presenta
   entity.find('.sale-price').addClass('hide').removeClass('selling')
 
   # Disable the add to cart button
-  $('.add-to-cart-button').attr("disabled","disabled").attr("style", "opacity: 0.5")
+  entity.find('.add-to-cart-button').attr("style", "opacity: 0.5").addClass('disabled')
 
   # Unselect those downstream
   #  next_type = entity.find(".variant-options.#{selected_type}").data('next_type')
@@ -142,7 +150,7 @@ set_prices = (entity, variant_id, normal_price, sale_price, in_sale) ->
   entity.find('.sale-price').html( format_price(entity, sale_price + adjustment ) )
 
   entity.find('.normal-price').addClass('selling').removeClass('unselected')
-  entity.find('.add-to-cart-button').removeAttr("disabled").removeAttr("style")
+  entity.find('.add-to-cart-button').removeAttr("style").removeClass("disabled")
 
   if in_sale == true
     entity.find('.normal-price').addClass('was')
