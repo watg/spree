@@ -9,6 +9,15 @@ describe Spree::Order do
   end
 
   context "with default state machine" do
+
+    # Added, otherwise failures seem to occur, not sure why!!!
+    before do
+      @old_checkout_flow = Spree::Order.checkout_flow
+    end
+    after do
+      Spree::Order.checkout_flow(&@old_checkout_flow)
+    end
+
     let(:transitions) do
       [
         { :address => :delivery },

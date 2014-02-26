@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe Spree::OptionType do
   context "touching" do
+
+    before { Delayed::Worker.delay_jobs = false }
+    after { Delayed::Worker.delay_jobs = true }
+
     it "should touch a product" do
       product_option_type = create(:product_option_type)
       option_type = product_option_type.option_type

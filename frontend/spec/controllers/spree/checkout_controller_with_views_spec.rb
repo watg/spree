@@ -22,6 +22,7 @@ describe Spree::CheckoutController do
       before do
         # Using a let block won't acknowledge the currency setting
         # Therefore we just do it like this...
+        pending "have a look at views/spree/checkout/_delivery.html.erb. Spree is actually listing a shipping manifest, which would be really useful in our case"
         order = OrderWalkthrough.up_to(:address)
         controller.stub :current_order => order
       end

@@ -1,0 +1,11 @@
+<script type="text/javascript">
+	function olaA(name) { var nameEQ = escape(name) + "="; var ca = document.cookie.split(';'); for (var i = 0; i < ca.length; i++) { var c = ca[i]; while (c.charAt(0) === ' ') c = c.substring(1, c.length); if (c.indexOf(nameEQ) === 0) return unescape(c.substring(nameEQ.length, c.length)); }; return null; }
+	var o_track = document.createElement("script");
+	var amount = "<%= order.total.to_s %>";
+	o_track.src = "https://widgets.photorank.me/register_checkout?customer_id=216176&amount="+amount+'&__olapicU='+olaA('__olapicU');
+	o_track.type = "text/javascript";
+	document.getElementsByTagName("head")[0].appendChild(o_track);
+</script>
+<noscript>
+   <img src="https://widgets.photorank.me/checkout?customer_id=216176&amount=<%= order.total.to_s %>&__olapicU=null" alt="" />
+</noscript>

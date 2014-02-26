@@ -1,0 +1,10 @@
+<% placeholder = 'product-group/placeholder-470x600.gif' %>
+<% if image %>
+	<a href="<%= image_url(image, :large) %>" target="_blank" class="fancybox" data-fancybox-group="product-gallery-<%= variant.id %>">
+		<%= image_tag(placeholder, :itemprop => 'image', :class => 'lazy-load', :data => { :original => image.attachment.url(:product) }) %>		
+	</a>
+<% else %>
+	<a href="<%= image_url(product, :large) %>" target="_blank" class="fancybox" data-fancybox-group="product-gallery-<%= variant.id %>">
+		<%= image_tag(placeholder, :itemprop => 'image', :class => 'lazy-load', :data => { :original => image_url(product, :product) }) %>
+	</a>
+<% end %>

@@ -16,9 +16,10 @@ end
 ENV["RAILS_ENV"] ||= 'test'
 
 begin
-  require File.expand_path("../dummy/config/environment", __FILE__)
+  require File.expand_path("../../../../../config/environment", __FILE__)
 rescue LoadError
   puts "Could not load dummy application. Please ensure you have run `bundle exec rake test_app`"
+  exit
 end
 
 require 'rspec/rails'
@@ -28,7 +29,7 @@ require 'rspec/rails'
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
 
 require 'database_cleaner'
-require 'ffaker'
+# require 'ffaker'
 
 require 'spree/testing_support/authorization_helpers'
 require 'spree/testing_support/factories'
@@ -44,6 +45,16 @@ require 'paperclip/matchers'
 RSpec.configure do |config|
   config.color = true
   config.mock_with :rspec
+  config.backtrace_exclusion_patterns = [
+    /\/lib\d*\/ruby\//,
+    /bin\//,
+    /gems/,
+    /custom_plan/,
+    /spec\/spec_helper\.rb/,
+    /lib\/rspec\/(core|expectations|matchers|mocks)/
+  ]
+
+  config.fixture_path = File.join(File.expand_path(File.dirname(__FILE__)), "fixtures")
 
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, comment the following line or assign false
@@ -95,4 +106,12 @@ RSpec.configure do |config|
   config.include Paperclip::Shoulda::Matchers
 
   config.fail_fast = ENV['FAIL_FAST'] || false
+
+  # TODO Not sure we need this hook in every single spec within the backend build
+  # it sounds like most of the times it will just make tests slower and confusing
+  # when one wants to test something regarding authorizations
+  config.before(:each) do
+    current_user = create(:admin_user, :spree_api_key => SecureRandom.hex(24))
+    Spree::Admin::BaseController.any_instance.stub(:spree_current_user).and_return(current_user)
+  end
 end

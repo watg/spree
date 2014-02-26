@@ -1,0 +1,154 @@
+<% content_for :title do %>Presenting <%= @product_page.title %><% end %>
+<% content_for :meta do %>
+<meta content="Knitwear, Knitting, Knitted, Wool, Unique, Handmade, Sustainable yarn, How to knit, Learn to knit, <%= @product_page.title %>" name="keywords" />
+<meta content="" name="description" />
+<meta content="<%= @product_page.permalink %>" name="photorank:tags" />
+<meta property="og:title" content="Presenting <%= @product_page.title %>"/>
+<meta property="og:image" content="<%= @product_page.facebook_image %>"/>
+<% end %>
+
+<input type="hidden" name="authenticity_token_fresh" value="<%= form_authenticity_token %>" />
+<% @body_class = 'product-group' %>
+<% cache [@product_page, @variants, @product_page.target, @product_page.selected_tab, current_currency] do %>
+<div class="wrapper-product-group" itemscope itemtype="http://schema.org/Product">
+	
+	<div class="widget-social">
+		<%= render partial: 'olapic' %>
+	</div>
+
+	<div class="row-hero<%= @product_page.row_hero_type %>" <%= @product_page.hero_data_attributes.html_safe %>>
+		<div class="row">
+			<div class="<%= ['large-4', 'push-8', 'small-12', 'columns', 'title', @product_page.inverted_colour].compact.join(' ') %>">
+				<p>Presenting</p>
+				<h1 itemprop="name" class=<%= @product_page.title_size_class %>><%= @product_page.title %></h1>
+				<ul class="no-bullet social">
+					<% [:twitter, :facebook, :pinterest].each do |social| %>
+					<li>
+						<%= link_to("Share with #{social}", @product_page.send("#{social}_url"), target: '_blank', class: social) %>
+					</li>
+					<% end %>
+				</ul>
+			</div>
+		</div>
+	</div><!-- /row -->
+
+	<% if @product_page.render_tabs? # Show row if we have both ready made and knit your own %>
+	<div class="row row-tabs">
+		<div class="large-3 push-3 small-6 columns tab <%= @product_page.made_by_the_gang_active_class %>">
+			<h2><a class="tab-made-by-the-gang" href="#"><span>Made by the Gang</span></a></h2>
+		</div>
+		<div class="large-3 pull-3 small-6 columns tab <%= @product_page.knit_your_own_active_class %>">
+			<h2><a class="tab-knit-your-own" href="#"><span>Knit your own</span></a></h2>
+		</div>
+	</div><!-- /row -->
+	<% end %>
+
+	<% if @product_page.made_by_the_gang_variants? # Show row if we have ready made %>
+	<div class="row row-made-by-the-gang <%= @product_page.made_by_the_gang_active_class %>">
+		<% unless @product_page.accessories? %>
+		<h3>All our #madeunique <%= @product_page.made_unique_title %></h3>
+		<% end %>
+
+		<div class="row">
+			<div class="large-3 push-3 small-6 columns">
+				<ul class="menu-variants no-bullet">
+					<li><a href="#">Filter by price</a>
+						<ul class="no-bullet">
+							<li class="sort" data-sort="data-price" data-order="asc"><a href="#">High to low</a></li>
+							<li class="sort" data-sort="data-price" data-order="desc"><a href="#">Low to high</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<div class="large-3 pull-3 small-6 columns">
+				<% if @product_page.tags? -%>
+				<ul class="menu-variants no-bullet">
+					<li><a href="#">Filter by style</a>
+						<ul class="no-bullet">
+							<li class="filter" data-filter="all"><a href="#">All styles</a></li>
+							<% @product_page.tags.each do |tag| -%>
+							<li class="filter" data-filter="<%= safe_tag(tag) %>"><a href="#"><%= tag %></a></li>
+							<% end -%>
+						</ul>
+					</li>
+				</ul>
+				<% end -%>
+			</div>
+		</div>
+
+		<div class="row">
+			<%= paginate @variants %>
+			<ul class="variants no-bullet">
+				<li class="loading-text">Loading <%= @product_page.made_unique_title %>, just a tick&hellip;</li>
+				<%= render partial: 'variant', :collection => @variants, :as => :variant %>
+			</ul>
+		</div>
+	</div><!-- /row -->
+	<% end # if %>
+
+	<% if @product_page.knit_your_own_product? # Show rows if we have knit your own %>
+	<% cache ['kit', @product_page.knit_your_own_product, @product_page.target, @product_page.selected_tab, current_currency] do %>
+
+	<% variant = @product_page.decorated_first_knit_your_own_product_variant %>
+	<% product = @product_page.decorated_knit_your_own_product %>
+
+	<div class="displayable-entity row row-knit-your-own <%= @product_page.knit_your_own_active_class %>"
+		data-option-values="<%= variant.option_types_and_values.to_json %>"
+		data-tree="<%= product.memoized_variant_options_tree.to_json  %>"
+		data-option-type-order="<%= product.memoized_option_type_order.to_json %>" >
+
+		<h3>Create your own knit kit</h3>
+		<div class="row">
+			<div class="large-6 small-12 columns">
+				<div class="product-images" data-hook="product_images">
+					<div class="main-image" data-hook>
+						<a href="<%= image_url(variant.memoized_first_image,:product) %>" target="_blank" class="fancybox" data-fancybox-group="product-gallery-<%= variant.id %>">
+							<%= image_tag(variant.placeholder_image, :itemprop => 'image', :class => 'lazy-load', :data => { :original => variant.memoized_first_image_url(:product) }) %>		
+						</a>
+					</div>
+					<div class="thumbnails" data-hook>
+						<%= render :partial => 'thumbnails', :locals => {:variant => variant, :product => product} %>
+					</div>
+				</div>
+			</div>
+			<div class="large-6 small-12 columns">
+				<h1><%= @product_page.kit_name %></h1>
+
+				<div class="cart-form" data-hook="cart_form">
+					<%= render :partial => 'cart_form', :locals => {:variant => variant, :product => product, :target_id => @product_page.target_id } %>
+				</div>
+
+				<h5 class="reveal-title revealed">Kit content</h5>
+				<p class="reveal-content"><%= @product_page.kit_description %></p>
+
+				<ul class="no-bullet social">
+					<% [:twitter, :facebook, :pinterest].each do |social| %>
+					<li>
+						<%= link_to("Share with #{social}", @product_page.send("#{social}_url"), target: '_blank', class: social) %>
+					</li>
+					<% end %>
+				</ul>
+			</div>
+		</div>
+		
+		<div class="row row-social">
+			<div class="large-12 columns"></div>
+		</div>
+	</div><!-- /row -->
+
+	<div class="row-knit-your-own-supporting <%= @product_page.knit_your_own_active_class %>">
+		<div class="row">
+			<div class="large-12 columns">
+				<h4>Knitting is easy! Our <span>#woolschool</span> video <br/>tutorials will help you get started.</h4>
+				<a href="/video-tutorials" class="button">Learn more</a>
+			</div>
+		</div>
+	</div><!-- /row -->
+		
+	<% end # cache  %>
+	<% end # if %>
+
+	<% end # cache product_page,selected_tab %>
+</div><!-- /wrapper -->
+
+

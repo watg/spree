@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Spree::Calculator::FlatPercentItemTotal do
   let(:calculator) { Spree::Calculator::FlatPercentItemTotal.new }
-  let(:order) { mock_model Spree::Order }
+  let(:order) { mock_model Spree::Order, :has_gift_card? => false }
 
   before { calculator.stub :preferred_flat_percent => 10 }
 

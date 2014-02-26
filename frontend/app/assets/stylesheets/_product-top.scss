@@ -1,0 +1,95 @@
+@charset "UTF-8";
+/**
+ * WATG
+ *
+ * Product top page CSS file
+ *
+ * @colordef
+ */
+
+/**
+ * Table of contents
+ *
+ * Pagewide
+ * Groups
+ */
+
+/**
+ * Pagewide
+ *
+ * @section pagewide
+ */
+
+.product-top {
+	height: 100%;
+	background-color: transparent !important;
+	
+	/* Navigation */
+	.nav-global.expanded {
+		background-color: #fff; /* IE */
+		background-color: rgba(255, 255, 255, 0.8);
+	}
+	.nav-global-section:before {
+		background: none; // Switch off nav dividers
+	}
+	.sub-menu {
+		padding-top: 0.75em;
+	}
+	@media only screen and (max-width: 48em) {
+		.nav-global {
+			background-color: #fff; /* IE */
+			background-color: rgba(255, 255, 255, 0.8);
+		}
+	}
+	.nav-utility {
+		select {
+			background-color: transparent;
+		}
+	}
+	
+	.container {
+		background-color: transparent;
+	}
+	footer {
+		display: none;
+	}
+}
+
+/**
+ * Groups
+ *
+ * @section groups
+ */
+
+.product-top {
+	.row-groups {
+		margin-top: emCalc(30px);
+		text-align: center;
+		ul {
+			li {
+				line-height: 3em;
+				a {
+					font-family: $watg-font;
+					font-size: emCalc(40px);
+					text-transform: uppercase;
+					text-decoration: underline;
+					//color: #00ff44;
+					color: #000;
+					outline: 0;
+				}
+				// Mobile a
+				@media only screen and (max-width: 48em) {
+					a {
+						font-size: emCalc(30px);
+					}
+				}
+			}
+			// Mobile li
+			@media only screen and (max-width: 48em) {
+				li {
+					line-height: 1.75em;
+				}
+			}
+		}
+	}
+}

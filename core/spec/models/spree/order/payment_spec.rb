@@ -42,6 +42,7 @@ module Spree
     end
 
     it "does not use failed payments" do
+      DatabaseCleaner.clean # otherwise stack level too deep error with :state => 'failed'
       payment_1 = create(:payment, :amount => 50)
       payment_2 = create(:payment, :amount => 50, :state => 'failed')
       order.stub(:pending_payments).and_return([payment_1])

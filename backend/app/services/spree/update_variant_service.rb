@@ -39,14 +39,17 @@ module Spree
     end
 
     def execute
-      ActiveRecord::Base.transaction do
-        tags = split_params(details.delete(:tags)).map(&:to_i)
-        target_ids = split_params(details.delete(:target_ids)).map(&:to_i)
-        variant.update_attributes(details)
-        update_prices(prices, variant)
-        update_tags(variant, tags)
-        assign_targets(variant, target_ids)
-        variant
+      validate_prices(prices)
+      unless has_errors? 
+        ActiveRecord::Base.transaction do
+          tags = split_params(details.delete(:tags)).map(&:to_i)
+          target_ids = split_params(details.delete(:target_ids)).map(&:to_i)
+          variant.update_attributes(details)
+          update_prices(prices, variant)
+          update_tags(variant, tags)
+          assign_targets(variant, target_ids)
+          variant
+        end
       end
     #rescue Exception => e
     #  Rails.logger.error "[NewVariantService] #{e.message} -- #{e.backtrace}"

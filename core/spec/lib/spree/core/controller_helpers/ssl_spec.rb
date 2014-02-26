@@ -1,11 +1,17 @@
 require 'spec_helper'
 
 describe Spree::Core::ControllerHelpers::SSL, :type => :controller do
+  let(:user) { create(:user) }
+
   controller do
     include Spree::Core::ControllerHelpers::SSL
     def index; render text: 'index'; end
     def create; end
     def ssl_supported?; true; end
+  end
+
+  before do
+    controller.stub(:try_spree_current_user => user)
   end
 
   describe 'redirect to http' do

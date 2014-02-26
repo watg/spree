@@ -9,7 +9,7 @@ module Spree
       payments = [double(:amount => 5), double(:amount => 5)]
       order.stub_chain(:payments, :completed).and_return(payments)
 
-      line_items = [double(:amount => 10), double(:amount => 20)]
+      line_items = [double(:amount => 10, :normal_amount => 20), double(:amount => 20, :normal_amount => 20)]
       order.stub :line_items => line_items
 
       adjustments = [double(:amount => 10), double(:amount => -20)]

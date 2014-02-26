@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?><soapenv:Envelope
+xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><soapenv:Body><ns1:createAndAllocateConsignmentsResponse
+soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+xmlns:ns1="urn:DeliveryManager/services"><createAndAllocateConsignmentsReturn
+soapenc:arrayType="ns2:Consignment[1]" xsi:type="soapenc:Array"
+xmlns:ns2="urn:DeliveryManager/types"
+xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"><createAndAllocateConsignmentsReturn
+xsi:type="ns2:Consignment"><CODAmount
+xsi:type="xsd:double">0.0</CODAmount><CODFlag
+xsi:type="xsd:boolean">false</CODFlag><CODPaymentTypeCode
+xsi:type="soapenc:string">CAS</CODPaymentTypeCode><CODSpecialInstruction
+xsi:type="soapenc:string" xsi:nil="true"/><CODSurcharge
+xsi:type="xsd:double">0.0</CODSurcharge><alreadyPalletisedGoodsFlag
+xsi:type="xsd:boolean">false</alreadyPalletisedGoodsFlag><cardNumber
+xsi:type="soapenc:string" xsi:nil="true"/><carrierCode
+xsi:type="soapenc:string">PLFCWI</carrierCode><carrierConsignmentCode
+xsi:type="soapenc:string">000000252</carrierConsignmentCode><carrierName
+xsi:type="soapenc:string">Parcelforce  Worldwide
+(International)</carrierName><carrierServiceCode
+xsi:type="soapenc:string">PFINTDP3015</carrierServiceCode><carrierServiceName
+xsi:type="soapenc:string">Int Datapost 30Kg
+1.5m</carrierServiceName><carrierServiceVATRate
+xsi:type="xsd:double">0.0</carrierServiceVATRate><cartonNumber
+xsi:type="soapenc:string" xsi:nil="true"/><cashOnDeliveryCurrency
+xsi:type="soapenc:string">GBP</cashOnDeliveryCurrency><committedCollectionWindow
+xsi:type="ns2:DateRange" xsi:nil="true"/><committedDeliveryWindow
+xsi:type="ns2:DateRange" xsi:nil="true"/><consDestinationReference
+xsi:type="soapenc:string"></consDestinationReference><consOriginReference
+xsi:type="soapenc:string"></consOriginReference><consRecipientReference
+xsi:type="soapenc:string"></consRecipientReference><consReference
+xsi:type="soapenc:string"></consReference><consSenderReference
+xsi:type="soapenc:string"></consSenderReference><consignmentCode
+xsi:type="soapenc:string">DMC0H200CZ8W</consignmentCode><consignmentLevelDetailsFlag
+xsi:type="xsd:boolean">false</consignmentLevelDetailsFlag><consignmentValue
+xsi:type="xsd:double">0.0</consignmentValue><consignmentValueCurrencyCode
+xsi:type="soapenc:string">GBP</consignmentValueCurrencyCode><consignmentValueCurrencyRate
+xsi:type="xsd:double">1.0</consignmentValueCurrencyRate><consignmentWeight
+xsi:type="xsd:double">0.8999999999999999</consignmentWeight><custom1
+xsi:type="soapenc:string" xsi:nil="true"/><custom10
+xsi:type="soapenc:string" xsi:nil="true"/><custom2
+xsi:type="soapenc:string" xsi:nil="true"/><custom3
+xsi:type="soapenc:string" xsi:nil="true"/><custom4
+xsi:type="soapenc:string" xsi:nil="true"/><custom5
+xsi:type="soapenc:string" xsi:nil="true"/><custom6
+xsi:type="soapenc:string" xsi:nil="true"/><custom7
+xsi:type="soapenc:string" xsi:nil="true"/><custom8
+xsi:type="soapenc:string" xsi:nil="true"/><custom9
+xsi:type="soapenc:string"
+xsi:nil="true"/><customsDocumentationRequired
+xsi:type="xsd:boolean">true</customsDocumentationRequired><cutOffDate
+xsi:type="xsd:dateTime">2013-09-27T17:00:00.000Z</cutOffDate><despatchDate
+xsi:type="xsd:dateTime">2013-09-27T17:30:00.000Z</despatchDate><earliestDeliveryDate
+xsi:type="xsd:dateTime">2013-10-03T09:31:00.000Z</earliestDeliveryDate><endVatNumber
+xsi:type="soapenc:string" xsi:nil="true"/><fragileGoodsFlag
+xsi:type="xsd:boolean">false</fragileGoodsFlag><guaranteedDeliveryDate
+xsi:type="xsd:dateTime">2013-10-03T22:31:59.999Z</guaranteedDeliveryDate><hazardCodes
+xsi:type="soapenc:Array" xsi:nil="true"/><hazardousGoodsFlag
+xsi:type="xsd:boolean">false</hazardousGoodsFlag><insuranceValue
+xsi:type="xsd:double">0.0</insuranceValue><insuranceValueCurrencyCode
+xsi:type="soapenc:string" xsi:nil="true"/><insuranceValueCurrencyRate
+xsi:type="xsd:double">0.0</insuranceValueCurrencyRate><languageCode
+xsi:type="soapenc:string">fr</languageCode><liquidGoodsFlag
+xsi:type="xsd:boolean">false</liquidGoodsFlag><manifestGroupCode
+xsi:type="soapenc:string" xsi:nil="true"/><maxDimension
+xsi:type="xsd:double">55.0</maxDimension><metaCampaignKey
+xsi:type="soapenc:string" xsi:nil="true"/><metaCustomerKey
+xsi:type="soapenc:string" xsi:nil="true"/><moreThanOneMetreGoodsFlag
+xsi:type="xsd:boolean">false</moreThanOneMetreGoodsFlag><moreThanTwentyFiveKgGoodsFlag
+xsi:type="xsd:boolean">false</moreThanTwentyFiveKgGoodsFlag><orderDate
+xsi:type="xsd:dateTime" xsi:nil="true"/><orderNumber
+xsi:type="soapenc:string">R621025018</orderNumber><orderValue
+xsi:type="xsd:double">0.0</orderValue><parcelCount
+xsi:type="xsd:int">3</parcelCount>
+<parcels soapenc:arrayType="ns2:Parcel[3]" xsi:type="soapenc:Array">
+<parcels xsi:type="ns2:Parcel"><CODParcelAmount
+xsi:type="xsd:double">0.0</CODParcelAmount><cartonId
+xsi:type="soapenc:string" xsi:nil="true"/><code
+xsi:type="soapenc:string">000000252</code><destinationReference
+xsi:type="soapenc:string"></destinationReference><dutyPaid
+xsi:type="xsd:double">0.0</dutyPaid><number
+xsi:type="xsd:int">1</number><originReference
+xsi:type="soapenc:string"></originReference><outerConsignmentCode
+xsi:type="soapenc:string" xsi:nil="true"/><outerParcelNumber
+xsi:type="xsd:int">0</outerParcelNumber><packageTypeCode
+xsi:type="soapenc:string" xsi:nil="true"/><parcelDepth
+xsi:type="xsd:double">55.0</parcelDepth><parcelHeight
+xsi:type="xsd:double">25.0</parcelHeight><parcelPrintStatus
+xsi:type="soapenc:string">Not Printed</parcelPrintStatus><parcelValue
+xsi:type="xsd:double">0.0</parcelValue><parcelWeight
+xsi:type="xsd:double">0.3</parcelWeight><parcelWidth
+xsi:type="xsd:double">32.0</parcelWidth><products
+xsi:type="soapenc:Array" xsi:nil="true"/><recipientReference
+xsi:type="soapenc:string"></recipientReference><reference
+xsi:type="soapenc:string">45</reference><senderReference
+xsi:type="soapenc:string"></senderReference><trackingCode
+xsi:type="soapenc:string">000000252</trackingCode><trackingUrl
+xsi:type="soapenc:string">http://www.parcelforce.com/track-trace?trackNumber=000000252</trackingUrl>
+</parcels>
+</parcels>
+<pickTicketNumber
+xsi:type="soapenc:string" xsi:nil="true"/><pickupPoint
+xsi:type="soapenc:string" xsi:nil="true"/><podRequired
+xsi:type="soapenc:string">any</podRequired><properties
+soapenc:arrayType="ns2:Property[16]"
+xsi:type="soapenc:Array"><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">carrier.field3</propertyName><propertyValue
+xsi:type="soapenc:string">1</propertyValue></properties><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">carrier.field2</propertyName><propertyValue
+xsi:type="soapenc:string">1</propertyValue></properties><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">carrier.field1</propertyName><propertyValue
+xsi:type="soapenc:string">1</propertyValue></properties><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">route.level5</propertyName><propertyValue
+xsi:type="soapenc:string"></propertyValue></properties><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">route.level4</propertyName><propertyValue
+xsi:type="soapenc:string"></propertyValue></properties><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">route.collection.level5</propertyName><propertyValue
+xsi:type="soapenc:string"></propertyValue></properties><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">route.collection.level4</propertyName><propertyValue
+xsi:type="soapenc:string"></propertyValue></properties><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">carrier.manifest.areas</propertyName><propertyValue
+xsi:type="soapenc:string">1,0,16369</propertyValue></properties><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">route.level3</propertyName><propertyValue
+xsi:type="soapenc:string"></propertyValue></properties><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">route.collection.level3</propertyName><propertyValue
+xsi:type="soapenc:string"></propertyValue></properties><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">route.version</propertyName><propertyValue
+xsi:type="soapenc:string">GBR</propertyValue></properties><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">route.level2</propertyName><propertyValue
+xsi:type="soapenc:string">0</propertyValue></properties><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">route.collection.level2</propertyName><propertyValue
+xsi:type="soapenc:string">0</propertyValue></properties><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">route.level1</propertyName><propertyValue
+xsi:type="soapenc:string">0</propertyValue></properties><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">route.collection.level1</propertyName><propertyValue
+xsi:type="soapenc:string">0</propertyValue></properties><properties
+xsi:type="ns2:Property"><propertyName
+xsi:type="soapenc:string">route.collectingdepot.code</propertyName><propertyValue
+xsi:type="soapenc:string">Coventry</propertyValue></properties></properties><recipientAddress
+xsi:type="ns2:Address"><companyName xsi:type="soapenc:string"
+xsi:nil="true"/><countryCode
+xsi:type="soapenc:string">CAN</countryCode><floor
+xsi:type="soapenc:string" xsi:nil="true"/><line1
+xsi:type="soapenc:string">16163 McKenzie Lake Way SE</line1><line2
+xsi:type="soapenc:string">.</line2><line3 xsi:type="soapenc:string"
+xsi:nil="true"/><line4 xsi:type="soapenc:string"
+xsi:nil="true"/><postCode xsi:type="soapenc:string">T2Z
+1M4</postCode><region xsi:type="soapenc:string"
+xsi:nil="true"/><streetName xsi:type="soapenc:string"
+xsi:nil="true"/><streetNo xsi:type="soapenc:string"
+xsi:nil="true"/><streetType xsi:type="soapenc:string"
+xsi:nil="true"/><town xsi:type="soapenc:string" xsi:nil="true"/><type
+xsi:type="soapenc:string">Residential</type></recipientAddress><recipientCode
+xsi:type="soapenc:string" xsi:nil="true"/><recipientContactPhone
+xsi:type="soapenc:string">1-403-257-1779</recipientContactPhone><recipientEmail
+xsi:type="soapenc:string">nicole.h.armstrong@gmail.com</recipientEmail><recipientFirstName
+xsi:type="soapenc:string" xsi:nil="true"/><recipientLastName
+xsi:type="soapenc:string" xsi:nil="true"/><recipientMobilePhone
+xsi:type="soapenc:string" xsi:nil="true"/><recipientName
+xsi:type="soapenc:string">Deborah
+Armstrong</recipientName><recipientNotificationType
+xsi:type="soapenc:string">N</recipientNotificationType><recipientPhone
+xsi:type="soapenc:string" xsi:nil="true"/><recipientTimeZone
+xsi:type="soapenc:string">Canada/Atlantic</recipientTimeZone><recipientTitle
+xsi:type="soapenc:string" xsi:nil="true"/><recipientVatNumber
+xsi:type="soapenc:string" xsi:nil="true"/><returnAddress
+xsi:type="ns2:Address"><companyName xsi:type="soapenc:string"
+xsi:nil="true"/><countryCode xsi:type="soapenc:string"
+xsi:nil="true"/><floor xsi:type="soapenc:string"
+xsi:nil="true"/><line1 xsi:type="soapenc:string"
+xsi:nil="true"/><line2 xsi:type="soapenc:string"
+xsi:nil="true"/><line3 xsi:type="soapenc:string"
+xsi:nil="true"/><line4 xsi:type="soapenc:string"
+xsi:nil="true"/><postCode xsi:type="soapenc:string"
+xsi:nil="true"/><region xsi:type="soapenc:string"
+xsi:nil="true"/><streetName xsi:type="soapenc:string"
+xsi:nil="true"/><streetNo xsi:type="soapenc:string"
+xsi:nil="true"/><streetType xsi:type="soapenc:string"
+xsi:nil="true"/><town xsi:type="soapenc:string" xsi:nil="true"/><type
+xsi:type="soapenc:string">Business</type></returnAddress><returnEmail
+xsi:type="soapenc:string"></returnEmail><returnFirstName
+xsi:type="soapenc:string" xsi:nil="true"/><returnLastName
+xsi:type="soapenc:string" xsi:nil="true"/><returnMobile
+xsi:type="soapenc:string"></returnMobile><returnName
+xsi:type="soapenc:string"></returnName><returnPhone
+xsi:type="soapenc:string"></returnPhone><returnTitle
+xsi:type="soapenc:string" xsi:nil="true"/><senderAddress
+xsi:type="ns2:Address"><companyName xsi:type="soapenc:string"
+xsi:nil="true"/><countryCode
+xsi:type="soapenc:string">GBR</countryCode><floor
+xsi:type="soapenc:string" xsi:nil="true"/><line1
+xsi:type="soapenc:string">89a Shacklewelll Lane</line1><line2
+xsi:type="soapenc:string">London</line2><line3
+xsi:type="soapenc:string" xsi:nil="true"/><line4
+xsi:type="soapenc:string" xsi:nil="true"/><postCode
+xsi:type="soapenc:string">E8 2EB</postCode><region
+xsi:type="soapenc:string" xsi:nil="true"/><streetName
+xsi:type="soapenc:string" xsi:nil="true"/><streetNo
+xsi:type="soapenc:string" xsi:nil="true"/><streetType
+xsi:type="soapenc:string" xsi:nil="true"/><town
+xsi:type="soapenc:string" xsi:nil="true"/><type
+xsi:type="soapenc:string">Business</type></senderAddress><senderCode
+xsi:type="soapenc:string">DEFAULT</senderCode><senderContactPhone
+xsi:type="soapenc:string" xsi:nil="true"/><senderEmail
+xsi:type="soapenc:string" xsi:nil="true"/><senderFirstName
+xsi:type="soapenc:string" xsi:nil="true"/><senderLastName
+xsi:type="soapenc:string" xsi:nil="true"/><senderMobilePhone
+xsi:type="soapenc:string" xsi:nil="true"/><senderName
+xsi:type="soapenc:string">Wool And The
+Gang</senderName><senderNotificationType
+xsi:type="soapenc:string">N</senderNotificationType><senderPhone
+xsi:type="soapenc:string" xsi:nil="true"/><senderTimeZone
+xsi:type="soapenc:string">Europe/London</senderTimeZone><senderTitle
+xsi:type="soapenc:string" xsi:nil="true"/><senderVatNumber
+xsi:type="soapenc:string" xsi:nil="true"/><shipmentTypeCode
+xsi:type="soapenc:string">MERCHANDISE</shipmentTypeCode><shippingAccount
+xsi:type="soapenc:string" xsi:nil="true"/><shippingCharge
+xsi:type="xsd:double">0.0</shippingCharge><shippingChargeCurrencyCode
+xsi:type="soapenc:string" xsi:nil="true"/><shippingChargeCurrencyRate
+xsi:type="xsd:double">0.0</shippingChargeCurrencyRate><shippingCost
+xsi:type="xsd:double">7.0</shippingCost><shippingCostCurrencyCode
+xsi:type="soapenc:string" xsi:nil="true"/><shippingCostCurrencyRate
+xsi:type="xsd:double">0.0</shippingCostCurrencyRate><signatoryOnCustoms
+xsi:type="soapenc:string" xsi:nil="true"/><specialInstructions1
+xsi:type="soapenc:string" xsi:nil="true"/><specialInstructions2
+xsi:type="soapenc:string" xsi:nil="true"/><startVatNumber
+xsi:type="soapenc:string" xsi:nil="true"/><status
+xsi:type="soapenc:string">Allocated</status><taxAndDuty
+xsi:type="xsd:double">0.0</taxAndDuty><taxAndDutyCurrencyCode
+xsi:type="soapenc:string" xsi:nil="true"/><taxAndDutyCurrencyRate
+xsi:type="xsd:double">0.0</taxAndDutyCurrencyRate><taxAndDutyStatusText
+xsi:type="soapenc:string"
+xsi:nil="true"/><taxDutyDeclarationCurrencyCode
+xsi:type="soapenc:string" xsi:nil="true"/><termsOfTradeCode
+xsi:type="soapenc:string">DAP</termsOfTradeCode><transactionType
+xsi:type="soapenc:string">Delivery</transactionType><twoManLiftFlag xsi:type="xsd:boolean">false</twoManLiftFlag></createAndAllocateConsignmentsReturn></createAndAllocateConsignmentsReturn></ns1:createAndAllocateConsignmentsResponse></soapenv:Body></soapenv:Envelope>

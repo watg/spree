@@ -40,17 +40,12 @@ module Spree
       Spree::Variant.unscoped { super }
     end
 
-    private
-    def check_price
-      raise "Price must belong to a variant" if variant.nil?
-
-      if currency.nil?
-        self.currency = Spree::Config[:currency]
-      end
+    def parse_price(price)
+      self.class.parse_price(price)
     end
 
     # strips all non-price-like characters from the price, taking into account locale settings
-    def parse_price(price)
+    def self.parse_price(price)
       return price unless price.is_a?(String)
 
       separator, _delimiter = I18n.t([:'number.currency.format.separator', :'number.currency.format.delimiter'])
@@ -59,6 +54,15 @@ module Spree
       price.gsub!(separator, '.') unless separator == '.' # then replace the locale-specific decimal separator with the standard separator if necessary
 
       price.to_d
+    end
+
+    private
+    def check_price
+      raise "Price must belong to a variant" if variant.nil?
+
+      if currency.nil?
+        self.currency = Spree::Config[:currency]
+      end
     end
 
   end

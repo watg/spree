@@ -1,5 +1,9 @@
-<% if defined?(image) && image %>
-  <%= image_tag image.attachment.url(:product), :itemprop => "image" %>
+<% if image %>
+	<a href="<%= image_url(image,:large) %>" target="_blank" class="fancybox" rel="product-gallery">
+		<%= image_tag image.attachment.url(:product), :itemprop => "image" %>
+	</a>
 <% else %>
-  <%= product_image(@product, :itemprop => "image") %>
+	<a href="<%= image_url(@product,:large) %>" target="_blank" class="fancybox" rel="product-gallery">
+		<%= product_image(@product, :itemprop => "image") %>
+	</a>
 <% end %>

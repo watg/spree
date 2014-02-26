@@ -1,0 +1,82 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or vendor/assets/stylesheets of plugins, if any, can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the top of the
+ * compiled file, but it's generally better to create a new file per style scope.
+ *
+ *= require_self
+ */
+ 
+// General mixins
+@import "_mixins";
+
+// Import any web fonts...
+@import "_fonts";
+
+// Global Foundation Settings
+@import "_settings";
+// Global Foundation
+//@import "foundation";
+
+/* Each individual part that can be added in */
+@import "foundation/components/global";
+@import "foundation/components/grid";
+@import "_ie-foundation-grid"; /* Adjusted grid for IE8 */
+//@import "foundation/components/visibility";
+//@import "foundation/components/block-grid";
+@import "foundation/components/type";
+@import "foundation/components/buttons";
+@import "foundation/components/forms";
+/*@import "foundation/components/custom-forms";*/
+//@import "foundation/components/button-groups";
+//@import "foundation/components/dropdown-buttons";
+//@import "foundation/components/split-buttons";
+//@import "foundation/components/flex-video";
+//@import "foundation/components/section";
+//@import "foundation/components/top-bar";
+//@import "foundation/components/orbit";
+//@import "foundation/components/reveal";
+//@import "foundation/components/joyride";
+//@import "foundation/components/clearing";
+@import "foundation/components/alert-boxes";
+@import "foundation/components/breadcrumbs";
+//@import "foundation/components/keystrokes";
+//@import "foundation/components/labels";
+@import "foundation/components/inline-lists";
+//@import "foundation/components/pagination";
+@import "foundation/components/panels";
+//@import "foundation/components/pricing-tables";
+//@import "foundation/components/progress-bars";
+//@import "foundation/components/side-nav";
+//@import "foundation/components/sub-nav";
+//@import "foundation/components/switch";
+//@import "foundation/components/magellan";
+@import "foundation/components/tables";
+//@import "foundation/components/thumbs";
+//@import "foundation/components/tooltips";
+//@import "foundation/components/dropdown";
+
+// onmediaquery classes
+@import "_onmediaquery";
+
+@import "_base";
+@import "_modules";
+
+// Site "B" interim styles
+@import "_fancybox";
+@import "_interim";
+// Products
+@import "_product-top";
+@import "_product-index";
+@import "_product-group";
+// Variant Options plugin style overrides
+@import "_variant-options";
+// @import "_product";
+// Static page styles
+@import "_static";
+// Homepage styles
+@import "_homepage";

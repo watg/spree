@@ -233,7 +233,7 @@ describe Spree::TaxRate do
         :tax_category => @category,
         :zone => zone
       )
-      @taxable     = create(:product, :tax_category => @category)
+      @taxable     = create(:product_with_prices, :tax_category => @category)
       @nontaxable  = create(:product, :tax_category => @category2)
     end
 
@@ -332,7 +332,7 @@ describe Spree::TaxRate do
 
     context "when order has multiple taxable line items" do
       before do
-        @taxable2 = create(:product, :tax_category => @category)
+        @taxable2 = create(:product_with_prices, :tax_category => @category)
         @order.contents.add(@taxable.master, 1)
         @order.contents.add(@taxable2.master, 1)
         # The above automatically creates an adjustment which needs to be cleared

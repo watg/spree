@@ -5,7 +5,7 @@ describe Spree::Calculator::PerItem do
   let!(:product1) { double("Product") }
   let!(:product2) { double("Product") }
   let!(:line_items) { [double("LineItem", :quantity => 5, :product => product1), double("LineItem", :quantity => 3, :product => product2)] }
-  let!(:object) { double("Order", :line_items => line_items) }
+  let!(:object) { double("Order", :line_items_without_gift_cards => line_items, :currency => "USD") }
 
   let!(:shipping_calculable) { double("Calculable") }
   let!(:promotion_calculable) { double("Calculable", :promotion => promotion) }
@@ -13,7 +13,7 @@ describe Spree::Calculator::PerItem do
   let!(:promotion) { double("Promotion", :rules => [double("Rule", :products => [product1])]) }
   let!(:promotion_without_rules) { double("Promotion", :rules => []) }
 
-  let!(:calculator) { Spree::Calculator::PerItem.new(:preferred_amount => 10) }
+  let!(:calculator) { Spree::Calculator::PerItem.new(:preferred_amount => [{type: :integer, name: "USD", value: 10}]) }
 
   # regression test for #1414
   it "correctly calculates per item shipping" do
@@ -24,6 +24,24 @@ describe Spree::Calculator::PerItem do
   it "correctly calculates per item promotion" do
     calculator.stub(:calculable => promotion_calculable)
     calculator.compute(object).to_f.should == 50 # 5 x 10
+  end
+
+  it "correctly calculates per item promotion with multi-currency" do
+    calculator.preferred_amount = [
+      {type: :integer, name: "GBP", value: 10},
+      {type: :integer, name: "EUR", value: 20},
+      {type: :integer, name: "USD", value: 30}
+    ]
+    calculator.stub(:calculable => promotion_calculable)
+
+    object.stub :currency => "GBP"
+    calculator.compute(object).should == 50 # 5 x 10
+
+    object.stub :currency => "EUR"
+    calculator.compute(object).should == 100 # 5 x 20
+
+    object.stub :currency => "USD"
+    calculator.compute(object).should == 150 # 5 x 30
   end
 
   it 'correctly calculates per item promotion with no rules i.e. no product restrictions' do

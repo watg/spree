@@ -1,10 +1,10 @@
 FactoryGirl.define do
   factory :stock_location, class: Spree::StockLocation do
-    name 'NY Warehouse'
-    address1 '1600 Pennsylvania Ave NW'
-    city 'Washington'
-    zipcode '20500'
-    phone '(202) 456-1111'
+    name 'Shacklewell'
+    address1 'Dalston'
+    city 'London'
+    zipcode 'EC3 4AA'
+    phone '0207 234 567'
     active true
     backorderable_default true
 
