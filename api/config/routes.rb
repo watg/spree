@@ -12,7 +12,6 @@ Spree::Core::Engine.add_routes do
     get 'pinterest' => 'pinterest#show', :as => 'pinterest'
 
     resources :olapic, :only => [:index]
-    resources :linkshare, only: [:index]
 
     resources :products do
       resources :variants
