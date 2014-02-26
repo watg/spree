@@ -16,13 +16,13 @@ end
 ENV["RAILS_ENV"] ||= 'test'
 
 begin
-  require File.expand_path("../dummy/config/environment", __FILE__)
+  require File.expand_path("../../../../../config/environment", __FILE__)
 rescue LoadError
   puts "Could not load dummy application. Please ensure you have run `bundle exec rake test_app`"
 end
 
 require 'rspec/rails'
-require 'ffaker'
+# require 'ffaker'
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
@@ -57,6 +57,14 @@ end
 RSpec.configure do |config|
   config.color = true
   config.mock_with :rspec
+  config.backtrace_exclusion_patterns = [
+    /\/lib\d*\/ruby\//,
+    /bin\//,
+    /gems/,
+    /custom_plan/,
+    /spec\/spec_helper\.rb/,
+    /lib\/rspec\/(core|expectations|matchers|mocks)/
+  ]
 
   config.fixture_path = File.join(File.expand_path(File.dirname(__FILE__)), "fixtures")
 
@@ -83,6 +91,7 @@ RSpec.configure do |config|
     end
     DatabaseCleaner.start
     reset_spree_preferences
+    Delayed::Worker.delay_jobs = true
   end
 
   config.after(:each) do

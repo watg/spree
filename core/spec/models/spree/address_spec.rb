@@ -10,13 +10,13 @@ describe Spree::Address do
       original = create(:address,
                          :address1 => 'address1',
                          :address2 => 'address2',
-                         :alternative_phone => 'alternative_phone',
+                         :alternative_phone => '123-456-7890',
                          :city => 'city',
                          :country => Spree::Country.first,
                          :firstname => 'firstname',
                          :lastname => 'lastname',
                          :company => 'company',
-                         :phone => 'phone',
+                         :phone => '123-456-7890',
                          :state_id => state.id,
                          :state_name => state.name,
                          :zipcode => 'zip_code')
@@ -128,37 +128,17 @@ describe Spree::Address do
       address.should be_valid
     end
 
-    it "requires phone" do
+    it "phone is set" do
+      address.phone = "123-456-7890"
+      address.should have(:no).errors_on(:phone)
+    end
+
+    it "phone is blank" do
       address.phone = ""
       address.valid?
-      address.errors["phone"].should == ["can't be blank"]
+      address.errors["phone"].should == ["can't be blank", "is invalid"]
     end
 
-    it "requires zipcode" do
-      address.zipcode = ""
-      address.valid?
-      address.should have(1).error_on(:zipcode)
-    end
-
-    context "phone not required" do
-      before { address.instance_eval{ self.stub :require_phone? => false } }
-
-      it "shows no errors when phone is blank" do
-        address.phone = ""
-        address.valid?
-        address.should have(:no).errors_on(:phone)
-      end
-    end
-
-    context "zipcode not required" do
-      before { address.instance_eval{ self.stub :require_zipcode? => false } }
-
-      it "shows no errors when phone is blank" do
-        address.zipcode = ""
-        address.valid?
-        address.should have(:no).errors_on(:zipcode)
-      end
-    end
   end
 
   context ".default" do

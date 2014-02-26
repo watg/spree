@@ -1,0 +1,27 @@
+<div class="item-description" data-hook="cart_item_description">
+  <h4><%= link_to variant.product.name, path_to_variant(line_item, variant) %></h4>
+  <% if line_item.product.assembly? %>
+    <ul class='assembly_parts'>
+      <li><%= variant.options_text %> </li>
+      <% if line_item.line_item_options.any? %>
+        <h6>Options:</h6>
+        <% line_item.line_item_options.each do |o| %>
+          <li class="line-item-option"><%= link_to o.variant.name, product_path(o.variant.product) %></li>
+        <% end %>
+      <% end %>
+    </ul>
+  <% else %>
+    <%= variant.options_text %>
+    <% if @order.insufficient_stock_lines.include? line_item %>
+      <span class="out-of-stock"><%= Spree.t(:out_of_stock) %>&nbsp;&nbsp;<br /></span>
+    <% end %>
+  <% end %>
+  <% if !line_item.line_item_personalisations.blank? %>
+    <h6>Personalisations:</h6>
+    <ul class="personalisations">
+      <% line_item.line_item_personalisations.each do |p| %>
+        <li class="line-item-personalisation"> <%= p.text %> </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

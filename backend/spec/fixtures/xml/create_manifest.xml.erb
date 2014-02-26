@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+   <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+        <ns1:createManifest soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:ns1="urn:DeliveryManager/services">
+	  <carrierCode xsi:type="soapenc:string">ROYALMAIL</carrierCode>
+          <warehouseCode xsi:type="soapenc:string">DEFAULT</warehouseCode>
+	  <transactionType xsi:type="soapenc:string">DELIVERY</transactionType>
+        </ns1:createManifest>
+      </soapenv:Body>
+    </soapenv:Envelope>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+   <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+        <ns1:createManifestAsPdf soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:ns1="urn:DeliveryManager/services">
+	  <manifestCode xsi:type="soapenc:string"><%= manifest_code %></manifestCode>
+        </ns1:createManifestAsPdf>
+      </soapenv:Body>
+    </soapenv:Envelope>

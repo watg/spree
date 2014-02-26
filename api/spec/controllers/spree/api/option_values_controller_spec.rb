@@ -88,7 +88,7 @@ module Spree
 
         it "can create an option value" do
           api_post :create, :option_value => {
-                            :name => "Option Value",
+                            :name => "Option-Value",
                             :presentation => "Option Value"
                           }
           json_response.should have_attributes(attributes)
@@ -103,12 +103,12 @@ module Spree
         it "can update an option value" do
           original_name = option_value.name
           api_put :update, :id => option_value.id, :option_value => {
-                                :name => "Option Value",
+                                :name => "Option-Value",
                               }
           response.status.should == 200
 
           option_value.reload
-          option_value.name.should == "Option Value"
+          option_value.name.should == "Option-Value"
         end
 
         it "cannot update an option value with invalid attributes" do

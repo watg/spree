@@ -6,7 +6,7 @@ describe Spree::OrderContents do
 
   context "#add" do
     let(:variant) { create(:variant) }
-
+    
     context 'given quantity is not explicitly provided' do
       it 'should add one line item' do
         line_item = subject.add(variant)

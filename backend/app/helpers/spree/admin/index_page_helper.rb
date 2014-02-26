@@ -1,7 +1,7 @@
 module Spree
   module Admin
     module IndexPageHelper
-      include CdnHelper
+      include Spree::CdnHelper
 
       def first_image_url(item)
         if item.class == Spree::ProductPage && item.image

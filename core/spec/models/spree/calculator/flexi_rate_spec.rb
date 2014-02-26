@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Spree::Calculator::FlexiRate do
   let(:calculator) { Spree::Calculator::FlexiRate.new }
-  let(:order) { mock_model Spree::Order, :line_items => [mock_model(Spree::LineItem, :amount => 10, :quantity => 4), mock_model(Spree::LineItem, :amount => 20, :quantity => 6)] }
+  let(:order) { mock_model Spree::Order, :line_items_without_gift_cards => [mock_model(Spree::LineItem, :amount => 10, :quantity => 4), mock_model(Spree::LineItem, :amount => 20, :quantity => 6)] }
 
   context "compute" do
     it "should compute amount correctly when all fees are 0" do

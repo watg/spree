@@ -1,0 +1,73 @@
+<!-- details -->
+<% product = variant.product.decorate( @context ) %>
+<% variant = variant.decorate( @context ) %>
+<% cache [product,variant,variant.target,@current_currency] do %>
+<li class="displayable-entity details" data-variant="<%= variant.id %>" 
+	data-option-values="<%= variant.option_types_and_values.to_json %>" 
+	data-tree="<%= product.memoized_variant_options_tree.to_json %>" 
+	data-option-type-order="<%= product.memoized_option_type_order.to_json %>">
+
+	<a class="close" href="#">Close</a>
+	<a class="arrow prev" href="#">Previous <%= @title %></a>
+	<a class="arrow next" href="#">Next <%= @title %></a>
+	<div class="row">
+		<div class="large-6 small-12 columns">
+			<div class="product-images" data-hook="product_images">
+				<div class="main-image" data-hook>
+					<a href="<%= image_url(variant.memoized_first_image,:product) %>" target="_blank" class="fancybox" data-fancybox-group="product-gallery-<%= variant.id %>">
+						<%= image_tag(variant.placeholder_image, :itemprop => 'image', :class => 'lazy-load', :data => { :original => variant.memoized_first_image_url(:product) }) %>		
+					</a>
+				</div>
+				<div class="thumbnails" data-hook>
+					<%= render :partial => 'thumbnails', :locals => {:variant => variant, :product => product} %>
+				</div>
+			</div>
+		</div>
+		<div class="large-6 small-12 columns">
+			<h1><%= variant.name %></h1>
+
+			<div class="cart-form" data-hook="cart_form">
+				<%= render :partial => 'cart_form', :locals => {:variant => variant, :product => product, :target_id => @product_page.target_id } %>
+			</div>
+
+			<h5 class="reveal-title revealed">Product description</h5>
+			<p class="reveal-content"><%= product.description %></p>
+
+			<% if product.memoized_gang_member_visible? %>
+			<h5 class="reveal-title"><%= image_tag(product.memoized_gang_member_avatar_url, alt: "#{product.memoized_gang_member_nickname} portrait", width: "40", height: "40" ) %> #madeunique <span>by <%= product.memoized_gang_member_nickname%></span></h5>
+			<p class="reveal-content"><%= product.memoized_gang_member_profile %></p>
+			<% end %>
+			
+			<ul class="no-bullet social">
+				<% [:twitter, :facebook, :pinterest].each do |social| %>
+				<li>
+					<%= link_to("Share with #{social}", variant.send("#{social}_url", @product_page), target: '_blank', class: social) %>
+				</li>
+				<% end %>
+			</ul>
+		</div>
+	</div>
+	
+	<div class="row row-social">
+		<div class="large-12 columns"></div>
+	</div>
+</li>
+<!-- /details -->
+<!-- variant -->
+<li class="variant <%= variant.safe_tag_list %>" data-price="<%= variant.display_price %>" data-variant="<%= variant.id %>" data-variant-number="<%= variant.number %>" data-selected-tab="<%= @product_page.selected_tab %>" >
+	<a href="#">
+		<% url = image_url(variant.memoized_first_image, :product) %>
+		<%= image_tag(variant.placeholder_image, :itemprop => 'image', :class => 'lazy-load', alt: variant.memoized_placeholder_image_alt, :data => { :original => url }) %>
+    <h4><%= variant.display_name_including_options %><br/> by <%= product.memoized_gang_member_nickname %><br/>
+
+      <% if variant.in_sale? %>
+        <span class="price was"><%= variant.price_html %></span>
+        <span class="price now" itemprop="price"><%= variant.sale_price_html %></span>
+      <% else %>
+        <span class="price now" itemprop="price"><%= variant.price_html %></span>
+      <% end %>
+    </h4>
+	</a>
+</li>
+<% end # cache %>
+<!-- /variant -->

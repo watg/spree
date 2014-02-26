@@ -1,7 +1,7 @@
 module Spree
   class LinkshareJob
     include Spree::Core::Engine.routes.url_helpers
-    include CdnHelper
+    include Spree::CdnHelper
     #
     ##    atom feed validator
     ##    http://validator.w3.org/feed/

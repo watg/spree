@@ -1,0 +1,5 @@
+<% cache [@index_page,@items,@current_currency] do %>
+  $('.loading-text').remove();
+  $('.row-product').append('<%= j render partial: "index_page_item", collection: @items, as: :index_page_item %>');
+  $('.pagination').replaceWith('<%= j paginate @items %>');
+<% end %>

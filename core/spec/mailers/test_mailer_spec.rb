@@ -1,9 +1,9 @@
 require 'spec_helper'
-require 'email_spec'
+#require 'email_spec'
 
 describe Spree::TestMailer do
-  include EmailSpec::Helpers
-  include EmailSpec::Matchers
+#  include EmailSpec::Helpers
+#  include EmailSpec::Matchers
 
   let(:user) { create(:user) }
 

@@ -6,4 +6,13 @@ FactoryGirl.define do
     iso3 'USA'
     numcode 840
   end
+
+  factory :country_uk, class: Spree::Country do
+    iso_name 'UNITED KINGDOM'
+    name 'United Kingdom'
+    iso 'UK'
+    iso3 'GBP'
+    states_required false
+    numcode 001
+  end
 end

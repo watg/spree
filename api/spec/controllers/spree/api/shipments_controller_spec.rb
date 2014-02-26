@@ -54,7 +54,7 @@ describe Spree::Api::ShipmentsController do
     end
 
     it "can unlock a shipment's adjustment when updating" do
-      Spree::Calculator::FlatRate.any_instance.stub(:preferred_amount => 5)
+      Spree::Calculator::Shipping::FlatRate.any_instance.stub(:preferred_amount => 5.0)
       adjustment = order.adjustments.create(amount: 1, label: 'shipping')
       adjustment.source = shipment
       adjustment.originator = shipment.shipping_method

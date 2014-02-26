@@ -35,6 +35,7 @@ describe Spree::Payment do
 
   before(:each) do
     # So it doesn't create log entries every time a processing method is called
+    #DatabaseCleaner.clean # otherwise stack level too deep error with :state => 'failed'
     payment.log_entries.stub(:create!)
   end
 

@@ -384,6 +384,8 @@ describe Spree::Shipment do
     end
 
     it "should send a shipment email" do
+      old_delay_value = Delayed::Worker.delay_jobs
+      Delayed::Worker.delay_jobs = false
       mail_message = double 'Mail::Message'
       shipment_id = nil
       Spree::ShipmentMailer.should_receive(:shipped_email) { |*args|
@@ -393,6 +395,7 @@ describe Spree::Shipment do
       mail_message.should_receive :deliver
       shipment.ship!
       shipment_id.should == shipment.id
+      Delayed::Worker.delay_jobs = old_delay_value
     end
 
     it "should finalize the shipment's adjustment" do

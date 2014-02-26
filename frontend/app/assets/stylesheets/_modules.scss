@@ -1,0 +1,486 @@
+.top-bar{
+    background: #ffffff !important;
+}
+
+/* @group Global shared elements (Spree and Refinery) */
+
+/* @group Global masthead (Wool and the Gang logo) */
+
+.masthead-global {
+	float: left;
+	padding: 1em 0 1em 0.9375em;
+}
+#logo {
+	display: block;
+	width: 135px;
+	height: 99px;
+}
+
+/* @end */
+
+/* @group Global utility nav (search, account, basket links) */
+
+.nav-utility {
+	padding: 0.750em 1em 0 0;
+	text-transform: uppercase;
+	text-align: right;
+	ul {
+		@include zero-out-list;
+		display: inline;
+		line-height: 1;
+	}
+	li {
+		display: inline;
+		font-size: emCalc(12px);
+	}
+	a, label {
+		font-family: $watg-font;
+	}
+}
+#nav-bar {
+	li:before {
+		content: '/';
+		margin-right: 0.5em;
+	}
+	li:first-child:before {
+		content: '';
+		margin-right: 0;
+	}
+	li.worldwide {
+		padding-left: 19px;
+		font-family: $watg-font-light;
+		letter-spacing: 0.5px;
+		min-height: 14px;
+		background: image-url('watg-img/icon-airplane.png') 0 0 no-repeat;
+	}
+}
+#search-bar {
+	display: none;
+}
+#cart #link-to-cart {
+	display: none;
+}
+@media #{$small} {
+	.nav-utility {
+		nav {
+			display: inline;
+		}
+	}
+	#link-to-cart:before {
+		content: '/';
+		margin-right: 0.5em;
+	}
+}
+
+/* @group currency settings */
+.currency-setting {
+	float: none !important;
+	margin-right: 0 !important;
+	form {
+		display: inline;
+		margin: 0;
+	}
+	label {
+		display: none;
+	}
+	select {
+		float: none;
+		display: inline;
+		width: auto;
+		border: none;
+		margin: 0;
+		padding-top: 0;
+		padding-bottom: 0;
+		padding-left: 0;
+		font-family: $watg-font;
+		font-size: 1em;
+	}
+	&:before {
+		content: '/';
+	}
+}
+/* @end */
+
+/* @end */
+
+
+/* @group Global menu toggler */
+
+.js {
+	.global-menu-toggle {
+		position: absolute;
+		top: 60px;
+		//left: 0;
+		right: 10px;
+		z-index: 2;
+		width: 44px;
+		height: 44px;
+		background: #fff image-url('watg-img/touch-icon-menu.svg') no-repeat center center;
+		/*-moz-transition: left 0.3s ease-out;
+		-webkit-transition: left 0.3s ease-out;
+		-o-transition: left 0.3s ease-out;
+		transition: left 0.3s ease-out;*/
+		-moz-transition: right 0.3s ease-out;
+		-webkit-transition: right 0.3s ease-out;
+		-o-transition: right 0.3s ease-out;
+		transition: right 0.3s ease-out;
+		a {
+			display: block;
+			overflow: hidden;
+			width: 100%;
+			height: 100%;
+			text-indent: -999em;
+		}
+	}
+	&.no-svg .global-menu-toggle {
+		background-image: image-url('watg-img/touch-icon-menu.gif');
+	}
+	.off-canvas-expanded {
+		.global-menu-toggle {
+			//left: 80%;
+			right: 81%;
+		}
+	}
+}
+
+@media #{$small} {
+	.global-menu-toggle {
+		display: none;
+	}
+}
+
+/* @end */
+
+
+/* @group Global navigation (Womens, Mens...) */
+
+$collapsedHeight: 0.5em;
+$expandedHeight: 20em;
+
+.nav-global {
+	position: relative;
+	padding-left: 0.5em;
+	a {
+		display: block;
+	}
+	.sub-menu {
+		list-style: none;
+		display: block;
+		margin: 0 0 1em 0;
+		padding: 0 0 1em 0;
+		font-size: emCalc(12px);
+		border-bottom: 1px solid #d9d9d9;
+		li {
+			margin-bottom: 0.5em;
+			line-height: 1.25em;
+		}
+	}
+	/* always show expanded height in small screen */
+	&.expanded {
+		height: auto;
+	}
+}
+.nav-global-section {
+	& > a {
+		text-transform: uppercase;
+		//@extend .watg-font;
+		font-family: $watg-font;
+	}
+}
+
+/* collapse global nav into off-canvas menu (only with JS) */
+.js {
+	body {
+		background-color: $watg-tint-med;
+		overflow-x: hidden;
+	}
+	.container {
+		//float: right;
+		float: left;
+		width: 100%;
+		//margin-right: 0;
+		margin-left: 0;
+		background-color: $body-bg;
+		/*border-left: 2px solid #ddd;
+		-moz-transition: margin-right 0.3s ease-out;
+		-webkit-transition: margin-right 0.3s ease-out;
+		-o-transition: margin-right 0.3s ease-out;
+		transition: margin-right 0.3s ease-out;*/
+		border-right: 2px solid #ddd;
+		-moz-transition: margin-left 0.3s ease-out;
+		-webkit-transition: margin-left 0.3s ease-out;
+		-o-transition: margin-left 0.3s ease-out;
+		transition: margin-left 0.3s ease-out;
+	}
+	.nav-global {
+		//float: left;
+		float: right;
+		width: 80%;
+		//margin-left: -100%;
+		margin-right: -100%;
+		/*-moz-transition: margin-left 0.3s ease-out;
+		-webkit-transition: margin-left 0.3s ease-out;
+		-o-transition: margin-left 0.3s ease-out;
+		transition: margin-left 0.3s ease-out;*/
+		-moz-transition: margin-right 0.3s ease-out;
+		-webkit-transition: margin-right 0.3s ease-out;
+		-o-transition: margin-right 0.3s ease-out;
+		transition: margin-right 0.3s ease-out;
+	}
+	.off-canvas-expanded {
+		//overflow-x: hidden;
+		.nav-global {
+			//margin-left: 0;
+			margin-right: 0
+		}
+		.container {
+			//margin-right: -80%;
+			margin-left: -80%
+		}
+	}
+}
+
+/* 768+ turns into dropdown */
+@media #{$small} {
+
+	/* set "margin" on full nav */
+	.nav-global {
+		margin-bottom: 2em;
+		padding-left: 0;
+		.sub-menu {
+			height: $expandedHeight;
+			margin-bottom: 0;
+			padding-bottom: 0;
+			border-bottom: 0;
+		}
+	}
+
+	/* set up grid layout */
+	.nav-global-section {
+		position: relative;
+		width: 11.5%;
+		float: left;
+		&.women {}
+		&.men {}
+		&.collections {}
+		&.knit-your-own {}
+		&.sale {}
+		&.gang-culture {}
+		& > a {
+			padding: 0.429em 0;
+			margin-top: -2.65em;
+		}
+		&:first-child {
+			margin-left: 19%;
+		}
+		&:before {
+			content: '';
+			position: absolute;
+			left: -10px;
+			top: -36px;
+			width: 1px;
+			height: 20px;
+			background: #d6d6d6;
+		}
+	}
+	
+	/* JS driven hover effects */
+	.js {
+		/* zero-out small screen effects */
+		body {
+			overflow-x: auto;
+			background-color: $body-bg;
+		}
+		.off-canvas-expanded .container,
+		.container {
+			float: none;
+			width: 100%;
+			//margin-right: auto;
+			margin-left: auto;
+			//border-left: none;
+			border-right: none;
+			transition: none;
+		}
+		.off-canvas-expanded .nav-global,
+		.nav-global {
+			/* zero out small screen float */
+			float: none;
+			width: auto;
+			//margin-left: auto;
+			margin-right: auto;
+			-moz-transition: all 0.5s ease-in-out 0.25s;
+			-webkit-transition: all 0.5s ease-in-out 0.25s;
+			-o-transition: all 0.5s ease-in-out 0.25s;
+			transition: all 0.5s ease-in-out 0.25s;
+			.sub-menu {
+				/* collapse container and add height transitions */
+				height: $collapsedHeight;
+				overflow: hidden;
+				-ms-opacity: 0;
+				opacity: 0;
+				-webkit-transition: all 0.5s ease-in-out 0.25s;
+				-moz-transition: all 0.5s ease-in-out 0.25s;
+				-o-transition: all 0.5s ease-in-out 0.25s;
+				-ms-transition: all 0.5s ease-in-out 0.25s;
+				transition: all 0.5s ease-in-out 0.25s;
+			}
+		}
+		.nav-global.expanded {
+			.sub-menu {
+				height: $expandedHeight;
+				-ms-opacity: 1;
+				opacity: 1;
+			}
+		}
+	}
+}
+
+/* @end */
+
+/* @group Global Footer */
+.container > footer.row {
+	max-width: 60.625em;
+}
+
+.footer-global-unit {
+	padding-bottom: 32px;
+	padding-top: 32px;
+	font-size: emCalc(12px);
+	border-top: 1px solid #d9d9d9;
+	@media #{$small} {
+		padding-right: 0;
+	}
+}
+
+/* Marketing Footer - Newsletter signup and social media */
+.marketing {
+	padding-top: 27px;
+	padding-bottom: 32px;
+	border-top: 1px solid #d9d9d9;
+	@media #{$small} {
+		padding-left: 0;
+	}
+}
+.newsletter-subscribe {
+	margin: 0;
+	font-size: 0.750em;
+	@include clearfix;
+	label,
+	button {
+		text-transform: uppercase;
+		color: $body-font-color;
+		font-family: $watg-font;
+	}
+	label {
+		margin-bottom: 0.5em;
+		font-size: 1em;
+	}
+	input {
+		float: left;
+		width: 75%;
+		margin-bottom: 0;
+		font-size: 1em;
+		font-style: italic;
+	}
+	button {
+		float: right;
+		width: 20%;
+		margin-bottom: 0;
+		padding: 0.5em;
+		background: transparent;
+	}
+}
+@media #{$small} {
+	.newsletter-subscribe {
+		border-bottom: 1px solid $body-font-color;
+		label {
+			display: inline;
+		}
+		input,
+		input:focus {
+			display: inline;
+			float: none;
+			width: 22em;
+			border: none;
+			background-color: transparent;
+			-webkit-box-shadow: none;
+			box-shadow: none;
+			-webkit-transition: none;
+			-moz-transition: none;
+			transition: none;
+		}
+		button {
+			display: inline;
+			float: right;
+			width: auto;
+			padding: 0.75em;
+			border-bottom: none;
+		}
+	}
+}
+.social {
+	padding: 32px 0;
+	font-size: 0.750em;
+	h6 {
+		text-transform: uppercase;
+	}
+	a {
+		display: inline-block;
+		margin-left: 4px;
+		width: 1.667em;
+		height: 1.667em;
+		vertical-align: middle;
+		overflow: hidden;
+		text-align: left;
+		text-indent: -999em;
+		background-position: center;
+		background-repeat: no-repeat;
+		@include background-size(100% 100%);
+	}
+	.twitter {
+		background-image: image-url('watg-img/icon-sm-twitter.svg');
+		.no-svg & {
+			background-image: image-url('watg-img/icon-sm-twitter.png');
+		}
+	}
+	.facebook {
+		background-image: image-url('watg-img/icon-sm-facebook.svg');
+		.no-svg & {
+			background-image: image-url('watg-img/icon-sm-facebook.png');
+		}
+	}
+	.youtube {
+		background-image: image-url('watg-img/icon-sm-youtube.svg');
+		.no-svg & {
+			background-image: image-url('watg-img/icon-sm-youtube.png');
+		}
+	}
+	.pinterest {
+		background-image: image-url('watg-img/icon-sm-pinterest.svg');
+		.no-svg & {
+			background-image: image-url('watg-img/icon-sm-pinterest.png');
+		}
+	}
+	.tumblr {
+		background-image: image-url('watg-img/icon-sm-tumblr.svg');
+		.no-svg & {
+			background-image: image-url('watg-img/icon-sm-tumblr.png');
+		}
+	}
+	.instagram {
+		background-image: image-url('watg-img/icon-sm-instagram.svg');
+		.no-svg & {
+			background-image: image-url('watg-img/icon-sm-instagram.png');
+		}
+	}
+}
+@media #{$small} {
+	.social h6 {
+		display: inline-block;
+	}
+}
+
+/* @end */
+
+
+/* @end */

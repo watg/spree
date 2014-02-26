@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe Spree::LegacyUser do
+  subject { create(:user) }
+
   # Regression test for #2844 + #3346
   context "#last_incomplete_order" do
     let!(:user) { create(:user) }
