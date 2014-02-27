@@ -2,29 +2,24 @@ module Spree
   class LinkshareJob
     include Spree::Core::Engine.routes.url_helpers
     include Spree::CdnHelper
-    #
-    ##    atom feed validator
-    ##    http://validator.w3.org/feed/
-    #
-    CONFIG = {
-      s3_bucket: (Rails.env.production? ? 'watgfeeds' : 'watg-dest-test'),
-      name:  'linkshare/atom.xml'
-    }
-    
+
     def perform
-      persist( feed, :s3)
+      persist( feed, config[:storage_method].to_sym)
     end
 
     def feed
+      ##    atom feed validator
+      ##    http://validator.w3.org/feed/
+
       builder = Nokogiri::XML::Builder.new {|xml| 
         xml.feed("xml:lang" => "en-GB", 
                  "xmlns"    => "http://www.w3.org/2005/Atom", 
                  "xmlns:g"  => "http://base.google.com/ns/1.0") { 
-          xml.id_ s3_linkshare_feed_url
+          xml.id_ config[:feed_url]
           xml.title "Wool And The Gang Atom Feed"
           xml.updated Time.now.iso8601
-          xml.link(rel: "alternate", type: "text/html", href: host)
-          xml.link(rel: "self", type: "application/atom+xml", href: s3_linkshare_feed_url)
+          xml.link(rel: "alternate", type: "text/html", href: config[:host])
+          xml.link(rel: "self", type: "application/atom+xml", href: config[:feed_url])
           xml.author {
             xml.name "Wool And The Gang" }
           
@@ -74,25 +69,35 @@ module Spree
     end
 
     private
-    def cache(value)
-      unless open(File.join(Rails.root,'tmp/linkshare-atom.xml'), 'w') {|f| 
-          f.write(value); f.flush }
-        notify("Linkshare Atom feed could no be saved in CACHE: #{value[0..100]}...")
-      end
+    def config
+      FEEDS_CONFIG['linkshare'].symbolize_keys
     end
 
-    def s3(value)
-      s3 = AWS::S3.new
-      s3.buckets[ CONFIG[:s3_bucket]].
-        objects[  CONFIG[:name]     ].
-        write(value)
-    rescue
-      notify("Linkshare Atom feed could no be saved on S3: #{value[0..400]}...")
+    def gender(v)
+      t = v.target.try(:name)
+      (t.downcase == 'women' ? "F" : "M")
     end
 
     def persist(value, storage_method=:s3)
       notify("storage_method : #{storage_method} not supported") unless [:cache, :s3].include?(storage_method)
-      send(storage_method, value)
+      send("storage_#{storage_method}".to_sym, value)
+    end
+
+    def storage_cache(value)
+      path = File.join(Rails.root,'public', config[:name])
+      unless open(path, 'w') {|f| 
+          f.write(value); f.flush }
+        notify("Linkshare Atom feed could no be saved in CACHE path #{path}: #{value[0..100]}...")
+      end
+    end
+
+    def storage_s3(value)
+      s3 = AWS::S3.new
+      s3.buckets[ config[:s3_bucket]].
+        objects[  config[:name]     ].
+        write(value)
+    rescue
+      notify("Linkshare Atom feed could no be saved on S3: #{value[0..400]}...")
     end
 
     def notify(msg)
@@ -100,19 +105,6 @@ module Spree
       NotificationMailer.send_notification(msg)
       # fail job
       raise msg
-    end
-
-    def host
-      "http://www.woolandthegang.com"
-    end
-    
-    def s3_linkshare_feed_url
-      "http://#{CONFIG[:s3_bucket]}.s3-website-eu-west-1.amazonaws.com/#{CONFIG[:name]}"
-    end
-
-    def gender(v)
-      t = v.target.try(:name)
-      (t.downcase == 'women' ? "F" : "M")
     end
 
     def entry_url(v)
@@ -124,7 +116,7 @@ module Spree
 
       tab = v.product.assembly? ? "knit-your-own" : "made-by-the-gang"
 
-      product_page_url(host:       host, 
+      product_page_url(host:       config[:host], 
                        id:         ppage.permalink, 
                        tab:        tab,
                        variant_id: v.number)
@@ -133,7 +125,8 @@ module Spree
     def data_source
       Spree::Variant.
         includes(:product).
-        where("spree_products.product_type NOT IN (?)", %w(virtual_product parcel))
+        where("spree_products.product_type NOT IN (?)", %w(virtual_product parcel)).
+        references(:products)
     end
     
     def variants
