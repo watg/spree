@@ -1,14 +1,11 @@
 /* Negate widths in homepage to go full-bleed, trim margin on global nav */
 body.homepage {
-	.nav-global + .container > div.row {
+	.nav-primary-sub + .container > div.row {
   		max-width: none !important;
   	}
-  	.nav-global + .container > div.row > .columns {
+  	.nav-primary-sub + .container > div.row > .columns {
 		padding: 0;
   	}
-	.nav-global {
-		margin-bottom: 0;
-	}
 	/* Set certain elements to have transparent backgrounds */
 	.container:first-child,
 	.global-menu-toggle,
