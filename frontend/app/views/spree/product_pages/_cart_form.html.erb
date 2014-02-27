@@ -74,7 +74,7 @@
 <div class="add-to-cart">
 	<label>Quantity</label>
    <%= number_field_tag (product.memoized_targeted_grouped_option_values.any? ? :quantity : "variants[#{product.master.id}]"), 1, :id => 'qty', :min => 1 %>
-   <%= button_tag :class => 'add-to-cart-button small', :type => :submit, :title => 'asdasdasd' do %>
+   <%= button_tag :class => 'add-to-cart-button small', :type => :submit do %>
 	   <%= Spree.t(:add_to_cart) %>
 	 <% end %>
 </div>

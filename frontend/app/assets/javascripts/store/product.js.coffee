@@ -5,6 +5,8 @@ core.productGroup.readyVariantOptions = (entity) ->
 
   master_tree = entity.data('tree')
   option_type_order = entity.data('option-type-order')
+  console.log(option_type_order)
+
   option_values = entity.data('option-values')
 
   # Once we have selected all the option values hopefully it will spit out
@@ -31,9 +33,21 @@ core.productGroup.readyVariantOptions = (entity) ->
   # Friendly flash message in case user tries to checkout without the add-to-cart button
   # being enabled
   entity.find('.add-to-cart-button').click (event) -> 
-    console.log($(this).attr("disabled"))
-    if $(this).hasClass('disabled')
-      $('<p class="error"><strong>Please select COLOUR and SIZE</p>').hide().insertBefore('.product-variants').fadeIn('slow').delay(1500).fadeOut('slow')
+    missing_types = []
+    for key of option_type_order
+      unless entity.find(".variant-option-values.#{key}").hasClass('selected')
+        missing_types.push(key)
+    if missing_types.length > 0
+
+      # Format the message we return to the user if not enough  of the option
+      # types have been selected
+      last = missing_types.splice(-1,1)
+      message = "Please choose " + missing_types.join(', ')
+      (message = message + " and " ) if missing_types.length > 0
+      message = message + last
+
+      entity.find('p.error').remove()
+      entity.find('.add-to-cart').prepend($("<p class='error'>#{message}!</p>").hide().fadeIn('slow').focus())
       false
 
   entity.find('.option-value').click (event)->
@@ -61,6 +75,7 @@ toggle_option_values = (entity, selected_type, selected_value, selected_presenta
   # unselect all the other options at this level
   entity.find(".option-value.#{selected_type}").removeClass('selected')
   entity.find(".option-value.#{selected_type}.#{selected_value}").addClass('selected')
+  entity.find(".variant-option-values.#{selected_type}").addClass('selected')
 
   # Disable the prices by default
   entity.find('.normal-price').addClass('price now unselected').removeClass('was')
@@ -74,6 +89,7 @@ toggle_option_values = (entity, selected_type, selected_value, selected_presenta
   next_type = option_type_order[selected_type] 
   if next_type
     entity.find(".option-value.#{next_type}").removeClass('selected')
+    entity.find(".variant-option-values.#{next_type}").removeClass('selected')
 
   # For each selected option traverse the tree, until 
   # we reach the bottom of the selected nodes, the next set
