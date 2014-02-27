@@ -126,7 +126,6 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
   end
 
   def product_page_knit_your_own?
-    memoized_variant.nil? &&
       memoized_product_page.present? && memoized_product_page.kit.present?
   end
 

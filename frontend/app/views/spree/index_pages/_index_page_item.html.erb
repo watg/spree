@@ -1,38 +1,38 @@
 <% item_counter = index_page_item_counter + @items.offset_value %>
 <div class="<%= @index_page.column_class(item_counter) %> columns item-<%= item_counter %>" itemscope itemtype="http://schema.org/Product">
-	<% cache [index_page_item, @current_currency] do %>
-	<% index_page_item = index_page_item.decorate( context: { current_currency: @current_currency } ) %>
-	<a href="<%= index_page_item.product_page_url('made_by_the_gang') %>">
-		<h2 itemprop="name" class="<%= index_page_item.header_style %>"><%= index_page_item.title %></h2>
-		<%= image_tag('product-group/placeholder-470x600.gif', class: "lazy-load",  alt: index_page_item.image_alt, data: { original: index_page_item.image_url(index_page_item_counter) } ) %>
-	</a>
+  <% cache [index_page_item, @current_currency] do %>
+    <% index_page_item = index_page_item.decorate( context: { current_currency: @current_currency } ) %>
+    <a href="<%= index_page_item.product_page_url('made_by_the_gang') %>">
+      <h2 itemprop="name" class="<%= index_page_item.header_style %>"><%= index_page_item.title %></h2>
+      <%= image_tag('product-group/placeholder-470x600.gif', class: "lazy-load",  alt: index_page_item.image_alt, data: { original: index_page_item.image_url(index_page_item_counter) } ) %>
+    </a>
 
-	<ul class="no-bullet">
-		<% if index_page_item.memoized_product_page? %>
-		<% if (index_page_item.made_by_the_gang_link? || index_page_item.knit_your_own_link?) %>
-		<% if index_page_item.made_by_the_gang_link? %>
-		<li>
-			<a href="<%= index_page_item.made_by_the_gang_url %>">
-				<% if index_page_item.memoized_product_page.accessories.blank? %> Made by <br/>the Gang <% end %> 
-				<%= index_page_item.made_by_the_gang_prices %>
-			</a>
-		</li>
-		<% end %>
-		<% if index_page_item.knit_your_own_link? %>
-		<li>
-			<a href="<%= index_page_item.knit_your_own_url %>">
-				Knit <br/>your own 
-				<%= index_page_item.knit_your_own_prices %>
-			</a>
-		</li>
-		<% end %>
-		<% else %>
-		<li class="item-unavailable">Sorry, this item has been really popular. <a href="mailto:info@woolandthegang.com?subject=When will <%= index_page_item.title %> be back in stock?">info@woolandthegang.com</a> Drop us an email and we'll let you know when it's back. <br/><br/>info@woolandthegang.com</li>
-		<% end %>
-		<% end %>
-	</ul>
-	<% if (index_page_item.made_by_the_gang_link? || index_page_item.knit_your_own_link?) %>
-	<% if(@index_page.permalink != 'knitting/needles') %><p class="more-colours">Available in more colours</p><% end %>
-	<% end %>
-	<% end %>
+    <ul class="no-bullet">
+      <% if index_page_item.memoized_product_page? %>
+        <% if (index_page_item.made_by_the_gang_link? || index_page_item.knit_your_own_link?) %>
+          <% if index_page_item.made_by_the_gang_link? %>
+            <li>
+              <a href="<%= index_page_item.made_by_the_gang_url %>">
+                <% if index_page_item.memoized_product_page.accessories.blank? %> Made by <br/>the Gang <% end %> 
+                <%= index_page_item.made_by_the_gang_prices %>
+              </a>
+            </li>
+          <% end %>
+          <% if index_page_item.knit_your_own_link? %>
+            <li>
+              <a href="<%= index_page_item.knit_your_own_url %>">
+                Knit <br/>your own 
+                <%= index_page_item.knit_your_own_prices %>
+              </a>
+            </li>
+          <% end %>
+        <% else %>
+          <li class="item-unavailable">Sorry, this item has been really popular. <a href="mailto:info@woolandthegang.com?subject=When will <%= index_page_item.title %> be back in stock?">info@woolandthegang.com</a> Drop us an email and we'll let you know when it's back. <br/><br/>info@woolandthegang.com</li>
+        <% end %>
+      <% end %>
+    </ul>
+    <% if (index_page_item.made_by_the_gang_link? || index_page_item.knit_your_own_link?) %>
+      <% if(@index_page.permalink != 'knitting/needles') %><p class="more-colours">Available in more colours</p><% end %>
+    <% end %>
+  <% end %>
 </div>
