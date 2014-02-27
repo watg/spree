@@ -4,13 +4,13 @@ module Spree
       extend Common
 
       ASSETS = {
-        made_by_gang: File.join(Rails.root, 'app/assets/images/doc/', 'gang.jpg' ),
-        made_by_you:  File.join(Rails.root, 'app/assets/images/doc/', 'you.jpg' )
+        made_by_gang: File.expand_path(File.join(File.dirname(__FILE__), 'images', 'gang.jpg')),
+        made_by_you: File.expand_path(File.join(File.dirname(__FILE__), 'images', 'you.jpg'))
       } unless defined?(ASSETS)
 
       FONTS = {
-        medium:  File.join(Rails.root, 'app/assets/fonts', 'gillsansmtpromedium.ttf'),
-        light: File.join(Rails.root, 'app/assets/fonts', 'gillsansmtprolight.ttf'),
+        medium: File.expand_path(File.join(File.dirname(__FILE__), 'fonts', 'gillsansmtpromedium.ttf')),
+        light: File.expand_path(File.join(File.dirname(__FILE__), 'fonts', 'gillsansmtprolight.ttf'))
       } unless defined?(FONTS)
       
       STICKER_COORDINATES_BOTTOM_LEFT = {x: 10, y: 40}    unless defined?(STICKER_COORDINATES_BOTTOM_LEFT)

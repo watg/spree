@@ -1,71 +1,176 @@
-<!-- Primary global navigation -->
-<!-- main menu -->
-<% cache [Spree::Taxonomy.all, Flip.product_pages?] do %>
-<nav class="row nav-global" id="navGlobal">
-  <% if !Flip.product_pages? %>
-	<ul class="primary-menu">
-		<% get_taxonomies.each do |taxonomy| %>
-		<li class="nav-global-section <%= taxonomy.name.sub(/\s+/,'-').downcase %>">
-			<%= link_to( taxonomy.name, seo_url(taxonomy.root) ) %>
-			<ul class="sub-menu">
-				<% if taxonomy.root.children.any? %>
-				<% taxonomy.root.children.each do |sub_taxonomy| %>
-				<li><%= link_to( sub_taxonomy.name, seo_url(sub_taxonomy) ) %></li>
-				<% end %>
-				<% end %>
-			</ul>
-		</li>
-		<% end %>
-		<li class="nav-global-section gang-culture">
+<!-- Primary navigation -->
+<nav id="navPrimary" class="row nav-primary">
+	<ul>
+		<li class="whats-new">
+			<a href="#">What's new</a>
+		</li><!-- Comments fix inline-block spacing
+		--><li class="women">
+			<a href="/shop/knitwear/women">Women</a>
+		</li><!--
+		--><li class="men">
+			<a href="/shop/knitwear/men">Men</a>
+		</li><!--
+		--><li class="kids">
+			<a href="/shop/knitwear/kids">Kids</a>
+		</li><!--
+		--><li class="knitting">
+			<a href="/shop/knitwear/knitting">Knitting</a>
+		</li><!--
+		--><li class="gang-culture">
 			<a href="/meet-the-gang">Gang Culture</a>
-			<ul class="sub-menu">
-				<li><a href="http://blog.woolandthegang.com/">Our Blog</a></li>
-				<li><a href="/meet-the-gang">Meet The Gang</a></li>
-				<li><a href="/gang-manifesto">Gang Manifesto</a></li>
-				<li><a href="/become-a-gang-maker">Become a Gang Maker</a></li>
-				<li><a href="/video-tutorials">Video Tutorials</a></li>
-				<li><a href="/bespoke-projects">Bespoke Projects</a></li>
-				<li><a href="/press">Press</a></li>
-			</ul>
 		</li>
 	</ul>
-  <% else %>
-
-	<ul class="primary-menu">
-		<li class="nav-global-section collections">
-			<a href="/shop/knitwear/collections">Collections</a>
-			<ul class="sub-menu">
-				<%= render 'spree/navigation/collections' %>
+</nav>
+<!-- Primary sub-navigation -->
+<nav id="navPrimarySub" class="row nav-primary-sub">
+	<ul class="whats-new-sub">
+		<li class="large-3 columns">
+			<h2>Hot off the <span>drawing board</span></h2>
+		</li>
+		<li class="large-3 small-12 columns">
+			<h3>
+				<a href="/shop/knitwear/whats-new">What's new</a>
+			</h3>
+			<ul>
+				<%= render 'spree/navigation/whats_new' %>
 			</ul>
 		</li>
-		<li class="nav-global-section women">
-			<a href="/shop/knitwear/women">Women</a>
-			<ul class="sub-menu">
+		<li class="large-3 columns">
+			<% if !mobile_device? %>
+				<a href="/shop/items/be-my-baby-women/made-by-the-gang">
+					<img src="<%= cdn_prefix %>navigation/whats-new-be-my-baby.jpg" width="230" height="294" alt="Be My Baby" />
+					<h3>Be My Baby</h3>
+				</a>
+			<% end %>
+		</li>
+		<li class="large-3 columns">
+			<% if !mobile_device? %>
+				<a href="/shop/items/eek-hat/made-by-the-gang">
+					<img src="<%= cdn_prefix %>navigation/whats-new-eek-hat.jpg" width="230" height="294" alt="Eek Hat" />
+					<h3>Eek Hat</h3>
+				</a>
+			<% end %>
+		</li>
+	</ul>
+	<ul class="women-sub">
+		<li class="large-3 columns">
+			<h2>Made By The Gang <span>or Knit Your Own</span></h2>
+		</li>
+		<li class="large-3 small-12 columns">
+			<h3>
+				<a href="/shop/knitwear/women">For women</a>
+			</h3>
+			<ul>
 				<%= render 'spree/navigation/women' %>
 			</ul>
 		</li>
-		<li class="nav-global-section men">
-			<a href="/shop/knitwear/men">Men</a>
-			<ul class="sub-menu">
+		<li class="large-3 small-12 columns">
+			<h3>
+				<a href="/shop/knitwear/collections">Our collections</a>
+			</h3>
+			<ul>
+				<%= render 'spree/navigation/collections' %>
+			</ul>
+		</li>
+		<li class="large-3 columns">
+			<% if !mobile_device? %>
+				<a href="/shop/items/hold-tight-clutch-women/made-by-the-gang">
+					<img src="<%= cdn_prefix %>navigation/women-hold-tight-clutch.jpg" width="230" height="294" alt="Hold Tight Clutch" />
+					<h3 class="inverted">Hold Tight Clutch</h3>
+				</a>
+			<% end %>
+		</li>
+	</ul>
+	<ul class="men-sub">
+		<li class="large-3 columns">
+			<h2>Made By The Gang <span>or Knit Your Own</span></h2>
+		</li>
+		<li class="large-3 small-12 columns">
+			<h3>
+				<a href="/shop/knitwear/men">For men</a>
+			</h3>
+			<ul>
 				<%= render 'spree/navigation/men' %>
 			</ul>
 		</li>
-		<li class="nav-global-section kids">
-			<a href="/shop/knitwear/kids">Kids</a>
-			<ul class="sub-menu">
+		<li class="large-3 columns">
+			<% if !mobile_device? %>
+				<a href="/shop/items/stevie-sweater-men/made-by-the-gang">
+					<img src="<%= cdn_prefix %>navigation/men-stevie-sweater.jpg" width="230" height="294" alt="Stevie Sweater" />
+					<h3>Sailor Sweater</h3>
+				</a>
+			<% end %>
+		</li>
+		<li class="large-3 columns">
+			<% if !mobile_device? %>
+				<a href="shop/items/zissou-hat-men/made-by-the-gang">
+					<img src="<%= cdn_prefix %>navigation/men-zissou-hat.jpg" width="230" height="294" alt="Zissou Hat" />
+					<h3>Zissou Hat</h3>
+				</a>
+			<% end %>	
+		</li>
+	</ul>
+	<ul class="kids-sub">
+		<li class="large-3 columns">
+			<h2>Made By The Gang <span>or Knit Your Own</span></h2>
+		</li>
+		<li class="large-3 small-12 columns">
+			<h3>
+				<a href="/shop/knitwear/kids">For kids</a>
+			</h3>
+			<ul>
 				<%= render 'spree/navigation/kids' %>
 			</ul>
 		</li>
-		<li class="nav-global-section knitting">
-			<a href="/shop/knitwear/knitting">Knitting</a>
-			<ul class="sub-menu">
+		<li class="large-3 columns">
+			<% if !mobile_device? %>
+				<a href="/shop/items/sailor-sweater-for-kids/knit-your-own">
+					<img src="<%= cdn_prefix %>navigation/kids-sailor-sweater.jpg" width="230" height="294" alt="Sailor Sweater" />
+					<h3 class="inverted">Sailor Sweater</h3>
+				</a>
+			<% end %>
+		</li>
+		<li class="large-3 columns">
+			<% if !mobile_device? %>
+				<a href="/shop/items/zion-lion-for-kids/knit-your-own">
+					<img src="<%= cdn_prefix %>navigation/kids-zion-lion.jpg" width="230" height="294" alt="Zion Lion" />
+					<h3>Wool School</h3>
+				</a>
+			<% end %>
+		</li>
+	</ul>
+	<ul class="knitting-sub">
+		<li class="large-3 columns">
+			<h2>All you need for <span>your knitting project</span></h2>
+		</li>
+		<li class="large-3 small-12 columns">
+			<h3>
+				<a href="/shop/knitwear/knitting">For knitting</a>
+			</h3>
+			<ul>
 				<%= render 'spree/navigation/knitting' %>
 			</ul>
 		</li>
-		<li class="nav-global-section gang-culture">
-			<a href="/meet-the-gang">Gang Culture</a>
-			<ul class="sub-menu">
-				<li><a href="http://blog.woolandthegang.com/">Our Blog</a></li>
+		<li class="large-3 columns"></li>
+		<li class="large-3 columns">
+			<% if !mobile_device? %>
+				<a href="/video-tutorials">
+					<img src="<%= cdn_prefix %>navigation/knitting-wool-school.jpg" width="230" height="294" alt="Wool School" />
+					<h3>Wool School</h3>
+				</a>
+			<% end %>
+		</li>
+	</ul>
+	<ul class="gang-culture-sub">
+		<li class="large-3 columns">
+			<h2>Meet The Gang and <span>learn our values</span></h2>
+		</li>
+		<li class="large-3 small-12 columns">
+			<h3>
+				<a href="/meet-the-gang">Our Gang</a>
+			</h3>
+			<ul>
+				<li><a href="http://blog.woolandthegang.com">Our Blog</a></li>
 				<li><a href="/meet-the-gang">Meet The Gang</a></li>
 				<li><a href="/gang-manifesto">Gang Manifesto</a></li>
 				<li><a href="/become-a-gang-maker">Become a Gang Maker</a></li>
@@ -74,7 +179,21 @@
 				<li><a href="/press">Press</a></li>
 			</ul>
 		</li>
+		<li class="large-3 columns">
+			<% if !mobile_device? %>
+				<a href="http://blog.woolandthegang.com">
+					<img src="<%= cdn_prefix %>navigation/gang-culture-our-blog.jpg" width="230" height="294" alt="Our Blog" />
+					<h3>Our Blog</h3>
+				</a>
+			<% end %>
+		</li>
+		<li class="large-3 columns">
+			<% if !mobile_device? %>
+				<a href="/video-tutorials">
+					<img src="<%= cdn_prefix %>navigation/gang-culture-wool-school.jpg" width="230" height="294" alt="Wool School" />
+					<h3>Wool School</h3>
+				</a>
+			<% end %>
+		</li>
 	</ul>
-  <% end %>
 </nav>
-<% end %>
