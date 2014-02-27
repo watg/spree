@@ -1,3 +1,7 @@
+<% unless Rails.env.production? %>
+  <a href="<%= spree.edit_admin_product_variant_url(product.permalink,variant.id) %>">goto admin</a>
+<% end %>
+
 <% if variant.level %>
 <p class="level">Level <span><%= variant.level %></span></p>
 <% end %>
