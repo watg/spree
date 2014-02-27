@@ -5,8 +5,6 @@ core.productGroup.readyVariantOptions = (entity) ->
 
   master_tree = entity.data('tree')
   option_type_order = entity.data('option-type-order')
-  console.log(option_type_order)
-
   option_values = entity.data('option-values')
 
   # Once we have selected all the option values hopefully it will spit out
@@ -33,16 +31,16 @@ core.productGroup.readyVariantOptions = (entity) ->
   # Friendly flash message in case user tries to checkout without the add-to-cart button
   # being enabled
   entity.find('.add-to-cart-button').click (event) -> 
-    missing_types = []
-    for key of option_type_order
-      unless entity.find(".variant-option-values.#{key}").hasClass('selected')
-        missing_types.push(key)
-    if missing_types.length > 0
+    if $(this).hasClass('disabled')# missing_types.length > 0
+      missing_types = []
+      for key of option_type_order
+        unless entity.find(".variant-option-values.#{key}").hasClass('selected')
+         missing_types.push(key)
 
       # Format the message we return to the user if not enough  of the option
       # types have been selected
       last = missing_types.splice(-1,1)
-      message = "Please choose " + missing_types.join(', ')
+      message = "Please choose your " + missing_types.join(', ')
       (message = message + " and " ) if missing_types.length > 0
       message = message + last
 
@@ -85,11 +83,16 @@ toggle_option_values = (entity, selected_type, selected_value, selected_presenta
   entity.find('.add-to-cart-button').attr("style", "opacity: 0.5").addClass('disabled')
 
   # Unselect those downstream
-  #  next_type = entity.find(".variant-options.#{selected_type}").data('next_type')
+  #next_type = option_type_order[selected_type] 
+  #if next_type
+  #  entity.find(".option-value.#{next_type}").removeClass('selected').addClass('unavailable').addClass('locked')
+  #  entity.find(".variant-option-values.#{next_type}").removeClass('selected')
+
   next_type = option_type_order[selected_type] 
-  if next_type
-    entity.find(".option-value.#{next_type}").removeClass('selected')
+  while (next_type)
+    entity.find(".option-value.#{next_type}").removeClass('selected').addClass('unavailable').addClass('locked')
     entity.find(".variant-option-values.#{next_type}").removeClass('selected')
+    next_type = option_type_order[next_type]
 
   # For each selected option traverse the tree, until 
   # we reach the bottom of the selected nodes, the next set
@@ -118,9 +121,6 @@ toggle_option_values = (entity, selected_type, selected_value, selected_presenta
         if option_value.data('value') of sub_tree
           option_value.removeClass('unavailable')
           option_value.removeClass('locked')
-        else
-          option_value.addClass('unavailable')
-          option_value.addClass('locked')
 
   return null
 
