@@ -28,6 +28,26 @@ core.productGroup.readyVariantOptions = (entity) ->
   entity.find('.personalisation-option-value').click (event) ->
     toggle_personalisation_option_value(entity, $(this), event)
 
+  # Friendly flash message in case user tries to checkout without the add-to-cart button
+  # being enabled
+  entity.find('.add-to-cart-button').click (event) -> 
+    if $(this).hasClass('disabled')# missing_types.length > 0
+      missing_types = []
+      for key of option_type_order
+        unless entity.find(".variant-option-values.#{key}").hasClass('selected')
+         missing_types.push(key)
+
+      # Format the message we return to the user if not enough  of the option
+      # types have been selected
+      last = missing_types.splice(-1,1)
+      message = "Please choose your " + missing_types.join(', ')
+      (message = message + " and " ) if missing_types.length > 0
+      message = message + last
+
+      entity.find('p.error').remove()
+      entity.find('.add-to-cart').prepend($("<p class='error'>#{message}!</p>").hide().fadeIn('slow').focus())
+      false
+
   entity.find('.option-value').click (event)->
     event.preventDefault()
     selected_type = $(this).data('type')
@@ -53,19 +73,26 @@ toggle_option_values = (entity, selected_type, selected_value, selected_presenta
   # unselect all the other options at this level
   entity.find(".option-value.#{selected_type}").removeClass('selected')
   entity.find(".option-value.#{selected_type}.#{selected_value}").addClass('selected')
+  entity.find(".variant-option-values.#{selected_type}").addClass('selected')
 
   # Disable the prices by default
   entity.find('.normal-price').addClass('price now unselected').removeClass('was')
   entity.find('.sale-price').addClass('hide').removeClass('selling')
 
   # Disable the add to cart button
-  $('.add-to-cart-button').attr("disabled","disabled").attr("style", "opacity: 0.5")
+  entity.find('.add-to-cart-button').attr("style", "opacity: 0.5").addClass('disabled')
 
   # Unselect those downstream
-  #  next_type = entity.find(".variant-options.#{selected_type}").data('next_type')
+  #next_type = option_type_order[selected_type] 
+  #if next_type
+  #  entity.find(".option-value.#{next_type}").removeClass('selected').addClass('unavailable').addClass('locked')
+  #  entity.find(".variant-option-values.#{next_type}").removeClass('selected')
+
   next_type = option_type_order[selected_type] 
-  if next_type
-    entity.find(".option-value.#{next_type}").removeClass('selected')
+  while (next_type)
+    entity.find(".option-value.#{next_type}").removeClass('selected').addClass('unavailable').addClass('locked')
+    entity.find(".variant-option-values.#{next_type}").removeClass('selected')
+    next_type = option_type_order[next_type]
 
   # For each selected option traverse the tree, until 
   # we reach the bottom of the selected nodes, the next set
@@ -94,9 +121,6 @@ toggle_option_values = (entity, selected_type, selected_value, selected_presenta
         if option_value.data('value') of sub_tree
           option_value.removeClass('unavailable')
           option_value.removeClass('locked')
-        else
-          option_value.addClass('unavailable')
-          option_value.addClass('locked')
 
   return null
 
@@ -142,7 +166,7 @@ set_prices = (entity, variant_id, normal_price, sale_price, in_sale) ->
   entity.find('.sale-price').html( format_price(entity, sale_price + adjustment ) )
 
   entity.find('.normal-price').addClass('selling').removeClass('unselected')
-  entity.find('.add-to-cart-button').removeAttr("disabled").removeAttr("style")
+  entity.find('.add-to-cart-button').removeAttr("style").removeClass("disabled")
 
   if in_sale == true
     entity.find('.normal-price').addClass('was')
