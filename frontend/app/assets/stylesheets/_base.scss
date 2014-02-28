@@ -164,7 +164,7 @@ table {
 	-o-transition: height 0.4s 2s cubic-bezier(0.230, 1.000, 0.320, 1.000);
 	transition: height 0.4s 2s cubic-bezier(0.230, 1.000, 0.320, 1.000);
 	&.open {
-		height: 14.375em;
+		height: 15.375em;
 	}
 	.signup-close {
 		position: absolute;
@@ -194,12 +194,12 @@ table {
 	}
 	input {
 		float: left;
-		width: 75%;
+		width: 65%;
 		margin-bottom: 0;
 	}
 	button {
 		float: right;
-		width: 20%;
+		width: 30%;
 		margin-bottom: 0;
 		padding: 0.5em;
 		background: transparent;
@@ -242,6 +242,7 @@ table {
 			transition: none;
 		}
 		button {
+			margin-top: -4px;
 			display: inline;
 			vertical-align: bottom;
 			float: right;
@@ -298,6 +299,7 @@ table {
 	text-align: center;
 	display: none;
 	p {
+		padding: 0 0.9375em;
 		margin-top: 1.25em;
 		font-family: $watg-font-light;
 		text-transform: uppercase;
@@ -309,4 +311,10 @@ table {
 			text-decoration: underline;
 		}
 	}
+}
+
+/* Site wide error messaging */
+.error {
+  padding: 1.25em;
+  background-color: #f4bfbf;
 }

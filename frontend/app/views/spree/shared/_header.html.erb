@@ -1,20 +1,18 @@
-<div class="container">
-  <div id="header" class="row" data-hook>
-    <!-- Masthead -->
-    <header class="masthead-global">
-		<%= link_to root_path , id: 'logo' do %>
-			<img src="<%= image_path("logo-watg-135x99.png") %>" width="135" height="99" alt="Wool And The Gang" />
-		<% end %>
-    </header>
-    <!-- Utility navigation -->
-    <div id="utilityNav" class="nav-utility">
-      <%= render :partial => 'spree/shared/nav_bar' %>
-      <%= render :partial => 'spree/shared/main_nav_bar' %>
-    </div>
-  </div>
-</div>
-
-<!-- menu toggle button -->
-<div class="global-menu-toggle" id="navGlobalToggle">
-  <a href="#navGlobal">Menu</a>
-</div>
+<header class="container">
+	<div class="row nav-top">
+		<div class="large-2 small-2 columns">
+			<a class="link-nav-primary-sub" href="#navPrimarySub">Navigation</a>
+		</div>
+		<div class="large-10 small-10 columns">
+			<%= render :partial => 'spree/shared/nav_bar' %>
+			<%= render :partial => 'spree/shared/main_nav_bar' %>
+		</div>
+	</div>
+	<div class="row row-logo">
+		<div class="large-2 columns">
+			<%= link_to root_path do %>
+				<img src="<%= image_path("logo-watg-135x99.png") %>" width="135" height="99" alt="Wool And The Gang" />
+			<% end %>
+		</div>
+	</div>
+</header>

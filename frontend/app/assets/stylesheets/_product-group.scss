@@ -41,10 +41,10 @@
 	}
 	
 	/* Allow full widths */
-	.nav-global + .container > div.row {
+	.nav-primary-sub + .container > div.row {
 		max-width: none !important;
 	}
-	.nav-global + .container > div.row > .columns {
+	.nav-primary-sub + .container > div.row > .columns {
 		padding: 0;
 	}
 	.wrapper-product-group div.row {

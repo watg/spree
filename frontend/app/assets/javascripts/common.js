@@ -28,56 +28,6 @@ WATG.queries = [
     }
 ];
 
-// global navigation
-WATG.globalNav = {
-	init : function() {
-		// get and store the global nav element
-		var $navGlobal = $('#navGlobal');
-		
-		// Bind different event handlers for tablet/desktop
-		if (Modernizr.touch) {
-			// -- Tablet behaviour
-			// One touch expands menu, second touch navigates to page
-			var links = $('#navGlobal a').bind('touchstart', function(e) {
-				if ($navGlobal.hasClass('expanded') === false) {
-					e.preventDefault();
-					$navGlobal.addClass('expanded');
-				} else {
-					return true;
-				}
-			});
-		} else {
-			// -- Desktop behaviour
-			$navGlobal
-				//.find('.primary-menu')
-				.on('mouseenter.toggleGlobalNav', function() {
-					$navGlobal.addClass('expanded');
-				})
-				.on('mouseleave.toggleGlobalNav', function() {
-					$navGlobal.removeClass('expanded');
-				})
-					// cope with keyboard nav
-					.find('a')
-						.on('focus.focusGlobalNav', function() {
-							$navGlobal.addClass('expanded');
-						})
-						.on('blur.focusGlobalNav', function() {
-							$navGlobal.removeClass('expanded');
-						});
-		}
-		// small screen menu toggler
-		$('#navGlobalToggle').on('click.toggleGlobalNav', function(e) {
-			e.preventDefault();
-			$el = $('body');
-			if ($el.hasClass('off-canvas-expanded')) {
-				$el.removeClass('off-canvas-expanded');
-			} else {
-				$el.addClass('off-canvas-expanded');
-			}
-		});
-	}
-};
-
 WATG.checkSlides = function() {
 	// prevent "slide doubling"
 	var $thumbs = $('#thumbnails a');
@@ -304,7 +254,6 @@ WATG.referral = {
 $(function() {
 
     oMQ.init(WATG.queries);
-    WATG.globalNav.init();
     
     // FAQ togglers
     $('.faq-content').hide();

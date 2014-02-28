@@ -1,11 +1,11 @@
 require 'spec_helper'
 
-describe AssetsBackupJob do
+describe Spree::AssetsBackupJob do
   before do
     ENV['AWS_SECRET_ACCESS_KEY'] = 'FAKE_SECRET'
     ENV['AWS_ACCESS_KEY_ID'] = 'FAKE_ID'
   end
-  subject { AssetsBackupJob.new(:capture) }
+  subject { Spree::AssetsBackupJob.new(:capture) }
   its(:s3s3mirror)    { should include('vendor/s3s3mirror/s3s3mirror.sh')}
   its(:source)        { should match_array(['bucket1', 'bucket2']) }
   its(:destination)   { should eq 'dest-buck'}
@@ -29,7 +29,7 @@ describe AssetsBackupJob do
   end
 
   describe :invalid_actions do
-    subject { AssetsBackupJob.new(:bad) }
+    subject { Spree::AssetsBackupJob.new(:bad) }
 
     it "performs without error" do
       expect { subject.perform }.to raise_error

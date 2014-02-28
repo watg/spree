@@ -3,7 +3,7 @@ module Spree
     class CommercialInvoice
       extend Common
 
-      WATG_LOGO = File.join(Rails.root, 'app/assets/images/', 'logo-watg-135x99.png' )   unless defined?(WATG_LOGO)
+      WATG_LOGO = File.expand_path(File.join(File.dirname(__FILE__), 'images', 'logo-watg-135x99.png')) unless defined?(WATG_LOGO)
 
       class << self
         def create(pdf, order, batch_index=nil)
