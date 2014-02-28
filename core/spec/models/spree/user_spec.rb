@@ -60,5 +60,16 @@ describe Spree::LegacyUser do
       expect(Spree::LegacyUser.find_by(email: 'someone@somewhere.com')).to eq found_user
     end
   end
+
+  context "Class Methods" do
+    let(:subject) { Spree.user_class }
+    before do
+      create(:user, email: 'bob@sponge.net', subscribed: true)
+    end
+
+    it "#customer_has_subscribed?" do
+      expect(subject.customer_has_subscribed?('bob@sponge.net')).to be_true
+    end
+  end
   
 end
