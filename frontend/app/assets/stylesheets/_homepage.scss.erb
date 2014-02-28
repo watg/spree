@@ -63,7 +63,7 @@ body.homepage #header {
 }
 .home-main .leader-1 {	
 	/* Small screen background */
-	background: #000 url('<%= cdn_url("homepage/2014-02-20/homepage-hero-small.jpg") %>') top center no-repeat;
+	background: #e8e8e8 url('<%= cdn_url("homepage/2014-02-28/homepage-hero-small.jpg") %>') top center no-repeat;
 	& > div {
 		height: 620px;
 	}
@@ -93,16 +93,19 @@ body.homepage #header {
 	}
 	/* Large screen background */
 	@media only screen and (min-width: 48em) {
-		background: #000 url('<%= cdn_url("homepage/2014-02-20/homepage-hero-large.jpg") %>') top center no-repeat;
+		background: #e8e8e8 url('<%= cdn_url("homepage/2014-02-28/homepage-hero-large2.jpg") %>') top center no-repeat;
 		& > div {
 			height: 570px;
 		}
 		.links {
-			padding: 348px 0 0 0;
+			padding: 454px 0 0 0;
 			a {
+				position: relative;
+				left: 215px;
+				display: inline-block;
 				/* IE for inline-block */
-				/*zoom: 1;
-				*display: inline;*/
+				zoom: 1;
+				*display: inline;
 			}
 		}
 		.link-eek {
