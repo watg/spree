@@ -70,6 +70,10 @@ module Spree::Preferences
 
     def persist(cache_key, value, type)
       return unless should_persist?
+
+      # Added a transaction block, as this was blowing up when running zeus.
+      # Basically there is a race condition if 2 seperate processes try to 
+      # initilalize the same key at the same time ( WATG )
       Spree::Preference.transaction do
         preference = Spree::Preference.where(:key => cache_key).first_or_initialize
         preference.value = value
