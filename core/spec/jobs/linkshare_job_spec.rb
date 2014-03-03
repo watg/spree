@@ -15,18 +15,16 @@ describe Spree::LinkshareJob do
     before do
       allow(subject).to receive(:variants).and_return([])
       allow(nil).to receive(:permalink).and_return("a")
-      allow(Time).to receive(:now).and_return(time)
     end
+
     it "generates base" do
-      pending("Time zone issues on CI")
       Timecop.freeze(time)
       Time.use_zone("London") do
-        expect(subject.feed).to eql(feed_fixture)
+        expect(subject.feed).to eql(feed_fixture(time))
       end
     end
     
     it "generates atom entry" do
-      pending("Time zone issues on CI")
       target = create(:target)
       product = create(:product, name: "my cool product")
       variant = create(:variant, number: 'V307238112', product: product).
@@ -40,7 +38,7 @@ describe Spree::LinkshareJob do
       
       Timecop.freeze(time) 
       Time.use_zone("London") do
-        expect(feed.to_xml).to eql(entry_fixture)
+        expect(feed.to_xml).to eql(entry_fixture(time))
       end
     end
   end
@@ -53,13 +51,13 @@ describe Spree::LinkshareJob do
   end
 
   private
-  def feed_fixture
+  def feed_fixture(t)
 <<EOF
 <?xml version=\"1.0\"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:g="http://base.google.com/ns/1.0" xml:lang="en-GB">
   <id>http://localhost:3000/linkshare-atom.xml</id>
   <title>Wool And The Gang Atom Feed</title>
-  <updated>2008-09-01T12:00:00-04:00</updated>
+  <updated>#{t.iso8601}</updated>
   <link rel="alternate" type="text/html" href="http://www.woolandthegang.com"/>
   <link rel="self" type="application/atom+xml" href="http://localhost:3000/linkshare-atom.xml"/>
   <author>
@@ -69,7 +67,7 @@ describe Spree::LinkshareJob do
 EOF
   end
 
-  def entry_fixture
+  def entry_fixture(t)
 <<EOF
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:g="http://base.google.com/ns/1.0" xml:lang="en-GB">
@@ -78,7 +76,7 @@ EOF
     <id>V307238112</id>
     <summary/>
     <link href="http://www.woolandthegang.com/shop/items/a/made-by-the-gang/V307238112"/>
-    <updated>2008-09-01T12:00:00-04:00</updated>
+    <updated>#{t.iso8601}</updated>
     <g:price>0.0 GBP</g:price>
     <g:condition>new</g:condition>
     <g:gender>M</g:gender>
