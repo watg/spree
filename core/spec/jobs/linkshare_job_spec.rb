@@ -25,7 +25,8 @@ describe Spree::LinkshareJob do
     
     it "generates atom entry" do
       target = create(:target)
-      variant = create(:variant, number: 'V307238112').
+      product = create(:product, name: "my cool product")
+      variant = create(:variant, number: 'V307238112', product: product).
         decorate(context: {target: target})
       allow(variant).to receive(:updated_at).and_return(time)
       feed = Nokogiri::XML::Builder.new {|xml| 
@@ -69,7 +70,7 @@ EOF
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:g="http://base.google.com/ns/1.0" xml:lang="en-GB">
   <entry>
-    <title>Tala Tank product 1</title>
+    <title>my cool product</title>
     <id>V307238112</id>
     <summary/>
     <link href="http://www.woolandthegang.com/shop/items/a/made-by-the-gang/V307238112"/>
