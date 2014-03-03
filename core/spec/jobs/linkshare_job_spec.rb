@@ -15,6 +15,7 @@ describe Spree::LinkshareJob do
     before do
       allow(subject).to receive(:variants).and_return([])
       allow(nil).to receive(:permalink).and_return("a")
+      allow(Time).to receive(:now).and_return(time)
     end
     it "generates base" do
       Timecop.freeze(time)
