@@ -2,7 +2,6 @@ require File.join(File.dirname(__FILE__), '..','spec_helper')
 
 describe Spree::LinkshareJob do
   describe :variants do
-    it "loads decorated variants for each target"
     it "loads only the variants that are accessible with a url endpoint" do
       block = Proc.new do |actual_variant| 
         expect(actual_variant.product_type).to_not include('virtual_product', 'parcel')
@@ -18,7 +17,8 @@ describe Spree::LinkshareJob do
       allow(nil).to receive(:permalink).and_return("a")
     end
     it "generates base" do
-      Timecop.freeze(time) do
+      Timecop.freeze(time)
+      Time.use_zone("London") do
         expect(subject.feed).to eql(feed_fixture)
       end
     end
@@ -35,7 +35,8 @@ describe Spree::LinkshareJob do
                  "xmlns:g"  => "http://base.google.com/ns/1.0") { 
           subject.entry(xml, variant) }}
       
-      Timecop.freeze(time) do
+      Timecop.freeze(time) 
+      Time.use_zone("London") do
         expect(feed.to_xml).to eql(entry_fixture)
       end
     end
