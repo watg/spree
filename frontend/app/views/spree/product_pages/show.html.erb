@@ -92,7 +92,7 @@
 	<% variant = @product_page.decorated_first_knit_your_own_product_variant %>
 	<% product = @product_page.decorated_knit_your_own_product %>
 
-	<div class="displayable-entity row row-knit-your-own <%= @product_page.knit_your_own_active_class %>"
+	<div class="displayable-kit-entity row row-knit-your-own <%= @product_page.knit_your_own_active_class %>"
 		data-option-values="<%= variant.option_types_and_values.to_json %>"
 		data-tree="<%= product.memoized_variant_options_tree.to_json  %>"
 		data-option-type-order="<%= product.memoized_option_type_order.to_json %>" >
@@ -115,7 +115,7 @@
 				<h1><%= @product_page.kit_name %></h1>
 
 				<div class="cart-form" data-hook="cart_form">
-					<%= render :partial => 'cart_form', :locals => {:variant => variant, :product => product, :target_id => @product_page.target_id } %>
+					<%= render :partial => 'cart_kit_form', :locals => {:variant => variant, :product => product, :target_id => @product_page.target_id } %>
 				</div>
 
 				<h5 class="reveal-title revealed">Kit content</h5>
