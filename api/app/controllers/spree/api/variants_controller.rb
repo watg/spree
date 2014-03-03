@@ -1,6 +1,7 @@
 module Spree
   module Api
     class VariantsController < Spree::Api::BaseController
+      respond_to :xml, :atom, only: :index
 
       before_filter :product
       before_filter :product_page, :only => [:index]
