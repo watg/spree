@@ -12,7 +12,7 @@ describe Spree::LinkshareJob do
   end
 
   describe :feed do
-    let(:time) { Time.local(2008, 9, 1, 12, 0, 0) }
+    let(:time) { Time.new(2008, 9, 1, 12, 0, 0,"-04:00") }
     before do
       allow(subject).to receive(:variants).and_return([])
       allow(nil).to receive(:permalink).and_return("a")
