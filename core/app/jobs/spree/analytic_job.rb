@@ -133,7 +133,8 @@ module Spree
     end
 
     def payment_method(o)
-      o.payments.where(state: :completed).last.source_type
+      last_payment = o.payments.where(state: :completed).last
+      last_payment.source_type if last_payment
     end
 
     def customer_first_order_date(email)
