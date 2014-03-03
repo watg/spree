@@ -1,6 +1,5 @@
 module Spree
   class IndexPagesController < Spree::StoreController
-    require_feature :product_pages
     rescue_from ActiveRecord::RecordNotFound, :with => :render_404
     
     PER_PAGE = 3

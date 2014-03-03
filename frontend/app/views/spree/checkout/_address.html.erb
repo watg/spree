@@ -32,12 +32,11 @@
 </div>
 
 <div class="small-12 columns">
-  <% unless Mailchimp.customer_has_subscribed?(@order.email) %>
-  <div class='mc-subscription-toggle'>
+  <% unless Spree.user_class.customer_has_subscribed?(@order.email) %>
+  <div class='mailchimp-subscription-toggle'>
     <%= Spree.t(:subscribe_to_newsletter) %>
-    <%= hidden_field_tag 'mc[signupEmail]', @order.email %>
-    <%= hidden_field_tag 'mc[list_name]', 'Wool and the Gang' %>
-    <%= check_box_tag 'mc[subscribe]', true, true %>
+    <%= hidden_field_tag 'chimpy_subscriber[signupEmail]', @order.email %>
+    <%= check_box_tag 'chimpy_subscriber[subscribe]', true, true %>
   </div>
   <% end %>
 </div>

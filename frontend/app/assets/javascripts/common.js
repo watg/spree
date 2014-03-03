@@ -52,19 +52,19 @@ WATG.signup = {
 	},
 
 	init: function() {
-		WATG.signup.globals.form.on('submit', function(e) {
+		WATG.signup.globals.signupForms.on('submit', function(e) {
 			var form = $(this);
 			e.preventDefault();
 			// Die if no value
 			if (!$(this).find('input[name="signupEmail"]').val()) return false;
 			form.fadeOut();
 			$.ajax({
-			    type: 'POST',
-			    url: form.attr('action'),
-			    data: form.serialize(),
-			    dataType: 'json',
-			    success: function(e) {
-					var message_cont = WATG.signup.globals.response.children('div');
+		    type: 'POST',
+		    url: form.attr('action'),
+		    data: form.serialize(),
+		    dataType: 'json',
+		    success: function(e) {
+					var message_cont = WATG.signup.globals.responses.children('div');
 					message_cont.html(e.message);
 					// Switch off response conditional for promos. When we have a promo code to display, we don't mind if the user's already signed up.
 					if (e.response !== 'success') {
@@ -73,7 +73,7 @@ WATG.signup = {
 						//message_cont.html(WATG.signup.getPromo);
 						WATG.signup.setCookie();
 					}
-					WATG.signup.globals.response.fadeIn();
+					WATG.signup.globals.responses.fadeIn();
 				}
 			})
 		})
@@ -105,12 +105,12 @@ WATG.signup = {
 	},
 	
 	showError: function() {
-		var message_cont = WATG.signup.globals.response.children('div');
-		message_cont.append('<a id="tryAgain" href="#">(Try again?)</a>');
-		$("#tryAgain").click(function(e) {
+		var message_cont = WATG.signup.globals.responses.children('div');
+		message_cont.append('<a class="tryAgain" href="#">(Try again?)</a>');
+		$(".tryAgain").click(function(e) {
 			e.preventDefault();
-			WATG.signup.globals.response.fadeOut(function () {
-				WATG.signup.globals.form.fadeIn();
+			WATG.signup.globals.responses.fadeOut(function () {
+				WATG.signup.globals.signupForms.fadeIn();
 			})
 		})
 	}
@@ -305,9 +305,9 @@ $(window).bind('load', function() {
 	// Signup starts
 	if ($('body').hasClass('product-group')) return false; // Die if new product page
 	
-	WATG.signup.globals.form = $('#signupForm');
+	WATG.signup.globals.signupForms = $('.signup-form');
 	WATG.signup.globals.container = $('#signupPromo');
-	WATG.signup.globals.response = $('#signupResponse');
+	WATG.signup.globals.responses = $('.signup-response');
 	WATG.signup.globals.close = $('.signup-close');
 	
 	WATG.signup.init();
