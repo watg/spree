@@ -57,7 +57,7 @@ describe Spree::LinkshareJob do
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:g="http://base.google.com/ns/1.0" xml:lang="en-GB">
   <id>http://localhost:3000/linkshare-atom.xml</id>
   <title>Wool And The Gang Atom Feed</title>
-  <updated>2008-09-01T16:00:00Z</updated>
+  <updated>2008-09-01T12:00:00-04:00</updated>
   <link rel="alternate" type="text/html" href="http://www.woolandthegang.com"/>
   <link rel="self" type="application/atom+xml" href="http://localhost:3000/linkshare-atom.xml"/>
   <author>
@@ -76,7 +76,7 @@ EOF
     <id>V307238112</id>
     <summary/>
     <link href="http://www.woolandthegang.com/shop/items/a/made-by-the-gang/V307238112"/>
-    <updated>2008-09-01T16:00:00Z</updated>
+    <updated>2008-09-01T12:00:00-04:00</updated>
     <g:price>0.0 GBP</g:price>
     <g:condition>new</g:condition>
     <g:gender>M</g:gender>
