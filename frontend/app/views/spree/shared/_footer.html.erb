@@ -4,11 +4,16 @@
   <!-- Newsletter signup / social media -->
   <div class="marketing large-6 columns">
 
-    <form action="http://woolandthegang.us7.list-manage.com/subscribe/post?u=cdf3865c6f399972e5d491ea2&amp;id=ab2a39b40c" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="newsletter-subscribe">
-      <label for="mce-EMAIL">Sign up for wooly news</label>
-      <input type="email" value="" name="EMAIL" id="mce-EMAIL" placeholder="Enter your email here" />
-      <button type="submit">Submit</button>
-    </form>
+  <form action="/shop/subscribe" method="post" class="signup-form newsletter-subscribe">
+    <label for="email">Sign up for wooly news</label>
+    <input type="email" value="" name="signupEmail" placeholder="Enter your email here" />
+    <input type="hidden" name="source" value="Website - Footer" />
+    <button type="submit">Submit</button>
+  </form>
+  <div class="signup-response">
+    <div>        
+    </div>
+  </div>
 
     <section class="social">
     <h6 class="watg-font">Hang out with The Gang</h6>

@@ -26,7 +26,9 @@ module Spree
 
     # Updates the order and advances to the next state (when possible.)
     def update
-      update_mailchimp(params[:mc]) unless params[:mc].blank?
+      if params[:chimpy_subscriber] && params[:chimpy_subscriber][:subscribe].present?
+        subscribe_to_newsletter(params[:chimpy_subscriber][:signupEmail]) 
+      end
 
       if @order.update_attributes(object_params)
         persist_user_address
@@ -62,17 +64,9 @@ module Spree
       ::Delayed::Job.enqueue Spree::DigitalOnlyOrderShipperJob.new(@order), queue: 'order_shipper'
     end
     
-    def update_mailchimp(hash)
-      mc_data = {
-        email:          hash[:signupEmail],
-        action:         (!hash[:subscribe].blank? && hash[:subscribe] ? :subscribe : :unsubscribe ),
-        request_params: hash.to_json
-      }
-      mc = Mailchimp.new(mc_data)
-      if mc && mc.valid?
-        mc.save
-        mc.delay.process_request
-      end
+    def subscribe_to_newsletter(email)
+      user = Spree.user_class.find_or_create_unenrolled(email, tracking_cookie)
+      user.subscribe("Website - Guest Checkout")
     end
 
     def check_payment_status

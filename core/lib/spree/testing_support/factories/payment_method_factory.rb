@@ -1,5 +1,5 @@
 FactoryGirl.define do
-  factory :payment_method, class: Spree::PaymentMethod::Check do
+  factory :payment_method, aliases: [:check_payment_method], class: Spree::PaymentMethod::Check do
     name 'Check'
     environment 'test'
   end
