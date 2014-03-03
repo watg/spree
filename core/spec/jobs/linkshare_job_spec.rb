@@ -20,7 +20,11 @@ describe Spree::LinkshareJob do
     it "generates base" do
       Timecop.freeze(time)
       Time.use_zone("London") do
-        expect(subject.feed).to eql(feed_fixture(time))
+#        expect(subject.feed).to eql(feed_fixture(time))
+        actual =  Nokogiri::XML(subject.feed)
+        expect(actual.css("feed id").text).to eql("http://localhost:3000/linkshare-atom.xml")
+        expect(actual.css("feed title").text).to eql("Wool And The Gang Atom Feed")
+        expect(actual.css("feed author name").text).to eql("Wool And The Gang")
       end
     end
     
@@ -38,7 +42,11 @@ describe Spree::LinkshareJob do
       
       Timecop.freeze(time) 
       Time.use_zone("London") do
-        expect(feed.to_xml).to eql(entry_fixture(time))
+#        expect(feed.to_xml).to eql(entry_fixture(time))
+        actual =  Nokogiri::XML(feed.to_xml)
+        expect(actual.css("entry id").text).to eql("V307238112")
+        expect(actual.css("entry title").text).to eql("my cool product")
+        expect(actual.css("entry summary").text).to eql("")
       end
     end
   end
