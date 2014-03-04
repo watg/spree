@@ -3,13 +3,14 @@ require 'spec_helper'
 describe Spree::ProductsController do
   let!(:product) { create(:product, :available_on => 1.year.from_now) }
 
-  it "should provide the current user to the searcher class" do
-    user = mock_model(Spree.user_class, :last_incomplete_spree_order => nil, :spree_api_key => 'fake')
-    controller.stub :spree_current_user => user
-    Spree::Config.searcher_class.any_instance.should_receive(:current_user=).with(user)
-    spree_get :index
-    response.status.should == 200
-  end
+  # not any more relevant due to the new product pages
+  # it "should provide the current user to the searcher class" do
+  #   user = mock_model(Spree.user_class, :last_incomplete_spree_order => nil, :spree_api_key => 'fake')
+  #   controller.stub :spree_current_user => user
+  #   Spree::Config.searcher_class.any_instance.should_receive(:current_user=).with(user)
+  #   spree_get :index
+  #   response.status.should == 200
+  # end
 
   # Regression test for #2249
   it "doesn't error when given an invalid referer" do
