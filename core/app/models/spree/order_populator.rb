@@ -43,6 +43,7 @@ module Spree
     # product_assembly
     def extract_kit_options(hash)
       value = hash[:products].delete(:options) rescue nil
+      value = hash[:parts]
       (value || [])
     end
 
@@ -74,8 +75,7 @@ module Spree
         return false
       end
       variant = Spree::Variant.find(variant_id)
-      options = Spree::Variant.find(option_ids)
-      options_with_qty = add_quantity_for_each_option(variant, options)
+      options_with_qty = add_quantity_for_each_option(variant, option_ids)
 
       if quantity > 0
         if check_stock_levels_for_variant_and_options(variant, quantity, options_with_qty)
@@ -115,8 +115,19 @@ module Spree
     end
 
     def add_quantity_for_each_option(variant, options)
-      options.map do |o|
-        [o, part_quantity(variant,o)]
+      if options.kind_of?(Array)
+        options.map do |o|
+          [o, part_quantity(variant,o)]
+        end
+      else
+
+        _kit_definition = variant.product.assembly_definitions
+        options.inject([]) {|list, t| 
+          definition_id, variant_part_id = t.flatten.map(&:to_i)
+          assembly_definition = _kit_definition.detect{|e| e.id == definition_id}
+          variant_part = Spree::Variant.find(variant_part_id)
+          list << [variant_part, assembly_definition.count, assembly_definition.optional]
+          list}
       end
     end
 

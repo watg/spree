@@ -86,7 +86,9 @@ module Spree
     end
 
     def amount_all_options
-      list_amount = self.line_item_options.map {|e| e.price * e.quantity}
+      list_amount = self.line_item_options.
+        select{|e| e.optional }.
+        map {|e|   e.price * e.quantity}
       list_amount.inject(0){|s,a| s += a; s}
     end
 
