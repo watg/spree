@@ -60,7 +60,8 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def decorated_first_knit_your_own_product_variant
-    variant = knit_your_own_product.variants_for(object.target).first
+#    variant = knit_your_own_product.variants_for(object.target).first
+    variant = knit_your_own_product.master
     if variant
       variant.decorate(context: { current_currency: current_currency, target: object.target})
     end
@@ -91,7 +92,8 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def knit_your_own_product?
-    knit_your_own_product.present? && knit_your_own_product.variants.any?
+#    knit_your_own_product.present? && knit_your_own_product.variants.any?
+    knit_your_own_product.present?
   end
 
   def made_unique_title
