@@ -161,14 +161,14 @@ describe Spree::Admin::OrdersController, type: :controller do
       user.spree_roles << Spree::Role.find_or_create_by(name: 'bar')
       Spree::Ability.register_ability(BarAbility)
       spree_put :update, { :id => 'R123' }
-      response.should redirect_to('/unauthorized')
+      response.should redirect_to(spree.unauthorized_path)
       Spree::Ability.remove_ability(BarAbility)
     end
 
     it 'should deny access to users without an admin role' do
       user.stub :has_spree_role? => false
       spree_post :index
-      response.should redirect_to('/unauthorized')
+      response.should redirect_to(spree.unauthorized_path)
     end
 
     it 'should restrict returned order(s) on index when using OrderSpecificAbility' do

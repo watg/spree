@@ -18,7 +18,7 @@ Spree::AssetsBackupJob = Struct.new(:action) do
   end
 
   def options
-    "-m 50 -c 50"
+    "-m 5 -c 5"
   end
   
   def destination

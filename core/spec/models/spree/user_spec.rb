@@ -44,4 +44,32 @@ describe Spree::LegacyUser do
       end
     end
   end
+  
+  context "#find_or_create_unenrolled" do
+    let(:tracking_cookie) { 'random-string' }
+    it "creates a new user if enrolled with the same tracking cookie exists" do
+      user = create(:user, email: 'someone@somewhere.com', enrolled: true, uuid: tracking_cookie)
+      Spree::LegacyUser.find_or_create_unenrolled('someone_else@somewhere.com', tracking_cookie)
+      expect(Spree::LegacyUser.find_by(email: 'someone@somewhere.com').enrolled).to eq true
+      expect(Spree::LegacyUser.find_by(email: 'someone_else@somewhere.com').enrolled).to eq false
+    end
+
+    it "finds the existing user if an unenrolled one exists" do
+      user = create(:user, email: 'someone@somewhere.com', enrolled: false)
+      found_user = Spree::LegacyUser.find_or_create_unenrolled('someone@somewhere.com', tracking_cookie)
+      expect(Spree::LegacyUser.find_by(email: 'someone@somewhere.com')).to eq found_user
+    end
+  end
+
+  context "Class Methods" do
+    let(:subject) { Spree.user_class }
+    before do
+      create(:user, email: 'bob@sponge.net', subscribed: true)
+    end
+
+    it "#customer_has_subscribed?" do
+      expect(subject.customer_has_subscribed?('bob@sponge.net')).to be_true
+    end
+  end
+  
 end

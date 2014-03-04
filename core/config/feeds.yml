@@ -1,0 +1,26 @@
+development: &dev
+  linkshare:
+    storage_method: cache
+    s3_bucket: 
+    name: 'linkshare-atom.xml'
+    host:  http://www.woolandthegang.com
+    feed_url: http://localhost:3000/linkshare-atom.xml
+    
+test:
+  <<: *dev
+
+staging: &staging
+  linkshare:
+    storage_method: s3
+    s3_bucket: watg-dest-test
+    name: 'linkshare/atom.xml'
+    host:  http://www.woolandthegang.com
+    feed_url: http://s3.amazonaws.com/watg-dest-test/linkshare/atom.xml
+
+production:
+  linkshare:
+    storage_method: s3
+    s3_bucket: watgfeeds  ## items in that bucket have to be publicly accessible
+    name: 'linkshare/atom.xml'
+    host:  http://www.woolandthegang.com
+    feed_url: http://watgfeeds.s3-website-eu-west-1.amazonaws.com/linkshare/atom.xml
