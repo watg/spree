@@ -32,10 +32,10 @@ core.readyNavigation = function() {
 		});
 		$('.nav-primary-sub').on({
 			mouseover: function() {
-				$(this).show();
+				$(this).addClass('expanded');
 			},
 			mouseout: function() {
-				$(this).hide();
+				$(this).removeClass('expanded');
 			}
 		});
 	}
@@ -57,7 +57,7 @@ core.showSubNavigation = function(e) {
 
 	e.children('a').addClass('active');
 
-	$('.nav-primary-sub').show();
+	$('.nav-primary-sub').addClass('expanded');
 	$('.nav-primary-sub .columns').show();
 	$(".nav-primary-sub [class$='-sub']").hide();
 
@@ -67,7 +67,7 @@ core.showSubNavigation = function(e) {
 
 // Show sub primary navigation for mobile
 core.showSubNavigationMobile = function(e) {
-	$('.nav-primary-sub').toggle();
+	$('.nav-primary-sub').toggleClass('expanded');
 	$(".nav-primary-sub [class$='-sub']").show();
 	$('.nav-primary-sub .columns').not('.small-12').hide();
 }
@@ -76,7 +76,7 @@ core.showSubNavigationMobile = function(e) {
 core.hideSubNavigation = function(e) {
 	e.children('a').removeClass('active');
 	
-	$('.nav-primary-sub').hide();
+	$('.nav-primary-sub').removeClass('expanded');
 }
 
 core.showCookieMessage = function() {
