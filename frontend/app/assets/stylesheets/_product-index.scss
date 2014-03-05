@@ -254,7 +254,6 @@
 						display: block;
 						position: absolute;
 						left: 50%;
-						border-top: 1px solid rgba(0, 0, 0, 0.3);
 						text-align: center;
 						font-family: $watg-font;
 						font-weight: normal;
@@ -268,12 +267,24 @@
 							text-transform: lowercase;
 						}
 					}
+					a:before {
+						content: "";
+						background: rgba(0, 0, 0, 1);
+						position: absolute;
+						top: 0;
+						left: 25%;
+						height: 1px;
+						width: 50%;
+					}
 				}
 				li:first-child {
 					a {
 						padding: 25% 0 emCalc(10px);
 						bottom: 0;
-						border: 0;						
+						border: 0;			
+					}
+					a:before {
+						background: transparent;
 					}
 				}
 				li.item-unavailable {
