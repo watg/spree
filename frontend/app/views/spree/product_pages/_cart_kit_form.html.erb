@@ -62,10 +62,10 @@
         <%= check_box_tag "parts[#{assembly_definition.id}][]", product_part.variants.first.id, false, 'class' => "selected-parts", 'data-price' => product_part.price_in_pence(product_part, current_currency), 'data-currency' => current_currency %>
         <label for="<%= ['products', 'options', product_part.id].join('_') %>">
           <span class="optional-part-label"><%= "#{assembly_definition.count} X #{product_part.name}" %></span>
+        </label>
         <div class="product-part-image hide">
           <%= image_tag(product_part.variants.first.images.first.attachment.url(:mini)) %>		
         </div>
-        </label>
       </div>
     <% end %>
   </div>
