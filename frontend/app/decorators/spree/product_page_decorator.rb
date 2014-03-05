@@ -78,7 +78,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def kit_description
-    description = object.kit.description_for(object.target) rescue Spree.t(:product_has_no_description)
+    description = object.kit.description_for(object.target).to_s rescue Spree.t(:product_has_no_description)
     description = description.gsub(/(.*?)\r?\n\r?\n/m, '\1<br><br>')
     description.gsub(/_/, '').gsub(/-/, '&ndash;').html_safe
   end
