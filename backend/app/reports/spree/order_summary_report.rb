@@ -132,7 +132,8 @@ module Spree
         shipping_methods = o.shipments.last.shipping_methods
       end
 
-      promo_label = o.adjustments.promotion.first.label if o.adjustments.promotion.first.present?
+      first_eligible_promotion = o.adjustments.promotion.eligible.first
+      promo_label = first_eligible_promotion.label if first_eligible_promotion
       [
         o.id, 
         o.email,
