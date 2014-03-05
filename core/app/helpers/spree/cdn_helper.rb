@@ -36,8 +36,11 @@ module Spree
     def cdn_url(source)
       u_source = URI(source)
       u_cdn = URI(cdn_prefix)
-      
-      ["//", u_cdn.host, u_source.path].join + "?#{u_source.query}"
+      if u_source.path[0] == '/'
+        ["//", u_cdn.host, u_source.path].join + "?#{u_source.query}"
+      else
+        ["//", u_cdn.host, "/", u_source.path].join + "?#{u_source.query}"
+      end
     end
     
     def cdn_prefix
