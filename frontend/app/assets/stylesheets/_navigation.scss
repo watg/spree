@@ -166,15 +166,22 @@
 			}
 			img + h3 {
 				position: absolute;
-				bottom: emCalc(-10px);
+				bottom: emCalc(0px);
 				font-size: emCalc(26px);
 				text-align: center;
 				color: #fff;
 				width: 220px;
 				border: 0;
-				&.inverted {
-					color: #000;
-				}
+			}
+			h3 + p {
+				position: absolute;
+				bottom: emCalc(-10px);
+				font-family: $watg-font;
+				text-align: center;
+				text-transform: uppercase;
+				text-decoration: underline;
+				color: #fff;
+				width: 220px;
 			}
 			ul {
 				display: block;
@@ -188,6 +195,11 @@
 			}
 			ul + ul {
 				margin-top: 20px;
+			}
+		}
+		& .inverted {
+			h3, p {
+				color: #000;
 			}
 		}
 		.columns > a {
