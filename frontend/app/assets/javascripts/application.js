@@ -30,6 +30,7 @@
 
 //= require common
 //= require store/product
+//= require store/kit
 //= require store/spree_paypal_express
 
 // this is so we are backward compatible with the old product pages, we should delete it when we no longer need them
