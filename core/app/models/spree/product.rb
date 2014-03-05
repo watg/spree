@@ -364,7 +364,9 @@ module Spree
             base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
             base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
             base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_stock']= v.in_stock_cache 
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['image_url']= v.images.first.attachment.url(:mini)
+            if v.images.any?
+              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['image_url']= v.images.first.attachment.url(:mini)
+            end
           end
         end
       end

@@ -38,10 +38,6 @@ core.productGroup.readyKitVariantOptions = (entity) ->
 
 ###### High level #################################################################################################################
 
- # entity.find('.option-value').click (event)->
- #   entity.find(".main-image").trigger('update_part_images')
-
-
   entity.find(".optional-parts input").click (event) ->
     entity.find(".price").trigger('recalculate')
     image = $(this).closest('.optional-part').find('.product-part-image')
@@ -49,12 +45,6 @@ core.productGroup.readyKitVariantOptions = (entity) ->
       image.show()
     else
       image.hide()
-
-###### Image  #################################################################################################################
-#
- # entity.find(".main-image").on('update_part_images',( ->
- #   $(this).html( format_price($(this).data('currency'), $(this).data('price') + adjustment ) )
- # ))
 
 
 ###### Prices #################################################################################################################
@@ -111,6 +101,5 @@ core.productGroup.readyKitVariantOptions = (entity) ->
       false
 
 
-# Functionise it all
 # pass a uncomplicated hash instead of the nested rubbish
 # Disable cart button and price
