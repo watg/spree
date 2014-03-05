@@ -37,7 +37,6 @@ Spree::Core::Engine.config.to_prepare do
       end
       
       def self.customer_has_subscribed?(email)
-        email = email.downcase
         where(email: email, subscribed: true).any?
       end
 
