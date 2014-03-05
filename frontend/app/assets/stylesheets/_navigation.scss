@@ -216,6 +216,10 @@
 			margin-bottom: emCalc(30px);
 			.small-12 {
 				width: 100%;
+				h3 {
+					font-size: emCalc(20px);
+					border-bottom: 1px solid #000;
+				}
 			}
 		}
 	}
