@@ -58,6 +58,10 @@ core.productGroup.runVariantMethods = function() {
 	if (visible_entity.length > 0) {
 		core.productGroup.readyVariantOptions(visible_entity.first());
 	}
+	var visible_entity = $('.displayable-kit-entity:visible');
+	if (visible_entity.length > 0) {
+		core.productGroup.readyKitVariantOptions(visible_entity.first());
+	}
 }
 
 core.productGroup.readySocialWidget = function() {
