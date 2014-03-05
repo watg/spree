@@ -28,8 +28,7 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     option_values.prev('.variant-option-type').find('span').text(selected_presentation)
 
     # Set the variant_id
-    product_variants.find('.variant_id, form[data-form-type="variant"] input[name$="[variant_id]"]').val(variant['id'])
-    console.log product_variants.find('.variant_id, form[data-form-type="variant"] input[name$="[variant_id]"]')
+    product_variants.find('.selected_parts').val(variant['id'])
 
     # Enable prices and cart if everything is selected
     if entity.find('.variant-options:not(.selected)').length > 0

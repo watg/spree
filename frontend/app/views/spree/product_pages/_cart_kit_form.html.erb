@@ -22,13 +22,13 @@
 </div>
 
 <div data-hook="inside_product_cart_form" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
-  <% product.variants.first.parts.each do |variant_part|%>
-    <% product = variant_part.product.decorate(context: @context) %>
-      <div class="product-variants" data-tree="<%= product.memoized_variant_options_tree.to_json  %>" >
+  <% product.assembly_definitions.where(optional: false).each do |assembly_definition|%>
+    <% product_part = assembly_definition.part.decorate(context: @context) %>
+      <div class="product-variants" data-tree="<%= product_part.memoized_variant_options_tree.to_json  %>" >
 
-      <h5> <%= product.name %> </h5>
+        <h5> <%= assembly_definition.count %> x <%= product_part.name %> </h5>
 
-      <% product.memoized_targeted_grouped_option_values.each do |type, values|  %>
+      <% product_part.memoized_targeted_grouped_option_values.each do |type, values|  %>
         <div class="variant-options <%= type.url_safe_name.downcase %>" data-type=<%= type.url_safe_name.downcase %> > 
 
           <h5 class="variant-option-type"><%= type.presentation %>
@@ -44,33 +44,26 @@
           <% end %>
           </ul>
         </div>
-        <input class="variant_id" type="hidden" name="products[<%= product.id %>]" value="" />
+        <input class="selected_parts" type="hidden" name="parts[<%= assembly_definition.id %>][]" value="" />
       </div>
     <% end %>
   <% end %>
 
-  <% unless product.optional_parts_for_display.blank? %>
-    <div class="optional-parts">
-    <h5 class="product-section-title">Do you need knitting needles?</h5>
+  <div class="optional-parts">
     <ul>
-      <% product.optional_parts_for_display.each do |opart| %>
-        <li>
-      <%= check_box_tag "products[options][]", opart.id, false, 'data-price' => product.price_in_pence(opart, current_currency), 'data-currency' => current_currency, id: "products_options_#{opart.id}", class: "kit-option" %>
-      <label for="<%= ['products', 'options', opart.id].join('_') %>">
-        <span class="optional-part-label"><%= "#{product.item_quantity(opart)} X #{opart.label_or_product_name}" %></span>
-      </label>
+    <% product.assembly_definitions.where(optional: true).each do |assembly_definition|%>
+      <% product_part = assembly_definition.part.decorate(context: @context) %>
+      <li>
+        <h5 class="product-section-title">Do you need <%= product_part.name %>?</h5>
+        <%= check_box_tag "parts[#{assembly_definition.id}][]", product_part.variants.first.id, false, 'class' => "kit-option selected_parts", 'data-price' => product_part.price_in_pence(product_part, current_currency), 'data-currency' => current_currency %>
+        <label for="<%= ['products', 'options', product_part.id].join('_') %>">
+          <span class="optional-part-label"><%= "#{assembly_definition.count} X #{product_part.name}" %></span>
+        </label>
       </li>
     <% end %>
     </ul>
   </div>
-<% end %>
 
-  <% if product.memoized_has_personalisation? %>
-    <div class="personalisations">
-    <h5>Personalise</h5>
-    <%= render partial: "monogram", locals: { personalisation: product.memoized_personalisations.first } %>
-  </div>
-<% end %>
 </div>
 
 <% if product.price and !product.price.nil? %>
