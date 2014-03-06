@@ -362,6 +362,7 @@ module Spree
             base[o.option_type.url_safe_name][o.url_safe_name]['variant']['id']=v.id
             base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).in_subunit
             base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
+            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['part_price']=v.price_part_in(current_currency).in_subunit
             base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
             base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_stock']= v.in_stock_cache 
             if v.images.any?
@@ -375,24 +376,7 @@ module Spree
 
     # Need to retire once the new product_pages are live
     def variant_options_tree(current_currency)
-      hash={}
-      variants.includes(:prices, :option_values => [:option_type]).order( "spree_option_types.position", "spree_option_values.position" ).each do |v|
-        base=hash
-        v.option_values.each_with_index do |o,i|
-          base[o.option_type.url_safe_name] ||= {}
-          base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
-          if ( i + 1 < v.option_values.size )
-            base = base[o.option_type.url_safe_name][o.url_safe_name]
-          else
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant'] ||= {}
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['id']=v.id
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).in_subunit
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
-          end
-        end
-      end
-      hash
+      variant_options_tree_for(nil,current_currency)
     end
 
     # This does not need to be targetted as you can not have variants without
