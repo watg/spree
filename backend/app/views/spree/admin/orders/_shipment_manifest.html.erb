@@ -7,7 +7,20 @@
     <td class="item-name">
       <strong>    <%= item.variant.product.name %><br><%= "(" + variant_options(item.variant) + ")" unless item.variant.option_values.empty? %></strong>
       SKU: <%= item.variant.sku %>
-      <% if item.variant.product.assembly? %>
+      <% if item.product.assembly_definitions.any? %>
+      <hr />
+        <ul style="list-style:none;">
+          <% item.line_item_options.each do |part| %>
+          <li><span class="part-count"><%= part.quantity %> X </span>
+            <span class="part-name"><%= "#{part.variant.name} #{part.variant.options_text}" %></span>
+            <% if part.optional %>
+            <br />
+            <span class="part-optional">Option: Yes</span></li>
+            <% end %>
+          <% end %>
+        </ul>
+      <% end %>
+      <% if item.product.assembly? %>
         <hr />
          Gang Member Nickname: <%= item.variant.product.gang_member.nickname %>
         <hr />
