@@ -86,7 +86,7 @@ core.showCookieMessage = function() {
 		var row = $('.row-cookie');
 		
 		row.fadeIn('slow');
-		row.find('a').on('click', function(e) {
+		row.find('a:first').on('click', function(e) {
 			e.preventDefault();
 			$.cookie(name, 'true', {expires: 365, path: '/'});
 			row.fadeOut('slow');
