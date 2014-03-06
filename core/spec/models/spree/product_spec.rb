@@ -30,7 +30,7 @@ describe Spree::Product do
         subject  = create(:product, product_type: :kit)
         subject.save
 
-        kit_variant1 = create(:variant, product: subject, target: women, in_stock_cache: false)
+        _kit_variant1 = create(:variant, product: subject, target: women, in_stock_cache: false)
         kit_variant2 = create(:variant, product: subject, target: women, in_stock_cache: true)
         kit_variant3 = create(:variant, product: subject, target: women, in_stock_cache: true)
 
@@ -525,21 +525,23 @@ describe Spree::Product do
       ov1 = variant_1.option_values.first
       ov2 = variant_2.option_values.first
 
-      attributes = product.variant_options_tree('USD')[ov1.option_type.name][ov1.name]['variant']
+      attributes = product.variant_options_tree_for(nil,'USD')[ov1.option_type.name][ov1.name]['variant']
       attributes.should_not be_nil
       attributes["id"].should == variant_1.id
       attributes["normal_price"].should == 1999
       attributes["sale_price"].should == 0
+      attributes["part_price"].should == 0
       attributes["in_sale"].should == false
 
-      attributes = product.variant_options_tree('USD')[ov2.option_type.name][ov2.name]['variant']
+      attributes = product.variant_options_tree_for(nil,'USD')[ov2.option_type.name][ov2.name]['variant']
       attributes.should_not be_nil
       attributes["id"].should == variant_2.id
       attributes["normal_price"].should == 1999
       attributes["sale_price"].should == 0
+      attributes["part_price"].should == 0
       attributes["in_sale"].should == false
 
-      #product.variant_options_tree('GBP').should == {
+      #product.variant_options_tree_for(nil,'GBP').should == {
       #  "color"=>{
       #    "hot-pink1"=>{
       #      "variant"=>{
@@ -563,17 +565,29 @@ describe Spree::Product do
     it "should have prices in USD" do
       variant = product.variants[0]
       ov = variant.option_values.first
-      attributes = product.variant_options_tree('USD')[ov.option_type.name][ov.name]['variant']
+      attributes = product.variant_options_tree_for(nil,'USD')[ov.option_type.name][ov.name]['variant']
       attributes['normal_price'].should == 1999
       attributes['sale_price'].should == 0
+      attributes['part_price'].should == 0
       attributes['in_sale'].should == false
     end
 
     it "should have sale_price" do
       ov = variant_in_sale.option_values.first
-      attributes = variant_in_sale.product.variant_options_tree('USD')[ov.option_type.name][ov.name]['variant']
+      attributes = variant_in_sale.product.variant_options_tree_for(nil,'USD')[ov.option_type.name][ov.name]['variant']
       attributes['normal_price'].should == 1999
       attributes['sale_price'].should == 600
+      attributes['part_price'].should == 0
+      attributes['in_sale'].should == true
+    end
+
+    it "should have sale_price" do
+      ov = variant_in_sale.option_values.first
+      variant_in_sale.prices.create( currency: 'USD', sale: false, is_kit: true, amount: 50 ) 
+      attributes = variant_in_sale.product.variant_options_tree_for(nil,'USD')[ov.option_type.name][ov.name]['variant']
+      attributes['normal_price'].should == 1999
+      attributes['sale_price'].should == 600
+      attributes['part_price'].should == 5000
       attributes['in_sale'].should == true
     end
 

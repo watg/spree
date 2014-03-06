@@ -29,6 +29,10 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     # Set the variant_id
     product_variants.find('.selected-parts').val(variant['id'])
 
+    # Set the adjustments on the parts
+    product_variants.data('adjustment', variant['part_price'])
+
+    entity.find(".price").trigger('recalculate')
     entity.find(".prices").trigger('update')
     entity.find(".add-to-cart-button").trigger('update')
 
@@ -36,21 +40,10 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     product_variants.find(".product-part-image img").attr('src', variant['image_url'])
 
 
-###### High level #################################################################################################################
-
-  entity.find(".optional-parts input").click (event) ->
-    entity.find(".price").trigger('recalculate')
-    image = $(this).closest('.optional-part').find('.product-part-image')
-    if $(this).is(':checked')
-      image.show()
-    else
-      image.hide()
-
-
 ###### Prices #################################################################################################################
 #
   entity.find(".prices").on('update',( ->
-    if entity.find('.variant-options:not(.selected)').length > 0
+    if entity.find('.variant-options.required:not(.selected)').length > 0
       $(this).find('.normal-price').addClass('price now unselected').removeClass('was')
       $(this).find('.sale-price').addClass('hide').removeClass('selling')
     else
@@ -67,8 +60,8 @@ core.productGroup.readyKitVariantOptions = (entity) ->
 
   sum_of_optional_part_prices = (entity) ->
     sum = 0
-    entity.find(".optional-parts input:checked").each ->
-      sum = sum + Number $(this).data('price')
+    entity.find(".product-variants.optional").each ->
+      sum = sum + Number $(this).data('adjustment')
     sum
 
 #######################################################################################################################
@@ -76,7 +69,7 @@ core.productGroup.readyKitVariantOptions = (entity) ->
 # Friendly flash message in case user tries to checkout without the add-to-cart button
   # being enabled
   entity.find(".add-to-cart-button").on('update',( ->
-    if entity.find('.variant-options:not(.selected)').length > 0
+    if entity.find('.variant-options.required:not(.selected)').length > 0
       $(this).attr("style", "opacity: 0.5").addClass('disabled')
     else
       $(this).removeAttr("style").removeClass("disabled")
@@ -86,7 +79,7 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     if $(this).hasClass('disabled')
 
       missing_types = []
-      entity.find('.variant-options:not(.selected)').each ->
+      entity.find('.variant-options.required:not(.selected)').each ->
         missing_types.push $(this).data('type')
 
       # Format the message we return to the user if not enough of the option
@@ -102,4 +95,3 @@ core.productGroup.readyKitVariantOptions = (entity) ->
 
 
 # pass a uncomplicated hash instead of the nested rubbish
-# Disable cart button and price

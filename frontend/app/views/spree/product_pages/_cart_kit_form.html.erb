@@ -12,7 +12,7 @@
 
 <div class="product-price prices" data-hook="product_price">
   <% if variant.has_price? %>
-    <span class="<%=variant.normal_price_classes %>" data-price="<%= variant.price.in_subunit %>" data-currency="<%= variant.currency_symbol %>"> 
+    <span class="<%=variant.normal_price_classes %> unselected" data-price="<%= variant.price.in_subunit %>" data-currency="<%= variant.currency_symbol %>"> 
     <%= variant.price_html %>
   </span>
   <span class="<%= variant.sale_price_classes %>" data-price="<%= variant.sale_price.in_subunit %>" data-currency="<%= variant.currency_symbol %>">
@@ -22,19 +22,19 @@
 </div>
 
 <div data-hook="inside_product_cart_form" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
-  <div class="required-parts">
-    <% product.assembly_definitions.where(optional: false).each do |assembly_definition|%>
+  <div class="parts">
+    <% product.assembly_definitions.each do |assembly_definition|%>
+      <% required_class = assembly_definition.optional ? 'optional' : 'required' %>
+
       <% product_part = assembly_definition.part.decorate(context: @context) %>
-    <div class="product-variants" data-tree="<%= product_part.memoized_variant_options_tree.to_json  %>" >
+    <div class="product-variants  <%= required_class %>" data-tree="<%= product_part.memoized_variant_options_tree.to_json %>" data-adjustment="0" >
 
       <h5> <%= assembly_definition.count %> x <%= product_part.name %> </h5>
 
       <% product_part.memoized_targeted_grouped_option_values.each do |type, values|  %>
-        <div class="variant-options <%= type.url_safe_name.downcase %>" data-type=<%= type.url_safe_name.downcase %> > 
+        <div class="variant-options <%= type.url_safe_name.downcase %> <%= required_class %>" data-type=<%= type.url_safe_name.downcase %> > 
 
-        <h5 class="variant-option-type"><%= type.presentation %>
-        <span class="color-value"></span>
-        </h5>
+        <h5 class="variant-option-type"><%= type.presentation %> <span "color-value"></span> </h5>
 
         <ul class="variant-option-values <%= type.url_safe_name.downcase %>">
           <% values.sort_by(&:position).each do |value| %>
@@ -54,29 +54,13 @@
   <% end %>
   </div>
 
-  <div class="optional-parts">
-    <% product.assembly_definitions.where(optional: true).each do |assembly_definition|%>
-      <% product_part = assembly_definition.part.decorate(context: @context) %>
-      <div class="optional-part">
-        <h5 class="product-section-title">Do you need <%= product_part.name %>?</h5>
-        <%= check_box_tag "parts[#{assembly_definition.id}][]", product_part.variants.first.id, false, 'class' => "selected-parts", 'data-price' => product_part.price_in_pence(product_part, current_currency), 'data-currency' => current_currency %>
-        <label for="<%= ['products', 'options', product_part.id].join('_') %>">
-          <span class="optional-part-label"><%= "#{assembly_definition.count} X #{product_part.name}" %></span>
-        </label>
-        <div class="product-part-image hide">
-          <%= image_tag(product_part.variants.first.images.first.attachment.url(:mini)) %>		
-        </div>
-      </div>
-    <% end %>
-  </div>
-
 </div>
 
 <% if product.price and !product.price.nil? %>
   <div class="add-to-cart">
   <label>Quantity</label>
   <%= number_field_tag (product.memoized_targeted_grouped_option_values.any? ? :quantity : "variants[#{product.master.id}]"), 1, :id => 'qty', :min => 1 %>
-  <%= button_tag :class => 'add-to-cart-button small', :type => :submit do %>
+  <%= button_tag :class => 'add-to-cart-button small disabled', :type => :submit, :style => "opacity: 0.5" do %>
     <%= Spree.t(:add_to_cart) %>
 <% end %>
 </div>
