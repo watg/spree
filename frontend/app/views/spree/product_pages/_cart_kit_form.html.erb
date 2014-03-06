@@ -46,7 +46,9 @@
         </ul>
       </div>
       <div class="product-part-image hide">
-          <%= image_tag(product_part.variants.first.images.first.attachment.url(:mini)) %>		
+        <% if image = product_part.variants.first.images.first %>
+          <%= image_tag(image.attachment.url(:mini)) %>
+         <% end %>
       </div>
       <input class="selected-parts" type="hidden" name="parts[<%= assembly_definition.id %>][]" value="" />
     </div>
