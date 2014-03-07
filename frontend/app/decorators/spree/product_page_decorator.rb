@@ -60,8 +60,15 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def decorated_first_knit_your_own_product_variant
-#    variant = knit_your_own_product.variants_for(object.target).first
-    variant = knit_your_own_product.master
+    variant = nil
+    # TODO: kil this once the new kit functionality is live
+    # should be just
+    # variant = knit_your_own_product.master
+    if knit_your_own_product.assembly_definitions.any?
+      variant = knit_your_own_product.master
+    else
+      variant = knit_your_own_product.variants_for(object.target).first
+    end
     if variant
       variant.decorate(context: { current_currency: current_currency, target: object.target})
     end

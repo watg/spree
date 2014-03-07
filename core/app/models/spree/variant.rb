@@ -228,6 +228,7 @@ module Spree
       ActiveSupport::Deprecation.warn("variant#price_in is deprecated use price_normal_in instead")
       price_normal_in(currency)
     end
+
     def kit_price_in(currency)
       ActiveSupport::Deprecation.warn("variant#kit_price_in is deprecated use price_part_in instead")
       price_part_in(currency)

@@ -14,4 +14,9 @@
  *= require select2
 
  *= require admin/spree_admin
+
+ *= require jquery.ui.core
+ *= require jquery.ui.theme
+ *= require jquery.multiselect
+ *= require jquery.multiselect.filter
 */

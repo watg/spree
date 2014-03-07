@@ -95,4 +95,5 @@ class Spree::ProductDecorator < Draper::Decorator
     ( price * 100 * item_quantity(obj) ).to_i
   end
 
+  
 end
