@@ -1,6 +1,20 @@
 class Spree::VariantDecorator < Draper::Decorator
   delegate_all
+  
+  def color_and_size_option_values
+    hash = object.option_values.group_by(&:option_type)
+    hash.inject({}) {|hsh, t| 
+      key = t[0].name.downcase.to_sym
+      key = :color if key == :colour
+      hsh[key] = t.last
+      hsh
+    }
+  end
 
+  def price_with_currency
+    "#{price.amount.to_f} #{currency}"
+  end
+  
   def current_currency
     context[:current_currency] || Spree::Config[:currency]
   end

@@ -14,11 +14,13 @@ module Spree
     
     respond_to :html
 
+    # The index page for the old site should no longer be accessable
     def index
-      @searcher = Config.searcher_class.new(params)
-      @searcher.current_user = try_spree_current_user
-      @searcher.current_currency = current_currency
-      @products = @searcher.retrieve_products
+      redirect_to root_url
+      #@searcher = Config.searcher_class.new(params)
+      #@searcher.current_user = try_spree_current_user
+      #@searcher.current_currency = current_currency
+      #@products = @searcher.retrieve_products
     end
 
     def show

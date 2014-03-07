@@ -128,14 +128,20 @@
  */
 
 .nav-primary-sub {
-	padding: emCalc(30px) 0;
-	max-width: none !important;
 	background-color: #f9f9f9;
-	border-top: 1px solid #f3f3f3;
-	border-bottom: 1px solid #f3f3f3;
+	overflow: hidden;
 	position: absolute;
 	z-index: 1000;
-	display: none;
+	max-width: none !important;
+	max-height: 0;
+		-moz-transition-duration: 0.75s;
+		-webkit-transition-duration: 0.75s;
+		-o-transition-duration: 0.75s;
+    transition-duration: 0.75s;
+		-moz-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+		-webkit-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+		-o-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+    transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
 	ul {
 		margin: 0 auto;
 		position: relative;
@@ -159,33 +165,64 @@
 			}
 			img + h3 {
 				position: absolute;
-				bottom: emCalc(-10px);
-				font-size: emCalc(26px);
+				bottom: emCalc(32px);
+				font-size: emCalc(20px);
 				text-align: center;
 				color: #fff;
 				width: 220px;
 				border: 0;
-				&.inverted {
-					color: #000;
-				}
+			}
+			h3 + p {
+				position: absolute;
+				bottom: emCalc(20px);
+				font-family: $watg-font;
+				text-align: center;
+				text-transform: uppercase;
+				color: #fff;
+				width: 220px;
 			}
 			ul {
 				display: block;
 				li {
 					padding: 0;
-					line-height: 1.33em;
+					line-height: 1.4em;
 					a {
-						font-size: emCalc(12px);
+						font-size: emCalc(14px);
 					}
 				}
 			}
 			ul + ul {
 				margin-top: 20px;
 			}
+			a:hover {
+				h3 + p {
+					text-decoration: underline;
+				}
+			}
+		}
+		& .inverted {
+			h3, p {
+				color: #000;
+			}
+		}
+		.columns {
+			padding-top: emCalc(30px);
+			padding-bottom: emCalc(30px);
 		}
 		.columns > a {
 			text-decoration: none;
 		}
+	}
+	&.expanded {
+	    max-height: 3000px;
+			-moz-transition-duration: 0.75s;
+			-webkit-transition-duration: 0.75s;
+			-o-transition-duration: 0.75s;
+	    transition-duration: 0.75s;
+			-moz-transition-timing-function: ease-in;
+			-webkit-transition-timing-function: ease-in;
+			-o-transition-timing-function: ease-in;
+	    transition-timing-function: ease-in;
 	}
 }
 
@@ -196,7 +233,17 @@
 		ul {
 			margin-bottom: emCalc(30px);
 			.small-12 {
+				padding-bottom: inherit;
+				border-top: 1px solid #999;
 				width: 100%;
+				h3 {
+					font-size: emCalc(18px);
+				}
+			}
+			.small-12:first-child,
+			.small-12 + .small-12 {
+				margin-top: emCalc(-30px);
+				border-top: 0;
 			}
 		}
 	}

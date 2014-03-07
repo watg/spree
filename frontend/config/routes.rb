@@ -48,6 +48,7 @@ Spree::Core::Engine.add_routes do
 
 
   # Top-level navigation to static pages
+  get '/knitwear/whats-new', :to => 'navigation#product_top_whats_new'
   get '/knitwear/women', :to => 'navigation#product_top_women'
   get '/knitwear/men', :to => 'navigation#product_top_men'
   get '/knitwear/kids', :to => 'navigation#product_top_kids'

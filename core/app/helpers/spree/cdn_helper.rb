@@ -4,7 +4,7 @@ module Spree
     def cdn_image_tag(source, options={})
       options = options.symbolize_keys
 
-      src = options[:src] = cdn_prefix + source
+      src = options[:src] = cdn_url(source)
 
       unless src =~ /^(?:cid|data):/ || src.blank?
         options[:alt] = options.fetch(:alt){ image_alt(src) }
@@ -26,7 +26,7 @@ module Spree
 
       html_options = convert_options_to_data_attributes(options, html_options)
 
-      url = cdn_prefix + url_for(options)
+      url = cdn_url(url_for(options))
 
       html_options['href'] ||= url
 
@@ -34,9 +34,15 @@ module Spree
     end
 
     def cdn_url(source)
-      cdn_prefix + source
+      u_source = URI(source)
+      u_cdn = URI(cdn_prefix)
+      if u_source.path[0] == '/'
+        ["//", u_cdn.host, u_source.path].join + "?#{u_source.query}"
+      else
+        ["//", u_cdn.host, "/", u_source.path].join + "?#{u_source.query}"
+      end
     end
-
+    
     def cdn_prefix
       @_cdn_prefix ||= Spree::Config[:asset_cdn_url] + '/'
     end
