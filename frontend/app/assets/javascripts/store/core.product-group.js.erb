@@ -61,8 +61,8 @@ core.productGroup.runVariantMethods = function() {
 }
 
 core.productGroup.readySocialWidget = function() {
-	// Don't show widget on tablet/mobile
-	if (core.isTabletWidthOrLess() === false) {
+	// Don't show widget on tablet/mobile, or for Gift Cards
+	if (core.isTabletWidthOrLess() === false && $('.title h1').text().toLowerCase() != 'gift cards') {
 		var widget = $('.widget-social');
 		var container = $('.row-social:visible div:first-child');
 	
