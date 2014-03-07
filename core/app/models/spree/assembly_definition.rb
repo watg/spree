@@ -14,4 +14,8 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
     variants.in_stock.options_tree_for(target, current_currency)
   end
 
+  def option_values_in_stock
+    option_values.where('spree_variants.in_stock_cache =?', true)
+  end
+
 end

@@ -15,7 +15,7 @@ class Spree::AssemblyDefinitionDecorator < Draper::Decorator
   end
 
   def memoized_grouped_option_values
-    @_memoized_grouped_option_values ||= object.option_values.group_by(&:option_type)
+    @_memoized_grouped_option_values ||= object.option_values_in_stock.group_by(&:option_type)
   end
 
 end
