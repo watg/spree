@@ -265,23 +265,27 @@ table {
 	}
 }
 
-.free-shipping-promo {
-	margin-top: 2.4em;
-	p {
-		font-family: "Gill Sans W01 Light";
-		font-size: 1.563em;
-		line-height: 1.1;
-		text-transform: uppercase;
-		text-align: center;
+/* Shipping and contact sitewide messages */
+.row-shipping-and-contact {
+	padding: emCalc(20px) 0;
+	max-width: none !important;
+	background-color: #f9f9f9;
+	.large-6:first-child {
+		border-right: 1px solid #e0e0e0;
+		text-align: right;
 	}
-
-	p + p {
+	p {
 		margin-bottom: 0;
-		font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
-		font-size: 1em;
-		text-transform: none;
-		color: #767676;
-		line-height: 1.6em;
+		font-family: $watg-font-secondary-light;
+		font-size: emCalc(14px);
+		text-transform: uppercase;
+		strong {
+			font-family: $watg-font-secondary;
+			font-weight: normal;
+		}
+		a {
+			text-decoration: underline;
+		}
 	}
 }
 
