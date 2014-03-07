@@ -98,6 +98,38 @@ module Spree
         selector.reorder('amount').first
       end
 
+      def options_tree_for(target, current_currency)
+        hash={}
+        selector = self.includes(:prices, :images, :option_values => [:option_type])
+        if !target.blank?
+          selector = selector.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
+        end
+
+        selector.order( "spree_option_types.position", "spree_option_values.position" ).each do |v|
+          base=hash
+          v.option_values.each_with_index do |o,i|
+            base[o.option_type.url_safe_name] ||= {}
+            base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
+            if ( i + 1 < v.option_values.size )
+              base = base[o.option_type.url_safe_name][o.url_safe_name]
+            else
+              base[o.option_type.url_safe_name][o.url_safe_name]['variant'] ||= {}
+              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['id']=v.id
+              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).in_subunit
+              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
+              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['part_price']=v.price_part_in(current_currency).in_subunit
+              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
+              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_stock']= v.in_stock_cache 
+              if v.images.any?
+                base[o.option_type.url_safe_name][o.url_safe_name]['variant']['image_url']= v.images.first.attachment.url(:mini)
+              end
+            end
+          end
+        end
+        hash
+      end
+
+
     end
 
     def generate_variant_number(force: false)

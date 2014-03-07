@@ -93,7 +93,7 @@
 	<% product = @product_page.decorated_knit_your_own_product %>
 
   <% if product.assembly_definitions.any? %>
-	<div class="displayable-kit-entity row row-knit-your-own <%= @product_page.knit_your_own_active_class %>"
+    <div class="displayable-kit-entity row row-knit-your-own <%= @product_page.knit_your_own_active_class %>">
   <% else %>
 	<div class="displayable-entity row row-knit-your-own <%= @product_page.knit_your_own_active_class %>"
 		data-option-values="<%= variant.option_types_and_values.to_json %>"
