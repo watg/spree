@@ -54,6 +54,8 @@ module Spree
 
     has_many :personalisations, dependent: :destroy
 
+    has_many :assembly_definitions, -> { order "position" }, class_name: "Spree::AssemblyDefinition", foreign_key: :assembly_id
+
     has_one :master,
       -> { where is_master: true },
       inverse_of: :product,
