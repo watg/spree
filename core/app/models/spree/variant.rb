@@ -90,8 +90,8 @@ module Spree
       end
 
       def lowest_priced_variant(currency, in_sale: false )
-        selector = in_stock.active(currency).select('spree_prices.id').joins(:prices)
-          .where('spree_prices.currency = ? and sale = ? and is_kit = ?', currency, in_sale, false )
+        selector = in_stock.active(currency).select('spree_prices.id').includes(:normal_prices)
+          .where('sale = ?', in_sale )
 
         selector = selector.where('spree_variants.in_sale = ?', in_sale) if in_sale == true
 
