@@ -11,11 +11,11 @@ class Spree::AssemblyDefinitionDecorator < Draper::Decorator
 
   def memoized_variant_options_tree
     @_variant_options_tree ||= {}
-    @_variant_options_tree[current_currency] ||= object.variant_options_tree_for(target,current_currency)
+    @_variant_options_tree[current_currency] ||= object.variant_options_tree_for(current_currency)
   end
 
   def memoized_grouped_option_values
-    @_memoized_grouped_option_values ||= object.option_values_in_stock.group_by(&:option_type)
+    @_memoized_grouped_option_values ||= object.grouped_option_values_in_stock
   end
 
 end
