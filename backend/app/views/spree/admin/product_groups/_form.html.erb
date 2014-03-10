@@ -1,8 +1,69 @@
-<%= f.field_container :name do %>
-  <%= f.label :name, Spree.t(:name) %> <span class="required">*</span><br />
-  <%= f.text_field :name, :class => 'fullwidth title' %>
-  <%= f.error_message_on :name %>
-<% end %>
+<div class="row">
+  <div class="alpha eleven columns">
+    <%= f.field_container :name do %>
+      <%= f.label :name, Spree.t(:name) %> <span class="required">*</span><br />
+      <%= f.text_field :name, :class => 'fullwidth title', :required => true %>
+      <%= f.error_message_on :name %>
+    <% end %>
+  </div>
+
+  <div class="omega five columns">
+    <%= f.field_container :code do %>
+      <%= f.label :code, "Commodity code" %> <span class="required">*</span><br />
+      <%= f.text_field :code, :class => 'fullwidth', :required => true %>
+      <%= f.error_message_on :code %>
+    <% end %>
+  </div>
+</div>
+
+<!-- <div class="clear"></div> -->
+
+<div class="row">
+
+  <div class="alpha four columns">
+    <%= f.field_container :mid do %>
+      <%= f.label :mid, "MID Code" %> <span class="required">*</span><br />
+      <%= f.text_field :mid, :class => 'fullwidth' %>
+      <%= f.error_message_on :mid %>
+    <% end %>
+  </div>
+
+  <div class="four columns">
+    <%= f.field_container :garment do %>
+      <%= f.label :garment, "Garment" %> <span class="required">*</span><br />
+      <%= f.text_field :garment, :class => 'fullwidth', :required => true %>
+      <%= f.error_message_on :garment %>
+    <% end %>
+  </div>
+
+  <div class="four columns">
+    <%= f.field_container :fabric do %>
+      <%= f.label :fabric, "Fabric" %> <span class="required">*</span><br />
+      <%= f.select :fabric, options_for_select(%w[Knitted Yarn]), {}, :class => 'select2 fullwidth' %>
+      <%= f.error_message_on :fabric %>
+    <% end %>
+  </div>
+
+  <div class="omega four columns">
+    <%= f.field_container :origin do %>
+      <%= f.label :origin, "Country of origin" %> <span class="required">*</span><br />
+      <%= f.select :origin, options_for_select(%w[Peru India China]), {}, :class => 'select2 fullwidth' %>
+      <%= f.error_message_on :origin %>
+    <% end %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="alpha eight columns">
+    <%= f.field_container :contents do %>
+      <%= f.label :contents, Spree.t(:contents) %>
+      <%= f.text_area :contents, :rows => 10, :class => 'fullwidth' %>
+      <%= f.error_message_on :contents %>
+    <% end %>
+  </div>
+</div>
 
 <div class="clear"></div>
+
+
 

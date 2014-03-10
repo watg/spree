@@ -136,32 +136,33 @@ module Spree
         respond_with(@order) { |format| format.html { redirect_to :back } }
       end
 
-      private
+    private
+    
       def type
         (params[:type] == 'sticker' ? :sticker : :invoice )
       end
 
       def get_pdf(order, pdf_type)
         if pdf_type == :invoice
-          Spree::PDF::CommercialInvoice.to_pdf(order)
+          Spree::PDF::CommercialInvoice.new(order).to_pdf
         else
-          Spree::PDF::ImageSticker.to_pdf(order)
+          Spree::PDF::ImageSticker.new(order).to_pdf
         end
       end
 
-        def load_order
-          @order = Order.includes(:adjustments).find_by_number!(params[:id])
-          authorize! action, @order
-        end
+      def load_order
+        @order = Order.includes(:adjustments).find_by_number!(params[:id])
+        authorize! action, @order
+      end
 
-        # Used for extensions which need to provide their own custom event links on the order details view.
-        def initialize_order_events
-          @order_events = %w{cancel resume}
-        end
+      # Used for extensions which need to provide their own custom event links on the order details view.
+      def initialize_order_events
+        @order_events = %w{cancel resume}
+      end
 
-        def model_class
-          Spree::Order
-        end
+      def model_class
+        Spree::Order
+      end
     end
   end
 end

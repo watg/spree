@@ -6,7 +6,7 @@ module Spree
           orders.each do |order|
             index = order.batch_print_id
             number_of_invoices(order).times {
-              pdf = CommercialInvoice.create(pdf, order, index)
+              pdf = CommercialInvoice.new(order, pdf).create(index)
               pdf.start_new_page
             }
           end
@@ -17,7 +17,7 @@ module Spree
         def create_stickers(pdf, orders)
           orders.each do |order|
             index = order.batch_print_id
-            pdf = ImageSticker.create(pdf, order, index)
+            pdf = ImageSticker.new(order, pdf).create(index)
             pdf.start_new_page
           end
 
