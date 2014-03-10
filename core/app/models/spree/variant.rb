@@ -77,7 +77,7 @@ module Spree
       end
 
       def active(currency = nil)
-        includes(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
+        includes(:normal_prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
       end
 
       def displayable(product_id)
@@ -100,7 +100,7 @@ module Spree
 
       def options_tree_for(target, current_currency)
         hash={}
-        selector = self.includes(:prices, :images, :option_values => [:option_type])
+        selector = self.includes(:normal_prices, :kit_prices, :images, :option_values => [:option_type])
         if !target.blank?
           selector = selector.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
         end
@@ -242,15 +242,17 @@ module Spree
 
     # --- new price getters --------
     def price_normal_in(currency_code)
-      find_price(currency_code, :regular) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: false, sale: false)
+      find_normal_price(currency_code, :regular) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: false, sale: false)
     end
+
     def price_normal_sale_in(currency_code)
-      find_price(currency_code, :sale) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: false, sale: true)
+      find_normal_price(currency_code, :sale) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: false, sale: true)
     end
 
     def price_part_in(currency_code)
       find_part_price(currency_code, :regular) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: true, sale: false)
     end
+
     def price_part_sale_in(currency_code)
       find_part_price(currency_code, :sale) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: true, sale: true)
     end
@@ -375,7 +377,7 @@ module Spree
     end
 
     def product_price_in(currency)
-      self.product.master.prices.select{ |price| price.currency == currency }.first
+      self.product.master.normal_prices.select{ |price| price.currency == currency }.first
     end
 
     def tag_names
@@ -394,8 +396,8 @@ module Spree
     end
 
     private
-    def find_price(currency, type)
-      prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first
+    def find_normal_price(currency, type)
+      normal_prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first
     end
 
     def find_part_price(currency, type)

@@ -29,7 +29,7 @@
       <% product_part = assembly_definition.part.decorate(context: @context) %>
     <div class="product-variants  <%= required_class %>" data-tree="<%= assembly_definition.memoized_variant_options_tree.to_json %>" data-adjustment="0" >
 
-      <% if assembly_definition.memoized_grouped_option_values.any? %>
+      <% if assembly_definition.memoized_grouped_option_values.any?  %>
         <h5> <%= assembly_definition.presentation %> </h5>
 
         <% assembly_definition.memoized_grouped_option_values.each do |type, values|  %>
