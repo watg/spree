@@ -49,13 +49,13 @@
           </ul>
           </div>
         <% end # assembly_definition.memoized_grouped_option_values.each  %>
+        <input class="selected-parts" type="hidden" name="parts[<%= assembly_definition.id %>][]" value="" />
       <% end # if assembly_definition.memoized_grouped_option_values.any? %>
       <div class="product-part-image hide">
         <% if image = product_part.variants.first.images.first %>
           <%= image_tag(image.attachment.url(:mini)) %>
          <% end %>
       </div>
-      <input class="selected-parts" type="hidden" name="parts[<%= assembly_definition.id %>][]" value="" />
     </div>
   <% end %>
   </div>
