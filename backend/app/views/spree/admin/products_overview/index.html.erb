@@ -32,15 +32,26 @@
   
   <%= paginate @products %>
 
+  <button type="button" id="check_all" style="float: right">
+    Check / Uncheck All
+  </button>
+  
+  <script type='text/javascript'>
+      $('#check_all').on("click", function(){ $('input[type="checkbox"]').click(); });
+  </script>
+  
+  <br>
+  <br>
   <table>
     <colgroup>
       <col style="width: 5%">
-      <col style="width: 15%">
-      <col style="width: 15%">
-      <col style="width: 15%">
-      <col style="width: 20%">
-      <col style="width: 20%">
       <col style="width: 10%">
+      <col style="width: 10%">
+      <col style="width: 10%">
+      <col style="width: 20%">
+      <col style="width: 20%">
+      <col style="width: 20%">
+      <col style="width: 5%">
     </colgroup>
     <thead>
       <tr data-hook="option_header">
@@ -49,6 +60,7 @@
         <th>Current type</th>
         <th>First variant in stock?</th>
         <th>Product Group</th>
+        <th>Gang Member</th>
         <th>New Product Type</th>
         <th>Check to update</th>
       </tr>
@@ -67,6 +79,7 @@
           <td class="align-center">
           <%= select_tag "products[][product_group]", options_from_collection_for_select(Spree::ProductGroup.all, "id", "name", product.product_group_id), {include_blank: true, :class => 'select2 fullwidth'} %>
           </td>
+          <td class="align-center"><%= product.gang_member.name %></td>
           <td class="align-center">
           <%= select_tag "products[][martin_type]", options_from_collection_for_select(Spree::MartinProductType.all, "id", "name", product.martin_type_id), {include_blank: true, :class => 'select2 fullwidth'} %>
           </td>          
