@@ -45,26 +45,26 @@ module Spree
       validate_prices(prices) if prices
       unless has_errors? 
         ActiveRecord::Base.transaction do
-          variant.update_attributes(details)
 
           if prices
             update_prices(prices, variant)
           end
 
-          if details[:tags]
-            tags = split_params(details.delete(:tags)).map(&:to_i)
-            update_tags(variant, tags)
+          if tags = details.delete(:tags)
+            update_tags(variant, split_params(tags).map(&:to_i) )
           end
 
-          if details[:target_ids]
-            target_ids = split_params(details.delete(:target_ids)).map(&:to_i)
-            assign_targets(variant, target_ids)
+          if target_ids = details.delete(:target_ids)
+            assign_targets(variant, split_params(target_ids).map(&:to_i) )
           end
+
+          variant.update_attributes(details)
 
           variant
         end
       end
     rescue Exception => e
+      puts e.backtrace
       Rails.logger.error "[NewVariantService] #{e.message} -- #{e.backtrace}"
       add_error(:variant, :exception, e.message)
     end
