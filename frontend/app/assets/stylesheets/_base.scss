@@ -265,7 +265,7 @@ table {
 	}
 }
 
-/* Shipping and contact sitewide messages */
+/* Shipping and contact messages */
 .row-shipping-and-contact {
 	padding: emCalc(20px) 0;
 	max-width: none !important;
@@ -273,6 +273,9 @@ table {
 	.large-6:first-child {
 		border-right: 1px solid #e0e0e0;
 		text-align: right;
+	}
+	.large-12 {
+		text-align: center;
 	}
 	p {
 		margin-bottom: 0;
@@ -317,8 +320,85 @@ table {
 	}
 }
 
-/* Site wide error messaging */
+/* Sitewide error messaging */
 .error {
   padding: 1.25em;
   background-color: #f4bfbf;
+}
+
+/* Sitewide modals */
+.modal {
+	padding: emCalc(10px) emCalc(30px) emCalc(20px);
+	width: 600px;
+	background-color: #fff;
+	display: none;
+	h3 {
+		margin-bottom: emCalc(5px);
+		font-size: emCalc(60px);
+	}
+	h4 {
+		margin-bottom: emCalc(20px);
+		font-family: $watg-font-secondary-light;
+		strong {
+			font-family: $watg-font-secondary;
+			font-weight: normal;
+		}
+	}
+	h5 {
+		margin-top: emCalc(20px);
+	}
+	table {
+		margin-bottom: emCalc(30px);
+		caption {
+			display: none;
+		}
+		tbody {
+			padding-top: 10px;
+			border-top: 1px solid red;
+			tr {
+				th, td {
+					padding: emCalc(15px) 0;
+					background-color: #fff;
+					border-bottom: 1px solid #ccc;
+				}
+				th {
+					font-family: $watg-font;
+					font-size: emCalc(16px);
+					text-transform: uppercase;
+					text-align: left;
+				}
+				td {
+					padding-left: emCalc(15px);
+					font-size: emCalc(12px);
+					border-left: 1px solid #ccc;
+				}
+			}
+			tr:first-child {
+				th, td {
+					border-top: 4px solid #ccc;
+				}
+			}
+			tr:last-child {
+				th, td {
+					border-top: 0;
+				}
+			}
+		}
+	}
+	p {
+		font-size: emCalc(12px);
+		a {
+			text-decoration: underline;
+		}
+	}
+}
+#lean_overlay {
+    position: fixed;
+    z-index: 100;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    background-color: #000;
+    display: none;
 }

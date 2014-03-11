@@ -3,6 +3,7 @@ core = {}; // Extend from this core object
 $(document).ready(function() {
 	core.readyNavigation();
 	core.readyNavigationMobile();
+	core.readyModals();
 	core.showCookieMessage();
 });
 
@@ -77,6 +78,10 @@ core.hideSubNavigation = function(e) {
 	e.children('a').removeClass('active');
 	
 	$('.nav-primary-sub').removeClass('expanded');
+}
+
+core.readyModals = function() {
+	$('a[rel*=modal]').leanModal({ top: 30, closeButton: '.modal_close' });
 }
 
 core.showCookieMessage = function() {
