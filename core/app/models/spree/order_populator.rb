@@ -5,18 +5,19 @@ module Spree
 
     class << self
       def parse_options(variant, options)
+        return [] if options.blank?
         _kit_definition = variant.product.assembly_definitions
-        options.inject([]) {|list, t| 
+        options.inject([]) {|list, t|
           definition_id, variant_part_id = t.flatten.map(&:to_i)
-          if variant_part_id > 0
-            assembly_definition = _kit_definition.detect{|e| e.id == definition_id}
+          assembly_definition = _kit_definition.detect{|e| e.id == definition_id}
+          if assembly_definition && (variant_part_id > 0)
             variant_part = Spree::Variant.find(variant_part_id)
             list << [variant_part, assembly_definition.count, assembly_definition.optional]
           end
           list}
       end
     end
-    
+
     def initialize(order, currency)
       @order = order
       @currency = currency
