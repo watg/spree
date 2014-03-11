@@ -12,6 +12,7 @@ Spree::Core::Engine.add_routes do
     get 'pinterest' => 'pinterest#show', :as => 'pinterest'
 
     resources :olapic, :only => [:index]
+    get 'assembly_definitions/:id/parts' => 'assembly_definitions#parts', :as => 'assembly_definition_parts'
 
     resources :products do
       resources :variants
