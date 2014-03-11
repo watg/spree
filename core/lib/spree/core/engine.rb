@@ -89,6 +89,7 @@ module Spree
           Spree::Promotion::Rules::ProductType,
           Spree::Promotion::Rules::ProductGroupAndType,
           Spree::Promotion::Rules::User,
+          Spree::Promotion::Rules::Country,
           Spree::Promotion::Rules::FirstOrder,
           Spree::Promotion::Rules::UserLoggedIn]
       end
