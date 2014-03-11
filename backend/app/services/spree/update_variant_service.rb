@@ -3,30 +3,33 @@ module Spree
     include ServiceTrait::Prices
     required do
       duck :variant#, class: 'Spree::Variant'
+    end
 
+
+    optional do
       hash :details do
-        required do
+        optional do
           string :sku
           array :option_value_ids do
             string
           end
           string :tags, empty: true
           string :target_ids, empty: true
-        end
 
-        optional do
           float :height
           float :depth
           float :width
           float :weight
           string :label, nils: true, empty: true
           integer :part_id
+
+          string :track_inventory
         end
 
       end
 
       hash :prices do
-        required do
+        optional do
           duck :normal
           duck :normal_sale
         end
@@ -39,21 +42,31 @@ module Spree
     end
 
     def execute
-      validate_prices(prices)
+      validate_prices(prices) if prices
       unless has_errors? 
         ActiveRecord::Base.transaction do
-          tags = split_params(details.delete(:tags)).map(&:to_i)
-          target_ids = split_params(details.delete(:target_ids)).map(&:to_i)
           variant.update_attributes(details)
-          update_prices(prices, variant)
-          update_tags(variant, tags)
-          assign_targets(variant, target_ids)
+
+          if prices
+            update_prices(prices, variant)
+          end
+
+          if details[:tags]
+            tags = split_params(details.delete(:tags)).map(&:to_i)
+            update_tags(variant, tags)
+          end
+
+          if details[:target_ids]
+            target_ids = split_params(details.delete(:target_ids)).map(&:to_i)
+            assign_targets(variant, target_ids)
+          end
+
           variant
         end
       end
-    #rescue Exception => e
-    #  Rails.logger.error "[NewVariantService] #{e.message} -- #{e.backtrace}"
-    #  add_error(:variant, :exception, e.message)
+    rescue Exception => e
+      Rails.logger.error "[NewVariantService] #{e.message} -- #{e.backtrace}"
+      add_error(:variant, :exception, e.message)
     end
 
     private
