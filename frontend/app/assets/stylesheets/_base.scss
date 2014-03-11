@@ -332,6 +332,16 @@ table {
 	width: 600px;
 	background-color: #fff;
 	display: none;
+	.modal-close {
+		font-size: 0;
+		line-height: 0;
+		position: absolute;
+		top: 30px;
+		right: 30px;
+		height: 30px;
+		width: 30px;		
+		background: image-url('sitewide/modal-close.png') center center no-repeat;
+	}
 	h3 {
 		margin-bottom: emCalc(5px);
 		font-size: emCalc(60px);
@@ -390,6 +400,13 @@ table {
 		a {
 			text-decoration: underline;
 		}
+	}
+}
+// Mobile .modal
+@media only screen and (max-width: 48em) {
+	.modal {
+		width: 300px;
+		position: absolute !important;
 	}
 }
 #lean_overlay {
