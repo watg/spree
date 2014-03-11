@@ -16,3 +16,7 @@ child(:stock_items) do
     attribute :name => :stock_location_name
   end
 end
+
+child(Spree::Admin::AssemblyDefinitionDecorator.decorate_collection(@object.assembly_definitions) => :assembly_definitions) do
+  attributes :presentation, :name, :optional, :url
+end

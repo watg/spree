@@ -10,6 +10,7 @@ $(document).ready(function () {
       return variant.id == variant_id
     })
     $('#stock_details').html(variantStockTemplate({variant: variant}));
+    $(".part-options",'#stock_details').trigger("assemblyDefinition.parts.update");
     $('#stock_details').show();
 
     $('button.add_variant').click(addVariantFromStockLocation);
@@ -148,7 +149,7 @@ adjustShipmentItems = function(shipment_number, variant_id, quantity){
       $.ajax({
         type: "PUT",
         url: Spree.url(url),
-        data: { variant_id: variant_id, quantity: new_quantity }
+        data: { variant_id: variant_id, quantity: new_quantity, assembly_definition: selected_parts() }
       }).done(function( msg ) {
         advanceOrder();
       });
@@ -289,6 +290,17 @@ cancelItemSplit = function(event) {
   prev_row.find('a.delete-item').toggle();
 }
 
+selected_parts = function() {
+  // TODO: At the moment this does not support multiple stock_locations
+  var hsh = {};
+  $.map($('#stock_details').find(':input.part-options'), function(e) { 
+    var i = $(e); 
+    var k= i.data('key'); 
+    if(k != null && k != "undefined"){ hsh[k] = i.val(); } 
+  });
+  return hsh;
+}
+
 addVariantFromStockLocation = function() {
   $('#stock_details').hide();
 
@@ -304,7 +316,7 @@ addVariantFromStockLocation = function() {
     $.ajax({
       type: "POST",
       url: Spree.url(Spree.routes.orders_api + "/" + order_number + "/shipments.json"),
-      data: { variant_id: variant_id, quantity: quantity, stock_location_id: stock_location_id }
+      data: { variant_id: variant_id, quantity: quantity, stock_location_id: stock_location_id , assembly_definition: selected_parts()}
     }).done(function( msg ) {
       advanceOrder();
     }).error(function( msg ) {

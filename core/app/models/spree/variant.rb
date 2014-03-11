@@ -34,6 +34,8 @@ module Spree
       dependent: :destroy
 
     delegate_belongs_to :default_price, :display_price, :display_amount, :price, :price=, :currency
+    
+    delegate_belongs_to :product, :assembly_definitions
 
     has_many :prices,
       class_name: 'Spree::Price',
