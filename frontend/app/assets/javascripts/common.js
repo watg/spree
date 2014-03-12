@@ -303,7 +303,7 @@ $(function() {
 // On document fully loaded...
 $(window).bind('load', function() {
 	// Signup starts
-	if ($('body').hasClass('product-group')) return false; // Die if new product page
+	if ($('body').hasClass('product-top') || $('body').hasClass('product-index') || $('body').hasClass('product-group')) return false; // Die if product top, index or group page
 	
 	WATG.signup.globals.signupForms = $('.signup-form');
 	WATG.signup.globals.container = $('#signupPromo');
