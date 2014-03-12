@@ -16,7 +16,7 @@ describe Spree::Promotion::Rules::Country do
       it "should be eligible if any of the countries is in the eligible countries" do
         order.stub(:last_ip_address => "1.2.3.4")
         rule.stub(:eligible_country_codes => ["UK", "US"])
-        Geocoder.should_receive(:search).with("1.2.3.4").and_return(double("Geocode Country", :country_code => "US"))
+        Geocoder.should_receive(:search).with("1.2.3.4").and_return([double("Geocode Country", :country_code => "US")])
         
         rule.should be_eligible(order)
       end
@@ -24,7 +24,7 @@ describe Spree::Promotion::Rules::Country do
       it "should not be eligible if none of the countries is in the eligible countries" do
         order.stub(:last_ip_address => "5.6.7.8")
         rule.stub(:eligible_country_codes => ["US"])
-        Geocoder.should_receive(:search).with("5.6.7.8").and_return(double("Geocode Country", :country_code => "UK"))
+        Geocoder.should_receive(:search).with("5.6.7.8").and_return([double("Geocode Country", :country_code => "UK")])
 
         rule.should_not be_eligible(order)
       end

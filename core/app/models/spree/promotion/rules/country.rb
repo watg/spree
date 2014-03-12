@@ -11,7 +11,7 @@ module Spree
         def eligible?(order)
           return true if eligible_country_codes.empty?
 
-          eligible_country_codes.include? Geocoder.search(order.last_ip_address).country_code
+          eligible_country_codes.include? Geocoder.search(order.last_ip_address).first.try(:country_code)
         end
 
       end
