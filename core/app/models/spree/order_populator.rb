@@ -11,7 +11,7 @@ module Spree
           part_id, selected_variant_id = t.flatten.map(&:to_i)
           assembly_definition_part = assembly_definition_parts.detect{|p| p.id == part_id}
           if assembly_definition_part && (selected_variant_id > 0)
-            selected_variant_part = Spree::Variant.find(variant_part_id)
+            selected_variant_part = Spree::Variant.find(selected_variant_id)
             list << [selected_variant_part, assembly_definition_part.count, assembly_definition_part.optional]
           end
           list}

@@ -402,6 +402,10 @@ module Spree
       self.track_inventory? && Spree::Config.track_inventory_levels
     end
 
+    def assembly_definition_parts
+      assembly_definition.try(:parts) || []
+    end
+
     private
 
     def create_assembly_definition_if_kit
