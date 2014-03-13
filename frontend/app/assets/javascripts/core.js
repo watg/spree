@@ -82,6 +82,12 @@ core.hideSubNavigation = function(e) {
 
 core.readyModals = function() {
 	$('a[rel*=modal]').leanModal({top: 30, closeButton: '.modal-close'});
+	
+	// Prime additional 'close modal' CTA...
+	$('.modal .button').on('click', function(e) {
+		e.preventDefault();
+		$(this).parent().siblings('.modal-close').click();
+	});
 }
 
 core.showCookieMessage = function() {
