@@ -10,7 +10,7 @@ Spree::Core::Engine.routes.draw do
 
     resources :assembly_definitions do
       member do
-        get :supply_products
+        get :available_supply_products
       end
 
       resources :parts, :controller => 'assembly_definition_parts' do
