@@ -52,9 +52,7 @@
         <input class="selected-parts" type="hidden" name="parts[<%= part.id %>][]" value="" />
       <% end # if assembly_definition.memoized_grouped_option_values.any? %>
       <div class="product-part-image hide">
-        <% if image = product_part.variants.first.images.first %>
-          <%= image_tag(image.attachment.url(:mini)) %>
-         <% end %>
+        <%= image_tag('product-group/placeholder-66x84.gif') %>
       </div>
     </div>
   <% end %>

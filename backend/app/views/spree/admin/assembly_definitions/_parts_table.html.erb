@@ -1,0 +1,43 @@
+<table class="index definition" data-sortable-link="<%= update_position_admin_assembly_definition_parts_path(assembly_definition) %>">
+  <col width="10">
+  <col width="300">
+  <col width="10">
+  <col width="10">
+  <thead>
+    <tr>
+      <th colspan="2">Presentation</th>
+      <th><%= "Name" %></th>
+      <th><%= t("qty") %></th>
+      <th><%= t("optional") %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if assembly_definition.blank? %>
+    <tr><td colspan="6"><%= t('none') %>.</td></tr>
+    <% end %>
+    <% assembly_definition.parts.each do |part| %>
+    <tr id="<%= dom_id(part, :sel)%>">
+      <td><span class="handle"></span></td>
+      <td class="presentation"><%= text_field_tag :presentation, part.presentation %></td>
+      <td><%= link_to part.product.name, edit_admin_product_path(part.product) %>
+      <%= select_tag("variants[]", options_for_select( 
+          part.product.variants.collect { |v| [v.options_text, v.id] }, 
+          part.selected_variants.collect { |ad| ad.id }),{
+          multiple: true, class: 'variants multi-select'}) %>
+      </td>
+      <td class="count"><%= text_field_tag :count, part.count %></td>
+      <td><%= check_box_tag( 'part_optional', part.optional,  part.optional ) %></td>
+      <td>
+        <%= image_tag "spinner.gif", :style => "display:none", :class => "spinner" %>
+        <%= link_to(icon('edit') + ' ' + t('update'),
+            admin_assembly_definition_part_url(assembly_definition, part), :method => :patch,
+            :class => "set_count_admin_item_part_link") %>
+      </td>        
+    </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= javascript_tag("subscribe_item_part_links();") if request.xhr? %>
+<%= javascript_include_tag "jquery.multiselect/jquery.multiselect." + I18n.locale.to_s %> <%= javascript_include_tag "jquery.multiselect/jquery.multiselect.filter." + I18n.locale.to_s %>

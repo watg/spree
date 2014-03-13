@@ -3,6 +3,7 @@ class Spree::AssemblyDefinitionPart < ActiveRecord::Base
   belongs_to :product, class_name: "Spree::Product", foreign_key: "product_id"
 
   has_many :assembly_definition_variants, dependent: :delete_all, class_name: 'Spree::AssemblyDefinitionVariant' 
+  
   has_many :variants, through: :assembly_definition_variants
   alias_method :selected_variants, :variants
 
