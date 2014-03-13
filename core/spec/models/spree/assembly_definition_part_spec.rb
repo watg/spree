@@ -17,7 +17,7 @@ describe Spree::AssemblyDefinition do
     let(:french)   { create(:option_value, name: 'french', option_type: language, position: 0) }
     let(:english)   { create(:option_value, name: 'english', option_type: language, position: 1) }
 
-    let(:assembly)  { create(:base_product) }
+    let(:variant)  { create(:base_variant) }
     let(:part)  { create(:base_product) }
 
     let!(:variant_in_stock1)  { create(:variant_with_stock_items, product: product, option_values: [pink,small] ) }
@@ -27,8 +27,11 @@ describe Spree::AssemblyDefinition do
     let!(:variant_out_of_stock)  { create(:variant, product: product, option_values: [english] ) }
     let!(:variant_in_stock5)  { create(:variant_with_stock_items, product: product, option_values: [french] ) }
 
+    let(:assembly_definition) { create(:assembly_definition, variant: variant) }
+    subject { create(:assembly_definition_part, assembly_definition: assembly_definition, product: part) }
+
     let(:product)  { create(:base_product) }
-    subject { create(:assembly_definition, assembly: assembly, part: part) }
+
     before do
       subject.variants = [ variant_in_stock1, variant_in_stock2, variant_in_stock3, variant_in_stock4, variant_out_of_stock ]
     end

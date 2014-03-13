@@ -410,7 +410,9 @@ module Spree
 
     def create_assembly_definition_if_kit
       if self.isa_kit?
-        self.assembly_defintion.create if self.assebly_definition.nil?
+        if self.assembly_definition.nil?
+          Spree::AssemblyDefinition.create variant_id: self.id
+        end
       end
     end
 
