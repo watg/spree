@@ -23,16 +23,16 @@
 
 <div data-hook="inside_product_cart_form" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
   <div class="parts">
-    <% product.assembly_definitions.decorate(context: @context).each do |assembly_definition|%>
-      <% required_class = assembly_definition.optional ? 'optional' : 'required' %>
+    <% product.assembly_definition.parts.decorate(context: @context).each do |part|%>
+      <% required_class = part.optional ? 'optional' : 'required' %>
 
-      <% product_part = assembly_definition.part.decorate(context: @context) %>
-    <div class="product-variants  <%= required_class %>" data-tree="<%= assembly_definition.memoized_variant_options_tree.to_json %>" data-adjustment="0" >
+      <% product_part = part.product.decorate(context: @context) %>
+    <div class="product-variants  <%= required_class %>" data-tree="<%= part.memoized_variant_options_tree.to_json %>" data-adjustment="0" >
 
-      <% if assembly_definition.memoized_grouped_option_values.any?  %>
-        <h5> <%= assembly_definition.presentation %> </h5>
+      <% if part.memoized_grouped_option_values.any?  %>
+        <h5> <%= part.presentation %> </h5>
 
-        <% assembly_definition.memoized_grouped_option_values.each do |type, values|  %>
+        <% part.memoized_grouped_option_values.each do |type, values|  %>
           <div class="variant-options <%= type.url_safe_name.downcase %> <%= required_class %>" data-type=<%= type.url_safe_name.downcase %> > 
   
             <h5 class="variant-option-type"><%= type.presentation %>
@@ -49,7 +49,7 @@
           </ul>
           </div>
         <% end # assembly_definition.memoized_grouped_option_values.each  %>
-        <input class="selected-parts" type="hidden" name="parts[<%= assembly_definition.id %>][]" value="" />
+        <input class="selected-parts" type="hidden" name="parts[<%= part.id %>][]" value="" />
       <% end # if assembly_definition.memoized_grouped_option_values.any? %>
       <div class="product-part-image hide">
         <% if image = product_part.variants.first.images.first %>

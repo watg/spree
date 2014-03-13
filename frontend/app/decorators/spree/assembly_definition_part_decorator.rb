@@ -1,4 +1,4 @@
-class Spree::AssemblyDefinitionDecorator < Draper::Decorator
+class Spree::AssemblyDefinitionPartDecorator < Draper::Decorator
   delegate_all
 
   def current_currency

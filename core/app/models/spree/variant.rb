@@ -18,6 +18,8 @@ module Spree
 
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants, class_name: "Spree::OptionValue"
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
+    # PArt of the image work that needs to be done
+    # has_many :assembly_defintition_images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
 
     has_many :variant_targets, class_name: 'Spree::VariantTarget', dependent: :destroy
     has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :images, through: :variant_targets
@@ -48,11 +50,14 @@ module Spree
 
     has_many :index_page_items
 
+    has_one :assembly_definition
+
     before_validation :set_cost_currency
     before_validation :generate_variant_number, on: :create
 
     after_create :create_stock_items
     after_create :set_position
+    after_create :create_assembly_definition_if_kit
     after_touch :touch_index_page_items
 
     # This can take a while so run it asnyc with a low priority for now
@@ -398,6 +403,13 @@ module Spree
     end
 
     private
+
+    def create_assembly_definition_if_kit
+      if self.isa_kit?
+        self.assembly_defintion.create if self.assebly_definition.nil?
+      end
+    end
+
     def find_normal_price(currency, type)
       normal_prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first
     end

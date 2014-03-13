@@ -91,6 +91,8 @@ module Spree
     delegate :images, to: :master, prefix: true
     alias_method :images, :master_images
 
+    delegate :assembly_definition, to: :master
+
     has_many :variant_images, -> { order(:position) }, source: :images, through: :variants_including_master
     has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :target_images, through: :variants_including_master
     has_many :personalisation_images, -> { order(:position) }, source: :images, through: :personalisations

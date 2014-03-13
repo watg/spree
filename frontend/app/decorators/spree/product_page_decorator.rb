@@ -64,7 +64,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
     # TODO: kil this once the new kit functionality is live
     # should be just
     # variant = knit_your_own_product.master
-    if knit_your_own_product.assembly_definitions.any?
+    if knit_your_own_product.assembly_definition
       variant = knit_your_own_product.master
     else
       variant = knit_your_own_product.variants_for(object.target).first

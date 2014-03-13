@@ -1,6 +1,6 @@
 <div class="item-description" data-hook="cart_item_description">
   <h4><%= link_to variant.product.name, path_to_variant(line_item, variant) %></h4>
-  <% if line_item.product.assembly? || line_item.product.assembly_definitions.any? %>
+  <% if line_item.product.assembly? || line_item.product.assembly_definition %>
     <% if line_item.line_item_options.any? %>
     <h6>Parts:</h6>
     <ul class='assembly_parts'>
