@@ -3,6 +3,22 @@ module Spree
     attr_accessor :order, :currency
     attr_reader :errors
 
+    class << self
+      def parse_options(variant, options)
+        return [] if options.blank?
+        assembly_definition_parts = variant.product.assembly_definition.parts
+        options.inject([]) {|list, t| 
+          part_id, selected_variant_id = t.flatten.map(&:to_i)
+          assembly_definition_part = assembly_definition_parts.detect{|p| p.id == part_id}
+          if assembly_definition_part && (selected_variant_id > 0)
+            selected_variant_part = Spree::Variant.find(variant_part_id)
+            list << [selected_variant_part, assembly_definition_part.count, assembly_definition_part.optional]
+          end
+          list}
+      end
+    end
+
+
     def initialize(order, currency)
       @order = order
       @currency = currency
@@ -120,14 +136,7 @@ module Spree
           [o, part_quantity(variant,o)]
         end
       else
-
-        assembly_definition_parts = variant.product.assembly_definition.parts
-        options.inject([]) {|list, t| 
-          part_id, selected_variant_id = t.flatten.map(&:to_i)
-          assembly_definition_part = assembly_definition_parts.detect{|p| p.id == part_id}
-          selected_variant = Spree::Variant.find(selected_variant_id)
-          list << [selected_variant, assembly_definition_part.count, assembly_definition_part.optional]
-          list}
+        Spree::OrderPopulator.parse_options(variant, options)
       end
     end
 
