@@ -48,8 +48,7 @@ WATG.checkSlides = function() {
 
 WATG.signup = {
 	globals: {
-		cookie: 'signupPromoPopKilled'
-		//cookie: 'signupPopKilled'
+		cookie: 'signupPopKilled'
 	},
 
 	init: function() {
