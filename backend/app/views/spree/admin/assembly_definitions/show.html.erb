@@ -1,0 +1,160 @@
+<%= render :partial => 'spree/admin/shared/product_sub_menu' %>
+
+<%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => "Parts"} %>
+<fieldset>
+  <legend align="center"><%= "ASSEMBLY DEFINITION" %></legend>
+
+  <div id="item_parts">
+    <%= render :partial => 'parts_table', :locals => {assembly_definition: @assembly_definition}%>
+  </div>
+
+  <%= form_tag('#') do %>
+  <label><%= t('search') %>:</label>
+  <input id="searchtext" size="25">
+  <% end %>
+  
+  <br/>
+  <div id="search_hits"></div>  
+</fieldset>
+
+
+<%= javascript_tag do %>
+  subscribe_multiselect();
+
+  function sortable_definition(){
+  // Fix sortable helper
+  var fixHelper = function(e, ui) {
+      ui.children().each(function() {
+          $(this).width($(this).width());
+      });
+      return ui;
+  };
+
+  $('table.definition').ready(function(){
+    var td_count = $(this).find('tbody tr:first-child td').length
+    $('table.definition tbody').sortable(
+      {
+        handle: '.handle',
+        helper: fixHelper,
+        placeholder: 'ui-sortable-placeholder',
+        update: function(event, ui) {
+//          $("#progress").show();
+          var positions = {};
+          $.each($('table.definition tbody tr'), function(position, obj){
+            reg = /^.*_(\d+)$/;
+            parts = reg.exec($(obj).attr('id'));
+            if (parts) {
+              positions['positions['+parts[1]+']'] = position;
+            }
+          });
+
+          $.ajax({
+            type: 'PATCH',
+            dataType: 'script',
+            url: $(ui.item).closest("table.definition").data("sortable-link"),
+            data: positions,
+            success: function(data){ /* $("#progress").hide(); */ }
+          });
+        },
+        start: function (event, ui) {
+          // Set correct height for placehoder (from dragged tr)
+          ui.placeholder.height(ui.item.height())
+          // Fix placeholder content to make it correct width
+          ui.placeholder.html("<td colspan='"+(td_count-1)+"'></td><td class='actions'></td>")
+        },
+        stop: function (event, ui) {
+          // Fix odd/even classes after reorder
+          $("table.sortable tr:even").removeClass("odd even").addClass("even");
+          $("table.sortable tr:odd").removeClass("odd even").addClass("odd");
+        }
+
+      });
+  });
+
+  }
+
+  function search_for_parts(){
+    $.ajax({
+     data: {q: $("#searchtext").val() }, 
+     dataType: 'html',
+     success: function(request){
+       jQuery('#search_hits').html(request);
+       $('#search_hits').show();
+     }, 
+     type: 'GET', 
+     url: '<%= available_parts_admin_assembly_definition_url(@assembly_definition) %>'
+    });    
+  }
+
+  $("#searchtext").keypress(function (e) {
+    if (($("#searchtext").val().length > 2) && ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13))) {
+      search_for_parts();
+      return false;
+    } else {
+       return true;
+    }
+  });
+
+  $("#searchtext").delayedObserver(function(element, value) {
+    search_for_parts();
+  }, 0.75);
+
+  function subscribe_item_part_links()
+  {
+    $("a.set_count_admin_item_part_link").click(function(){
+
+      var variants = $(this).parents('tr').find("select").multiselect("getChecked").map(function(){
+        return this.value;    
+      }).get();
+
+      params = { 
+        part_optional : ($(this).parents('tr').find(":checkbox").prop('checked') ? 'true' : 'false'),
+        part_count :  $(this).parents('tr').find(".count :text").val(),
+        part_presentation: $(this).parents('tr').find(".presentation :text").val(),
+        part_variants: variants
+      };
+
+      return make_patch_request($(this), params);
+    });
+    
+  }
+
+  function subscribe_multiselect() 
+  {
+    $(".multi-select").multiselect({
+      selectedText: "# of #",
+      minWidth: 300
+      });
+  }
+
+  function make_patch_request(link, post_params){
+    return make_request(link, post_params, "PATCH");
+  }
+
+  function make_post_request(link, post_params){
+    return make_request(link, post_params, "POST");
+  }
+
+  function make_request(link, post_params, method)
+  {
+    spinner = $("img.spinner", link.parent())
+    spinner.show();
+    $.ajax({
+        url:  link.attr("href"),
+        type: method,
+        data: post_params,
+        dataType: 'script',
+        success: function (data, textStatus) { 
+           spinner.hide(); 
+           subscribe_multiselect();
+           subscribe_item_part_links();
+           sortable_definition();
+        }
+    });
+
+    return false;
+  }
+
+  subscribe_item_part_links();
+  sortable_definition();
+<% end -%>
