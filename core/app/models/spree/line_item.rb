@@ -97,6 +97,14 @@ module Spree
       list_amount.sum
     end
 
+    def assembly_selected_variants
+      return unless variant.assembly_definition
+
+      line_item_options.inject({}) do |hsh, option|
+        hsh[option.assembly_definition_part_id] = option.variant_id
+        hsh
+      end
+    end
 
     def single_money
       Spree::Money.new(price, { currency: currency })

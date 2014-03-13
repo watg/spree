@@ -70,7 +70,7 @@ module Spree
 
       private
       def options_with_qty
-        Spree::OrderPopulator.parse_options(variant, params[:assembly_definition])
+        Spree::OrderPopulator.parse_options(variant, params[:selected_variants])
       end
 
       def variant

@@ -1,7 +1,7 @@
 <% # THERE IS A HACK BELOW AS KITS ARE NOT HANDLED BY SHIPMENT MANIFEST %>
 <% order.line_items.each do |item| %>
 
-  <tr class="stock-item" data-item-quantity="<%= item.quantity %>">
+  <tr class="stock-item" data-item-quantity="<%= item.quantity %>" data-selected-variants="<%= item.assembly_selected_variants.to_json %>">
     <td class="item-type"><%= item.variant.product_type %></td>
     <td class="item-image"><%= mini_image(item.variant) %></td>
     <td class="item-name">
