@@ -35,11 +35,11 @@
               {{/if}}
             </tr>
           {{/each}}
-          {{#if variant.assembly_definitions}}
-            <tr><td colspan="3" style="text-align: center;"><strong>Assembly Definition</strong></td></tr>
+          {{#if variant.assembly_definition_parts}}
+            <tr><td colspan="3" style="text-align: center;"><strong>Assembly Definition Parts</strong></td></tr>
             <tr><th>Presentation</th><th>Variant</th><th>Optional?</th></tr>
 
-            {{#each variant.assembly_definitions }}
+            {{#each variant.assembly_definition_parts }}
             <tr>
               <td>{{this.presentation}}</td>
               <td>

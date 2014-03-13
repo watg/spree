@@ -1,4 +1,4 @@
-object @assembly_definition
+object @assembly_definition_part
 attributes :id
 
 child :variants do
