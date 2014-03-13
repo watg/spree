@@ -92,7 +92,7 @@
 	<% variant = @product_page.decorated_first_knit_your_own_product_variant %>
 	<% product = @product_page.decorated_knit_your_own_product %>
 
-  <% if product.assembly_definitions.any? %>
+  <% if product.assembly_definition %>
     <div class="displayable-kit-entity row row-knit-your-own <%= @product_page.knit_your_own_active_class %>">
   <% else %>
 	<div class="displayable-entity row row-knit-your-own <%= @product_page.knit_your_own_active_class %>"
@@ -119,10 +119,10 @@
 				<h1><%= @product_page.kit_name %></h1>
 
 				<div class="cart-form" data-hook="cart_form">
-          <% if product.assembly_definitions.any? %>
-					<%= render :partial => 'cart_kit_form', :locals => {:variant => variant, :product => product, :target_id => @product_page.target_id } %>
+          <% if product.assembly_definition %>
+					  <%= render :partial => 'cart_kit_form', :locals => {:variant => variant, :product => product, :target_id => @product_page.target_id } %>
           <% else %>
-					<%= render :partial => 'cart_form', :locals => {:variant => variant, :product => product, :target_id => @product_page.target_id } %>
+					  <%= render :partial => 'cart_form', :locals => {:variant => variant, :product => product, :target_id => @product_page.target_id } %>
           <% end %>
 				</div>
 

@@ -7,7 +7,7 @@
     <td class="item-name">
       <strong>    <%= item.variant.product.name %><br><%= "(" + variant_options(item.variant) + ")" unless item.variant.option_values.empty? %></strong>
       SKU: <%= item.variant.sku %>
-      <% if item.product.assembly_definitions.any? %>
+      <% if item.product.assembly_definition %>
       <hr />
         <ul style="list-style:none;">
           <% item.line_item_options.each do |part| %>

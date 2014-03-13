@@ -121,12 +121,12 @@ module Spree
         end
       else
 
-        _kit_definition = variant.product.assembly_definitions
+        assembly_definition_parts = variant.product.assembly_definition.parts
         options.inject([]) {|list, t| 
-          definition_id, variant_part_id = t.flatten.map(&:to_i)
-          assembly_definition = _kit_definition.detect{|e| e.id == definition_id}
-          variant_part = Spree::Variant.find(variant_part_id)
-          list << [variant_part, assembly_definition.count, assembly_definition.optional]
+          part_id, selected_variant_id = t.flatten.map(&:to_i)
+          assembly_definition_part = assembly_definition_parts.detect{|p| p.id == part_id}
+          selected_variant = Spree::Variant.find(selected_variant_id)
+          list << [selected_variant, assembly_definition_part.count, assembly_definition_part.optional]
           list}
       end
     end
