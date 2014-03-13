@@ -7,7 +7,7 @@ module Spree
         @product = @assembly_definition.variant.product
       end
 
-      def available_parts
+      def available_supply_products
         @assembly_definition = Spree::AssemblyDefinition.find_by_id(params[:id])
         if params[:q].blank?
           @available_products = []
