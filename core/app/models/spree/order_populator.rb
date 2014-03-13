@@ -6,13 +6,13 @@ module Spree
     class << self
       def parse_options(variant, options)
         return [] if options.blank?
-        _kit_definition = variant.product.assembly_definitions
-        options.inject([]) {|list, t|
-          definition_id, variant_part_id = t.flatten.map(&:to_i)
-          assembly_definition = _kit_definition.detect{|e| e.id == definition_id}
-          if assembly_definition && (variant_part_id > 0)
-            variant_part = Spree::Variant.find(variant_part_id)
-            list << [variant_part, assembly_definition.count, assembly_definition.optional]
+        assembly_definition_parts = variant.product.assembly_definition.parts
+        options.inject([]) {|list, t| 
+          part_id, selected_variant_id = t.flatten.map(&:to_i)
+          assembly_definition_part = assembly_definition_parts.detect{|p| p.id == part_id}
+          if assembly_definition_part && (selected_variant_id > 0)
+            selected_variant_part = Spree::Variant.find(selected_variant_id)
+            list << [selected_variant_part, assembly_definition_part.count, assembly_definition_part.optional]
           end
           list}
       end

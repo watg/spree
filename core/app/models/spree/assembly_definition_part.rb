@@ -10,7 +10,7 @@ class Spree::AssemblyDefinitionPart < ActiveRecord::Base
 
   accepts_nested_attributes_for :variants 
 
-  delegate_belongs_to :part, :name
+#  delegate_belongs_to :part, :name
 
   def variant_options_tree_for(current_currency)
     variants.in_stock.options_tree_for(nil, current_currency)

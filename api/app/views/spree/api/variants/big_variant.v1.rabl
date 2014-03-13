@@ -17,6 +17,6 @@ child(:stock_items) do
   end
 end
 
-child(Spree::Admin::AssemblyDefinitionDecorator.decorate_collection(@object.assembly_definitions) => :assembly_definitions) do
+child(Spree::Admin::AssemblyDefinitionPartDecorator.decorate_collection(@object.assembly_definition_parts) => :assembly_definition_parts) do
   attributes :presentation, :name, :optional, :url
 end
