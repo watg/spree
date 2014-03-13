@@ -9,7 +9,6 @@ module Spree
       string :permalink
       string :tab, empty: true, :nils => true
       string :currency
-      duck   :request
     end
 
     optional do
@@ -46,7 +45,6 @@ module Spree
     def decorate_product_page(product_page, selected_variant)
        product_page.decorate(context: {
           tab:     tab,
-          request: request,
           current_currency: currency,
           selected_variant: selected_variant
         } )
