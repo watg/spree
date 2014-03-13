@@ -43,7 +43,7 @@ $(document).ready(function () {
     var quantity = parseInt(save.parents('tr').find('input.line_item_quantity').val());
 
     toggleItemEdit();
-    adjustShipmentItems(shipment_number, variant_id, quantity);
+    adjustShipmentItems(shipment_number, variant_id, quantity, save.parents('tr'));
     return false;
   });
 
@@ -55,7 +55,7 @@ $(document).ready(function () {
       var variant_id = del.data('variant-id');
 
       toggleItemEdit();
-      adjustShipmentItems(shipment_number, variant_id, 0);
+      adjustShipmentItems(shipment_number, variant_id, 0, del.parents('tr'));
     }
   });
 
@@ -129,7 +129,7 @@ $(document).ready(function () {
   });
 });
 
-adjustShipmentItems = function(shipment_number, variant_id, quantity){
+adjustShipmentItems = function(shipment_number, variant_id, quantity, line_item){
     var shipment = _.findWhere(shipments, {number: shipment_number + ''});
     var inventory_units = _.where(shipment.inventory_units, {variant_id: variant_id});
 
@@ -149,7 +149,7 @@ adjustShipmentItems = function(shipment_number, variant_id, quantity){
       $.ajax({
         type: "PUT",
         url: Spree.url(url),
-        data: { variant_id: variant_id, quantity: new_quantity, assembly_definition: selected_parts() }
+        data: { variant_id: variant_id, quantity: new_quantity, selected_variants: selected_variants(line_item) }
       }).done(function( msg ) {
         advanceOrder();
       });
@@ -262,7 +262,7 @@ completeItemSplit = function(event) {
         type: "PUT",
         async: false,
         url: Spree.url(Spree.routes.orders_api + "/" + order_number + "/shipments/" + target_shipment_number + "/add.json"),
-        data: { variant_id: variant_id, quantity: quantity }
+        data: { variant_id: variant_id, quantity: quantity, selected_variants: selected_variants(stock_item_row) }
       }).done(function(msg) {
         advanceOrder();
       });
@@ -290,14 +290,22 @@ cancelItemSplit = function(event) {
   prev_row.find('a.delete-item').toggle();
 }
 
-selected_parts = function() {
+selected_variants = function(lineItem) {
   // TODO: At the moment this does not support multiple stock_locations
-  var hsh = {};
-  $.map($('#stock_details').find(':input.part-options'), function(e) { 
-    var i = $(e); 
-    var k= i.data('key'); 
-    if(k != null && k != "undefined"){ hsh[k] = i.val(); } 
-  });
+  var hsh;
+  hsh = $(lineItem).data('selected-variants');
+  if (hsh != null && hsh != 'undefined'){
+    // nothing to do
+  }
+  else {
+    hsh = {};
+    $.map($('#stock_details').find(':input.part-options'), function(e) { 
+      var i = $(e); 
+      var k= i.data('key'); 
+      if(k != null && k != "undefined"){ hsh[k] = i.val(); } 
+    });
+  }
+  
   return hsh;
 }
 
@@ -316,7 +324,7 @@ addVariantFromStockLocation = function() {
     $.ajax({
       type: "POST",
       url: Spree.url(Spree.routes.orders_api + "/" + order_number + "/shipments.json"),
-      data: { variant_id: variant_id, quantity: quantity, stock_location_id: stock_location_id , assembly_definition: selected_parts()}
+      data: { variant_id: variant_id, quantity: quantity, stock_location_id: stock_location_id , selected_variants: selected_variants()}
     }).done(function( msg ) {
       advanceOrder();
     }).error(function( msg ) {
@@ -324,7 +332,7 @@ addVariantFromStockLocation = function() {
     });
   }else{
     //add to existing shipment
-    adjustShipmentItems(shipment.number, variant_id, quantity);
+    adjustShipmentItems(shipment.number, variant_id, quantity, null);
   }
   return 1;
 }

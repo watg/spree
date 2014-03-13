@@ -12,7 +12,7 @@ describe Spree::OrderPopulator do
     end
     it "returns a list of selected variants with defined quantity" do
       actual = subject.parse_options(kit, {23 =>  selected_variant.id} )
-      expect(actual).to match_array([[selected_variant, 3, false]])
+      expect(actual).to match_array([[selected_variant, 3, false, 23]])
     end
   end
 end
