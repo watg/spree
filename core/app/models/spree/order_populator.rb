@@ -18,7 +18,6 @@ module Spree
       end
     end
 
-
     def initialize(order, currency)
       @order = order
       @currency = currency

@@ -38,21 +38,32 @@
 	}
 }
 #nav-bar {
-	li:before {
+	li:after {
 		content: '/';
-		margin-right: 0.5em;
+		margin-left: 0.5em;
 	}
-	li:first-child:before {
+	li:last-child:after {
 		content: '';
-		margin-right: 0;
+		margin-left: 0;
 	}
-	li.worldwide {
-		padding-left: 19px;
+	li.worldwide,
+	li.telephone {
 		font-family: $watg-font-light;
 		letter-spacing: 0.5px;
 		min-height: 14px;
+	}
+	li.worldwide {
+		padding-left: 19px;
 		background: image-url('watg-img/icon-airplane.png') 0 0 no-repeat;
 	}
+	li.telephone {
+		padding-left: 17px;
+		background: image-url('watg-img/icon-telephone.png') 0 0 no-repeat;
+	}
+}
+#link-to-login:after {
+	content: '' !important;
+	margin-left: 0 !important;
 }
 #search-bar {
 	display: none;

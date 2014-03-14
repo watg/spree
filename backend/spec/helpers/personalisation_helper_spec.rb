@@ -10,11 +10,11 @@ describe Spree::Admin::PersonalisationsHelper do
     let(:product2) { create(:product, personalisations: [personalisation])}
 
     it "should return available personalisations" do
-      options_for_product_personalisation_types(product1).should == "<option value=\"Spree::Personalisation::Monogram\">Monogram</option>" 
+      options_for_product_personalisation_types(product1).should == "<option value=\"Spree::Personalisation::Monogram\">Monogram</option>\n<option value=\"Spree::Personalisation::Dob\">Dob</option>"
     end
 
-    it "should return empty when product already has the personalisation" do
-      options_for_product_personalisation_types(product2).should == ""
+    it "should return available when product already has a personalisation" do
+      options_for_product_personalisation_types(product2).should == "<option value=\"Spree::Personalisation::Dob\">Dob</option>"
     end
 
   end

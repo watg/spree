@@ -1,0 +1,5 @@
+<div class="field alpha omega eight columns products_rule_products">
+  <%= label_tag "#{param_prefix}_country_ids", Spree.t('product_rule.choose_countries') %>
+  
+  <%= select_tag "#{param_prefix}[country_ids]", options_for_select(Spree::Country.all.collect {|x| [x.name, x.id]}, promotion_rule.country_ids), :multiple => true, class: 'select2 fullwidth', id: "promotion_rule_country" %>
+</div>
