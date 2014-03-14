@@ -23,10 +23,10 @@
 
 .product-index {
 	/* Allow full widths */
-	.nav-primary-sub + .container > div.row {
+	.row-shipping-and-contact + .container > div.row {
 		max-width: none !important;
 	}
-	.nav-primary-sub + .container > div.row > .columns {
+	.row-shipping-and-contact + .container > div.row > .columns {
 		padding: 0;
 	}
 	.wrapper-product-index div.row {
