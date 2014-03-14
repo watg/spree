@@ -2,10 +2,10 @@
 
 <%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => "Parts"} %>
 <fieldset>
-  <legend align="center"><%= "ASSEMBLY DEFINITION" %></legend>
+  <legend align="center">Assembly Definition</legend>
 
   <div id="item_parts">
-    <%= render :partial => 'parts_table', :locals => {assembly_definition: @assembly_definition}%>
+    <%= render 'parts_table', assembly_definition: @assembly_definition %>
   </div>
 
   <%= form_tag('#') do %>
@@ -15,6 +15,12 @@
   
   <br/>
   <div id="search_hits"></div>  
+</fieldset>
+
+<fieldset>
+  <legend align="center">Images</legend>
+
+  <%= render 'images', assembly_definition: @assembly_definition %>
 </fieldset>
 
 

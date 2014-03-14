@@ -1,0 +1,7 @@
+<% if @outcome.success? %>
+  $('#upload_<%=params[:unique_id]%>').hide();
+  $('#images_table_body').prepend('<%= j render partial: "image", object: (@outcome.result) %>');
+<% else %>
+  $('#upload_<%=params[:unique_id]%> div.progress').removeClass('active progress-striped').
+  addClass('progress-danger').append('<div><%= escape_javascript(@outcome.errors.message) %></div>');
+<% end %>

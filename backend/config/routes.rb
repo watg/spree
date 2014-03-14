@@ -14,11 +14,16 @@ Spree::Core::Engine.routes.draw do
       end
 
       resources :parts, :controller => 'assembly_definition_parts' do
-
         collection do
           patch :update_position
         end
+      end
 
+      resources :images, :controller => 'assembly_definition_images' do
+        collection do
+          post :s3_callback
+          post :update_positions
+        end
       end
     end
 
