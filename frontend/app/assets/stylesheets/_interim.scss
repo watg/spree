@@ -325,7 +325,7 @@
 
   .personalisations {
     .personalisation-options {
-			&.initials,
+			&.characters,
 			&.colour {
 				@include grid-column($columns: 6, $collapse: true);
 			}
