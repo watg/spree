@@ -1,6 +1,6 @@
 <ul id="main-nav-bar" data-hook>
 	<li id="link-to-cart" data-hook><%= link_to_cart %></li>
-	<% if (Spree::Config[:show_currency_selector] || (spree_current_user && spree_current_user.has_spree_role?("admin"))) && supported_currencies.size > 1 %>
+	<% if (Spree::Config[:show_currency_selector] || (try_spree_current_user && try_spree_current_user.has_spree_role?("admin"))) && supported_currencies.size > 1 %>
 	<li id="currency-select" class="currency-setting" style="float: right; margin-right: 10px;" data-hook>
 		<%= form_tag(set_currency_path(:format => :html)) do %>
 		<label for="currency"><%= t(:currency) %>:</label> <%= select_tag(:currency, options_for_select(supported_currencies, current_currency), :data => { :href => set_currency_path(:format => :json) }) %>
