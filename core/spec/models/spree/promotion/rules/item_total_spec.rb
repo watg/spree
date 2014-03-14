@@ -74,15 +74,9 @@ describe Spree::Promotion::Rules::ItemTotal do
 
   context "user has not entered their addres" do
 
-    it "should be eligible if the amounts are correct regardless of currency" do
+    it "should not be eligible regardless of anything else" do
       order_no_address.stub :line_items => [double(:line_item, :amount => 30, :currency => 'GBP'), double(:line_item, :amount => 21, :currency => 'GBP')]
-      rule.should be_eligible(order_no_address)
-    end
-
-    it "should be eligible when zone-country does not exist - currency EUR" do
-      order_no_address.stub :line_items => [double(:line_item, :amount => 10, :currency => 'EUR'), double(:line_item, :amount => 10, :currency => 'EUR')]
-      order_no_address.stub :currency => 'EUR' 
-      rule.should be_eligible(order_no_address)
+      rule.should_not be_eligible(order_no_address)
     end
 
     it "should not be eligible when amount is to small" do

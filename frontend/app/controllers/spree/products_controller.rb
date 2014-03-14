@@ -85,7 +85,8 @@ module Spree
     end
 
     def load_product
-      @product = Product.active(current_currency).find_by_permalink!(params[:id]|| params[:product_id])
+      @product = Product.active(current_currency).where(permalink: (params[:id] || params[:product_id])).first
+      @product ||= Product.with_deleted.find_by!(product_type: "virtual_product", permalink: (params[:id] || params[:product_id]))
     end
   end
 end
