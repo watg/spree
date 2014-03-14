@@ -1,9 +1,8 @@
 class OrderWalkthrough
   def self.up_to(state)
     # A payment method must exist for an order to proceed through the Address state
-    unless Spree::PaymentMethod.exists?
-      FactoryGirl.create(:payment_method)
-    end
+    Spree::PaymentMethod.delete_all
+    FactoryGirl.create(:payment_method)
 
     # Need to create a valid zone too...
     zone = FactoryGirl.create(:zone)

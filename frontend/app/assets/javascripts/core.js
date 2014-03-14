@@ -3,6 +3,7 @@ core = {}; // Extend from this core object
 $(document).ready(function() {
 	core.readyNavigation();
 	core.readyNavigationMobile();
+	core.readyModals();
 	core.showCookieMessage();
 });
 
@@ -79,6 +80,16 @@ core.hideSubNavigation = function(e) {
 	$('.nav-primary-sub').removeClass('expanded');
 }
 
+core.readyModals = function() {
+	$('a[rel*=modal]').leanModal({top: 30, closeButton: '.modal-close'});
+	
+	// Prime additional 'close modal' CTA...
+	$('.modal .button').on('click', function(e) {
+		e.preventDefault();
+		$(this).parent().siblings('.modal-close').click();
+	});
+}
+
 core.showCookieMessage = function() {
 	var name = 'showCookieMessage';
 
@@ -86,7 +97,7 @@ core.showCookieMessage = function() {
 		var row = $('.row-cookie');
 		
 		row.fadeIn('slow');
-		row.find('a').on('click', function(e) {
+		row.find('a:first').on('click', function(e) {
 			e.preventDefault();
 			$.cookie(name, 'true', {expires: 365, path: '/'});
 			row.fadeOut('slow');
