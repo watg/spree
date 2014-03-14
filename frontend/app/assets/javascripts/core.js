@@ -3,6 +3,7 @@ core = {}; // Extend from this core object
 $(document).ready(function() {
 	core.readyNavigation();
 	core.readyNavigationMobile();
+	core.readyModals();
 	core.showCookieMessage();
 });
 
@@ -77,6 +78,16 @@ core.hideSubNavigation = function(e) {
 	e.children('a').removeClass('active');
 	
 	$('.nav-primary-sub').removeClass('expanded');
+}
+
+core.readyModals = function() {
+	$('a[rel*=modal]').leanModal({top: 30, closeButton: '.modal-close'});
+	
+	// Prime additional 'close modal' CTA...
+	$('.modal .button').on('click', function(e) {
+		e.preventDefault();
+		$(this).parent().siblings('.modal-close').click();
+	});
 }
 
 core.showCookieMessage = function() {

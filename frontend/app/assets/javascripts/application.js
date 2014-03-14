@@ -13,6 +13,7 @@
 //= require lib/jquery.mixitup.min.js
 //= require lib/jquery.lazyload.min.js
 //= require lib/jquery.history.js
+//= require lib/jquery.leanmodal.min.js
 
 //= require core
 
@@ -26,7 +27,6 @@
 //= require store/core.product-group
 //= require store/variant_options
 //= require store/adyen.encrypt
-
 
 //= require common
 //= require store/product
