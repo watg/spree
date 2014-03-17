@@ -1,20 +1,20 @@
-module Spree
-  class AssemblyDefinitionPart < ActiveRecord::Base
-    acts_as_paranoid
-    belongs_to :assembly_definition, class_name: "Spree::AssemblyDefinition", foreign_key: "assembly_definition_id"
-    belongs_to :product, class_name: "Spree::Product", foreign_key: "product_id"
+class Spree::AssemblyDefinitionPart < ActiveRecord::Base
+  acts_as_paranoid
 
-    has_many :assembly_definition_variants, dependent: :delete_all, class_name: 'Spree::AssemblyDefinitionVariant' 
-    
-    has_many :variants, through: :assembly_definition_variants
-    alias_method :selected_variants, :variants
+  belongs_to :assembly_definition, class_name: "Spree::AssemblyDefinition", foreign_key: "assembly_definition_id"
+  belongs_to :product, class_name: "Spree::Product", foreign_key: "product_id"
+  belongs_to :assembly_product, class_name: "Spree::Product", foreign_key: "assembly_product_id", touch: true
 
-    has_many :option_values, -> { uniq }, through: :variants
+  has_many :assembly_definition_variants, dependent: :delete_all, class_name: 'Spree::AssemblyDefinitionVariant' 
+  
+  has_many :variants, through: :assembly_definition_variants
+  alias_method :selected_variants, :variants
 
-    accepts_nested_attributes_for :variants 
+  has_many :option_values, -> { uniq }, through: :variants
 
-  #  delegate_belongs_to :part, :name
+  accepts_nested_attributes_for :variants 
 
+  def variant_options_tree_for(current_currency)
     def variant_options_tree_for(current_currency)
       variants.in_stock.options_tree_for(nil, current_currency)
     end
@@ -24,20 +24,20 @@ module Spree
     end
 
     def grouped_option_values_in_stock
-     ordered_option_values = option_values_in_stock.includes(:option_type).joins(:option_type).
-       reorder( "spree_option_types.position", "spree_option_values.position" )
+      ordered_option_values = option_values_in_stock.includes(:option_type).joins(:option_type).
+        reorder( "spree_option_types.position", "spree_option_values.position" )
 
-     # This is instead of a group_by(&:option_type) as it would achieve the same result
-     # but it a lot less friendly to caching
-     group = ActiveSupport::OrderedHash.new 
-     ots = {}
-     ordered_option_values.each do |ov|
-       ots[ov.option_type_id] ||= ov.option_type 
-       group[ots[ov.option_type_id]] ||= []
-       group[ots[ov.option_type_id]] << ov 
-     end
-     group
+      # This is instead of a group_by(&:option_type) as it would achieve the same result
+      # but it a lot less friendly to caching
+      group = ActiveSupport::OrderedHash.new 
+      ots = {}
+      ordered_option_values.each do |ov|
+        ots[ov.option_type_id] ||= ov.option_type 
+        group[ots[ov.option_type_id]] ||= []
+        group[ots[ov.option_type_id]] << ov 
+      end
+      group
     end
-    
+
   end
 end
