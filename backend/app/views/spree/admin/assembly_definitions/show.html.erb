@@ -18,7 +18,6 @@
 </fieldset>
 
 
-<!-- <div id="images" data-hook></div> -->
 <fieldset> 
   <legend align="center">Images</legend>
   <div id="uploads_container"></div>
@@ -37,7 +36,7 @@
     max_file_size: 100.megabytes do %>
   
     <div class="field">
-      <%= label_tag Spree.t(:filename) %><br>
+      <%= label_tag "Images" %><br>
       <%= file_field_tag :file, multiple: true %>
     </div>
 
