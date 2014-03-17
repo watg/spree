@@ -3,7 +3,9 @@ module Spree
     acts_as_paranoid
 
     belongs_to :viewable, polymorphic: true, touch: true
-    acts_as_list scope: :viewable
+    acts_as_list scope: [:viewable_id, :viewable_type]
+
+    belongs_to :target
   end
 
 end

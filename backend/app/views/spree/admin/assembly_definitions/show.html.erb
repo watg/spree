@@ -17,11 +17,34 @@
   <div id="search_hits"></div>  
 </fieldset>
 
-<fieldset>
-  <legend align="center">Images</legend>
 
-  <%= render 'images', assembly_definition: @assembly_definition %>
+<fieldset> 
+  <legend align="center">Images</legend>
+  <div id="uploads_container"></div>
+  <script id="template-upload" type="text/x-tmpl">
+    <div id="upload_{%=o.unique_id%}" class="upload">
+      <h5>{%=o.name%}</h5>
+      <div class="progress progress-striped active"><div class="bar" style="width: 0%"></div></div>
+    </div>
+  </script>
+
+
+  <%= s3_uploader_form callback_url: s3_callback_admin_assembly_definition_images_path(@assembly_definition),
+    id: "s3_uploader",
+    callback_param: "image[direct_upload_url]",
+    expiration: 24.hours.from_now.utc.iso8601,
+    max_file_size: 100.megabytes do %>
+  
+    <div class="field">
+      <%= label_tag "Images" %><br>
+      <%= file_field_tag :file, multiple: true %>
+    </div>
+
+  <% end %>
 </fieldset>
+
+<%= render 'spree/admin/assembly_definition_images/images', assembly_definition: @assembly_definition %>
+
 
 
 <%= javascript_tag do %>
