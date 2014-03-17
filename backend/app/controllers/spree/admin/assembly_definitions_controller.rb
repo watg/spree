@@ -3,12 +3,12 @@ module Spree
     class AssemblyDefinitionsController < Spree::Admin::BaseController
 
       def show
-        @assembly_definition = Spree::AssemblyDefinition.find_by_id(params[:id])
+        @assembly_definition = Spree::AssemblyDefinition.find(params[:id])
         @product = @assembly_definition.variant.product
       end
 
       def available_supply_products
-        @assembly_definition = Spree::AssemblyDefinition.find_by_id(params[:id])
+        @assembly_definition = Spree::AssemblyDefinition.find(params[:id])
         if params[:q].blank?
           @available_products = []
         else
