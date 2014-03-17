@@ -1,6 +1,6 @@
 <% if @outcome.success? %>
   $('#upload_<%=params[:unique_id]%>').hide();
-  $('#images_table_body').prepend('<%= j render partial: "image", object: (@outcome.result) %>');
+  $('#images_table_body').append('<%= j render partial: "image", object: (@outcome.result) %>');
   $('.no-objects-found').hide();
 <% else %>
   $('#upload_<%=params[:unique_id]%> div.progress').removeClass('active progress-striped').

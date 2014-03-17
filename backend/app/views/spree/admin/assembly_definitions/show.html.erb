@@ -43,7 +43,55 @@
   <% end %>
 </fieldset>
 
-<%= render 'spree/admin/assembly_definition_images/images', assembly_definition: @assembly_definition %>
+<%= form_for [:admin, @assembly_definition] do |f| %>
+  
+    <table class="index sortable" data-hook="images_table" data-sortable-link="<%= update_positions_admin_assembly_definition_images_url(@assembly_definition) %>">
+      <colgroup>
+        <col style="width: 5%">
+        <col style="width: 50%">
+        <col style="width: 35%">
+        <col style="width: 10%">
+      </colgroup>
+      <thead>
+        <tr data-hook="images_header">
+          <th colspan="2">Image</th>
+          <th>Target</th>
+          <th class="actions"></th>
+        </tr>
+      </thead>
+      <tbody id="images_table_body">
+        <% unless @assembly_definition.images.any? %>
+        <div class="no-objects-found">
+          <%= Spree.t(:no_images_found) %>.
+        </div>
+        <% else %>
+          <%= f.fields_for :images do |image_form| %>
+            <tr id="<%= spree_dom_id image_form.object %>" data-hook="images_row" class="<%= cycle('odd', 'even')%>">
+              <td class="no-border">
+                <span class="handle"></span>
+              </td>
+              <td>
+                <% if image_form.object.processed? %>
+                  <%= link_to image_tag(image_form.object.attachment.url(:small), style: "max-width: 180px"), image_form.object.attachment.url(:small) %>
+                <% else %>
+                  <%= link_to image_tag(image_form.object.direct_upload_url, style: "max-width: 180px"), image_form.object.attachment.url(:small) %>
+                <% end %>
+              </td>
+              <td>
+                <%= label :target_id, "Target" %><br>
+                <%= image_form.collection_select :target_id, Spree::Target.all, :id, :name, {:include_blank => true}, {:class => 'select2 fullwidth'} %>
+              </td>          
+              <td class="actions">    
+                <%= link_to_delete image_form.object, { :url => admin_assembly_definition_image_url(@assembly_definition, image_form.object), :no_text => true } %>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+
+    <%= render :partial => 'spree/admin/shared/edit_resource_links' %>
+<% end %>
 
 
 

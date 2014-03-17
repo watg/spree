@@ -61,9 +61,6 @@
           element.select2("val", "");
        }
   });
-
-
 </script>
 
 <%= javascript_tag("subscribe_item_part_links();") if request.xhr? %>
-<%= javascript_include_tag "jquery.multiselect/jquery.multiselect." + I18n.locale.to_s %> <%= javascript_include_tag "jquery.multiselect/jquery.multiselect.filter." + I18n.locale.to_s %>

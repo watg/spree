@@ -1,6 +1,6 @@
 module Spree
   module Admin
-    class AssemblyDefinitionsController < Spree::Admin::BaseController
+    class AssemblyDefinitionsController < ResourceController
 
       def show
         @assembly_definition = Spree::AssemblyDefinition.find(params[:id])
@@ -23,6 +23,11 @@ module Spree
           @available_products.uniq!
         end
         render 'spree/admin/assembly_definitions/available'
+      end
+
+
+      def location_after_save
+        admin_assembly_definition_path(@assembly_definition)
       end
 
     end

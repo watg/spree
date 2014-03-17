@@ -7,6 +7,8 @@ module Spree
     alias_method :parts, :assembly_definition_parts
 
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::AssemblyDefinitionImage"
+
+    accepts_nested_attributes_for :images
   end
 
 end
