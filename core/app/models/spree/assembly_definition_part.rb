@@ -1,6 +1,7 @@
 class Spree::AssemblyDefinitionPart < ActiveRecord::Base
   belongs_to :assembly_definition, class_name: "Spree::AssemblyDefinition", foreign_key: "assembly_definition_id"
   belongs_to :product, class_name: "Spree::Product", foreign_key: "product_id"
+  belongs_to :assembly_product, class_name: "Spree::Product", foreign_key: "assembly_product_id", touch: true
 
   has_many :assembly_definition_variants, dependent: :delete_all, class_name: 'Spree::AssemblyDefinitionVariant' 
   

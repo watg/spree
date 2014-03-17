@@ -1,5 +1,6 @@
 class Spree::AssemblyDefinition < ActiveRecord::Base
   belongs_to :variant, class_name: "Spree::Variant"
+  belongs_to :assembly_product, class_name: "Spree::Product", foreign_key: "assembly_product_id", touch: true
 
   has_many :assembly_definition_parts,  -> { order(:position) }, dependent: :delete_all, class_name: 'Spree::AssemblyDefinitionPart' 
   alias_method :parts, :assembly_definition_parts
