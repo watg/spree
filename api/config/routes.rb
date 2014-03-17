@@ -13,6 +13,7 @@ Spree::Core::Engine.add_routes do
 
     resources :olapic, :only => [:index]
     get 'assembly_definition_parts/:id/variants' => 'assembly_definition_parts#variants', :as => 'assembly_definition_part_variants'
+    get 'assembly_definitions/:id/out_of_stock_variants' => 'assembly_definitions#out_of_stock_variants', :as => 'assembly_definitions_variant_out_of_stock'
 
     resources :products do
       resources :variants
