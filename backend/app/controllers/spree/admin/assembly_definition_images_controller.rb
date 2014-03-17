@@ -3,7 +3,6 @@ module Spree
     class AssemblyDefinitionImagesController < ResourceController
       before_filter :load_data
 
-      create.before :set_viewable
       update.before :set_viewable
 
       def s3_callback
