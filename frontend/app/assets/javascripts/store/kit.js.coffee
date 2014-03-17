@@ -24,7 +24,7 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     option_value.addClass('selected')
 
     # Set the option value text
-    option_values.prev('.variant-option-type').find('span').text(selected_presentation)
+    product_variants.find('span').text(selected_presentation)
 
     # Set the variant_id
     product_variants.find('.selected-parts').val(variant['id'])
