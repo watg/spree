@@ -32,8 +32,8 @@
         <%= select_tag("variants[]", options_for_select( 
           part.product.variants.collect { |v| [v.options_text, v.id] }, 
           part.selected_variants.collect { |ad| ad.id }),{
-          multiple: true, class: 'select2 fullwidth'}) %>
-        <span class="info align-right"><input type="checkbox" class="check_all" >Check all</span>
+          multiple: true, class: 'variants multi-select'}) %>
+        <span class="info alignright"><input type="checkbox" class="check_all" >Check all</span>
       </td>
       <td class="count"><%= text_field_tag :count, part.count %></td>
       <td><%= check_box_tag( 'part_optional', part.optional,  part.optional ) %></td>
@@ -61,6 +61,9 @@
           element.select2("val", "");
        }
   });
+
+
 </script>
 
 <%= javascript_tag("subscribe_item_part_links();") if request.xhr? %>
+<%= javascript_include_tag "jquery.multiselect/jquery.multiselect." + I18n.locale.to_s %> <%= javascript_include_tag "jquery.multiselect/jquery.multiselect.filter." + I18n.locale.to_s %>
