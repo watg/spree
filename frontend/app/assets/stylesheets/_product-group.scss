@@ -1031,7 +1031,9 @@
 										display: block;
 									}
 									p {
-										margin-left: emCalc(10px);;
+										margin-left: emCalc(5px);
+										font-family: $watg-font-light;
+										font-size: 1.333em;
 									}
 								}
 							}
@@ -1050,17 +1052,6 @@
 						padding: emCalc(10px);
 						margin-bottom: emCalc(10px);
 						height: emCalc(50px);
-						img {
-							//display: none;
-						}
-					}
-				}
-				.option-count {
-					margin-left: emCalc(10px);
-					font-family: $watg-font;
-					text-transform: uppercase;
-					span {
-						color: #00b877;
 					}
 				}
 			}

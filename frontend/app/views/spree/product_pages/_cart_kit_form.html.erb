@@ -38,25 +38,22 @@
 						</ul>
 					</div>
 					<% end %>
+					<input class="selected-parts" type="hidden" name="parts[<%= part.id %>][]" value="" />
 				</li>
 			<% end # if assembly_definition.memoized_grouped_option_values.any? %>
-			<input class="selected-parts" type="hidden" name="parts[<%= part.id %>][]" value="" />
 			<% end # assembly_definition.memoized_grouped_option_values.each  %>
 		</ol>
 		
+		<!-- PLACEHOLDER CODE! -->
 		<label>Quantity</label>
 		<input id="qty" type="number" value="1" name="variants[4046]" min="1">
 		<button class="add-to-cart-button small disabled" type="submit" style="opacity: 0.5">Add To My Bag</button>
+		
 	</div>
 	<div class="large-2 column">
 		<ul class="no-bullet">
-			<% product.assembly_definition.parts.decorate(context: @context).each do |part|%>
-			<% if part.memoized_grouped_option_values.any?  %>
-				<li><%= cdn_image_tag("product-group/tick-green.png", width: "30", height: "30", alt: "Option selected") %></li>
-			<% end # if assembly_definition.memoized_grouped_option_values.any? %>
-			<% end # assembly_definition.memoized_grouped_option_values.each  %>
+			<li>[IMAGE GOES HERE]</li>
 		</ul>
-		<p class="option-count"><span>0</span> / <%= product.assembly_definition.parts.decorate(context: @context).sum(&:count) %></p>
 	</div>
 </div><!-- /.row -->
 
