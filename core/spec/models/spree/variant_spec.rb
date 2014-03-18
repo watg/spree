@@ -138,6 +138,14 @@ describe Spree::Variant do
       subject { create(:variant, weight: 12.0, parts: [ create(:part, weight: 5.0)] ) }
       its(:weight) { should == 5.0 }
     end
+
+    context "part with no weight" do
+      subject { Spree::Variant.new }
+      it "weight cannot be nil" do
+        subject.valid?
+        expect(subject.error_on(:weight)).to_not be_blank
+      end
+    end
   end
 
   context "after create" do
