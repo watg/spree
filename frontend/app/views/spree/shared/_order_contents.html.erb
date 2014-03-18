@@ -1,15 +1,14 @@
 <div class="item-description" data-hook="cart_item_description">
   <h4><%= link_to variant.product.name, path_to_variant(line_item, variant) %></h4>
-  <% if line_item.product.assembly? %>
+  <% if line_item.product.assembly? || line_item.product.assembly_definition %>
+    <% if line_item.line_item_options.any? %>
+    <h6>Parts:</h6>
     <ul class='assembly_parts'>
-      <li><%= variant.options_text %> </li>
-      <% if line_item.line_item_options.any? %>
-        <h6>Options:</h6>
-        <% line_item.line_item_options.each do |o| %>
-          <li class="line-item-option"><%= link_to o.variant.name, product_path(o.variant.product) %></li>
-        <% end %>
+      <% line_item.line_item_options.each do |o| %>
+      <li class="line-item-option"><%= "#{o.variant.name} -- #{o.variant.options_text}" %></li>
       <% end %>
     </ul>
+    <% end %>
   <% else %>
     <%= variant.options_text %>
     <% if @order.insufficient_stock_lines.include? line_item %>

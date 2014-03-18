@@ -1,0 +1,34 @@
+<div class="field alpha seven columns">
+
+  <div class="field  alpha seven columns" data-hook="max_characters">
+    <%= label :max_initals, :max_initals %>
+    <%= text_field_tag "[#{param_prefix}][max_characters]", personalisation.max_characters, :class => 'fullwidth' %>
+  </div>
+
+  <div class="field  alpha seven columns" data-hook="max_characters">
+    <%= label :colours, :colours %>
+    <%= select_tag("[#{param_prefix}][colours][]", options_for_select( 
+       Spree::OptionValue.joins(:option_type).where("spree_option_types.name =?", 'Colour').collect { |v| [v.presentation, v.id] }, 
+       personalisation.colours.collect { |c| c.id }),{
+       multiple: true, class: 'select2 fullwidth'}) %>
+  </div>
+
+  <div class="field alpha two columns" data-hook="price-gbp">
+    <%= label :GBP, :GBP %>
+    <%= text_field_tag "[#{param_prefix}][prices][GBP]", personalisation.prices['GBP'], :class => 'fullwidth' %>
+  </div>
+
+  <div class="field alpha two columns" data-hook="price-usd">
+    <%= label :USD, :USD %>
+    <%= text_field_tag "[#{param_prefix}][prices][USD]", personalisation.prices['USD'], :class => 'fullwidth' %>
+  </div>
+
+  <div class="field alpha two columns" data-hook="price-eru">
+    <%= label :EUR, :EUR %>
+    <%= text_field_tag "[#{param_prefix}][prices][EUR]", personalisation.prices['EUR'], :class => 'fullwidth' %>
+  </div>
+
+</div>
+
+
+

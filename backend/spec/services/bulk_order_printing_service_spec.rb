@@ -16,8 +16,6 @@ describe Spree::BulkOrderPrintingService do
       with(unprinted_invoices.sort!).
       and_return(:pdf)
     outcome = subject.run(pdf: :invoices)
-    puts outcome.inspect
-    puts outcome.errors.inspect
     expect(outcome).to be_success
     expect(outcome.result).to eq(:pdf)
   end

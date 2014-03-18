@@ -38,20 +38,20 @@ describe Spree::OrderContents do
       let(:variant_option2) { create(:variant) } 
 
       let(:line_item_option_params) {[
-        [variant_option1, 3]
+        [variant_option1, 3, true]
       ]}
 
       let(:line_item_option_params2) {[
-        [variant_option2, 2]
+        [variant_option2, 2, true]
       ]}
 
       let(:line_item_option_params3) {[
-        [variant_option2, 5]
+        [variant_option2, 5, true]
       ]}
 
       let(:line_item_option_params4) {[
-        [variant_option1, 7],
-        [variant_option2, 5]
+        [variant_option1, 7, true],
+        [variant_option2, 5, true]
       ]}
 
       it 'should add one line item with one option' do
@@ -256,7 +256,7 @@ describe Spree::OrderContents do
         part1 = create(:part)
         part2 = create(:part)
         
-        options = [ [part1, 2], [part2, 1] ]
+        options = [ [part1, 2, true], [part2, 1, true] ]
         line_item = subject.send(:add_to_line_item, nil, variant, 1, 'USD', nil, options)
 
         expect(order.line_items.first.price).to eq(75.00)

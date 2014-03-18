@@ -3,6 +3,21 @@ module Spree
     attr_accessor :order, :currency
     attr_reader :errors
 
+    class << self
+      def parse_options(variant, options)
+        return [] if options.blank?
+        assembly_definition_parts = variant.product.assembly_definition.parts
+        options.inject([]) {|list, t| 
+          part_id, selected_variant_id = t.flatten.map(&:to_i)
+          assembly_definition_part = assembly_definition_parts.detect{|p| p.id == part_id}
+          if assembly_definition_part && (selected_variant_id > 0)
+            selected_variant_part = Spree::Variant.find(selected_variant_id)
+            list << [selected_variant_part, assembly_definition_part.count, assembly_definition_part.optional, assembly_definition_part.id]
+          end
+          list}
+      end
+    end
+
     def initialize(order, currency)
       @order = order
       @currency = currency
@@ -43,6 +58,7 @@ module Spree
     # product_assembly
     def extract_kit_options(hash)
       value = hash[:products].delete(:options) rescue nil
+      value = hash[:parts]
       (value || [])
     end
 
@@ -74,8 +90,7 @@ module Spree
         return false
       end
       variant = Spree::Variant.find(variant_id)
-      options = Spree::Variant.find(option_ids)
-      options_with_qty = add_quantity_for_each_option(variant, options)
+      options_with_qty = add_quantity_for_each_option(variant, option_ids)
 
       if quantity > 0
         if check_stock_levels_for_variant_and_options(variant, quantity, options_with_qty)
@@ -115,8 +130,12 @@ module Spree
     end
 
     def add_quantity_for_each_option(variant, options)
-      options.map do |o|
-        [o, part_quantity(variant,o)]
+      if options.kind_of?(Array)
+        options.map do |o|
+          [o, part_quantity(variant,o)]
+        end
+      else
+        Spree::OrderPopulator.parse_options(variant, options)
       end
     end
 

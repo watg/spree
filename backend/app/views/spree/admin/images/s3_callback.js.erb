@@ -1,6 +1,6 @@
 <% if @outcome.success? %>
   $('#upload_<%=params[:unique_id]%>').hide();
-  $('#images_table_body').prepend('<%= j render partial: "image", object: (@outcome.result) %>');
+  $('#images_table_body').append('<%= j render partial: "image", object: (@outcome.result) %>');
   $('select.select2').select2({
     allowClear: true,
     dropdownAutoWidth: true

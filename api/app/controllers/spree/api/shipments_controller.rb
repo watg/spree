@@ -7,10 +7,9 @@ module Spree
 
       def create
         authorize! :create, Shipment
-        variant = Spree::Variant.find(params[:variant_id])
         quantity = params[:quantity].to_i
         @shipment = @order.shipments.create(stock_location_id: params[:stock_location_id])
-        @order.contents.add(variant, quantity, nil, @shipment)
+        @order.contents.add(variant, quantity, nil, @shipment, options_with_qty)
 
         @shipment.refresh_rates
         @shipment.save!
@@ -56,23 +55,27 @@ module Spree
       end
 
       def add
-        variant = Spree::Variant.find(params[:variant_id])
         quantity = params[:quantity].to_i
-        @order.contents.add(variant, quantity, @order.currency, @shipment)
+        @order.contents.add(variant, quantity, @order.currency, @shipment, options_with_qty)
 
         respond_with(@shipment, default_template: :show)
       end
 
       def remove
-        variant = Spree::Variant.find(params[:variant_id])
         quantity = params[:quantity].to_i
-
         @order.contents.remove(variant, quantity, @shipment)
         @shipment.reload if @shipment.persisted?
         respond_with(@shipment, default_template: :show)
       end
 
       private
+      def options_with_qty
+        Spree::OrderPopulator.parse_options(variant, params[:selected_variants])
+      end
+
+      def variant
+        @variant ||= Spree::Variant.find(params[:variant_id])
+      end
 
       def find_order
         @order = Spree::Order.find_by!(number: params[:order_id])

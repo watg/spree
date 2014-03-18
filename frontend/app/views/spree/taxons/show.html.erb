@@ -21,7 +21,7 @@
 <div data-hook="taxon_products">
   <% cache [@taxon, @curr_page, @per_page, current_currency] do %>
     <% displayable_variants = @taxon.displayable_variants(current_currency) %>
-    <% variants = displayable_variants.includes(:prices, :product => [:properties], :option_values => [:option_type]).page(@curr_page).per(@per_page) %>
+    <% variants = displayable_variants.includes(:normal_prices, :product => [:properties], :option_values => [:option_type]).page(@curr_page).per(@per_page) %>
 
     <% if variants.num_pages > 1 && ( displayable_variants.size < @max_show_all ) %>
       <p class="show-all top"><a href="?per_page=999">Show all</a></p>

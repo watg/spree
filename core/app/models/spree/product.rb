@@ -54,6 +54,15 @@ module Spree
 
     has_many :personalisations, dependent: :destroy
 
+    has_many :assembly_definitions, -> { order "position" }, class_name: "Spree::AssemblyDefinition", foreign_key: :assembly_id
+
+
+    # Ensure that we blow the cache for any assemblies that have a part which belongs to 
+    # this product
+    has_many :assembly_definition_variants, through: :variants
+    has_many :assembly_products, through: :assembly_definition_variants
+    after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
+
     has_one :master,
       -> { where is_master: true },
       inverse_of: :product,
@@ -88,6 +97,8 @@ module Spree
 
     delegate :images, to: :master, prefix: true
     alias_method :images, :master_images
+
+    delegate :assembly_definition, to: :master
 
     has_many :variant_images, -> { order(:position) }, source: :images, through: :variants_including_master
     has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :target_images, through: :variants_including_master
@@ -345,51 +356,12 @@ module Spree
     end
 
     def variant_options_tree_for(target, current_currency)
-      hash={}
-      selector = variants.includes(:prices, :option_values => [:option_type])
-      if !target.blank?
-        selector = selector.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
-      end
-      selector.order( "spree_option_types.position", "spree_option_values.position" ).each do |v|
-        base=hash
-        v.option_values.each_with_index do |o,i|
-          base[o.option_type.url_safe_name] ||= {}
-          base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
-          if ( i + 1 < v.option_values.size )
-            base = base[o.option_type.url_safe_name][o.url_safe_name]
-          else
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant'] ||= {}
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['id']=v.id
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).in_subunit
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_stock']= v.in_stock_cache 
-          end
-        end
-      end
-      hash
+      variants.options_tree_for(target, current_currency)
     end
 
     # Need to retire once the new product_pages are live
     def variant_options_tree(current_currency)
-      hash={}
-      variants.includes(:prices, :option_values => [:option_type]).order( "spree_option_types.position", "spree_option_values.position" ).each do |v|
-        base=hash
-        v.option_values.each_with_index do |o,i|
-          base[o.option_type.url_safe_name] ||= {}
-          base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
-          if ( i + 1 < v.option_values.size )
-            base = base[o.option_type.url_safe_name][o.url_safe_name]
-          else
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant'] ||= {}
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['id']=v.id
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).in_subunit
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
-            base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
-          end
-        end
-      end
-      hash
+      variant_options_tree_for(nil,current_currency)
     end
 
     # This does not need to be targetted as you can not have variants without
@@ -402,6 +374,11 @@ module Spree
     end
 
     private
+
+    def touch_assembly_products
+      assembly_products.uniq.map(&:touch)
+    end
+
     # Builds variants from a hash of option types & values
     def build_variants_from_option_values_hash
       ensure_option_types_exist_for_values_hash
