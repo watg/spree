@@ -8,6 +8,7 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
 
   has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::AssemblyDefinitionImage"
   accepts_nested_attributes_for :images
+  accepts_nested_attributes_for :assembly_definition_parts
 
   def selected_variants_out_of_stock
     Spree::AssemblyDefinitionPart.

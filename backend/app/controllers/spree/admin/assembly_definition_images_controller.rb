@@ -16,19 +16,6 @@ module Spree
         @outcome = UploadImageToS3Service.run(callback_params, image: image)
       end
 
-      def location_after_save
-        edit_admin_assembly_definitions_path(@assembly_definition)
-      end
-
-      def location_after_destroy
-        edit_admin_assembly_definitions_path(@assembly_definition)
-      end
-
-
-      def collection_url(opts={})
-        spree.admin_assembly_definitions_url(opts)
-      end
-
 
       private
 

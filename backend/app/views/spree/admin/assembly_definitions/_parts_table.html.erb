@@ -1,4 +1,4 @@
-<table class="index definition" data-sortable-link="<%= update_position_admin_assembly_definition_parts_path(assembly_definition) %>">
+<table class="index definition" data-sortable-link="<%= update_positions_admin_assembly_definition_parts_path(assembly_definition) %>">
 <col style="width: 5%">
 <col style="width: 35%">
 <col style="width: 30%">
@@ -11,39 +11,37 @@
       <th>Name</th>
       <th>Quantity</th>
       <th>Optional</th>
-      <th></th>
+      <th class="actions"></th>
     </tr>
   </thead>
   <tbody>
-    <% if assembly_definition.blank? %>
-    <tr><td colspan="6"><%= t('none') %>.</td></tr>
-    <% end %>
-    <% assembly_definition.parts.each do |part| %>
-    <tr id="<%= dom_id(part, :sel)%>">
-      <td><span class="handle"></span></td>
-      <td class="presentation">
-        <%= text_field_tag :presentation, part.presentation %>
-        <br>
-        <span class="info">
-          <%= link_to_with_icon 'icon-external-link', part.product.name, edit_admin_product_path(part.product), target: :blank %>
-        </span>
-      </td>
-      <td>
-        <%= select_tag("variants[]", options_for_select( 
-          part.product.variants.collect { |v| [v.options_text, v.id] }, 
-          part.selected_variants.collect { |ad| ad.id }),{
-          multiple: true, class: 'variants multi-select'}) %>
-        <span class="info alignright"><input type="checkbox" class="check_all" >Check all</span>
-      </td>
-      <td class="count"><%= text_field_tag :count, part.count %></td>
-      <td><%= check_box_tag( 'part_optional', part.optional,  part.optional ) %></td>
-      <td>
-        <%= image_tag "spinner.gif", :style => "display:none", :class => "spinner" %>
-        <%= link_to(icon('edit') + ' ' + t('update'),
-            admin_assembly_definition_part_url(assembly_definition, part), :method => :patch,
-            :class => "set_count_admin_item_part_link") %>
-      </td>        
-    </tr>
+    <% unless assembly_definition.parts.any? %>
+      <div class="no-objects-found">
+        No parts were found.
+      </div>
+    <% else %>
+      <%= f.fields_for :assembly_definition_parts do |part_form| %>
+        <% part = part_form.object %>
+        <tr id="<%= spree_dom_id part_form.object %>">
+          <td><span class="handle"></span></td>
+          <td class="presentation">
+            <%= part_form.text_field :presentation %>
+            <br>
+            <span class="info">
+              <%= link_to_with_icon 'icon-external-link', part.product.name, edit_admin_product_path(part.product), target: :blank %>
+            </span>
+          </td>
+          <td>
+            <%= part_form.select(:variant_ids, part.product.variants.collect { |v| [v.options_text, v.id] }, {}, multiple: true, class: 'select2 fullwidth') %>
+            <span class="info alignright"><input type="checkbox" class="check_all" >Check all</span>
+          </td>
+          <td><%= part_form.number_field :count %></td>
+          <td><%= part_form.check_box :optional %></td>
+          <td class="actions">
+            <%= link_to_delete part, :url => admin_assembly_definition_part_path(@assembly_definition, part_form.object), :no_text => true %>
+          </td>        
+        </tr>
+      <% end %>
     <% end %>
   </tbody>
 </table>
@@ -66,4 +64,4 @@
 </script>
 
 <%= javascript_tag("subscribe_item_part_links();") if request.xhr? %>
-<%= javascript_include_tag "jquery.multiselect/jquery.multiselect." + I18n.locale.to_s %> <%= javascript_include_tag "jquery.multiselect/jquery.multiselect.filter." + I18n.locale.to_s %>
+
