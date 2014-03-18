@@ -36,8 +36,10 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     entity.find(".prices").trigger('update')
     entity.find(".add-to-cart-button").trigger('update')
 
-    product_variants.find(".product-part-image").show()
-    product_variants.find(".product-part-image img").attr('src', variant['image_url'])
+    $('.assembly-images li').eq(product_variants.index()).show().css('background-image', 'url(' + variant['image_url'] + ')')
+
+    #product_variants.find(".product-part-image").show()
+    #product_variants.find(".product-part-image img").attr('src', variant['image_url'])
 
 
 ###### Prices #################################################################################################################
