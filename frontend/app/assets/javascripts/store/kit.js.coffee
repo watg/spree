@@ -72,9 +72,9 @@ core.productGroup.readyKitVariantOptions = (entity) ->
   # being enabled
   entity.find(".add-to-cart-button").on('update',( ->
     if entity.find('.variant-options.required:not(.selected)').length > 0
-      $(this).attr("style", "opacity: 0.5").addClass('disabled')
+      $(this).attr("style", "opacity: 0.5").addClass('disabled').tooltipster('enable');
     else
-      $(this).removeAttr("style").removeClass("disabled").tooltipster('destroy');
+      $(this).removeAttr("style").removeClass("disabled").tooltipster('disable');
   ))
 
   entity.find('.add-to-cart-button').click (event) -> 

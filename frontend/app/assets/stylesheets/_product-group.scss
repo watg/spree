@@ -1016,13 +1016,13 @@
 						user-select: none;
 						.variant-options {
 							margin-top: emCalc(10px);
-							margin-left: -1px;
-							margin-right: -1px;
 							padding: 0 emCalc(10px);
 							float: none;
 							position: absolute;
-							width: auto;
-							left: 0;
+								width: -moz-calc(100% - 2px);
+								width: -webkit-calc(100% - 2px);
+							width: calc(100% + 2px);
+							left: -1px;
 							z-index: 100;
 							background-color: #fff;
 							border: 1px solid #dadada;
@@ -1045,6 +1045,7 @@
 							}
 							.variant-option-values {
 								margin-bottom: 0;
+								width: 100%;
 								li {
 									margin: 0;
 									padding: emCalc(5px) 0;
@@ -1103,6 +1104,7 @@
 						padding: emCalc(10px);
 						margin-bottom: emCalc(20px);
 						background: center center no-repeat;
+						//background-size: contain;
 						min-height: emCalc(50px);
 					}
 				}
