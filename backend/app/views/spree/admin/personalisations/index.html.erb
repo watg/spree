@@ -41,15 +41,3 @@
 
 </fieldset>
 
-<%= javascript_tag do %>
-  subscribe_multiselect();
-
-  function subscribe_multiselect()
-  {
-    $(".multi-select").multiselect({
-      selectedText: "# of #",
-      minWidth: 300
-    });
-  }
-<% end -%>
-

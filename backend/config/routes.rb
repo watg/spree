@@ -15,7 +15,7 @@ Spree::Core::Engine.routes.draw do
 
       resources :parts, :controller => 'assembly_definition_parts' do
         collection do
-          patch :update_position
+          post :update_positions
         end
       end
 

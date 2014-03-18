@@ -1,51 +1,36 @@
 <%= render :partial => 'spree/admin/shared/product_sub_menu' %>
 
 <%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => "Parts"} %>
-<fieldset>
-  <legend align="center">Assembly Definition</legend>
-
-  <div id="item_parts">
-    <%= render 'parts_table', assembly_definition: @assembly_definition %>
-  </div>
-
-  <%= form_tag('#') do %>
-  <label><%= t('search') %>:</label>
-  <input id="searchtext" size="25">
-  <% end %>
-  
-  <br/>
-  <div id="search_hits"></div>  
-</fieldset>
 
 
-<fieldset> 
-  <legend align="center">Images</legend>
-  <div id="uploads_container"></div>
-  <script id="template-upload" type="text/x-tmpl">
-    <div id="upload_{%=o.unique_id%}" class="upload">
-      <h5>{%=o.name%}</h5>
-      <div class="progress progress-striped active"><div class="bar" style="width: 0%"></div></div>
-    </div>
-  </script>
-
-
-  <%= s3_uploader_form callback_url: s3_callback_admin_assembly_definition_images_path(@assembly_definition),
-    id: "s3_uploader",
-    callback_param: "image[direct_upload_url]",
-    expiration: 24.hours.from_now.utc.iso8601,
-    max_file_size: 100.megabytes do %>
-  
-    <div class="field">
-      <%= label_tag "Images" %><br>
-      <%= file_field_tag :file, multiple: true %>
-    </div>
-
-  <% end %>
-</fieldset>
+<%= form_tag('#') do %>
+<label><%= t('search') %>:</label>
+<input id="searchtext" size="25">
+<% end %>
+<br>
+<div id="search_hits"></div>  
 
 <%= form_for [:admin, @assembly_definition] do |f| %>
+
+  <fieldset>
+    <legend align="center">Assembly Definition</legend>
+    <div id="item_parts">
+      <%= render 'parts_table', f: f, assembly_definition: @assembly_definition %>
+    </div>
+    <br/>
+
+
+    <legend align="center">Images</legend>
+    <div id="uploads_container"></div>
+    <script id="template-upload" type="text/x-tmpl">
+      <div id="upload_{%=o.unique_id%}" class="upload">
+        <h5>{%=o.name%}</h5>
+        <div class="progress progress-striped active"><div class="bar" style="width: 0%"></div></div>
+      </div>
+    </script>
+
   
-    <table class="index sortable" data-hook="images_table" data-sortable-link="<%= update_positions_admin_assembly_definition_images_url(@assembly_definition) %>">
+    <table class="index sortable" data-hook="images_table" data-sortable-link="<%= update_positions_admin_assembly_definition_images_path(@assembly_definition) %>">
       <colgroup>
         <col style="width: 5%">
         <col style="width: 50%">
@@ -61,94 +46,38 @@
       </thead>
       <tbody id="images_table_body">
         <% unless @assembly_definition.images.any? %>
-        <div class="no-objects-found">
-          <%= Spree.t(:no_images_found) %>.
-        </div>
+          <div class="no-objects-found">
+            <%= Spree.t(:no_images_found) %>.
+          </div>
         <% else %>
           <%= f.fields_for :images do |image_form| %>
-            <tr id="<%= spree_dom_id image_form.object %>" data-hook="images_row" class="<%= cycle('odd', 'even')%>">
-              <td class="no-border">
-                <span class="handle"></span>
-              </td>
-              <td>
-                <% if image_form.object.processed? %>
-                  <%= link_to image_tag(image_form.object.attachment.url(:small), style: "max-width: 180px"), image_form.object.attachment.url(:small) %>
-                <% else %>
-                  <%= link_to image_tag(image_form.object.direct_upload_url, style: "max-width: 180px"), image_form.object.attachment.url(:small) %>
-                <% end %>
-              </td>
-              <td>
-                <%= label :target_id, "Target" %><br>
-                <%= image_form.collection_select :target_id, Spree::Target.all, :id, :name, {:include_blank => true}, {:class => 'select2 fullwidth'} %>
-              </td>          
-              <td class="actions">    
-                <%= link_to_delete image_form.object, { :url => admin_assembly_definition_image_url(@assembly_definition, image_form.object), :no_text => true } %>
-              </td>
-            </tr>
+            <%= render 'spree/admin/assembly_definition_images/image', f: image_form %>
           <% end %>
         <% end %>
       </tbody>
     </table>
 
     <%= render :partial => 'spree/admin/shared/edit_resource_links' %>
+  </fieldset>
+<% end %>
+
+
+<%= s3_uploader_form callback_url: s3_callback_admin_assembly_definition_images_path(@assembly_definition),
+  id: "s3_uploader",
+  callback_param: "image[direct_upload_url]",
+  expiration: 24.hours.from_now.utc.iso8601,
+  max_file_size: 100.megabytes do %>
+
+  <div class="field">
+    <%= label_tag "Images" %><br>
+    <%= file_field_tag :file, multiple: true %>
+  </div>
+
 <% end %>
 
 
 
 <%= javascript_tag do %>
-  subscribe_multiselect();
-
-  function sortable_definition(){
-  // Fix sortable helper
-  var fixHelper = function(e, ui) {
-      ui.children().each(function() {
-          $(this).width($(this).width());
-      });
-      return ui;
-  };
-
-  $('table.definition').ready(function(){
-    var td_count = $(this).find('tbody tr:first-child td').length
-    $('table.definition tbody').sortable(
-      {
-        handle: '.handle',
-        helper: fixHelper,
-        placeholder: 'ui-sortable-placeholder',
-        update: function(event, ui) {
-//          $("#progress").show();
-          var positions = {};
-          $.each($('table.definition tbody tr'), function(position, obj){
-            reg = /^.*_(\d+)$/;
-            parts = reg.exec($(obj).attr('id'));
-            if (parts) {
-              positions['positions['+parts[1]+']'] = position;
-            }
-          });
-
-          $.ajax({
-            type: 'PATCH',
-            dataType: 'script',
-            url: $(ui.item).closest("table.definition").data("sortable-link"),
-            data: positions,
-            success: function(data){ /* $("#progress").hide(); */ }
-          });
-        },
-        start: function (event, ui) {
-          // Set correct height for placehoder (from dragged tr)
-          ui.placeholder.height(ui.item.height())
-          // Fix placeholder content to make it correct width
-          ui.placeholder.html("<td colspan='"+(td_count-1)+"'></td><td class='actions'></td>")
-        },
-        stop: function (event, ui) {
-          // Fix odd/even classes after reorder
-          $("table.sortable tr:even").removeClass("odd even").addClass("even");
-          $("table.sortable tr:odd").removeClass("odd even").addClass("odd");
-        }
-
-      });
-  });
-
-  }
 
   function search_for_parts(){
     $.ajax({
@@ -180,15 +109,10 @@
   {
     $("a.set_count_admin_item_part_link").click(function(){
 
-      var variants = $(this).parents('tr').find("select").multiselect("getChecked").map(function(){
-        return this.value;    
-      }).get();
-
       params = { 
         part_optional : ($(this).parents('tr').find(":checkbox").prop('checked') ? 'true' : 'false'),
         part_count :  $(this).parents('tr').find(".count :text").val(),
-        part_presentation: $(this).parents('tr').find(".presentation :text").val(),
-        part_variants: variants
+        part_presentation: $(this).parents('tr').find(".presentation :text").val()
       };
 
       return make_patch_request($(this), params);
@@ -196,13 +120,6 @@
     
   }
 
-  function subscribe_multiselect() 
-  {
-    $(".multi-select").multiselect({
-      selectedText: "# of #",
-      minWidth: 300
-      });
-  }
 
   function make_patch_request(link, post_params){
     return make_request(link, post_params, "PATCH");
@@ -224,8 +141,6 @@
         success: function (data, textStatus) { 
            spinner.hide(); 
            subscribe_item_part_links();
-           sortable_definition();
-           subscribe_multiselect();
         }
     });
 
@@ -233,5 +148,4 @@
   }
 
   subscribe_item_part_links();
-  sortable_definition();
 <% end -%>
