@@ -30,10 +30,7 @@ module Spree
       # call to s3 to obtain details for the image (largely unneeded)
       # set_attachment_attributes_from_s3
       image.processed = false
-      d { inputs }
-      d { image }
       image.update_attributes(inputs.except(:image))
-      d { image }
       if !image.persisted?
         add_error(:image, :not_persisted, "Image was not persisted")
         return
