@@ -66,7 +66,7 @@ module Spree
     after_touch { delay(:priority => 20).touch_assemblies_parts if self.assemblies.any? }
 
     has_many :assembly_products ,-> { uniq }, through: :assembly_definition_variants
-    #after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
+    after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
 
     # default variant scope only lists non-deleted variants
     scope :deleted, lambda { where.not(deleted_at: nil) }
