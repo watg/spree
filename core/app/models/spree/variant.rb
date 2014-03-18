@@ -23,7 +23,9 @@ module Spree
 
     has_many :variant_targets, class_name: 'Spree::VariantTarget', dependent: :destroy
     has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :images, through: :variant_targets
-    has_many :targets, class_name: 'Spree::Target', through: :variant_targets
+    has_many :targets, class_name: 'SpreeTarget', through: :variant_targets
+
+    has_many :assembly_definition_variants, class_name: 'Spree::AssemblyDefinitionVariant'
 
      # Hack for the old pages, remove once the new pages are live
     def images_including_targetted
@@ -62,6 +64,9 @@ module Spree
 
     # This can take a while so run it asnyc with a low priority for now
     after_touch { delay(:priority => 20).touch_assemblies_parts if self.assemblies.any? }
+
+    has_many :assembly_products ,-> { uniq }, through: :assembly_definition_variants
+    after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
 
     # default variant scope only lists non-deleted variants
     scope :deleted, lambda { where.not(deleted_at: nil) }
@@ -407,6 +412,10 @@ module Spree
     end
 
     private
+
+    def touch_assembly_products
+      assembly_products.map(&:touch)
+    end
 
     def create_assembly_definition_if_kit
       if self.isa_kit?
