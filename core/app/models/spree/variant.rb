@@ -23,7 +23,7 @@ module Spree
 
     has_many :variant_targets, class_name: 'Spree::VariantTarget', dependent: :destroy
     has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :images, through: :variant_targets
-    has_many :targets, class_name: 'SpreeTarget', through: :variant_targets
+    has_many :targets, class_name: 'Spree::Target', through: :variant_targets
 
     has_many :assembly_definition_variants, class_name: 'Spree::AssemblyDefinitionVariant'
 
@@ -66,7 +66,7 @@ module Spree
     after_touch { delay(:priority => 20).touch_assemblies_parts if self.assemblies.any? }
 
     has_many :assembly_products ,-> { uniq }, through: :assembly_definition_variants
-    after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
+    #after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
 
     # default variant scope only lists non-deleted variants
     scope :deleted, lambda { where.not(deleted_at: nil) }
