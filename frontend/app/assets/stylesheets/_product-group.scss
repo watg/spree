@@ -1021,7 +1021,6 @@
 							padding: 0 emCalc(10px);
 							position: absolute;
 							width: auto;
-							min-width: 75%;
 							left: 0;
 							z-index: 100;
 							background-color: #fff;
@@ -1057,8 +1056,7 @@
 										display: block;
 									}
 									p {
-										margin: 0;
-										margin-left: emCalc(5px);
+										margin: 0 emCalc(5px);
 										padding: 0;
 										font-family: $watg-font-light;
 										font-size: 1.333em;
