@@ -14,6 +14,8 @@ $(document).ready(function() {
 	core.productGroup.showSelectedVariant();
 	core.productGroup.setHeroColour();
 	core.productGroup.positionHeroTitle();
+	
+	core.productGroup.readyKitMenus(); // New kit UI only
 });
 
 /* ----- Init methods ----- */
@@ -296,6 +298,17 @@ core.productGroup.positionHeroTitle = function() {
 		var margin = (row_height - tab_height - title_height) / 2;
 		title.css('margin-top', margin);
 	}
+}
+
+core.productGroup.readyKitMenus = function() {
+	var row = $('.row-assembly');
+	if (row.length == 0) return false; // Die if not new kit UI
+
+	row.find('.product-variants').on('click', function() {
+		$(this).siblings().removeClass('revealed').find('.variant-options').hide();
+		$(this).find('.variant-options').toggle();
+		$(this).toggleClass('revealed');
+	});
 }
 
 core.productGroup.setAuthToken = function() {
