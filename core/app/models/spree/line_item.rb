@@ -143,6 +143,15 @@ module Spree
       Spree::Variant.unscoped { super }
     end
 
+    def weight
+      options_weight = self.line_item_options.reduce(0.0) do |w, o|
+        w + ( o.variant.weight.to_f * o.quantity )
+      end
+      variant_weight = (self.variant.assembly_definition ? 0.0 : self.variant.weight.to_f)
+
+      (options_weight + variant_weight) * self.quantity
+    end
+
     private
     def update_inventory
       if changed?

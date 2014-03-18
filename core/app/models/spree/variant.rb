@@ -172,20 +172,35 @@ module Spree
     end
 
     def weight
-      if kit?
-        kit_weight = required_parts.inject(0.00) do |sum,part|
-          count_part = part.count_part || 0
-          part_weight =  part.weight || 0
-          sum + (count_part * part_weight)
-        end
-        BigDecimal.new(kit_weight,2)
+      return static_kit_weight if self.kit?
+      dynamic_kit_weight if self.assembly_definition
+      basic_weight(super)
+    end
+
+    def static_kit_weight
+      kit_weight = required_parts_for_display.inject(0.00) do |sum,part|
+        count_part = part.count_part || 0
+        part_weight = part.weight || 0
+        sum + (count_part * part_weight)
+      end
+      BigDecimal.new(kit_weight,2)
+    end
+    
+    def dynamic_kit_weight
+      warning = "Only use this variant#dynamic_kit_weight to get kit weight right. Not suitable for getting kit weight of past orders"
+      Rails.logger.info(warning)
+      puts(warning)
+      self.assembly_definition.parts.where(optional: false).reduce(BigDecimal(0,2)) do |w, part|
+        first_available_variant = part.variants.select {|v| v.weight && v.weight > 0 }
+        w + ( part.count * first_available_variant.try(:weight) )
+      end
+    end
+    
+    def basic_weight(value_from_super_weight)
+      if !self.is_master && (value_from_super_weight.blank? || value_from_super_weight.zero?)
+        self.product.weight
       else
-        value = super
-        if !self.is_master && (value.blank? || value.zero?)
-          self.product.weight
-        else
-          value
-        end
+        value_from_super_weight
       end
     end
 
