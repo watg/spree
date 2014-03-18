@@ -561,6 +561,30 @@ describe Spree::Variant do
       ap.reload.updated_at.should be_within(3.seconds).of(Time.now)
       variant.reload.updated_at.should be_within(3.seconds).of(Time.now)
     end
+
+    context "Assembly Definition" do
+      let(:assembly_definition) { create(:assembly_definition, variant: variant) }
+      let(:variant_part)  { create(:base_variant) }
+      let(:product_part)  { variant_part.product }
+      let(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: product_part) }
+      let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
+
+
+      # This is not needed for the time being
+      #it "touches assembly product after touch" do
+      #  variant.product.update_column(:updated_at, 1.day.ago)
+      #  variant_part.reload.touch
+      #  expect(variant.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
+      #end
+
+      it "touches assembly product after save" do
+        variant.product.update_column(:updated_at, 1.day.ago)
+        variant_part.reload.save
+        expect(variant.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
+      end
+
+    end
+
   end
 
   describe "#should_track_inventory?" do

@@ -7,8 +7,11 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
   alias_method :parts, :assembly_definition_parts
 
   has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::AssemblyDefinitionImage"
+
   accepts_nested_attributes_for :images
   accepts_nested_attributes_for :assembly_definition_parts
+
+  before_create :set_assembly_product
 
   def selected_variants_out_of_stock
     Spree::AssemblyDefinitionPart.
@@ -29,5 +32,10 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
       where(assembly_definition_part_id: assembly_definition_part_id).
       map(&:variant_id)
   end
+
+  def set_assembly_product 
+    self.assembly_product = self.variant.product
+  end
+
 end
 

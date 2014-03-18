@@ -565,7 +565,33 @@ describe Spree::Product do
       product_group.reload.updated_at.should be_within(3.seconds).of(Time.now)
     end
 
-  end
+    context "Assembly Definition" do
 
+      let(:variant_assembly) { create(:variant) }
+      let(:assembly_definition) { create(:assembly_definition, variant: variant_assembly) }
+      let(:variant_part)  { create(:base_variant) }
+      let(:product_part)  { variant_part.product }
+      let(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: product_part) }
+      let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
+
+      before { Delayed::Worker.delay_jobs = false }
+      after { Delayed::Worker.delay_jobs = true }
+
+      # This is not needed for the time being
+      #it "touches assembly product after touch" do
+      #  variant_assembly.product.update_column(:updated_at, 1.day.ago)
+      #  product_part.touch
+      #  expect(variant_assembly.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
+      #end
+
+      it "touches assembly product after save" do
+        variant_assembly.product.update_column(:updated_at, 1.day.ago)
+        product_part.reload.save
+        expect(variant_assembly.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
+      end
+
+    end
+
+  end
 
 end

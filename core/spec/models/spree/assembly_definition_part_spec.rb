@@ -1,9 +1,15 @@
 # encoding: utf-8
 require 'spec_helper'
 
-describe Spree::AssemblyDefinition do
+describe Spree::AssemblyDefinitionPart do
 
-  context "A" do
+  let(:variant)  { create(:base_variant) }
+  let(:assembly_product) { variant.product }
+  let(:part)  { create(:base_product) }
+  let(:assembly_definition) { create(:assembly_definition, variant: variant) }
+  subject { create(:assembly_definition_part, assembly_definition: assembly_definition, product: part) }
+
+  context "Stock and Option Values" do
 
     let(:size)     { create(:option_type, name: 'size', position: 1 )}
     let(:big)      { create(:option_value, name: 'big', option_type: size, position: 0) }
@@ -17,8 +23,6 @@ describe Spree::AssemblyDefinition do
     let(:french)   { create(:option_value, name: 'french', option_type: language, position: 0) }
     let(:english)   { create(:option_value, name: 'english', option_type: language, position: 1) }
 
-    let(:variant)  { create(:base_variant) }
-    let(:part)  { create(:base_product) }
 
     let!(:variant_in_stock1)  { create(:variant_with_stock_items, product: product, option_values: [pink,small] ) }
     let!(:variant_in_stock2)  { create(:variant_with_stock_items, product: product, option_values: [pink,big] ) }
@@ -27,8 +31,6 @@ describe Spree::AssemblyDefinition do
     let!(:variant_out_of_stock)  { create(:variant, product: product, option_values: [english] ) }
     let!(:variant_in_stock5)  { create(:variant_with_stock_items, product: product, option_values: [french] ) }
 
-    let(:assembly_definition) { create(:assembly_definition, variant: variant) }
-    subject { create(:assembly_definition_part, assembly_definition: assembly_definition, product: part) }
 
     let(:product)  { create(:base_product) }
 
@@ -57,9 +59,36 @@ describe Spree::AssemblyDefinition do
         expect(tree["size"]["big"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
         expect(tree["language"]).to be_nil
       end
+    end
+  end
 
+  context "set_assembly_product" do
+    it "set assembly product before create" do
+      adp = Spree::AssemblyDefinitionPart.new(assembly_definition_id: assembly_definition.id, product_id: part.id)
+      expect(adp.assembly_product).to be_nil
+      adp.save
+      expect(adp.assembly_product).to_not be_nil
+    end
+  end
+
+  context "touch" do
+
+    before { Timecop.freeze }
+    after { Timecop.return }
+
+    it "touches assembly product after touch" do
+      assembly_product.update_column(:updated_at, 1.day.ago)
+      subject.touch
+      expect(assembly_product.reload.updated_at).to be_within(1.seconds).of(Time.now)
+    end
+
+    it "touches assembly product after save" do
+      assembly_product.update_column(:updated_at, 1.day.ago)
+      subject.touch
+      expect(assembly_product.reload.updated_at).to be_within(1.seconds).of(Time.now)
     end
 
   end
+
 end
 

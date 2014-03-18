@@ -26,11 +26,11 @@
     <% product.assembly_definition.parts.decorate(context: @context).each do |part|%>
       <% required_class = part.optional ? 'optional' : 'required' %>
 
-      <% product_part = part.product.decorate(context: @context) %>
     <div class="product-variants  <%= required_class %>" data-tree="<%= part.memoized_variant_options_tree.to_json %>" data-adjustment="0" >
 
       <% if part.memoized_grouped_option_values.any?  %>
         <h5> <%= part.presentation %> </h5>
+        <h5> <%= part.product.name %> </h5>
 
         <% part.memoized_grouped_option_values.each do |type, values|  %>
           <div class="variant-options <%= type.url_safe_name.downcase %> <%= required_class %>" data-type=<%= type.url_safe_name.downcase %> > 
