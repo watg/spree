@@ -38,12 +38,8 @@ core.productGroup.readyKitVariantOptions = (entity) ->
 
     $('.assembly-images li').eq(product_variants.index()).show().css('background-image', 'url(' + variant['image_url'] + ')')
 
-    #product_variants.find(".product-part-image").show()
-    #product_variants.find(".product-part-image img").attr('src', variant['image_url'])
+###### Prices #########################################################################################################
 
-
-###### Prices #################################################################################################################
-#
   entity.find(".prices").on('update',( ->
     if entity.find('.variant-options.required:not(.selected)').length > 0
       $(this).find('.normal-price').addClass('price now unselected').removeClass('was')
