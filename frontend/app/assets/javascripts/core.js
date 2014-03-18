@@ -94,7 +94,9 @@ core.readyModals = function() {
 
 // Ready tooltips plugin
 core.readyTooltips = function() {
-    $('.tooltip').tooltipster();
+    $('.tooltip').tooltipster({
+	   delay: 0
+	});
 }
 
 core.showCookieMessage = function() {

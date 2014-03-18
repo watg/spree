@@ -74,26 +74,11 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     if entity.find('.variant-options.required:not(.selected)').length > 0
       $(this).attr("style", "opacity: 0.5").addClass('disabled')
     else
-      $(this).removeAttr("style").removeClass("disabled")
+      $(this).removeAttr("style").removeClass("disabled").tooltipster('destroy');
   ))
 
   entity.find('.add-to-cart-button').click (event) -> 
     if $(this).hasClass('disabled')
-
-      missing_types = []
-      entity.find('.variant-options.required:not(.selected)').each ->
-        missing_types.push $(this).data('type')
-
-      # Format the message we return to the user if not enough of the option
-      # types have been selected
-      last = missing_types.splice(-1,1)
-      message = "Please choose your " + missing_types.join(', ')
-      (message = message + " and " ) if missing_types.length > 0
-      message = message + last
-
-      entity.find('p.error').remove()
-      entity.find('.add-to-cart').prepend($("<p class='error'>#{message}!</p>").hide().fadeIn('slow').focus())
       false
-
 
 # pass a uncomplicated hash instead of the nested rubbish
