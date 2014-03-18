@@ -39,25 +39,25 @@ describe Spree::AssemblyDefinitionPart do
     end
 
     context "#option_values_in_stock" do
-      it "should return instock option values" do
-        expect(subject.option_values_in_stock).to include(big,small,pink,blue)
+      it "should return option values" do
+        expect(subject.option_values).to include(big,small,pink,blue)
       end
     end
 
     context "#grouped_option_values_in_stock" do
-      it "should return instock option values" do
-        expect(subject.grouped_option_values_in_stock).to eq({ size => [big,small], colour => [pink,blue]})
+      it "should return grouped option values" do
+        expect(subject.grouped_option_values).to eq({ size => [big,small], colour => [pink,blue], language => [english]})
       end
     end
 
     context "#variant_options_tree_for" do
-      it "should return variant_options_tree_for that are in stock " do
+      it "should return variant_options_tree_for" do
         tree = subject.variant_options_tree_for('USD')
-        expect(tree["size"]["small"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
-        expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
-        expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
-        expect(tree["size"]["big"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
-        expect(tree["language"]).to be_nil
+        expect(tree["size"]["small"]["colour"]["pink"]["variant"]["in_stock"]).to_not be_nil
+        expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to_not be_nil
+        expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to_not be_nil
+        expect(tree["size"]["big"]["colour"]["blue"]["variant"]).to_not be_nil
+        expect(tree["language"]["english"]["variant"]).to_not be_nil
       end
     end
   end

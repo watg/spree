@@ -15,7 +15,7 @@ class Spree::AssemblyDefinitionPartDecorator < Draper::Decorator
   end
 
   def memoized_grouped_option_values
-    @_memoized_grouped_option_values ||= object.grouped_option_values_in_stock
+    @_memoized_grouped_option_values ||= object.grouped_option_values
   end
 
   def url
