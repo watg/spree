@@ -192,8 +192,9 @@ module Spree
       warning = "Only use this variant#dynamic_kit_weight to get kit weight right. Not suitable for getting kit weight of past orders"
       Rails.logger.info(warning)
       puts(warning)
+
       self.assembly_definition.parts.where(optional: false).reduce(BigDecimal(0,2)) do |part_total_weight, part|
-        first_available_variant = part.variants.select {|v| v.weight && v.weight > 0 }
+        first_available_variant = part.variants.detect {|v| v.weight && v.weight > 0 }
         variant_weight = first_available_variant.try(:weight)
         notify("Variant id #{first_available_variant.id} has no weight") unless variant_weight
         part_total_weight + ( part.count * variant_weight )
