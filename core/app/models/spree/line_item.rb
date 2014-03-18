@@ -86,7 +86,9 @@ module Spree
     end
 
     def amount_all_options
-      list_amount = self.line_item_options.map {|e| e.price * e.quantity}
+      list_amount = self.line_item_options.
+        select{|e| e.optional }.
+        map {|e|   e.price * e.quantity}
       list_amount.inject(0){|s,a| s += a; s}
     end
 
@@ -95,6 +97,14 @@ module Spree
       list_amount.sum
     end
 
+    def assembly_selected_variants
+      return unless variant.assembly_definition
+
+      line_item_options.inject({}) do |hsh, option|
+        hsh[option.assembly_definition_part_id] = option.variant_id
+        hsh
+      end
+    end
 
     def single_money
       Spree::Money.new(price, { currency: currency })
@@ -131,6 +141,15 @@ module Spree
     # Remove variant default_scope `deleted_at: nil`
     def variant
       Spree::Variant.unscoped { super }
+    end
+
+    def weight
+      options_weight = self.line_item_options.reduce(0.0) do |w, o|
+        w + ( o.variant.weight.to_f * o.quantity )
+      end
+      variant_weight = (self.variant.assembly_definition ? 0.0 : self.variant.weight.to_f)
+
+      (options_weight + variant_weight) * self.quantity
     end
 
     private

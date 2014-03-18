@@ -30,11 +30,15 @@ describe Spree::Api::ShipmentsController do
     sign_in_as_admin!
 
     it 'can create a new shipment' do
+      v = stock_location.stock_items.first.variant
+      assembly_selection = {1 => 23, 3 => 1034} 
       params = {
-        variant_id: stock_location.stock_items.first.variant.to_param,
+        variant_id: v.to_param,
         order_id: order.number,
         stock_location_id: stock_location.to_param,
+        selected_variants: assembly_selection
       }
+      expect(Spree::OrderPopulator).to receive(:parse_options).with(v, assembly_selection)
 
       api_post :create, params
       response.status.should == 200
@@ -94,7 +98,10 @@ describe Spree::Api::ShipmentsController do
       let!(:resource_scoping) { { :order_id => order.to_param, :id => order.shipments.first.to_param } }
 
       it 'adds a variant to a shipment' do
-        api_put :add, { variant_id: variant.to_param, quantity: 2 }
+        assembly_selection = {23 => 987 , 4 => 232}
+        expect(Spree::OrderPopulator).to receive(:parse_options).with(variant, assembly_selection)
+
+        api_put :add, { variant_id: variant.to_param, quantity: 2, selected_variants: assembly_selection }
         response.status.should == 200
         json_response['manifest'].detect { |h| h['variant']['id'] == variant.id }["quantity"].should == 2
       end

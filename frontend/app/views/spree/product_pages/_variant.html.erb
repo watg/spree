@@ -1,6 +1,6 @@
 <!-- details -->
-<% product = variant.product.decorate( @context ) %>
-<% variant = variant.decorate( @context ) %>
+<% product = variant.product.decorate( context: @context ) %>
+<% variant = variant.decorate( context: @context ) %>
 <% cache [product,variant,variant.target,@current_currency] do %>
 <li class="displayable-entity details" data-variant="<%= variant.id %>" 
 	data-option-values="<%= variant.option_types_and_values.to_json %>" 

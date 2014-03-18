@@ -60,7 +60,15 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def decorated_first_knit_your_own_product_variant
-    variant = knit_your_own_product.variants_for(object.target).first
+    variant = nil
+    # TODO: kil this once the new kit functionality is live
+    # should be just
+    # variant = knit_your_own_product.master
+    if knit_your_own_product.assembly_definition
+      variant = knit_your_own_product.master
+    else
+      variant = knit_your_own_product.variants_for(object.target).first
+    end
     if variant
       variant.decorate(context: { current_currency: current_currency, target: object.target})
     end
@@ -77,7 +85,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def kit_description
-    description = object.kit.description_for(object.target) rescue Spree.t(:product_has_no_description)
+    description = object.kit.description_for(object.target).to_s rescue Spree.t(:product_has_no_description)
     description = description.gsub(/(.*?)\r?\n\r?\n/m, '\1<br><br>')
     description.gsub(/_/, '').gsub(/-/, '&ndash;').html_safe
   end
@@ -91,7 +99,8 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def knit_your_own_product?
-    knit_your_own_product.present? && knit_your_own_product.variants.any?
+#    knit_your_own_product.present? && knit_your_own_product.variants.any?
+    knit_your_own_product.present?
   end
 
   def made_unique_title

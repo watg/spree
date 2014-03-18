@@ -30,7 +30,7 @@ describe Spree::Product do
         subject  = create(:product, product_type: :kit)
         subject.save
 
-        kit_variant1 = create(:variant, product: subject, target: women, in_stock_cache: false)
+        _kit_variant1 = create(:variant, product: subject, target: women, in_stock_cache: false)
         kit_variant2 = create(:variant, product: subject, target: women, in_stock_cache: true)
         kit_variant3 = create(:variant, product: subject, target: women, in_stock_cache: true)
 
@@ -515,70 +515,6 @@ describe Spree::Product do
 
   end
 
-  context "#variant_options_tree" do
-    let(:product) { create(:product_with_variants) }
-    let(:variant_in_sale) { create(:variant_in_sale) }
-
-    it "should build a tree based on it's variants" do
-      variant_1 = product.variants[0]
-      variant_2 = product.variants[1]
-      ov1 = variant_1.option_values.first
-      ov2 = variant_2.option_values.first
-
-      attributes = product.variant_options_tree('USD')[ov1.option_type.name][ov1.name]['variant']
-      attributes.should_not be_nil
-      attributes["id"].should == variant_1.id
-      attributes["normal_price"].should == 1999
-      attributes["sale_price"].should == 0
-      attributes["in_sale"].should == false
-
-      attributes = product.variant_options_tree('USD')[ov2.option_type.name][ov2.name]['variant']
-      attributes.should_not be_nil
-      attributes["id"].should == variant_2.id
-      attributes["normal_price"].should == 1999
-      attributes["sale_price"].should == 0
-      attributes["in_sale"].should == false
-
-      #product.variant_options_tree('GBP').should == {
-      #  "color"=>{
-      #    "hot-pink1"=>{
-      #      "variant"=>{
-      #        "id"=>2,
-      #        "normal_price"=>1200,
-      #        "sale_price"=>0,
-      #        "in_sale"=>false}
-      #    },
-      #    "hot-pink2"=>{
-      #      "variant"=>{
-      #        "id"=>3,
-      #        "normal_price"=>1200,
-      #        "sale_price"=>0,
-      #        "in_sale"=>false
-      #      }
-      #    }
-      #  }
-      #}
-    end
-
-    it "should have prices in USD" do
-      variant = product.variants[0]
-      ov = variant.option_values.first
-      attributes = product.variant_options_tree('USD')[ov.option_type.name][ov.name]['variant']
-      attributes['normal_price'].should == 1999
-      attributes['sale_price'].should == 0
-      attributes['in_sale'].should == false
-    end
-
-    it "should have sale_price" do
-      ov = variant_in_sale.option_values.first
-      attributes = variant_in_sale.product.variant_options_tree('USD')[ov.option_type.name][ov.name]['variant']
-      attributes['normal_price'].should == 1999
-      attributes['sale_price'].should == 600
-      attributes['in_sale'].should == true
-    end
-
-  end
-
   # Regression tests for #2352
   context "classifications and taxons" do
     it "is joined through classifications" do
@@ -629,7 +565,33 @@ describe Spree::Product do
       product_group.reload.updated_at.should be_within(3.seconds).of(Time.now)
     end
 
-  end
+    context "Assembly Definition" do
 
+      let(:variant_assembly) { create(:variant) }
+      let(:assembly_definition) { create(:assembly_definition, variant: variant_assembly) }
+      let(:variant_part)  { create(:base_variant) }
+      let(:product_part)  { variant_part.product }
+      let(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: product_part) }
+      let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
+
+      before { Delayed::Worker.delay_jobs = false }
+      after { Delayed::Worker.delay_jobs = true }
+
+      # This is not needed for the time being
+      #it "touches assembly product after touch" do
+      #  variant_assembly.product.update_column(:updated_at, 1.day.ago)
+      #  product_part.touch
+      #  expect(variant_assembly.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
+      #end
+
+      it "touches assembly product after save" do
+        variant_assembly.product.update_column(:updated_at, 1.day.ago)
+        product_part.reload.save
+        expect(variant_assembly.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
+      end
+
+    end
+
+  end
 
 end

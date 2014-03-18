@@ -1,0 +1,52 @@
+<script type="text/javascript">
+  function displayRow(){
+    var row = document.getElementById("captionRow");
+    if (row.style.display == '') row.style.display = 'none';
+    else row.style.display = '';
+  }
+</script>
+<h4><%= t('available_supply_products') %></h4>
+<table class="index">
+  <thead>
+      <tr>
+        <th><%= t("part") %></th>
+        <th>Presentation</th>        
+        <th><%= t("qty") %></th>
+        <th><%= t("optional") %></th>
+        <th></th>
+      </tr>
+  </thead>
+  <tbody>
+    <% @available_products.each do |product| %>
+      <tr id="<%= dom_id(product) %>">
+        <td data-product-id="<%= product.id %>"><%= product.name %></td>
+        <td class="presentation"><%= text_field_tag "part[presentation]", '' %></td>
+        <td class="count"><%= text_field_tag "part[count]", 1 %></td>
+        <td class="optional"><%= check_box_tag( "part[optional]", false ) %></td>
+        <td class="actions">
+          <%= image_tag "spinner.gif", :style => "display:none", :class => "spinner" %>
+            <%= link_to(icon('add') + ' ' + t('select'), 
+                      admin_assembly_definition_parts_path(@assembly_definition),
+                      :class => "add_assembly_definition_part_link") %>
+            </td>
+      </tr>
+    <% end %>
+    <% if @available_products.empty? %>
+     <tr><td colspan="3"><%= t('no_match_found') %>.</td></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= javascript_tag do %>
+  $("a.add_assembly_definition_part_link").click(function(){
+    var pid = $(this).parents('tr').find('td[data-product-id]').data('product-id');
+    params = {   
+               part_product_id :  pid,
+               part_type: 'product',
+               part_count :  $(this).parents('tr').find(".count :text").val(),
+               part_optional : $('#part_optional:checked', $(this).parent().parent()).length > 0 ? 'true' : 'false',
+               part_presentation: $(this).parents('tr').find(".presentation :text").val()
+             };
+    return make_post_request($(this), params);
+  });  
+<% end %>

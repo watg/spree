@@ -39,6 +39,10 @@ class Spree::VariantDecorator < Draper::Decorator
     @_selected_option_values ||= object.option_values.inject({}) { |hash,o| hash[o.option_type.url_safe_name] = o; hash }
   end
 
+  def kit_price_in_pence(currency,count)
+    ( object.kit_price_in(currency) * 100 * count ).to_i
+  end
+
   def gang_member
     object.product.memoized_gang_member
   end

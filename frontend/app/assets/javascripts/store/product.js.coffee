@@ -205,35 +205,38 @@ change_main_image = (entity, thumb) ->
 
 toggle_personalisation_option_value = (entity, element, event) ->
   event.preventDefault()
+  personalisation = element.parents('.personalisation')
+
   selected_type = element.data('type')
   selected_value = element.data('value')
   selected_presentation = element.data('presentation')
 
   # Update the color-text value if type is selected_type is colour
   if selected_type == 'colour'
-    $("span.personalisation-color-value").text(selected_presentation)
-    entity.find('.hidden.personalisation-colour').val(element.data('id'))
+    personalisation.find("span.personalisation-color-value").text(selected_presentation)
+    personalisation.find('.hidden.personalisation-colour').val(element.data('id'))
 
   # If selected type value is unavailable, then return false
-  if entity.find(".personalisation-option-value.#{selected_type}.#{selected_value}").hasClass('unavailable')
+  if personalisation.find(".personalisation-option-value.#{selected_type}.#{selected_value}").hasClass('unavailable')
     return false
 
   # Ensure the option you selected clicked is selected and
   # unselect all the other options at this level
-  entity.find(".personalisation-option-value.#{selected_type}").removeClass('selected')
-  entity.find(".personalisation-option-value.#{selected_type}.#{selected_value}").addClass('selected')
+  personalisation.find(".personalisation-option-value.#{selected_type}").removeClass('selected')
+  personalisation.find(".personalisation-option-value.#{selected_type}.#{selected_value}").addClass('selected')
 
-toggle_personalisations = (entity, e, event) ->
-  personalisation_id = e.val()
+toggle_personalisations = (entity, checkbox, event) ->
+  personalisation = checkbox.parents('.personalisation')
+  personalisation_id = checkbox.val()
   thumbs = entity.find("ul.thumbnails li.tmb-personalisation-" + personalisation_id)
 
-  if e.is(':checked')
+  if checkbox.is(':checked')
     if thumbs.length > 0
       thumbs.show()
       thumb = thumbs.first()
       change_main_image(entity, thumb)
-    entity.find('.personalisation-options').show()
-    entity.find('.personalisation-option-values').show()
+    personalisation.find('.personalisation-options').show()
+    personalisation.find('.personalisation-option-values').show()
 
   else
     if thumbs.length > 0
@@ -242,8 +245,8 @@ toggle_personalisations = (entity, e, event) ->
       # the first visible image from the remaining thumbnails
       thumb = entity.find("ul.thumbnails li.vtmb:visible").first()
       change_main_image(entity, thumb)
-    entity.find('.personalisation-options').hide()
-    entity.find('.personalisation-option-values').hide()
+    personalisation.find('.personalisation-options').hide()
+    personalisation.find('.personalisation-option-values').hide()
 
 
 

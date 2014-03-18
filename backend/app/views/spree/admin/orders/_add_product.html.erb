@@ -1,5 +1,12 @@
 <%= render :partial => "spree/admin/variants/autocomplete", :formats => :js %>
 <%= render :partial => "spree/admin/variants/autocomplete_stock", :formats => :js %>
+<script id="variant_options_template" type="text/x-handlebars-template">
+{{#each available_variants}}
+<option value="{{this.id}}">{{this.options_text}}</option>
+{{else}}
+<option>No available variant</option>
+{{/each}}
+</script>
 
 <div id="add-line-item" data-hook>
   <fieldset class="no-border-bottom">
