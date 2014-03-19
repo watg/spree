@@ -208,9 +208,9 @@ module Spree
         value = if self.product
                   self.product.master.weight
                 else
-                  nil 
+                  0
                 end
-        notify("The weight of variant id: #{self.id} is nil.\nThe weight of product id: #{self.product.try(:id)}") unless value
+        notify("The weight of variant id: #{self.id} is nil.\nThe weight of product id: #{self.product.try(:id)}") if value == 0
         value
       else
         value_from_super_weight
