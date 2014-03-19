@@ -16,21 +16,21 @@
 	<% end %>
 </div>
 
-<div class="row row-assembly">
+<div class="row row-assembly" data-ad-id="<%= product.assembly_definition.id %>">
 	<div class="assembly-menus large-10 small-8 column">
 		<ol>
 			<% product.assembly_definition.parts.decorate(context: @context).each do |part|%>
 			<% required_class = part.optional ? 'optional' : 'required' %>
 			
 			<% if part.memoized_grouped_option_values.any?  %>
-				<li class="product-variants <%= required_class %>" data-tree="<%= part.memoized_variant_options_tree.to_json %>" data-adjustment="0"><%= part.presentation %> <span class="color-value"></span>
+				<li class="product-variants <%= required_class %>" data-tree="<%= part.memoized_variant_options_tree.to_json %>" data-adjustment="0" data-adp-id="<%= part.id %>"><%= part.presentation %> <span class="color-value"></span>
 					<% part.memoized_grouped_option_values.each do |type, values| %>
 					<div class="variant-options <%= type.url_safe_name.downcase %> <%= required_class %>" data-type="<%= type.url_safe_name.downcase %>">
 						<p><%= part.product.name %></p>
 						<ul class="variant-option-values <%= type.url_safe_name.downcase %>">
 							<% values.sort_by(&:position).each do |value| %>
 							<% classes = ["option-value", value.url_safe_name, type.url_safe_name] %>
-								<li>
+								<li data-ov-id="<%= value.id %>">
                 				  <%= link_to value.has_image? ? image_tag(value.image.url, :alt => value.presentation) : content_tag(:span, value.presentation), "#", :title => value.presentation, :class => classes.join(" "), data: {type: type.url_safe_name, value: value.url_safe_name, presentation: value.presentation } %>
 				                  <% if value.has_image? %>
 				                    <p class="assembly-name"><%= value.presentation %></p>
