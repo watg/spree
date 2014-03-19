@@ -1,12 +1,12 @@
 <ul class="product-thumbnails thumbnails" data-hook>
 
-  <% product.variants_including_master.decorate( context: @context ).each do |variant| %>
-    <% variant.assembly_definition.images.each do |i| %>
-    <li class='tmb-assembly-definition tmb-assembly-definition-<%= variant.id %>' style="display: none;" >
-      <a href="<%= i.attachment.url(:large) %>" target="_blank" class="fancybox" data-fancybox-group="product-gallery-<%= variant.id %>">
-       <%= image_tag(i.attachment.url(:mini)) %>
-      </a>
-    </li>
+  <% if product.assembly_definition %>
+    <% product.master.decorate( context: @context ).assembly_definition.images.each do |i| %>
+      <li class='tmb-assembly-definition tmb-assembly-definition-<%= variant.id %>' style="display: none;" >
+        <a href="<%= i.attachment.url(:large) %>" target="_blank" class="fancybox" data-fancybox-group="product-gallery-<%= variant.id %>">
+         <%= image_tag(i.attachment.url(:mini)) %>
+        </a>
+      </li>
     <% end %>
   <% end %>
 

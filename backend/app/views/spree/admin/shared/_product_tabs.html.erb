@@ -36,7 +36,7 @@
       </li>
       <li<%= ' class="active"' if current == "Parts" %>>
         <% if @product.master.assembly_definition %>
-          <%= link_to_with_icon 'icon-sitemap', "Assembly Definition", admin_assembly_definition_url(@product.master.assembly_definition) %>
+          <%= link_to_with_icon 'icon-sitemap', "Assembly Definition", edit_admin_assembly_definition_url(@product.master.assembly_definition) %>
         <% end %>
       </li>
     </ul>
