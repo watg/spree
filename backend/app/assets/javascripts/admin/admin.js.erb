@@ -231,9 +231,9 @@ $(document).ready(function(){
       return ui;
   };
 
-  $('table.sortable').ready(function(){
+  $('table.sortable').each(function(){
     var td_count = $(this).find('tbody tr:first-child td').length
-    $('table.sortable tbody').sortable(
+    $(this).find('tbody').sortable(
       {
         handle: '.handle',
         helper: fixHelper,
@@ -241,7 +241,7 @@ $(document).ready(function(){
         update: function(event, ui) {
           $("#progress").show();
           positions = {};
-          $.each($('table.sortable tbody tr'), function(position, obj){
+          $.each($(this).find('tr'), function(position, obj){
             reg = /spree_(\w+_?)+_(\d+)/;
             parts = reg.exec($(obj).attr('id'));
             if (parts) {
@@ -264,8 +264,8 @@ $(document).ready(function(){
         },
         stop: function (event, ui) {
           // Fix odd/even classes after reorder
-          $("table.sortable tr:even").removeClass("odd even").addClass("even");
-          $("table.sortable tr:odd").removeClass("odd even").addClass("odd");
+          $(this).find("tr:even").removeClass("odd even").addClass("even");
+          $(this).find("tr:odd").removeClass("odd even").addClass("odd");
         }
 
       });
