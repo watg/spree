@@ -182,7 +182,7 @@ module Spree
       kit_weight = required_parts_for_display.inject(0.00) do |sum,part|
         count_part = part.count_part 
         part_weight = part.weight 
-        notify("Variant id #{part.id} has no weight") unless part_weight
+        notify("Variant id #{part.try(:id)} has no weight") unless part_weight
         sum + (count_part * part_weight)
       end
       BigDecimal.new(kit_weight,2)
@@ -196,7 +196,7 @@ module Spree
       self.assembly_definition.parts.where(optional: false).reduce(BigDecimal(0,2)) do |part_total_weight, part|
         first_available_variant = part.variants.detect {|v| v.weight && v.weight > 0 }
         variant_weight = first_available_variant.try(:weight)
-        notify("Variant id #{first_available_variant.id} has no weight") unless variant_weight
+        notify("Variant id #{first_available_variant.try(:id)} has no weight") unless variant_weight
         part_total_weight + ( part.count * variant_weight )
       end
     end
