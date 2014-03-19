@@ -1,17 +1,19 @@
-<tr id="<%= spree_dom_id f.object %>" data-hook="images_row" class="<%= cycle('odd', 'even')%>">
-  <td class="no-border"><span class="handle"></span></td>
-  <td>
-    <% if f.object.processed? %>
-      <%= link_to image_tag(f.object.attachment.url(:small), style: "max-width: 180px"), f.object.attachment.url(:small) %>
-    <% else %>
-      <%= link_to image_tag(f.object.direct_upload_url, style: "max-width: 180px"), f.object.attachment.url(:small) %>
-    <% end %>
-  </td>
-  <td>
-    <%= label :target_id, "Target" %><br>
-    <%= f.collection_select :target_id, Spree::Target.all, :id, :name, {:include_blank => true}, {:class => 'select2 fullwidth'} %>
-  </td>          
-  <td class="actions">    
-    <%= link_to_delete f.object, { :url => admin_assembly_definition_image_path(@assembly_definition, f.object), :no_text => true } %>
-  </td>
-</tr>
+<%= fields_for :images, @assembly_definition do |image_form| %>
+  <tr id="<%= spree_dom_id image_form.object %>" data-hook="images_row" class="<%= cycle('odd', 'even')%>">
+    <td class="no-border"><span class="handle"></span></td>
+    <td>
+      <% if image_form.object.processed? %>
+        <%= link_to image_tag(image_form.object.attachment.url(:small), style: "max-width: 180px"), image_form.object.attachment.url(:small) %>
+      <% else %>
+        <%= link_to image_tag(image_form.object.direct_upload_url, style: "max-width: 180px"), image_form.object.attachment.url(:small) %>
+      <% end %>
+    </td>
+    <td>
+      <%= label :target_id, "Target" %><br>
+      <%= image_form.collection_select :target_id, Spree::Target.all, :id, :name, {:include_blank => true}, {:class => 'select2 fullwidth'} %>
+    </td>          
+    <td class="actions">    
+      <%= link_to_delete image_form.object, { :url => admin_assembly_definition_image_path(@assembly_definition, image_form.object), :no_text => true } %>
+    </td>
+  </tr>
+<% end %>
