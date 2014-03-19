@@ -3,8 +3,6 @@ core.productGroup.readyKitVariantOptions = (entity) ->
   entity.find('.option-value').click (event)->
     event.preventDefault()
     option_value = $(this)
-    selected_type = option_value.data('type')
-    selected_value = option_value.data('value')
     selected_presentation = option_value.data('presentation')
 
     option_values = option_value.closest('.variant-option-values')
@@ -34,7 +32,11 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     # Walk the tree to get a variant id
     tree = product_variants.data('tree')
     selected_option_values = product_variants.find('.option-value.selected').each ->
-      tree = tree[$(this).data('type')][$(this).data('value')]
+      selected_type = $(this).data('type')
+      selected_value = $(this).data('value')
+      if selected_type of tree
+        if selected_value of tree[selected_type]
+         tree = tree[selected_type][selected_value]
 
     if 'variant' of tree
       variant = tree['variant']
@@ -47,6 +49,10 @@ core.productGroup.readyKitVariantOptions = (entity) ->
 
       if variant['image_url']
         $('.assembly-images li').eq(product_variants.index()).show().css('background-image', 'url(' + variant['image_url'] + ')')
+
+    else
+        $('.assembly-images li').eq(product_variants.index()).hide()
+
 
     entity.find(".price").trigger('recalculate')
     entity.find(".prices").trigger('update')
