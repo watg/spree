@@ -1,0 +1,20 @@
+<% part = f.object %>
+<tr id="<%= spree_dom_id f.object %>">
+  <td><span class="handle"></span></td>
+  <td class="presentation">
+    <%= f.text_field :presentation %>
+    <br>
+    <span class="info">
+      <%= link_to_with_icon 'icon-external-link', part.product.name, edit_admin_product_path(part.product), target: :blank %>
+    </span>
+  </td>
+  <td>
+    <%= f.select(:variant_ids, part.product.variants.collect { |v| [v.options_text, v.id] }, {}, multiple: true, class: 'select2 fullwidth') %>
+    <span class="info alignright"><input type="checkbox" class="check_all" >Check all</span>
+  </td>
+  <td><%= f.number_field :count %></td>
+  <td><%= f.check_box :optional %></td>
+  <td class="actions">
+    <%= link_to_delete part, :url => admin_assembly_definition_part_path(@assembly_definition, f.object), :no_text => true %>
+  </td>        
+</tr>
