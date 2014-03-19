@@ -14,10 +14,6 @@ module Spree
         }
         image = AssemblyDefinitionImage.new(viewable: @assembly_definition)
         @outcome = UploadImageToS3Service.run(callback_params, image: image)
-
-        new_child_form = render_to_string :layout => false
-        new_child_form.gsub!("[#{@outcome.result.id}]", "[#{Time.now.to_i}]")
-        render :text => new_child_form, :layout => false
       end
 
 
