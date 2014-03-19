@@ -37,15 +37,12 @@ core.productGroup.readyKitVariantOptions = (entity) ->
       # Set the adjustments on the parts
       product_variants.data('adjustment', variant['part_price'])
 
-      product_variants.find(".product-part-image").show()
-      product_variants.find(".product-part-image img").attr('src', variant['image_url'])
+      if variant['image_url']
+        $('.assembly-images li').eq(product_variants.index()).show().css('background-image', 'url(' + variant['image_url'] + ')')
 
     entity.find(".price").trigger('recalculate')
     entity.find(".prices").trigger('update')
     entity.find(".add-to-cart-button").trigger('update')
-
-    if variant['image_url']
-      $('.assembly-images li').eq(product_variants.index()).show().css('background-image', 'url(' + variant['image_url'] + ')')
 
     # Adjust list heights
     core.productGroup.setAssemblyListHeights()
