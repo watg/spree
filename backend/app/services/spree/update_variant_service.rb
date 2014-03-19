@@ -5,7 +5,6 @@ module Spree
       duck :variant#, class: 'Spree::Variant'
     end
 
-
     optional do
       hash :details do
         optional do
@@ -58,7 +57,7 @@ module Spree
             assign_targets(variant, split_params(target_ids).map(&:to_i) )
           end
 
-          variant.update_attributes(details)
+          variant.update_attributes!(details)
 
           variant
         end

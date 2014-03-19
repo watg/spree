@@ -45,6 +45,8 @@ module Spree
       class_name: 'Spree::Price',
       dependent: :destroy
 
+    accepts_nested_attributes_for :prices
+
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
     validate :variant_weight
 
@@ -120,20 +122,23 @@ module Spree
         variants = selector.order( "spree_option_types.position", "spree_option_values.position" )
 
         # Preprocess the variants to remove any option_types that only have 1 option value
-        #valid_option_types = {}
-        #variants.each do |v| 
-        #  v.option_values.each do |ov| 
-        #    valid_option_types[ov.option_type.name] ||= Set.new
-        #    valid_option_types[ov.option_type.name] << ov.name 
-        #  end
-        #end
-        #valid_option_types.keep_if { |k,set| set.size > 1 }
+       # valid_option_types = {}
+       # variants.each do |v| 
+       #   v.option_values.each do |ov| 
+       #     valid_option_types[ov.option_type.name] ||= Set.new
+       #     valid_option_types[ov.option_type.name] << ov.name 
+       #   end
+       # end
+
+       # if valid_option_types.size > 1
+       #   valid_option_types.keep_if { |k,set| set.size > 1 }
+       # end
 
         hash={}
         variants.each do |v|
           base=hash
           v.option_values.each_with_index do |o,i|
-            #next unless valid_option_types.has_key? o.option_type.name 
+       #     next unless valid_option_types.has_key? o.option_type.name 
             base[o.option_type.url_safe_name] ||= {}
             base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
             base = base[o.option_type.url_safe_name][o.url_safe_name]
@@ -472,11 +477,11 @@ module Spree
     end
 
     def find_normal_price(currency, type)
-      normal_prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first
+      prices.select{ |price| price.currency == currency && price.sale == (type == :sale) && (price.is_kit == false) }.first
     end
 
     def find_part_price(currency, type)
-      kit_prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first
+      prices.select{ |price| price.currency == currency && price.sale == (type == :sale) && (price.is_kit == true) }.first
     end
 
     def touch_assemblies_parts
