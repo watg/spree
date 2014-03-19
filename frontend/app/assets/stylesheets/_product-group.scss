@@ -992,5 +992,127 @@
 				}
 			}
 		}
+		/* Assembly */
+		.row-assembly {
+			.assembly-menus {
+				padding: 0;
+				ol {
+					.product-variants {
+						padding: emCalc(10px) emCalc(30px) emCalc(10px) emCalc(10px);
+						margin-bottom: emCalc(20px);
+						list-style-position: inside;
+						font-family: $watg-font;
+						text-transform: uppercase;
+						cursor: pointer;
+						background: image-url('product-group/arrow-down.png') right emCalc(10px) center no-repeat;
+						border: 1px solid #dadada;
+						min-height: emCalc(50px);
+						position: relative;
+							-webkit-touch-callout: none;
+							-webkit-user-select: none;
+							-khtml-user-select: none;
+							-moz-user-select: none;
+							-ms-user-select: none;
+						user-select: none;
+						.variant-options {
+							margin-top: emCalc(12px);
+							margin-left: emCalc(-1px);
+							margin-right: emCalc(-1px);
+							padding: 0 emCalc(10px);
+							position: absolute;
+							width: auto;
+							left: 0;
+							z-index: 100;
+							background-color: #fff;
+							border: 1px solid #dadada;
+							border-top: 0;
+							display: none;
+							p:first-child {
+								margin: 0;
+								margin-left: emCalc(-10px);
+								margin-right: emCalc(-10px);
+								padding: emCalc(5px) emCalc(10px);
+								font-family: $watg-font-light;
+								text-align: center;
+								background-color: #f9f9f9;
+							}
+							p:first-child:before {
+								content: "– ";
+							}
+							p:first-child:after {
+								content: " –";
+							}
+							.variant-option-values {
+								margin-bottom: 0;
+								width: 100%;
+								li {
+									margin: 0;
+									padding: emCalc(5px) 0;
+									width: 50%;
+									border-top: 1px dotted #dadada;
+									float: left;
+									a, p {
+										float: left;
+										display: block;
+									}
+									p {
+										margin: 0 emCalc(5px);
+										padding: 0;
+										font-family: $watg-font-light;
+										font-size: 1.333em;
+									}
+								}
+								li:only-child {
+									width: 100%;
+								}
+								li:nth-child(-n+2) {
+									border: 0;
+								}
+								// Mobile li
+								@media only screen and (max-width: 48em) {
+									li {
+										width: 100%;
+									}
+									li:nth-child(-n+2) {
+										border-top: 1px dotted #dadada;
+									}
+									li:first-child {
+										border: 0;
+									}
+								}
+							}
+						}
+					}
+					.product-variants:before,
+					.product-variants:after {
+						content: none;
+					}
+					& .revealed {
+						background: image-url('product-group/arrow-up.png') right emCalc(10px) center no-repeat;
+					}
+				}
+				.add-to-cart {
+					margin-bottom: emCalc(5px);
+					padding-top: 0;
+					border: 0;
+					text-align: right;
+					input {
+						margin: emCalc(10px) 0;
+					}
+				}
+			}
+			.assembly-images {
+				padding-right: 0;
+				ul {
+					li {
+						padding: emCalc(10px);
+						margin-bottom: emCalc(20px);
+						background: center center no-repeat;
+						//background-size: contain;
+						min-height: emCalc(50px);
+					}
+				}
+			}
+		}
 	}
 }

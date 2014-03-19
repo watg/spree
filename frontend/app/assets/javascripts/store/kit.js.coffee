@@ -3,8 +3,6 @@ core.productGroup.readyKitVariantOptions = (entity) ->
   entity.find('.option-value').click (event)->
     event.preventDefault()
     option_value = $(this)
-    selected_type = option_value.data('type')
-    selected_value = option_value.data('value')
     selected_presentation = option_value.data('presentation')
 
     option_values = option_value.closest('.variant-option-values')
@@ -14,6 +12,14 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     if option_value.hasClass('unavailable')
       return false
 
+    # Show thumbs and change main image
+    thumbs = entity.find('ul.thumbnails li.tmb-assembly-definition')
+    thumbs.show()
+    thumb_href = thumbs.first().find('a').attr('href')
+    main_image = entity.find('.main-image')
+    main_image.find('img').attr('src', thumb_href)
+    main_image.find('a').attr('href', thumb_href)
+
     # Ensure the option you selected clicked is selected and
     # unselect all the other options at this level
     option_values.find('.option-value').removeClass('selected')
@@ -21,31 +27,43 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     option_value.addClass('selected')
 
     # Set the option value text
-    option_values.prev('.variant-option-type').find('span').text(selected_presentation)
+    product_variants.find('span').eq(0).text(selected_presentation)
 
     # Walk the tree to get a variant id
     tree = product_variants.data('tree')
     selected_option_values = product_variants.find('.option-value.selected').each ->
-      tree = tree[$(this).data('type')][$(this).data('value')]
+      selected_type = $(this).data('type')
+      selected_value = $(this).data('value')
+      if selected_type of tree
+        if selected_value of tree[selected_type]
+         tree = tree[selected_type][selected_value]
 
     if 'variant' of tree
       variant = tree['variant']
-        
+
       # Set the variant_id
       product_variants.find('.selected-parts').val(variant['id'])
 
       # Set the adjustments on the parts
       product_variants.data('adjustment', variant['part_price'])
 
-      product_variants.find(".product-part-image").show()
-      product_variants.find(".product-part-image img").attr('src', variant['image_url'])
+      if variant['image_url']
+        $('.assembly-images li').eq(product_variants.index()).show().css('background-image', 'url(' + variant['image_url'] + ')')
+
+    else
+      $('.assembly-images li').eq(product_variants.index()).hide()
+      product_variants.find('.selected-parts').val('')
+      product_variants.data('adjustment', 0)
 
     entity.find(".price").trigger('recalculate')
     entity.find(".prices").trigger('update')
     entity.find(".add-to-cart-button").trigger('update')
 
-###### Prices #################################################################################################################
-#
+    # Adjust list heights
+    core.productGroup.setAssemblyListHeights()
+
+###### Prices #########################################################################################################
+
   entity.find(".prices").on('update',( ->
     if entity.find('.variant-options.required:not(.selected)').length > 0
       $(this).find('.normal-price').addClass('price now unselected').removeClass('was')
@@ -74,28 +92,11 @@ core.productGroup.readyKitVariantOptions = (entity) ->
   # being enabled
   entity.find(".add-to-cart-button").on('update',( ->
     if entity.find('.variant-options.required:not(.selected)').length > 0
-      $(this).attr("style", "opacity: 0.5").addClass('disabled')
+      $(this).attr("style", "opacity: 0.5").addClass('disabled').tooltipster('enable');
     else
-      $(this).removeAttr("style").removeClass("disabled")
+      $(this).removeAttr("style").removeClass("disabled").tooltipster('disable');
   ))
 
   entity.find('.add-to-cart-button').click (event) -> 
     if $(this).hasClass('disabled')
-
-      missing_types = []
-      entity.find('.variant-options.required:not(.selected)').each ->
-        missing_types.push $(this).data('type')
-
-      # Format the message we return to the user if not enough of the option
-      # types have been selected
-      last = missing_types.splice(-1,1)
-      message = "Please choose your " + missing_types.join(', ')
-      (message = message + " and " ) if missing_types.length > 0
-      message = message + last
-
-      entity.find('p.error').remove()
-      entity.find('.add-to-cart').prepend($("<p class='error'>#{message}!</p>").hide().fadeIn('slow').focus())
       false
-
-
-# pass a uncomplicated hash instead of the nested rubbish

@@ -1,2 +1,11 @@
+<% snippet = nil %>
+<% ActionView::Helpers::FormBuilder.new(:assembly_definition, @assembly_definition, self, {}).fields_for(:assembly_definition_parts, :child_index => Time.now.to_i) do |part_form| %>
+  <% snippet = capture do %>
+    <%= render 'spree/admin/assembly_definitions/part_row', :f => part_form %>
+  <% end %>
+<% end %>
+
 $("#search_hits").hide();
-location.reload();
+$("#parts_table_body").append("<%= j snippet %>");
+activateSelect2();
+activateCheckAll();

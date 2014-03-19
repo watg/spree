@@ -14,9 +14,35 @@
 
   <fieldset>
     <legend align="center">Assembly Definition</legend>
-    <div id="item_parts">
-      <%= render 'parts_table', f: f, assembly_definition: @assembly_definition %>
-    </div>
+    <table class="index sortable" data-sortable-link="<%= update_positions_admin_assembly_definition_parts_path(@assembly_definition) %>">
+    <col style="width: 5%">
+    <col style="width: 35%">
+    <col style="width: 30%">
+    <col style="width: 15%">
+    <col style="width: 10%; text-align:center">
+    <col style="width: 5%">
+      <thead>
+        <tr>
+          <th colspan="2">Presentation</th>
+          <th>Name</th>
+          <th>Quantity</th>
+          <th>Optional</th>
+          <th class="actions"></th>
+        </tr>
+      </thead>
+      <tbody id="parts_table_body">
+        <% unless @assembly_definition.parts.any? %>
+          <div class="no-objects-found">
+            No parts were found.
+          </div>
+        <% else %>
+          <%= f.fields_for :assembly_definition_parts do |part_form| %>
+            <%= render 'spree/admin/assembly_definitions/part_row', f: part_form %>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+
     <br/>
 
 
@@ -76,6 +102,28 @@
 <% end %>
 
 
+<script>
+  activateCheckAll = function () {
+    $(".check_all").click(function(){
+        var element = $(this).parent().parent().find('.select2');
+        if($(this).is(':checked') ){
+            var selected = [];
+            element.find("option").each(function(i,e){
+                selected[selected.length]=$(e).attr("value");
+            });
+            element.select2("val", selected);
+        }else{
+            element.select2("val", "");
+         }
+    });
+  };
+  
+  activateCheckAll();
+
+
+</script>
+
+
 
 <%= javascript_tag do %>
 
@@ -105,21 +153,6 @@
     search_for_parts();
   }, 0.75);
 
-  function subscribe_item_part_links()
-  {
-    $("a.set_count_admin_item_part_link").click(function(){
-
-      params = { 
-        part_optional : ($(this).parents('tr').find(":checkbox").prop('checked') ? 'true' : 'false'),
-        part_count :  $(this).parents('tr').find(".count :text").val(),
-        part_presentation: $(this).parents('tr').find(".presentation :text").val()
-      };
-
-      return make_patch_request($(this), params);
-    });
-    
-  }
-
 
   function make_patch_request(link, post_params){
     return make_request(link, post_params, "PATCH");
@@ -140,12 +173,11 @@
         dataType: 'script',
         success: function (data, textStatus) { 
            spinner.hide(); 
-           subscribe_item_part_links();
         }
     });
 
     return false;
   }
 
-  subscribe_item_part_links();
-<% end -%>
+<% end %>
+

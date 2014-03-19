@@ -1,11 +1,15 @@
 //= require select2
 jQuery(function($) {
   // Make select beautiful
-  $('select.select2').select2({
-    allowClear: true,
-    dropdownAutoWidth: true,
-    closeOnSelect: false
-  });
+  activateSelect2 = function () {
+    $('select.select2').select2({
+        allowClear: true,
+        dropdownAutoWidth: true,
+        closeOnSelect: false
+      });
+  };
+  
+  activateSelect2();
 
   function format_taxons(taxon) {
     new_taxon = taxon.text.replace('->', '<i class="icon-arrow-right">')
