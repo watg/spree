@@ -36,7 +36,11 @@ module Spree
       # product_assembly
       options = extract_kit_options(from_hash)
       personalisations = extract_personalisations(from_hash)
+
       target_id = from_hash[:products].delete(:target_id) if from_hash[:products]
+      # Coearce the target_id to nil if it is blank, as this makes find_by( target_id: target_id ) 
+      # behave as target_id is actually a integer in the DB
+      target_id = nil if target_id.blank?
 
       from_hash[:products].each do |product_id,variant_id|
         attempt_cart_add(variant_id, from_hash[:quantity], options, personalisations, target_id)

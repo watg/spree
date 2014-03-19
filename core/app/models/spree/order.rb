@@ -559,7 +559,7 @@ module Spree
     end
 
     def insufficient_stock_lines
-      line_items.select &:insufficient_stock?
+      line_items.select(&:insufficient_stock?)
     end
 
     def merge!(order, user = nil)
@@ -671,7 +671,7 @@ module Spree
     end
 
     def refresh_shipment_rates
-      shipments.map &:refresh_rates
+      shipments.map(&:refresh_rates)
     end
 
     def shipping_eq_billing_address?
@@ -688,7 +688,7 @@ module Spree
         (cvv_response_code IS NOT NULL and cvv_response_code != 'M') or
         cvv_response_message IS NOT NULL or
         state = 'failed'
-                          }.squish!).uniq.count > 0
+        }.squish!).uniq.count > 0
     end
 
     def find_existing_line_item(variant, target_id, options_with_qty, personalisations)
