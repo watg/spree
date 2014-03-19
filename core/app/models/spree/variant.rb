@@ -46,7 +46,7 @@ module Spree
       dependent: :destroy
 
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-    validates :weight, numericality: { greater_than_or_equal_to: 0, allow_nil: false }
+    validate :variant_weight
 
     has_many :taggings, as: :taggable
     has_many :tags, -> { order(:value) }, through: :taggings
@@ -177,10 +177,9 @@ module Spree
     end
 
     def weight
-      return 0
-      #return static_kit_weight if self.kit?
-      #return dynamic_kit_weight if self.assembly_definition
-      #basic_weight(super)
+      return static_kit_weight if self.assemblies_parts.any?
+      return dynamic_kit_weight if self.assembly_definition
+      basic_weight(super)
     end
 
     def static_kit_weight
@@ -207,8 +206,14 @@ module Spree
     end
     
     def basic_weight(value_from_super_weight)
-      if !self.is_master && (value_from_super_weight.blank? || value_from_super_weight.zero?)
-        value = self.product.try(:weight)
+      return value_from_super_weight if self.is_master || self.new_record?
+
+      if (value_from_super_weight.blank? || value_from_super_weight.zero?)
+        value = if self.product
+                  self.product.master.weight
+                else
+                  nil 
+                end
         notify("The weight of variant id: #{self.id} is nil.\nThe weight of product id: #{self.product.try(:id)}") unless value
         value
       else
@@ -439,6 +444,11 @@ module Spree
     end
 
     private
+    def variant_weight
+      if not (self.product && self.product.product_type == 'kit')
+        errors.add(:weight, 'must be greater than 0') if (self.weight.blank? || self.weight <= 0)
+      end
+    end
     def notify(msg)
       # Sends an email to Techadmin
       NotificationMailer.send_notification(msg)
