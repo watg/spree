@@ -35,7 +35,7 @@
         <%= link_to_with_icon 'icon-edit', t(:Personalisations),  admin_product_personalisations_url(@product) %>
       </li>
       <li<%= ' class="active"' if current == "Parts" %>>
-        <% if @product.isa_kit? %>
+        <% if @product.master.assembly_definition %>
           <%= link_to_with_icon 'icon-sitemap', "Assembly Definition", admin_assembly_definition_url(@product.master.assembly_definition) %>
         <% end %>
       </li>

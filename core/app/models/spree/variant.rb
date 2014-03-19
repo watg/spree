@@ -46,6 +46,7 @@ module Spree
       dependent: :destroy
 
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
+    validates :weight, numericality: { greater_than_or_equal_to: 0, allow_nil: false }
 
     has_many :taggings, as: :taggable
     has_many :tags, -> { order(:value) }, through: :taggings
@@ -184,8 +185,9 @@ module Spree
 
     def static_kit_weight
       kit_weight = required_parts_for_display.inject(0.00) do |sum,part|
-        count_part = part.count_part || 0
-        part_weight = part.weight || 0
+        count_part = part.count_part 
+        part_weight = part.weight 
+        notify("Variant id #{part.id} has no weight") unless part_weight
         sum + (count_part * part_weight)
       end
       BigDecimal.new(kit_weight,2)
@@ -195,15 +197,20 @@ module Spree
       warning = "Only use this variant#dynamic_kit_weight to get kit weight right. Not suitable for getting kit weight of past orders"
       Rails.logger.info(warning)
       puts(warning)
-      self.assembly_definition.parts.where(optional: false).reduce(BigDecimal(0,2)) do |w, part|
-        first_available_variant = part.variants.select {|v| v.weight && v.weight > 0 }
-        w + ( part.count * first_available_variant.try(:weight) )
+
+      self.assembly_definition.parts.where(optional: false).reduce(BigDecimal(0,2)) do |part_total_weight, part|
+        first_available_variant = part.variants.detect {|v| v.weight && v.weight > 0 }
+        variant_weight = first_available_variant.try(:weight)
+        notify("Variant id #{first_available_variant.id} has no weight") unless variant_weight
+        part_total_weight + ( part.count * variant_weight )
       end
     end
     
     def basic_weight(value_from_super_weight)
       if !self.is_master && (value_from_super_weight.blank? || value_from_super_weight.zero?)
-        self.product.weight
+        value = self.product.try(:weight)
+        notify("The weight of variant id: #{self.id} is nil.\nThe weight of product id: #{self.product.try(:id)}") unless value
+        value
       else
         value_from_super_weight
       end
@@ -432,6 +439,10 @@ module Spree
     end
 
     private
+    def notify(msg)
+      # Sends an email to Techadmin
+      NotificationMailer.send_notification(msg)
+    end
 
     def touch_assembly_products
       assembly_products.map(&:touch)

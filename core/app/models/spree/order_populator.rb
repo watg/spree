@@ -36,7 +36,11 @@ module Spree
       # product_assembly
       options = extract_kit_options(from_hash)
       personalisations = extract_personalisations(from_hash)
+
       target_id = from_hash[:products].delete(:target_id) if from_hash[:products]
+      # Coearce the target_id to nil if it is blank, as this makes find_by( target_id: target_id ) 
+      # behave as target_id is actually a integer in the DB
+      target_id = nil if target_id.blank?
 
       from_hash[:products].each do |product_id,variant_id|
         attempt_cart_add(variant_id, from_hash[:quantity], options, personalisations, target_id)
@@ -58,7 +62,9 @@ module Spree
     # product_assembly
     def extract_kit_options(hash)
       value = hash[:products].delete(:options) rescue nil
-      value = hash[:parts]
+      # If we have parts then we have a new dynamic kit
+      # and we should not have options, hence overwrite them
+      value = hash.delete(:parts) if hash[:parts]
       (value || [])
     end
 
@@ -129,13 +135,22 @@ module Spree
       are_all_parts_in_stock?(stock_check)
     end
 
-    def add_quantity_for_each_option(variant, options)
-      if options.kind_of?(Array)
+    def add_quantity_for_each_option(variant, option_ids)
+      # The option_ids will be a hash for the new dynamic kits 
+      # otherwise an array for the old type kits
+      # e.g. (dynamic kit options )  options = {
+      #   "39" => [ "321" ],
+      #   "40" => [ "205" ]
+      # }
+      #
+      # ( static kit options )  options = [ 1,2,3 ]
+      if variant.assembly_definition
+        Spree::OrderPopulator.parse_options(variant, option_ids)
+      else
+        options = Spree::Variant.find(option_ids)
         options.map do |o|
           [o, part_quantity(variant,o)]
         end
-      else
-        Spree::OrderPopulator.parse_options(variant, options)
       end
     end
 
