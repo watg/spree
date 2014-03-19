@@ -3,8 +3,6 @@ core.productGroup.readyKitVariantOptions = (entity) ->
   entity.find('.option-value').click (event)->
     event.preventDefault()
     option_value = $(this)
-    selected_type = option_value.data('type')
-    selected_value = option_value.data('value')
     selected_presentation = option_value.data('presentation')
 
     option_values = option_value.closest('.variant-option-values')
