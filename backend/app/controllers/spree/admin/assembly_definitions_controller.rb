@@ -2,7 +2,7 @@ module Spree
   module Admin
     class AssemblyDefinitionsController < ResourceController
 
-      def show
+      def edit
         @assembly_definition = Spree::AssemblyDefinition.find(params[:id])
         @product = @assembly_definition.variant.product
       end
@@ -27,9 +27,13 @@ module Spree
 
 
       def location_after_save
-        admin_assembly_definition_path(@assembly_definition)
+        edit_admin_assembly_definition_path(@assembly_definition)
       end
 
+      def collection_url(opts={})
+        edit_admin_assembly_definition_path(@assembly_definition)
+      end
+      
     end
   end
 end

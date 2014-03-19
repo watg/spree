@@ -27,7 +27,7 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     option_value.addClass('selected')
 
     # Set the option value text
-    product_variants.find('span').text(selected_presentation)
+    product_variants.find('span').eq(0).text(selected_presentation)
 
     # Walk the tree to get a variant id
     tree = product_variants.data('tree')
