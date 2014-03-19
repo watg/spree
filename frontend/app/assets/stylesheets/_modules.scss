@@ -60,10 +60,10 @@
 		padding-left: 17px;
 		background: image-url('watg-img/icon-telephone.png') 0 0 no-repeat;
 	}
-}
-#link-to-login:after {
-	content: '' !important;
-	margin-left: 0 !important;
+	li:nth-last-child(2):after {
+		content: '' !important;
+		margin-left: 0 !important;
+	}
 }
 #search-bar {
 	display: none;
