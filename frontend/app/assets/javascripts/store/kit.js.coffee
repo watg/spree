@@ -9,9 +9,6 @@ core.productGroup.readyKitVariantOptions = (entity) ->
 
     option_values = option_value.closest('.variant-option-values')
     product_variants = option_values.closest('.product-variants')
-    tree = product_variants.data('tree')
-
-    variant = tree[selected_type][selected_value]['variant']
 
     # If selected type value is unavailable, then return false
     if option_value.hasClass('unavailable')
@@ -26,19 +23,26 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     # Set the option value text
     option_values.prev('.variant-option-type').find('span').text(selected_presentation)
 
-    # Set the variant_id
-    product_variants.find('.selected-parts').val(variant['id'])
+    # Walk the tree to get a variant id
+    tree = product_variants.data('tree')
+    selected_option_values = product_variants.find('.option-value.selected').each ->
+      tree = tree[$(this).data('type')][$(this).data('value')]
 
-    # Set the adjustments on the parts
-    product_variants.data('adjustment', variant['part_price'])
+    if 'variant' of tree
+      variant = tree['variant']
+        
+      # Set the variant_id
+      product_variants.find('.selected-parts').val(variant['id'])
+
+      # Set the adjustments on the parts
+      product_variants.data('adjustment', variant['part_price'])
+
+      product_variants.find(".product-part-image").show()
+      product_variants.find(".product-part-image img").attr('src', variant['image_url'])
 
     entity.find(".price").trigger('recalculate')
     entity.find(".prices").trigger('update')
     entity.find(".add-to-cart-button").trigger('update')
-
-    product_variants.find(".product-part-image").show()
-    product_variants.find(".product-part-image img").attr('src', variant['image_url'])
-
 
 ###### Prices #################################################################################################################
 #
