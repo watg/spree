@@ -14,6 +14,14 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     if option_value.hasClass('unavailable')
       return false
 
+    # Show thumbs and change main image
+    thumbs = entity.find('ul.thumbnails li.tmb-assembly-definition')
+    thumbs.show()
+    thumb_href = thumbs.first().find('a').attr('href')
+    main_image = entity.find('.main-image')
+    main_image.find('img').attr('src', thumb_href)
+    main_image.find('a').attr('href', thumb_href)
+
     # Ensure the option you selected clicked is selected and
     # unselect all the other options at this level
     option_values.find('.option-value').removeClass('selected')
