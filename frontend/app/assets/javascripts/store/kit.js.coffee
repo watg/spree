@@ -14,6 +14,14 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     if option_value.hasClass('unavailable')
       return false
 
+    # Show thumbs and change main image
+    thumbs = entity.find('ul.thumbnails li.tmb-assembly-definition')
+    thumbs.show()
+    thumb_href = thumbs.first().find('a').attr('href')
+    main_image = entity.find('.main-image')
+    main_image.find('img').attr('src', thumb_href)
+    main_image.find('a').attr('href', thumb_href)
+
     # Ensure the option you selected clicked is selected and
     # unselect all the other options at this level
     option_values.find('.option-value').removeClass('selected')
@@ -21,7 +29,7 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     option_value.addClass('selected')
 
     # Set the option value text
-    product_variants.find('span').text(selected_presentation)
+    product_variants.find('span').eq(0).text(selected_presentation)
 
     # Walk the tree to get a variant id
     tree = product_variants.data('tree')
@@ -37,15 +45,12 @@ core.productGroup.readyKitVariantOptions = (entity) ->
       # Set the adjustments on the parts
       product_variants.data('adjustment', variant['part_price'])
 
-      product_variants.find(".product-part-image").show()
-      product_variants.find(".product-part-image img").attr('src', variant['image_url'])
+      if variant['image_url']
+        $('.assembly-images li').eq(product_variants.index()).show().css('background-image', 'url(' + variant['image_url'] + ')')
 
     entity.find(".price").trigger('recalculate')
     entity.find(".prices").trigger('update')
     entity.find(".add-to-cart-button").trigger('update')
-
-    if variant['image_url']
-      $('.assembly-images li').eq(product_variants.index()).show().css('background-image', 'url(' + variant['image_url'] + ')')
 
     # Adjust list heights
     core.productGroup.setAssemblyListHeights()
