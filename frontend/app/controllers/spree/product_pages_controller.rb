@@ -14,7 +14,7 @@ module Spree
     end
 
     def show_html
-      outcome = Spree::ShowProductPageService.run(permalink: params[:id], tab: params[:tab], variant_id: params[:variant_id], request: request, currency: current_currency)
+      outcome = Spree::ShowProductPageService.run(permalink: params[:id], tab: params[:tab], variant_id: params[:variant_id], currency: current_currency)
       if outcome.success?
         if url = outcome.result[:redirect_to]
           redirect_to url
@@ -40,7 +40,6 @@ module Spree
 
       @product_page = Spree::ProductPage.find_by_permalink(params[:id]).decorate( context:  {
         tab:     params[:tab],
-        request: request,
         current_currency: current_currency,
         selected_variant: @selected_variant
       } )
@@ -52,7 +51,7 @@ module Spree
 
     def render_variants( per_page, selected_variant )
       @current_currency = current_currency
-      @context = { target: @product_page.target, current_currency: @current_currency, request: request } 
+      @context = { target: @product_page.target, current_currency: @current_currency } 
       @product_page.made_by_the_gang_variants(selected_variant).page(params[:page]).per( per_page )
     end
 
