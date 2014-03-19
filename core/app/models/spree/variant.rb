@@ -187,7 +187,7 @@ module Spree
         count_part = part.count_part 
         part_weight = part.weight 
         notify("Variant id #{part.try(:id)} has no weight") unless part_weight
-        sum + (count_part * part_weight)
+        sum + (count_part * part_weight.to_f)
       end
       BigDecimal.new(kit_weight,2)
     end
@@ -201,7 +201,7 @@ module Spree
         first_available_variant = part.variants.detect {|v| v.weight && v.weight > 0 }
         variant_weight = first_available_variant.try(:weight)
         notify("Variant id #{first_available_variant.try(:id)} has no weight") unless variant_weight
-        part_total_weight + ( part.count * variant_weight )
+        part_total_weight + ( part.count * variant_weight.to_f )
       end
     end
     
@@ -212,10 +212,10 @@ module Spree
         value = if self.product
                   self.product.master.weight
                 else
-                  0
+                  nil
                 end
-        notify("The weight of variant id: #{self.id} is nil.\nThe weight of product id: #{self.product.try(:id)}") if value == 0
-        value
+        notify("The weight of variant id: #{self.id} is nil.\nThe weight of product id: #{self.product.try(:id)}") unless value
+        value.to_f
       else
         value_from_super_weight
       end
