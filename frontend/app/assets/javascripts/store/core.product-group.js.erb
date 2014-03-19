@@ -16,7 +16,8 @@ $(document).ready(function() {
 	core.productGroup.positionHeroTitle();
 	/* ----- New kit UI only ----- */
 	core.productGroup.readyAssemblyMenus();
-	core.productGroup.readyAssemblyExtras();
+	core.productGroup.readyAssemblyItemNames();
+	core.productGroup.setAssemblyListHeights();
 });
 
 /* ----- Init methods ----- */
@@ -305,7 +306,6 @@ core.productGroup.readyAssemblyMenus = function() {
 	var row = $('.row-assembly');
 	if (row.length == 0) return false; // Die if not new kit UI
 
-	// Handle menus
 	row.find('.product-variants').on('click', function() {
 		$(this).siblings().removeClass('revealed').find('.variant-options').hide();
 		$(this).find('.variant-options').toggle();
@@ -313,14 +313,24 @@ core.productGroup.readyAssemblyMenus = function() {
 	});
 }
 
-core.productGroup.readyAssemblyExtras = function() {
+// Ensure item names are clickable
+core.productGroup.readyAssemblyItemNames = function() {
 	var row = $('.row-assembly');
 	if (row.length == 0) return false; // Die if not new kit UI
 	
-	// Ensure item names are clickable
 	row.find('.assembly-name').on('click', function(e) {
 	    $(this).prev().click();
 		$(this).closest('.product-variants').click();
+	});
+}
+
+// Make menu and image list items exactly the same height
+core.productGroup.setAssemblyListHeights = function() {
+	var row = $('.row-assembly');
+	if (row.length == 0) return false; // Die if not new kit UI
+	
+	$.each($('.assembly-menus ol > li'), function(index, value) {
+		$('.assembly-images li').eq(index).css('height', $(this).outerHeight());
 	});
 }
 

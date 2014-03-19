@@ -1091,11 +1091,14 @@
 						background: image-url('product-group/arrow-up.png') right emCalc(10px) center no-repeat;
 					}
 				}
-				ol + .add-to-cart {
+				.add-to-cart {
 					margin-bottom: emCalc(5px);
 					padding-top: 0;
 					border: 0;
 					text-align: right;
+					input {
+						margin: emCalc(10px) 0;
+					}
 				}
 			}
 			.assembly-images {

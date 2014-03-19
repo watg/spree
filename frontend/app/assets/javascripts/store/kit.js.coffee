@@ -41,6 +41,9 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     if variant['image_url']
       $('.assembly-images li').eq(product_variants.index()).show().css('background-image', 'url(' + variant['image_url'] + ')')
 
+    # Adjust list heights
+    core.productGroup.setAssemblyListHeights()
+
 ###### Prices #########################################################################################################
 
   entity.find(".prices").on('update',( ->
