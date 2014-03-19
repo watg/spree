@@ -127,25 +127,26 @@ describe Spree::Variant do
     context "for product" do
       subject { create(:variant, weight: 12.0) }
       its(:weight) { should == 12.0 }
-
-      it "returns product master variant weight when own weight is not set" do
-        variant_no_weight = create(:variant, product: create(:product, weight: 33.0), weight: nil)
-        expect(variant_no_weight.weight).to eql(33.0)
-      end
     end
 
     context "for static kit" do
-      subject { create(:variant, weight: 12.0, parts: [ create(:part, weight: 5.0)] ) }
+      subject { create(:variant, weight: nil, product: create(:product, product_type: 'kit'), parts: [ create(:part, weight: 5.0)] ) }
       its(:weight) { should == 5.0 }
     end
 
-    context "part with no weight" do
+    context "weight validation" do
       subject { Spree::Variant.new }
-      it "weight cannot be nil" do
-        pending
+      it "weight cannot be nil for non - kit variant" do
         subject.valid?
         expect(subject.error_on(:weight)).to_not be_blank
       end
+
+      it "weight can be nil for kit variant" do
+        subject.product = create(:product, product_type: 'kit')
+        subject.valid?
+        expect(subject.error_on(:weight)).to be_blank
+      end
+      
     end
   end
 
@@ -154,7 +155,7 @@ describe Spree::Variant do
 
     it "propagate to stock items" do
       Spree::StockLocation.any_instance.should_receive(:propagate_variant)
-      product.variants.create(:name => "Foobar")
+      product.variants.create(:name => "Foobar", weight: 10)
     end
 
     context "stock location has disable propagate all variants" do
@@ -162,7 +163,7 @@ describe Spree::Variant do
 
       it "propagate to stock items" do
         Spree::StockLocation.any_instance.should_not_receive(:propagate_variant)
-        product.variants.create(:name => "Foobar")
+        product.variants.create(:name => "Foobar", weight: 10)
       end
     end
   end

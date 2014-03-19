@@ -28,17 +28,17 @@ describe Spree::LineItem do
     end
     it "for simple variant" do
       line_item.variant = variant10
-      expect(line_item.weight).to eq 20.0
+      expect(line_item.weight).to eq (2*10.0) #20.0
     end
     it "for static kit variant no option" do
       line_item.variant = static_kit_variant
-      expect(line_item.weight).to eq 54.0
+      expect(line_item.weight).to eq (2*(2*10 + 1*7)) #54.0
     end
 
     it "for static kit variant with option" do
       line_item.variant = static_kit_variant
       line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
-      expect(line_item.weight).to eq 60.0
+      expect(line_item.weight).to eq (2*(2*10 + 1*7 + 1*3)) #60.0
     end
 
     it "for dynamic kit variant no option" do
