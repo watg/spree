@@ -309,15 +309,12 @@ core.productGroup.hideOutOfStockVariants = function() {
 
         var path = "<%= '/shop/api/assembly_definitions/:id/out_of_stock_option_values' %>".replace(":id", definitionId);
         $.get(path, function(data){
-          
-          var a = $('.row-assembly[data-ad-id='+data.id+']');
-          for(part in data.parts){
-            var $part = a.find('.product-variants[data-adp-id='+part+']')
-            $.each(data.parts[part], function(i, ovid){
-
-              var $ov = $part.find('.variant-option-values [data-ov-id='+ovid.join()+']')
-              $ov
-              $ov.hide();})}
+          for(part_id in data.parts){
+            var partScope = '.product-variants[data-adp-id='+part_id+']';
+            $.each(data.parts[part_id], function(i, ovid){
+              $('.variant-option-values [data-ov-id='+ovid.join()+']', partScope).hide();
+            });
+          }
         });
 }
 
