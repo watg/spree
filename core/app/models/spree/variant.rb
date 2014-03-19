@@ -111,36 +111,40 @@ module Spree
       end
 
       def options_tree_for(target, current_currency)
-        hash={}
         selector = self.includes(:normal_prices, :kit_prices, :images, :option_values => [:option_type])
         if !target.blank?
           selector = selector.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
         end
 
-        selector.order( "spree_option_types.position", "spree_option_values.position" ).each do |v|
+        variants = selector.order( "spree_option_types.position", "spree_option_values.position" )
+
+        # Preprocess the variants to remove any option_types that only have 1 option value
+        #require 'set'
+        #hashx={}; variants.each { |v| v.option_values.each { |ov| hashx[ov.option_type.name] ||= Set.new; hashx[ov.option_type.name] << ov.name }  }
+        #hashx.keep_if { |k,set| set.size > 1 }
+
+        hash={}
+        variants.each do |v|
           base=hash
           v.option_values.each_with_index do |o,i|
+            #next unless hashx.has_key? o.option_type.name 
             base[o.option_type.url_safe_name] ||= {}
             base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
-            if ( i + 1 < v.option_values.size )
-              base = base[o.option_type.url_safe_name][o.url_safe_name]
-            else
-              base[o.option_type.url_safe_name][o.url_safe_name]['variant'] ||= {}
-              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['id']=v.id
-              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).in_subunit
-              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
-              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['part_price']=v.price_part_in(current_currency).in_subunit
-              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
-              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_stock']= v.in_stock_cache 
-              if v.images.any?
-                base[o.option_type.url_safe_name][o.url_safe_name]['variant']['image_url']= v.images.first.attachment.url(:mini)
-              end
-            end
+            base = base[o.option_type.url_safe_name][o.url_safe_name]
+          end
+          base['variant'] ||= {}
+          base['variant']['id']=v.id
+          base['variant']['normal_price']=v.price_normal_in(current_currency).in_subunit
+          base['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
+          base['variant']['part_price']=v.price_part_in(current_currency).in_subunit
+          base['variant']['in_sale']=v.in_sale
+          base['variant']['in_stock']= v.in_stock_cache 
+          if v.images.any?
+            base['variant']['image_url']= v.images.first.attachment.url(:mini)
           end
         end
         hash
       end
-
 
     end
 
@@ -172,9 +176,10 @@ module Spree
     end
 
     def weight
-      return static_kit_weight if self.kit?
-      dynamic_kit_weight if self.assembly_definition
-      basic_weight(super)
+      return 0
+      #return static_kit_weight if self.kit?
+      #return dynamic_kit_weight if self.assembly_definition
+      #basic_weight(super)
     end
 
     def static_kit_weight
