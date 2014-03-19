@@ -46,7 +46,7 @@ module Spree
       dependent: :destroy
 
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-#    validates :variant_weight
+    validate :variant_weight
 
     has_many :taggings, as: :taggable
     has_many :tags, -> { order(:value) }, through: :taggings
@@ -173,7 +173,7 @@ module Spree
     end
 
     def weight
-      return static_kit_weight if self.kit?
+      return static_kit_weight if self.assemblies_parts.any?
       return dynamic_kit_weight if self.assembly_definition
       basic_weight(super)
     end
@@ -440,6 +440,11 @@ module Spree
     end
 
     private
+    def variant_weight
+      if not (self.product && self.product.product_type == 'kit')
+        errors.add(:weight, 'must be greater than 0') if (self.weight.blank? || self.weight <= 0)
+      end
+    end
     def notify(msg)
       # Sends an email to Techadmin
       NotificationMailer.send_notification(msg)
