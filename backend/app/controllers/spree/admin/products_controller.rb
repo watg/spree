@@ -130,15 +130,17 @@ module Spree
 
       def mapping
         {
-          'peruvian'  => 'product',
-          'gang'      => 'made_by_the_gang',
-          'kit'       => 'kit',
-          'yarn'      => 'accessory',
-          'needle'    => 'accessory',
-          'pattern'   => 'pattern',
-          'e_gift_card' => 'gift_card',
-          'clasp'     => 'accessory',
-          'parcel'    => 'parcel'
+          'peruvian'      => 'product',
+          'gang'          => 'made_by_the_gang',
+          'kit'           => 'kit',
+          'embellishment' => 'accessory',
+          'sticker'       => 'product',
+          'yarn'          => 'accessory',
+          'needle'        => 'accessory',
+          'pattern'       => 'pattern',
+          'e_gift_card'   => 'gift_card',
+          'clasp'         => 'accessory',
+          'parcel'        => 'parcel'
         }
       end
 
