@@ -120,15 +120,20 @@ module Spree
         variants = selector.order( "spree_option_types.position", "spree_option_values.position" )
 
         # Preprocess the variants to remove any option_types that only have 1 option value
-        #require 'set'
-        #hashx={}; variants.each { |v| v.option_values.each { |ov| hashx[ov.option_type.name] ||= Set.new; hashx[ov.option_type.name] << ov.name }  }
-        #hashx.keep_if { |k,set| set.size > 1 }
+        #valid_option_types = {}
+        #variants.each do |v| 
+        #  v.option_values.each do |ov| 
+        #    valid_option_types[ov.option_type.name] ||= Set.new
+        #    valid_option_types[ov.option_type.name] << ov.name 
+        #  end
+        #end
+        #valid_option_types.keep_if { |k,set| set.size > 1 }
 
         hash={}
         variants.each do |v|
           base=hash
           v.option_values.each_with_index do |o,i|
-            #next unless hashx.has_key? o.option_type.name 
+            #next unless valid_option_types.has_key? o.option_type.name 
             base[o.option_type.url_safe_name] ||= {}
             base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
             base = base[o.option_type.url_safe_name][o.url_safe_name]

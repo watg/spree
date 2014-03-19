@@ -14,6 +14,7 @@
 //= require lib/jquery.lazyload.min.js
 //= require lib/jquery.history.js
 //= require lib/jquery.leanmodal.min.js
+//= require lib/jquery.tooltipster.min.js
 
 //= require core
 

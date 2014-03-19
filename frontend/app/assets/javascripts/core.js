@@ -4,6 +4,7 @@ $(document).ready(function() {
 	core.readyNavigation();
 	core.readyNavigationMobile();
 	core.readyModals();
+	core.readyTooltips();
 	core.showCookieMessage();
 });
 
@@ -80,6 +81,7 @@ core.hideSubNavigation = function(e) {
 	$('.nav-primary-sub').removeClass('expanded');
 }
 
+// Ready modals plugin
 core.readyModals = function() {
 	$('a[rel*=modal]').leanModal({top: 30, closeButton: '.modal-close'});
 	
@@ -87,6 +89,13 @@ core.readyModals = function() {
 	$('.modal .button').on('click', function(e) {
 		e.preventDefault();
 		$(this).parent().siblings('.modal-close').click();
+	});
+}
+
+// Ready tooltips plugin
+core.readyTooltips = function() {
+    $('.tooltip').tooltipster({
+	   delay: 0
 	});
 }
 
