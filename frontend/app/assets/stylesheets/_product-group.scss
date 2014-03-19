@@ -998,7 +998,7 @@
 				padding: 0;
 				ol {
 					.product-variants {
-						padding: emCalc(10px);
+						padding: emCalc(10px) emCalc(30px) emCalc(10px) emCalc(10px);
 						margin-bottom: emCalc(20px);
 						list-style-position: inside;
 						font-family: $watg-font;

@@ -17,7 +17,7 @@
 </div>
 
 <div class="row row-assembly">
-	<div class="assembly-menus large-10 small-10 column">
+	<div class="assembly-menus large-10 small-8 column">
 		<ol>
 			<% product.assembly_definition.parts.decorate(context: @context).each do |part|%>
 			<% required_class = part.optional ? 'optional' : 'required' %>
@@ -32,7 +32,7 @@
 							<% classes = ["option-value", value.url_safe_name, type.url_safe_name] %>
 								<li>
 			                		<%= link_to value.has_image? ? image_tag(value.image.url, :alt => value.presentation) : content_tag(:span, value.presentation), "#", :title => value.presentation, :class => classes.join(" "), data: {type: type.url_safe_name, value: value.url_safe_name, presentation: value.presentation } %>
-									<p><%= value.presentation %></p>
+									<p class="assembly-name"><%= value.presentation %></p>
 								</li>
 							<% end %>
 						</ul>
@@ -40,8 +40,8 @@
 					<% end %>
 					<input class="selected-parts" type="hidden" name="parts[<%= part.id %>][]" value="" />
 				</li>
-			<% end # if assembly_definition.memoized_grouped_option_values.any? %>
-			<% end # assembly_definition.memoized_grouped_option_values.each  %>
+			<% end %>
+			<% end %>
 		</ol>
 		
 		<% if product.price and !product.price.nil? %>
@@ -54,7 +54,7 @@
 		</div>
 		<% end %>
 	</div>
-	<div class="assembly-images large-2 small-2 column">
+	<div class="assembly-images large-2 small-4 column">
 		<ul class="no-bullet">
 			<% product.assembly_definition.parts.decorate(context: @context).each do |part|%>
 			<li></li>

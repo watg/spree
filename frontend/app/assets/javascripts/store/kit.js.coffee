@@ -27,6 +27,8 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     product_variants.find('span').text(selected_presentation)
 
     # Set the variant_id
+    console.log product_variants.find('.selected-parts')
+    console.log variant['id']
     product_variants.find('.selected-parts').val(variant['id'])
 
     # Set the adjustments on the parts
@@ -36,7 +38,8 @@ core.productGroup.readyKitVariantOptions = (entity) ->
     entity.find(".prices").trigger('update')
     entity.find(".add-to-cart-button").trigger('update')
 
-    $('.assembly-images li').eq(product_variants.index()).show().css('background-image', 'url(' + variant['image_url'] + ')')
+    if variant['image_url']
+      $('.assembly-images li').eq(product_variants.index()).show().css('background-image', 'url(' + variant['image_url'] + ')')
 
 ###### Prices #########################################################################################################
 

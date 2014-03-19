@@ -14,7 +14,9 @@ $(document).ready(function() {
 	core.productGroup.showSelectedVariant();
 	core.productGroup.setHeroColour();
 	core.productGroup.positionHeroTitle();
-	core.productGroup.readyKitMenus(); // New kit UI only
+	/* ----- New kit UI only ----- */
+	core.productGroup.readyAssemblyMenus();
+	core.productGroup.readyAssemblyExtras();
 });
 
 /* ----- Init methods ----- */
@@ -299,14 +301,26 @@ core.productGroup.positionHeroTitle = function() {
 	}
 }
 
-core.productGroup.readyKitMenus = function() {
+core.productGroup.readyAssemblyMenus = function() {
 	var row = $('.row-assembly');
 	if (row.length == 0) return false; // Die if not new kit UI
 
+	// Handle menus
 	row.find('.product-variants').on('click', function() {
 		$(this).siblings().removeClass('revealed').find('.variant-options').hide();
 		$(this).find('.variant-options').toggle();
 		$(this).toggleClass('revealed');
+	});
+}
+
+core.productGroup.readyAssemblyExtras = function() {
+	var row = $('.row-assembly');
+	if (row.length == 0) return false; // Die if not new kit UI
+	
+	// Ensure item names are clickable
+	row.find('.assembly-name').on('click', function(e) {
+	    $(this).prev().click();
+		$(this).closest('.product-variants').click();
 	});
 }
 
