@@ -18,10 +18,14 @@ module Spree
 
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants, class_name: "Spree::OptionValue"
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
+    # PArt of the image work that needs to be done
+    # has_many :assembly_defintition_images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
 
     has_many :variant_targets, class_name: 'Spree::VariantTarget', dependent: :destroy
     has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :images, through: :variant_targets
     has_many :targets, class_name: 'Spree::Target', through: :variant_targets
+
+    has_many :assembly_definition_variants, class_name: 'Spree::AssemblyDefinitionVariant'
 
      # Hack for the old pages, remove once the new pages are live
     def images_including_targetted
@@ -34,27 +38,36 @@ module Spree
       dependent: :destroy
 
     delegate_belongs_to :default_price, :display_price, :display_amount, :price, :price=, :currency
+    
+    delegate_belongs_to :product, :assembly_definitions
 
     has_many :prices,
       class_name: 'Spree::Price',
       dependent: :destroy
 
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
+    validate :variant_weight
 
     has_many :taggings, as: :taggable
     has_many :tags, -> { order(:value) }, through: :taggings
 
     has_many :index_page_items
 
+    has_one :assembly_definition
+
     before_validation :set_cost_currency
     before_validation :generate_variant_number, on: :create
 
     after_create :create_stock_items
     after_create :set_position
+    after_create :create_assembly_definition_if_kit
     after_touch :touch_index_page_items
 
     # This can take a while so run it asnyc with a low priority for now
     after_touch { delay(:priority => 20).touch_assemblies_parts if self.assemblies.any? }
+
+    has_many :assembly_products ,-> { uniq }, through: :assembly_definition_variants
+    after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
 
     # default variant scope only lists non-deleted variants
     scope :deleted, lambda { where.not(deleted_at: nil) }
@@ -77,7 +90,7 @@ module Spree
       end
 
       def active(currency = nil)
-        includes(:prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
+        includes(:normal_prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
       end
 
       def displayable(product_id)
@@ -90,13 +103,45 @@ module Spree
       end
 
       def lowest_priced_variant(currency, in_sale: false )
-        selector = in_stock.active(currency).select('spree_prices.id').joins(:prices)
-          .where('spree_prices.currency = ? and sale = ? and is_kit = ?', currency, in_sale, false )
+        selector = in_stock.active(currency).select('spree_prices.id').includes(:normal_prices)
+          .where('sale = ?', in_sale )
 
         selector = selector.where('spree_variants.in_sale = ?', in_sale) if in_sale == true
 
         selector.reorder('amount').first
       end
+
+      def options_tree_for(target, current_currency)
+        hash={}
+        selector = self.includes(:normal_prices, :kit_prices, :images, :option_values => [:option_type])
+        if !target.blank?
+          selector = selector.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
+        end
+
+        selector.order( "spree_option_types.position", "spree_option_values.position" ).each do |v|
+          base=hash
+          v.option_values.each_with_index do |o,i|
+            base[o.option_type.url_safe_name] ||= {}
+            base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
+            if ( i + 1 < v.option_values.size )
+              base = base[o.option_type.url_safe_name][o.url_safe_name]
+            else
+              base[o.option_type.url_safe_name][o.url_safe_name]['variant'] ||= {}
+              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['id']=v.id
+              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['normal_price']=v.price_normal_in(current_currency).in_subunit
+              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
+              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['part_price']=v.price_part_in(current_currency).in_subunit
+              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_sale']=v.in_sale
+              base[o.option_type.url_safe_name][o.url_safe_name]['variant']['in_stock']= v.in_stock_cache 
+              if v.images.any?
+                base[o.option_type.url_safe_name][o.url_safe_name]['variant']['image_url']= v.images.first.attachment.url(:mini)
+              end
+            end
+          end
+        end
+        hash
+      end
+
 
     end
 
@@ -128,20 +173,47 @@ module Spree
     end
 
     def weight
-      if kit?
-        kit_weight = required_parts.inject(0.00) do |sum,part|
-          count_part = part.count_part || 0
-          part_weight =  part.weight || 0
-          sum + (count_part * part_weight)
-        end
-        BigDecimal.new(kit_weight,2)
+      return static_kit_weight if self.assemblies_parts.any?
+      return dynamic_kit_weight if self.assembly_definition
+      basic_weight(super)
+    end
+
+    def static_kit_weight
+      kit_weight = required_parts_for_display.inject(0.00) do |sum,part|
+        count_part = part.count_part 
+        part_weight = part.weight 
+        notify("Variant id #{part.try(:id)} has no weight") unless part_weight
+        sum + (count_part * part_weight.to_f)
+      end
+      BigDecimal.new(kit_weight,2)
+    end
+    
+    def dynamic_kit_weight
+      warning = "Only use this variant#dynamic_kit_weight to get kit weight right. Not suitable for getting kit weight of past orders"
+      Rails.logger.info(warning)
+      puts(warning)
+
+      self.assembly_definition.parts.where(optional: false).reduce(BigDecimal(0,2)) do |part_total_weight, part|
+        first_available_variant = part.variants.detect {|v| v.weight && v.weight > 0 }
+        variant_weight = first_available_variant.try(:weight)
+        notify("Variant id #{first_available_variant.try(:id)} has no weight") unless variant_weight
+        part_total_weight + ( part.count * variant_weight.to_f )
+      end
+    end
+    
+    def basic_weight(value_from_super_weight)
+      return value_from_super_weight if self.is_master || self.new_record?
+
+      if (value_from_super_weight.blank? || value_from_super_weight.zero?)
+        value = if self.product
+                  self.product.master.weight
+                else
+                  nil
+                end
+        notify("The weight of variant id: #{self.id} is nil.\nThe weight of product id: #{self.product.try(:id)}") unless value
+        value.to_f
       else
-        value = super
-        if !self.is_master && (value.blank? || value.zero?)
-          self.product.weight
-        else
-          value
-        end
+        value_from_super_weight
       end
     end
 
@@ -210,15 +282,17 @@ module Spree
 
     # --- new price getters --------
     def price_normal_in(currency_code)
-      find_price(currency_code, :regular) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: false, sale: false)
+      find_normal_price(currency_code, :regular) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: false, sale: false)
     end
+
     def price_normal_sale_in(currency_code)
-      find_price(currency_code, :sale) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: false, sale: true)
+      find_normal_price(currency_code, :sale) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: false, sale: true)
     end
 
     def price_part_in(currency_code)
       find_part_price(currency_code, :regular) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: true, sale: false)
     end
+
     def price_part_sale_in(currency_code)
       find_part_price(currency_code, :sale) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: true, sale: true)
     end
@@ -228,6 +302,7 @@ module Spree
       ActiveSupport::Deprecation.warn("variant#price_in is deprecated use price_normal_in instead")
       price_normal_in(currency)
     end
+
     def kit_price_in(currency)
       ActiveSupport::Deprecation.warn("variant#kit_price_in is deprecated use price_part_in instead")
       price_part_in(currency)
@@ -342,7 +417,7 @@ module Spree
     end
 
     def product_price_in(currency)
-      self.product.master.prices.select{ |price| price.currency == currency }.first
+      self.product.master.normal_prices.select{ |price| price.currency == currency }.first
     end
 
     def tag_names
@@ -360,9 +435,35 @@ module Spree
       self.track_inventory? && Spree::Config.track_inventory_levels
     end
 
+    def assembly_definition_parts
+      assembly_definition.try(:parts) || []
+    end
+
     private
-    def find_price(currency, type)
-      prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first
+    def variant_weight
+      if not (self.product && self.product.product_type == 'kit')
+        errors.add(:weight, 'must be greater than 0') if (self.weight.blank? || self.weight <= 0)
+      end
+    end
+    def notify(msg)
+      # Sends an email to Techadmin
+      NotificationMailer.send_notification(msg)
+    end
+
+    def touch_assembly_products
+      assembly_products.map(&:touch)
+    end
+
+    def create_assembly_definition_if_kit
+      if self.isa_kit?
+        if self.assembly_definition.nil?
+          Spree::AssemblyDefinition.create variant_id: self.id
+        end
+      end
+    end
+
+    def find_normal_price(currency, type)
+      normal_prices.select{ |price| price.currency == currency && price.sale == (type == :sale) }.first
     end
 
     def find_part_price(currency, type)

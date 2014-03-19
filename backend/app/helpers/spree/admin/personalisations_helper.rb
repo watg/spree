@@ -3,7 +3,7 @@ module Spree
     module PersonalisationsHelper
 
       #TODO: this should be Rails.application.config.spree.personalisations
-      PERSONALISATIONS = [ Spree::Personalisation::Monogram ]
+      PERSONALISATIONS = [ Spree::Personalisation::Monogram, Spree::Personalisation::Dob ]
 
       def options_for_product_personalisation_types(product)
         existing = product.personalisations.map { |p| p.class.name }

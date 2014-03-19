@@ -4,7 +4,7 @@ describe Spree::IndexPagesController, type: :controller do
   let(:index_page) { create(:index_page) }
 
   before do
-    user = mock_model(Spree.user_class, :last_incomplete_spree_order => nil, :spree_api_key => 'fake')
+    user = mock_model(Spree.user_class, :last_incomplete_spree_order => nil, :spree_api_key => 'fake', :has_spree_role? => false)
     subject.stub :spree_current_user => user
   end
 

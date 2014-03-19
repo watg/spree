@@ -51,7 +51,7 @@ module Spree
 
     def render_variants( per_page, selected_variant )
       @current_currency = current_currency
-      @context = { context: { target: @product_page.target, current_currency: @current_currency } }
+      @context = { target: @product_page.target, current_currency: @current_currency } 
       @product_page.made_by_the_gang_variants(selected_variant).page(params[:page]).per( per_page )
     end
 

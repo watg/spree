@@ -3,6 +3,21 @@ module Spree
     attr_accessor :order, :currency
     attr_reader :errors
 
+    class << self
+      def parse_options(variant, options)
+        return [] if options.blank?
+        assembly_definition_parts = variant.product.assembly_definition.parts
+        options.inject([]) {|list, t| 
+          part_id, selected_variant_id = t.flatten.map(&:to_i)
+          assembly_definition_part = assembly_definition_parts.detect{|p| p.id == part_id}
+          if assembly_definition_part && (selected_variant_id > 0)
+            selected_variant_part = Spree::Variant.find(selected_variant_id)
+            list << [selected_variant_part, assembly_definition_part.count, assembly_definition_part.optional, assembly_definition_part.id]
+          end
+          list}
+      end
+    end
+
     def initialize(order, currency)
       @order = order
       @currency = currency
@@ -43,6 +58,9 @@ module Spree
     # product_assembly
     def extract_kit_options(hash)
       value = hash[:products].delete(:options) rescue nil
+      # If we have parts then we have a new dynamic kit
+      # and we should not have options, hence overwrite them
+      value = hash.delete(:parts) if hash[:parts]
       (value || [])
     end
 
@@ -74,8 +92,7 @@ module Spree
         return false
       end
       variant = Spree::Variant.find(variant_id)
-      options = Spree::Variant.find(option_ids)
-      options_with_qty = add_quantity_for_each_option(variant, options)
+      options_with_qty = add_quantity_for_each_option(variant, option_ids)
 
       if quantity > 0
         if check_stock_levels_for_variant_and_options(variant, quantity, options_with_qty)
@@ -114,9 +131,22 @@ module Spree
       are_all_parts_in_stock?(stock_check)
     end
 
-    def add_quantity_for_each_option(variant, options)
-      options.map do |o|
-        [o, part_quantity(variant,o)]
+    def add_quantity_for_each_option(variant, option_ids)
+      # The option_ids will be a hash for the new dynamic kits 
+      # otherwise an array for the old type kits
+      # e.g. (dynamic kit options )  options = {
+      #   "39" => [ "321" ],
+      #   "40" => [ "205" ]
+      # }
+      #
+      # ( static kit options )  options = [ 1,2,3 ]
+      if variant.assembly_definition
+        Spree::OrderPopulator.parse_options(variant, option_ids)
+      else
+        options = Spree::Variant.find(option_ids)
+        options.map do |o|
+          [o, part_quantity(variant,o)]
+        end
       end
     end
 

@@ -35,40 +35,41 @@
   <% end %>
 </fieldset>
 
-<% unless @product.images.any? || @product.variant_and_target_images.any? %>
-  <div class="no-objects-found">
-    <%= Spree.t(:no_images_found) %>.
-  </div>
-<% else %>
 
-  <table class="index sortable" data-hook="images_table" data-sortable-link="<%= update_positions_admin_product_images_url(@product) %>">
-    <colgroup>
-      <col style="width: 5%">
-      <col style="width: 30%">
-      <col style="width: 50%">
-      <col style="width: 15%">
-    </colgroup>
-    <thead>
-      <tr data-hook="images_header">
-        <th colspan="2"><%= Spree.t(:small) %></th>
-        <th><%= Spree::Variant.model_name.human %></th>
-        <th class="actions"></th>
-      </tr>
-    </thead>
 
-    <tbody id="images_table_body">
+<table class="index sortable" data-hook="images_table" data-sortable-link="<%= update_positions_admin_product_images_url(@product) %>">
+  <colgroup>
+    <col style="width: 5%">
+    <col style="width: 30%">
+    <col style="width: 50%">
+    <col style="width: 15%">
+  </colgroup>
+  <thead>
+    <tr data-hook="images_header">
+      <th colspan="2"><%= Spree.t(:small) %></th>
+      <th><%= Spree::Variant.model_name.human %></th>
+      <th class="actions"></th>
+    </tr>
+  </thead>
+
+  <tbody id="images_table_body">
+    <% unless @product.images.any? || @product.variant_and_target_images.any? %>
+      <div class="no-objects-found">
+        <%= Spree.t(:no_images_found) %>.
+      </div>
+    <% else %>
       <%= render partial: 'image', collection: @product.variant_and_target_images %>
 
       <%= render partial: 'image', collection: @product.personalisation_images %>
-    </tbody>
-  </table>
+    <% end %>
+  </tbody>
+</table>
 
-  <br>
-  <div class="form-buttons filter-actions actions">
-    <%= link_to_with_icon('icon-refresh', Spree.t(:update), '#', :class => 'button update_all_images') %>
-    <span class="or"><%= Spree.t(:or) %></span>
-    <%= button_link_to Spree.t('actions.cancel'), collection_url, :icon => 'icon-remove' %>
-  </div>
+<br>
+<div class="form-buttons filter-actions actions">
+  <%= link_to_with_icon('icon-refresh', Spree.t(:update), '#', :class => 'button update_all_images') %>
+  <span class="or"><%= Spree.t(:or) %></span>
+  <%= button_link_to Spree.t('actions.cancel'), collection_url, :icon => 'icon-remove' %>
+</div>
 
-<% end %>
   

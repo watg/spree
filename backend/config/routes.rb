@@ -8,6 +8,31 @@ Spree::Core::Engine.routes.draw do
     get '/products_overview', :to => 'products_overview#index'
     post '/products_overview', :to => 'products_overview#update'
 
+    resources :assembly_definitions do
+      member do
+        get :available_supply_products
+      end
+
+      resources :parts, :controller => 'assembly_definition_parts' do
+        collection do
+          post :update_positions
+        end
+      end
+
+      resources :images, :controller => 'assembly_definition_images' do
+        collection do
+          post :s3_callback
+          post :update_positions
+        end
+      end
+    end
+
+    resources :assembly_definition_parts do
+      member do
+        get :available_parts
+      end
+    end
+
     resources :index_pages do
       resources :items, controller: "index_page_items" do
         member do

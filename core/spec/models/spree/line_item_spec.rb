@@ -4,6 +4,59 @@ describe Spree::LineItem do
   let(:order) { create :order_with_line_items, line_items_count: 1 }
   let(:line_item) { order.line_items.first }
 
+  context '#weight' do
+    let(:variant10) { create(:variant, weight: 10) }
+    let(:variant7)  { create(:variant, weight: 7) }
+    let(:variant3)  { create(:variant, weight: 3) }
+    let(:static_kit_variant)  {
+      pdt = create(:product, product_type: 'kit')
+      pdt.assemblies_parts.create(part_id: variant10.id, optional: false, count: 2)
+      pdt.assemblies_parts.create(part_id: variant3.id, optional: true, count: 1)
+
+      v = create(:variant, product_id: pdt.id)
+      v.assemblies_parts.create(part_id: variant7.id, optional: false, count: 1)
+      v
+    }
+    let(:dynamic_kit_variant) {
+      pdt = create(:product, product_type: 'kit')
+      v = create(:variant, product_id: pdt.id)
+      v.assembly_definition = Spree::AssemblyDefinition.create(variant_id: v.id)
+      v
+    }
+    before do
+      line_item.quantity = 2
+    end
+    it "for simple variant" do
+      line_item.variant = variant10
+      expect(line_item.weight).to eq (2*10.0) #20.0
+    end
+    it "for static kit variant no option" do
+      line_item.variant = static_kit_variant
+      expect(line_item.weight).to eq (2*(2*10 + 1*7)) #54.0
+    end
+
+    it "for static kit variant with option" do
+      line_item.variant = static_kit_variant
+      line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
+      expect(line_item.weight).to eq (2*(2*10 + 1*7 + 1*3)) #60.0
+    end
+
+    it "for dynamic kit variant no option" do
+      line_item.variant = dynamic_kit_variant
+      line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
+      line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
+      expect(line_item.weight).to eq 54.0
+    end
+
+    it "for dynamic kit variant with option" do
+      line_item.variant = dynamic_kit_variant
+      line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
+      line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
+      line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
+      expect(line_item.weight).to eq 60.0
+    end
+  end
+
   context '#save' do
     it 'should update inventory, totals, and tax' do
       # Regression check for #1481

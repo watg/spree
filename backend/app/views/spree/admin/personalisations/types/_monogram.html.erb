@@ -5,6 +5,14 @@
     <%= text_field_tag "[#{param_prefix}][max_initials]", personalisation.max_initials, :class => 'fullwidth' %>
   </div>
 
+  <div class="field  alpha seven columns" data-hook="max_characters">
+    <%= label :colours, :colours %>
+    <%= select_tag("[#{param_prefix}][colours][]", options_for_select( 
+       Spree::OptionValue.joins(:option_type).where("spree_option_types.name =?", 'Colour').collect { |v| [v.presentation, v.id] }, 
+       personalisation.colours.collect { |c| c.id }),{
+       multiple: true, class: 'select2 fullwidth'}) %>
+  </div>
+
   <div class="field alpha two columns" data-hook="price-gbp">
     <%= label :GBP, :GBP %>
     <%= text_field_tag "[#{param_prefix}][prices][GBP]", personalisation.prices['GBP'], :class => 'fullwidth' %>

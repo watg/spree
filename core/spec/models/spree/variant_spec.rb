@@ -16,6 +16,85 @@ describe Spree::Variant do
 
   end
 
+  context "#options_tree_for" do
+
+    let(:product) { create(:product_with_variants) }
+    let(:variant_in_sale) { create(:variant_in_sale) }
+
+    it "should build a tree based on it's variants" do
+      variant_1 = product.variants[0]
+      variant_2 = product.variants[1]
+      ov1 = variant_1.option_values.first
+      ov2 = variant_2.option_values.first
+
+      attributes = product.variants.options_tree_for(nil,'USD')[ov1.option_type.name][ov1.name]['variant']
+      attributes.should_not be_nil
+      attributes["id"].should == variant_1.id
+      attributes["normal_price"].should == 1999
+      attributes["sale_price"].should == 0
+      attributes["part_price"].should == 0
+      attributes["in_sale"].should == false
+
+      attributes = product.variants.options_tree_for(nil,'USD')[ov2.option_type.name][ov2.name]['variant']
+      attributes.should_not be_nil
+      attributes["id"].should == variant_2.id
+      attributes["normal_price"].should == 1999
+      attributes["sale_price"].should == 0
+      attributes["part_price"].should == 0
+      attributes["in_sale"].should == false
+
+      #product.variant_options_tree_for(nil,'GBP').should == {
+      #  "color"=>{
+      #    "hot-pink1"=>{
+      #      "variant"=>{
+      #        "id"=>2,
+      #        "normal_price"=>1200,
+      #        "sale_price"=>0,
+      #        "in_sale"=>false}
+      #    },
+      #    "hot-pink2"=>{
+      #      "variant"=>{
+      #        "id"=>3,
+      #        "normal_price"=>1200,
+      #        "sale_price"=>0,
+      #        "in_sale"=>false
+      #      }
+      #    }
+      #  }
+      #}
+    end
+
+    it "should have prices in USD" do
+      variant = product.variants[0]
+      ov = variant.option_values.first
+      attributes = product.variants.options_tree_for(nil,'USD')[ov.option_type.name][ov.name]['variant']
+      attributes['normal_price'].should == 1999
+      attributes['sale_price'].should == 0
+      attributes['part_price'].should == 0
+      attributes['in_sale'].should == false
+    end
+
+    it "should have sale_price" do
+      ov = variant_in_sale.option_values.first
+      attributes = variant_in_sale.product.variants.options_tree_for(nil,'USD')[ov.option_type.name][ov.name]['variant']
+      attributes['normal_price'].should == 1999
+      attributes['sale_price'].should == 600
+      attributes['part_price'].should == 0
+      attributes['in_sale'].should == true
+    end
+
+    it "should have sale_price" do
+      ov = variant_in_sale.option_values.first
+      variant_in_sale.prices.create( currency: 'USD', sale: false, is_kit: true, amount: 50 ) 
+      attributes = variant_in_sale.product.variants.options_tree_for(nil,'USD')[ov.option_type.name][ov.name]['variant']
+      attributes['normal_price'].should == 1999
+      attributes['sale_price'].should == 600
+      attributes['part_price'].should == 5000
+      attributes['in_sale'].should == true
+    end
+  end
+
+
   context "#generate_variant_number" do
     it "should generate a random string" do
       variant.generate_variant_number.is_a?(String).should be_true
@@ -48,16 +127,26 @@ describe Spree::Variant do
     context "for product" do
       subject { create(:variant, weight: 12.0) }
       its(:weight) { should == 12.0 }
-
-      it "returns product master variant weight when own weight is not set" do
-        variant_no_weight = create(:variant, product: create(:product, weight: 33.0), weight: nil)
-        expect(variant_no_weight.weight).to eql(33.0)
-      end
     end
 
-    context "for kit" do
-      subject { create(:variant, weight: 12.0, parts: [ create(:part, weight: 5.0)] ) }
+    context "for static kit" do
+      subject { create(:variant, weight: nil, product: create(:product, product_type: 'kit'), parts: [ create(:part, weight: 5.0)] ) }
       its(:weight) { should == 5.0 }
+    end
+
+    context "weight validation" do
+      subject { Spree::Variant.new }
+      it "weight cannot be nil for non - kit variant" do
+        subject.valid?
+        expect(subject.error_on(:weight)).to_not be_blank
+      end
+
+      it "weight can be nil for kit variant" do
+        subject.product = create(:product, product_type: 'kit')
+        subject.valid?
+        expect(subject.error_on(:weight)).to be_blank
+      end
+      
     end
   end
 
@@ -66,7 +155,7 @@ describe Spree::Variant do
 
     it "propagate to stock items" do
       Spree::StockLocation.any_instance.should_receive(:propagate_variant)
-      product.variants.create(:name => "Foobar")
+      product.variants.create(:name => "Foobar", weight: 10)
     end
 
     context "stock location has disable propagate all variants" do
@@ -74,7 +163,7 @@ describe Spree::Variant do
 
       it "propagate to stock items" do
         Spree::StockLocation.any_instance.should_not_receive(:propagate_variant)
-        product.variants.create(:name => "Foobar")
+        product.variants.create(:name => "Foobar", weight: 10)
       end
     end
   end
@@ -482,6 +571,30 @@ describe Spree::Variant do
       ap.reload.updated_at.should be_within(3.seconds).of(Time.now)
       variant.reload.updated_at.should be_within(3.seconds).of(Time.now)
     end
+
+    context "Assembly Definition" do
+      let(:assembly_definition) { create(:assembly_definition, variant: variant) }
+      let(:variant_part)  { create(:base_variant) }
+      let(:product_part)  { variant_part.product }
+      let(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: product_part) }
+      let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
+
+
+      # This is not needed for the time being
+      #it "touches assembly product after touch" do
+      #  variant.product.update_column(:updated_at, 1.day.ago)
+      #  variant_part.reload.touch
+      #  expect(variant.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
+      #end
+
+      it "touches assembly product after save" do
+        variant.product.update_column(:updated_at, 1.day.ago)
+        variant_part.save
+        expect(variant.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
+      end
+
+    end
+
   end
 
   describe "#should_track_inventory?" do
