@@ -76,13 +76,14 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
         end
         render_prices(lowest_price, sale_price, nil)
       else
+
         render_out_of_stock
       end
     else
-      if  memoized_product_page.kit.present?
+      if flavour == :knit_your_own &&  memoized_product_page.kit.present?
 
         item = object.product_page.kit.master
-        puts item.prices.inspect
+       
         lowest_price = item.prices.select{ |price| price.currency == current_currency && price.sale == false && (price.is_kit == false) }.first
         if item.in_sale?
           sale_price = item.prices.select{ |price| price.currency == current_currency && price.sale == true && (price.is_kit == false) }.first
