@@ -46,7 +46,9 @@ describe Spree::AssemblyDefinitionPart do
 
     context "#grouped_option_values_in_stock" do
       it "should return grouped option values" do
-        expect(subject.grouped_option_values).to eq({ size => [big,small], colour => [pink,blue], language => [english]})
+        #expect(subject.grouped_option_values).to eq({ size => [big,small], colour => [pink,blue], language => [english]})
+        # Should not render langauge as there is only one of them
+        expect(subject.grouped_option_values).to eq({ size => [big,small], colour => [pink,blue]})
       end
     end
 
