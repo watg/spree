@@ -46,12 +46,13 @@ core.productGroup.readyKitVariantOptions = (entity) ->
 
       # Set the adjustments on the parts
       product_variants.data('adjustment', variant['part_price'])
+      console.log product_variants.index()
 
       if variant['image_url']
-        $('.assembly-images li').eq(product_variants.index()).show().css('background-image', 'url(' + variant['image_url'] + ')')
+        $('.assembly-images li').eq(product_variants.index()).css('background-image', 'url(' + variant['image_url'] + ')')
 
     else
-      $('.assembly-images li').eq(product_variants.index()).hide()
+      $('.assembly-images li').eq(product_variants.index()).css('background-image', 'none')
       product_variants.find('.selected-parts').val('')
       product_variants.data('adjustment', 0)
 
