@@ -1068,6 +1068,11 @@
 								li:nth-child(-n+2) {
 									border: 0;
 								}
+								li.no-thanks {
+									a, p {
+										color: #ff0054 !important;										
+									}
+								}
 								// Mobile li
 								@media only screen and (max-width: 48em) {
 									li {
