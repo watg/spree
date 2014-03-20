@@ -67,7 +67,9 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
   
   def flavour_prices(flavour)
     if memoized_variant.present?
+
       if memoized_variant_in_stock?
+
         lowest_price = memoized_variant.price_normal_in(current_currency)
         if memoized_variant_in_sale?
           sale_price = memoized_variant.price_normal_sale_in(current_currency)
@@ -77,11 +79,24 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
         render_out_of_stock
       end
     else
+      if  memoized_product_page.kit.present?
+
+        item = object.product_page.kit.master
+        puts item.prices.inspect
+        lowest_price = item.prices.select{ |price| price.currency == current_currency && price.sale == false && (price.is_kit == false) }.first
+        if item.in_sale?
+          sale_price = item.prices.select{ |price| price.currency == current_currency && price.sale == true && (price.is_kit == false) }.first
+        end
+
+        render_prices(lowest_price, sale_price, nil)        
+      else
+
       lowest_price = memoized_product_page.lowest_normal_price(current_currency, flavour)
       highest_price = memoized_product_page.highest_normal_price(current_currency, flavour)
 
       lowest_sale_price = memoized_product_page.lowest_sale_price(current_currency, flavour)
       render_prices(lowest_price, lowest_sale_price, highest_price)
+      end
     end
   end
 
@@ -110,7 +125,8 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
 
   def knit_your_own_link?
     ( variant_knit_your_own? && memoized_variant_in_stock? ) || 
-    ( product_page_knit_your_own? &&  memoized_product_page.kit.variants.active(current_currency).in_stock.any?  )
+    ( product_page_knit_your_own? &&  memoized_product_page.kit.variants.active(current_currency).in_stock.any?  ) ||
+    ( memoized_product_page.kit.present? )
   end
 
   def knit_your_own_url
