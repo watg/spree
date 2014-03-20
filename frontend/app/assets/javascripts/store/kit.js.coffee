@@ -46,7 +46,6 @@ core.productGroup.readyKitVariantOptions = (entity) ->
 
       # Set the adjustments on the parts
       product_variants.data('adjustment', variant['part_price'])
-      console.log product_variants.index()
 
       if variant['image_url']
         $('.assembly-images li').eq(product_variants.index()).css('background-image', 'url(' + variant['image_url'] + ')')
