@@ -45,19 +45,14 @@ module Spree
       unless has_errors? 
         ActiveRecord::Base.transaction do
 
-          if prices
-            update_prices(prices, variant)
-          end
+          tags = details.delete(:tags)
+          target_ids = details.delete(:target_ids)
 
-          if tags = details.delete(:tags)
-            update_tags(variant, split_params(tags).map(&:to_i) )
-          end
+          variant.update_attributes(details)
 
-          if target_ids = details.delete(:target_ids)
-            assign_targets(variant, split_params(target_ids).map(&:to_i) )
-          end
-
-          variant.update_attributes!(details)
+          update_tags(variant, split_params(tags).map(&:to_i) ) if tags
+          assign_targets(variant, split_params(target_ids).map(&:to_i) ) if target_ids 
+          update_prices(prices, variant) if prices
 
           variant
         end
@@ -81,7 +76,9 @@ module Spree
       target_list = targets_to_remove(variant, ids)
       variant.variant_targets.where.not(target_id: ids).delete_all
       ids.each do |id|
-        variant.variant_targets.find_or_create_by(target_id: id)
+        if !variant.variant_targets.find_by(target_id: id)
+          variant.targets << Spree::Target.find_by(id: id)
+        end
       end
       remove_targeted_variant_from_product_pages(variant, target_list)
     end

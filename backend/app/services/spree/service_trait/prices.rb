@@ -7,6 +7,7 @@ module Spree
           currency_values.each do |currency,value|
             object = variant.price_for_type(type,currency)
             object.price = value.dup
+            object.save! if object.changed? 
           end
         end
       end

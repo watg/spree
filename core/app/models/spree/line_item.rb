@@ -141,6 +141,18 @@ module Spree
       Spree::Variant.unscoped { super }
     end
 
+    def item_sku
+      definition = self.variant.assembly_definition
+      if definition
+        definition.parts.map do |part|
+          option = self.line_item_options.where(optional: false, assembly_definition_part_id: part.id).first
+          "#{part.product.name} - #{option.variant.options_text}" if option
+        end.compact.join(', ')
+      else
+        self.variant.sku
+      end
+    end
+
     def weight
       options_weight = self.line_item_options.reduce(0.0) do |w, o|
         w + ( o.variant.weight.to_f * o.quantity )

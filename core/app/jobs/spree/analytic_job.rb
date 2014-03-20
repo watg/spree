@@ -83,7 +83,7 @@ module Spree
         in:  li.variant.name,
         ip:  li.price.to_f,
         iq:  li.quantity,
-        ic:  li.variant.sku,
+        ic:  li.item_sku,
         iv:  (li.variant.product.product_type.respond_to?(:name) ? li.variant.product.product_type.name : li.variant.product.product_type),
         cu:  li.order.currency,
         cd2: maker(li.variant)
@@ -103,7 +103,6 @@ module Spree
         cu:  order.currency
       }
     end
-
 
     def maker(variant)
       variant.product.gang_member.name

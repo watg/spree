@@ -36,11 +36,14 @@
 				                    <p class="assembly-name"><%= value.presentation %></p>
 				                  <% end %>
 								</li>
-								<% if part.optional? %>
-								<li>
-									<a class="option-value" href="#" title="No thanks" data-value="" data-type="<%= type.url_safe_name %>" data-presentation=""><span>No&nbsp;thanks</span></a>
-								</li>
+							<% end %>
+							<% if part.optional? %>
+							<li>
+								<a class="option-value" href="#" title="No thanks" data-value="" data-type="<%= type.url_safe_name %>" data-presentation=""><span>No&nbsp;thanks</span></a>
+								<% if values[0].has_image? %>
+									<p class="assembly-name">No&nbsp;thanks</p>
 								<% end %>
+							</li>
 							<% end %>
 						</ul>
 					</div>
