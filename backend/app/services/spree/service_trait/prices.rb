@@ -7,6 +7,10 @@ module Spree
           currency_values.each do |currency,value|
             object = variant.price_for_type(type,currency)
             object.price = value.dup
+            object.save! if object.changed? 
+            #if object.errors.any?
+            #  add_error(:variant, :price, "#{type}-#{currency}  price: #{object.errors.full_messages.join(', ')}") 
+            #end 
           end
         end
       end

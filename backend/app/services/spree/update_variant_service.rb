@@ -45,10 +45,6 @@ module Spree
       unless has_errors? 
         ActiveRecord::Base.transaction do
 
-          if prices
-            update_prices(prices, variant)
-          end
-
           if tags = details.delete(:tags)
             update_tags(variant, split_params(tags).map(&:to_i) )
           end
@@ -58,6 +54,10 @@ module Spree
           end
 
           variant.update_attributes!(details)
+
+          if prices
+            update_prices(prices, variant)
+          end
 
           variant
         end
