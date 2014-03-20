@@ -4,6 +4,34 @@ describe Spree::LineItem do
   let(:order) { create :order_with_line_items, line_items_count: 1 }
   let(:line_item) { order.line_items.first }
 
+  describe "#item_sku" do
+    subject {line_item}
+    context "dynamic kit" do
+      let(:variant10) { create(:variant, weight: 10) }
+      let(:variant7)  { create(:variant, weight: 7) }
+
+      let(:dynamic_kit_variant) {
+        pdt = create(:product, product_type: 'kit')
+        v = create(:variant, product_id: pdt.id)
+        v.assembly_definition = Spree::AssemblyDefinition.create(variant_id: v.id)
+        v
+      }
+      let(:part1) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant10.product_id, optional: false)}
+      let(:part2) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant7.product_id, optional: true)}
+      
+      before do
+        subject.variant = dynamic_kit_variant
+        subject.line_item_options.create(quantity: 1, price: 1, variant_id: variant10.id, optional: false, assembly_definition_part_id: part1.id)
+        subject.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: true, assembly_definition_part_id: part2.id)
+        subject.save
+      end
+      its(:item_sku) { should eq [variant10.product.name, variant10.options_text].join(' - ')}
+    end
+    context "non - dynamic kit" do
+      its(:item_sku) { should eq subject.variant.sku }
+    end
+  end
+
   context '#weight' do
     let(:variant10) { create(:variant, weight: 10) }
     let(:variant7)  { create(:variant, weight: 7) }

@@ -19,7 +19,7 @@
       <% @order.line_items.each do |line_item| %>
         _gaq.push(['_addItem',
           "<%= j @order.number %>",
-          "<%= j line_item.variant.sku %>",
+          "<%= j line_item.item_sku %>",
           "<%= j line_item.variant.product.name %>",
           "",
           "<%= line_item.price %>",

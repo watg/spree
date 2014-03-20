@@ -103,7 +103,7 @@ module Spree
         o.completed_at.to_s(:db), 
         part_type,
         variant.product.sku,
-        variant.sku,
+        li.item_sku,
         variant.product.name,
         variant.product.product_type,
         quantity,
