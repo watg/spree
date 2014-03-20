@@ -311,8 +311,10 @@ core.productGroup.hideOutOfStockVariants = function() {
         $.get(path, function(data){
           for(part_id in data.parts){
             var partScope = '.product-variants[data-adp-id='+part_id+']';
-            $.each(data.parts[part_id], function(i, ovid){
-              $('.variant-option-values [data-ov-id='+ovid.join()+']', partScope).hide();
+            $.each(data.parts[part_id], function(i, ovidList){
+              $.each(ovidList, function(i, ovid){
+                $('.variant-option-values [data-ov-id='+ovid+']', partScope).hide();
+              });
             });
           }
         });
