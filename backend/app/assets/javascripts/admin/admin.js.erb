@@ -175,7 +175,9 @@ $(document).ready(function(){
         },
         dataType: 'script',
         success: function(response) {
-          el.parents("tr").fadeOut('hide');
+          var tr = el.parents("tr");
+          tr.next('input[type=hidden]').remove(); // remove the hidden id attribute, which Rails adds
+          tr.fadeOut('slow',function(){$(this).remove();});
         },
         error: function(response, textStatus, errorThrown) {
           show_flash('error', response.responseText);
