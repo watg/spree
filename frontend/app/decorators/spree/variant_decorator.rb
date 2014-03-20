@@ -91,8 +91,18 @@ class Spree::VariantDecorator < Draper::Decorator
     @memoized_first_image ||= first_image
   end
 
+  def assembly_definition_images
+     selector = object.assembly_definition.images
+     if target.blank?
+       selector = selector.where( target_id: nil )
+     else
+       selector = selector.where( target: target )
+     end
+     selector
+  end
+
   def first_image
-    images = object.images_for(context[:target])
+    images = object.images_for(target)
     if images.blank?
       if object.product.memoized_images.empty?
         nil

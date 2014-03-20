@@ -29,14 +29,14 @@ module Spree
             master_prices = vp[master_id]
             product.variants_including_master.each do |variant|
               update_prices(master_prices, variant)
-              variant.update_attributes(in_sale: sale_items.include?(master_id) )
+              variant.update_attributes!(in_sale: sale_items.include?(master_id) )
             end
             product.master.reload
           else
             vp.each do |variant_id, prices|
               variant = Spree::Variant.find(variant_id)
               update_prices(prices, variant)
-              variant.update_attributes(in_sale: sale_items.include?(variant_id) )
+              variant.update_attributes!(in_sale: sale_items.include?(variant_id) )
             end
           end
 

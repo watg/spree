@@ -7,7 +7,7 @@ describe Spree::AssemblyDefinition do
 
   context "Stock and Option Values" do
 
-    let(:variant_no_stock)  { create(:variant) }
+    let(:variant_no_stock)  { create(:variant, option_values: [create(:option_value)] ) }
     let(:part1) { Spree::AssemblyDefinitionPart.create(assembly_definition_id: subject.id, product_id: variant_no_stock.product_id, count: 3) }
 
     let(:variant) { create(:variant_with_stock_items) }
@@ -19,7 +19,7 @@ describe Spree::AssemblyDefinition do
     end
 
     its(:selected_variants_out_of_stock) { should eq( {part1.id => [variant_no_stock.id]} )}
-
+    its(:selected_variants_out_of_stock_option_values) { should eq( {part1.id => [variant_no_stock.option_values.pluck(:id)] } )}
   end
 
   describe "set_assembly_product" do
