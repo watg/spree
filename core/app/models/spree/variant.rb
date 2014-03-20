@@ -45,8 +45,6 @@ module Spree
       class_name: 'Spree::Price',
       dependent: :destroy
 
-    accepts_nested_attributes_for :prices
-
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
     validate :variant_weight
 
