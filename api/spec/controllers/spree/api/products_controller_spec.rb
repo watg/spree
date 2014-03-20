@@ -96,7 +96,7 @@ module Spree
 
       it "gets a single product" do
         product.master.images.create!(:attachment => image("thinking-cat.jpg"))
-        product.variants.create!
+        product.variants.create!(weight: 10)
         product.variants.first.images.create!(:attachment => image("thinking-cat.jpg"))
         product.set_property("spree", "rocks")
         api_get :show, :id => product.to_param
