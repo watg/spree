@@ -7,7 +7,7 @@
 <% end %>
 
 <%= form_for :order, :url => populate_orders_path do |f| %>
-<%= hidden_field_tag "products[target_id]", target_id %>
+<%= hidden_field_tag "target_id", target_id %>
 
 <div class="product-price prices" data-hook="product_price">
 	<% if variant.has_price? %>
