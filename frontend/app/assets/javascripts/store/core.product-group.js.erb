@@ -15,7 +15,7 @@ $(document).ready(function() {
 	core.productGroup.setHeroColour();
 	core.productGroup.positionHeroTitle();
 	/* ----- New kit UI only ----- */
-	core.productGroup.hideOutOfStockVariants();
+  core.productGroup.hideOutOfStockVariants();
 	core.productGroup.readyAssemblyMenus();
 	core.productGroup.readyAssemblyItemNames();
 	core.productGroup.setAssemblyListHeights();
@@ -304,18 +304,20 @@ core.productGroup.positionHeroTitle = function() {
 }
 
 core.productGroup.hideOutOfStockVariants = function() {
-	var definitionId = $('.row-assembly').data('ad-id');
-	if (definitionId == null || definitionId == 'undefined') return false; // Die if not new kit UI
+        var definitionId = $('.row-assembly').data('ad-id');
+        if (definitionId == null || definitionId == 'undefined') return false; // Die if not new kit UI
 
-	var path = "<%= api_assembly_definitions_option_values_out_of_stock_path(id: ':id') %>".replace(":id", definitionId);
-	$.get(path, function(data){
-		for(part_id in data.parts){
-			var partScope = '.product-variants[data-adp-id='+part_id+']';
-			$.each(data.parts[part_id], function(i, ovid){
-				$('.variant-option-values [data-ov-id='+ovid.join()+']', partScope).hide();
-			});
-		}
-	});
+        var path = "<%= api_assembly_definitions_option_values_out_of_stock_path(id: ':id') %>".replace(":id", definitionId);
+        $.get(path, function(data){
+          for(part_id in data.parts){
+            var partScope = '.product-variants[data-adp-id='+part_id+']';
+            $.each(data.parts[part_id], function(i, ovidList){
+              $.each(ovidList, function(i, ovid){
+                $('.variant-option-values [data-ov-id='+ovid+']', partScope).hide();
+              });
+            });
+          }
+        });
 }
 
 core.productGroup.readyAssemblyMenus = function() {

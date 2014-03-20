@@ -17,6 +17,7 @@ module Spree
     has_many :displayable_variants
 
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants, class_name: "Spree::OptionValue"
+
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
     # PArt of the image work that needs to be done
     # has_many :assembly_defintition_images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
@@ -136,7 +137,7 @@ module Spree
         variants.each do |v|
           base=hash
           v.option_values.each_with_index do |o,i|
-       #     next unless valid_option_types.has_key? o.option_type.name 
+            next unless valid_option_types.has_key? o.option_type.name 
             base[o.option_type.url_safe_name] ||= {}
             base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
             base = base[o.option_type.url_safe_name][o.url_safe_name]
@@ -149,7 +150,7 @@ module Spree
           base['variant']['in_sale']=v.in_sale
           base['variant']['in_stock']= v.in_stock_cache 
           if v.images.any?
-            base['variant']['image_url']= v.images.first.attachment.url(:mini)
+            base['variant']['image_url']= v.images.reorder(:position).first.attachment.url(:mini)
           end
         end
         hash
