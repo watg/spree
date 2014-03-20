@@ -148,7 +148,7 @@ module Spree
       end
 
       it "can create a new variant" do
-        api_post :create, :variant => { :sku => "12345" }
+        api_post :create, :variant => { :sku => "12345", :weight => 10 }
         json_response.should have_attributes(attributes)
         response.status.should == 201
         json_response["sku"].should == "12345"
