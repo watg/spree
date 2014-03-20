@@ -35,7 +35,9 @@ class Spree::AssemblyDefinitionPart < ActiveRecord::Base
       group[ots[ov.option_type_id]] << ov 
     end
     # We do not want to keep any option_types that have 1 or less values
-    #group.keep_if {|k,v| v.size >1 }
+    if ots.size > 1
+      group.keep_if {|k,v| v.size >1 }
+    end
     group
   end
 
@@ -43,6 +45,5 @@ class Spree::AssemblyDefinitionPart < ActiveRecord::Base
   def set_assembly_product 
     self.assembly_product = self.assembly_definition.variant.product
   end
-
 
 end
