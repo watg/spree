@@ -1054,12 +1054,12 @@
 									a, p {
 										float: left;
 										display: block;
+										font-family: $watg-font-light;
+										font-size: 1.333em;
 									}
 									p {
 										margin: 0 emCalc(5px);
 										padding: 0;
-										font-family: $watg-font-light;
-										font-size: 1.333em;
 									}
 								}
 								li:only-child {
