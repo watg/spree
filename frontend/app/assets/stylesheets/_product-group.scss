@@ -1014,6 +1014,9 @@
 							-moz-user-select: none;
 							-ms-user-select: none;
 						user-select: none;
+						span.optional {
+							font-family: $watg-font-light;
+						}
 						.variant-options {
 							margin-top: emCalc(12px);
 							margin-left: emCalc(-1px);
