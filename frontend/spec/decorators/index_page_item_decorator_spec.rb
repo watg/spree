@@ -129,7 +129,7 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
     before :each do
       create(:price, variant: variant, price: 2.99, sale: true)
 
-      sale_price = create(:price, sale: true, amount: 2.00, currency: 'USD', variant: product2.master )
+      _sale_price = create(:price, sale: true, amount: 2.00, currency: 'USD', variant: product2.master )
       product2.master.update_attributes(in_sale: true)
 
       [product,product2].each do |p| 
@@ -142,18 +142,18 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
       expect(subject.made_by_the_gang_prices).to eq '<span class="price was" itemprop="price">from $19.99</span><span class="price now">$2.99</span>'
     end
 
-    it "returns out-of-stock from prices with a variant with no stock" do
+    it "does not returns out-of-stock from prices with a variant with no stock but " do
       variant.in_stock_cache = false
       variant.save
       index_page_item.variant = variant
-      expect(subject.made_by_the_gang_prices).to eq '<span class="price" itemprop="price">out-of-stock</span>'
+      expect(subject.made_by_the_gang_prices).to eq '<span class="price was" itemprop="price">from $3.00</span><span class="price now">$2.00</span>'
     end
 
     it "returns sale and normal prices without a variant" do
       expect(subject.made_by_the_gang_prices).to eq '<span class="price was" itemprop="price">from $3.00</span><span class="price now">$2.00</span>'
     end
 
-    it "returns out-of-stock from prices without a variant and no stock" do
+    it "returns out-of-stock when no stock" do
       [product,product2].each { |p| p.master.in_stock_cache = false; p.master.save  }
       expect(subject.made_by_the_gang_prices).to eq '<span class="price" itemprop="price">out-of-stock</span>'
     end
@@ -260,9 +260,36 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
       subject.product_page.kit = kit
     end
 
+    context "Dyanmic Kit" do
+
+      let(:dynamic_kit) { create(:base_product, product_type: 'kit', name: 'dynamic kit') }
+      let(:assembly_definition) { create(:assembly_definition, variant: dynamic_kit.master) }
+
+      before do
+         subject.product_page.kit = dynamic_kit.reload
+         create(:price, variant: dynamic_kit.master, price: 5.00, sale: false)
+      end
+
+      it "returns a normal price" do
+        expect(subject.knit_your_own_prices).to eq '<span class="price now" itemprop="price">from $5.00</span>'
+      end
+
+      it "returns a sale price" do
+        dynamic_kit.master.in_sale = true
+        create(:price, variant: dynamic_kit.master, price: 1.23, sale: true)
+        expect(subject.knit_your_own_prices).to eq '<span class="price was" itemprop="price">from $5.00</span><span class="price now">$1.23</span>'
+      end
+
+    end
+
+    it "returns sale and normal from prices with a variant" do
+      expect(subject.knit_your_own_prices).to eq '<span class="price was" itemprop="price">from $19.99</span><span class="price now">$2.00</span>'
+    end
+
+
     it "returns sale and normal from prices with a variant" do
       index_page_item.variant = kit_variant
-      expect(subject.knit_your_own_prices).to eq '<span class="price was" itemprop="price">from $19.99</span><span class="price now">$2.99</span>'
+      expect(subject.knit_your_own_prices).to eq '<span class="price was" itemprop="price">from $19.99</span><span class="price now">$2.00</span>'
     end
 
     it "returns out-of-stock from prices with a variant with no stock" do
@@ -270,10 +297,6 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
       kit_variant.in_stock_cache = false
       index_page_item.variant = kit_variant
       expect(subject.knit_your_own_prices).to eq '<span class="price" itemprop="price">out-of-stock</span>'
-    end
-
-    it "returns sale and normal prices without a variant" do
-      expect(subject.knit_your_own_prices).to eq '<span class="price was" itemprop="price">from $19.99</span><span class="price now">$2.00</span>'
     end
 
     it "returns out-of-stock from prices without a variant and no stock" do
