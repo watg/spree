@@ -127,7 +127,7 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
   def knit_your_own_link?
     ( variant_knit_your_own? && memoized_variant_in_stock? ) || 
     ( product_page_knit_your_own? &&  memoized_product_page.kit.variants.active(current_currency).in_stock.any?  ) ||
-    ( memoized_product_page.kit.present? )
+    ( product_page_knit_your_own? && memoized_product_page.kit.assembly_definition )
   end
 
   def knit_your_own_url

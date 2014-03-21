@@ -7,25 +7,16 @@ module Spree
 
     def execute
       ActiveRecord::Base.transaction do
-        pg_ids = split_params(details[:product_group_ids])
+        pg_ids = split_params(details.delete(:product_group_ids))
+        details[:product_group_ids] = pg_ids
+
+        product_page.update_attributes!(details)
+
         deleted_product_group_list = product_group_to_remove(pg_ids)
-
-        product_page.name               = details[:name]
-        product_page.title              = details[:title]
-        product_page.permalink          = details[:permalink]
-        product_page.target_id          = details[:target_id]
-        product_page.accessories        = details[:accessories]
-        product_page.kit_id             = details[:kit_id]
-        product_page.product_group_ids  = pg_ids
-        product_page.tags               = find_tags(details[:tags] || [])
-
-        product_page.tabs_attributes    = details[:tabs_attributes]
-        product_page.save!
-
         update_product_page_variants(deleted_product_group_list)
       end
     rescue Exception => e
-puts "[ProductPageUpdateService] #{e.message} -- #{e.backtrace}"
+      puts "[ProductPageUpdateService] #{e.message} -- #{e.backtrace}"
       Rails.logger.error "[ProductPageUpdateService] #{e.message} -- #{e.backtrace}"
       add_error(:product_update, :exception, e.message)
     end
