@@ -9,10 +9,11 @@ module Spree
       ActiveRecord::Base.transaction do
         pg_ids = split_params(details.delete(:product_group_ids))
         details[:product_group_ids] = pg_ids
+        details[:tag_ids] = details.delete(:tags) || [] 
+        deleted_product_group_list = product_group_to_remove(pg_ids)
 
         product_page.update_attributes!(details)
 
-        deleted_product_group_list = product_group_to_remove(pg_ids)
         update_product_page_variants(deleted_product_group_list)
       end
     rescue Exception => e
@@ -39,14 +40,9 @@ module Spree
       (pg_ids - list)
     end
 
-
     def split_params(input=nil)
       input.blank? ? [] : input.split(',').map(&:to_i)
     end
 
-    def find_tags(tag_ids)
-      ids = tag_ids.map(&:to_i).select {|e| e > 0 }
-      Spree::Tag.find(ids)
-    end
   end
 end
