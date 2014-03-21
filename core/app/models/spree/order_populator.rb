@@ -78,8 +78,16 @@ module Spree
       (value || [])
     end
 
-    # This will return an array of hashes incase we have multiple
-    # personalisations
+    # This will return an array of hashes in case
+    # we have multiple personalisations
+    # "enabled_pp_ids" => ["65"],  # personalisation_id
+    # "pp_ids" => {
+    #   "65"=>{
+    #     "colour"=>"2", 
+    #     "initials"=>"XXXX"
+    #   }
+    # }
+
     def extract_personalisations(hash)
       return unless hash[:products]
       enabled_pp_ids = hash[:products].delete(:enabled_pp_ids) || []
