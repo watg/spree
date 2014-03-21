@@ -36,7 +36,8 @@ describe Spree::OrderPopulator do
         part2 = create(:part)
         product.add_part(part1, 1, true)
         product.add_part(part2, 2, true)
-        order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, [ [part2, 2], [part1, 1] ], [], target_id).and_return double.as_null_object
+        # the order of the two parts may vary between CircleCI and local
+        order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, [ [part1, 1], [part2, 2] ], [], target_id).and_return double.as_null_object
         subject.populate(:products => { product.id => variant.id, :options => [part1.id, part2.id] }, :quantity => 1, :target_id => 45)
       end
     end
