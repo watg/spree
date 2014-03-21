@@ -3,7 +3,7 @@ module Spree
     class ProductPagesController < ResourceController
 
       def update
-        outcome = Spree::UpdateProductPageService.run(product_page: @object, details: params[:product_page])
+        outcome = Spree::UpdateProductPageService.run(product_page: @object, details: product_page_params)
         if outcome.success?
           update_success(@object)
         else
@@ -27,6 +27,10 @@ module Spree
       end
 
       protected
+      def product_page_params
+        params.require(:product_page).permit(:name, :title, :permalink, :target_id, :accessories, :tabs, :tags, :kit_id, :product_group_ids)
+      end
+
       def find_resource
         ProductPage.find_by(permalink: params[:id])
       end

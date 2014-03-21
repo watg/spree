@@ -59,7 +59,7 @@ describe Spree::AssemblyDefinitionPart do
         expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to_not be_nil
         expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to_not be_nil
         expect(tree["size"]["big"]["colour"]["blue"]["variant"]).to_not be_nil
-        expect(tree["language"]["english"]["variant"]).to_not be_nil
+        expect(tree["language"]).to be_nil
       end
     end
   end

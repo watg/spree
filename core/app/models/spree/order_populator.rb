@@ -7,14 +7,17 @@ module Spree
       def parse_options(variant, options)
         return [] if options.blank?
         assembly_definition_parts = variant.product.assembly_definition.parts
-        options.inject([]) {|list, t| 
+        options.inject([]) do |list, t| 
           part_id, selected_variant_id = t.flatten.map(&:to_i)
           assembly_definition_part = assembly_definition_parts.detect{|p| p.id == part_id}
+          
           if assembly_definition_part && (selected_variant_id > 0)
             selected_variant_part = Spree::Variant.find(selected_variant_id)
             list << [selected_variant_part, assembly_definition_part.count, assembly_definition_part.optional, assembly_definition_part.id]
           end
-          list}
+          
+          list
+        end
       end
     end
 
@@ -31,13 +34,20 @@ module Spree
     # +:variants => { variant_id => quantity }+
     #
     # * Multiple products at once
-    # +:products => { product_id => variant_id, product_id => variant_id }, :quantity => quantity+
+    #   **** This is the pattern that we use ****
+    #   ** - pp_ids need to be moved out of the products hash
+    #
+    #  :products => { product_id => variant_id, product_id => variant_id, pp_ids = [] },
+    #  :quantity => quantity+, 
+    #  :target_id => 2
+    #  :options => [56, 34] # array of variant_ids
+    #  ....
     def populate(from_hash)
       # product_assembly
       options = extract_kit_options(from_hash)
       personalisations = extract_personalisations(from_hash)
 
-      target_id = from_hash[:products].delete(:target_id) if from_hash[:products]
+      target_id = from_hash[:target_id]
       # Coearce the target_id to nil if it is blank, as this makes find_by( target_id: target_id ) 
       # behave as target_id is actually a integer in the DB
       target_id = nil if target_id.blank?
@@ -68,8 +78,16 @@ module Spree
       (value || [])
     end
 
-    # This will return an array of hashes incase we have multiple
-    # personalisations
+    # This will return an array of hashes in case
+    # we have multiple personalisations
+    # "enabled_pp_ids" => ["65"],  # personalisation_id
+    # "pp_ids" => {
+    #   "65"=>{
+    #     "colour"=>"2", 
+    #     "initials"=>"XXXX"
+    #   }
+    # }
+
     def extract_personalisations(hash)
       return unless hash[:products]
       enabled_pp_ids = hash[:products].delete(:enabled_pp_ids) || []
@@ -140,7 +158,8 @@ module Spree
       # otherwise an array for the old type kits
       # e.g. (dynamic kit options )  options = {
       #   "39" => [ "321" ],
-      #   "40" => [ "205" ]
+      #   "40" => [ "205" ],
+      #   part_id => [ selected_variant1, selected_variant2 ]
       # }
       #
       # ( static kit options )  options = [ 1,2,3 ]
