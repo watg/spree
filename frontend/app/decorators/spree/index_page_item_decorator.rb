@@ -58,55 +58,51 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
   end
 
   def knit_your_own_prices
-    flavour_prices(:knit_your_own)
+
+    lowest_price, lowest_sale_price= nil
+
+    if memoized_product_page.kit.assembly_definition
+      item = object.product_page.kit.master
+
+      lowest_price = item.price_normal_in(current_currency) 
+      if item.in_sale?
+        lowest_sale_price = item.price_normal_sale_in(current_currency) 
+      end
+    else
+        flavour = :knit_your_own
+        lowest_price = memoized_product_page.lowest_normal_price(current_currency, flavour)
+        lowest_sale_price = memoized_product_page.lowest_sale_price(current_currency, flavour)
+    end
+    render_prices(lowest_price, lowest_sale_price)
   end
 
   def made_by_the_gang_prices
-    flavour_prices(:made_by_the_gang)
-  end
-  
-  def flavour_prices(flavour)
+
+    flavour = :made_by_the_gang
+    lowest_price, lowest_sale_price = nil
+
     if memoized_variant.present?
 
       if memoized_variant_in_stock?
 
         lowest_price = memoized_variant.price_normal_in(current_currency)
         if memoized_variant_in_sale?
-          sale_price = memoized_variant.price_normal_sale_in(current_currency)
+          lowest_sale_price = memoized_variant.price_normal_sale_in(current_currency)
         end
-        render_prices(lowest_price, sale_price, nil)
       else
-
-        render_out_of_stock
+        lowest_price = memoized_product_page.lowest_normal_price(current_currency, flavour)
+        lowest_sale_price = memoized_product_page.lowest_sale_price(current_currency, flavour)
       end
     else
-      if flavour == :knit_your_own &&  memoized_product_page.kit.present?
-
-        item = object.product_page.kit.master
-       
-        lowest_price = item.prices.select{ |price| price.currency == current_currency && price.sale == false && (price.is_kit == false) }.first
-        if item.in_sale?
-          sale_price = item.prices.select{ |price| price.currency == current_currency && price.sale == true && (price.is_kit == false) }.first
-        end
-
-        render_prices(lowest_price, sale_price, nil)        
-      else
-
       lowest_price = memoized_product_page.lowest_normal_price(current_currency, flavour)
-      highest_price = memoized_product_page.highest_normal_price(current_currency, flavour)
-
       lowest_sale_price = memoized_product_page.lowest_sale_price(current_currency, flavour)
-      render_prices(lowest_price, lowest_sale_price, highest_price)
-      end
     end
-  end
 
-  def render_prices(lowest_price, sale_price, highest_price)
-    # This has been commented out for the time being to see if it drives
-    # more conversion, DD 23/01/14
-    #if highest_price
-      prefix = 'from'# if lowest_price.amount != highest_price.amount
-    #end
+    render_prices(lowest_price, lowest_sale_price)
+  end
+  
+  def render_prices(lowest_price, sale_price)
+    prefix = 'from'
     if lowest_price
       price = "#{prefix} #{lowest_price.display_price}"
       if sale_price && ( sale_price.amount < lowest_price.amount )
@@ -127,7 +123,7 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
   def knit_your_own_link?
     ( variant_knit_your_own? && memoized_variant_in_stock? ) || 
     ( product_page_knit_your_own? &&  memoized_product_page.kit.variants.active(current_currency).in_stock.any?  ) ||
-    ( memoized_product_page.kit.present? )
+    ( product_page_knit_your_own? && memoized_product_page.kit.assembly_definition )
   end
 
   def knit_your_own_url
