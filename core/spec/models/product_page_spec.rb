@@ -69,24 +69,6 @@ describe Spree::ProductPage do
     end
   end
 
-  context "kit" do
-    let(:kit) { create(:product, product_group: product_group, product_type: "kit") }
-
-    it "creates a product_group if it does not exist when kit added" do
-      subject.product_groups = []
-      subject.kit = kit
-      subject.save
-      expect(subject.product_groups).to eq([kit.product_group])
-    end
-
-    it "does not creates a product_group if it does exist when kit added" do
-      subject.product_groups = [kit.product_group]
-      subject.kit = kit
-      expect(subject.product_groups).to eq([kit.product_group])
-    end
-
-  end
-
   describe "#available_variants" do
     let(:kit) { create(:product, product_group: product_group, product_type: "kit") }
     let(:kit_variants) { create_list(:variant, 2, product: kit) }
