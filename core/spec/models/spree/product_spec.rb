@@ -497,8 +497,7 @@ describe Spree::Product do
         expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
         expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
         expect(tree["size"]["big"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
-        expect(tree["language"]["french"]).to be_nil
-        expect(tree["language"]["english"]["in_stock"]).to be_false
+        expect(tree["language"]).to be_nil
       end
 
       it "should return untargeted variant_options_tree_for that are in stock " do
