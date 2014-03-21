@@ -128,29 +128,14 @@ module Spree
       end
     end
 
-    def check_stock_levels(variant, quantity)
-      display_name = %Q{#{variant.name}}
-      display_name += %Q{ (#{variant.options_text})} unless variant.options_text.blank?
-
-      if Stock::Quantifier.new(variant).can_supply? quantity
-        true
-      else
-        errors.add(:base, Spree.t(:out_of_stock, :scope => :order_populator, :item => display_name.inspect))
-        return false
-      end
-    end
-
     def check_stock_levels_for_variant_and_options(variant, quantity, options=[])
-      stock_check = [check_stock_levels(variant, quantity)]
+      desired_line_item = Spree::LineItem.new(variant_id: variant.id, quantity: quantity)
+      desired_line_item.line_item_options = options.map{|e|   Spree::LineItemOption.new(variant_id: e[0].id, quantity: e[1]) }
 
-      # Check stock for optional parts
-      options_check = options.map do |e|
-        check_stock_levels(e[0], e[1])
-      end
+      result = Spree::Stock::Quantifier.can_supply_order?(@order, desired_line_item)
 
-      stock_check += options_check if options_check
-
-      are_all_parts_in_stock?(stock_check)
+      result[:errors].each {|error_msg| puts order.errors.add(:base, error_msg) }
+      result[:in_stock]
     end
 
     def add_quantity_for_each_option(variant, option_ids)
@@ -177,8 +162,5 @@ module Spree
       variant.product.optional_parts_for_display.detect{|e| e.id == option.id}.count_part
     end
 
-    def are_all_parts_in_stock?(check_list)
-      check_list.inject(true) { |result, bool| bool && result}
-    end
   end
 end
