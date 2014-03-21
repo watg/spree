@@ -45,7 +45,7 @@
       <%= f.text_field :available_on, :value => datepicker_field_value(@product.available_on), :class => 'datepicker' %>
     <% end %>
 
-    <% unless @product.has_variants? %>
+    <#% unless @product.has_variants? %>
       <%= f.field_container :sku do %>
         <%= f.label :sku, Spree.t(:sku) %>
         <%= f.text_field :sku, :size => 16 %>
@@ -69,7 +69,7 @@
           <%= f.text_field :depth, :size => 4 %>
         </li>
       </ul>
-    <% end %>
+    <#% end %>
 
     <%= f.field_container :shipping_categories do %>
       <%= f.label :shipping_category_id, Spree.t(:shipping_categories) %>
