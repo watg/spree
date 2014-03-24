@@ -410,6 +410,14 @@ table {
 			text-decoration: none;
 		}	
 	}
+	iframe {
+		margin: 0;
+		display: block;
+		height: 100%;
+		width: 100%;
+		border: none;
+		min-height: 600px;
+	}
 }
 // Mobile .modal
 @media only screen and (max-width: 48em) {
