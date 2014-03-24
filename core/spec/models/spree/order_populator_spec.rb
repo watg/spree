@@ -10,6 +10,7 @@ describe Spree::OrderPopulator do
   let(:target_id) { 45 }
 
   before do
+    allow(order).to receive(:line_items).and_return([])
     order.should_receive(:contents).at_least(:once).and_return(Spree::OrderContents.new(self))
   end
 
