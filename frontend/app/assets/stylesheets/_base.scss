@@ -423,7 +423,10 @@ table {
 @media only screen and (max-width: 48em) {
 	.modal {
 		position: absolute !important;
-		width: 300px;
+		width: 300px !important;
+		h3 {
+			font-size: emCalc(50px);	
+		}
 	}
 }
 // Contact modal
