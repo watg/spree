@@ -23,7 +23,7 @@
 			<% required_class = part.optional ? 'optional' : 'required' %>
 			
 			<% if part.memoized_grouped_option_values.any?  %>
-				<li class="product-variants <%= required_class %>" data-tree="<%= part.memoized_variant_options_tree.to_json %>" data-adjustment="0" data-adp-id="<%= part.id %>"><%= part.presentation %> <span class="color-value"></span>
+				<li class="product-variants <%= required_class %>" data-tree="<%= part.memoized_variant_options_tree.to_json %>" data-adjustment="0" data-adp-id="<%= part.id %>"><%= part.presentation %> <% if part.optional? %><span class="optional">(Optional)</span><% end %> <span class="color-value"></span>
 					<% part.memoized_grouped_option_values.each do |type, values| %>
 					<div class="variant-options <%= type.url_safe_name.downcase %> <%= required_class %>" data-type="<%= type.url_safe_name.downcase %>">
 						<p><%= part.product.name %></p>
