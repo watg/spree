@@ -114,12 +114,14 @@ module Spree
         where(target_id: v.target.try(:id)).
         first
 
-      tab = v.product.assembly? ? "knit-your-own" : "made-by-the-gang"
+      tab = (v.product.assembly? || v.assembly_definition.present? ) ? "knit-your-own" : "made-by-the-gang"
 
-      product_page_url(host:       config[:host], 
-                       id:         ppage.permalink, 
-                       tab:        tab,
-                       variant_id: v.number)
+      params = {
+        host:       config[:host],
+        id:         ppage.permalink,
+        tab:        tab}
+      params.merge!(variant_id: v.number) if tab == 'made-by-the-gang'
+      product_page_url(params)
     end
     
     def data_source
