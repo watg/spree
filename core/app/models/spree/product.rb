@@ -413,6 +413,9 @@ module Spree
     def save_master
       if master && (master.changed? ||  master.new_record? )
         master.save
+        master.errors.each do |attr, message|
+          master.product.errors.add(attr, message)
+        end
       end
     end
 

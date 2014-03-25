@@ -9,7 +9,6 @@ module Spree
 
     def execute
       visible_option_type_ids = details.delete(:visible_option_type_ids)
-
       ActiveRecord::Base.transaction do
         assign_taxons(product, details[:taxon_ids])               unless details.has_key?(:product_properties_attributes)
         update_details(product, details.dup)
@@ -27,7 +26,8 @@ module Spree
 
       update_before(product_params)
 
-      unless product.update_attributes(product_params)
+      update_outcome = product.update_attributes(product_params)
+      if update_outcome == false or product.errors.any?
         add_error(:product, :details, product.errors.full_messages.join(', '))
       end
     end

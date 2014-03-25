@@ -47,7 +47,7 @@ module Spree
       dependent: :destroy
 
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-    validate :variant_weight
+    validate :validate_variant_weight
 
     has_many :taggings, as: :taggable
     has_many :tags, -> { order(:value) }, through: :taggings
@@ -204,7 +204,6 @@ module Spree
     def dynamic_kit_weight
       warning = "Only use this variant#dynamic_kit_weight to get kit weight right. Not suitable for getting kit weight of past orders"
       Rails.logger.info(warning)
-      puts(warning)
 
       self.assembly_definition.parts.where(optional: false).reduce(BigDecimal(0,2)) do |part_total_weight, part|
         first_available_variant = part.variants.detect {|v| v.weight && v.weight > 0 }
@@ -453,11 +452,12 @@ module Spree
     end
 
     private
-    def variant_weight
-      if not (self.product && self.product.product_type == 'kit')
+    def validate_variant_weight
+      if not ((self.product && self.product.product_type == 'kit') or ( self.is_master && self.new_record? ) )
         errors.add(:weight, 'must be greater than 0') if (self.weight.blank? || self.weight <= 0)
       end
     end
+
     def notify(msg)
       # Sends an email to Techadmin
       NotificationMailer.send_notification(msg)
