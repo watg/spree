@@ -218,38 +218,6 @@ describe Spree::LineItem do
       end
     end
 
-    context "Class Methods" do
-      let(:monogram) { create(:personalisation_monogram) }
-
-      it "generate_uuid" do
-        colour_id = monogram.colours.first.id
-        personalisations = [
-          {
-            personalisation_id: monogram.id,
-            amount: 1,
-            data: { 'colour' => colour_id, 'initials' => 'XX'},
-          },
-          {
-            personalisation_id: monogram.id,
-            amount: 2,
-            data: { 'colour' => colour_id, 'initials' => 'WW'},
-          },
-        ]
-
-        options_with_qty = [
-          [FactoryGirl.create(:variant), 1],
-          [FactoryGirl.create(:variant), 1],
-        ]
-
-        options_uuid = "#{options_with_qty[0][0].id}-#{options_with_qty[0][1]}:#{options_with_qty[1][0].id}-#{options_with_qty[1][1]}"
-        personalisation_uuid = "#{monogram.id}-colour-#{colour_id}-initials-WW:#{monogram.id}-colour-#{colour_id}-initials-XX"
-
-        expected_uuid = "#{variant.id}_#{personalisation_uuid}_#{options_uuid}"
-        actual_uuid = Spree::LineItem.generate_uuid( variant, options_with_qty, personalisations )
-
-        expect(actual_uuid).to eq(expected_uuid)
-      end
-    end
 
   end
 end

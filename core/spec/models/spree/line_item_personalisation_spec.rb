@@ -6,19 +6,6 @@ describe Spree::LineItemPersonalisation do
   let(:monogram) { create(:personalisation_monogram) }
   let(:lip) { build(:line_item_personalisation) }
 
-  context "#generate_uuid" do
-    let(:personalisation_params) {[{
-      personalisation_id: monogram.id,
-      amount: 123,
-      data: { 'colour' => monogram.colours.first.id, 'initials' => 'DD'},
-    }]}
-    subject { Spree::LineItemPersonalisation.generate_uuid personalisation_params }
-
-    it "returns textual description of the personalisation" do
-      subject.should == "#{monogram.id}-colour-#{monogram.colours.first.id}-initials-DD"
-    end
-  end
-
   context "#name" do
     subject { lip.name }
 

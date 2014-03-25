@@ -692,7 +692,7 @@ module Spree
     end
 
     def find_existing_line_item(variant, target_id, options_with_qty, personalisations)
-      uuid = LineItem.generate_uuid( variant, options_with_qty, personalisations )
+      uuid = Spree::VariantUuid.fetch(variant, options_with_qty, personalisations).number
       self.line_items.find_by(variant_id: variant.id, item_uuid: uuid, target_id: target_id)
     end
 

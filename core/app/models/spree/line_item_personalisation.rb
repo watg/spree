@@ -9,16 +9,6 @@ module Spree
       Spree::Personalisation.unscoped{ super }
     end
 
-    def self.generate_uuid( personalisations_params )
-      personalisations_params ||= []
-      uuids = personalisations_params.sort{|a,b| a[:data].sort <=> b[:data].sort }.map do |pp|
-        array = pp[:data].sort.flatten
-        array.unshift pp[:personalisation_id]
-        array.join('-')
-      end
-      uuids.join(':')
-    end
-
     def text
       "#{personalisation.name.capitalize} - #{data_to_text}"
     end
