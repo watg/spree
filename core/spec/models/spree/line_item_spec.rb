@@ -32,6 +32,38 @@ describe Spree::LineItem do
     end
   end
 
+  describe "#price_without_tax" do
+    context "order in USD" do
+      let(:order) { build(:order, currency: "GBP") }
+      before do
+        allow(order).to receive(:line_items).and_return([1])
+        subject.price = 45.99
+        subject.order = order
+      end
+      its(:price_without_tax) {should eq subject.price}
+    end
+    context "order in EUR" do
+      pending "Tax work"
+      let(:order) { build(:order, currency: "GBP") }
+      before do
+        allow(order).to receive(:line_items).and_return([1])
+        subject.price = 45.99
+        subject.order = order
+      end
+      #its(:price_without_tax) {should eq (subject.price * (1- Spree::Order::UK_EU_TAX_RATE))}
+    end
+    context "order in GBP" do
+      pending "Tax work"
+      let(:order) { build(:order, currency: "GBP") }
+      before do
+        allow(order).to receive(:line_items).and_return([1])
+        subject.price = 45.99
+        subject.order = order
+      end
+      #its(:price_without_tax) {should eq (subject.price * (1- Spree::Order::UK_EU_TAX_RATE))}
+    end
+  end
+
   context '#weight' do
     let(:variant10) { create(:variant, weight: 10) }
     let(:variant7)  { create(:variant, weight: 7) }
