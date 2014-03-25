@@ -2,6 +2,7 @@ FactoryGirl.define do
 
   factory :base_variant, class: Spree::Variant do
     weight 10
+    cost_price 10
     product { |p| p.association(:base_product) }
     option_values { [create(:option_value)] }
     sequence(:permalink)  {|n| "knitter-1-00#{n}"}

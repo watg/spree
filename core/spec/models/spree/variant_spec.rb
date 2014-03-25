@@ -124,15 +124,8 @@ describe Spree::Variant do
 
   context "weight" do
 
-    context "for product" do
-      subject { create(:variant, weight: 12.0) }
-      its(:weight) { should == 12.0 }
-    end
-
-    context "for static kit" do
-      subject { create(:variant, weight: nil, product: create(:product, product_type: 'kit'), parts: [ create(:part, weight: 5.0)] ) }
-      its(:weight) { should == 5.0 }
-    end
+    subject { create(:variant, weight: 12.0) }
+    its(:weight) { should == 12.0 }
 
     context "weight validation" do
       subject { Spree::Variant.new }
@@ -150,12 +143,34 @@ describe Spree::Variant do
     end
   end
 
+  context "cost_price" do
+
+    subject { create(:variant, cost_price: 12.0) }
+    its(:cost_price) { should == 12.0 }
+
+    context "cost_price validation" do
+      subject { Spree::Variant.new }
+      it "cost_price cannot be nil for non - kit variant" do
+        subject.valid?
+        expect(subject.error_on(:cost_price)).to_not be_blank
+      end
+
+      it "cost_price can be nil for kit variant" do
+        subject.product = create(:product, product_type: 'kit')
+        subject.valid?
+        expect(subject.error_on(:cost_price)).to be_blank
+      end
+      
+    end
+  end
+
+
   context "after create" do
     let!(:product) { create(:product) }
 
     it "propagate to stock items" do
       Spree::StockLocation.any_instance.should_receive(:propagate_variant)
-      product.variants.create(:name => "Foobar", weight: 10)
+      product.variants.create(:name => "Foobar", weight: 10, cost_price: 10)
     end
 
     context "stock location has disable propagate all variants" do
@@ -163,7 +178,7 @@ describe Spree::Variant do
 
       it "propagate to stock items" do
         Spree::StockLocation.any_instance.should_not_receive(:propagate_variant)
-        product.variants.create(:name => "Foobar", weight: 10)
+        product.variants.create(:name => "Foobar", weight: 10, cost_price: 10)
       end
     end
   end
