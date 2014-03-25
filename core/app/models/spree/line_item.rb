@@ -157,71 +157,46 @@ module Spree
     end
 
     def weight
-      if self.variant.static_kit? 
-        (static_kit_weight + options_weight) * self.quantity
-      else
-        (self.variant.weight.to_f + options_weight) * self.quantity
-      end
+      value_for(:weight)
     end
 
     def cost_price
-      if self.variant.static_kit? 
-        (static_kit_cost_price + options_cost_price) * self.quantity
-      else
-        (self.variant.cost_price.to_f + options_cost_price) * self.quantity
-      end
+      value_for(:cost_price)
     end
 
     private
 
-    def options_cost_price
+    def value_for(attribute)
+      if self.variant.static_kit? 
+        (static_kit_value_for(attribute) + options_value_for(attribute)) * self.quantity
+      else
+        (self.variant.cost_price.to_f + options_value_for(attribute)) * self.quantity
+      end
+    end
+
+    def options_value_for(attribute)
       self.line_item_options.reduce(0.0) do |w, o|
 
-        cost_price = o.variant.cost_price
+        value = o.variant.send(attribute)
         # We only want to notify if we are part of an assembly e.g. we are a line_item_option and we have a nil as 
         # a price
-        if cost_price.blank? 
-          notify("The weight of variant id: #{o.variant.id} is nil for line_item_option: #{o.id}")
-          cost_price = BigDecimal.new(0,2)
+        if value.blank? 
+          notify("The #{attribute} of variant id: #{o.variant.id} is nil for line_item_option: #{o.id}")
+          value = BigDecimal.new(0,2)
         end
 
-        w + ( cost_price.to_f * o.quantity )
+        w + ( value.to_f * o.quantity )
       end
     end
 
-    def static_kit_cost_price
-      kit_cost_price = self.variant.required_parts_for_display.inject(0.00) do |sum,part|
+    def static_kit_value_for(attribute)
+      kit_value = self.variant.required_parts_for_display.inject(0.00) do |sum,part|
         count_part = part.count_part 
-        part_cost_price = part.cost_price 
-        notify("Variant id #{part.try(:id)} has no cost_price") unless part_cost_price
-        sum + (count_part * part_cost_price.to_f)
+        part_value = part.send(attribute) 
+        notify("Variant id #{part.try(:id)} has no #{attribute}") unless part_value
+        sum + (count_part * part_value.to_f)
       end
-      kit_cost_price
-    end
-
-    def options_weight
-      self.line_item_options.reduce(0.0) do |w, o|
-
-        weight = o.variant.weight
-        # We only want to notify if we are part of an assembly e.g. we are a line_item_option and we have a nil as 
-        # a price
-        if weight.blank? 
-          notify("The weight of variant id: #{o.variant.id} is nil for line_item_option: #{o.id}")
-          weight = BigDecimal.new(0,2)
-        end
-
-        w + ( weight.to_f * o.quantity )
-      end
-    end
-
-    def static_kit_weight
-      kit_weight = self.variant.required_parts_for_display.inject(0.00) do |sum,part|
-        count_part = part.count_part 
-        part_weight = part.weight 
-        notify("Variant id #{part.try(:id)} has no weight") unless part_weight
-        sum + (count_part * part_weight.to_f)
-      end
-      kit_weight
+      kit_value
     end
 
     def notify(msg)
