@@ -22,6 +22,7 @@ module Spree
         location_shipped
         returning_customer
         currency
+        cost_price 
         revenue_pre_sale_pre_ship_pre_promo 
         revenue_pre_ship_pre_promo
         revenue_shipping_pre_promo
@@ -144,6 +145,7 @@ module Spree
         o.shipping_address.country.name,
         returning_customer(o,previous_users),
         o.currency,
+        o.cost_price_total.to_f,
         o.item_normal_total.to_f,
         o.item_total.to_f, # Total cost
         o.ship_total,
