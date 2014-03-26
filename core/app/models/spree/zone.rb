@@ -141,7 +141,7 @@ module Spree
       def clean_cache
         if kind == 'country'
           zoneables.each do |country|
-            Rails.cache.delete(country.iso.to_s)
+            Rails.cache.delete(country.try(:iso))
           end
         end
       end
