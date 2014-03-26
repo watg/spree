@@ -16,6 +16,14 @@ describe Spree::Order do
     Spree::LegacyUser.stub(:current => mock_model(Spree::LegacyUser, :id => 123))
   end
 
+  context "#cost_price_total" do
+
+    let!(:line_item1) { create(:line_item, :order => order, :quantity => 3 ) }
+    it "returns total price of all line_items" do
+      expect(order.cost_price_total).to eq 30
+    end
+  end
+
   context "#internal?" do
     it "returns true when order is marked as such" do
       order = build(:order, internal: true)
@@ -407,8 +415,8 @@ describe Spree::Order do
   context "empty!" do
     it "should clear out all line items and adjustments" do
       order = stub_model(Spree::Order)
-      order.stub(:line_items => line_items = [])
-      order.stub(:adjustments => adjustments = [])
+      order.stub(:line_items => _line_items = [])
+      order.stub(:adjustments => _adjustments = [])
       order.line_items.should_receive(:destroy_all)
       order.adjustments.should_receive(:destroy_all)
 

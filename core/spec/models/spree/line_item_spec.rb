@@ -83,6 +83,32 @@ describe Spree::LineItem do
       line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
       expect(line_item.cost_price).to eq 60.0
     end
+
+    it "inherits parts master cost_price if any parts variant has nil cost_price" do
+      line_item.variant = dynamic_kit_variant
+      variant10.cost_price = nil
+      variant10.save
+      line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
+      line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
+      line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
+      expect(line_item.cost_price).to eq 21.0
+    end
+
+
+    it "notifies if both part variant and master cost_price is nil and defaults to 0" do
+      line_item.variant = dynamic_kit_variant
+      variant10.cost_price = nil
+      variant10.product.master.cost_price = nil
+      variant10.save
+      variant10.product.master.save
+      lio = line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
+      line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
+      line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
+
+      line_item.should_receive(:notify).with("The cost_price of variant id: #{variant10.id} is nil for line_item_option: #{lio.id}")
+      expect(line_item.cost_price).to eq 20.0
+    end
+
   end
 
   context '#weight' do
@@ -136,6 +162,32 @@ describe Spree::LineItem do
       line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
       expect(line_item.weight).to eq 60.0
     end
+
+    it "inherits parts master weight if any parts variant has nil weight" do
+      line_item.variant = dynamic_kit_variant
+      variant10.weight = nil
+      variant10.save
+      line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
+      line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
+      line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
+      expect(line_item.weight).to eq 21.0
+    end
+
+
+    it "notifies if both part variant and master weight is nil and defaults to 0" do
+      line_item.variant = dynamic_kit_variant
+      variant10.weight = nil
+      variant10.product.master.weight = nil
+      variant10.save
+      variant10.product.master.save
+      lio = line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
+      line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
+      line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
+
+      line_item.should_receive(:notify).with("The weight of variant id: #{variant10.id} is nil for line_item_option: #{lio.id}")
+      expect(line_item.weight).to eq 20.0
+    end
+
   end
 
   context '#save' do
