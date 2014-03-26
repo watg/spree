@@ -14,7 +14,7 @@
 
     <%= zone_form.field_container :currency do %>
       <%= zone_form.label :currency, Spree.t(:currency) %><br />
-      <%= zone_form.select :currency, Spree::Config[:supported_currencies].split(',').map {|x| [x, x] }, {}, :class => 'select2 fullwidth' %>
+      <%= zone_form.select :currency, Spree::Config[:supported_currencies].split(',').sort.reverse.map {|x| [x, x] }, {}, :class => 'select2 fullwidth' %>
     <% end %>
 
     <div data-hook="default" class="field">
