@@ -185,10 +185,6 @@ module Spree
       displayable_variants.any?
     end
 
-    def static_kit?
-      self.assemblies_parts.any?
-    end
-
     def weight
       return super if self.is_master || self.new_record?
       return self.product.master.weight if super.blank?

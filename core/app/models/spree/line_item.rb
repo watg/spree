@@ -167,11 +167,7 @@ module Spree
     private
 
     def value_for(attribute)
-      if self.variant.static_kit? 
-        (static_kit_value_for(attribute) + options_value_for(attribute)) * self.quantity
-      else
-        (self.variant.cost_price.to_f + options_value_for(attribute)) * self.quantity
-      end
+        (self.variant.send(attribute).to_f + options_value_for(attribute)) * self.quantity
     end
 
     def options_value_for(attribute)
@@ -187,16 +183,6 @@ module Spree
 
         w + ( value.to_f * o.quantity )
       end
-    end
-
-    def static_kit_value_for(attribute)
-      kit_value = self.variant.required_parts_for_display.inject(0.00) do |sum,part|
-        count_part = part.count_part 
-        part_value = part.send(attribute) 
-        notify("Variant id #{part.try(:id)} has no #{attribute}") unless part_value
-        sum + (count_part * part_value.to_f)
-      end
-      kit_value
     end
 
     def notify(msg)

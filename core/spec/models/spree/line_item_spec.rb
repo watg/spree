@@ -36,19 +36,9 @@ describe Spree::LineItem do
     let(:variant10) { create(:variant, cost_price: 10) }
     let(:variant7)  { create(:variant, cost_price: 7) }
     let(:variant3)  { create(:variant, cost_price: 3) }
-    let(:static_kit_variant)  {
+    let(:kit_variant) {
       pdt = create(:product, product_type: 'kit')
-      pdt.assemblies_parts.create(part_id: variant10.id, optional: false, count: 2)
-      pdt.assemblies_parts.create(part_id: variant3.id, optional: true, count: 1)
-
-      v = create(:variant, product_id: pdt.id)
-      v.assemblies_parts.create(part_id: variant7.id, optional: false, count: 1)
-      v
-    }
-    let(:dynamic_kit_variant) {
-      pdt = create(:product, product_type: 'kit')
-      v = create(:variant, product_id: pdt.id, cost_price: 0, weight: 0)
-      v.assembly_definition = Spree::AssemblyDefinition.create(variant_id: v.id)
+      v = create(:variant, product_id: pdt.id, cost_price: 2, weight: 0)
       v
     }
     before do
@@ -58,45 +48,40 @@ describe Spree::LineItem do
       line_item.variant = variant10
       expect(line_item.cost_price).to eq (2*10.0) #20.0
     end
-    it "for static kit variant no option" do
-      line_item.variant = static_kit_variant
-      expect(line_item.cost_price).to eq (2*(2*10 + 1*7)) #54.0
+
+    it "for kit variant no option" do
+      line_item.variant = kit_variant
+      expect(line_item.cost_price).to eq 4
     end
 
-    it "for static kit variant with option" do
-      line_item.variant = static_kit_variant
-      line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
-      expect(line_item.cost_price).to eq (2*(2*10 + 1*7 + 1*3)) #60.0
-    end
-
-    it "for dynamic kit variant no option" do
-      line_item.variant = dynamic_kit_variant
+    it "for kit variant no option" do
+      line_item.variant = kit_variant
       line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
       line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
-      expect(line_item.cost_price).to eq 54.0
+      expect(line_item.cost_price).to eq 58.0
     end
 
-    it "for dynamic kit variant with option" do
-      line_item.variant = dynamic_kit_variant
+    it "for kit variant with option" do
+      line_item.variant = kit_variant
       line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
       line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
       line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
-      expect(line_item.cost_price).to eq 60.0
+      expect(line_item.cost_price).to eq 64.0
     end
 
     it "inherits parts master cost_price if any parts variant has nil cost_price" do
-      line_item.variant = dynamic_kit_variant
+      line_item.variant = kit_variant
       variant10.cost_price = nil
       variant10.save
       line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
       line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
       line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
-      expect(line_item.cost_price).to eq 21.0
+      expect(line_item.cost_price).to eq 25.0
     end
 
 
     it "notifies if both part variant and master cost_price is nil and defaults to 0" do
-      line_item.variant = dynamic_kit_variant
+      line_item.variant = kit_variant
       variant10.cost_price = nil
       variant10.product.master.cost_price = nil
       variant10.save
@@ -106,7 +91,7 @@ describe Spree::LineItem do
       line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
 
       line_item.should_receive(:notify).with("The cost_price of variant id: #{variant10.id} is nil for line_item_option: #{lio.id}")
-      expect(line_item.cost_price).to eq 20.0
+      expect(line_item.cost_price).to eq 24.0
     end
 
   end
@@ -115,19 +100,9 @@ describe Spree::LineItem do
     let(:variant10) { create(:variant, weight: 10) }
     let(:variant7)  { create(:variant, weight: 7) }
     let(:variant3)  { create(:variant, weight: 3) }
-    let(:static_kit_variant)  {
+    let!(:kit_variant) {
       pdt = create(:product, product_type: 'kit')
-      pdt.assemblies_parts.create(part_id: variant10.id, optional: false, count: 2)
-      pdt.assemblies_parts.create(part_id: variant3.id, optional: true, count: 1)
-
-      v = create(:variant, product_id: pdt.id)
-      v.assemblies_parts.create(part_id: variant7.id, optional: false, count: 1)
-      v
-    }
-    let(:dynamic_kit_variant) {
-      pdt = create(:product, product_type: 'kit')
-      v = create(:variant, product_id: pdt.id, cost_price: 0, weight: 0)
-      v.assembly_definition = Spree::AssemblyDefinition.create(variant_id: v.id)
+      v = create(:variant, product_id: pdt.id, cost_price: 0, weight: 1)
       v
     }
     before do
@@ -137,45 +112,33 @@ describe Spree::LineItem do
       line_item.variant = variant10
       expect(line_item.weight).to eq (2*10.0) #20.0
     end
-    it "for static kit variant no option" do
-      line_item.variant = static_kit_variant
-      expect(line_item.weight).to eq (2*(2*10 + 1*7)) #54.0
+
+    it "for kit variant no option" do
+      line_item.variant = kit_variant
+      expect(line_item.weight).to eq 2
     end
 
-    it "for static kit variant with option" do
-      line_item.variant = static_kit_variant
-      line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
-      expect(line_item.weight).to eq (2*(2*10 + 1*7 + 1*3)) #60.0
-    end
-
-    it "for dynamic kit variant no option" do
-      line_item.variant = dynamic_kit_variant
-      line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
-      line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
-      expect(line_item.weight).to eq 54.0
-    end
-
-    it "for dynamic kit variant with option" do
-      line_item.variant = dynamic_kit_variant
+    it "for  kit variant with option" do
+      line_item.variant = kit_variant
       line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
       line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
       line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
-      expect(line_item.weight).to eq 60.0
+      expect(line_item.weight).to eq 62.0
     end
 
     it "inherits parts master weight if any parts variant has nil weight" do
-      line_item.variant = dynamic_kit_variant
+      line_item.variant = kit_variant
       variant10.weight = nil
       variant10.save
       line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
       line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
       line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
-      expect(line_item.weight).to eq 21.0
+      expect(line_item.weight).to eq 23.0
     end
 
 
     it "notifies if both part variant and master weight is nil and defaults to 0" do
-      line_item.variant = dynamic_kit_variant
+      line_item.variant = kit_variant
       variant10.weight = nil
       variant10.product.master.weight = nil
       variant10.save
@@ -185,7 +148,7 @@ describe Spree::LineItem do
       line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
 
       line_item.should_receive(:notify).with("The weight of variant id: #{variant10.id} is nil for line_item_option: #{lio.id}")
-      expect(line_item.weight).to eq 20.0
+      expect(line_item.weight).to eq 22.0
     end
 
   end
