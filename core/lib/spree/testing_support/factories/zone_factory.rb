@@ -2,6 +2,7 @@ FactoryGirl.define do
   factory :global_zone, class: Spree::Zone do
     name 'GlobalZone'
     description { generate(:random_string) }
+    currency "USD"
     zone_members do |proxy|
       zone = proxy.instance_eval { @instance }
       Spree::Country.all.map do |c|
@@ -12,6 +13,7 @@ FactoryGirl.define do
 
   factory :zone, class: Spree::Zone do
     name { generate(:random_string) }
+    currency "USD"
     description { generate(:random_string) }
   end
 end
