@@ -30,7 +30,7 @@ module Spree
         variant
       end
 
-      def can_supply_order?(order, desired_line_item=nil)
+      def self.can_supply_order?(order, desired_line_item=nil)
         record = lambda {|line_item| {variant_id: line_item.variant_id, quantity: line_item.quantity}}
         line_item_to_record = lambda {|li, lio|([li] + [lio]).flatten.compact.map(&record) }
 
