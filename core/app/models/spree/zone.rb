@@ -5,8 +5,10 @@ module Spree
     has_and_belongs_to_many :shipping_methods, :join_table => 'spree_shipping_methods_zones'
 
     validates :name, presence: true, uniqueness: true
+
     after_save :remove_defunct_members
     after_save :remove_previous_default
+    after_save :clean_cache
 
     alias :members :zone_members
     accepts_nested_attributes_for :zone_members, allow_destroy: true, reject_if: proc { |a| a['zoneable_id'].blank? }
@@ -135,5 +137,14 @@ module Spree
       def remove_previous_default
         Spree::Zone.where('id != ?', self.id).update_all(default_tax: false) if default_tax
       end
+
+      def clean_cache
+        if kind == 'country'
+          zoneables.each do |country|
+            Rails.cache.delete(country.try(:iso))
+          end
+        end
+      end
+
   end
 end

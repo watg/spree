@@ -7,5 +7,6 @@ module Spree
       return nil if zoneable.nil?
       zoneable.name
     end
+
   end
 end
