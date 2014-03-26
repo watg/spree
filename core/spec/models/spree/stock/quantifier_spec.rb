@@ -35,7 +35,7 @@ describe Spree::Stock::Quantifier do
       let(:adding_rtw) { Spree::LineItem.new(variant_id: variant.id, quantity: 3) }
       let(:adding_kit) {
         li = Spree::LineItem.new(variant_id: variant.id, quantity: 1)
-        li.line_item_options = [Spree::LineItemOption.new(variant_id: variant.id, quantity: 5)]
+        li.line_item_parts = [Spree::LineItemPart.new(variant_id: variant.id, quantity: 5)]
         li
       }
       before do

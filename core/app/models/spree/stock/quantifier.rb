@@ -34,8 +34,8 @@ module Spree
         record = lambda {|line_item| {variant_id: line_item.variant_id, quantity: line_item.quantity}}
         line_item_to_record = lambda {|li, lio|([li] + [lio]).flatten.compact.map(&record) }
 
-        a = line_item_to_record[order.line_items,  order.line_items.map(&:line_item_options).flatten]
-        b = line_item_to_record[desired_line_item, (desired_line_item ? desired_line_item.line_item_options : [])]
+        a = line_item_to_record[order.line_items,  order.line_items.map(&:line_item_parts).flatten]
+        b = line_item_to_record[desired_line_item, (desired_line_item ? desired_line_item.line_item_parts : [])]
 
         variant_quantity_grouping = (a + b).reduce({}) {|hsh, c|
           k = c[:variant_id]

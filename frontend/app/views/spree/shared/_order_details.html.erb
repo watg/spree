@@ -66,19 +66,19 @@
 					<h4><%= link_to item.variant.product.name, path_to_variant(item, item.variant) %></h4>
 
           <%= item.variant.options_text unless item.variant.option_values.empty? %>
-          <% if item.line_item_options.required.any? %>
+          <% if item.line_item_parts.required.any? %>
             <h6>Parts:</h6>
             <ul class='assembly_parts'>
-              <% item.line_item_options.required.each do |o| %>
+              <% item.line_item_parts.required.each do |o| %>
                 <li><%= link_to [o.variant.name, o.variant.options_text].delete_if(&:empty?).join(' -- '), product_path(o.variant.product) %></li>
               <% end %>
             </ul>
           <% end %>
 
-          <% if item.line_item_options.optional.any? %>
+          <% if item.line_item_parts.optional.any? %>
             <h6>Optional Parts:</h6>
             <ul class='assembly_parts'>
-              <% item.line_item_options.optional.each do |o| %>
+              <% item.line_item_parts.optional.each do |o| %>
                 <li><%= link_to [o.variant.name, o.variant.options_text].delete_if(&:empty?).join(' -- '), product_path(o.variant.product) %></li>
               <% end %>
             </ul>

@@ -21,8 +21,8 @@ describe Spree::LineItem do
       
       before do
         subject.variant = dynamic_kit_variant
-        subject.line_item_options.create(quantity: 1, price: 1, variant_id: variant10.id, optional: false, assembly_definition_part_id: part1.id)
-        subject.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: true, assembly_definition_part_id: part2.id)
+        subject.line_item_parts.create(quantity: 1, price: 1, variant_id: variant10.id, optional: false, assembly_definition_part_id: part1.id)
+        subject.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: true, assembly_definition_part_id: part2.id)
         subject.save
       end
       its(:item_sku) { should eq [variant10.product.name, variant10.options_text].join(' - ')}
@@ -56,16 +56,16 @@ describe Spree::LineItem do
 
     it "for kit variant no option" do
       line_item.variant = kit_variant
-      line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
-      line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
+      line_item.line_item_parts.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
+      line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
       expect(line_item.cost_price).to eq 58.0
     end
 
     it "for kit variant with option" do
       line_item.variant = kit_variant
-      line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
-      line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
-      line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
+      line_item.line_item_parts.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
+      line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
+      line_item.line_item_parts.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
       expect(line_item.cost_price).to eq 64.0
     end
 
@@ -73,9 +73,9 @@ describe Spree::LineItem do
       line_item.variant = kit_variant
       variant10.cost_price = nil
       variant10.save
-      line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
-      line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
-      line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
+      line_item.line_item_parts.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
+      line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
+      line_item.line_item_parts.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
       expect(line_item.cost_price).to eq 25.0
     end
 
@@ -86,11 +86,11 @@ describe Spree::LineItem do
       variant10.product.master.cost_price = nil
       variant10.save
       variant10.product.master.save
-      lio = line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
-      line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
-      line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
+      lio = line_item.line_item_parts.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
+      line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
+      line_item.line_item_parts.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
 
-      line_item.should_receive(:notify).with("The cost_price of variant id: #{variant10.id} is nil for line_item_option: #{lio.id}")
+      line_item.should_receive(:notify).with("The cost_price of variant id: #{variant10.id} is nil for line_item_part: #{lio.id}")
       expect(line_item.cost_price).to eq 24.0
     end
 
@@ -120,9 +120,9 @@ describe Spree::LineItem do
 
     it "for  kit variant with option" do
       line_item.variant = kit_variant
-      line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
-      line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
-      line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
+      line_item.line_item_parts.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
+      line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
+      line_item.line_item_parts.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
       expect(line_item.weight).to eq 62.0
     end
 
@@ -130,9 +130,9 @@ describe Spree::LineItem do
       line_item.variant = kit_variant
       variant10.weight = nil
       variant10.save
-      line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
-      line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
-      line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
+      line_item.line_item_parts.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
+      line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
+      line_item.line_item_parts.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
       expect(line_item.weight).to eq 23.0
     end
 
@@ -143,11 +143,11 @@ describe Spree::LineItem do
       variant10.product.master.weight = nil
       variant10.save
       variant10.product.master.save
-      lio = line_item.line_item_options.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
-      line_item.line_item_options.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
-      line_item.line_item_options.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
+      lio = line_item.line_item_parts.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
+      line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
+      line_item.line_item_parts.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
 
-      line_item.should_receive(:notify).with("The weight of variant id: #{variant10.id} is nil for line_item_option: #{lio.id}")
+      line_item.should_receive(:notify).with("The weight of variant id: #{variant10.id} is nil for line_item_part: #{lio.id}")
       expect(line_item.weight).to eq 22.0
     end
 

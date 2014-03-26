@@ -37,7 +37,7 @@ module Spree
       [ 
         variant.id,
         Spree::LineItemPersonalisation.generate_uuid( personalisations ),
-        Spree::LineItemOption.generate_uuid( options_with_qty ),
+        Spree::LineItemPart.generate_uuid( options_with_qty ),
       ].join('_')
     end
 
@@ -83,12 +83,12 @@ module Spree
     alias normal_total normal_amount
 
     def options_and_personalisations_price
-      ( line_item_options.blank? ? 0 : amount_all_options ) +
+      ( line_item_parts.blank? ? 0 : amount_all_options ) +
       ( line_item_personalisations.blank? ? 0 : amount_all_personalisations ) 
     end
 
     def amount_all_options
-      list_amount = self.line_item_options.select{|e| e.optional }.map {|e| e.price * e.quantity}
+      list_amount = self.line_item_parts.select{|e| e.optional }.map {|e| e.price * e.quantity}
       list_amount.inject(0){|s,a| s += a; s}
     end
 
@@ -100,7 +100,7 @@ module Spree
     def assembly_selected_variants
       return unless variant.assembly_definition
 
-      line_item_options.inject({}) do |hsh, option|
+      line_item_parts.inject({}) do |hsh, option|
         hsh[option.assembly_definition_part_id] = option.variant_id
         hsh
       end
@@ -148,7 +148,7 @@ module Spree
       definition = self.variant.assembly_definition
       if definition
         definition.parts.map do |part|
-          option = self.line_item_options.where(optional: false, assembly_definition_part_id: part.id).first
+          option = self.line_item_parts.where(optional: false, assembly_definition_part_id: part.id).first
           "#{part.product.name} - #{option.variant.options_text}" if option
         end.compact.join(', ')
       else
@@ -171,13 +171,13 @@ module Spree
     end
 
     def options_value_for(attribute)
-      self.line_item_options.reduce(0.0) do |w, o|
+      self.line_item_parts.reduce(0.0) do |w, o|
 
         value = o.variant.send(attribute)
-        # We only want to notify if we are part of an assembly e.g. we are a line_item_option and we have a nil as 
+        # We only want to notify if we are part of an assembly e.g. we are a line_item_part and we have a nil as 
         # a price
         if value.blank? 
-          notify("The #{attribute} of variant id: #{o.variant.id} is nil for line_item_option: #{o.id}")
+          notify("The #{attribute} of variant id: #{o.variant.id} is nil for line_item_part: #{o.id}")
           value = BigDecimal.new(0,2)
         end
 
@@ -215,7 +215,7 @@ module Spree
     end
 
     def generate_uuid
-      options_with_qty = line_item_options.map do |o|
+      options_with_qty = line_item_parts.map do |o|
         [o.variant, o.quantity]
       end
 

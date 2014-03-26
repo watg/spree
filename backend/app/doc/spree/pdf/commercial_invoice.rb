@@ -118,7 +118,7 @@ module Spree
               item.display_amount.to_s
             ]
             if item.product.product_type == 'kit' or item.product.product_type == 'virtual_product'
-              item.line_item_options.each do |p|
+              item.line_item_parts.each do |p|
                 invoice_services_data << [
                   '-',
                   '-',

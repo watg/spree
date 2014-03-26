@@ -130,7 +130,7 @@ module Spree
 
     def check_stock_levels_for_variant_and_options(variant, quantity, options=[])
       desired_line_item = Spree::LineItem.new(variant_id: variant.id, quantity: quantity)
-      desired_line_item.line_item_options = options.map{|e|   Spree::LineItemOption.new(variant_id: e[0].id, quantity: e[1]) }
+      desired_line_item.line_item_parts = options.map{|e|   Spree::LineItemPart.new(variant_id: e[0].id, quantity: e[1]) }
 
       result = Spree::Stock::Quantifier.can_supply_order?(@order, desired_line_item)
 

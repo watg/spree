@@ -85,7 +85,7 @@ module Spree
           product_type_totals[ variant.product_type ] ||= 0 
           product_type_totals[ variant.product_type ] += cost 
           # Add the optional parts
-          option_costs = li.line_item_options.optional.inject(0) { |acc,val| acc + ( val.price * val.quantity ).to_f }
+          option_costs = li.line_item_parts.optional.inject(0) { |acc,val| acc + ( val.price * val.quantity ).to_f }
           product_type_totals[ variant.product_type ] += option_costs 
         elsif variant.product_type == 'pattern'
           product_type_totals['pattern'] ||= 0 

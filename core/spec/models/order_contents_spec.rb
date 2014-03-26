@@ -37,77 +37,77 @@ describe Spree::OrderContents do
       let(:variant_option1) { create(:variant) } 
       let(:variant_option2) { create(:variant) } 
 
-      let(:line_item_option_params) {[
+      let(:line_item_part_params) {[
         [variant_option1, 3, true]
       ]}
 
-      let(:line_item_option_params2) {[
+      let(:line_item_part_params2) {[
         [variant_option2, 2, true]
       ]}
 
-      let(:line_item_option_params3) {[
+      let(:line_item_part_params3) {[
         [variant_option2, 5, true]
       ]}
 
-      let(:line_item_option_params4) {[
+      let(:line_item_part_params4) {[
         [variant_option1, 7, true],
         [variant_option2, 5, true]
       ]}
 
       it 'should add one line item with one option' do
         puts 
-        line_item = subject.add(variant,1,nil,nil,line_item_option_params,nil)
+        line_item = subject.add(variant,1,nil,nil,line_item_part_params,nil)
         line_item.quantity.should == 1
         order.line_items.size.should == 1
-        line_item.line_item_options.size.should == 1
-        line_item.line_item_options.first.variant == variant_option1 
-        line_item.line_item_options.first.quantity == 3 
+        line_item.line_item_parts.size.should == 1
+        line_item.line_item_parts.first.variant == variant_option1 
+        line_item.line_item_parts.first.quantity == 3 
       end
 
       it 'should only have one line item with same option' do
-        line_item = subject.add(variant,1,nil,nil,line_item_option_params,nil)
-        line_item2 = subject.add(variant,1,nil,nil,line_item_option_params,nil)
+        line_item = subject.add(variant,1,nil,nil,line_item_part_params,nil)
+        line_item2 = subject.add(variant,1,nil,nil,line_item_part_params,nil)
         line_item.reload
         line_item.quantity.should == 2
         line_item.should == line_item2
         order.line_items.size.should == 1
-        line_item.line_item_options.size.should == 1
+        line_item.line_item_parts.size.should == 1
       end
 
       it 'should only have multiple line item with different options' do
-        line_item = subject.add(variant,1,nil,nil,line_item_option_params,nil)
-        line_item2 = subject.add(variant,1,nil,nil,line_item_option_params2,nil)
+        line_item = subject.add(variant,1,nil,nil,line_item_part_params,nil)
+        line_item2 = subject.add(variant,1,nil,nil,line_item_part_params2,nil)
         line_item.quantity.should == 1
         line_item2.quantity.should == 1
         order.line_items.size.should == 2
-        line_item.line_item_options.size.should == 1
-        line_item2.line_item_options.size.should == 1
+        line_item.line_item_parts.size.should == 1
+        line_item2.line_item_parts.size.should == 1
       end
 
       it 'should only have multiple line item with different same options difference qauntities' do
-        line_item = subject.add(variant,1,nil,nil,line_item_option_params2,nil)
-        line_item2 = subject.add(variant,1,nil,nil,line_item_option_params3,nil)
+        line_item = subject.add(variant,1,nil,nil,line_item_part_params2,nil)
+        line_item2 = subject.add(variant,1,nil,nil,line_item_part_params3,nil)
         line_item.quantity.should == 1
         line_item2.quantity.should == 1
         order.line_items.size.should == 2
-        line_item.line_item_options.size.should == 1
-        line_item2.line_item_options.size.should == 1
+        line_item.line_item_parts.size.should == 1
+        line_item2.line_item_parts.size.should == 1
       end
 
       it 'should only have one line item with same option when multiple options' do
-        line_item = subject.add(variant,1,nil,nil,line_item_option_params4,nil)
-        line_item2 = subject.add(variant,1,nil,nil,line_item_option_params4,nil)
+        line_item = subject.add(variant,1,nil,nil,line_item_part_params4,nil)
+        line_item2 = subject.add(variant,1,nil,nil,line_item_part_params4,nil)
         line_item.reload
         line_item.quantity.should == 2
         line_item.should == line_item2
         order.line_items.size.should == 1
-        line_item.line_item_options.size.should == 2
+        line_item.line_item_parts.size.should == 2
       end
 
       it "should update order totals" do
-        subject.add(variant,1,nil,nil,line_item_option_params,nil)
-        subject.add(variant,1,nil,nil,line_item_option_params,nil)
-        subject.add(variant,1,nil,nil,line_item_option_params2,nil)
+        subject.add(variant,1,nil,nil,line_item_part_params,nil)
+        subject.add(variant,1,nil,nil,line_item_part_params,nil)
+        subject.add(variant,1,nil,nil,line_item_part_params2,nil)
 
         # 99.97 = 3 * 19.99 + 5*3 + 5*3 + 5*2
         order.item_total.to_f.should == 99.97 
@@ -202,29 +202,29 @@ describe Spree::OrderContents do
 
       let(:variant_option1) { create(:variant) } 
 
-      let(:line_item_option_params) {[
+      let(:line_item_part_params) {[
         [variant_option1, 3]
       ]}
 
       it 'should only have one line item with same personalisations and option' do
-        line_item = subject.add(variant,1,nil,nil,line_item_option_params,personalisation_params)
-        line_item2 = subject.add(variant,1,nil,nil,line_item_option_params,personalisation_params)
+        line_item = subject.add(variant,1,nil,nil,line_item_part_params,personalisation_params)
+        line_item2 = subject.add(variant,1,nil,nil,line_item_part_params,personalisation_params)
         line_item.reload
         line_item.quantity.should == 2
         line_item.should == line_item2
         order.line_items.size.should == 1
         line_item.line_item_personalisations.size.should == 1
-        line_item.line_item_options.size.should == 1
+        line_item.line_item_parts.size.should == 1
       end
 
       it 'should only have multiple line item with different personalisations' do
         line_item = subject.add(variant,1,nil,nil,nil,personalisation_params)
-        line_item2 = subject.add(variant,1,nil,nil,line_item_option_params,nil)
+        line_item2 = subject.add(variant,1,nil,nil,line_item_part_params,nil)
         line_item.quantity.should == 1
         line_item2.quantity.should == 1
         order.line_items.size.should == 2
         line_item.line_item_personalisations.size.should == 1
-        line_item2.line_item_options.size.should == 1
+        line_item2.line_item_parts.size.should == 1
       end
     end
   end
