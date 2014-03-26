@@ -152,12 +152,12 @@ module Spree
         Spree::OrderPopulator.parse_options(variant, option_ids)
       else
         required = variant.required_parts_for_display.map do |r|
-          [r, r.count_part ]
+          [r, r.count_part, false, nil]
         end
 
         options = Spree::Variant.find(option_ids)
         optional = options.map do |o|
-          [o, part_quantity(variant,o)]
+          [o, part_quantity(variant,o), true, nil]
         end
         required + optional
       end

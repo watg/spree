@@ -41,8 +41,9 @@ describe Spree::OrderPopulator do
         product.add_part(part2, 2, true)
         product.add_part(required_part1, 2, false)
         product.add_part(required_part2, 1, false)
-        order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, match_array([ [required_part1, 2], [required_part2, 1], [part1, 1], [part2, 2] ]), [], target_id).and_return double.as_null_object
-        subject.populate(:products => { product.id => variant.id, :options => [part1.id, part2.id] }, :quantity => 1, :target_id => 45)
+        order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, match_array([ [required_part1, 2, false, nil], [required_part2, 1, false, nil], [part1, 1,true,nil], [part2, 2,true,nil] ]), [], target_id).and_return double.as_null_object
+        outcome = subject.populate(:products => { product.id => variant.id, :options => [part1.id, part2.id] }, :quantity => 1, :target_id => 45)
+        expect(outcome).to be_true
       end
     end
         

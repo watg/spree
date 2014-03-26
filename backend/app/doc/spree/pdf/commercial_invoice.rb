@@ -118,19 +118,6 @@ module Spree
               item.display_amount.to_s
             ]
             if item.product.product_type == 'kit' or item.product.product_type == 'virtual_product'
-
-              item.variant.required_parts_for_display.each do |p|
-                invoice_services_data << [
-                  '-',
-                  '-',
-                  'part',
-                  p.name,
-                  p.option_values.empty? ? '' : p.options_text,
-                  '-',
-                  p.count_part,
-                  '-',
-                ]
-              end
               item.line_item_options.each do |p|
                 invoice_services_data << [
                   '-',

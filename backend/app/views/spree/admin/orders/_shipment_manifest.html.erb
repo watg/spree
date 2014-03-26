@@ -22,16 +22,26 @@
       <% end %>
       <% if item.product.assembly? %>
         <hr />
-         Gang Member Nickname: <%= item.variant.product.gang_member.nickname %>
-        <hr />
+        Gang Member Nickname: <%= item.variant.product.gang_member.nickname %>
+      <hr />
+
+      <% if item.line_item_options.required.any? %>
+        <h6>Parts:</h6>
         <ul class='assembly_parts' style="list-style:none;">
-          <% ( item.variant.required_parts_for_display ).each do |v| %>
-            <li><%= v.count_part %> x <%= v.name + " (" + v.options_text + ")" %> </li>
-          <% end %>
-          <% item.line_item_options.each do |o| %>
-            <li><%= o.quantity %> x <%= o.variant.name + " (" + o.variant.options_text + ")" %></li>
+          <% item.line_item_options.required.each do |o| %>
+            <li><%= link_to "#{o.quantity} x #{o.variant.name} (#{o.variant.options_text})" , product_path(o.variant.product) %></li>
           <% end %>
         </ul>
+      <% end %>
+
+      <% if item.line_item_options.optional.any? %>
+        <h6>Optional Parts:</h6>
+        <ul class='assembly_parts' style="list-style:none;">
+          <% item.line_item_options.optional.each do |o| %>
+            <li><%= link_to "#{o.quantity} x #{o.variant.name} (#{o.variant.options_text})" , product_path(o.variant.product) %></li>
+          <% end %>
+        </ul>
+      <% end %>
       <% end %>
 
       <% if !item.line_item_personalisations.blank? %>

@@ -55,10 +55,11 @@ module Spree
 
           if variant.product.product_type == 'kit' or variant.product.product_type == 'virtual_product'
 
-            variant.required_parts_for_display.each do |p|
-              yield  csv_array( li, o, shipped_at, p, p.count_part, 'required_part', previous_users )
+            li.line_item_options.required.each do |p|
+              yield csv_array( li, o, shipped_at, p.variant, p.quantity, 'required_part', previous_users )
             end
-            li.line_item_options.each do |p|
+
+            li.line_item_options.optional.each do |p|
               yield csv_array( li, o, shipped_at, p.variant, p.quantity, 'optional_part', previous_users )
             end
 
