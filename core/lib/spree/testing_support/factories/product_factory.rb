@@ -9,6 +9,7 @@ FactoryGirl.define do
     individual_sale true
 
     weight 0.25
+    cost_price 0.25
 
     association :product_group, factory: :product_group, strategy: :build
     association :gang_member, factory: :gang_member, strategy: :build

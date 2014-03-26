@@ -129,12 +129,16 @@ describe Spree::Variant do
 
     context "weight validation" do
       subject { Spree::Variant.new }
-      it "weight cannot be nil for non - kit variant" do
+      # This has been disabled whilst we decide if we want this functionality
+      # DD 26/03/14
+      xit "weight cannot be nil for non - kit variant" do
         subject.valid?
         expect(subject.error_on(:weight)).to_not be_blank
       end
 
-      it "weight can be nil for kit variant" do
+      # This has been disabled whilst we decide if we want this functionality
+      # DD 26/03/14
+      xit "weight can be nil for kit variant" do
         subject.product = create(:product, product_type: 'kit')
         subject.valid?
         expect(subject.error_on(:weight)).to be_blank
@@ -150,12 +154,16 @@ describe Spree::Variant do
 
     context "cost_price validation" do
       subject { Spree::Variant.new }
-      it "cost_price cannot be nil for non - kit variant" do
+      # This has been disabled whilst we decide if we want this functionality
+      # DD 26/03/14
+      xit "cost_price cannot be nil for non - kit variant" do
         subject.valid?
         expect(subject.error_on(:cost_price)).to_not be_blank
       end
 
-      it "cost_price can be nil for kit variant" do
+      # This has been disabled whilst we decide if we want this functionality
+      # DD 26/03/14
+      xit "cost_price can be nil for kit variant" do
         subject.product = create(:product, product_type: 'kit')
         subject.valid?
         expect(subject.error_on(:cost_price)).to be_blank
@@ -589,7 +597,7 @@ describe Spree::Variant do
 
     context "Assembly Definition" do
       let(:assembly_definition) { create(:assembly_definition, variant: variant) }
-      let(:variant_part)  { create(:base_variant) }
+      let(:variant_part)  { create(:variant) }
       let(:product_part)  { variant_part.product }
       let(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: product_part) }
       let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
