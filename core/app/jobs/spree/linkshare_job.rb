@@ -1,7 +1,6 @@
 module Spree
   class LinkshareJob
     include Spree::Core::Engine.routes.url_helpers
-    include Spree::CdnHelper
 
     def perform
       persist( feed, config[:storage_method].to_sym)
@@ -71,6 +70,10 @@ module Spree
     private
     def config
       FEEDS_CONFIG['linkshare'].symbolize_keys
+    end
+
+    def cdn_url(path)
+      ['http:/', ENV['S3_HOST_ALIAS'], path].join('/')
     end
 
     def gender(v)
