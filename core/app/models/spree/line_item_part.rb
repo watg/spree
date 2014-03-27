@@ -9,12 +9,4 @@ class Spree::LineItemPart < ActiveRecord::Base
   scope :optional, lambda { where(optional: true) }
   scope :required, lambda { where(optional: false) }
 
-  def self.generate_uuid( options_with_qty )
-    options_with_qty = [] if options_with_qty.blank?
-    uuid = options_with_qty.sort{|a,b| a[0].id <=> b[0].id }.map do |e|
-      "#{e[0].id}-#{e[1]}"
-    end
-    uuid.join(':')
-  end
-
 end
