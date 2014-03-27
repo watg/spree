@@ -67,12 +67,12 @@ WATG.signup = {
 					var message_cont = WATG.signup.globals.responses.children('div');
 					message_cont.html(e.message);
 					// Switch off response conditional for promos. When we have a promo code to display, we don't mind if the user's already signed up.
-					/*if (e.response !== 'success') {
+					if (e.response !== 'success') {
 						WATG.signup.showError();
-					} else {*/
-						message_cont.html(WATG.signup.getPromo);
+					} else {
+						message_cont.html(e.message);
 						WATG.signup.setCookie();
-					/*}*/
+					}
 					WATG.signup.globals.responses.fadeIn();
 				}
 			})
