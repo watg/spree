@@ -95,7 +95,9 @@ module Spree
       end
 
       initializer 'spree.promo.register.promotions.actions' do |app|
-        app.config.spree.promotions.actions = [Spree::Promotion::Actions::CreateAdjustment,
+        app.config.spree.promotions.actions = [
+          Spree::Promotion::Actions::CreateAdjustment,
+          Spree::Promotion::Actions::CreateShippingAdjustment,
           Spree::Promotion::Actions::CreateLineItems]
       end
 

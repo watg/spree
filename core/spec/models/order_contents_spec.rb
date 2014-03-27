@@ -55,7 +55,6 @@ describe Spree::OrderContents do
       ]}
 
       it 'should add one line item with one option' do
-        puts 
         line_item = subject.add(variant,1,nil,nil,line_item_part_params,nil)
         line_item.quantity.should == 1
         order.line_items.size.should == 1

@@ -33,14 +33,6 @@ module Spree
 
     attr_accessor :target_shipment
 
-    def self.generate_uuid( variant, options_with_qty, personalisations )
-      [ 
-        variant.id,
-        Spree::LineItemPersonalisation.generate_uuid( personalisations ),
-        Spree::LineItemPart.generate_uuid( options_with_qty ),
-      ].join('_')
-    end
-
     def add_personalisations(collection)
       objects = collection.map do |params|
         Spree::LineItemPersonalisation.new params
@@ -216,14 +208,14 @@ module Spree
 
     def generate_uuid
       options_with_qty = line_item_parts.map do |o|
-        [o.variant, o.quantity]
+        [o.variant, o.quantity, o.optional, o.assembly_definition_part_id]
       end
 
       personalisations_params = line_item_personalisations.map do |p|
         { data: p.data, personalisation_id: p.personalisation_id }
       end
 
-      self.class.generate_uuid( variant, options_with_qty, personalisations_params )
+      Spree::VariantUuid.fetch(variant, options_with_qty, personalisations_params).number
     end
 
   end

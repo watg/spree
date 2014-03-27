@@ -17,5 +17,4 @@ class Spree::LineItemPart < ActiveRecord::Base
     uuid.join(':')
   end
 
-
 end
