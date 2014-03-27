@@ -118,7 +118,7 @@ module Spree
     end
 
     def sufficient_stock?
-      result = Spree::Stock::Quantifier.can_supply_order?(self.order, self)
+      result = Spree::Stock::Quantifier.can_supply_order?(self.order)
       result[:in_stock]
     end
 
