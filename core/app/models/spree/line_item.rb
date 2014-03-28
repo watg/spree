@@ -58,6 +58,12 @@ module Spree
       end
     end
 
+    def price_without_tax
+      return price if order.currency == "USD"
+      nb_of_li = order.line_items.count
+      price - ( order.tax / nb_of_li )
+    end
+
     def copy_tax_category
       if variant
         self.tax_category = variant.product.tax_category
@@ -128,7 +134,7 @@ module Spree
     end
 
     def sufficient_stock?
-      result = Spree::Stock::Quantifier.can_supply_order?(self.order, self)
+      result = Spree::Stock::Quantifier.can_supply_order?(self.order)
       result[:in_stock]
     end
 
