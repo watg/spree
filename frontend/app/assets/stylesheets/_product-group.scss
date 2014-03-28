@@ -942,7 +942,7 @@
 			border-top: 1px dotted #333;
 			label,
 			input {
-				margin-bottom: 0;
+				margin: emCalc(10px) 0;
 				display: inline-block;
 				width: auto;
 			}
