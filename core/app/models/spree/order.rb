@@ -695,8 +695,8 @@ module Spree
         }.squish!).uniq.count > 0
     end
 
-    def find_existing_line_item(variant, target_id, options_with_qty, personalisations)
-      uuid = Spree::VariantUuid.fetch(variant, options_with_qty, personalisations).number
+    def find_existing_line_item(variant, parts, personalisations, target_id)
+      uuid = Spree::VariantUuid.fetch(variant, parts, personalisations).number
       self.line_items.find_by(variant_id: variant.id, item_uuid: uuid, target_id: target_id)
     end
 

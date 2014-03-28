@@ -9,12 +9,12 @@ module Spree
     #  Sale feature
     ## Transfer from spree extension product-assembly with options
     #
-    def add(variant, quantity=1, currency=nil, shipment=nil, options=nil, personalisations=nil, target_id=nil)
-      options_with_qty = (options.blank? ? [] : options)
-      line_item = order.find_existing_line_item(variant, target_id, options_with_qty, personalisations)
-      add_to_line_item(line_item, variant, quantity, currency, shipment, options_with_qty, personalisations, target_id)
+    def add(variant, quantity = 1, currency = nil, shipment = nil, parts, personalisations, target_id)
+      currency ||= Spree::Config[:currency] # default to that if none is provided
+      line_item = add_to_line_item(variant, quantity, currency, shipment, parts, personalisations, target_id)
+      line_item
     end
-    
+
     # Remove variant qty from line_item
     # We need to fix the method below if we ever plan to use the api for incrementing and 
     # decrementing line_items
@@ -30,12 +30,16 @@ module Spree
     
     private
 
-    #  Sale feature
-    ## Transfert from spree extension product-assembly with options
-    #
-    def add_to_line_item(line_item, variant, quantity, currency=nil, shipment=nil, options=nil, personalisations=nil, target_id=nil)
-      currency ||= Spree::Config[:currency] # default to that if none is provided
-      
+    def check_stock_levels_for_line_item(line_item)
+      result = Spree::Stock::Quantifier.can_supply_order?(@order, line_item)
+      result[:errors].each {|error_msg| @order.errors.add(:base, error_msg) }
+      result[:in_stock]
+    end
+
+    def add_to_line_item(variant, quantity, currency=nil, shipment=nil, parts, personalisations, target_id)
+
+      line_item = grab_line_item_by_variant(variant, parts, personalisations, target_id)
+
       if line_item
         line_item.target_shipment = shipment
         line_item.quantity += quantity.to_i
@@ -44,7 +48,7 @@ module Spree
         line_item = order.line_items.new(quantity: quantity, variant: variant)
         line_item.target_shipment = shipment
         line_item.currency = currency unless currency.nil?
-        line_item.add_options(options,currency) unless options.blank?
+        line_item.add_parts(parts) unless parts.blank?
         line_item.add_personalisations(personalisations) unless personalisations.blank?
         line_item.product_nature = variant.product.nature
         line_item.target_id = target_id
@@ -57,16 +61,16 @@ module Spree
           line_item.price += amount_all_options
           line_item.normal_price += amount_all_options
         end
-       
+
         line_item.in_sale = variant.in_sale if variant.in_sale?
 
-        order.line_items << line_item
-
-        line_item
+        line_item.item_uuid = Spree::VariantUuid.fetch(variant, parts, personalisations).number
       end
 
-      line_item.save
-      order.reload
+      if check_stock_levels_for_line_item(line_item)
+        line_item.save
+      end
+
       line_item
     end
 
@@ -85,5 +89,16 @@ module Spree
       line_item
     end
 
+    def grab_line_item_by_variant(variant, parts, personalisations, target_id, raise_error = false)
+      line_item = order.find_existing_line_item(variant, parts, personalisations, target_id)
+
+      if !line_item.present? && raise_error
+        raise ActiveRecord::RecordNotFound, "Line item not found for variant #{variant.sku}"
+      end
+
+      line_item
+    end
+
   end
+
 end

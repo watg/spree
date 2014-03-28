@@ -24,7 +24,6 @@ module Spree
     validates :price, numericality: true
     validates_with Stock::AvailabilityValidator
 
-    before_save :set_item_uuid
     after_save :update_inventory
     after_save :update_order
     after_destroy :update_order
@@ -34,10 +33,21 @@ module Spree
     attr_accessor :target_shipment
 
     def add_personalisations(collection)
-      objects = collection.map do |params|
-        Spree::LineItemPersonalisation.new params
+      objects = collection.map do |o|
+        # o is an OpenStruct which maps to directly to LineItemPersonalisation 
+        # hence we can use marshal_dump as we are lazy
+        Spree::LineItemPersonalisation.new o.marshal_dump
       end
       self.line_item_personalisations = objects
+    end
+
+    def add_parts(collection)
+      objects = collection.map do |o|
+        # o is an OpenStruct which maps to directly to LineItemPart 
+        # hence we can use marshal_dump as we are lazy
+        Spree::LineItemPart.new o.marshal_dump
+      end
+      self.line_item_parts = objects
     end
 
     def copy_price
@@ -75,11 +85,15 @@ module Spree
     alias normal_total normal_amount
 
     def options_and_personalisations_price
-      ( line_item_parts.blank? ? 0 : amount_all_options ) +
+      d { line_item_parts.blank? }
+      d {amount_all_parts }
+      ( line_item_parts.blank? ? 0 : amount_all_parts ) +
       ( line_item_personalisations.blank? ? 0 : amount_all_personalisations ) 
     end
 
-    def amount_all_options
+    def amount_all_parts
+      d { self.line_item_parts.first.price }
+      d { self.line_item_parts.first.quantity }
       list_amount = self.line_item_parts.select{|e| e.optional }.map {|e| e.price * e.quantity}
       list_amount.inject(0){|s,a| s += a; s}
     end
@@ -200,22 +214,6 @@ module Spree
         order.create_tax_charge!
         order.update!
       end
-    end
-
-    def set_item_uuid
-      self.item_uuid = generate_uuid
-    end
-
-    def generate_uuid
-      options_with_qty = line_item_parts.map do |o|
-        [o.variant, o.quantity, o.optional, o.assembly_definition_part_id]
-      end
-
-      personalisations_params = line_item_personalisations.map do |p|
-        { data: p.data, personalisation_id: p.personalisation_id }
-      end
-
-      Spree::VariantUuid.fetch(variant, options_with_qty, personalisations_params).number
     end
 
   end
