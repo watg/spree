@@ -299,11 +299,11 @@ describe Spree::CheckoutController do
   context "When last inventory item has been purchased" do
     let(:product) { mock_model(Spree::Product, :name => "Amazing Object") }
     let(:variant) { mock_model(Spree::Variant) }
-    let(:line_item) { mock_model Spree::LineItem, :insufficient_stock? => true, :amount => 0, :normal_amount => 0, :line_item_options => []}
     let(:order) { create(:order) }
+    let(:line_item) { create(:line_item, order: order) }
 
     before do
-      order.stub(:line_items => [line_item], :state => "payment")
+      order.stub( :state => "payment")
 
       configure_spree_preferences do |config|
         config.track_inventory_levels = true
@@ -319,9 +319,6 @@ describe Spree::CheckoutController do
         response.should redirect_to spree.cart_path
       end
 
-      it "should set flash message for no inventory" do
-        flash[:error].should == Spree.t(:inventory_error_flash_for_insufficient_quantity , :names => "'#{product.name}'" )
-      end
     end
   end
 
