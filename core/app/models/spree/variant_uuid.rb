@@ -8,8 +8,8 @@ module Spree
     end
     
     class << self
-      def fetch(variants, parts=[], personalisations=[])
-        recipe = build_hash(variants, parts, personalisations)
+      def fetch(variant, parts=nil, personalisations=nil )
+        recipe = build_hash(variant, parts, personalisations)
 
         recipe_sha1 = Digest::SHA1.hexdigest(recipe.to_json)
 

@@ -14,6 +14,7 @@ module Spree
       personalisations ||= []
       currency ||= Spree::Config[:currency] # default to that if none is provided
       line_item = add_to_line_item(variant, quantity, currency, shipment, parts, personalisations, target_id)
+      reload_totals
       line_item
     end
 
@@ -28,9 +29,14 @@ module Spree
       end
 
       remove_from_line_item(line_item, variant, quantity, shipment)
+      reload_totals
     end
     
     private
+
+    def reload_totals
+      order.reload
+    end
 
     def check_stock_levels_for_line_item(line_item)
       result = Spree::Stock::Quantifier.can_supply_order?(@order, line_item)
@@ -47,7 +53,7 @@ module Spree
         line_item.quantity += quantity.to_i
         line_item.currency = currency unless currency.nil?
       else
-        line_item = Spree::LineItem.new(quantity: quantity, variant: variant)
+        line_item = order.line_items.new(quantity: quantity, variant: variant)
         line_item.target_shipment = shipment
         line_item.currency = currency unless currency.nil?
         line_item.add_parts(parts) 
@@ -69,11 +75,7 @@ module Spree
         line_item.item_uuid = Spree::VariantUuid.fetch(variant, parts, personalisations).number
       end
 
-      if check_stock_levels_for_line_item(line_item)
-        order.line_items << line_item
-        line_item.save
-      end
-
+      line_item.save
       line_item
     end
 

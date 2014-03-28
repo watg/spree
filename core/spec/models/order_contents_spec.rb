@@ -148,29 +148,29 @@ describe Spree::OrderContents do
 
     context 'given a personalisation' do
       let(:monogram) { create(:personalisation_monogram) }
-      let(:personalisation_params) {[{
+      let(:personalisation_params) {[ OpenStruct.new(
         personalisation_id: monogram.id,
         amount: 1,
         data: { 'colour' => monogram.colours.first.id, 'initials' => 'DD'},
-      }]}
+      )]}
 
-      let(:personalisation_params2) {[{
+      let(:personalisation_params2) {[OpenStruct.new(
         personalisation_id: monogram.id,
         amount: 1,
         data: { 'colour' => monogram.colours.first.id, 'initials' => 'XX'},
-      }]}
+      )]}
 
       let(:personalisation_params3) {[
-        {
+        OpenStruct.new(
           personalisation_id: monogram.id,
           amount: 1,
           data: { 'colour' => monogram.colours.first.id, 'initials' => 'XX'},
-        },
-        {
+        ),
+        OpenStruct.new(
           personalisation_id: monogram.id,
           amount: 2,
           data: { 'colour' => monogram.colours.first.id, 'initials' => 'WW'},
-        },
+        ),
       ]}
 
       it 'should add one line item with one personalisation' do
@@ -306,10 +306,6 @@ describe Spree::OrderContents do
                          currency:   'GBP'
           )
         ]
-        d { "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"}
-        d { "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"}
-        d { "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"}
-        d { parts }
 
         _line_item = subject.send(:add_to_line_item, variant, 1, 'USD', nil, parts, [], nil)
 
