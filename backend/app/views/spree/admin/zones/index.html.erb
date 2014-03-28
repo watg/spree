@@ -12,6 +12,14 @@
 
 <%= paginate @zones %>
 
+<div class="field">
+  <div class="warning note">
+    <i class='icon-warning-sign'></i> Metapack's integration depends on the names of the zones. 
+    <br>
+    <i class='icon-warning-sign'></i> Adjust the Metapack settings for the zones accordingly. 
+  </div>
+</div> 
+
 <% if @zones.any? %>
   <table class="index" id='listing_zones' data-hook>
     <colgroup>
