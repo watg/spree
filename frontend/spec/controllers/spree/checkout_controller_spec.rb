@@ -299,7 +299,7 @@ describe Spree::CheckoutController do
   context "When last inventory item has been purchased" do
     let(:product) { mock_model(Spree::Product, :name => "Amazing Object") }
     let(:variant) { mock_model(Spree::Variant) }
-    let(:line_item) { mock_model Spree::LineItem, :insufficient_stock? => true, :amount => 0, :normal_amount => 0 }
+    let(:line_item) { mock_model Spree::LineItem, :insufficient_stock? => true, :amount => 0, :normal_amount => 0, :line_item_options => []}
     let(:order) { create(:order) }
 
     before do

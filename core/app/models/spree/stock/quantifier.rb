@@ -18,7 +18,7 @@ module Spree
         def can_supply_order?(order, desired_line_item=nil)
           line_item_to_record = lambda do |li, lio|
             ([li] + [lio]).flatten.compact.map do |line_item|
-              li_id = line_item.kind_of?(Spree::LineItem) ? line_item.id : line_item.line_item.id
+              li_id = line_item.kind_of?(Spree::LineItem) ? line_item.id : line_item.line_item.try(:id)
 
               { line_item_id: li_id, 
                 variant_id: line_item.variant_id, 
