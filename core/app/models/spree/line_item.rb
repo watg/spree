@@ -48,6 +48,7 @@ module Spree
 
     def price_without_tax
       number_of_line_items = order.line_items.count
+      return 0 if number_of_line_items == 0
       amount = price - ( order.tax_total / number_of_line_items )
       BigDecimal.new(amount).round(2, BigDecimal::ROUND_HALF_UP)
     end
