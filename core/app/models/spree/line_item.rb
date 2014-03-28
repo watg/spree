@@ -91,15 +91,11 @@ module Spree
     alias normal_total normal_amount
 
     def options_and_personalisations_price
-      d { line_item_parts.blank? }
-      d {amount_all_parts }
       ( line_item_parts.blank? ? 0 : amount_all_parts ) +
       ( line_item_personalisations.blank? ? 0 : amount_all_personalisations ) 
     end
 
     def amount_all_parts
-      d { self.line_item_parts.first.price }
-      d { self.line_item_parts.first.quantity }
       list_amount = self.line_item_parts.select{|e| e.optional }.map {|e| e.price * e.quantity}
       list_amount.inject(0){|s,a| s += a; s}
     end

@@ -9,7 +9,7 @@ module Spree
     #  Sale feature
     ## Transfer from spree extension product-assembly with options
     #
-    def add(variant, quantity = 1, currency = nil, shipment = nil, parts, personalisations, target_id)
+    def add(variant, quantity=1, currency=nil, shipment=nil, parts=[], personalisations=[], target_id=nil)
       currency ||= Spree::Config[:currency] # default to that if none is provided
       line_item = add_to_line_item(variant, quantity, currency, shipment, parts, personalisations, target_id)
       line_item
@@ -36,7 +36,7 @@ module Spree
       result[:in_stock]
     end
 
-    def add_to_line_item(variant, quantity, currency=nil, shipment=nil, parts, personalisations, target_id)
+    def add_to_line_item(variant, quantity, currency, shipment, parts, personalisations, target_id)
 
       line_item = grab_line_item_by_variant(variant, parts, personalisations, target_id)
 
@@ -45,11 +45,11 @@ module Spree
         line_item.quantity += quantity.to_i
         line_item.currency = currency unless currency.nil?
       else
-        line_item = order.line_items.new(quantity: quantity, variant: variant)
+        line_item = Spree::LineItem.new(quantity: quantity, variant: variant)
         line_item.target_shipment = shipment
         line_item.currency = currency unless currency.nil?
-        line_item.add_parts(parts) unless parts.blank?
-        line_item.add_personalisations(personalisations) unless personalisations.blank?
+        line_item.add_parts(parts) 
+        line_item.add_personalisations(personalisations)
         line_item.product_nature = variant.product.nature
         line_item.target_id = target_id
 
@@ -68,6 +68,7 @@ module Spree
       end
 
       if check_stock_levels_for_line_item(line_item)
+        order.line_items << line_item
         line_item.save
       end
 
