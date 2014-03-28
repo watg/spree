@@ -98,7 +98,7 @@ module Spree
       s3 = AWS::S3.new
       s3.buckets[ config[:s3_bucket]].
         objects[  config[:name]     ].
-        write(value)
+        write(value, :acl => :public_read)
     rescue
       notify("Linkshare Atom feed could no be saved on S3: #{value[0..400]}...")
     end
