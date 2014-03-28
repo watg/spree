@@ -393,9 +393,13 @@ describe Spree::Order do
   end
 
   context "insufficient_stock_lines" do
-    let(:line_item) { mock_model Spree::LineItem, :insufficient_stock? => true }
+    let!(:line_item) { create(:line_item, order: order)}
 
-    before { order.stub(:line_items => [line_item]) }
+    before { 
+      allow(Spree::Stock::Quantifier).
+      to receive(:can_supply_order?).
+      and_return({errors: [{line_item_id: line_item.id, msg: "out of stock"}]})
+    }
 
     it "should return line_item that has insufficient stock on hand" do
       order.insufficient_stock_lines.size.should == 1

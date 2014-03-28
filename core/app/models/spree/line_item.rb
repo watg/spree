@@ -119,7 +119,7 @@ module Spree
 
     def sufficient_stock?
       result = Spree::Stock::Quantifier.can_supply_order?(self.order)
-      result[:in_stock]
+      result[:errors].select {|err| err[:line_item_id] == self.id}.blank?
     end
 
     def insufficient_stock?

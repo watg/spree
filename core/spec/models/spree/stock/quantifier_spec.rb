@@ -34,7 +34,8 @@ describe Spree::Stock::Quantifier do
         actual_result = subject.can_supply_order?(order)
         
         expect(actual_result[:in_stock]).to eq false
-        expect(actual_result[:errors].size).to eq 1
+        out_of_stock_line_item = actual_result[:errors].map {|li| li[:line_item_id] }
+        expect(out_of_stock_line_item).to match_array([order.line_items[0].id])
       end
     end
 

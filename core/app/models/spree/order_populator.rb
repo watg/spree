@@ -134,7 +134,7 @@ module Spree
 
       result = Spree::Stock::Quantifier.can_supply_order?(@order, desired_line_item)
 
-      result[:errors].each {|error_msg| puts order.errors.add(:base, error_msg) }
+      result[:errors].each {|err| self.errors.add(:base, err[:msg]) }
       result[:in_stock]
     end
 
