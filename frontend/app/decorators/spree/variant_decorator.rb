@@ -23,6 +23,9 @@ class Spree::VariantDecorator < Draper::Decorator
     data = [ object.name ]
     if object.display_name
       data.unshift object.display_name
+      if data.first.blank?
+        data.shift
+      end
     end
     data.join("<br>").html_safe
   end
@@ -40,7 +43,7 @@ class Spree::VariantDecorator < Draper::Decorator
   end
 
   def kit_price_in_pence(currency,count)
-    ( object.kit_price_in(currency) * 100 * count ).to_i
+    (object.kit_price_in(currency) * 100 * count ).to_i
   end
 
   def gang_member
