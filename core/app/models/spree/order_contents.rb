@@ -9,7 +9,9 @@ module Spree
     #  Sale feature
     ## Transfer from spree extension product-assembly with options
     #
-    def add(variant, quantity=1, currency=nil, shipment=nil, parts=[], personalisations=[], target_id=nil)
+    def add(variant, quantity=1, currency=nil, shipment=nil, parts=nil, personalisations=nil, target_id=nil)
+      parts ||= []
+      personalisations ||= []
       currency ||= Spree::Config[:currency] # default to that if none is provided
       line_item = add_to_line_item(variant, quantity, currency, shipment, parts, personalisations, target_id)
       line_item

@@ -14,7 +14,7 @@ describe Spree::OrderContents do
 
   context "#add" do    
     it "should set the correct attributes to the line item" do
-      line_item = subject.send(:add, variant, 1, 'USD', nil, nil, nil, 2)
+      _line_item = subject.send(:add, variant, 1, 'USD', nil, nil, nil, 2)
 
       expect(order.line_items.first.variant).to eq(variant) 
       expect(order.line_items.first.target_id).to eq(2) 
@@ -23,8 +23,8 @@ describe Spree::OrderContents do
     end
 
     it "should create different line items for different targets" do
-      line_item1 = subject.send(:add, variant, 1, 'USD', nil, nil, nil, 1)
-      line_item2 = subject.send(:add, variant, 1, 'USD', nil, nil, nil, 2)
+      _line_item1 = subject.send(:add, variant, 1, 'USD', nil, nil, nil, 1)
+      _line_item2 = subject.send(:add, variant, 1, 'USD', nil, nil, nil, 2)
 
       expect(order.line_items.first.variant).to eq(variant)
       expect(order.line_items.first.target_id).to eq(1)
@@ -38,21 +38,53 @@ describe Spree::OrderContents do
       let(:variant_option2) { create(:variant) } 
 
       let(:line_item_part_params) {[
-        [variant_option1, 3, true]
+        OpenStruct.new( 
+                       variant_id: variant_option1.id, 
+                       quantity:   3, 
+                       optional:   true,
+                       price:      5,
+                       currency:   'GBP'
+                      )
       ]}
 
       let(:line_item_part_params2) {[
-        [variant_option2, 2, true]
+        OpenStruct.new( 
+                       variant_id: variant_option2.id, 
+                       quantity:   2, 
+                       optional:   true,
+                       price:      5,
+                       currency:   'GBP'
+                      )
       ]}
 
       let(:line_item_part_params3) {[
-        [variant_option2, 5, true]
+        OpenStruct.new( 
+                       variant_id: variant_option2.id, 
+                       quantity:   5, 
+                       optional:   true,
+                       price:      5,
+                       currency:   'GBP'
+                      )
+
       ]}
 
       let(:line_item_part_params4) {[
-        [variant_option1, 7, true],
-        [variant_option2, 5, true]
+        OpenStruct.new( 
+                       variant_id: variant_option1.id, 
+                       quantity:   7, 
+                       optional:   true,
+                       price:      5,
+                       currency:   'GBP'
+                      ),
+        OpenStruct.new( 
+                       variant_id: variant_option2.id, 
+                       quantity:   2, 
+                       optional:   true,
+                       price:      5,
+                       currency:   'GBP'
+                      )
       ]}
+
 
       it 'should add one line item with one option' do
         line_item = subject.add(variant,1,nil,nil,line_item_part_params,nil)
@@ -193,16 +225,22 @@ describe Spree::OrderContents do
 
     context 'given a combination of personalisation and option' do
       let(:monogram) { create(:personalisation_monogram) }
-      let(:personalisation_params) {[{
+      let(:personalisation_params) {[ OpenStruct.new(
         personalisation_id: monogram.id,
         amount: 1,
         data: { 'colour' => monogram.colours.first.id, 'initials' => 'DD'},
-      }]}
+      )]}
 
       let(:variant_option1) { create(:variant) } 
 
       let(:line_item_part_params) {[
-        [variant_option1, 3]
+        OpenStruct.new( 
+                       variant_id: variant_option1.id, 
+                       quantity:   3, 
+                       optional:   true,
+                       price:      5,
+                       currency:   'GBP'
+                      )
       ]}
 
       it 'should only have one line item with same personalisations and option' do
@@ -233,7 +271,7 @@ describe Spree::OrderContents do
 
     context "prices" do
       it "should use normal variant price by default" do
-        line_item = subject.send(:add_to_line_item, nil, variant, 1, currency)
+        line_item = subject.send(:add_to_line_item, variant, 1, currency, nil, [], [], nil)
 
         expect(line_item.in_sale?).to be_false
         expect(line_item.price).to eq(variant.price_normal_in(currency).amount)
@@ -241,7 +279,7 @@ describe Spree::OrderContents do
       end
 
       it "should use normal_sale variant price when variant is in sale" do
-        line_item = subject.send(:add_to_line_item, nil, variant_in_sale, 1, currency)
+        line_item = subject.send(:add_to_line_item, variant_in_sale, 1, currency, nil, [], [], nil)
 
         expect(line_item.in_sale?).to be_true 
         expect(line_item.price).to eq(variant_in_sale.price_normal_sale_in(currency).amount)
@@ -251,12 +289,29 @@ describe Spree::OrderContents do
 
       it "should set the line item price to include the optional parts' prices" do
         variant = create(:variant, price: 60.00)
-        
-        part1 = create(:part)
-        part2 = create(:part)
-        
-        options = [ [part1, 2, true], [part2, 1, true] ]
-        line_item = subject.send(:add_to_line_item, nil, variant, 1, 'USD', nil, options)
+
+        parts = [
+          OpenStruct.new( 
+                         variant_id: create(:part).id, 
+                         quantity:   2, 
+                         optional:   true,
+                         price:      5,
+                         currency:   'GBP'
+                        ),
+          OpenStruct.new( 
+                         variant_id: create(:part).id, 
+                         quantity:   1, 
+                         optional:   true,
+                         price:      5,
+                         currency:   'GBP'
+          )
+        ]
+        d { "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"}
+        d { "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"}
+        d { "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"}
+        d { parts }
+
+        _line_item = subject.send(:add_to_line_item, variant, 1, 'USD', nil, parts, [], nil)
 
         expect(order.line_items.first.price).to eq(75.00)
       end
@@ -266,11 +321,11 @@ describe Spree::OrderContents do
   context "#remove" do
     context 'given a personalisation' do
       let(:monogram) { create(:personalisation_monogram) }
-      let(:personalisation_params) {[{
+      let(:personalisation_params) {[ OpenStruct.new(
         personalisation_id: monogram.id,
         amount: 1,
         data: { 'colour' => monogram.colours.first.id, 'initials' => 'DD'},
-      }]}
+      )]}
 
       it 'should remove one line item with one personalisation' do
         line_item = subject.add(variant,3,nil,nil,nil,personalisation_params)
