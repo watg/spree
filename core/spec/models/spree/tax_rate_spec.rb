@@ -20,11 +20,7 @@ describe Spree::TaxRate do
           :zone => create(:zone, :name => 'other_zone')
         )
       end
-
-      context "when the order currency does not match the rate currency" do
-        
-      end
-
+      
       context "when there is no default tax zone" do
         before do
           @zone = create(:zone, :name => "Country Zone", :default_tax => false, :zone_members => [])
