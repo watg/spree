@@ -26,7 +26,7 @@ describe Spree::OrderPopulator do
 
       it "of assembly definition type" do
         variant.assembly_definition = Spree::AssemblyDefinition.new
-        allow(Spree::OrderPopulator).to receive(:parse_options).with(variant, { part_id => selected_variant.id }).and_return([[selected_variant, 3, false, part_id]])
+        allow(Spree::OrderPopulator).to receive(:parse_options).with(variant, { part_id => selected_variant.id }, 'USD').and_return([[selected_variant, 3, false, part_id]])
         
         order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, [[selected_variant, 3, false, part_id]], [], target_id).and_return double.as_null_object
         subject.populate(:products => { product.id => variant.id, :options => { part_id => selected_variant.id } }, :quantity => 1, :target_id => 45)
@@ -41,7 +41,42 @@ describe Spree::OrderPopulator do
         product.add_part(part2, 2, true)
         product.add_part(required_part1, 2, false)
         product.add_part(required_part2, 1, false)
-        order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, match_array([ [required_part1, 2, false, nil], [required_part2, 1, false, nil], [part1, 1,true,nil], [part2, 2,true,nil] ]), [], target_id).and_return double.as_null_object
+
+        expected_parts = [
+          OpenStruct.new(
+            assembly_definition_part_id: nil, 
+            variant_id: required_part1.id,
+            quantity: 2,
+            optional: false,
+            price: nil,
+            currency: "USD"
+          ),
+          OpenStruct.new(
+            assembly_definition_part_id: nil, 
+            variant_id: required_part2.id,
+            quantity: 1,
+            optional: false,
+            price: nil,
+            currency: "USD"
+          ),
+          OpenStruct.new(
+            assembly_definition_part_id: nil, 
+            variant_id: part1.id,
+            quantity: 1,
+            optional: true,
+            price: nil,
+            currency: "USD"
+          ),
+          OpenStruct.new(
+            assembly_definition_part_id: nil, 
+            variant_id: part2.id,
+            quantity: 2,
+            optional: true,
+            price: nil,
+            currency: "USD"
+          )
+        ]
+        order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, match_array(expected_parts), [], target_id).and_return double.as_null_object
         outcome = subject.populate(:products => { product.id => variant.id, :options => [part1.id, part2.id] }, :quantity => 1, :target_id => 45)
         expect(outcome).to be_true
       end
@@ -50,11 +85,13 @@ describe Spree::OrderPopulator do
 
     context "can take a list of products and personalisations" do
       let(:monogram) { create(:personalisation_monogram, product: product) }
-      let(:personalisation_params) {[{
-        personalisation_id: monogram.id,
-        amount: "10.0",
-        data: { 'colour' => monogram.colours.first.id, 'initials' => 'XXX'},
-      }]}
+      let(:personalisation_params) {[
+        OpenStruct.new( 
+         personalisation_id: monogram.id,
+         amount: "10.0",
+         data: { 'colour' => monogram.colours.first.id, 'initials' => 'XXX'},
+        )
+      ]}
 
       it "of simple type" do
         order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, [], personalisation_params, target_id).and_return double.as_null_object
@@ -102,7 +139,7 @@ describe Spree::OrderPopulator do
 
   context "with variant parameters" do
     it "can take a list of variants with quantites and add them to the order" do
-      order.contents.should_receive(:add).with(variant, 5, subject.currency, nil, [], nil, nil).and_return double.as_null_object
+      order.contents.should_receive(:add).with(variant, 5, subject.currency, nil, [], [], nil).and_return double.as_null_object
       subject.populate(:variants => { variant.id => 5 })
     end
   end

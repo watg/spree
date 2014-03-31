@@ -174,13 +174,30 @@ module Spree
       personalisations = Spree::OrderPopulator.parse_personalisations(personalisation_params, currency)
 
       if quantity > 0
-        line_item = @order.contents.add(variant, quantity = 1, currency, nil, parts, personalisations, target_id)
-        unless line_item.valid?
-          errors.add(:base, line_item.errors.messages.values.join(" "))
-          return false
+        if check_stock_levels_for_variant_and_options(variant, quantity, parts, personalisations)
+          shipment = nil
+          line_item = @order.contents.add(variant, quantity, currency, shipment, parts, personalisations, target_id)
+          unless line_item.valid?
+            errors.add(:base, line_item.errors.messages.values.join(" "))
+            return false
+          end
         end
       end
+
+    end
+
+
+    def check_stock_levels_for_variant_and_options(variant, quantity, parts, personalisations)
+      #desired_line_item = Spree::LineItem.new(variant_id: variant.id, quantity: quantity)
+      #desired_line_item.line_item_options = options.map{|e|   Spree::LineItemOption.new(variant_id: e[0].id, quantity: e[1]) }
+
+      #result = Spree::Stock::Quantifier.can_supply_order?(order, quaity, parts, personaliisations)
+
+      #result[:errors].each {|error_msg| order.errors.add(:base, error_msg) }
+      #result[:in_stock]
+      true
     end
 
   end
+
 end
