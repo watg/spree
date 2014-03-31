@@ -47,10 +47,8 @@ module Spree
     end
 
     def price_without_tax
-      number_of_line_items = order.line_items.count
-      return 0 if number_of_line_items == 0
-      amount = price - ( order.tax_total / number_of_line_items )
-      BigDecimal.new(amount).round(2, BigDecimal::ROUND_HALF_UP)
+      amount_without_tax = price - ( amount / order.item_total ) * order.tax_total
+      BigDecimal.new(amount_without_tax).round(2, BigDecimal::ROUND_HALF_UP)
     end
 
     def copy_tax_category
