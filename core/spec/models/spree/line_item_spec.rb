@@ -33,35 +33,20 @@ describe Spree::LineItem do
   end
 
   describe "#price_without_tax" do
-    context "order in USD" do
-      let(:order) { build(:order, currency: "GBP") }
-      before do
-        allow(order).to receive(:line_items).and_return([1])
-        subject.price = 45.99
-        subject.order = order
-      end
-      its(:price_without_tax) {should eq subject.price}
+    subject {line_item}
+
+    before do
+      subject.update_attributes(quantity: 5, price: 45.99)
+
+      allow(subject.order).to receive(:tax_total).and_return(11.49)
+      subject.order.line_items << create(:line_item, price: 12.88, quantity: 3)
+      subject.order.save!
     end
-    context "order in EUR" do
-      pending "Tax work"
-      let(:order) { build(:order, currency: "GBP") }
-      before do
-        allow(order).to receive(:line_items).and_return([1])
-        subject.price = 45.99
-        subject.order = order
-      end
-      #its(:price_without_tax) {should eq (subject.price * (1- Spree::Order::UK_EU_TAX_RATE))}
-    end
-    context "order in GBP" do
-      pending "Tax work"
-      let(:order) { build(:order, currency: "GBP") }
-      before do
-        allow(order).to receive(:line_items).and_return([1])
-        subject.price = 45.99
-        subject.order = order
-      end
-      #its(:price_without_tax) {should eq (subject.price * (1- Spree::Order::UK_EU_TAX_RATE))}
-    end
+
+    # order_total = 45.99 * 5 + 12.88 * 3 = 229.95 + 38.64 = 268.59
+    # proportion = 229.95 / 268.59 = 0.856
+    # tax = 11.49 * 0.856 = 9.83
+    its(:price_without_tax) { should eq (36.15) } # 45.99 - 9.83 = 36.15
   end
 
   context '#weight' do

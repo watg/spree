@@ -297,7 +297,7 @@ module Spree
     end
 
     context "import param and tax adjustments" do
-      let!(:tax_rate) { create(:tax_rate, amount: 0.05, calculator: Calculator::DefaultTax.create) }
+      let!(:tax_rate) { create(:tax_rate, amount: 0.05, calculator: Calculator::DefaultTax.create, currency: "USD") }
       let(:other_variant) { create(:variant) }
 
       let(:line_item_attributes) do

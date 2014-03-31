@@ -18,6 +18,7 @@ describe Spree::OrderDecorator, type: :decorator do
 
   before do
     subject.stub(:line_items).and_return(line_items)
+    order.stub(:item_total).and_return(2)
     subject.stub(:discounts).and_return(adjustments)
   end
 
