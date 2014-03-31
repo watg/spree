@@ -47,9 +47,8 @@ module Spree
     end
 
     def price_without_tax
-      return price if order.currency == "USD"
-      nb_of_li = order.line_items.count
-      price - ( order.tax / nb_of_li )
+      amount_without_tax = price - ( amount / order.item_total ) * order.tax_total
+      BigDecimal.new(amount_without_tax).round(2, BigDecimal::ROUND_HALF_UP)
     end
 
     def copy_tax_category
