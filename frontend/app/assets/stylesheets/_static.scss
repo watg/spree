@@ -353,3 +353,52 @@ body.thank-you {
 		}
 	}
 }
+
+/* Hang With The Gang */
+.olapic-gallery {
+	.row-shipping-and-contact + .container > div.row {
+  		max-width: none !important;
+		background-color: #f9f9f9;
+  	}
+	.row-olapic-gallery {
+		position: relative;
+		margin: 0 auto;
+		max-width: 62.5em;
+		a {
+			outline: 0;
+		}
+		h1, h2 {
+			text-align: center;
+		}
+		h1 {
+			font-size: 0;
+			line-height: 0;
+		}
+		h2 {
+			margin-bottom: emCalc(20px);
+			font-family: $watg-font-light;
+			font-size: emCalc(20px);
+			font-weight: normal;
+			span {
+				font-family: $watg-font;
+			}
+		}
+		ul {
+			padding: 0 1px;
+			li {
+				margin: 0;
+				padding: 0;
+			}
+			&.odd {
+				li {
+					float: left;
+				}
+			}
+			&.even {
+				li {
+					float: right;
+				}
+			}
+		}
+	}
+}
