@@ -9,6 +9,8 @@ module Spree
     
     class << self
       def fetch(variant, parts=nil, personalisations=nil )
+        parts ||= []
+        personalisations ||= []
         recipe = build_hash(variant, parts, personalisations)
 
         recipe_sha1 = Digest::SHA1.hexdigest(recipe.to_json)
@@ -56,8 +58,8 @@ module Spree
       @base_variant ||= Spree::Variant.find((self.recipe[:base_variant_id]||0))
     end
 
-    def options
-      @options ||= JSON.parse((self.recipe[:options]||"[]")).map do|hsh|
+    def parts
+      @parts ||= JSON.parse((self.recipe[:parts]||"[]")).map do|hsh|
         part = Spree::AssemblyDefinitionPart.find(hsh['part_id']) if hsh['part_id']
         OpenStruct.new(
                         part: part,
