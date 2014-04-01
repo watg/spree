@@ -27,25 +27,4 @@ describe Spree::OrderPopulator do
     end
   end
 
-  describe "#check_stock_levels_for_variant_and_options" do
-
-    it "returns true when order can be supplied" do
-      allow(Spree::Stock::Quantifier).
-        to receive(:can_supply_order?).
-        and_return({in_stock: true, errors: []})
-
-      expect(subject.send(:check_stock_levels_for_variant_and_options, selected_variant, 1, [], [])).
-        to eq true
-    end
-
-    it "returns false when order cannot be supplied" do
-      allow(Spree::Stock::Quantifier).
-        to receive(:can_supply_order?).
-        and_return({in_stock: false, errors: [{msg: "Oops this is out of stock"}]})
-
-      expect(subject.send(:check_stock_levels_for_variant_and_options, selected_variant, 10, [], [])).
-        to eq false
-      expect(subject.errors[:base]).to match_array(["Oops this is out of stock"])
-    end
-  end
 end

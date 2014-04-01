@@ -32,6 +32,12 @@ module Spree
 
     attr_accessor :target_shipment
 
+    class << self
+      def without(line_item)
+        where.not(id: line_item.try(:id))
+      end
+    end
+
     def add_personalisations(collection)
       objects = collection.map do |o|
         # o is an OpenStruct which maps to directly to LineItemPersonalisation 

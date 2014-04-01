@@ -43,24 +43,27 @@ module Spree
             end
           end
 
-          a = line_item_to_record[order.line_items,  order.line_items.map(&:line_item_options).flatten]
-          b = if desired_line_item && desired_line_item.new_record?
-                line_item_to_record[desired_line_item, (desired_line_item ? desired_line_item.line_item_options : [])]
+          data_set = order.line_items.without(desired_line_item)
+          a = line_item_to_record[data_set,  data_set.map(&:line_item_parts).flatten]
+          b = if desired_line_item
+                line_item_to_record[desired_line_item, (desired_line_item ? desired_line_item.line_item_parts : [])]
               else
                 # nothing to do because desired_line_item is already
                 # part of the order
                 [] 
               end
 
+
           variant_quantity_grouping = (a + b).reduce({}) {|hsh, c|
                              k = c[:variant_id]
                              hsh[k] ||= 0; hsh[k] += c[:quantity]
                              hsh}
+
           errors = []
           stock_check = variant_quantity_grouping.map {|variant_id, quantity|
                             variant = Spree::Variant.find(variant_id)
                             in_stock = Spree::Stock::Quantifier.new(variant).can_supply?(quantity)
-                            errors << add_error(variant, a) unless in_stock
+                            errors << add_error(variant, (a+b)) unless in_stock
                             in_stock}
           result = stock_check.reduce(true) {|can_supply,c| can_supply && c}
 
