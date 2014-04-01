@@ -2,10 +2,8 @@ module Spree
   class OrderInventory
     attr_accessor :order
 
-    def initialize(order,line_item)
-      @order     = order
-      @line_item = line_item
-      @variant   = line_item.variant
+    def initialize(order)
+      @order = order
     end
 
     # Only verify inventory for completed orders (as orders in frontend checkout
@@ -15,19 +13,19 @@ module Spree
     # In case shipment is passed the stock location should only unstock or
     # restock items if the order is completed. That is so because stock items
     # are always unstocked when the order is completed through +shipment.finalize+
-    def verify(shipment = nil)
+    def verify(line_item, shipment = nil)
       if order.completed? || shipment.present?
 
-        variant_units = inventory_units_for(variant)
+        variant_units = inventory_units_for(line_item.variant)
 
         if variant_units.size < line_item.quantity
           quantity = line_item.quantity - variant_units.size
 
-          shipment = determine_target_shipment(variant) unless shipment
+          shipment = determine_target_shipment(line_item.variant) unless shipment
 
-          add_to_shipment(shipment, variant, quantity)
+          add_to_shipment(shipment, line_item.variant, quantity)
         elsif variant_units.size > line_item.quantity
-          remove(variant_units, shipment)
+          remove(line_item, variant_units, shipment)
         end
       else
         true
@@ -40,15 +38,15 @@ module Spree
     end
 
     private
-    def remove(variant_units, shipment = nil)
+    def remove(line_item, variant_units, shipment = nil)
       quantity = variant_units.size - line_item.quantity
 
       if shipment.present?
-        remove_from_shipment(shipment, variant, quantity)
+        remove_from_shipment(shipment, line_item.variant, quantity)
       else
-        order.shipments.each do |s|
+        order.shipments.each do |shipment|
           break if quantity == 0
-          quantity -= remove_from_shipment(s, variant, quantity)
+          quantity -= remove_from_shipment(shipment, line_item.variant, quantity)
         end
       end
     end
@@ -58,15 +56,13 @@ module Spree
     # first unshipped that already includes this variant
     # first unshipped that's leaving from a stock_location that stocks this variant
     def determine_target_shipment(variant)
-      shipment = order.shipments.detect do |s|
-        (s.ready? || s.pending?) && s.include?(variant)
+      shipment = order.shipments.detect do |shipment|
+        (shipment.ready? || shipment.pending?) && shipment.include?(variant)
       end
 
-      shipment ||= order.shipments.detect do |s|
-        (s.ready? || s.pending?) && variant.stock_location_ids.include?(s.stock_location_id)
+      shipment ||= order.shipments.detect do |shipment|
+        (shipment.ready? || shipment.pending?) && variant.stock_location_ids.include?(shipment.stock_location_id)
       end
-
-      shipment
     end
 
     def add_to_shipment(shipment, variant, quantity)

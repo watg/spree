@@ -205,7 +205,7 @@ module Spree
         if variant.product.can_have_parts?
           Spree::OrderInventoryAssembly.new(self).verify(self, target_shipment)
         else
-          Spree::OrderInventory.new(self.order, self).verify(target_shipment)
+          Spree::OrderInventory.new(self.order).verify(self, target_shipment)
         end 
       end 
     end
