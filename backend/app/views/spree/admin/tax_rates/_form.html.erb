@@ -17,6 +17,10 @@
           <%= f.check_box :included_in_price %>
           <%= f.label :included_in_price, Spree.t(:included_in_price) %>
         </div>
+        <div data-hook="show_rate" class="field">
+          <%= f.check_box :show_rate_in_label %>
+          <%= f.label :show_rate_in_label, Spree.t(:show_rate_in_label) %>
+        </div>
       </div>
 
       <div class="omega six columns">
@@ -28,9 +32,9 @@
           <%= f.label :tax_category_id, Spree.t(:tax_category) %>
           <%= f.collection_select(:tax_category_id, @available_categories,:id, :name, {}, {:class => 'select2 fullwidth'}) %>
         </div>
-        <div data-hook="show_rate" class="field">
-          <%= f.check_box :show_rate_in_label %>
-          <%= f.label :show_rate_in_label, Spree.t(:show_rate_in_label) %>
+        <div class="field">
+          <%= f.label :currency, Spree.t(:currency) %>
+          <%= f.select :currency, Spree::Config[:supported_currencies].split(',').map {|x| [x, x]}, {}, {:class => 'select2 fullwidth'} %>
         </div>
       </div>
     </fieldset>

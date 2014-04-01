@@ -20,7 +20,7 @@ describe Spree::TaxRate do
           :zone => create(:zone, :name => 'other_zone')
         )
       end
-
+      
       context "when there is no default tax zone" do
         before do
           @zone = create(:zone, :name => "Country Zone", :default_tax => false, :zone_members => [])
@@ -32,16 +32,30 @@ describe Spree::TaxRate do
           Spree::TaxRate.match(order).should == []
         end
 
-        it "should return the rate that matches the rate zone" do
+        it "should return the rate that matches the rate zone when the order currency matches the rate currency" do
           rate = Spree::TaxRate.create(
             :amount => 1,
             :zone => @zone,
             :tax_category => tax_category,
-            :calculator => calculator
+            :calculator => calculator,
+            :currency => "USD"
           )
 
           order.stub :tax_zone => @zone
           Spree::TaxRate.match(order).should == [rate]
+        end
+
+        it "should return an empty array when the order currency does not matche the rate currency" do
+          rate = Spree::TaxRate.create(
+            :amount => 1,
+            :zone => @zone,
+            :tax_category => tax_category,
+            :calculator => calculator,
+            :currency => "GBP"
+          )
+
+          order.stub :tax_zone => @zone
+          Spree::TaxRate.match(order).should == []
         end
 
         it "should return all rates that match the rate zone" do
@@ -49,14 +63,16 @@ describe Spree::TaxRate do
             :amount => 1,
             :zone => @zone,
             :tax_category => tax_category,
-            :calculator => calculator
+            :calculator => calculator,
+            :currency => "USD"
           )
 
           rate2 = Spree::TaxRate.create(
             :amount => 2,
             :zone => @zone,
             :tax_category => tax_category,
-            :calculator => Spree::Calculator::FlatRate.new
+            :calculator => Spree::Calculator::FlatRate.new,
+            :currency => "USD"
           )
 
           order.stub :tax_zone => @zone
@@ -72,7 +88,8 @@ describe Spree::TaxRate do
               :amount => 1,
               :zone => @zone,
               :tax_category => tax_category,
-              :calculator => calculator
+              :calculator => calculator,
+              :currency => "USD"
             )
           end
 
@@ -95,7 +112,8 @@ describe Spree::TaxRate do
                                 :zone => @zone,
                                 :tax_category => tax_category,
                                 :calculator => calculator,
-                                :included_in_price => included_in_price)
+                                :included_in_price => included_in_price,
+                                :currency => "USD")
         end
 
         subject { Spree::TaxRate.match(order) }
@@ -197,7 +215,8 @@ describe Spree::TaxRate do
             :amount => 1,
             :zone => @zone,
             :tax_category => tax_category,
-            :calculator => calculator
+            :calculator => calculator,
+            :currency => "USD"
           )
         end
 
@@ -231,6 +250,7 @@ describe Spree::TaxRate do
         :amount => 0.10,
         :calculator => @calculator,
         :tax_category => @category,
+        :currency => "USD",
         :zone => zone
       )
       @taxable     = create(:product_with_prices, :tax_category => @category)
