@@ -4,6 +4,7 @@ module Spree
       def validate(line_item)
         shipment = line_item.target_shipment
         if shipment
+          # those units should be linked to line_item 
           units = shipment.inventory_units_for(line_item.variant)
           return if units.count > line_item.quantity
           adjusted_quantity = line_item.quantity - units.count
