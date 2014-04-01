@@ -59,13 +59,14 @@ describe Spree::OrderInventory do
     end
 
     context "variant doesnt track inventory" do
+      let(:variant) { create(:variant) }
       before { variant.track_inventory = false }
 
       it "creates only on hand inventory units" do
         variant.stock_items.destroy_all
 
         line_item = order.contents.add variant, 1
-        subject.verify(line_item, shipment)
+        subject.verify(line_item)
 
         units = shipment.inventory_units_for(line_item.variant)
         expect(units.count).to eq 1
@@ -130,7 +131,7 @@ describe Spree::OrderInventory do
     end
 
     it 'should be a messed up order' do
-      order.shipments.first.inventory_units_for(line_item.variant).size.should == 3
+      order.shipments.reload.first.inventory_units_for(line_item.variant).size.should == 3
       line_item.quantity.should == 2
     end
 
