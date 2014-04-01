@@ -180,7 +180,6 @@ module Spree
           return false
         end
       end
-
     end
 
   end

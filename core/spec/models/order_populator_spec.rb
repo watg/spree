@@ -41,11 +41,11 @@ describe Spree::OrderPopulator do
     it "returns false when order cannot be supplied" do
       allow(Spree::Stock::Quantifier).
         to receive(:can_supply_order?).
-        and_return({in_stock: false, errors: ["Oops this is out of stock"]})
+        and_return({in_stock: false, errors: [{msg: "Oops this is out of stock"}]})
 
       expect(subject.send(:check_stock_levels_for_variant_and_options, selected_variant, 10, [], [])).
         to eq false
-      expect(subject.order.errors[:base]).to match_array(["Oops this is out of stock"])
+      expect(subject.errors[:base]).to match_array(["Oops this is out of stock"])
     end
   end
 end

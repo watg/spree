@@ -558,7 +558,9 @@ module Spree
     end
 
     def insufficient_stock_lines
-      line_items.select(&:insufficient_stock?)
+      result = Spree::Stock::Quantifier.can_supply_order?(self)
+      out_of_stock_line_item_ids = result[:errors].map{|li| li[:line_item_id] }
+      line_items.where(id: out_of_stock_line_item_ids)
     end
 
     def merge!(order, user = nil)

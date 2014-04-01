@@ -245,6 +245,18 @@ describe Spree::LineItem do
     end
   end
 
+  describe ".sufficient_stock?" do
+    it "variant out of stock across order" do
+      allow(Spree::Stock::Quantifier).to receive(:can_supply_order?).and_return({errors: [{line_item_id: line_item.id}]})
+      expect(line_item.sufficient_stock?).to be_false
+    end
+
+    it "variant in stock across order" do
+      allow(Spree::Stock::Quantifier).to receive(:can_supply_order?).and_return({errors: []})
+      expect(line_item.sufficient_stock?).to be_true
+    end
+  end
+
   context "has inventory (completed order so items were already unstocked)" do
     let(:order) { Spree::Order.create }
     let(:variant) { create(:variant) }
