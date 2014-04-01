@@ -157,8 +157,13 @@ module Spree
     def shipping_zone_name
       country_id = (self.ship_address.try(:country).nil? ? nil : self.ship_address.try(:country).id)
       if country_id
-        zm = Spree::ZoneMember.where(zoneable_id: country_id, zoneable_type: "Spree::Country").first
-        zm.zone.name.upcase if zm
+        zone = Spree::Zone.
+          includes(:zone_members).
+          where("spree_zone_members.zoneable_id = ? AND spree_zone_members.zoneable_type = ?", country_id, "Spree::Country").
+          reorder('zone_members_count', 'spree_zones.created_at').
+          references(:zone_members).
+          first
+        zone.name.upcase if zone
       end
     end
 

@@ -16,6 +16,20 @@ describe Spree::Order do
     Spree::LegacyUser.stub(:current => mock_model(Spree::LegacyUser, :id => 123))
   end
 
+  context "#shipping_zone_name" do
+    let!(:countries) { {uk: create(:country_uk), us: create(:country)} }
+    let(:uk_address) { create(:address, country: countries[:uk]) }
+    let!(:uk_zone)   { z= create(:zone, name: "UK zone"); z.members.create(zoneable: countries[:uk]); z }
+    let!(:all_zone)  { create(:global_zone) }
+    before do
+      order.shipping_address = uk_address
+      order.save
+    end
+    it "returns zone name of zone with least number of member with that address" do
+      expect(order.shipping_zone_name).to eq "UK ZONE"
+    end
+  end
+
   context "#internal?" do
     it "returns true when order is marked as such" do
       order = build(:order, internal: true)
