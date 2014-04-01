@@ -16,11 +16,26 @@ describe Spree::Order do
     Spree::LegacyUser.stub(:current => mock_model(Spree::LegacyUser, :id => 123))
   end
 
+
   context "#cost_price_total" do
 
     let!(:line_item1) { create(:line_item, :order => order, :quantity => 3 ) }
     it "returns total price of all line_items" do
       expect(order.cost_price_total).to eq 30
+    end
+  end
+
+  context "#shipping_zone_name" do
+    let!(:countries) { {uk: create(:country_uk), us: create(:country)} }
+    let(:uk_address) { create(:address, country: countries[:uk]) }
+    let!(:uk_zone)   { z= create(:zone, name: "UK zone"); z.members.create(zoneable: countries[:uk]); z }
+    let!(:all_zone)  { create(:global_zone) }
+    before do
+      order.shipping_address = uk_address
+      order.save
+    end
+    it "returns zone name of zone with least number of member with that address" do
+      expect(order.shipping_zone_name).to eq "UK ZONE"
     end
   end
 

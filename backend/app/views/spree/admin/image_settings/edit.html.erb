@@ -12,7 +12,10 @@
       <legend align="center"><%= Spree.t(:general_settings)%></legend>
       
       <div class="field">
-        <div class="warning note"><%= Spree.t(:image_settings_warning) %></div>
+        <div class="warning note">
+          <i class='icon-warning-sign'></i>
+          <%= Spree.t(:image_settings_warning) %>
+        </div>
       </div>    
 
       <div data-hook="attachment_path" class="field">

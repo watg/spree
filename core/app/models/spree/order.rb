@@ -5,9 +5,7 @@ require  File.join(Rails.root,'vendor/spree/core/app/jobs/spree/issue_gift_card_
 module Spree
   class Order < ActiveRecord::Base
     include Checkout
-
-    UK_EU_TAX_RATE = 0.2
-
+    
     checkout_flow do
       go_to_state :address
       go_to_state :delivery
@@ -159,8 +157,13 @@ module Spree
     def shipping_zone_name
       country_id = (self.ship_address.try(:country).nil? ? nil : self.ship_address.try(:country).id)
       if country_id
-        zm = Spree::ZoneMember.where(zoneable_id: country_id, zoneable_type: "Spree::Country").first
-        zm.zone.name.upcase if zm
+        zone = Spree::Zone.
+          includes(:zone_members).
+          where("spree_zone_members.zoneable_id = ? AND spree_zone_members.zoneable_type = ?", country_id, "Spree::Country").
+          reorder('zone_members_count', 'spree_zones.created_at').
+          references(:zone_members).
+          first
+        zone.name.upcase if zone
       end
     end
 
@@ -457,14 +460,6 @@ module Spree
           job = Spree::IssueGiftCardJob.new(self, item, position)
           ::Delayed::Job.enqueue job, :queue => 'gift_card'
         }
-      end
-    end
-
-    def tax
-      if %w(UK EU).include?(shipping_zone_name)
-        total * UK_EU_TAX_RATE
-      else
-        0
       end
     end
 
