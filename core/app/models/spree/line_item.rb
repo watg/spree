@@ -10,8 +10,9 @@ module Spree
     has_one :product, through: :variant
 
     has_many :adjustments, as: :adjustable, dependent: :destroy
-	has_many :inventory_units
+    has_many :inventory_units
     has_many :line_item_personalisations, dependent: :destroy
+    has_many :line_item_parts, dependent: :destroy
 
     before_validation :copy_price
     before_validation :copy_tax_category
@@ -33,6 +34,7 @@ module Spree
 
     delegate :name, :description, :should_track_inventory?, to: :variant
 
+    attr_accessor :options_with_qty
     attr_accessor :target_shipment
 
     def add_personalisations(collection)
@@ -51,6 +53,14 @@ module Spree
         Spree::LineItemPart.new o.marshal_dump
       end
       self.line_item_parts = objects
+    end
+
+    def required_and_optional_parts
+      self.line_item_parts.map do |o|
+        v = Spree::Variant.find(o.variant_id)
+        v.count_part = o.quantity
+        v
+      end
     end
 
     def copy_price
