@@ -120,7 +120,7 @@ describe Spree::Shipment do
         Spree::Stock::Estimator.should_receive(:new).with(shipment.order).and_return(mock_estimator)
         shipment.stub(shipping_method: shipping_method2)
 
-        shipment.refresh_rates.should == shipping_rates
+        shipment.refresh_rates.should match_array(shipping_rates)
         shipment.reload.selected_shipping_rate.shipping_method_id.should == shipping_method2.id
       end
 
