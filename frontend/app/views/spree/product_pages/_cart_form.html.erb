@@ -66,13 +66,16 @@
 		<% end %>
 	<% end %>
 
-	<div class="personalisations">
-		<h5>Personalise</h5>
-   	<% product.memoized_personalisations.each do |mp| %>
-	  	<%= render partial: "monogram", locals: { personalisation: mp } if mp.name == 'monogram' %>
-	  	<%= render partial: "dob", locals: { personalisation: mp } if mp.name == 'dob' %>
-	  <% end %>
-	</div>
+  <% if product.memoized_personalisations.any? %>
+    <div class="personalisations">
+      <h5>Personalise</h5>
+      <% product.memoized_personalisations.each do |mp| %>
+        <%= render partial: "monogram", locals: { personalisation: mp } if mp.name == 'monogram' %>
+        <%= render partial: "dob", locals: { personalisation: mp } if mp.name == 'dob' %>
+      <% end %>
+    </div>
+  <% end %>
+
 </div>
 
 <% if product.price and !product.price.nil? %>
