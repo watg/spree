@@ -1,6 +1,7 @@
 Spree::Core::Engine.add_routes do
 
   # root :to => 'home#index'
+  get '/oproxy' => 'oproxy#show', :via => :get, :as => :olapic_proxy
 
   resources :products, :only => [:index, :show] do
     match '*option_values' => 'products#show', :via => :get, :as => :variant_options
