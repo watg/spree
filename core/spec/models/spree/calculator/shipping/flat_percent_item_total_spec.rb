@@ -3,8 +3,8 @@ require 'spec_helper'
 module Spree
   module Calculator::Shipping
     describe FlatPercentItemTotal do
-      let(:variant1) { build(:variant, :price => 10.11) }
-      let(:variant2) { build(:variant, :price => 20.2222) }
+      let(:variant1) { create(:variant, :price => 10.11) }
+      let(:variant2) { create(:variant, :price => 20.2222) }
 
       let(:line_item1) { build(:line_item, variant: variant1) }
       let(:line_item2) { build(:line_item, variant: variant2) }

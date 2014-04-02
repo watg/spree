@@ -13,6 +13,7 @@ module Spree
     has_many :inventory_units
     has_many :line_item_personalisations, dependent: :destroy
     has_many :line_item_parts, dependent: :destroy
+    alias parts line_item_parts
 
     before_validation :copy_price
     before_validation :copy_tax_category
@@ -213,13 +214,11 @@ module Spree
 
     def update_inventory
       if changed?
-        # We do not call self.product as when save is called on the line_item object it for some reason
-        # causes the product to update due to the has_one through variant relationship
-        if variant.product.can_have_parts?
-          Spree::OrderInventoryAssembly.new(self).verify(self, target_shipment)
-        else
-          Spree::OrderInventory.new(self.order, self).verify(target_shipment)
-        end 
+        if self.line_item_parts.any? and order.completed?
+          Spree::OrderInventoryAssembly.new(self).verify(target_shipment)
+        end
+
+        Spree::OrderInventory.new(self.order, self).verify(target_shipment)
       end 
     end
 

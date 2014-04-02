@@ -33,10 +33,10 @@ describe Spree::OrderPopulator do
       end
 
       it "of simple type" do
-        required_part1 = create(:part)
-        required_part2 = create(:part)
-        part1 = create(:part)
-        part2 = create(:part)
+        required_part1 = create(:variant)
+        required_part2 = create(:variant)
+        part1 = create(:variant)
+        part2 = create(:variant)
         product.add_part(part1, 1, true)
         product.add_part(part2, 2, true)
         product.add_part(required_part1, 2, false)

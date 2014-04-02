@@ -96,6 +96,7 @@ FactoryGirl.define do
               shipment.inventory_units.each { |u| u.update_column('state', 'on_hand') }
               shipment.update_column('state', 'ready')
             end
+            order.refresh_shipment_rates
             order.reload
           end
         end

@@ -202,4 +202,62 @@ describe Spree::OrderInventory do
       end
     end
   end
+
+
+  ## from Spree Product Assembly
+
+  context "same variant within bundle and as regular product" do
+    let(:order) { Spree::Order.create }
+
+    subject { Spree::OrderInventory.new(order, order.line_items.first) }
+    let(:contents) { Spree::OrderContents.new(order) }
+    let(:guitar) { create(:variant) }
+    let(:bass) { create(:variant) }
+
+    let(:bundle) { create(:product) }
+
+    # before { bundle.parts.push [guitar, bass] }
+    let(:line_item_parts) {[
+      OpenStruct.new( 
+                     variant_id: guitar.id, 
+                     quantity:   1, 
+                     optional:   true,
+                     price:      5,
+                     currency:   'GBP'
+                    ),
+      OpenStruct.new( 
+                     variant_id: bass.id, 
+                     quantity:   1, 
+                     optional:   true,
+                     price:      5,
+                     currency:   'GBP'
+                    )
+    ]}
+
+    let!(:bundle_item) { contents.add(bundle.master, 5, nil, nil, line_item_parts) }
+    let!(:guitar_item) { contents.add(guitar, 3) }
+
+    let!(:shipment) { order.create_proposed_shipments.first }
+
+    context "completed order" do
+      before { order.touch :completed_at }
+
+      it "removes only units associated with provided line item" do
+        d { order.create_proposed_shipments }
+        # subject.verify
+        d { order.line_items}
+        d { bundle_item}
+        d { guitar_item}
+        d { bundle_item.inventory_units.count }
+        d { guitar_item.inventory_units.count }
+        d {subject.line_item}
+        d {subject.line_item.parts}
+        d { shipment.inventory_units}
+        expect {
+          subject.send(:remove_from_shipment, shipment, 5)
+        }.not_to change { bundle_item.inventory_units.count }
+      end
+    end
+  end
+
 end

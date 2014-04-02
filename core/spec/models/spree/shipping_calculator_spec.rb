@@ -2,8 +2,8 @@ require 'spec_helper'
 
 module Spree
   describe ShippingCalculator do
-    let(:variant1) { build(:variant, :price => 10, :currency => 'USD') }
-    let(:variant2) { build(:variant, :price => 20, :currency => 'USD') }
+    let(:variant1) { create(:variant, :price => 10, :currency => 'USD') }
+    let(:variant2) { create(:variant, :price => 20, :currency => 'USD') }
 
     let(:line_item1) { build(:line_item, variant: variant1) }
     let(:line_item2) { build(:line_item, variant: variant2) }

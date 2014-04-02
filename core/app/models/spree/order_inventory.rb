@@ -17,7 +17,6 @@ module Spree
     # are always unstocked when the order is completed through +shipment.finalize+
     def verify(shipment = nil)
       if order.completed? || shipment.present?
-
         if inventory_units.size < line_item.quantity
           quantity = line_item.quantity - inventory_units.size
 

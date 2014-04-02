@@ -21,14 +21,8 @@ module Spree
     # Remove variant qty from line_item
     # We need to fix the method below if we ever plan to use the api for incrementing and 
     # decrementing line_items
-    def remove(variant, quantity=1, shipment=nil)
-      line_item = order.find_line_item_by_variant(variant)
-
-      unless line_item
-        raise ActiveRecord::RecordNotFound, "Line item not found for variant #{variant.sku}"
-      end
-
-      remove_from_line_item(line_item, variant, quantity, shipment)
+    def remove(variant, quantity=1, shipment=nil, parts=nil, personalisations=nil, target_id=nil)
+      remove_from_line_item(variant, quantity, shipment, parts, personalisations, target_id)
       reload_totals
     end
     
@@ -79,18 +73,17 @@ module Spree
       line_item
     end
 
-    def remove_from_line_item(line_item, variant, quantity, shipment=nil)
+    def remove_from_line_item(variant, quantity, shipment=nil, parts=nil, personalisations=nil, target_id=nil)
+      line_item = grab_line_item_by_variant(variant, parts, personalisations, target_id, true)
       line_item.quantity += -quantity
       line_item.target_shipment= shipment
 
       if line_item.quantity == 0
-        Spree::OrderInventory.new(order).verify(line_item, shipment)
         line_item.destroy
       else
         line_item.save!
       end
 
-      order.reload
       line_item
     end
 
