@@ -13,6 +13,7 @@ module Spree
     has_many :inventory_units
     has_many :line_item_personalisations, dependent: :destroy
     has_many :line_item_parts, dependent: :destroy
+
     alias parts line_item_parts
 
     before_validation :copy_price
@@ -48,7 +49,12 @@ module Spree
       objects = collection.map do |o|
         # o is an OpenStruct which maps to directly to LineItemPersonalisation 
         # hence we can use marshal_dump as we are lazy
-        Spree::LineItemPersonalisation.new o.marshal_dump
+        Spree::LineItemPersonalisation.new(
+                                           line_item: self,
+                                           personalisation_id: o.personalisation_id,
+                                           amount: o.amount,
+                                           data: o.data
+                                           )
       end
       self.line_item_personalisations = objects
     end
@@ -57,7 +63,15 @@ module Spree
       objects = collection.map do |o|
         # o is an OpenStruct which maps to directly to LineItemPart 
         # hence we can use marshal_dump as we are lazy
-        Spree::LineItemPart.new o.marshal_dump
+        Spree::LineItemPart.new(
+                                line_item: self,
+                                quantity: o.quantity,
+                                price: o.price,
+                                assembly_definition_part_id: o.assembly_definition_part_id,
+                                variant_id: o.variant_id,
+                                optional: o.optional,
+                                currency: o.currency
+                                )
       end
       self.line_item_parts = objects
     end

@@ -222,6 +222,10 @@ module Spree
       inventory_units.group_by(&:variant_id)[variant.id] || []
     end
 
+    def inventory_units_for_line_item(li)
+      inventory_units.group_by(&:line_item_id)[li.id] || []
+    end
+
     def to_package
       package = Stock::Package.new(stock_location, order)
       inventory_units.includes(:variant).each do |inventory_unit|

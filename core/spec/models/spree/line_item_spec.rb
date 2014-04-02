@@ -261,6 +261,44 @@ describe Spree::LineItem do
     let(:order) { Spree::Order.create }
     let(:variant) { create(:variant) }
 
+    context "line item with parts" do
+      let(:container) { create(:variant) } 
+      let(:part1) { create(:variant) }
+      let(:part2) { create(:variant) }
+      let(:parts) { [
+       OpenStruct.new(variant_id: part1.id, optional: false, quantity: 2, price: 1),
+       OpenStruct.new(variant_id: part2.id, optional: true, quantity: 1, price: 1),
+      ] }
+      
+      before do
+        container.stock_items.update_all count_on_hand: 50, backorderable: false
+        part1.stock_items.update_all count_on_hand: 10, backorderable: false
+        part2.stock_items.update_all count_on_hand: 5, backorderable: false
+
+        order.contents.add(container, 5, nil, nil, parts)
+        order.create_proposed_shipments
+        order.finalize!        
+      end
+
+      it "allows to decrease kit quantity" do
+        line_item = order.line_items.first
+        line_item.quantity -= 1
+        line_item.target_shipment = order.shipments.first
+
+        line_item.save
+        expect(line_item).to have(0).errors_on(:quantity)        
+      end
+
+      it "doesnt allow to increase item quantity" do
+        line_item = order.line_items.first
+        line_item.quantity += 2
+        line_item.target_shipment = order.shipments.first
+
+        line_item.save
+        expect(line_item).to have(1).errors_on(:quantity)
+      end
+    end
+
     context "nothing left on stock" do
       before do
         variant.stock_items.update_all count_on_hand: 5, backorderable: false

@@ -33,28 +33,30 @@ module Spree
       class << self
 
         def can_supply_order?(order, desired_line_item=nil)
-          line_item_to_record = lambda do |li, lio|
-            ([li] + [lio]).flatten.compact.map do |line_item|
-              li_id = line_item.kind_of?(Spree::LineItem) ? line_item.id : line_item.line_item.try(:id)
-
-              { line_item_id: li_id, 
+          line_item_to_record = lambda do |li|
+            [li].flatten.map do |line_item|
+              d  = []
+              d << { line_item_id: line_item.id,
                 variant_id: line_item.variant_id, 
-                quantity: line_item.quantity }
-            end
+                quantity:   line_item.quantity }
+              line_item.line_item_parts.each do |pa|
+                d << {
+                  line_item_id: line_item.id,
+                  variant_id:   pa.variant_id,
+                  quantity:     pa.quantity * line_item.quantity
+                }
+              end
+              d
+            end.flatten
           end
 
           data_set = order.line_items.without(desired_line_item)
-          a = line_item_to_record[data_set,  data_set.map(&:line_item_parts).flatten]
-          b = if desired_line_item
-                line_item_to_record[desired_line_item, (desired_line_item ? desired_line_item.line_item_parts : [])]
-              else
-                # nothing to do because desired_line_item is already
-                # part of the order
-                [] 
-              end
-
-
-          variant_quantity_grouping = (a + b).reduce({}) {|hsh, c|
+          a = line_item_to_record[data_set]
+          b = ( desired_line_item ? line_item_to_record[desired_line_item] : [] )
+          
+          flatten_list_of_items = (a+b)
+          
+          variant_quantity_grouping = flatten_list_of_items.reduce({}) {|hsh, c|
                              k = c[:variant_id]
                              hsh[k] ||= 0; hsh[k] += c[:quantity]
                              hsh}
@@ -63,7 +65,7 @@ module Spree
           stock_check = variant_quantity_grouping.map {|variant_id, quantity|
                             variant = Spree::Variant.find(variant_id)
                             in_stock = Spree::Stock::Quantifier.new(variant).can_supply?(quantity)
-                            errors << add_error(variant, (a+b)) unless in_stock
+                            errors << add_error(variant, flatten_list_of_items) unless in_stock
                             in_stock}
           result = stock_check.reduce(true) {|can_supply,c| can_supply && c}
 
