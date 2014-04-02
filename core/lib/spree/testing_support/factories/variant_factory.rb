@@ -29,10 +29,6 @@ FactoryGirl.define do
         end
       end
 
-      factory :part do
-        product { |p| p.association(:product, can_be_part: true) }
-      end
-
       factory :variant_in_sale do
         in_sale true
         

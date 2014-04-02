@@ -1,24 +1,56 @@
 require 'spec_helper'
 
-describe Spree::OrderInventoryAssembly do
-  let(:line_item)     { create(:line_item) }
-  let(:lots_of_variant_units) { Array.new(100) }
-  let(:no_variant_unit) { [] }
-  let(:shipment)      { double('shipment') }
-  subject { Spree::OrderInventoryAssembly.new(line_item) }
+module Spree
+  describe OrderInventoryAssembly do
+    let(:order) { create(:order_with_line_items, line_items_count: 1) }
+    let(:line_item) { order.line_items.first }
+    let(:bundle) { line_item.product }
+    let(:parts) { (1..3).map { create(:part, line_item: line_item) } }
 
-  it "removing kit from the backend to an order" do
-    subject.stub(:inventory_units_for).and_return(lots_of_variant_units)
+    before do
+      parts.first.update_column(:quantity, 3)
 
-    expect(subject).to receive(:remove).with(line_item.variant, line_item.quantity, lots_of_variant_units, nil)
-    subject.send(:add_kit_variant, line_item)
-  end
+      line_item.update_attributes!(quantity: 3)
+      order.reload.create_proposed_shipments
+      order.finalize!
+      # subject.verify
+    end
 
-  it "adds kit to order from backend" do
-    subject.stub(:inventory_units_for).and_return(no_variant_unit)
-    subject.stub(:determine_target_shipment).and_return(shipment)
+    subject { OrderInventoryAssembly.new(line_item) }
 
-    expect(subject).to receive(:add_to_shipment).with(shipment, line_item.variant, line_item.quantity)
-    subject.send(:add_kit_variant, line_item)
+    context "inventory units count" do
+      it "calculates the proper value for the line item + parts" do
+        expected_units_count = line_item.quantity * parts.to_a.sum(&:quantity) + line_item.quantity
+        expect(subject.inventory_units.count).to eql(expected_units_count)
+      end
+    end
+
+    context "verify line item units" do
+      let!(:original_units_count) { subject.inventory_units.count }
+
+      context "quantity increases" do
+        before { subject.line_item.quantity += 1 }
+
+        it "inserts new inventory units for every bundle part" do
+          expected_units_count = original_units_count + parts.to_a.sum(&:quantity)
+          subject.verify
+          expect(OrderInventoryAssembly.new(line_item.reload).inventory_units.count).to eql(expected_units_count)
+        end
+      end
+
+      context "quantity decreases" do
+        before { subject.line_item.quantity -= 1 }
+
+        it "remove inventory units for every bundle part" do
+          expected_units_count = original_units_count - parts.to_a.sum(&:quantity)
+          subject.verify
+
+          # needs to reload so that inventory units are fetched from updates order.shipments
+          updated_units_count = OrderInventoryAssembly.new(line_item.reload).inventory_units.count
+          expect(updated_units_count).to eql(expected_units_count)
+        end
+      end
+    end
   end
 end
+

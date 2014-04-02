@@ -268,7 +268,8 @@ describe Spree::Variant do
   end
 
   context "#prices for a part" do
-    let(:subject) { FactoryGirl.build(:part) }
+    let(:product) { build(:product, can_be_part: true)}
+    let(:subject) { FactoryGirl.build(:variant, product: product) }
 
     [:normal, :normal_sale, :part, :part_sale].each do |price_type|
       it "should return price for '#{price_type}'" do

@@ -21,18 +21,37 @@ module Spree
     # Remove variant qty from line_item
     # We need to fix the method below if we ever plan to use the api for incrementing and 
     # decrementing line_items
-    def remove(variant, quantity=1, shipment=nil)
-      line_item = order.find_line_item_by_variant(variant)
-
-      unless line_item
-        raise ActiveRecord::RecordNotFound, "Line item not found for variant #{variant.sku}"
-      end
-
-      remove_from_line_item(line_item, variant, quantity, shipment)
+    def remove(variant, quantity=1, shipment=nil, parts=nil, personalisations=nil, target_id=nil)
+      line_item = grab_line_item_by_variant(variant, parts, personalisations, target_id, true)
+      remove_by_line_item(line_item, quantity, shipment)
       reload_totals
     end
-    
+
+    def add_by_line_item(line_item, quantity, shipment)
+      add_to_existing_line_item(line_item, quantity, shipment)
+      line_item.save!
+      line_item
+    end
+
+    def remove_by_line_item(line_item, quantity, shipment)
+      line_item.target_shipment = shipment
+      line_item.quantity += -quantity.to_i
+
+      if line_item.quantity == 0
+        line_item.destroy
+      else
+        line_item.save!
+      end
+      line_item
+    end
+
     private
+
+    def add_to_existing_line_item(line_item, quantity, shipment)
+      line_item.target_shipment = shipment
+      line_item.quantity += quantity.to_i
+      line_item.currency = currency unless currency.nil?
+    end
 
     def reload_totals
       order.reload
@@ -49,9 +68,7 @@ module Spree
       line_item = grab_line_item_by_variant(variant, parts, personalisations, target_id)
 
       if line_item
-        line_item.target_shipment = shipment
-        line_item.quantity += quantity.to_i
-        line_item.currency = currency unless currency.nil?
+        add_to_existing_line_item(line_item, quantity, shipment)
       else
         line_item = order.line_items.new(quantity: quantity, variant: variant)
         line_item.target_shipment = shipment
@@ -76,21 +93,6 @@ module Spree
       end
 
       line_item.save
-      line_item
-    end
-
-    def remove_from_line_item(line_item, variant, quantity, shipment=nil)
-      line_item.quantity += -quantity
-      line_item.target_shipment= shipment
-
-      if line_item.quantity == 0
-        Spree::OrderInventory.new(order).verify(line_item, shipment)
-        line_item.destroy
-      else
-        line_item.save!
-      end
-
-      order.reload
       line_item
     end
 

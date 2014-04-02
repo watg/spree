@@ -78,6 +78,8 @@ Spree::Core::Engine.add_routes do
           put :ship
           put :add
           put :remove
+          put :add_by_line_item
+          put :remove_by_line_item
         end
       end
     end
