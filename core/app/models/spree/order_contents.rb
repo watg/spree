@@ -27,17 +27,18 @@ module Spree
       reload_totals
     end
 
-    def add_by_line_item(line_item, quantity, shipment)
+    def add_by_line_item(line_item, quantity, shipment=nil)
       add_to_existing_line_item(line_item, quantity, shipment)
       line_item.save!
       line_item
     end
 
-    def remove_by_line_item(line_item, quantity, shipment)
+    def remove_by_line_item(line_item, quantity, shipment=nil)
       line_item.target_shipment = shipment
+
       line_item.quantity += -quantity.to_i
 
-      if line_item.quantity == 0
+      if line_item.quantity <= 0
         line_item.destroy
       else
         line_item.save!

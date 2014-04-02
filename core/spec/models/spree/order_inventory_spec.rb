@@ -216,7 +216,7 @@ module Spree
       before do
         parts.first.update_column(:quantity, 3)
 
-        line_item.update_attributes!(quantity: 3)
+        line_item.update_column(:quantity, 3)
         order.reload.create_proposed_shipments
         order.finalize!
         # subject.verify
@@ -297,7 +297,7 @@ module Spree
         it "removes only units associated with provided line item" do
           expect {
             subject.send(:remove_from_shipment, shipment, 5)
-          }.not_to change { bundle_item.inventory_units.count }
+          }.not_to change { guitar_item.inventory_units.count }
         end
       end
     end

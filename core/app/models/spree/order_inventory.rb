@@ -20,8 +20,8 @@ module Spree
       if order.completed? || shipment.present?
         parts_total = line_item.parts.sum(:quantity)
         if inventory_units.size < (parts_total * line_item.quantity) + line_item.quantity
-
-          quantity_to_add = line_item.quantity - line_item.changed_attributes['quantity'].to_i
+          old_quantity = (inventory_units.size == 0) ? 0 : inventory_units.size / (1 + parts_total)
+          quantity_to_add = line_item.quantity - old_quantity
 
           # Add line item to the shipment
           shipment = determine_target_shipment unless shipment
@@ -47,7 +47,9 @@ module Spree
 
     private
     def remove(shipment = nil)
-      quantity_to_remove = line_item.changed_attributes['quantity'].to_i - line_item.quantity
+      parts_total = line_item.parts.sum(:quantity)
+      old_quantity = (inventory_units.size == 0) ? 0 : inventory_units.size / (1 + parts_total)
+      quantity_to_remove = old_quantity - line_item.quantity
 
       remove_quantity_from_shipment(quantity_to_remove, shipment)
 

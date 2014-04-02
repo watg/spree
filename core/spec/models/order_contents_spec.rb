@@ -314,6 +314,24 @@ describe Spree::OrderContents do
     end
   end
 
+  context "#add_by_line_item" do
+    let!(:line_item) { create(:line_item, order: order, quantity: 1)}
+
+    it "increases the quantity on the line_item" do
+      subject.add_by_line_item(line_item, 2)
+      expect(order.reload.line_items.first.quantity).to eq 3
+    end
+  end
+
+  context "#remove_by_line_item" do
+    let(:line_item) { create(:line_item, order: order, quantity: 1)}
+
+    it "increases the quantity on the line_item" do
+      subject.remove_by_line_item(line_item, 2)
+      expect(order.reload.line_items.first).to be_nil
+    end
+  end
+
 
   # TODO: Add tests for removing line items with parts and target_id
   context "#remove" do

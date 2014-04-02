@@ -53,8 +53,8 @@ $(document).ready(function () {
     if (confirm(Spree.translations.are_you_sure_delete)) {
       var del = $(this);
       var shipment_number = del.data('shipment-number');
-      var variant_id = save.data('variant-id');
-      var line_item_id = save.data('line-item-id');
+      var variant_id = del.data('variant-id');
+      var line_item_id = del.data('line-item-id');
 
       toggleItemEdit();
       adjustShipmentItemsByLineItemId(shipment_number, line_item_id, variant_id, 0);

@@ -38,7 +38,7 @@ describe Spree::Api::ShipmentsController do
         stock_location_id: stock_location.to_param,
         selected_variants: assembly_selection
       }
-      expect(Spree::OrderPopulator).to receive(:parse_options).with(v, assembly_selection)
+      expect(Spree::OrderPopulator).to receive(:parse_options).with(v, assembly_selection, order.currency)
 
       api_post :create, params
       response.status.should == 200
@@ -99,7 +99,7 @@ describe Spree::Api::ShipmentsController do
 
       it 'adds a variant to a shipment' do
         assembly_selection = {23 => 987 , 4 => 232}
-        expect(Spree::OrderPopulator).to receive(:parse_options).with(variant, assembly_selection)
+        expect(Spree::OrderPopulator).to receive(:parse_options).with(variant, assembly_selection, order.currency)
 
         api_put :add, { variant_id: variant.to_param, quantity: 2, selected_variants: assembly_selection }
         response.status.should == 200
@@ -113,6 +113,27 @@ describe Spree::Api::ShipmentsController do
         response.status.should == 200
         json_response['manifest'].detect { |h| h['variant']['id'] == variant.id }["quantity"].should == 1
      end
+
+      context 'adjust by line_items' do
+        let(:order) { create :completed_order_with_totals }
+        let(:line_item) { order.line_items.first }
+
+        before { line_item.update_attributes(quantity: 2) }
+
+        it 'adds a line_item to a shipment' do
+          api_put :add_by_line_item, { line_item_id: line_item.id, quantity: 2  }
+          response.status.should == 200
+          json_response['manifest'].detect { |h| h['variant']['id'] == line_item.variant.id }["quantity"].should == 4
+        end
+
+        it 'removes a line_item to a shipment' do
+          api_put :remove_by_line_item, { line_item_id: line_item.id, quantity: 1  }
+          response.status.should == 200
+          json_response['manifest'].detect { |h| h['variant']['id'] == line_item.variant.id }["quantity"].should == 1
+        end
+
+      end
+
     end
 
     context "can transition a shipment from ready to ship" do

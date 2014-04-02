@@ -32,6 +32,77 @@ describe Spree::LineItem do
     end
   end
 
+  context '#add_parts' do
+
+    let(:parts) {[
+      OpenStruct.new(
+        variant_id: create(:variant).id,
+        quantity:   2,
+        optional:   true,
+        price:      5,
+        currency:   'GBP'
+      ),
+      OpenStruct.new(
+        variant_id: create(:variant).id,
+        quantity:   1,
+        optional:   true,
+        price:      5,
+        currency:   'GBP'
+      )
+    ]}
+
+    it "should allow a part to be added" do
+      line_item.add_parts(parts)
+      expect(line_item.parts.size).to eq 2
+      expect(line_item.parts.first.variant_id).to eq parts.first.variant_id
+      expect(line_item.parts.first.quantity).to eq parts.first.quantity
+      expect(line_item.parts.first.optional).to eq parts.first.optional
+      expect(line_item.parts.first.price).to eq parts.first.price
+      expect(line_item.parts.first.currency).to eq parts.first.currency
+    end
+
+    it "should deal with a nil price" do
+      parts.first.price = nil
+      line_item.add_parts(parts)
+      expect(line_item.parts.size).to eq 2
+      expect(line_item.parts.first.price).to eq BigDecimal.new(0)
+    end
+
+  end
+
+  context '#add_personalisations' do
+
+
+    let(:personalisations) {[
+      OpenStruct.new(
+        personalisation_id: 1,
+        amount: 1,
+        data: { 'colour' => 1, 'initials' => 'XX'},
+      ),
+      OpenStruct.new(
+        personalisation_id: 1,
+        amount: 2,
+        data: { 'colour' => 1, 'initials' => 'WW'},
+      ),
+    ]}
+
+    it "should allow a personalisation to be added" do
+      line_item.add_personalisations(personalisations)
+      expect(line_item.personalisations.size).to eq 2
+      expect(line_item.personalisations.first.personalisation_id).to eq personalisations.first.personalisation_id
+      expect(line_item.personalisations.first.amount).to eq personalisations.first.amount
+      expect(line_item.personalisations.first.data).to eq personalisations.first.data
+    end
+
+    it "should deal with a nil amount" do
+      personalisations.first.amount = nil
+      line_item.add_personalisations(personalisations)
+      expect(line_item.personalisations.size).to eq 2
+      expect(line_item.personalisations.first.amount).to eq BigDecimal.new(0)
+    end
+
+  end
+
   context '#cost_price' do
     let(:variant10) { create(:variant, cost_price: 10) }
     let(:variant7)  { create(:variant, cost_price: 7) }

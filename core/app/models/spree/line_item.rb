@@ -12,6 +12,7 @@ module Spree
     has_many :adjustments, as: :adjustable, dependent: :destroy
     has_many :inventory_units
     has_many :line_item_personalisations, dependent: :destroy
+    alias personalisations line_item_personalisations
     has_many :line_item_parts, dependent: :destroy
 
     alias parts line_item_parts
@@ -74,14 +75,6 @@ module Spree
                                 )
       end
       self.line_item_parts = objects
-    end
-
-    def required_and_optional_parts
-      self.line_item_parts.map do |o|
-        v = Spree::Variant.find(o.variant_id)
-        v.count_part = o.quantity
-        v
-      end
     end
 
     def copy_price
