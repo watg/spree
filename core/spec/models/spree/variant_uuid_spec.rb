@@ -59,7 +59,7 @@ describe Spree::VariantUuid do
         base_variant_id: variant.id,
         parts: [{part_id: 1, quantity: 4, variant_id: variant.id},
                   {part_id: 2, quantity: 1, variant_id: variant.id},
-                  {part_id: nil, quantity: 1, variant_id: variant.id}],
+                  {part_id: 0, quantity: 1, variant_id: variant.id}],
         personalisations: personalisations
       }
       expect(hsh).to eq expected_hsh

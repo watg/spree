@@ -14,7 +14,7 @@ module Spree
       end
 
       def add(line_item, quantity, state = :on_hand, variant = nil)
-        contents << ContentItem.new(line_item, variant || line_item.variant, quantity, state)
+        contents << ContentItem.new(line_item, variant || line_item.try(:variant), quantity, state)
       end
 
       def weight
