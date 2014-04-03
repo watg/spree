@@ -213,11 +213,7 @@ module Spree
 
     def update_inventory
       if changed?
-        if self.line_item_parts.any? and order.completed?
-          Spree::OrderInventoryAssembly.new(self).verify(target_shipment)
-        end
-
-        Spree::OrderInventory.new(self.order, self).verify(target_shipment)
+        Spree::OrderInventory.new(self).verify(target_shipment)
       end 
     end
 

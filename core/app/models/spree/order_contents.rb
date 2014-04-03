@@ -25,7 +25,26 @@ module Spree
       remove_from_line_item(variant, quantity, shipment, parts, personalisations, target_id)
       reload_totals
     end
-    
+
+    def add_by_line_item(line_item, quantity, shipment)
+      line_item.target_shipment = shipment
+      line_item.quantity += quantity.to_i
+      line_item.save!
+      line_item
+    end
+
+    def remove_by_line_item(line_item, quantity, shipment)
+      line_item.target_shipment = shipment
+      line_item.quantity += -quantity.to_i
+
+      if line_item.quantity == 0
+        line_item.destroy
+      else
+        line_item.save!
+      end
+      line_item
+    end
+
     private
 
     def reload_totals

@@ -16,6 +16,7 @@ module Spree
         recipe_sha1 = Digest::SHA1.hexdigest(recipe.to_json)
 
         variant_uuid = where(recipe_sha1: recipe_sha1).first
+
         unless variant_uuid
           serialization = recipe.reduce({}) {|hsh, i| hsh[i[0]] = i[1].to_json; hsh} 
           variant_uuid = create(recipe_sha1: recipe_sha1,
@@ -28,7 +29,7 @@ module Spree
 
       def build_hash(variant, parts, personalisations)
         {
-          base_variant_id:  variant.id,
+          base_variant_id:  variant.id.to_i,
           parts:            format_parts(parts),
           personalisations: format_personalisations(personalisations)
         }
@@ -37,9 +38,9 @@ module Spree
       def format_parts(parts)
         parts.map do |p|
           {
-            part_id: p.assembly_definition_part_id,
-            quantity: p.quantity,
-            variant_id: p.variant_id
+            part_id: p.assembly_definition_part_id.to_i,
+            quantity: p.quantity.to_i,
+            variant_id: p.variant_id.to_i
           }
         end
       end
@@ -47,7 +48,7 @@ module Spree
       def format_personalisations(personalisations)
         personalisations.map do |p|
           {
-            personalisation_id: p.personalisation_id,
+            personalisation_id: p.personalisation_id.to_i,
             data: p.data 
           }
         end

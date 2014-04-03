@@ -48,16 +48,18 @@ module Spree
           )
         end
 
-        options = Spree::Variant.find(params)
-        options.each do |o|
-          parts << OpenStruct.new(
-            assembly_definition_part_id: nil,
-            variant_id: o.id,
-            quantity:   part_quantity(variant,o),
-            optional:   true,
-            price:      o.price_part_in(currency).amount,
-            currency:   currency
-          )
+        if params.any?
+          options = Spree::Variant.find(params)
+          options.each do |o|
+            parts << OpenStruct.new(
+              assembly_definition_part_id: nil,
+              variant_id: o.id,
+              quantity:   part_quantity(variant,o),
+              optional:   true,
+              price:      o.price_part_in(currency).amount,
+              currency:   currency
+            )
+          end
         end
         parts
       end
