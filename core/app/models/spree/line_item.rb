@@ -213,7 +213,7 @@ module Spree
 
     def update_inventory
       if changed?
-        Spree::OrderInventory.new(self).verify(target_shipment)
+        Spree::OrderInventory.new(self.order, self).verify(target_shipment)
       end 
     end
 

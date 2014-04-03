@@ -91,7 +91,7 @@ module Spree
             stock_item = stock_location.stock_item(order.line_items.first)
             
             package = subject.product_assembly_package
-            package.contents.size.should eq 4 + parts.count
+            package.contents.size.should eq 5 + parts.count
             package.contents.each {|ci| ci.state.should eq :on_hand}
           end
         end
@@ -104,7 +104,7 @@ module Spree
           
           it 'adds items as backordered' do
             package = subject.product_assembly_package
-            package.contents.size.should eq 4 + parts.count
+            package.contents.size.should eq 5 + parts.count
             package.contents.each {|ci| ci.state.should eq :backordered}
           end
         end
@@ -115,10 +115,10 @@ module Spree
             order.line_items.each do |li| 
               li.variant.track_inventory = false
               li.save!
-              if li.product.assembly?
-                li.product.parts.each do |part|
-                  part.track_inventory = false
-                  part.save!
+              if li.parts.any?
+                li.parts.each do |part|
+                  part.variant.track_inventory = false
+                  part.variant.save!
                 end
               end
             end
@@ -126,7 +126,7 @@ module Spree
           
           it 'adds items as on-hand, not backordered' do
             package = subject.product_assembly_package
-            package.contents.size.should eq 4 + parts.count
+            package.contents.size.should eq 5 + parts.count
             package.contents.each {|ci| ci.state.should eq :on_hand}
           end
         end
