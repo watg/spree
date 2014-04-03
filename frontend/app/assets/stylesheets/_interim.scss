@@ -491,7 +491,7 @@
 		max-width: 320px;
 		font-weight: bold;
 		display: inline-block;
-		color: #ff0054;
+		//color: #ff0054;
 	}
 	.coupons-updates {
 		padding: 1em;
@@ -501,10 +501,10 @@
 			margin-bottom: 0;
 		}
 		/* Colourise input text */
-		::-webkit-input-placeholder { color: #ff0054; }
+		/*::-webkit-input-placeholder { color: #ff0054; }
 		::-moz-placeholder { color: #ff0054; }
 		:-ms-input-placeholder { color: #ff0054; }
-		input:-moz-placeholder { color: #ff0054; }
+		input:-moz-placeholder { color: #ff0054; }*/
 	}
 
 	.subtotal,
