@@ -113,6 +113,27 @@ describe Spree::Api::ShipmentsController do
         response.status.should == 200
         json_response['manifest'].detect { |h| h['variant']['id'] == variant.id }["quantity"].should == 1
      end
+
+      context 'adjust by line_items' do
+        let(:order) { create :completed_order_with_totals }
+        let(:line_item) { order.line_items.first }
+
+        before { line_item.update_attributes(quantity: 2) }
+
+        it 'adds a line_item to a shipment' do
+          api_put :add_by_line_item, { line_item_id: line_item.id, quantity: 2  }
+          response.status.should == 200
+          json_response['manifest'].detect { |h| h['variant']['id'] == line_item.variant.id }["quantity"].should == 4
+        end
+
+        it 'removes a line_item to a shipment' do
+          api_put :remove_by_line_item, { line_item_id: line_item.id, quantity: 1  }
+          response.status.should == 200
+          json_response['manifest'].detect { |h| h['variant']['id'] == line_item.variant.id }["quantity"].should == 1
+        end
+
+      end
+
     end
 
     context "can transition a shipment from ready to ship" do

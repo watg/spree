@@ -66,7 +66,6 @@ module Spree
         respond_with(@shipment, default_template: :show)
       end
 
-
       def remove
         quantity = params[:quantity].to_i
         @order.contents.remove(variant, quantity, @shipment)
@@ -87,9 +86,7 @@ module Spree
       end
 
       def variant
-        if params[:variant_id]
-          @variant ||= Spree::Variant.find(params[:variant_id])
-        end
+        @variant ||= Spree::Variant.find(params[:variant_id])
       end
 
       def line_item
