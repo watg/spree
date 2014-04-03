@@ -8,10 +8,9 @@ module Spree
     subject { described_class.new(order, line_item) }
 
     context "when order is missing inventory units" do
-      before { line_item.update_column(:quantity, 2) }
+      before { line_item.update_attributes(quantity: 2) }
 
       it 'creates the proper number of inventory units' do
-        d {line_item.reload.inventory_units}
         subject.verify
         expect(subject.inventory_units.reload.count).to eq 2
       end
