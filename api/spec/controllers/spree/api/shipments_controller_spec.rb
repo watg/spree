@@ -38,7 +38,7 @@ describe Spree::Api::ShipmentsController do
         stock_location_id: stock_location.to_param,
         selected_variants: assembly_selection
       }
-      expect(Spree::OrderPopulator).to receive(:parse_options).with(v, assembly_selection)
+      expect(Spree::OrderPopulator).to receive(:parse_options).with(v, assembly_selection, order.currency)
 
       api_post :create, params
       response.status.should == 200
@@ -99,7 +99,7 @@ describe Spree::Api::ShipmentsController do
 
       it 'adds a variant to a shipment' do
         assembly_selection = {23 => 987 , 4 => 232}
-        expect(Spree::OrderPopulator).to receive(:parse_options).with(variant, assembly_selection)
+        expect(Spree::OrderPopulator).to receive(:parse_options).with(variant, assembly_selection, order.currency)
 
         api_put :add, { variant_id: variant.to_param, quantity: 2, selected_variants: assembly_selection }
         response.status.should == 200
