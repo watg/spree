@@ -1,16 +1,19 @@
 module Spree
   class LineItem < ActiveRecord::Base
     before_validation :adjust_quantity
-    belongs_to :order, class_name: "Spree::Order"
-
+    belongs_to :order, class_name: "Spree::Order", :inverse_of => :line_items
     belongs_to :variant, class_name: "Spree::Variant"
 
     belongs_to :tax_category, class_name: "Spree::TaxCategory"
     belongs_to :target, class_name: "Spree::Target"
 
     has_one :product, through: :variant
+
     has_many :adjustments, as: :adjustable, dependent: :destroy
+    has_many :inventory_units
     has_many :line_item_personalisations, dependent: :destroy
+    has_many :line_item_parts, dependent: :destroy
+    alias parts line_item_parts
 
     before_validation :copy_price
     before_validation :copy_tax_category
@@ -24,12 +27,15 @@ module Spree
     validates :price, numericality: true
     validates_with Stock::AvailabilityValidator
 
+    before_destroy :update_inventory
+
     after_save :update_inventory
     after_save :update_order
     after_destroy :update_order
 
     delegate :name, :description, :should_track_inventory?, to: :variant
 
+    attr_accessor :options_with_qty
     attr_accessor :target_shipment
 
     def add_personalisations(collection)
@@ -48,6 +54,14 @@ module Spree
         Spree::LineItemPart.new o.marshal_dump
       end
       self.line_item_parts = objects
+    end
+
+    def required_and_optional_parts
+      self.line_item_parts.map do |o|
+        v = Spree::Variant.find(o.variant_id)
+        v.count_part = o.quantity
+        v
+      end
     end
 
     def copy_price
@@ -199,13 +213,11 @@ module Spree
 
     def update_inventory
       if changed?
-        # We do not call self.product as when save is called on the line_item object it for some reason
-        # causes the product to update due to the has_one through variant relationship
-        if variant.product.can_have_parts?
-          Spree::OrderInventoryAssembly.new(self).verify(self, target_shipment)
-        else
-          Spree::OrderInventory.new(self.order).verify(self, target_shipment)
-        end 
+        if self.line_item_parts.any? and order.completed?
+          Spree::OrderInventoryAssembly.new(self).verify(target_shipment)
+        end
+
+        Spree::OrderInventory.new(self.order, self).verify(target_shipment)
       end 
     end
 

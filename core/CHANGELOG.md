@@ -1,5 +1,9 @@
 ## Spree 2.1.4 (unreleased) ##
 
+*   Associate line item and inventory units for better extensibility with
+    product assemblies. Migration was added to set line_item_id for existing
+    inventory units.
+
 * Introduce Core::UserAddress module. Once included on the store user class the user address can be rememembered on checkout
 
     Washington Luiz / Peter Berkenbosch
