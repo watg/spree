@@ -395,6 +395,7 @@ body.thank-you {
 				height: emCalc(242px);
 				background-size: cover;
 				background-repeat: no-repeat;
+				background-color: #000;
 				a {
 					display: block;
 					width: 100%;
@@ -409,12 +410,12 @@ body.thank-you {
 			}
 			&.odd {
 				li {
-					float: right;
+					float: left;
 				}
 			}
 			&.even {
 				li {
-					float: left;
+					float: right;
 				}
 			}
 		}

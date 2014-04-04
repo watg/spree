@@ -71,10 +71,10 @@ core.olapicGallery.addPhoto = function(id, data) {
 	
 	var item = '<li class="' + data.id + '"><a rel="modal" href="#modal-' + data.id + '">More about photo ' + data.id + '</a></li>';
 	if (id % 5 === 0) { // Every fifth item
-		if (id % 2 === 0) { // Even
-			$('<ul class="no-bullet even"></ul>').insertBefore(para);
-		} else { // Odd
+		if (id % 2 === 0) { // Odd ('cos human beans count from one, not zero)
 			$('<ul class="no-bullet odd"></ul>').insertBefore(para);
+		} else { // Even
+			$('<ul class="no-bullet even"></ul>').insertBefore(para);
 		}
 	}
 	
