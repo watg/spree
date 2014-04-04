@@ -113,8 +113,6 @@ module Spree
       end
 
       def options_tree_for(target, currency)
-        @_options_tree_for ||= {}
-        return  @_options_tree_for[[target,currency]] if @_options_tree_for[[target,currency]]
         selector = self.includes(:prices, :images, :option_values => [:option_type])
         if !target.blank?
           selector = selector.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
@@ -157,7 +155,7 @@ module Spree
             base['variant']['image_url']= v.images.first.attachment.url(:mini)
           end
         end
-        @_options_tree_for[[target,currency]] ||= hash
+        hash
       end
 
     end

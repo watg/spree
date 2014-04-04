@@ -74,7 +74,7 @@ class Spree::ProductDecorator < Draper::Decorator
 
   def memoized_variant_options_tree
     @_variant_options_tree ||= {}
-    @_variant_options_tree[current_currency] ||= object.variant_options_tree_for(context[:target],current_currency)
+    @_variant_options_tree[[context[:target],current_currency]] ||= object.variant_options_tree_for(context[:target],current_currency)
   end
 
   def memoized_option_type_order
