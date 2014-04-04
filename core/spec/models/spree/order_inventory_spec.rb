@@ -8,7 +8,7 @@ module Spree
     subject { described_class.new(order, line_item) }
 
     context "when order is missing inventory units" do
-      before { line_item.update_attributes(quantity: 2) }
+      before { line_item.update_column(:quantity, 2) }
 
       it 'creates the proper number of inventory units' do
         subject.verify
@@ -216,7 +216,7 @@ module Spree
       before do
         parts.first.update_column(:quantity, 3)
 
-        line_item.update_attributes!(quantity: 3)
+        line_item.update_column(:quantity, 3)
         order.reload.create_proposed_shipments
         order.finalize!
         # subject.verify
