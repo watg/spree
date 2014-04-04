@@ -354,11 +354,10 @@ body.thank-you {
 	}
 }
 
-/* Hang With The Gang */
+/* Olapic gallery pages */
 .olapic-gallery {
 	.row-shipping-and-contact + .container > div.row {
   		max-width: none !important;
-		background-color: #f9f9f9;
   	}
 	.row-olapic-gallery {
 		position: relative;
@@ -388,15 +387,31 @@ body.thank-you {
 			li {
 				margin: 0;
 				padding: 0;
+				width: 242px;
+				height: 242px;				
+				background-size: cover;
+				background-repeat: no-repeat;
+				background-color: #f9f9f9;
+				a {
+					display: block;
+					width: 100%;
+					height: 100%;
+					line-height: 0;
+					font-size: 0;
+				}
+			}
+			li:first-child {
+				width: 484px;
+				height: 484px;
 			}
 			&.odd {
 				li {
-					float: left;
+					float: right;
 				}
 			}
 			&.even {
 				li {
-					float: right;
+					float: left;
 				}
 			}
 		}

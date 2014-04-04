@@ -81,7 +81,7 @@ core.hideSubNavigation = function(e) {
 	$('.nav-primary-sub').removeClass('expanded');
 }
 
-// Ready modals plugin
+// Ready modal plugin
 core.readyModals = function() {
 	$('a[rel*=modal]').leanModal({top: 30, closeButton: '.modal-close'});
 	
@@ -90,6 +90,13 @@ core.readyModals = function() {
 		e.preventDefault();
 		$(this).parent().siblings('.modal-close').click();
 	});
+}
+
+// Reset modal events
+core.resetModals = function() {
+	$('a[rel*=modal]').off();
+	
+	$('.modal .button').off();
 }
 
 // Ready tooltips plugin

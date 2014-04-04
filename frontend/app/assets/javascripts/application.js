@@ -26,6 +26,7 @@
 //= require store/core.product-top
 //= require store/core.product-index
 //= require store/core.product-group
+//= require store/core.olapic-gallery
 //= require store/variant_options
 //= require store/adyen.encrypt
 
