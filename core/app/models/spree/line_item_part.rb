@@ -4,7 +4,7 @@ class Spree::LineItemPart < ActiveRecord::Base
   validates :variant_id, presence: true
 
   belongs_to :variant
-  belongs_to :line_item
+  belongs_to :line_item, inverse_of: :line_item_parts
 
   scope :optional, lambda { where(optional: true) }
   scope :required, lambda { where(optional: false) }
