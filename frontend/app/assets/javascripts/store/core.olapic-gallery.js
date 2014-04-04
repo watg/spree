@@ -1,7 +1,7 @@
 core.olapicGallery = {};
 
 core.olapicGallery.apiUrl = 'http://api.photorank.me/v1/photos';
-core.olapicGallery.proxyUrl = '/shop/oproxy'
+core.olapicGallery.proxyUrl = '/shop/oproxy';
 core.olapicGallery.streamId;
 
 $(document).ready(function() {
@@ -28,7 +28,7 @@ core.olapicGallery.getStreamData = function() {
 			//limit: 20
 		},
 		success: function(response) {
-			core.olapicGallery.processStreamData(response.response);
+			core.olapicGallery.processStreamData(response);
 		}
 	});
 }
@@ -40,18 +40,21 @@ core.olapicGallery.getStreamId = function() {
 }
 
 core.olapicGallery.processStreamData = function(response) {
-	if (response.code != 0 || response.length == 0) return false; // Die if no photos in stream
+	var code = response.code;
+	var data = response.response;
 	
-	$.each(response, function(id, photo) {
-		core.olapicGallery.addPhotos(id, photo);
-		core.olapicGallery.addModals(id, photo);
+	if (code != 0 || data.length == 0) return false; // Die if error or no photos in stream
+		
+	$.each(data, function(id, photo) {
+		core.olapicGallery.addPhoto(id, photo);
+		core.olapicGallery.addModal(id, photo);
 		core.resetModals();
 		core.readyModals();
 	});
 }
 
-// Add photos to the page
-core.olapicGallery.addPhotos = function(id, data) {
+// Add photo to the page
+core.olapicGallery.addPhoto = function(id, data) {
 	var container = $('.row-olapic-gallery > div');
 	
 	var item = '<li><a rel="modal" href="#modal-' + id + '">More about photo ' + id + '</a></li>';
@@ -67,12 +70,15 @@ core.olapicGallery.addPhotos = function(id, data) {
 	container.find('li').eq(id).css('background-image', 'url(' + data.normal_image + ')');
 }
 
-// Add modals to the page
-core.olapicGallery.addModals = function(id, data) {
+// Add modal to the page
+core.olapicGallery.addModal = function(id, data) {
 	var row = $('.row-olapic-gallery');
-	
 	var modal = $('<div class="modal" id="modal-' + id + '"></div>');
-	modal.append('<a class="modal-close" href="#">Close</a>');
 	
+	modal.append('<a class="modal-close" href="#">Close</a>');
+	modal.append('<div class="col-left"></div>');
+	modal.append('<div class="col-right"><h3><a href="' + data.original_source + '">' + data.user_name + '</a></h3><p>' + data.caption + '</p></div>');
 	modal.insertAfter(row);
+	
+	$('#modal-' + id + ' .col-left').css('background-image', 'url(' + data.normal_image + ')');
 }

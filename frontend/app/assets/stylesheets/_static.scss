@@ -356,8 +356,12 @@ body.thank-you {
 
 /* Olapic gallery pages */
 .olapic-gallery {
+	.row-shipping-and-contact {
+		display: none;
+	}
 	.row-shipping-and-contact + .container > div.row {
   		max-width: none !important;
+		background-color: #f9f9f9;
   	}
 	.row-olapic-gallery {
 		position: relative;
@@ -387,11 +391,10 @@ body.thank-you {
 			li {
 				margin: 0;
 				padding: 0;
-				width: 242px;
-				height: 242px;				
+				width: emCalc(242px);
+				height: emCalc(242px);
 				background-size: cover;
 				background-repeat: no-repeat;
-				background-color: #f9f9f9;
 				a {
 					display: block;
 					width: 100%;
@@ -401,8 +404,8 @@ body.thank-you {
 				}
 			}
 			li:first-child {
-				width: 484px;
-				height: 484px;
+				width: emCalc(484px);
+				height: emCalc(484px);
 			}
 			&.odd {
 				li {
@@ -413,6 +416,39 @@ body.thank-you {
 				li {
 					float: left;
 				}
+			}
+		}
+	}
+	.modal {
+		padding: 0;
+		width: emCalc(900px);
+		.modal-close {
+			top: 20px;
+			right: 20px;
+		}
+		.col-left, .col-right {
+			width: 50%;
+			float: left;
+			min-height: emCalc(450px);
+		}
+		.col-left {
+			background-size: cover;
+			background-repeat: no-repeat;
+		}
+		.col-right {
+			padding: 30px 20px;
+			h3 {
+				margin-bottom: 20px;
+				padding-bottom: 20px;
+				font-size: emCalc(20px);
+				border-bottom: 1px solid #e6e6e6;
+			}
+			p {
+				font-family: $watg-font;
+				font-size: emCalc(30px);
+				text-transform: uppercase;
+				line-height: 1.125em;
+				text-align: left;
 			}
 		}
 	}
