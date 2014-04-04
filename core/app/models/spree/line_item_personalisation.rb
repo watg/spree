@@ -1,6 +1,6 @@
 module Spree
   class LineItemPersonalisation < ActiveRecord::Base
-    belongs_to :line_item, class_name: "Spree::LineItem"
+    belongs_to :line_item, inverse_of: :line_item_personalisations
     belongs_to :personalisation, class_name: "Spree::Personalisation"
 
     delegate :name, :to => :personalisation

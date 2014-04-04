@@ -12,6 +12,7 @@ module Spree
     has_many :adjustments, as: :adjustable, dependent: :destroy
     has_many :inventory_units
     has_many :line_item_personalisations, dependent: :destroy
+    alias personalisations line_item_personalisations
     has_many :line_item_parts, dependent: :destroy
     alias parts line_item_parts
 
@@ -40,28 +41,29 @@ module Spree
 
     def add_personalisations(collection)
       objects = collection.map do |o|
-        # o is an OpenStruct which maps to directly to LineItemPersonalisation 
-        # hence we can use marshal_dump as we are lazy
-        Spree::LineItemPersonalisation.new o.marshal_dump
+        Spree::LineItemPersonalisation.new(
+          line_item: self,
+          personalisation_id: o.personalisation_id,
+          amount: o.amount || BigDecimal.new(0),
+          data: o.data
+        )
       end
       self.line_item_personalisations = objects
     end
 
     def add_parts(collection)
       objects = collection.map do |o|
-        # o is an OpenStruct which maps to directly to LineItemPart 
-        # hence we can use marshal_dump as we are lazy
-        Spree::LineItemPart.new o.marshal_dump
+        Spree::LineItemPart.new(
+          line_item: self,
+          quantity: o.quantity,
+          price: o.price || BigDecimal.new(0),
+          assembly_definition_part_id: o.assembly_definition_part_id,
+          variant_id: o.variant_id,
+          optional: o.optional,
+          currency: o.currency
+        )
       end
       self.line_item_parts = objects
-    end
-
-    def required_and_optional_parts
-      self.line_item_parts.map do |o|
-        v = Spree::Variant.find(o.variant_id)
-        v.count_part = o.quantity
-        v
-      end
     end
 
     def copy_price
