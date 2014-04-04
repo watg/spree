@@ -174,6 +174,7 @@ module Spree
 
 
     def self.is_number(variant_id)
+      return false if variant_id.blank?
       !variant_id.match(/^#{NUMBER_PREFIX}\d+/).nil?
     end
 
