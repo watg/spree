@@ -82,7 +82,7 @@ module Spree
 
       private
       def options_with_qty
-        Spree::OrderPopulator.parse_options(variant, params[:selected_variants] || [], @order.currency)
+        Spree::OrderPopulator.parse_options(variant, params[:selected_variants] || {}, @order.currency)
       end
 
       def variant

@@ -5,11 +5,18 @@ module Spree
 
     class << self
 
+
+      #  Dynamic kit params
+      #      params = {
+      #        "34" => [ "217" ],
+      #        "35" => [ "4618" ],
+      #        "36" => ["321" ]
+      #      }
       def parse_options(variant, params, currency)
-        if params.class == Hash
-          parse_options_for_assembly(variant, params, currency)
-        else
+        if params.class == Array
           parse_options_for_old_kit(variant, params, currency)
+        else
+          parse_options_for_assembly(variant, params, currency)
         end
       end
 
