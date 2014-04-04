@@ -1,5 +1,5 @@
 <div class="item-description" data-hook="cart_item_description">
-	<% has_kit_options = !line_item.line_item_options.blank? %>
+	<% has_kit_options = !line_item.line_item_parts.blank? %>
 	<% personalisations = line_item.personalisations %>
 	<h4><%= link_to variant.product.name, product_path(variant.product) %></h4>
 	<% if has_kit_options %>
@@ -10,7 +10,7 @@
 				<% end %>
 				<%= line_item_description_text(line_item.description) %>
 			</li>
-			<% line_item.line_item_options.each do |o| %>
+			<% line_item.line_item_parts.each do |o| %>
 			<li>(<%= o.quantity %> * <%= o.variant.display_kit_price %>) <%= link_to o.variant.name, product_path(o.variant.product) %></li>
 			<% end %>
 		</ul>

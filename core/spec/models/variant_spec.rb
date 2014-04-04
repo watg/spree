@@ -14,19 +14,6 @@ describe Spree::Variant do
 
   end
 
-  context "weight" do
-    context "for product" do
-      subject { create(:variant, weight: 12.0) }
-      its(:weight) { should == 12.0 }
-    end
-
-    context "for kit" do
-      subject { create(:variant, weight: nil, product: create(:product, product_type: 'kit'),  parts: [ create(:part, weight: 5.0)] ) }
-      its(:weight) { should == 5.0 }
-    end
-  end
-
-
   describe "with tags" do
     let(:tags) { 2.times.map { FactoryGirl.create(:tag) } }
 

@@ -4,21 +4,93 @@ module Spree
     attr_reader :errors
 
     class << self
-      def parse_options(variant, options)
-        return [] if options.blank?
-        assembly_definition_parts = variant.product.assembly_definition.parts
-        options.inject([]) do |list, t| 
-          part_id, selected_variant_id = t.flatten.map(&:to_i)
-          assembly_definition_part = assembly_definition_parts.detect{|p| p.id == part_id}
-          
-          if assembly_definition_part && (selected_variant_id > 0)
-            selected_variant_part = Spree::Variant.find(selected_variant_id)
-            list << [selected_variant_part, assembly_definition_part.count, assembly_definition_part.optional, assembly_definition_part.id]
-          end
-          
-          list
+
+
+      #  Dynamic kit params
+      #      params = {
+      #        "34" => [ "217" ],
+      #        "35" => [ "4618" ],
+      #        "36" => ["321" ]
+      #      }
+      def parse_options(variant, params, currency)
+        if params.class == Array
+          parse_options_for_old_kit(variant, params, currency)
+        else
+          parse_options_for_assembly(variant, params, currency)
         end
       end
+
+      def parse_options_for_assembly(variant, params, currency)
+        return [] if variant.assembly_definition.blank? or params.blank?
+        assembly_definition_parts = variant.assembly_definition.parts
+        params.inject([]) do |parts, t| 
+          part_id, selected_part_variant_id = t.flatten.map(&:to_i)
+          assembly_definition_part = assembly_definition_parts.detect{|p| p.id == part_id}
+
+          if assembly_definition_part && (selected_part_variant_id > 0)
+            selected_part_variant = Spree::Variant.find selected_part_variant_id
+            parts << OpenStruct.new(
+              assembly_definition_part_id: assembly_definition_part.id,
+              variant_id:                  selected_part_variant.id, 
+              quantity:                    assembly_definition_part.count, 
+              optional:                    assembly_definition_part.optional,
+              price:                       selected_part_variant.price_part_in(currency).amount,
+              currency:                    currency, # This is stupid, why would if be different to line_item?
+            )
+          end
+          parts
+        end
+      end
+
+      def parse_options_for_old_kit(variant, params, currency)
+        parts = []
+        variant.required_parts_for_display.each do |r|
+          parts << OpenStruct.new(
+            assembly_definition_part_id: nil,
+            variant_id:                  r.id,
+            quantity:                    r.count_part,
+            optional:                    false,
+            price:                       r.price_part_in(currency).amount,
+            currency:                    currency
+          )
+        end
+
+        if params.any?
+          options = Spree::Variant.find(params)
+          options.each do |o|
+            parts << OpenStruct.new(
+              assembly_definition_part_id: nil,
+              variant_id: o.id,
+              quantity:   part_quantity(variant,o),
+              optional:   true,
+              price:      o.price_part_in(currency).amount,
+              currency:   currency
+            )
+          end
+        end
+        parts
+      end
+
+      def parse_personalisations(params, currency)
+        return [] unless params[:enabled_pp_ids]
+        params[:enabled_pp_ids].map do |pp_id|
+          pp_params = params[:pp_ids][pp_id]
+          pp = Spree::Personalisation.find pp_id
+          safe_params = pp.validate( pp_params )
+          OpenStruct.new(
+            personalisation_id: pp_id, 
+            amount: pp.prices[currency],
+            data: safe_params
+          )
+        end
+      end
+
+      private
+
+      def part_quantity(variant, option)
+        variant.product.optional_parts_for_display.detect{|e| e.id == option.id}.count_part
+      end
+
     end
 
     def initialize(order, currency)
@@ -74,7 +146,7 @@ module Spree
       value = hash[:products].delete(:options) rescue nil
       # If we have parts then we have a new dynamic kit
       # and we should not have options, hence overwrite them
-      value = hash.delete(:parts) if hash[:parts]
+      value = hash.delete(:parts).to_hash if hash[:parts]
       (value || [])
     end
 
@@ -87,25 +159,16 @@ module Spree
     #     "initials"=>"XXXX"
     #   }
     # }
-
     def extract_personalisations(hash)
-      return unless hash[:products]
-      enabled_pp_ids = hash[:products].delete(:enabled_pp_ids) || []
-      pp_ids = hash[:products].delete(:pp_ids) || {}
-      enabled_pp_ids.map do |pp_id|
-        params = pp_ids[pp_id]
-        pp = Spree::Personalisation.find pp_id
-        safe_params = pp.validate( params )
-        {
-          personalisation_id: pp_id, 
-          amount: pp.prices[currency],
-          data: safe_params
-        }
-      end
+      return {} unless hash[:products]
+      {
+        enabled_pp_ids: hash[:products].delete(:enabled_pp_ids) || [],
+        pp_ids:         hash[:products].delete(:pp_ids) || {}
+      }
     end
 
     # This has modifications for options and personalisations
-    def attempt_cart_add(variant_id, quantity, option_ids=[], personalisations=[], target_id)
+    def attempt_cart_add(variant_id, quantity, option_params, personalisation_params, target_id)
       quantity = quantity.to_i
       # 2,147,483,647 is crazy.
       # See issue #2695.
@@ -113,53 +176,19 @@ module Spree
         errors.add(:base, Spree.t(:please_enter_reasonable_quantity, :scope => :order_populator))
         return false
       end
-      variant = Spree::Variant.find(variant_id)
-      options_with_qty = add_quantity_for_each_option(variant, option_ids)
+
+      variant = Spree::Variant.find variant_id
+
+      parts = Spree::OrderPopulator.parse_options(variant, option_params, currency)
+      personalisations = Spree::OrderPopulator.parse_personalisations(personalisation_params, currency)
 
       if quantity > 0
-        if check_stock_levels_for_variant_and_options(variant, quantity, options_with_qty)
-          shipment = nil
-          line_item = @order.contents.add(variant, quantity, currency, shipment, options_with_qty, personalisations, target_id)
-          unless line_item.valid?
-            errors.add(:base, line_item.errors.messages.values.join(" "))
-            return false
-          end
+        line_item = @order.contents.add(variant, quantity, currency, nil, parts, personalisations, target_id)
+        unless line_item.valid?
+          errors.add(:base, line_item.errors.messages.values.join(" "))
+          return false
         end
       end
-    end
-
-    def check_stock_levels_for_variant_and_options(variant, quantity, options=[])
-      desired_line_item = Spree::LineItem.new(variant_id: variant.id, quantity: quantity)
-      desired_line_item.line_item_options = options.map{|e|   Spree::LineItemOption.new(variant_id: e[0].id, quantity: e[1]) }
-
-      result = Spree::Stock::Quantifier.can_supply_order?(@order, desired_line_item)
-
-      result[:errors].each {|error_msg| puts order.errors.add(:base, error_msg) }
-      result[:in_stock]
-    end
-
-    def add_quantity_for_each_option(variant, option_ids)
-      # The option_ids will be a hash for the new dynamic kits 
-      # otherwise an array for the old type kits
-      # e.g. (dynamic kit options )  options = {
-      #   "39" => [ "321" ],
-      #   "40" => [ "205" ],
-      #   part_id => [ selected_variant1, selected_variant2 ]
-      # }
-      #
-      # ( static kit options )  options = [ 1,2,3 ]
-      if variant.assembly_definition
-        Spree::OrderPopulator.parse_options(variant, option_ids)
-      else
-        options = Spree::Variant.find(option_ids)
-        options.map do |o|
-          [o, part_quantity(variant,o)]
-        end
-      end
-    end
-
-    def part_quantity(variant, option)
-      variant.product.optional_parts_for_display.detect{|e| e.id == option.id}.count_part
     end
 
   end

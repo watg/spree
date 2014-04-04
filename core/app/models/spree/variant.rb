@@ -47,7 +47,7 @@ module Spree
       dependent: :destroy
 
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
-    validate :validate_variant_weight
+    validates :weight, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
 
     has_many :taggings, as: :taggable
     has_many :tags, -> { order(:value) }, through: :taggings
@@ -186,47 +186,15 @@ module Spree
     end
 
     def weight
-      return static_kit_weight if self.assemblies_parts.any?
-      return dynamic_kit_weight if self.assembly_definition
-      basic_weight(super)
+      return super if self.is_master || self.new_record?
+      return self.product.master.weight if super.blank?
+      super
     end
 
-    def static_kit_weight
-      kit_weight = required_parts_for_display.inject(0.00) do |sum,part|
-        count_part = part.count_part 
-        part_weight = part.weight 
-        notify("Variant id #{part.try(:id)} has no weight") unless part_weight
-        sum + (count_part * part_weight.to_f)
-      end
-      BigDecimal.new(kit_weight,2)
-    end
-    
-    def dynamic_kit_weight
-      warning = "Only use this variant#dynamic_kit_weight to get kit weight right. Not suitable for getting kit weight of past orders"
-      Rails.logger.info(warning)
-
-      self.assembly_definition.parts.where(optional: false).reduce(BigDecimal(0,2)) do |part_total_weight, part|
-        first_available_variant = part.variants.detect {|v| v.weight && v.weight > 0 }
-        variant_weight = first_available_variant.try(:weight)
-        notify("Variant id #{first_available_variant.try(:id)} has no weight") unless variant_weight
-        part_total_weight + ( part.count * variant_weight.to_f )
-      end
-    end
-    
-    def basic_weight(value_from_super_weight)
-      return value_from_super_weight if self.is_master || self.new_record?
-
-      if (value_from_super_weight.blank? || value_from_super_weight.zero?)
-        value = if self.product
-                  self.product.master.weight
-                else
-                  nil
-                end
-        notify("The weight of variant id: #{self.id} is nil.\nThe weight of product id: #{self.product.try(:id)}") unless value
-        value.to_f
-      else
-        value_from_super_weight
-      end
+    def cost_price
+      return super if self.is_master || self.new_record?
+      return self.product.master.cost_price if super.blank?
+      super
     end
 
     def cost_price=(price)
@@ -237,7 +205,6 @@ module Spree
     def on_backorder
       inventory_units.with_state('backordered').size
     end
-
 
     # from variant options
     def to_hash(currency)
@@ -452,16 +419,6 @@ module Spree
     end
 
     private
-    def validate_variant_weight
-      if not ((self.product && self.product.product_type == 'kit') or ( self.is_master && self.new_record? ) )
-        errors.add(:weight, 'must be greater than 0') if (self.weight.blank? || self.weight <= 0)
-      end
-    end
-
-    def notify(msg)
-      # Sends an email to Techadmin
-      NotificationMailer.send_notification(msg)
-    end
 
     def touch_assembly_products
       assembly_products.map(&:touch)

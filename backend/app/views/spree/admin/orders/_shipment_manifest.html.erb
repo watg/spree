@@ -5,31 +5,29 @@
     <td class="item-type"><%= item.variant.product_type %></td>
     <td class="item-image"><%= mini_image(item.variant) %></td>
     <td class="item-name">
-      <strong>    <%= item.variant.product.name %><br><%= "(" + variant_options(item.variant) + ")" unless item.variant.option_values.empty? %></strong>
+      <strong> 
+        <%= link_to item.variant.product.name, edit_admin_product_variant_path(item.variant.product, item.variant) %><br>
+        <%= "(" + variant_options(item.variant) + ")" unless item.variant.option_values.empty? %>
+      </strong>
       SKU: <%= item.variant.sku %>
-      <% if item.product.assembly_definition %>
+        <hr />
+        Gang Member Nickname: <%= item.variant.product.gang_member.nickname %>
       <hr />
-        <ul style="list-style:none;">
-          <% item.line_item_options.each do |part| %>
-          <li><span class="part-count"><%= part.quantity %> X </span>
-            <span class="part-name"><%= "#{part.variant.name} #{part.variant.options_text}" %></span>
-            <% if part.optional %>
-            <br />
-            <span class="part-optional">Option: Yes</span></li>
-            <% end %>
+
+      <% if item.line_item_parts.required.any? %>
+        <h6>Parts:</h6>
+        <ul class='assembly_parts' style="list-style:none;">
+          <% item.line_item_parts.required.each do |o| %>
+            <li><%= link_to "#{o.quantity} x #{o.variant.name} (#{o.variant.options_text})" , edit_admin_product_variant_path(o.variant.product, o.variant) %></li>
           <% end %>
         </ul>
       <% end %>
-      <% if item.product.assembly? %>
-        <hr />
-         Gang Member Nickname: <%= item.variant.product.gang_member.nickname %>
-        <hr />
+
+      <% if item.line_item_parts.optional.any? %>
+        <h6>Optional Parts:</h6>
         <ul class='assembly_parts' style="list-style:none;">
-          <% ( item.variant.required_parts_for_display ).each do |v| %>
-            <li><%= v.count_part %> x <%= v.name + " (" + v.options_text + ")" %> </li>
-          <% end %>
-          <% item.line_item_options.each do |o| %>
-            <li><%= o.quantity %> x <%= o.variant.name + " (" + o.variant.options_text + ")" %></li>
+          <% item.line_item_parts.optional.each do |o| %>
+            <li><%= link_to "#{o.quantity} x #{o.variant.name} (#{o.variant.options_text})" , edit_admin_product_variant_path(o.variant.product, o.variant) %></li>
           <% end %>
         </ul>
       <% end %>
@@ -58,11 +56,11 @@
     <% unless shipment.shipped? %>
       <td class="cart-item-delete actions" data-hook="cart_item_delete">
         <% if can? :update, item %>
-          <%= link_to '', '#', :class => 'save-item icon_link icon-ok no-text with-tip', :data => {'shipment-number' => shipment.number, 'variant-id' => item.variant.id, :action => 'save'}, :title => Spree.t('actions.save'), :style => 'display: none' %>
+          <%= link_to '', '#', :class => 'save-item icon_link icon-ok no-text with-tip', :data => {'shipment-number' => shipment.number, 'variant-id' => item.variant.id, 'line-item-id' => item.id, :action => 'save'}, :title => Spree.t('actions.save'), :style => 'display: none' %>
           <%= link_to '', '#', :class => 'cancel-item icon_link icon-cancel no-text with-tip', :data => {:action => 'cancel'}, :title => Spree.t('actions.cancel'), :style => 'display: none' %>
           <%= link_to '', '#', :class => 'edit-item icon_link icon-edit no-text with-tip', :data => {:action => 'edit'}, :title => Spree.t('edit') %>
-          <%= link_to '', '#', :class => 'split-item icon_link icon-resize-horizontal no-text with-tip', :data => {:action => 'split', 'variant-id' => item.variant.id}, :title => Spree.t('split') %>
-          <%= link_to '', '#', :class => 'delete-item icon-trash no-text with-tip', :data => { 'shipment-number' => shipment.number, 'variant-id' => item.variant.id, :action => 'remove'}, :title => Spree.t('delete') %>
+          <%= link_to '', '#', :class => 'split-item icon_link icon-resize-horizontal no-text with-tip', :data => {:action => 'split', 'variant-id' => item.variant.id, 'line-item-id' => item.id }, :title => Spree.t('split') %>
+          <%= link_to '', '#', :class => 'delete-item icon-trash no-text with-tip', :data => { 'shipment-number' => shipment.number, 'variant-id' => item.variant.id, 'line-item-id' => item.id, :action => 'remove'}, :title => Spree.t('delete') %>
         <% end %>
       </td>
     <% end %>

@@ -1,20 +1,28 @@
 <div class="item-description" data-hook="cart_item_description">
   <h4><%= link_to variant.product.name, path_to_variant(line_item, variant) %></h4>
-  <% if line_item.product.assembly? || line_item.product.assembly_definition %>
-    <% if line_item.line_item_options.any? %>
+  <%= variant.options_text %>
+  <% if @order.insufficient_stock_lines.include? line_item %>
+    <span class="out-of-stock"><%= Spree.t(:out_of_stock) %>&nbsp;&nbsp;<br /></span>
+  <% end %>
+
+  <% if line_item.line_item_parts.required.any? %>
     <h6>Parts:</h6>
     <ul class='assembly_parts'>
-      <% line_item.line_item_options.each do |o| %>
-      <li class="line-item-option"><%= "#{o.variant.name} -- #{o.variant.options_text}" %></li>
+      <% line_item.line_item_parts.required.each do |o| %>
+        <li class="line-item-option"><%= "#{[o.variant.name, o.variant.options_text].delete_if(&:empty?).join(' -- ')}" %></li>
       <% end %>
     </ul>
-    <% end %>
-  <% else %>
-    <%= variant.options_text %>
-    <% if @order.insufficient_stock_lines.include? line_item %>
-      <span class="out-of-stock"><%= Spree.t(:out_of_stock) %>&nbsp;&nbsp;<br /></span>
-    <% end %>
   <% end %>
+
+  <% if line_item.line_item_parts.optional.any? %>
+    <h6>Optional Parts:</h6>
+    <ul class='assembly_parts'>
+      <% line_item.line_item_parts.optional.each do |o| %>
+        <li class="line-item-option"><%= "#{[o.variant.name, o.variant.options_text].delete_if(&:empty?).join(' -- ')}" %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
   <% if !line_item.line_item_personalisations.blank? %>
     <h6>Personalisations:</h6>
     <ul class="personalisations">

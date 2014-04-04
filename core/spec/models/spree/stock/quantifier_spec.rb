@@ -5,14 +5,6 @@ describe Spree::Stock::Quantifier do
   let(:kit) { create(:product, product_type: :kit) }
   let(:made_by_the_gang) { create(:product, product_type: :made_by_the_gang) }
 
-  it "returns Simple Quantifier for non-assembly variants" do
-    expect(subject.new(made_by_the_gang.master)).to be_kind_of(Spree::Stock::SimpleQuantifier)
-  end
-
-  it "returns Assembly Quantifier for kits and assembly variants" do
-    expect(subject.new(kit.master)).to be_kind_of(Spree::Stock::AssemblyQuantifier)
-  end
-
   describe "#can_supply_order?" do
     let(:order) { create(:order_with_line_items) }
 
@@ -34,7 +26,8 @@ describe Spree::Stock::Quantifier do
         actual_result = subject.can_supply_order?(order)
         
         expect(actual_result[:in_stock]).to eq false
-        expect(actual_result[:errors].size).to eq 1
+        out_of_stock_line_item = actual_result[:errors].map {|li| li[:line_item_id] }
+        expect(out_of_stock_line_item).to match_array([order.line_items[0].id])
       end
     end
 
@@ -43,7 +36,7 @@ describe Spree::Stock::Quantifier do
       let(:adding_rtw) { Spree::LineItem.new(variant_id: variant.id, quantity: 3) }
       let(:adding_kit) {
         li = Spree::LineItem.new(variant_id: variant.id, quantity: 1)
-        li.line_item_options = [Spree::LineItemOption.new(variant_id: variant.id, quantity: 5)]
+        li.line_item_parts = [Spree::LineItemPart.new(variant_id: variant.id, quantity: 5)]
         li
       }
       before do

@@ -7,7 +7,6 @@ module Spree
 # how they will deal with redirects
     before_filter :redirect_to_product_pages, :only => :show
     
-    before_filter :check_stock, :only => :show
     rescue_from ActiveRecord::RecordNotFound, :with => :product_not_found
     helper 'spree/taxons'
     helper 'spree/products_ecom'
@@ -49,14 +48,6 @@ module Spree
       if Flip.product_pages?
         outcome = Spree::ProductPageRedirectionService.run(product: @product, variant: @selected_variant)
         redirect_to outcome.result[:url], status: outcome.result[:http_code]
-      end
-    end
-
-    def check_stock
-      outcome = Spree::VariantStockControlService.run(selected_variant: @selected_variant)
-      if outcome.result[:redirect_to]
-        flash[:notice] = outcome.result[:message]
-        redirect_to outcome.result[:redirect_to]
       end
     end
 

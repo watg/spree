@@ -216,6 +216,10 @@ module Spree
       goods_weight + boxes_weight
     end
 
+    def cost_price_total
+      line_items.inject(0.0) { |sum, li| sum + li.cost_price.to_f }
+    end
+
     def currency
       self[:currency] || Spree::Config[:currency]
     end
@@ -554,7 +558,9 @@ module Spree
     end
 
     def insufficient_stock_lines
-      line_items.select(&:insufficient_stock?)
+      result = Spree::Stock::Quantifier.can_supply_order?(self)
+      out_of_stock_line_item_ids = result[:errors].map{|li| li[:line_item_id] }
+      line_items.where(id: out_of_stock_line_item_ids)
     end
 
     def merge!(order, user = nil)
@@ -686,8 +692,8 @@ module Spree
         }.squish!).uniq.count > 0
     end
 
-    def find_existing_line_item(variant, target_id, options_with_qty, personalisations)
-      uuid = Spree::VariantUuid.fetch(variant, options_with_qty, personalisations).number
+    def find_existing_line_item(variant, parts, personalisations, target_id)
+      uuid = Spree::VariantUuid.fetch(variant, parts, personalisations).number
       self.line_items.find_by(variant_id: variant.id, item_uuid: uuid, target_id: target_id)
     end
 

@@ -1,14 +1,21 @@
 module Spree
   class LineItem < ActiveRecord::Base
     before_validation :adjust_quantity
-    belongs_to :order, class_name: "Spree::Order"
+    belongs_to :order, class_name: "Spree::Order", :inverse_of => :line_items
     belongs_to :variant, class_name: "Spree::Variant"
+
     belongs_to :tax_category, class_name: "Spree::TaxCategory"
     belongs_to :target, class_name: "Spree::Target"
 
     has_one :product, through: :variant
+
     has_many :adjustments, as: :adjustable, dependent: :destroy
+    has_many :inventory_units
     has_many :line_item_personalisations, dependent: :destroy
+    alias personalisations line_item_personalisations
+    has_many :line_item_parts, dependent: :destroy
+
+    alias parts line_item_parts
 
     before_validation :copy_price
     before_validation :copy_tax_category
@@ -22,20 +29,52 @@ module Spree
     validates :price, numericality: true
     validates_with Stock::AvailabilityValidator
 
-    before_save :set_item_uuid
+    before_destroy :update_inventory
+
     after_save :update_inventory
     after_save :update_order
     after_destroy :update_order
 
     delegate :name, :description, :should_track_inventory?, to: :variant
 
+    attr_accessor :options_with_qty
     attr_accessor :target_shipment
 
+    class << self
+      def without(line_item)
+        where.not(id: line_item.try(:id))
+      end
+    end
+
     def add_personalisations(collection)
-      objects = collection.map do |params|
-        Spree::LineItemPersonalisation.new params
+      objects = collection.map do |o|
+        # o is an OpenStruct which maps to directly to LineItemPersonalisation 
+        # hence we can use marshal_dump as we are lazy
+        Spree::LineItemPersonalisation.new(
+                                           line_item: self,
+                                           personalisation_id: o.personalisation_id,
+                                           amount: o.amount,
+                                           data: o.data
+                                           )
       end
       self.line_item_personalisations = objects
+    end
+
+    def add_parts(collection)
+      objects = collection.map do |o|
+        # o is an OpenStruct which maps to directly to LineItemPart 
+        # hence we can use marshal_dump as we are lazy
+        Spree::LineItemPart.new(
+                                line_item: self,
+                                quantity: o.quantity,
+                                price: o.price,
+                                assembly_definition_part_id: o.assembly_definition_part_id,
+                                variant_id: o.variant_id,
+                                optional: o.optional,
+                                currency: o.currency
+                                )
+      end
+      self.line_item_parts = objects
     end
 
     def copy_price
@@ -78,12 +117,12 @@ module Spree
     alias normal_total normal_amount
 
     def options_and_personalisations_price
-      ( line_item_options.blank? ? 0 : amount_all_options ) +
+      ( line_item_parts.blank? ? 0 : amount_all_parts ) +
       ( line_item_personalisations.blank? ? 0 : amount_all_personalisations ) 
     end
 
-    def amount_all_options
-      list_amount = self.line_item_options.select{|e| e.optional }.map {|e| e.price * e.quantity}
+    def amount_all_parts
+      list_amount = self.line_item_parts.select{|e| e.optional }.map {|e| e.price * e.quantity}
       list_amount.inject(0){|s,a| s += a; s}
     end
 
@@ -95,7 +134,7 @@ module Spree
     def assembly_selected_variants
       return unless variant.assembly_definition
 
-      line_item_options.inject({}) do |hsh, option|
+      line_item_parts.inject({}) do |hsh, option|
         hsh[option.assembly_definition_part_id] = option.variant_id
         hsh
       end
@@ -118,7 +157,7 @@ module Spree
 
     def sufficient_stock?
       result = Spree::Stock::Quantifier.can_supply_order?(self.order)
-      result[:in_stock]
+      result[:errors].select {|err| err[:line_item_id] == self.id}.blank?
     end
 
     def insufficient_stock?
@@ -143,7 +182,7 @@ module Spree
       definition = self.variant.assembly_definition
       if definition
         definition.parts.map do |part|
-          option = self.line_item_options.where(optional: false, assembly_definition_part_id: part.id).first
+          option = self.line_item_parts.where(optional: false, assembly_definition_part_id: part.id).first
           "#{part.product.name} - #{option.variant.options_text}" if option
         end.compact.join(', ')
       else
@@ -152,25 +191,42 @@ module Spree
     end
 
     def weight
-      options_weight = self.line_item_options.reduce(0.0) do |w, o|
-        w + ( o.variant.weight.to_f * o.quantity )
-      end
+      value_for(:weight)
+    end
 
-      variant_weight = (self.variant.assembly_definition ? 0.0 : self.variant.weight.to_f)
-
-      (options_weight + variant_weight) * self.quantity
+    def cost_price
+      value_for(:cost_price)
     end
 
     private
+
+    def value_for(attribute)
+        (self.variant.send(attribute).to_f + options_value_for(attribute)) * self.quantity
+    end
+
+    def options_value_for(attribute)
+      self.line_item_parts.reduce(0.0) do |w, o|
+
+        value = o.variant.send(attribute)
+        # We only want to notify if we are part of an assembly e.g. we are a line_item_part and we have a nil as 
+        # a price
+        if value.blank? 
+          notify("The #{attribute} of variant id: #{o.variant.id} is nil for line_item_part: #{o.id}")
+          value = BigDecimal.new(0,2)
+        end
+
+        w + ( value.to_f * o.quantity )
+      end
+    end
+
+    def notify(msg)
+      # Sends an email to Techadmin
+      NotificationMailer.send_notification(msg)
+    end
+
     def update_inventory
       if changed?
-        # We do not call self.product as when save is called on the line_item object it for some reason
-        # causes the product to update due to the has_one through variant relationship
-        if variant.product.can_have_parts?
-          Spree::OrderInventoryAssembly.new(self).verify(self, target_shipment)
-        else
-          Spree::OrderInventory.new(self.order).verify(self, target_shipment)
-        end 
+        Spree::OrderInventory.new(self.order, self).verify(target_shipment)
       end 
     end
 
@@ -180,22 +236,6 @@ module Spree
         order.create_tax_charge!
         order.update!
       end
-    end
-
-    def set_item_uuid
-      self.item_uuid = generate_uuid
-    end
-
-    def generate_uuid
-      options_with_qty = line_item_options.map do |o|
-        [o.variant, o.quantity, o.optional, o.assembly_definition_part_id]
-      end
-
-      personalisations_params = line_item_personalisations.map do |p|
-        { data: p.data, personalisation_id: p.personalisation_id }
-      end
-
-      Spree::VariantUuid.fetch(variant, options_with_qty, personalisations_params).number
     end
 
   end

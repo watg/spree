@@ -8,12 +8,15 @@ module Spree
     end
     
     class << self
-      def fetch(variant, option_with_qty=[], personalisations=[])
-        recipe = build_hash(variant, option_with_qty, personalisations)
+      def fetch(variant, parts=nil, personalisations=nil )
+        parts ||= []
+        personalisations ||= []
+        recipe = build_hash(variant, parts, personalisations)
 
         recipe_sha1 = Digest::SHA1.hexdigest(recipe.to_json)
 
         variant_uuid = where(recipe_sha1: recipe_sha1).first
+
         unless variant_uuid
           serialization = recipe.reduce({}) {|hsh, i| hsh[i[0]] = i[1].to_json; hsh} 
           variant_uuid = create(recipe_sha1: recipe_sha1,
@@ -23,41 +26,41 @@ module Spree
       end
 
       private
-      def build_hash(variant, options, personalisations)
+
+      def build_hash(variant, parts, personalisations)
         {
-          base_variant_id:  variant.id,
-          options:          required_options(options),
+          base_variant_id:  variant.id.to_i,
+          parts:            format_parts(parts),
           personalisations: format_personalisations(personalisations)
         }
       end
-      def required_options(opts)
-        opts.map do |o|
-          variant, quantity, _, assembly_definition_part_id = o
+
+      def format_parts(parts)
+        parts.map do |p|
           {
-            part_id: assembly_definition_part_id,
-            quantity: quantity,
-            variant_id: variant.id
-          }
-        end
-      end
-      def format_personalisations(list)
-        list ||= []
-        list.map do |pers|
-          {
-            personalisation_id: pers[:personalisation_id],
-            data: pers[:data]
+            part_id: p.assembly_definition_part_id.to_i,
+            quantity: p.quantity.to_i,
+            variant_id: p.variant_id.to_i
           }
         end
       end
 
+      def format_personalisations(personalisations)
+        personalisations.map do |p|
+          {
+            personalisation_id: p.personalisation_id.to_i,
+            data: p.data 
+          }
+        end
+      end
     end
 
     def base_variant
       @base_variant ||= Spree::Variant.find((self.recipe[:base_variant_id]||0))
     end
 
-    def options
-      @options ||= JSON.parse((self.recipe[:options]||"[]")).map do|hsh|
+    def parts
+      @parts ||= JSON.parse((self.recipe[:parts]||"[]")).map do|hsh|
         part = Spree::AssemblyDefinitionPart.find(hsh['part_id']) if hsh['part_id']
         OpenStruct.new(
                         part: part,

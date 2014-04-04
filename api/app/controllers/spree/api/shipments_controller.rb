@@ -3,7 +3,7 @@ module Spree
     class ShipmentsController < Spree::Api::BaseController
 
       before_filter :find_order
-      before_filter :find_and_update_shipment, only: [:ship, :ready, :add, :remove]
+      before_filter :find_and_update_shipment, only: [:ship, :ready, :add, :remove, :add_by_line_item, :remove_by_line_item]
 
       def create
         authorize! :create, Shipment
@@ -57,7 +57,12 @@ module Spree
       def add
         quantity = params[:quantity].to_i
         @order.contents.add(variant, quantity, @order.currency, @shipment, options_with_qty)
+        respond_with(@shipment, default_template: :show)
+      end
 
+      def add_by_line_item
+        quantity = params[:quantity].to_i
+        @order.contents.add_by_line_item(line_item, quantity, @shipment)
         respond_with(@shipment, default_template: :show)
       end
 
@@ -68,13 +73,24 @@ module Spree
         respond_with(@shipment, default_template: :show)
       end
 
+      def remove_by_line_item
+        quantity = params[:quantity].to_i
+        @order.contents.remove_by_line_item(line_item, quantity, @shipment)
+        @shipment.reload if @shipment.persisted?
+        respond_with(@shipment, default_template: :show)
+      end
+
       private
       def options_with_qty
-        Spree::OrderPopulator.parse_options(variant, params[:selected_variants])
+        Spree::OrderPopulator.parse_options(variant, params[:selected_variants] || {}, @order.currency)
       end
 
       def variant
         @variant ||= Spree::Variant.find(params[:variant_id])
+      end
+
+      def line_item
+        @line_item ||= Spree::LineItem.find(params[:line_item_id])
       end
 
       def find_order

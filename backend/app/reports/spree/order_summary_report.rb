@@ -22,6 +22,7 @@ module Spree
         location_shipped
         returning_customer
         currency
+        cost_price 
         revenue_pre_sale_pre_ship_pre_promo 
         revenue_pre_ship_pre_promo
         revenue_shipping_pre_promo
@@ -84,7 +85,7 @@ module Spree
           product_type_totals[ variant.product_type ] ||= 0 
           product_type_totals[ variant.product_type ] += cost 
           # Add the optional parts
-          option_costs = li.line_item_options.inject(0) { |acc,val| acc + ( val.price * val.quantity ).to_f }
+          option_costs = li.line_item_parts.optional.inject(0) { |acc,val| acc + ( val.price * val.quantity ).to_f }
           product_type_totals[ variant.product_type ] += option_costs 
         elsif variant.product_type == 'pattern'
           product_type_totals['pattern'] ||= 0 
@@ -144,6 +145,7 @@ module Spree
         o.shipping_address.country.name,
         returning_customer(o,previous_users),
         o.currency,
+        o.cost_price_total.to_f,
         o.item_normal_total.to_f,
         o.item_total.to_f, # Total cost
         o.ship_total,

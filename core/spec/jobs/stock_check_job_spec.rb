@@ -9,7 +9,7 @@ describe Spree::StockCheckJob do
   describe "#perform" do
     context "on variant part of NO kit" do
       before do
-        allow_any_instance_of(Spree::Stock::SimpleQuantifier).
+        allow_any_instance_of(Spree::Stock::Quantifier).
           to receive(:can_supply?).
           and_return(true)
       end
@@ -29,7 +29,7 @@ describe Spree::StockCheckJob do
 
       context "going in stock" do
         before do
-          allow_any_instance_of(Spree::Stock::SimpleQuantifier).
+          allow_any_instance_of(Spree::Stock::Quantifier).
             to receive(:can_supply?).
             and_return(true)
         end
@@ -43,7 +43,7 @@ describe Spree::StockCheckJob do
 
       context "going out of stock" do
         before do
-          allow_any_instance_of(Spree::Stock::SimpleQuantifier).
+          allow_any_instance_of(Spree::Stock::Quantifier).
             to receive(:can_supply?).
             and_return(false)
         end

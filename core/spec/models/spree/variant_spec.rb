@@ -124,24 +124,21 @@ describe Spree::Variant do
 
   context "weight" do
 
-    context "for product" do
-      subject { create(:variant, weight: 12.0) }
-      its(:weight) { should == 12.0 }
-    end
-
-    context "for static kit" do
-      subject { create(:variant, weight: nil, product: create(:product, product_type: 'kit'), parts: [ create(:part, weight: 5.0)] ) }
-      its(:weight) { should == 5.0 }
-    end
+    subject { create(:variant, weight: 12.0) }
+    its(:weight) { should == 12.0 }
 
     context "weight validation" do
       subject { Spree::Variant.new }
-      it "weight cannot be nil for non - kit variant" do
+      # This has been disabled whilst we decide if we want this functionality
+      # DD 26/03/14
+      xit "weight cannot be nil for non - kit variant" do
         subject.valid?
         expect(subject.error_on(:weight)).to_not be_blank
       end
 
-      it "weight can be nil for kit variant" do
+      # This has been disabled whilst we decide if we want this functionality
+      # DD 26/03/14
+      xit "weight can be nil for kit variant" do
         subject.product = create(:product, product_type: 'kit')
         subject.valid?
         expect(subject.error_on(:weight)).to be_blank
@@ -150,12 +147,38 @@ describe Spree::Variant do
     end
   end
 
+  context "cost_price" do
+
+    subject { create(:variant, cost_price: 12.0) }
+    its(:cost_price) { should == 12.0 }
+
+    context "cost_price validation" do
+      subject { Spree::Variant.new }
+      # This has been disabled whilst we decide if we want this functionality
+      # DD 26/03/14
+      xit "cost_price cannot be nil for non - kit variant" do
+        subject.valid?
+        expect(subject.error_on(:cost_price)).to_not be_blank
+      end
+
+      # This has been disabled whilst we decide if we want this functionality
+      # DD 26/03/14
+      xit "cost_price can be nil for kit variant" do
+        subject.product = create(:product, product_type: 'kit')
+        subject.valid?
+        expect(subject.error_on(:cost_price)).to be_blank
+      end
+      
+    end
+  end
+
+
   context "after create" do
     let!(:product) { create(:product) }
 
     it "propagate to stock items" do
       Spree::StockLocation.any_instance.should_receive(:propagate_variant)
-      product.variants.create(:name => "Foobar", weight: 10)
+      product.variants.create(:name => "Foobar", weight: 10, cost_price: 10)
     end
 
     context "stock location has disable propagate all variants" do
@@ -163,7 +186,7 @@ describe Spree::Variant do
 
       it "propagate to stock items" do
         Spree::StockLocation.any_instance.should_not_receive(:propagate_variant)
-        product.variants.create(:name => "Foobar", weight: 10)
+        product.variants.create(:name => "Foobar", weight: 10, cost_price: 10)
       end
     end
   end
@@ -245,7 +268,8 @@ describe Spree::Variant do
   end
 
   context "#prices for a part" do
-    let(:subject) { FactoryGirl.build(:part) }
+    let(:product) { build(:product, can_be_part: true)}
+    let(:subject) { FactoryGirl.build(:variant, product: product) }
 
     [:normal, :normal_sale, :part, :part_sale].each do |price_type|
       it "should return price for '#{price_type}'" do
@@ -574,7 +598,7 @@ describe Spree::Variant do
 
     context "Assembly Definition" do
       let(:assembly_definition) { create(:assembly_definition, variant: variant) }
-      let(:variant_part)  { create(:base_variant) }
+      let(:variant_part)  { create(:variant) }
       let(:product_part)  { variant_part.product }
       let(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: product_part) }
       let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
