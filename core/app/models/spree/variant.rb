@@ -112,8 +112,10 @@ module Spree
         selector.reorder('amount').first
       end
 
-      def options_tree_for(target, current_currency)
-        selector = self.includes(:normal_prices, :kit_prices, :images, :option_values => [:option_type])
+      def options_tree_for(target, currency)
+        @_options_tree_for ||= {}
+        return  @_options_tree_for[[target,currency]] if @_options_tree_for[[target,currency]]
+        selector = self.includes(:prices, :images, :option_values => [:option_type])
         if !target.blank?
           selector = selector.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
         end
@@ -144,16 +146,18 @@ module Spree
           end
           base['variant'] ||= {}
           base['variant']['id']=v.id
-          base['variant']['normal_price']=v.price_normal_in(current_currency).in_subunit
-          base['variant']['sale_price']=v.price_normal_sale_in(current_currency).in_subunit
-          base['variant']['part_price']=v.price_part_in(current_currency).in_subunit
+          base['variant']['normal_price']=v.price_normal_in(currency).in_subunit
+          base['variant']['sale_price']=v.price_normal_sale_in(currency).in_subunit
+          base['variant']['part_price']=v.price_part_in(currency).in_subunit
           base['variant']['in_sale']=v.in_sale
           base['variant']['in_stock']= v.in_stock_cache 
           if v.images.any?
-            base['variant']['image_url']= v.images.reorder(:position).first.attachment.url(:mini)
+            #base['variant']['image_url']= v.images.reorder(:position).first.attachment.url(:mini)
+            # above replaced by below, as it was causing extra sql queries
+            base['variant']['image_url']= v.images.first.attachment.url(:mini)
           end
         end
-        hash
+        @_options_tree_for[[target,currency]] ||= hash
       end
 
     end
