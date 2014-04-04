@@ -3,6 +3,7 @@ core.olapicGallery = {};
 core.olapicGallery.apiUrl = 'http://api.photorank.me/v1/photos';
 core.olapicGallery.proxyUrl = '/shop/oproxy';
 core.olapicGallery.streamOffset = 0;
+core.olapicGallery.streamTotal = 0;
 core.olapicGallery.streamId;
 
 $(document).ready(function() {
@@ -51,6 +52,7 @@ core.olapicGallery.getStreamId = function() {
 core.olapicGallery.processStreamData = function(response) {
 	var code = response.code;
 	var data = response.response;
+	var cursor = response.cursor;
 	
 	if (code != 0 || data.length == 0) return false; // Die if error or no photos in stream
 		
@@ -61,6 +63,15 @@ core.olapicGallery.processStreamData = function(response) {
 		core.readyModals();
 	});
 	
+	// How many photos?
+	core.olapicGallery.streamTotal = cursor.total;	
+	
+	// Hide button when we run out of photos
+	if ((core.olapicGallery.streamOffset + data.length) >= core.olapicGallery.streamTotal) {
+		$('.button').hide();
+	}
+	
+	// Count offset...
 	core.olapicGallery.streamOffset += data.length;
 }
 
