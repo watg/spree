@@ -34,9 +34,12 @@ module Spree
     # Todo put this into a service
     def show_js
 
-      if params[:variant_id]
-        @selected_variant = Spree::Variant.find params[:variant_id]
+      selected_variants = if Spree::Variant.is_number(params[:variant_id])
+        Spree::Variant.where(number: params[:variant_id], in_stock_cache: true)
+      else
+        Spree::Variant.where(id: params[:variant_id], in_stock_cache: true)
       end
+      @selected_variant = selected_variants.first if selected_variants.any?
 
       @product_page = Spree::ProductPage.find_by_permalink(params[:id]).decorate( context:  {
         tab:     params[:tab],
