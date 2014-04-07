@@ -76,6 +76,7 @@ module Spree
 
       def show
         @order = Order.find_by_number!(params[:id])
+        type = (params[:type] or :invoice).to_sym
         pdf    = get_pdf(@order, type)
         respond_to do |format|
           format.pdf do
@@ -137,14 +138,13 @@ module Spree
       end
 
     private
-    
-      def type
-        (params[:type] == 'sticker' ? :sticker : :invoice )
-      end
 
       def get_pdf(order, pdf_type)
-        if pdf_type == :invoice
+        case pdf_type
+        when :invoice
           Spree::PDF::CommercialInvoice.new(order).to_pdf
+        when :packing_list
+          Spree::PDF::PackingList.new(order).to_pdf
         else
           Spree::PDF::ImageSticker.new(order).to_pdf
         end

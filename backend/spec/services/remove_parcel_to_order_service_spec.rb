@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::RemoveParcelToOrderService do
-  let!(:stock_location) { Spree::StockLocation.create!(name: 'warehouse') }
+  # let(:stock_location) { Spree::StockLocation.create!(name: 'warehouse') }
   context "#run" do
     let(:subject)   { Spree::RemoveParcelToOrderService }
     let(:box_group) { FactoryGirl.create(:product_group, name: 'box')}
@@ -40,7 +40,10 @@ describe Spree::RemoveParcelToOrderService do
       end
 
       it "should decrement stock of selected box by correct quantity" do
+        Spree::StockLocation.delete_all
+        Spree::StockLocation.create!(name: 'warehouse')
         subject.run(box_id: small_box.id, quantity: 4, order_id: order.id)
+        puts small_box.stock_items.inspect
         expect(small_box.stock_items[0].count_on_hand).to eq(14)
       end
     end

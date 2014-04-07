@@ -27,13 +27,14 @@ module Spree
         watg_logo(pdf)
         customer_address(pdf, order, address_x, lineheight_y)
         invoice_details(pdf, order, invoice_header_x)
+        totals(invoice_header_x)
         invoice_terms(pdf)
         invoice_signature(pdf)
 
         pdf
       end
 
-      private
+    private
       def set_font(pdf)
         # Add the font style and size
         pdf.font "Helvetica"
@@ -80,6 +81,12 @@ module Spree
         pdf.move_down lineheight_y
         pdf.text_box order.shipping_address.city, :at => [address_x,  pdf.cursor]
         pdf.move_down lineheight_y
+
+        if state = order.shipping_address.state_text
+          pdf.text_box state, :at => [address_x,  pdf.cursor]
+          pdf.move_down lineheight_y
+        end
+
         pdf.text_box order.shipping_address.country.name, :at => [address_x,  pdf.cursor]
         pdf.move_down lineheight_y
         pdf.text_box order.shipping_address.zipcode, :at => [address_x,  pdf.cursor]
@@ -124,20 +131,7 @@ module Spree
             item.display_amount.to_s
           ]
           if item.product.product_type == 'kit' or item.product.product_type == 'virtual_product'
-
-            item.variant.required_parts_for_display.each do |p|
-              invoice_services_data << [
-                '-',
-                '-',
-                'part',
-                p.name,
-                p.option_values.empty? ? '' : p.options_text,
-                '-',
-                p.count_part,
-                '-',
-              ]
-            end
-            item.line_item_options.each do |p|
+            item.line_item_parts.each do |p|
               invoice_services_data << [
                 '-',
                 '-',
@@ -180,26 +174,27 @@ module Spree
           style(columns(5), :width => 40)
           style(columns(6), :width => 30)
         end
+      end
 
+
+      def totals(invoice_header_x)
         pdf.move_down 1
 
-        invoice_services_totals_data = [ [ "Sub Total", order.display_item_total.to_s ] ]
+        totals_data = [ [ "Sub Total", order.display_item_total.to_s ] ]
         order.adjustments.eligible.each do |adjustment|
           next if (adjustment.originator_type == 'Spree::TaxRate') and (adjustment.amount == 0)
-          invoice_services_totals_data  << [ adjustment.label ,  adjustment.display_amount.to_s ]
+          totals_data  << [ adjustment.label ,  adjustment.display_amount.to_s ]
         end
-        invoice_services_totals_data.push [ "Order Total", order.display_total.to_s ]
+        totals_data.push [ "Order Total", order.display_total.to_s ]
 
-        pdf.table(invoice_services_totals_data, :position => invoice_header_x, :width => 215) do
-          style(row(0..1).columns(0..1), :padding => [1, 5, 1, 5], :borders => [])
+        pdf.table(totals_data, :position => invoice_header_x, :width => 215) do
+          style(row(0..-2), :padding => [1, 5, 1, 5], :borders => [])
           style(row(0), :font_style => :bold)
-          style(row(2), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
+          style(row(-1), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
           style(column(1), :align => :right)
-          style(row(2).columns(0), :borders => [:top, :left, :bottom])
-          style(row(2).columns(1), :borders => [:top, :right, :bottom])
+          style(row(-1).columns(0), :borders => [:top, :left, :bottom])
+          style(row(-1).columns(1), :borders => [:top, :right, :bottom])
         end
-
-        pdf
       end
 
 

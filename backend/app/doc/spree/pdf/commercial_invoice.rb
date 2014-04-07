@@ -74,7 +74,7 @@ module Spree
       def customer_address(address_x, lineheight_y)
         pdf.move_down 65
         last_measured_y = pdf.cursor
-
+        
         pdf.text_box "#{order.shipping_address.firstname} #{order.shipping_address.lastname} ", :at => [address_x,  pdf.cursor]
         pdf.move_down lineheight_y
         pdf.text_box order.shipping_address.address1, :at => [address_x,  pdf.cursor]
@@ -83,6 +83,12 @@ module Spree
         pdf.move_down lineheight_y
         pdf.text_box order.shipping_address.city, :at => [address_x,  pdf.cursor]
         pdf.move_down lineheight_y
+
+        if state = order.shipping_address.state_text
+          pdf.text_box state, :at => [address_x,  pdf.cursor]
+          pdf.move_down lineheight_y
+        end
+
         pdf.text_box order.shipping_address.country.name, :at => [address_x,  pdf.cursor]
         pdf.move_down lineheight_y
         pdf.text_box order.shipping_address.zipcode, :at => [address_x,  pdf.cursor]
@@ -122,9 +128,9 @@ module Spree
           product = line[:product]
           group = line[:group]
           invoice_data << [
-            product_description_cell(product.name, group),
+            product_description_cell(product, group),
             group.code,
-            group.mid,
+            mid_cell(product.gang_member, group),
             product.weight,
             money(line[:single_price]),
             line[:quantity],
@@ -168,7 +174,6 @@ module Spree
           style(row(-1).columns(0), :borders => [:top, :left, :bottom])
           style(row(-1).columns(1), :borders => [:top, :right, :bottom])
         end
-
       end
 
       def not_for_resale
@@ -194,21 +199,30 @@ module Spree
       # end
 
       def gather_order_products
-        order.line_items.each do |item|
-          if item.product.product_type != 'kit'
-            add_to_products(item.product, item.quantity, item.base_price*item.quantity)
+        order.line_items.each do |line|
+          if line.product.product_type != 'kit'
+            add_to_products(line.product, line.quantity, line.base_price*line.quantity)
           else
-            item.variant.required_parts_for_display.each do |variant|
-              # refactor with the new product types
+            amount_required_parts = 0
+            line.parts.required.each do |part|
+              amount_required_parts += part.price * part.quantity
+            end
+            
+            line.parts.each do |part|
+              variant = part.variant
+              # refactor with the new product types / categorizations
               group = variant.product.product_group
               next if group.name == 'knitters needles'
               next if group.name =~ /sticker/
 
-              add_to_products(variant.product, variant.count_part, variant.price_normal_in(currency).amount * variant.count_part)
-            end
-
-            item.line_item_options.each do |part|
-              add_to_products(part.variant.product, part.quantity, part.price * part.quantity)
+              if part.optional
+                amount = part.price * part.quantity
+              else
+                # to get a more accurate price figure than the standard normal price for the item
+                # let's use the weighted amount of the base price, which includes only required parts
+                amount = (part.price * part.quantity / amount_required_parts ) * line.base_price if amount_required_parts > 0
+              end
+              add_to_products(variant.product, part.quantity, amount || 0)
             end
           end
         end
@@ -217,25 +231,26 @@ module Spree
       def compute_prices
         total_amount = 0
         accummulated_amount = 0
+        order_total_without_shipping = order.total - order.ship_total
 
         # weighted sum of the total amount
         @unique_products.each do |id, item|
-          d {item[:total_amount]}
           total_amount += item[:total_amount]
         end
 
         number_of_items = @unique_products.count - 1 # -1 to match the index counter
-        # @unique_products = Hash[@unique_products.to_a.reverse]
         @unique_products.each_with_index do |(id, item), index|
           if number_of_items == index # this is the last part
-            item[:total_price] = order.item_total - accummulated_amount
+            item[:total_price] = order_total_without_shipping - accummulated_amount
             item[:single_price] = item[:total_price] / item[:quantity]
           else
             # weighted calculation
             proportion = item[:total_amount] / total_amount
-            d { proportion }
-            item[:total_price] = (proportion * order.item_total).round.to_f
-            d {item[:total_price]}
+            if proportion == 1.0
+              item[:total_price] = order_total_without_shipping
+            else
+              item[:total_price] = (proportion * order_total_without_shipping).round.to_f
+            end
             item[:single_price] = item[:total_price] / item[:quantity]
             accummulated_amount += item[:total_price]
           end
@@ -257,11 +272,29 @@ module Spree
       end
 
 
-      def product_description_cell(product_name, group)
-        "<b>" + product_name + "</b>" +
+      def product_description_cell(product, group)
+        if group.mid_uk.present? && gang_made?(product.gang_member)
+          origin = 'UK'
+        else
+          origin = group.origin
+        end
+        "<b>" + product.name + "</b>" +
         "\n" + group.garment +
-        "\n" + [group.fabric, group.origin].join(" - ") + 
+        "\n" + [group.fabric, origin].join(" - ") + 
         "\n" + group.contents
+      end
+
+      def mid_cell(gang_member, group)
+        if group.mid_uk.present? && gang_made?(gang_member)
+          group.mid_uk
+        else
+          group.mid
+        end
+      end
+
+      # if not Peruvian or WATG
+      def gang_made?(gang_member)
+        (gang_member.try(:id) != 15 || gang_member.try(:id) != 2)
       end
 
     end
