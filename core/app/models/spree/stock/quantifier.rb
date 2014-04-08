@@ -50,7 +50,7 @@ module Spree
             end.flatten
           end
 
-          data_set = order.line_items.without(desired_line_item)
+          data_set = order.line_items.includes(:line_item_parts).without(desired_line_item)
           a = line_item_to_record[data_set]
           b = ( desired_line_item ? line_item_to_record[desired_line_item] : [] )
           
