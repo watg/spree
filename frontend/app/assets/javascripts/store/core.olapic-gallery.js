@@ -69,6 +69,8 @@ core.olapicGallery.processStreamData = function(response) {
 	// Hide button when we run out of photos
 	if ((core.olapicGallery.streamOffset + data.length) >= core.olapicGallery.streamTotal) {
 		$('.button').hide();
+	} else {
+		$('.button').show();
 	}
 	
 	// Count offset...
