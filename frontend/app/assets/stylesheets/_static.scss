@@ -365,26 +365,34 @@ body.thank-you {
   	}
 	.row-olapic-gallery {
 		position: relative;
-		margin: 0 auto;
+		margin: emCalc(60px) auto;
 		max-width: 62.5em;
 		a {
 			outline: 0;
 		}
-		h1, h2, p {
+		h1, h2, h3, p {
 			text-align: center;
 		}
 		h1 {
 			font-size: 0;
 			line-height: 0;
 		}
-		h2 {
-			margin-bottom: emCalc(20px);
+		h2, h3 {
+			margin: emCalc(30px) 0;
 			font-family: $watg-font-light;
 			font-size: emCalc(20px);
 			font-weight: normal;
-			span {
+			line-height: 1.25em;
+			strong {
 				font-family: $watg-font;
+				font-weight: normal;
 			}
+		}
+		.social {
+			padding: 0;
+			font-size: 0.6em;
+			position: relative;
+			top: emCalc(-5px);
 		}
 		ul {
 			padding: 0 1px;
@@ -418,14 +426,40 @@ body.thank-you {
 					float: right;
 				}
 			}
+			/* Just mobile, custom width */
+			@media only screen and (max-width: 320px) {
+				li, li:first-child {
+					width: emCalc(242px);
+					height: emCalc(242px);
+				}
+			}
+		}
+		.olapic-photos {
+			overflow: hidden;
+		}
+		.olapic-photos + p {
+			margin: emCalc(30px) 0 0;
 		}
 		.button {
-			margin-top: emCalc(30px);
+			display: none;
+		}
+		/* All non-desktop, custom width */
+		@media only screen and (max-width: 1080px) {
+			.olapic-photos {
+				margin: 0 auto;
+				width: emCalc(488px);
+			}
+		}
+		/* Just mobile, custom width */
+		@media only screen and (max-width: 320px) {
+			.olapic-photos {
+				width: emCalc(248px);
+			}
 		}
 	}
 	.modal {
 		padding: 0;
-		width: emCalc(900px);
+		width: 65%;
 		.modal-close {
 			top: 20px;
 			right: 20px;
@@ -456,5 +490,49 @@ body.thank-you {
 				text-align: left;
 			}
 		}
+		/* All non-desktop, custom width */
+		@media only screen and (max-width: 1080px) {
+			.col-left, .col-right {
+				float: none;
+			}
+			.col-left {
+				display: none;
+			}
+			.col-right {
+				width: 100%;
+			}
+		}		
+		
+		/* Just mobile, custom width */
+		@media only screen and (max-width: 320px) {
+			.col-left, .col-right {
+				float: none;
+			}
+			.col-left {
+				display: none;
+			}
+			.col-right {
+				width: 100%;
+				p {
+					font-size: emCalc(24px);
+				}
+			}
+		}
 	}
+	/* Just mobile, custom width */
+	@media only screen and (max-width: 320px) {
+		.modal {
+			position: fixed !important;
+		}
+	}	
+}
+
+/* Olapic gallery page: FRD */
+.olapic-gallery.fashion-revolution-day {
+	
+}
+
+/* Olapic gallery page: HWTG */
+.olapic-gallery.hang-with-the-gang {
+	
 }

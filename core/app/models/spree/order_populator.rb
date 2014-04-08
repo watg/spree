@@ -5,70 +5,25 @@ module Spree
 
     class << self
 
-
       #  Dynamic kit params
       #      params = {
       #        "34" => [ "217" ],
       #        "35" => [ "4618" ],
       #        "36" => ["321" ]
       #      }
+      #  Old style Kit params
+      #  params = [ 123, 34, 1 ]
       def parse_options(variant, params, currency)
-        if params.class == Array
-          parse_options_for_old_kit(variant, params, currency)
-        else
-          parse_options_for_assembly(variant, params, currency)
-        end
-      end
+        parts = if params.class == Array
+                  parse_options_for_old_kit(variant, params, currency)
 
-      def parse_options_for_assembly(variant, params, currency)
-        return [] if variant.assembly_definition.blank? or params.blank?
-        assembly_definition_parts = variant.assembly_definition.parts
-        params.inject([]) do |parts, t| 
-          part_id, selected_part_variant_id = t.flatten.map(&:to_i)
-          assembly_definition_part = assembly_definition_parts.detect{|p| p.id == part_id}
+                elsif variant.assembly_definition and params
+                  parse_options_for_assembly(variant, params, currency)
 
-          if assembly_definition_part && (selected_part_variant_id > 0)
-            selected_part_variant = Spree::Variant.find selected_part_variant_id
-            parts << OpenStruct.new(
-              assembly_definition_part_id: assembly_definition_part.id,
-              variant_id:                  selected_part_variant.id, 
-              quantity:                    assembly_definition_part.count, 
-              optional:                    assembly_definition_part.optional,
-              price:                       selected_part_variant.price_part_in(currency).amount,
-              currency:                    currency, # This is stupid, why would if be different to line_item?
-            )
-          end
-          parts
-        end
-      end
-
-      def parse_options_for_old_kit(variant, params, currency)
-        parts = []
-        variant.required_parts_for_display.each do |r|
-          parts << OpenStruct.new(
-            assembly_definition_part_id: nil,
-            variant_id:                  r.id,
-            quantity:                    r.count_part,
-            optional:                    false,
-            price:                       r.price_part_in(currency).amount,
-            currency:                    currency
-          )
-        end
-
-        if params.any?
-          options = Spree::Variant.find(params)
-          options.each do |o|
-            parts << OpenStruct.new(
-              assembly_definition_part_id: nil,
-              variant_id: o.id,
-              quantity:   part_quantity(variant,o),
-              optional:   true,
-              price:      o.price_part_in(currency).amount,
-              currency:   currency
-            )
-          end
-        end
-        parts
+                else
+                  []
+                end
+        parts + add_required_parts(variant, currency)
       end
 
       def parse_personalisations(params, currency)
@@ -86,6 +41,74 @@ module Spree
       end
 
       private
+
+      def add_required_parts(variant, currency)
+        variant.required_parts_for_display.map do |r|
+          OpenStruct.new(
+            assembly_definition_part_id: nil,
+            variant_id:                  r.id,
+            quantity:                    r.count_part,
+            optional:                    false,
+            price:                       r.price_part_in(currency).amount,
+            currency:                    currency
+          )
+        end
+      end
+
+      def parse_options_for_assembly(variant, params, currency)
+        params.inject([]) do |parts, t|
+          part_id, selected_part_variant_id = t.flatten.map(&:to_i)
+
+          if assembly_definition_part = valid_part( variant, part_id )
+
+            if selected_part_variant = valid_selected_part_variant( assembly_definition_part, selected_part_variant_id )
+
+              parts << OpenStruct.new(
+                assembly_definition_part_id: assembly_definition_part.id,
+                variant_id:                  selected_part_variant.id,
+                quantity:                    assembly_definition_part.count, 
+                optional:                    assembly_definition_part.optional,
+                price:                       selected_part_variant.price_part_in(currency).amount,
+                currency:                    currency
+              )
+            end
+          end
+          parts
+        end
+      end
+
+      def valid_part( variant, part_id )
+        variant.assembly_definition.parts.detect{|p| p.id == part_id}
+      end
+
+      def valid_selected_part_variant( assembly_definition_part, selected_part_variant_id )
+        boolean = assembly_definition_part.assembly_definition_variants.detect do |v| 
+          v.variant_id == selected_part_variant_id 
+        end 
+        if boolean
+          Spree::Variant.find(selected_part_variant_id)
+        else
+          nil
+        end
+      end
+
+      def parse_options_for_old_kit(variant, params, currency)
+        parts = []
+        if params.any?
+          options = Spree::Variant.find(params)
+          options.each do |o|
+            parts << OpenStruct.new(
+              assembly_definition_part_id: nil,
+              variant_id: o.id,
+              quantity:   part_quantity(variant,o),
+              optional:   true,
+              price:      o.price_part_in(currency).amount,
+              currency:   currency
+            )
+          end
+        end
+        parts
+      end
 
       def part_quantity(variant, option)
         variant.product.optional_parts_for_display.detect{|e| e.id == option.id}.count_part
