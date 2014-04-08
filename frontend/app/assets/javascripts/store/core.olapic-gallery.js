@@ -77,15 +77,14 @@ core.olapicGallery.processStreamData = function(response) {
 
 // Add photo to the page
 core.olapicGallery.addPhoto = function(id, data) {
-	var container = $('.row-olapic-gallery > div');
-	var para = $('.row-olapic-gallery > div p');
+	var container = $('.olapic-photos');
 	
 	var item = '<li class="' + data.id + '"><a rel="modal" href="#modal-' + data.id + '">More about photo ' + data.id + '</a></li>';
 	if (id % 5 === 0) { // Every fifth item
 		if (id % 2 === 0) { // Odd ('cos human beans count from one, not zero)
-			$('<ul class="no-bullet odd"></ul>').insertBefore(para);
+			container.append('<ul class="no-bullet odd"></ul>');
 		} else { // Even
-			$('<ul class="no-bullet even"></ul>').insertBefore(para);
+			container.append('<ul class="no-bullet even"></ul>');
 		}
 	}
 	

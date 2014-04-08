@@ -418,14 +418,35 @@ body.thank-you {
 					float: right;
 				}
 			}
+			/* Just mobile, custom width */
+			@media only screen and (max-width: 320px) {
+				li, li:first-child {
+					width: emCalc(242px);
+					height: emCalc(242px);
+				}
+			}
 		}
 		.button {
 			margin-top: emCalc(30px);
 		}
+		/* All non-desktop, custom width */
+		@media only screen and (max-width: 1080px) {
+			.olapic-photos {
+				margin: 0 auto;
+				width: emCalc(488px);
+				overflow: hidden;
+			}
+		}
+		/* Just mobile, custom width */
+		@media only screen and (max-width: 320px) {
+			.olapic-photos {
+				width: emCalc(248px);
+			}
+		}
 	}
 	.modal {
 		padding: 0;
-		width: emCalc(900px);
+		width: 65%;
 		.modal-close {
 			top: 20px;
 			right: 20px;
@@ -456,5 +477,39 @@ body.thank-you {
 				text-align: left;
 			}
 		}
+		/* All non-desktop, custom width */
+		@media only screen and (max-width: 1080px) {
+			.col-left, .col-right {
+				float: none;
+			}
+			.col-left {
+				display: none;
+			}
+			.col-right {
+				width: 100%;
+			}
+		}		
+		
+		/* Just mobile, custom width */
+		@media only screen and (max-width: 320px) {
+			.col-left, .col-right {
+				float: none;
+			}
+			.col-left {
+				display: none;
+			}
+			.col-right {
+				width: 100%;
+				p {
+					font-size: emCalc(24px);
+				}
+			}
+		}
 	}
+	/* Just mobile, custom width */
+	@media only screen and (max-width: 320px) {
+		.modal {
+			position: fixed !important;
+		}
+	}	
 }
