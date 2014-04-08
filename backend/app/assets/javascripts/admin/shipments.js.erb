@@ -180,6 +180,8 @@ adjustShipmentItemsByLineItemId = function(shipment_number, line_item_id, varian
         data: { line_item_id: line_item_id, quantity: new_quantity }
       }).done(function( msg ) {
         advanceOrder();
+      }).error(function( msg ) {
+        show_flash('error', msg.responseText);
       });
     }
 }
