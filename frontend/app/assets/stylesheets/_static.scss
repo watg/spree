@@ -421,6 +421,13 @@ body.thank-you {
 				width: emCalc(484px);
 				height: emCalc(484px);
 			}
+			/* Just mobile, custom width */
+			@media only screen and (max-width: 320px) {
+				li, li:first-child {
+					width: emCalc(242px);
+					height: emCalc(242px);
+				}
+			}
 			&.odd {
 				li {
 					float: left;
@@ -431,11 +438,12 @@ body.thank-you {
 					float: right;
 				}
 			}
-			/* Just mobile, custom width */
-			@media only screen and (max-width: 320px) {
-				li, li:first-child {
-					width: emCalc(242px);
-					height: emCalc(242px);
+			/* All non-desktop, custom width */
+			@media only screen and (max-width: 1080px) {
+				&.odd, &.even {
+					li {
+						float: left;
+					}
 				}
 			}
 		}
