@@ -388,6 +388,11 @@ body.thank-you {
 				font-weight: normal;
 			}
 		}
+		h3 {
+			a {
+				text-decoration: underline;
+			}
+		}
 		.social {
 			padding: 0;
 			font-size: 0.6em;
@@ -528,12 +533,7 @@ body.thank-you {
 }
 /* Olapic gallery page: FRD */
 .olapic-gallery.fashion-revolution-day {
-	/* Just mobile, custom width */
-	@media only screen and (max-width: 320px) {
-		h2 {
-			display: none;
-		}
-	}
+	
 }
 /* Olapic gallery page: HWTG */
 .olapic-gallery.hang-with-the-gang {
