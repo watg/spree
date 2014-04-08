@@ -6,7 +6,7 @@ module Olapic
       query = params.map {|a| a.join('=') }.join('&')
       complete_url = [uri.scheme, "://", uri.host, uri.path].join + "?#{query}"
 
-      Rails.cache.fetch(complete_url, expires_in: 1.day) do
+      Rails.cache.fetch(complete_url, expires_in: 15.minutes) do
         params[:api_key] = OLAPIC_API_KEY
         query = params.map {|a| a.join('=') }.join('&')
         complete_url = [uri.scheme, "://", uri.host, uri.path].join + "?#{query}"
