@@ -14,42 +14,27 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
   before_create :set_assembly_product
 
   def selected_variants_out_of_stock
-    find_selected_variants_out_of_stock {|part_id| find_variants_out_of_stock_per(part_id) }
+    Spree::AssemblyDefinitionVariant.joins(:assembly_definition_part, variant: [:stock_items]).
+      where("spree_stock_items.count_on_hand < spree_assembly_definition_parts.count").
+      where("spree_assembly_definition_parts.assembly_definition_id = ?", self.id).inject({}) do |hash,adv| 
+        hash[adv.assembly_definition_part_id] ||= []
+        hash[adv.assembly_definition_part_id] << adv.variant_id
+        hash
+      end
   end
 
   def selected_variants_out_of_stock_option_values
-    find_selected_variants_out_of_stock {|part_id| find_option_values_out_of_stock_per(part_id) }
+    Spree::AssemblyDefinitionVariant.joins(:assembly_definition_part, variant: [:stock_items]).
+      includes(variant: [:option_values]).
+      where("spree_stock_items.count_on_hand < spree_assembly_definition_parts.count").
+      where("spree_assembly_definition_parts.assembly_definition_id = ?", self.id).inject({}) do |hash,adv| 
+        hash[adv.assembly_definition_part_id] ||= []
+        hash[adv.assembly_definition_part_id] << adv.variant.option_values.map(&:id)
+        hash
+      end
   end
 
   private
-  def find_selected_variants_out_of_stock
-    Spree::AssemblyDefinitionPart.
-      joins( assembly_definition_variants: [ variant: [:stock_items] ]).
-      where("spree_assembly_definition_parts.count > spree_stock_items.count_on_hand").
-      where("spree_assembly_definition_parts.assembly_definition_id = ?", self.id).
-      reduce({}) {|hsh, part|
-         hsh[part.id] = yield(part.id)
-         hsh}
-  end
-  
-  def find_variants_out_of_stock_per(assembly_definition_part_id)
-    Spree::AssemblyDefinitionVariant.
-      joins(:assembly_definition_part, variant: [:stock_items]).
-      where("spree_stock_items.count_on_hand < spree_assembly_definition_parts.count").
-      where(assembly_definition_part_id: assembly_definition_part_id).
-      map(&:variant_id)
-  end
-
-  def find_option_values_out_of_stock_per(assembly_definition_part_id)
-    Spree::AssemblyDefinitionVariant.
-      joins(:assembly_definition_part, variant: [:stock_items]).
-      where("spree_stock_items.count_on_hand < spree_assembly_definition_parts.count").
-      where(assembly_definition_part_id: assembly_definition_part_id).
-      map do |adv|
-        v = adv.variant
-        v.option_values.pluck(:id) if v
-      end.compact
-  end
 
   def set_assembly_product 
     self.assembly_product = self.variant.product
