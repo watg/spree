@@ -33,6 +33,10 @@ describe StaticController, type: :controller do
   end
 
   context "setting country code" do
+    before do
+      ApplicationController.any_instance.stub( :valid_environment? => true )
+    end
+
     it "sets the correct country code when one is recognized" do
       subject.request.stub :location => double("Location", :country_code => "UK", :cache_hit => false)
 
