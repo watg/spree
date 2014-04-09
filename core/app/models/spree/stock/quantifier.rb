@@ -3,7 +3,7 @@ module Spree
     class Quantifier
       attr_reader :stock_items
 
-      def initialize(variant, stock_items)
+      def initialize(variant, stock_items=nil)
         # Optimisation, in the case of a large order where we want to eager load all the variants
         # and stock item before initializing.
         if stock_items
