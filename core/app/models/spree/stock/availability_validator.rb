@@ -21,23 +21,38 @@ module Spree
         if line_item.changes['quantity'] && (nqtty > oqtty)
           increased_quantity = nqtty - oqtty
 
-          variant_quantity_grouping(line_item, increased_quantity).map {|variant_id, quantity|
-            variant = Spree::Variant.find(variant_id)
-            in_stock = Spree::Stock::Quantifier.new(variant).can_supply?(quantity)
+
+          variant_quantity_grouping = get_variant_quantity_grouping(line_item, increased_quantity)
+
+          variant_quantity_grouping_with_stock = eager_load_stock_items( variant_quantity_grouping )
+
+          variant_quantity_grouping_with_stock.map do |variant, quantity|
+            in_stock = Spree::Stock::Quantifier.new(variant, variant.stock_items).can_supply?(quantity)
             unless in_stock
               display_name = %Q{#{variant.name}}
               display_name += %Q{ (#{variant.options_text})} unless variant.options_text.blank?
               line_item.errors[:quantity] << Spree.t(:selected_quantity_not_available, :scope => :order_populator, :item => display_name.inspect)
             end
-         }
+          end
         end
       end
 
-      def variant_quantity_grouping(line_item, li_quantity)
+      def eager_load_stock_items( variant_quantity_grouping )
+        variants_with_stock = Spree::Variant.includes(:stock_items =>[:stock_location]).
+          includes(:product).
+          where( Spree::StockLocation.table_name =>{ :active => true} ).find(variant_quantity_grouping.keys)
+
+        variants_with_stock.inject({}) do |hash,v| 
+          hash[v] = variant_quantity_grouping[v.id]
+          hash
+        end
+      end
+
+      def get_variant_quantity_grouping(line_item, li_quantity)
         item_list  = [{
-                        variant_id: line_item.variant_id,
-                        quantity:   li_quantity
-                      }]
+          variant_id: line_item.variant_id,
+          quantity:   li_quantity
+        }]
 
         line_item.line_item_parts.each do |pa|
           item_list << {
