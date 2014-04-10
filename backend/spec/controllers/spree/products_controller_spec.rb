@@ -22,7 +22,7 @@ describe Spree::Admin::ProductsController, type: :controller do
 
   def to_params(product)
     {
-      id: product.permalink,
+      id: product.slug,
       product: {
         name: product.name,
         option_type_ids: option_types.first.id,

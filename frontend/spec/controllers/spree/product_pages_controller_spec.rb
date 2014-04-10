@@ -17,7 +17,7 @@ describe Spree::ProductPagesController, type: :controller do
 
     context "errors" do
       before :each do
-        allow(Spree::ProductPage).to receive(:find_by_permalink!).
+        allow(Spree::ProductPage).to receive(:find_by_slug!).
           with(product_page.permalink).
           and_return(product_page)
       end
@@ -31,7 +31,7 @@ describe Spree::ProductPagesController, type: :controller do
 
     context "ready-to-wear" do
       before :each do
-        allow(Spree::ProductPage).to receive(:find_by_permalink!).
+        allow(Spree::ProductPage).to receive(:find_by_slug!).
           with(product_page.permalink).
           and_return(product_page)
       end
@@ -60,7 +60,7 @@ describe Spree::ProductPagesController, type: :controller do
       let(:product_page_3) { create(:product_page_tab_kit).product_page }
 
       before :each do
-        allow(Spree::ProductPage).to receive(:find_by_permalink!).
+        allow(Spree::ProductPage).to receive(:find_by_slug!).
           with(product_page_3.permalink).
           and_return(product_page_3)
       end
@@ -78,7 +78,7 @@ describe Spree::ProductPagesController, type: :controller do
       let(:product_page_2) { create(:product_page ).decorate }
 
       before :each do
-        allow(Spree::ProductPage).to receive(:find_by_permalink!).
+        allow(Spree::ProductPage).to receive(:find_by_slug!).
           with(product_page_2.permalink).
           and_return(product_page_2)
       end

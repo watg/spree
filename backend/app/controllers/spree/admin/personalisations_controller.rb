@@ -1,7 +1,7 @@
 module Spree
   module Admin
     class PersonalisationsController < ResourceController
-      belongs_to 'spree/product', :find_by => :permalink
+      belongs_to 'spree/product', :find_by => :slug
 
       def update_all
         @product = Spree::Product.find_by_permalink params[:product_id]

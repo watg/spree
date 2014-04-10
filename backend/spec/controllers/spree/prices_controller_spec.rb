@@ -12,13 +12,13 @@ describe Spree::Admin::PricesController, type: :controller do
     it "should call variant prices service" do
       Spree::VariantPricesService.should_receive(:run).with(params).and_return(outcome)
 
-      spree_post :create, params.merge(product_id: product.permalink)
+      spree_post :create, params.merge(product_id: product.slug)
     end
 
     it "should call variant prices service with nil in_sale" do
       expected_params = params.merge(in_sale: [])
       Spree::VariantPricesService.should_receive(:run).with(expected_params).and_return(outcome)
-      spree_post :create, params.merge(product_id: product.permalink, in_sale: nil)
+      spree_post :create, params.merge(product_id: product.slug, in_sale: nil)
     end
 
   end

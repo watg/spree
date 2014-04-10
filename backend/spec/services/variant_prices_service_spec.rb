@@ -24,6 +24,12 @@ describe Spree::VariantPricesService do
       let(:commit) { 'apply_all' }
 
       it "sets the prices on all the variants" do
+puts '---------------- 1111111'
+puts variant.inspect
+puts '---------------- 22222222'
+puts variant2.inspect
+puts '---------------- master'
+puts product.master.inspect
         Spree::VariantPricesService.any_instance.should_receive(:update_prices).once.with(:master_prices ,product.master)
         Spree::VariantPricesService.any_instance.should_receive(:update_prices).once.with(:master_prices,variant)
         Spree::VariantPricesService.any_instance.should_receive(:update_prices).once.with(:master_prices,variant2)

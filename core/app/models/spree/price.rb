@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 module Spree
   class Price < ActiveRecord::Base
     acts_as_paranoid
@@ -47,8 +48,12 @@ module Spree
       end
     end
 
-    # strips all non-price-like characters from the price, taking into account locale settings
     def parse_price(price)
+      self.class.parse_price(price)
+    end
+
+    # strips all non-price-like characters from the price, taking into account locale settings
+    def self.parse_price(price)
       return price unless price.is_a?(String)
 
       separator, delimiter = I18n.t([:'number.currency.format.separator', :'number.currency.format.delimiter'])

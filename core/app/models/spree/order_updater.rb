@@ -2,6 +2,15 @@ module Spree
   class OrderUpdater
     attr_reader :order
     delegate :payments, :line_items, :adjustments, :shipments, :update_hooks, to: :order
+    class << self
+      def shipment_states
+        %w{shipped partial ready backorder pending}
+      end
+
+      def payment_states
+        %w{paid balance_due credit_owed failed}
+      end
+    end
 
     def initialize(order)
       @order = order

@@ -16,6 +16,9 @@ Spree::Core::Engine.add_routes do
     get 'assembly_definitions/:id/out_of_stock_variants' => 'assembly_definitions#out_of_stock_variants', :as => 'assembly_definitions_variant_out_of_stock'
     get 'assembly_definitions/:id/out_of_stock_option_values' => 'assembly_definitions#out_of_stock_option_values', :as => 'assembly_definitions_option_values_out_of_stock'
 
+    resources :tags
+    resources :targets
+
     resources :products do
       resources :images
       resources :variants
