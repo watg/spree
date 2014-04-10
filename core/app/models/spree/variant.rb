@@ -2,16 +2,17 @@ module Spree
   class Variant < ActiveRecord::Base
     acts_as_paranoid
 
-    belongs_to :product, touch: true, class_name: 'Spree::Product'
+    belongs_to :product, touch: true, class_name: 'Spree::Product', inverse_of: :variants
+    belongs_to :tax_category, class_name: 'Spree::TaxCategory'
 
-    delegate_belongs_to :product, :name, :description, :permalink, :available_on,
-                        :tax_category_id, :shipping_category_id, :meta_description,
-                        :meta_keywords, :tax_category, :shipping_category
+    delegate_belongs_to :product, :name, :description, :slug, :available_on,
+                        :shipping_category_id, :meta_description, :meta_keywords,
+                        :shipping_category
 
     has_many :inventory_units
-    has_many :line_items
+    has_many :line_items, inverse_of: :variant
 
-    has_many :stock_items, dependent: :destroy
+    has_many :stock_items, dependent: :destroy, inverse_of: :variant
     has_many :stock_locations, through: :stock_items
     has_many :stock_movements
     has_many :displayable_variants
@@ -19,9 +20,7 @@ module Spree
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants, class_name: "Spree::OptionValue"
 
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
-    # PArt of the image work that needs to be done
-    # has_many :assembly_defintition_images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
-
+    
     has_many :variant_targets, class_name: 'Spree::VariantTarget', dependent: :destroy
     has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :images, through: :variant_targets
     has_many :targets, class_name: 'Spree::Target', through: :variant_targets
@@ -39,12 +38,16 @@ module Spree
       dependent: :destroy
 
     delegate_belongs_to :default_price, :display_price, :display_amount, :price, :price=, :currency
-    
+
     delegate_belongs_to :product, :assembly_definitions
 
     has_many :prices,
       class_name: 'Spree::Price',
-      dependent: :destroy
+      dependent: :destroy,
+      inverse_of: :variant
+
+    # validate :check_price
+    # validates :price, numericality: { greater_than_or_equal_to: 0 }
 
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
     validates :weight, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
@@ -69,6 +72,8 @@ module Spree
 
     has_many :assembly_products ,-> { uniq }, through: :assembly_definition_variants
     after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
+
+    after_touch :clear_in_stock_cache
 
     # default variant scope only lists non-deleted variants
     scope :deleted, lambda { where.not(deleted_at: nil) }
@@ -200,8 +205,16 @@ module Spree
       super
     end
 
+    def tax_category
+      if self[:tax_category_id].nil?
+        product.tax_category
+      else
+        TaxCategory.find(self[:tax_category_id])
+      end
+    end
+
     def cost_price=(price)
-      self[:cost_price] = parse_price(price)
+      self[:cost_price] = parse_price(price) if price.present?
     end
 
     # returns number of units currently on backorder for this variant.
@@ -306,7 +319,9 @@ module Spree
     end
 
     def options_text
-      values = self.option_values.joins(:option_type).order("#{Spree::OptionType.table_name}.position asc")
+      values = self.option_values.sort do |a, b|
+        a.option_type.position <=> b.option_type.position
+      end
 
       values.map! do |ov|
         "#{ov.option_type.presentation}: #{ov.presentation}"
@@ -323,8 +338,19 @@ module Spree
     # allows extensions to override deleted? if they want to provide
     # their own definition.
     def deleted?
-      deleted_at
+      !!deleted_at
     end
+
+    # Product may be created with deleted_at already set,
+    # which would make AR's default finder return nil.
+    # This is a stopgap for that little problem.    
+	def product
+     Spree::Product.unscoped { super }
+    end
+
+    # def default_price
+    #  Spree::Price.unscoped { super }
+    # end
 
     def options=(options = {})
       options.each do |option|
@@ -373,26 +399,25 @@ module Spree
     def name_and_sku
       "#{name} - #{sku}"
     end
-
-    def in_stock?(quantity=1)
-      Spree::Stock::Quantifier.new(self).can_supply?(quantity)
-    end
-
-    def out_of_stock?(quantity=1)
-      !in_stock?(quantity)
-    end
+	
+    # The new in_stock? is using Rails cache
+    # def in_stock?(quantity=1)
+    #  Spree::Stock::Quantifier.new(self).can_supply?(quantity)
+    # end
 
     def sku_and_options_text
       "#{sku} #{options_text}".strip
     end
 
-    # Product may be created with deleted_at already set,
-    # which would make AR's default finder return nil.
-    # This is a stopgap for that little problem.
-    def product
-      Spree::Product.unscoped { super }
+    def in_stock?
+      Rails.cache.fetch(in_stock_cache_key) do
+        total_on_hand > 0
+      end
     end
 
+    def can_supply?(quantity=1)
+      Spree::Stock::Quantifier.new(self).can_supply?(quantity)
+    end
 
     def total_on_hand
       Spree::Stock::Quantifier.new(self).total_on_hand
@@ -451,13 +476,30 @@ module Spree
     def parse_price(price)
       return price unless price.is_a?(String)
 
-      separator, _delimiter = I18n.t([:'number.currency.format.separator', :'number.currency.format.delimiter'])
+      separator, delimiter = I18n.t([:'number.currency.format.separator', :'number.currency.format.delimiter'])
       non_price_characters = /[^0-9\-#{separator}]/
       price.gsub!(non_price_characters, '') # strip everything else first
       price.gsub!(separator, '.') unless separator == '.' # then replace the locale-specific decimal separator with the standard separator if necessary
 
       price.to_d
     end
+
+    # Ensures a new variant takes the product master price when price is not supplied
+    #def check_price
+    #  if price.nil? && Spree::Config[:require_master_price]
+    #    raise 'No master variant found to infer price' unless (product && product.master)
+    #    raise 'Must supply price for variant or master.price for product.' if self == product.master
+    #    self.price = product.master.price
+    #  end
+    #  if currency.nil?
+    #    self.currency = Spree::Config[:currency]
+    #  end
+    #end
+
+    #def save_default_price
+    #  default_price.save if default_price && (default_price.changed? || default_price.new_record?)
+    #end
+
 
     def set_cost_currency
       self.cost_currency = Spree::Config[:currency] if cost_currency.nil? || cost_currency.empty?
@@ -473,9 +515,18 @@ module Spree
       self.update_column(:position, product.variants.maximum(:position).to_i + 1)
     end
 
+		def in_stock_cache_key
+		  "variant-#{id}-in_stock"
+		end
+
+		def clear_in_stock_cache
+		  Rails.cache.delete(in_stock_cache_key)
+		end
+
     def touch_index_page_items
       index_page_items.each { |item| item.touch }
     end
+
   end
 end
 

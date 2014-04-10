@@ -29,6 +29,7 @@ en:
         number: Number
         verification_value: Verification Value
         year: Year
+        name: Name
       spree/inventory_unit:
         state: State
       spree/line_item:
@@ -153,6 +154,12 @@ en:
       spree/line_item:
         one: Line Item
         other: Line Items
+      spree/option_type:
+        one: Option Type
+        other: Option Types
+      spree/option_value:
+        one: Option Value
+        other: Option Values
       spree/order:
         one: Order
         other: Orders
@@ -192,6 +199,9 @@ en:
       spree/state:
         one: State
         other: States
+      spree/stock_movement:
+        one: Stock Movement
+        other: Stock Movements
       spree/stock_location:
         one: Stock Location
         other: Stock Locations
@@ -232,6 +242,10 @@ en:
           attributes:
             base:
               card_expired: "Card has expired"
+        spree/line_item:
+          attributes:
+            currency:
+              must_match_order_currency: "Must match order currency"
   devise:
     confirmations:
       confirmed: Your account was successfully confirmed. You are now signed in.
@@ -299,6 +313,7 @@ en:
     add: Add
     add_action_of_type: Add action of type
     add_country: Add Country
+    add_coupon_code: Add Coupon Code
     add_new_header: Add New Header
     add_new_style: Add New Style
     add_one: Add One
@@ -314,6 +329,7 @@ en:
     additional_item: Additional Item Cost
     address1: Address
     address2: Address (contd.)
+    adjustable: Adjustable
     adjustment: Adjustment
     adjustment_amount: Amount
     adjustment_successfully_closed: Adjustment has been successfully closed!
@@ -328,13 +344,27 @@ en:
           delivery_success: Test Mail sent successfully
           error: ! 'Test Mail error: %{e}'
       tab:
-        overview: "Overview"
-        orders: "Orders"
-        products: "Products"
-        reports: "Reports"
-        configuration: "Configuration"
-        promotions: "Promotions"
-        users: "Users"
+        configuration: Configuration
+        option_types: Option Types
+        orders: Orders
+        overview: Overview
+        products: Products
+        promotions: Promotions
+        properties: Properties
+        prototypes: Prototypes
+        reports: Reports
+        taxonomies: Taxonomies
+        taxons: Taxons
+        users: Users
+      user:
+        account: Account
+        addresses: Addresses
+        items: Items
+        items_purchased: Items Purchased
+        order_history: Order History
+        order_num: "Order #"
+        orders: Orders
+        user_information: User Information
     administration: Administration
     agree_to_privacy_policy: Agree to Privacy Policy
     agree_to_terms_of_service: Agree to Terms of Service
@@ -357,16 +387,16 @@ en:
     analytics_desc_list_4: It's completely free!
     analytics_trackers: Analytics Trackers
     and: and
+    approve: approve
+    approver: Approver
+    approved_at: Approved at
     are_you_sure: Are you sure?
     are_you_sure_delete: Are you sure you want to delete this record?
     associated_adjustment_closed: The associated adjustment is closed, and will not be recalculated. Do you want to open it?
-    attachment_default_style: Attachments Style
-    attachment_default_url: Attachments Default URL
-    attachment_path: Attachments Path
-    attachment_styles: Paperclip Styles
-    attachment_url: Attachments URL
     authorization_failure: Authorization Failure
+    auto_capture: Auto Capture
     available_on: Available On
+    average_order_value: Average Order Value
     avs_response: AVS Response
     back: Back
     back_end: Backend
@@ -410,18 +440,24 @@ en:
     cannot_perform_operation: Cannot perform requested operation
     cannot_set_shipping_method_without_address: Cannot set shipping method until customer details are provided.
     capture: Capture
+    capture_events: Capture events
     card_code: Card Code
     card_number: Card Number
     card_type: Brand
     card_type_is: Card type is
     cart: Cart
+    cart_subtotal:
+      one: 'Subtotal (1 item)'
+      other: 'Subtotal (%{count} items)'
     categories: Categories
     category: Category
     check_for_spree_alerts: Check for Spree alerts
     checkout: Checkout
     choose_a_customer: Choose a customer
+    choose_a_taxon_to_sort_products_for: "Choose a taxon to sort products for"
     choose_currency: Choose Currency
     choose_dashboard_locale: Choose Dashboard Locale
+    choose_location: Choose location
     city: City
     clone: Clone
     close: Close
@@ -431,7 +467,6 @@ en:
     complete: complete
     configuration: Configuration
     configurations: Configurations
-    configure_s3: Configure S3
     confirm: Confirm
     confirm_delete: Confirm Deletion
     confirm_password: Password Confirmation
@@ -564,20 +599,23 @@ en:
       count_on_hand_setter: Cannot set count_on_hand manually, as it is set automatically by the recalculate_count_on_hand callback. Please use `update_column(:count_on_hand, value)` instead.
     expiration: Expiration
     extension: Extension
+    existing_shipments: Existing shipments
     failed_payment_attempts: Failed Payment Attempts
     filename: Filename
     fill_in_customer_info: Please fill in customer info
     filter_results: Filter Results
     finalize: Finalize
+    find_a_taxon: Find a Taxon
+    finalized: Finalized
     first_item: First Item Cost
     first_name: First Name
     first_name_begins_with: First Name Begins With
     flat_percent: Flat Percent
-    flat_rate_per_item: Flat Rate (per item)
-    flat_rate_per_order: Flat Rate (per order)
+    flat_rate_per_order: Flat Rate
     flexible_rate: Flexible Rate
     forgot_password: Forgot Password?
     free_shipping: Free Shipping
+    free_shipping_amount: "-"
     front_end: Front End
     gateway: Gateway
     gateway_config_unavailable: Gateway unavailable for environment
@@ -606,10 +644,8 @@ en:
       translations: Translations
     icon: Icon
     image: Image
-    image_settings: Image Settings
-    image_settings_updated: Image Settings successfully updated.
-    image_settings_warning: You will need to regenerate thumbnails if you update the paperclip styles. Use rake paperclip:refresh:thumbnails CLASS=Spree::Image to do this.
     images: Images
+    inactive: Inactive
     included_in_price: Included in Price
     included_price_validation: cannot be selected unless you have set a Default Tax Zone
     instructions_to_reset_password: Please enter your email on the form below
@@ -617,6 +653,7 @@ en:
     intercept_email_address: Intercept Email Address
     intercept_email_instructions: Override email recipient and replace with this address.
     internal_name: Internal Name
+    invalid_credit_card: Invalid credit card.
     invalid_payment_provider: Invalid payment provider.
     invalid_promotion_action: Invalid promotion action.
     invalid_promotion_rule: Invalid promotion rule.
@@ -639,6 +676,8 @@ en:
     last_name: Last Name
     last_name_begins_with: Last Name Begins With
     learn_more: Learn More
+    lifetime_stats: Lifetime Stats
+    line_item_adjustments: "Line item adjustments"
     list: List
     listing_countries: Listing Countries
     listing_orders: Listing Orders
@@ -678,6 +717,7 @@ en:
       all: All
       none: None
     max_items: Max Items
+    member_since: Member Since
     meta_description: Meta Description
     meta_keywords: Meta Keywords
     metadata: Metadata
@@ -688,6 +728,7 @@ en:
     my_account: My Account
     my_orders: My Orders
     name: Name
+    name_on_card: Name on card
     name_or_sku: Name or SKU (enter at least first 4 characters of product name)
     new: New
     new_adjustment: New Adjustment
@@ -706,6 +747,7 @@ en:
     new_return_authorization: New Return Authorization
     new_shipping_category: New Shipping Category
     new_shipping_method: New Shipping Method
+    new_shipment_at_location: New shipment at location
     new_state: New State
     new_stock_location: New Stock Location
     new_stock_movement: New Stock Movement
@@ -729,6 +771,7 @@ en:
     no_rules_added: No rules added
     no_resource_found: ! 'No %{resource} found'
     no_shipping_methods_found: No shipping methods found
+    no_shipping_method_selected: No shipping method selected.
     no_trackers_found: No Trackers Found
     no_stock_locations_found: No stock locations found
     no_tracking_present: No tracking details provided.
@@ -745,6 +788,7 @@ en:
       product_not_deleted: Product could not be deleted
       variant_deleted: Variant has been deleted
       variant_not_deleted: Variant could not be deleted
+    num_orders: "# Orders"
     on_hand: On Hand
     open: Open
     open_all_adjustments: Open All Adjustments
@@ -759,6 +803,8 @@ en:
     or_over_price: ! '%{price} or over'
     order: Order
     order_adjustments: Order adjustments
+    order_approved: Order approved
+    order_canceled: Order canceled
     order_details: Order Details
     order_email_resent: Order Email Resent
     order_information: Order Information
@@ -788,11 +834,13 @@ en:
       selected_quantity_not_available: ! 'Selected quantity of %{item} is not available.'
       please_enter_reasonable_quantity: Please enter a reasonable quantity.
     order_processed_successfully: Your order has been processed successfully
+    order_resumed: Order resumed
     order_state:
       address: address
       awaiting_return: awaiting return
       canceled: canceled
       cart: cart
+      considered_risky: considered risky
       complete: complete
       confirm: confirm
       delivery: delivery
@@ -816,6 +864,7 @@ en:
     path: Path
     pay: pay
     payment: Payment
+    payment_could_not_be_created: Payment could not be created.
     payment_information: Payment Information
     payment_method: Payment Method
     payment_methods: Payment Methods
@@ -869,13 +918,16 @@ en:
     promotion_action_types:
       create_adjustment:
         description: Creates a promotion credit adjustment on the order
-        name: Create adjustment
+        name: Create whole-order adjustment
+      create_item_adjustments:
+        description: Creates a promotion credit adjustment on a line item
+        name: Create per-line-item adjustment
       create_line_items:
         description: Populates the cart with the specified quantity of variant
         name: Create line items
-      give_store_credit:
-        description: Gives the user store credit of the amount specified
-        name: Give store credit
+      free_shipping:
+        description: Makes all shipments for the order free
+        name: Free shipping
     promotion_actions: Actions
     promotion_form:
       match_policies:
@@ -902,6 +954,7 @@ en:
         description: Available only to logged in users
         name: User Logged In
     promotions: Promotions
+    promotion_uses: Promotion uses
     properties: Properties
     property: Property
     prototype: Prototype
@@ -939,16 +992,12 @@ en:
     review: Review
     risk: Risk
     risk_analysis: Risk Analysis
+    risky: Risky
     rma_credit: RMA Credit
     rma_number: RMA Number
     rma_value: RMA Value
     roles: Roles
     rules: Rules
-    s3_access_key: Access Key
-    s3_bucket: Bucket
-    s3_headers: S3 Headers
-    s3_protocol: S3 Protocol
-    s3_secret: Secret Key
     sales_total: Sales Total
     sales_total_description: Sales Total For All Orders
     sales_totals: Sales Totals
@@ -974,6 +1023,8 @@ en:
     ship_address: Ship Address
     ship_total: Ship Total
     shipment: Shipment
+    shipment_adjustments: "Shipment adjustments"
+    shipment_details: "From %{stock_location} via %{shipping_method}"
     shipment_inc_vat: Shipment including VAT
     shipment_mailer:
       shipped_email:
@@ -1005,6 +1056,7 @@ en:
     shipping_method: Shipping Method
     shipping_methods: Shipping Methods
     shipping_price_sack: Price sack
+    shipping_total: Shipping total
     shop_by_taxonomy: Shop by %{taxonomy}
     shopping_cart: Shopping Cart
     show: Show
@@ -1015,6 +1067,7 @@ en:
     site_name: Site Name
     site_url: Site URL
     sku: SKU
+    slug: Slug
     smtp: SMTP
     smtp_authentication_type: SMTP Authentication Type
     smtp_domain: SMTP Domain
@@ -1039,6 +1092,7 @@ en:
     stock_location: Stock Location
     stock_location_info: Stock location info
     stock_locations: Stock Locations
+    stock_locations_need_a_default_country: You must create a default country before creating a stock location.
     stock_management: Stock Management
     stock_management_requires_a_stock_location: Please create a stock location in order to manage stock.
     stock_movements: Stock Movements
@@ -1059,12 +1113,12 @@ en:
     successfully_updated: ! '%{resource} has been successfully updated!'
     tag_placeholder: Select a tag
     tax: Tax
+    tax_included: "Tax (incl.)"
     tax_categories: Tax Categories
     tax_category: Tax Category
     tax_rate_amount_explanation: Tax rates are a decimal amount to aid in calculations, (i.e. if the tax rate is 5% then enter 0.05)
     tax_rates: Tax Rates
     tax_settings: Tax Settings
-    tax_total: Tax Total
     taxon: Taxon
     taxon_edit: Edit Taxon
     taxon_placeholder: Add a Taxon
@@ -1089,6 +1143,7 @@ en:
     to_add_variants_you_must_first_define: To add variants, you must first define
     total: Total
     total_price: Total price
+    total_sales: Total Sales
     track_inventory: Track Inventory
     tracking: Tracking
     tracking_number: Tracking Number
@@ -1108,6 +1163,7 @@ en:
     update: Update
     updating: Updating
     usage_limit: Usage Limit
+    use_app_default: Use App Default
     use_billing_address: Use Billing Address
     use_new_cc: Use a new card
     use_s3: Use Amazon S3 For Images

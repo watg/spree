@@ -10,27 +10,32 @@ module Spree
       context "with a valid credit card" do
         it "should process payment correctly" do
           order = create(:order_with_line_items, :state => "payment")
-          payment_method = create(:bogus_payment_method, :display_on => "back_end")
+          payment_method = create(:credit_card_payment_method, :display_on => "back_end")
           attributes = {
             :order_id => order.number,
             :card => "new",
             :payment => {
               :amount => order.total,
-              :payment_method_id => payment_method.id.to_s
-            },
-            :payment_source => {
-              payment_method.id.to_s => {:number => Spree::Gateway::Bogus::TEST_VISA.sample}
+              :payment_method_id => payment_method.id.to_s,
+              :source_attributes => {
+                :name => "Test User",
+                :number => "4111 1111 1111 1111",
+                :expiry => "09 / #{Time.now.year + 1}",
+                :verification_value => "123"
+              }
             }
           }
           spree_post :create, attributes
-          expect(response).to redirect_to spree.admin_order_payments_path(order)
+          order.payments.count.should == 1
+          expect(response).to redirect_to(spree.admin_order_payments_path(order))
+          expect(order.reload.state).to eq('complete')
         end
       end
 
       # Regression test for #3233
       context "with a backend payment method" do
         before do
-          @payment_method = create(:payment_method, :display_on => "back_end")
+          @payment_method = create(:check_payment_method, :display_on => "back_end")
         end
 
         it "loads backend payment methods" do

@@ -146,14 +146,6 @@ module Spree
         taxonomy.reload.root.children[1].should eql taxon
       end
 
-      it "can update the position in the list" do
-         taxonomy.root.children << taxon2
-         api_put :update, :taxonomy_id => taxonomy.id, :id => taxon.id, :taxon => {:parent_id => taxon.parent_id, :child_index => 2 }
-         response.status.should == 200
-         taxonomy.reload.root.children[0].should eql taxon2
-         taxonomy.reload.root.children[1].should eql taxon
-       end
-
       it "cannot create a new taxon with invalid attributes" do
         api_post :create, :taxonomy_id => taxonomy.id, :taxon => {}
         response.status.should == 422

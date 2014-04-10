@@ -72,7 +72,7 @@ describe Spree::Promotion::Rules::ItemTotal do
 
   end
 
-  context "user has not entered their addres" do
+  context "user has not entered their address" do
 
     it "should not be eligible regardless of anything else" do
       order_no_address.stub :line_items => [double(:line_item, :amount => 30, :currency => 'GBP'), double(:line_item, :amount => 21, :currency => 'GBP')]

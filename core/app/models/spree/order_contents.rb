@@ -47,6 +47,9 @@ module Spree
     end
 
     private
+      def order_updater
+        @updater ||= OrderUpdater.new(order)
+      end
 
     def add_to_existing_line_item(line_item, quantity, shipment)
       line_item.target_shipment = shipment

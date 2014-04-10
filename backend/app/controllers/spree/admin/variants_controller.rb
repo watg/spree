@@ -1,8 +1,9 @@
 module Spree
   module Admin
     class VariantsController < ResourceController
-      belongs_to 'spree/product', :find_by => :permalink
+      belongs_to 'spree/product', :find_by => :slug
       new_action.before :new_before
+      before_filter :load_data, :only => [:new, :create, :edit, :update]
 
       def create
         invoke_callbacks(:create, :before)
@@ -40,7 +41,7 @@ module Spree
         end
       end
 
-      protected
+     protected
 
       def new_before
         @variant.attributes = @product.master.attributes.except('id', 'created_at', 'deleted_at', 'updated_at', 'is_master')
@@ -89,6 +90,13 @@ module Spree
         end
         @collection
       end
+
+    private
+
+      def load_data
+        @tax_categories = TaxCategory.order(:name)
+      end
+
     end
   end
 end

@@ -1,25 +1,21 @@
 module Spree
   class ProductsController < Spree::StoreController
     before_filter :load_product, :only => :show
-    before_filter :load_selected_variant, :only => :show
-
-# Commented out until we get a response from pinterest about 
-# how they will deal with redirects
+ 
+		# Commented out until we get a response from pinterest about 
+		# how they will deal with redirects
     before_filter :redirect_to_product_pages, :only => :show
+    before_filter :load_selected_variant, :only => :show
     
-    rescue_from ActiveRecord::RecordNotFound, :with => :product_not_found
+    rescue_from ActiveRecord::RecordNotFound, :with => :render_404
     helper 'spree/taxons'
-    helper 'spree/products_ecom'
-    
+
     respond_to :html
 
-    # The index page for the old site should no longer be accessable
     def index
-      redirect_to root_url
-      #@searcher = Config.searcher_class.new(params)
-      #@searcher.current_user = try_spree_current_user
-      #@searcher.current_currency = current_currency
-      #@products = @searcher.retrieve_products
+      @searcher = build_searcher(params)
+      @products = @searcher.retrieve_products
+      @taxonomies = Spree::Taxonomy.includes(root: :children)
     end
 
     def show
@@ -27,57 +23,44 @@ module Spree
 
       @variants = @product.variants_including_master.active(current_currency).includes([:option_values, :images])
       @product_properties = @product.product_properties.includes(:property)
-
-      referer = request.env['HTTP_REFERER']
-      if referer
-        begin
-          referer_path = URI.parse(request.env['HTTP_REFERER']).path
-          # Fix for #2249
-        rescue URI::InvalidURIError
-          # Do nothing
-        else
-          if referer_path && referer_path.match(/\/t\/(.*)/)
-            @taxon = Spree::Taxon.find_by_permalink($1)
-          end
-        end
-      end
+      @taxon = Spree::Taxon.find(params[:taxon_id]) if params[:taxon_id]
     end
 
     private
-    def redirect_to_product_pages
-      if Flip.product_pages?
-        outcome = Spree::ProductPageRedirectionService.run(product: @product, variant: @selected_variant)
-        redirect_to outcome.result[:url], status: outcome.result[:http_code]
+		  def redirect_to_product_pages
+		    if Flip.product_pages?
+		      outcome = Spree::ProductPageRedirectionService.run(product: @product, variant: @selected_variant)
+		      redirect_to outcome.result[:url], status: outcome.result[:http_code]
+				end
+			end
+
+		  def load_selected_variant
+		    if params[:option_values].blank?
+		      @selected_variant = @product.first_variant_or_master
+		    else
+		      selected_option_values = params[:option_values].split('/') rescue []
+		      @selected_variant = Spree::Variant.options_by_product(@product, selected_option_values)
+		      @selected_variant ||= @product.first_variant_or_master
+		    end
+
+		    if !params[:option_values].blank? && (@selected_variant.blank? || @selected_variant.is_master)
+		      flash[:error] = Spree.t(:unknown_selected_variant) + "  " + selected_option_values.join(', ')
+		      redirect_to product_url(@product)
+		    end
+		  end
+
+      
+			def accurate_title
+        @product ? @product.name : super
       end
-    end
 
-    def load_selected_variant
-      if params[:option_values].blank?
-        @selected_variant = @product.first_variant_or_master
-      else
-        selected_option_values = params[:option_values].split('/') rescue []
-        @selected_variant = Spree::Variant.options_by_product(@product, selected_option_values)
-        @selected_variant ||= @product.first_variant_or_master
+      def load_product
+        if try_spree_current_user.try(:has_spree_role?, "admin")
+          @products = Product.with_deleted
+        else
+          @products = Product.active(current_currency)
+        end
+        @product = @products.friendly.find(params[:id])
       end
-
-      if !params[:option_values].blank? && (@selected_variant.blank? || @selected_variant.is_master)
-        flash[:error] = Spree.t(:unknown_selected_variant) + "  " + selected_option_values.join(', ')
-        redirect_to product_url(@product)
-      end
-    end
-
-    def product_not_found
-      flash[:error] = "Product not found"
-      redirect_to root_url
-    end
-
-    def accurate_title
-      @product ? @product.name : super
-    end
-
-    def load_product
-      @product = Product.active(current_currency).where(permalink: (params[:id] || params[:product_id])).first
-      @product ||= Product.with_deleted.find_by!(product_type: "virtual_product", permalink: (params[:id] || params[:product_id]))
-    end
   end
 end

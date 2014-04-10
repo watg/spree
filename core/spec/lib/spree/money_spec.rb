@@ -148,6 +148,37 @@ describe Spree::Money do
       # The HTML'ified version of "10.00 €"
       money.to_html.should == "10.00&nbsp;&#x20AC;"
     end
+
+    it "formats as HTML with currency" do
+      Spree::Config[:display_currency] = true
+      money = Spree::Money.new(10)
+      # The HTML'ified version of "10.00 €"
+      money.to_html.should == "10.00&nbsp;&#x20AC; <span class=\"currency\">EUR</span>"
+    end
+  end
+
+  describe "#as_json" do
+    let(:options) { double('options') }
+
+    it "returns the expected string" do
+      money = Spree::Money.new(10)
+      money.as_json(options).should == "$10.00"
+    end
+  end
+
+  describe ".parse" do
+    subject { Spree::Money.parse input, currency  }
+
+    context "when currency nil" do
+      let(:currency) { nil }
+
+      context "when input value is a number" do
+        let(:input) { 42 }
+
+        it { should be_a ::Money }
+        its(:currency) { should == ::Money.default_currency }
+      end
+    end
   end
 
   describe "#as_json" do

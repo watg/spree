@@ -4,16 +4,19 @@ module Spree
 
     IDENTIFIER_CHARS = (('A'..'Z').to_a + ('0'..'9').to_a - %w(0 1 I O)).freeze
 
-    belongs_to :order, class_name: 'Spree::Order', touch: true
+    belongs_to :order, class_name: 'Spree::Order', touch: true, inverse_of: :payments
     belongs_to :source, polymorphic: true
     belongs_to :payment_method, class_name: 'Spree::PaymentMethod'
 
     has_many :offsets, -> { where("source_type = 'Spree::Payment' AND amount < 0 AND state = 'completed'") },
       class_name: "Spree::Payment", foreign_key: :source_id
     has_many :log_entries, as: :source
+    has_many :state_changes, as: :stateful
+    has_many :capture_events, :class_name => 'Spree::PaymentCaptureEvent'
 
     before_validation :validate_source
     before_create :set_unique_identifier
+    before_save :update_uncaptured_amount
 
     after_save :create_payment_profile, if: :profiles_supported?
 
@@ -67,6 +70,14 @@ module Spree
       event :invalidate do
         transition from: [:checkout], to: :invalid
       end
+
+      after_transition do |payment, transition|
+        payment.state_changes.create!(
+          previous_state: transition.from,
+          next_state:     transition.to,
+          name:           'payment',
+        )
+      end
     end
 
     def currency
@@ -93,7 +104,7 @@ module Spree
     end
 
     def credit_allowed
-      amount - offsets_total
+      amount - offsets_total.abs
     end
 
     def can_credit?
@@ -102,9 +113,11 @@ module Spree
 
     # see https://github.com/spree/spree/issues/981
     def build_source
-      return if source_attributes.nil?
-      if payment_method and payment_method.payment_source_class
+      return unless new_record?
+      if source_attributes.present? && source.blank? && payment_method.try(:payment_source_class)
         self.source = payment_method.payment_source_class.new(source_attributes)
+        self.source.payment_method_id = payment_method.id
+        self.source.user_id = self.order.user_id if self.order
       end
     end
 
@@ -119,11 +132,16 @@ module Spree
     end
 
     def is_avs_risky?
-      !(avs_response == "D" || avs_response.nil?)
+      return false if avs_response == "D"
+      return false if avs_response.blank?
+      return true
     end
 
     def is_cvv_risky?
-      !(cvv_response_code == "M" || cvv_response_code.nil?)
+      return false if cvv_response_code == "M"
+      return false if cvv_response_code.nil?
+      return false if cvv_response_message.present?
+      return true
     end
 
     private
@@ -143,7 +161,8 @@ module Spree
       end
 
       def create_payment_profile
-        return unless source.is_a?(CreditCard) && source.number && !source.has_payment_profile?
+        return unless source.respond_to?(:has_payment_profile?) && !source.has_payment_profile?
+
         payment_method.create_profile(self)
       rescue ActiveMerchant::ConnectionError => e
         gateway_error e
@@ -173,6 +192,10 @@ module Spree
 
       def generate_identifier
         Array.new(8){ IDENTIFIER_CHARS.sample }.join
+      end
+
+      def update_uncaptured_amount
+        self.uncaptured_amount = amount - capture_events.sum(:amount)
       end
   end
 end

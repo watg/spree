@@ -35,8 +35,15 @@ describe Spree::Payment do
 
   before(:each) do
     # So it doesn't create log entries every time a processing method is called
-    #DatabaseCleaner.clean # otherwise stack level too deep error with :state => 'failed'
     payment.log_entries.stub(:create!)
+  end
+
+  context '#uncaptured_amount' do
+    it "sets uncaptured amount on save" do
+      expect(payment.uncaptured_amount).to eq(0)
+      payment.save
+      expect(payment.uncaptured_amount).to eq(payment.amount)
+    end
   end
 
   context 'validations' do
@@ -203,42 +210,72 @@ describe Spree::Payment do
           payment.should_receive(:complete!)
           payment.purchase!
         end
+
+        it "should log a capture event" do
+          payment.purchase!
+          expect(payment.capture_events.count).to eq(1)
+          expect(payment.capture_events.first.amount).to eq(payment.amount)
+        end
+
+        it "should set the uncaptured amount to 0" do
+          payment.purchase!
+          expect(payment.uncaptured_amount).to eq(0)
+        end
       end
 
       context "if unsuccessful" do
-        it "should make payment failed" do
+        before do
           gateway.stub(:purchase).and_return(failed_response)
           payment.should_receive(:failure)
           payment.should_not_receive(:pend)
+        end
+
+        it "should make payment failed" do
           expect { payment.purchase! }.to raise_error(Spree::Core::GatewayError)
+        end
+
+        it "should not log a capture event" do
+          expect { payment.purchase! }.to raise_error(Spree::Core::GatewayError)
+          expect(payment.capture_events.count).to eq(0)
         end
       end
     end
 
     describe "#capture!" do
-      before do
-        payment.stub(:complete).and_return(true)
-      end
-
       context "when payment is pending" do
         before do
+          payment.amount = 100
           payment.state = 'pending'
+          payment.response_code = '12345'
         end
 
         context "if successful" do
           before do
-            payment.payment_method.should_receive(:capture).with(payment, card, anything).and_return(success_response)
+            payment.payment_method.should_receive(:capture).with(payment.money.money.cents, payment.response_code, anything).and_return(success_response)
           end
 
           it "should make payment complete" do
-            payment.should_receive(:complete)
+            payment.should_receive(:complete!)
             payment.capture!
           end
 
-          it "should store the response_code" do
-            gateway.stub :capture => success_response
+          it "logs capture events" do
             payment.capture!
-            payment.response_code.should == '123'
+            expect(payment.capture_events.count).to eq(1)
+            expect(payment.capture_events.first.amount).to eq(payment.amount)
+          end
+        end
+
+        context "capturing a partial amount" do
+          it "logs capture events" do
+            payment.capture!(5000)
+            expect(payment.capture_events.count).to eq(1)
+            expect(payment.capture_events.first.amount).to eq(50)
+          end
+
+          it "stores the uncaptured amount on the payment" do
+            payment.capture!(6000)
+            expect(payment.uncaptured_amount).to eq(40) # 100 - 60 = 40
           end
         end
 
@@ -447,11 +484,12 @@ describe Spree::Payment do
   end
 
   describe "#credit_allowed" do
+    # Regression test for #4403 & #4407
     it "is the difference between offsets total and payment amount" do
       payment.amount = 100
       payment.stub(:offsets_total).and_return(0)
       payment.credit_allowed.should == 100
-      payment.stub(:offsets_total).and_return(80)
+      payment.stub(:offsets_total).and_return(-80)
       payment.credit_allowed.should == 20
     end
   end
@@ -551,18 +589,31 @@ describe Spree::Payment do
   end
 
   describe "#build_source" do
-    it "should build the payment's source" do
-      params = { :amount => 100, :payment_method => gateway,
+    let(:params) do
+      {
+        :amount => 100,
+        :payment_method => gateway,
         :source_attributes => {
           :expiry =>"1 / 99",
           :number => '1234567890123',
-          :verification_value => '123'
+          :verification_value => '123',
+          :name => 'Spree Commerce'
         }
       }
+    end
 
+    it "should build the payment's source" do
       payment = Spree::Payment.new(params)
       payment.should be_valid
       payment.source.should_not be_nil
+    end
+
+    it "assigns user and gateway to payment source" do
+      order = create(:order)
+      source = order.payments.new(params).source
+
+      expect(source.user_id).to eq order.user_id
+      expect(source.payment_method_id).to eq gateway.id
     end
 
     it "errors when payment source not valid" do
@@ -574,6 +625,12 @@ describe Spree::Payment do
       payment.source.should_not be_nil
       payment.source.should have(1).error_on(:number)
       payment.source.should have(1).error_on(:verification_value)
+    end
+
+    it "does not build a new source when duplicating the model with source_attributes set" do
+      payment = create(:payment)
+      payment.source_attributes = params[:source_attributes]
+      expect { payment.dup }.to_not change { payment.source }
     end
   end
 
@@ -739,6 +796,129 @@ describe Spree::Payment do
         payment.update_attribute(:cvv_response_code, char)
         payment.is_cvv_risky?.should == true
       end
+    end
+  end
+
+  describe "#amount=" do
+    before do
+      subject.amount = amount
+    end
+
+    context "when the amount is a string" do
+      context "amount is a decimal" do
+        let(:amount) { '2.99' }
+
+        its(:amount) { should eql(BigDecimal('2.99')) }
+      end
+
+      context "amount is an integer" do
+        let(:amount) { '2' }
+
+        its(:amount) { should eql(BigDecimal('2.0')) }
+      end
+
+      context "amount contains a dollar sign" do
+        let(:amount) { '$2.99' }
+
+        its(:amount) { should eql(BigDecimal('2.99')) }
+      end
+
+      context "amount contains a comma" do
+        let(:amount) { '$2,999.99' }
+
+        its(:amount) { should eql(BigDecimal('2999.99')) }
+      end
+
+      context "amount contains a negative sign" do
+        let(:amount) { '-2.99' }
+
+        its(:amount) { should eql(BigDecimal('-2.99')) }
+      end
+
+      context "amount is invalid" do
+        let(:amount) { 'invalid' }
+
+        # this is a strange default for ActiveRecord
+        its(:amount) { should eql(BigDecimal('0')) }
+      end
+
+      context "amount is an empty string" do
+        let(:amount) { '' }
+
+        its(:amount) { should be_nil }
+      end
+    end
+
+    context "when the amount is a number" do
+      let(:amount) { 1.55 }
+
+      its(:amount) { should eql(BigDecimal('1.55')) }
+    end
+
+    context "when the amount is nil" do
+      let(:amount) { nil }
+
+      its(:amount) { should be_nil }
+    end
+  end
+
+  describe "is_avs_risky?" do
+    it "returns false if avs_response == 'D'" do
+      payment.update_attribute(:avs_response, "D")
+      payment.is_avs_risky?.should == false
+    end
+
+    it "returns false if avs_response == nil" do
+      payment.update_attribute(:avs_response, nil)
+      payment.is_avs_risky?.should == false
+    end
+
+    it "returns true if avs_response == A-Z, omitting D" do
+      # should use avs_response_code helper
+      ('A'..'Z').reject{ |x| x == 'D' }.to_a.each do |char|
+        payment.update_attribute(:avs_response, char)
+        payment.is_avs_risky?.should == true
+      end
+    end
+  end
+
+  describe "is_cvv_risky?" do
+    it "returns false if cvv_response_code == 'M'" do
+      payment.update_attribute(:cvv_response_code, "M")
+      payment.is_cvv_risky?.should == false
+    end
+
+    it "returns false if cvv_response_code == nil" do
+      payment.update_attribute(:cvv_response_code, nil)
+      payment.is_cvv_risky?.should == false
+    end
+
+    it "returns false if cvv_response_message == ''" do
+      payment.update_attribute(:cvv_response_message, '')
+      payment.is_cvv_risky?.should == false
+    end
+
+    it "returns true if cvv_response_code == [A-Z], omitting D" do
+      # should use cvv_response_code helper
+      (%w{N P S U} << "").each do |char|
+        payment.update_attribute(:cvv_response_code, char)
+        payment.is_cvv_risky?.should == true
+      end
+    end
+  end
+
+  # Regression test for #4072 (kinda)
+  # The need for this was discovered in the research for #4072
+  context "state changes" do
+    it "are logged to the database" do
+      payment.state_changes.should be_empty
+      expect(payment.process!).to be_true
+      payment.state_changes.count.should == 2
+      changes = payment.state_changes.map { |change| { change.previous_state => change.next_state} }
+      expect(changes).to eq([
+        {"checkout" => "processing"},
+        { "processing" => "pending"}
+      ])
     end
   end
 end

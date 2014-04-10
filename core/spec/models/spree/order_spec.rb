@@ -89,12 +89,13 @@ describe Spree::Order do
 
     it "keeps source attributes after updating" do
       persisted_order = Spree::Order.create
-      credit_card_payment_method = create(:bogus_payment_method)
+      credit_card_payment_method = create(:credit_card_payment_method)
       attributes = {
         :payments_attributes => [
           { 
             :payment_method_id => credit_card_payment_method.id,
             :source_attributes => {
+              :name => "Ryan Bigg",
               :number => "41111111111111111111",
               :expiry => "01 / 15",
               :verification_value => "123"
@@ -221,8 +222,27 @@ describe Spree::Order do
     end
   end
 
+  context "creates shipments cost" do
+    let(:shipment) { double }
+
+    before { order.stub shipments: [shipment] }
+
+    it "update and persist totals" do
+      expect(shipment).to receive :update_amounts
+      expect(order.updater).to receive :update_shipment_total
+      expect(order.updater).to receive :persist_totals
+
+      order.set_shipments_cost
+    end
+  end
+
   context "#finalize!" do
-    let(:order) { Spree::Order.create }
+    let(:order) { Spree::Order.create(email: 'test@example.com') }
+
+    before do
+      order.update_column :state, 'complete'
+    end
+
     it "should set completed_at" do
       order.should_receive(:touch).with(:completed_at)
       order.finalize!
@@ -267,8 +287,15 @@ describe Spree::Order do
       order.finalize!
     end
 
-    it "should continue even if confirmation email delivery fails" do
-      Spree::OrderMailer.should_receive(:confirm_email).with(order.id).and_raise 'send failed!'
+    it "sets confirmation delivered when finalizing" do
+      expect(order.confirmation_delivered?).to be_false
+      order.finalize!
+      expect(order.confirmation_delivered?).to be_true
+    end
+
+    it "should not send duplicate confirmation emails" do
+      order.stub(:confirmation_delivered? => true)
+      Spree::OrderMailer.should_not_receive(:confirm_email)
       order.finalize!
     end
 
@@ -277,15 +304,46 @@ describe Spree::Order do
       # and it's irrelevant to this test
       order.stub :has_available_shipment
       Spree::OrderMailer.stub_chain :confirm_email, :deliver
-      adjustments = double
-      order.stub :adjustments => adjustments
-      expect(adjustments).to receive(:update_all).with(state: 'closed')
+      adjustments = [double]
+      order.should_receive(:all_adjustments).and_return(adjustments)
+      adjustments.each do |adj|
+	expect(adj).to receive(:close)
+      end
       order.finalize!
     end
 
-    it "should log state event" do
-      order.state_changes.should_receive(:create).exactly(1).times # payment state change
-      order.finalize!
+    context "order is considered risky" do
+      before do
+        order.stub :is_risky? => true
+      end
+
+      it "should change state to risky" do
+        expect(order).to receive(:considered_risky!)
+        order.finalize!
+      end
+
+      context "and order is approved" do
+        before do 
+          order.stub :approved? => true
+        end
+
+        it "should leave order in complete state" do
+          order.finalize!
+          expect(order.state).to eq 'complete'
+        end
+
+      end
+    end
+
+    context "order is not considered risky" do
+      before do
+        order.stub :is_risky? => false
+      end
+
+      it "should set completed_at" do
+        order.finalize!
+        expect(order.completed_at).to be_present
+      end
     end
   end
 
@@ -378,16 +436,6 @@ describe Spree::Order do
     end
   end
 
-  context "#item_count" do
-    before do
-      @order = create(:order, :user => user)
-      @order.line_items = [ create(:line_item, :quantity => 2), create(:line_item, :quantity => 1) ]
-    end
-    it "should return the correct number of items" do
-      @order.item_count.should == 3
-    end
-  end
-
   context "#amount" do
     before do
       @order = create(:order, :user => user)
@@ -428,18 +476,24 @@ describe Spree::Order do
       order.insufficient_stock_lines.size.should == 1
       order.insufficient_stock_lines.include?(line_item).should be_true
     end
-
   end
 
   context "empty!" do
-    it "should clear out all line items and adjustments" do
-      order = stub_model(Spree::Order)
-      order.stub(:line_items => _line_items = [])
-      order.stub(:adjustments => _adjustments = [])
-      order.line_items.should_receive(:destroy_all)
-      order.adjustments.should_receive(:destroy_all)
+    let(:order) { stub_model(Spree::Order, item_count: 2) }
+    
+    before do
+      order.stub(:line_items => line_items = [1, 2])
+      order.stub(:adjustments => adjustments = [])
+    end
+
+    it "clears out line items, adjustments and update totals" do
+      expect(order.line_items).to receive(:destroy_all)
+      expect(order.adjustments).to receive(:destroy_all)
+      expect(order.updater).to receive(:update_totals)
+      expect(order.updater).to receive(:persist_totals)
 
       order.empty!
+      expect(order.item_total).to eq 0
     end
   end
 
@@ -595,7 +649,7 @@ describe Spree::Order do
       # Don't care about available payment methods in this test
       persisted_order.stub(:has_available_payment => false)
       persisted_order.line_items << line_item
-      persisted_order.adjustments.create(:amount => -line_item.amount, :label => "Promotion")
+      create(:adjustment, :amount => -line_item.amount, :label => "Promotion", :adjustable => line_item)
       persisted_order.state = 'delivery'
       persisted_order.save # To ensure new state_change event
     end
@@ -604,22 +658,6 @@ describe Spree::Order do
       persisted_order.stub(payment_required?: true)
       persisted_order.next!
       persisted_order.state.should == "payment"
-    end
-  end
-
-  context "promotion adjustments" do
-    let(:originator) { double("Originator", id: 1) }
-    let(:adjustment) { double("Adjustment", originator: originator) }
-
-    before { order.stub_chain(:adjustments, :includes, :promotion, reload: [adjustment]) }
-
-    context "order has an adjustment from given promo action" do
-      it { expect(order.promotion_credit_exists? originator).to be_true }
-    end
-
-    context "order has no adjustment from given promo action" do
-      before { originator.stub(id: 12) }
-      it { expect(order.promotion_credit_exists? originator).to be_true }
     end
   end
 
@@ -672,6 +710,32 @@ describe Spree::Order do
       order.ensure_updated_shipments
       expect(order.state).to eql "address"
     end
+
+    it "resets shipment_total" do
+      order.update_column(:shipment_total, 5)
+      order.ensure_updated_shipments
+      expect(order.shipment_total).to eq(0)
+    end
+
+    context "except when order is completed, that's OrderInventory job" do
+      it "doesn't touch anything" do
+        order.stub completed?: true
+        order.update_column(:shipment_total, 5)
+        order.shipments.create!
+
+        expect {
+          order.ensure_updated_shipments
+        }.not_to change { order.shipment_total }
+
+        expect {
+          order.ensure_updated_shipments
+        }.not_to change { order.shipments }
+
+        expect {
+          order.ensure_updated_shipments
+        }.not_to change { order.state }
+      end
+    end
   end
 
   describe ".tax_address" do
@@ -713,41 +777,90 @@ describe Spree::Order do
 
   describe ".is_risky?" do
     context "Not risky order" do
-      let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, avs_response: "D")]) }
-      it "returns false if the order's avs_response == 'A'" do
-        order.is_risky?.should == false
+      let(:order) { FactoryGirl.create(:order, payments: [payment]) }
+      context "with avs_response == D" do
+        let(:payment) { FactoryGirl.create(:payment, avs_response: "D") }
+        it "is not considered risky" do
+          order.is_risky?.should == false
+        end
+      end
+
+      context "with avs_response == M" do
+        let(:payment) { FactoryGirl.create(:payment, avs_response: "M") }
+        it "is not considered risky" do
+          order.is_risky?.should == false
+        end
+      end
+
+      context "with avs_response == ''" do
+        let(:payment) { FactoryGirl.create(:payment, avs_response: "") }
+        it "is not considered risky" do
+          order.is_risky?.should == false
+        end
+      end
+
+      context "with cvv_response_code == M" do
+        let(:payment) { FactoryGirl.create(:payment, cvv_response_code: "M") }
+        it "is not considered risky" do
+          order.is_risky?.should == false
+        end
+      end
+
+      context "with cvv_response_message == ''" do
+        let(:payment) { FactoryGirl.create(:payment, cvv_response_message: "") }
+        it "is not considered risky" do
+          order.is_risky?.should == false
+        end
       end
     end
 
-    context "AVS response message" do
-      let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, avs_response: "A")]) }
-      it "returns true if the order has an avs_response" do
-        order.is_risky?.should == true
+    context "Risky order" do
+      context "AVS response message" do
+        let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, avs_response: "A")]) }
+        it "returns true if the order has an avs_response" do
+          order.is_risky?.should == true
+        end
       end
-    end
 
-    context "CVV response message" do
-      let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, cvv_response_message: "foobar'd")]) }
-      it "returns true if the order has an cvv_response_message" do
-        order.is_risky?.should == true
+      context "CVV response message" do
+        let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, cvv_response_message: "foobar'd")]) }
+        it "returns true if the order has an cvv_response_message" do
+          order.is_risky?.should == true
+        end
       end
-    end
 
-    context "CVV response code" do
-      let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, cvv_response_code: "N")]) }
-      it "returns true if the order has an cvv_response_code" do
-        order.is_risky?.should == true
+      context "CVV response code" do
+        let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, cvv_response_code: "N")]) }
+        it "returns true if the order has an cvv_response_code" do
+          order.is_risky?.should == true
+        end
       end
-    end
 
-    context "state == 'failed'" do
-      let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, state: 'failed')]) }
-      it "returns true if the order has state == 'failed'" do
-        DatabaseCleaner.clean # otherwise stack level too deep error with :state => 'failed'
-        order.is_risky?.should == true
+      context "state == 'failed'" do
+        let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, state: 'failed')]) }
+        it "returns true if the order has state == 'failed'" do
+          order.is_risky?.should == true
+        end
       end
     end
   end
+
+  context "is considered risky" do
+    let(:order) do
+      order = FactoryGirl.create(:completed_order_with_pending_payment)
+      order.considered_risky!
+      order
+    end
+
+    it "can be approved by a user" do
+      expect(order).to receive(:approve!)
+      order.approved_by(stub_model(Spree::LegacyUser, id: 1))
+      expect(order.approver_id).to eq(1)
+      expect(order.approved_at).to be_present
+      expect(order.approved?).to be_true
+    end
+  end
+
 
   # Regression tests for #4072
   context "#state_changed" do
@@ -797,11 +910,27 @@ describe Spree::Order do
       payment_method = Spree::PaymentMethod.create!({
         :name => "Fake",
         :active => true,
-        :display_on => nil,
+        :display_on => "both",
         :environment => Rails.env
       })
-      expect(order.available_payment_methods.select{ |m| m.name == 'Fake'}.count).to eq(1)
+      expect(order.available_payment_methods.count).to eq(1)
       expect(order.available_payment_methods).to include(payment_method)
+    end
+  end
+
+  context "#apply_free_shipping_promotions" do
+    it "calls out to the FreeShipping promotion handler" do
+      shipment = double('Shipment')
+      order.stub :shipments => [shipment]
+      Spree::PromotionHandler::FreeShipping.should_receive(:new).and_return(handler = double)
+      handler.should_receive(:activate)
+
+      Spree::ItemAdjustments.should_receive(:new).with(shipment).and_return(adjuster = double)
+      adjuster.should_receive(:update)
+
+      order.updater.should_receive(:update_shipment_total)
+      order.updater.should_receive(:persist_totals)
+      order.apply_free_shipping_promotions
     end
   end
 end

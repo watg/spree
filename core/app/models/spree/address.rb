@@ -3,7 +3,7 @@ module Spree
     belongs_to :country, class_name: "Spree::Country"
     belongs_to :state, class_name: "Spree::State"
 
-    has_many :shipments
+    has_many :shipments, inverse_of: :address
 
     validates :firstname, :lastname, :address1, :city, :country, presence: true
     validates :zipcode, presence: true, if: :require_zipcode?
@@ -34,11 +34,6 @@ module Spree
       new(country: country)
     end
 
-    # Can modify an address if it's not been used in an order (but checkouts controller has finer control)
-    # def editable?
-    #   new_record? || (shipments.empty? && checkouts.empty?)
-    # end
-
     def self.default(user = nil, kind = "bill")
       if user
         user.send(:"#{kind}_address") || build_default
@@ -46,6 +41,11 @@ module Spree
         build_default
       end
     end
+
+    # Can modify an address if it's not been used in an order (but checkouts controller has finer control)
+    # def editable?
+    #   new_record? || (shipments.empty? && checkouts.empty?)
+    # end
 
     def full_name
       "#{firstname} #{lastname}".strip
@@ -106,15 +106,15 @@ module Spree
       }
     end
 
+    def require_phone?
+      true
+    end
+
+    def require_zipcode?
+      true
+    end
+
     private
-      def require_phone?
-        true
-      end
-
-      def require_zipcode?
-        true
-      end
-
       def state_validate
         # Skip state validation without country (also required)
         # or when disabled by preference

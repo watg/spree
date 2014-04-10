@@ -44,6 +44,7 @@ Spree::Core::Engine.add_routes do
   get '/unauthorized', :to => 'home#unauthorized', :as => :unauthorized
   get '/content/cvv', :to => 'content#cvv', :as => :cvv
   get '/content/*path', :to => 'content#show', :as => :content
+  get '/cart_link', :to => 'store#cart_link', :as => :cart_link
 
   get '/items/:id(/:tab)(/:variant_id)', :to => 'product_pages#show', :as => :product_page
 

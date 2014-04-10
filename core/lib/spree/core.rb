@@ -5,10 +5,12 @@ require 'awesome_nested_set'
 require 'cancan'
 require 'kaminari'
 require 'mail'
+require 'monetize'
 require 'paperclip'
 require 'paranoia'
 require 'ransack'
 require 'state_machine'
+require 'friendly_id'
 
 module Spree
 
@@ -35,24 +37,44 @@ module Spree
   def self.config(&block)
     yield(Spree::Config)
   end
+
+  module Core
+    autoload :ProductFilters, "spree/core/product_filters"
+
+    class GatewayError < RuntimeError; end
+    class DestroyWithOrdersError < StandardError; end
+  end
 end
 
 require 'spree/core/version'
+
+require 'spree/core/mail_interceptor'
+require 'spree/core/mail_method'
+require 'spree/core/mail_settings'
+require 'spree/core/environment_extension'
+require 'spree/core/environment/calculators'
+require 'spree/core/environment'
+require 'spree/promo/environment'
 require 'spree/migrations'
 require 'spree/core/engine'
 
 require 'spree/i18n'
 require 'spree/money'
-require 'spree/promo/coupon_applicator'
 
+require 'spree/permitted_attributes'
+require 'spree/core/user_address'
+require 'spree/core/user_payment_source'
 require 'spree/core/delegate_belongs_to'
 require 'spree/core/permalinks'
 require 'spree/core/token_resource'
 require 'spree/core/calculated_adjustments'
 require 'spree/core/product_duplicator'
+require 'spree/core/controller_helpers'
+require 'spree/core/controller_helpers/strong_parameters'
+require 'spree/core/controller_helpers/ssl'
+require 'spree/core/controller_helpers/search'
 require 'spree/core/mail_method'
 require 'spree/core/mail_settings'
 
-ActiveRecord::Base.class_eval do
-  include CollectiveIdea::Acts::NestedSet
-end
+
+require 'spree/core/importer'

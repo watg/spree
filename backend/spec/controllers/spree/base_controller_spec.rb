@@ -3,11 +3,23 @@
 # we call process directly instead of get
 require 'spec_helper'
 
-describe Spree::Admin::BaseController, type: :controller do
-
+describe Spree::Admin::BaseController do
   controller(Spree::Admin::BaseController) do
     def index
+      authorize! :update, Spree::Order
       render :text => 'test'
+    end
+  end
+
+  context "unauthorized request" do
+    before do
+      Spree::Admin::BaseController.any_instance.stub(:spree_current_user).and_return(nil)
+    end
+
+    it "checks error" do
+      controller.stub root_path: "/rooot"
+      get :index
+      expect(response).to redirect_to "/rooot"
     end
   end
 

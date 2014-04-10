@@ -24,13 +24,13 @@ module Spree
       if File.exists?("config/spree.yml") && File.directory?("db/migrate")
         engine_in_app = app_migrations.map do |file_name|
           name, engine = file_name.split(".", 2)
-          next unless engine == "#{engine_name}.rb"
+          next unless match_engine?(engine)
           name
         end.compact! || []
 
         unless (engine_migrations.sort - engine_in_app.sort).empty?
           puts "[#{engine_name.capitalize} WARNING] Missing migrations." \
-               "Run `bundle exec rake railties:install:migrations` to get them.\n\n"
+               " Run `bundle exec rake railties:install:migrations` to get them.\n\n"
           true
         end
       end
@@ -50,6 +50,15 @@ module Spree
           name = file_name.split("_", 2).last
           name.empty? ? next : name
         end.compact! || []
+      end
+
+      def match_engine?(engine)
+        if engine_name == "spree"
+          # Avoid stores upgrading from 1.3 getting wrong warnings
+          ["spree.rb", "spree_promo.rb"].include? engine
+        else
+          engine == "#{engine_name}.rb"
+        end
       end
   end
 end

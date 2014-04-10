@@ -2,6 +2,9 @@ module Spree
   module Api
     class OrdersController < Spree::Api::BaseController
 
+      skip_before_filter :check_for_user_or_api_key, only: :apply_coupon_code
+      skip_before_filter :authenticate_user, only: :apply_coupon_code
+
       # Dynamically defines our stores checkout steps to ensure we check authorization on each step.
       Order.checkout_steps.keys.each do |step|
         define_method step do
@@ -19,7 +22,7 @@ module Spree
 
       def create
         authorize! :create, Order
-        @order = Order.build_from_api(current_api_user, order_params)
+        @order = Spree::Core::Importer::Order.import(current_api_user, order_params)
         respond_with(@order, default_template: :show, status: 201)
       end
 
@@ -44,7 +47,7 @@ module Spree
       end
 
       def update
-        find_order
+        find_order(true)
         # Parsing line items through as an update_attributes call in the API will result in
         # many line items for the same variant_id being created. We must be smarter about this,
         # hence the use of the update_line_items method, defined within order_decorator.rb.
@@ -67,6 +70,22 @@ module Spree
         else
           render "spree/api/errors/unauthorized", status: :unauthorized
         end
+      end
+
+      def mine
+        if current_api_user.persisted?
+          @orders = current_api_user.orders.ransack(params[:q]).result.page(params[:page]).per(params[:per_page])
+        else
+          render "spree/api/errors/unauthorized", status: :unauthorized
+        end
+      end
+
+      def apply_coupon_code
+        find_order
+        @order.coupon_code = params[:coupon_code]
+        @handler = PromotionHandler::Coupon.new(@order).apply
+        status = @handler.successful? ? 200 : 422
+        render "spree/api/promotions/handler", :status => status
       end
 
       private
@@ -125,8 +144,8 @@ module Spree
           end
         end
 
-        def find_order
-          @order = Spree::Order.find_by!(number: params[:id])
+        def find_order(lock = false)
+          @order = Spree::Order.lock(lock).find_by!(number: params[:id])
           authorize! :update, @order, order_token
         end
 
@@ -134,8 +153,8 @@ module Spree
           @order.create_proposed_shipments
         end
 
-        def order_token
-          request.headers["X-Spree-Order-Token"] || params[:order_token]
+        def order_id
+          super || params[:id]
         end
     end
   end

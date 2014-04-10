@@ -3,16 +3,18 @@ module Spree
     acts_as_paranoid
     acts_as_nested_set dependent: :destroy
 
-    belongs_to :taxonomy, class_name: 'Spree::Taxonomy', :touch => true
-    belongs_to :page, polymorphic: true
-
-    has_many :classifications, :dependent => :destroy
+    belongs_to :taxonomy, class_name: 'Spree::Taxonomy', touch: true, inverse_of: :taxons
+	
+	# drop the columns and delete
+	# belongs_to :page, polymorphic: true
+	has_many :classifications, -> { order(:position) }, dependent: :delete_all, inverse_of: :taxon
     has_many :products, through: :classifications
-    has_many :displayable_variants, :dependent => :destroy
 
     before_create :set_permalink
 
     validates :name, presence: true
+
+    after_touch :touch_parent
 
     has_attached_file :icon,
       styles: { mini: '32x32>', normal: '128x128>' },
@@ -20,11 +22,6 @@ module Spree
       url: '/spree/taxons/:id/:style/:basename.:extension',
       path: ':rails_root/public/spree/taxons/:id/:style/:basename.:extension',
       default_url: '/assets/default_taxon.png'
-
-#    default_scope -> { order("#{self.table_name}.position") }
-
-    include Spree::Core::S3Support
-    supports_s3 :icon
 
     include Spree::Core::ProductFilters  # for detailed defs of filters
 
@@ -38,12 +35,6 @@ module Spree
       fs << Spree::Core::ProductFilters.price_filter if Spree::Core::ProductFilters.respond_to?(:price_filter)
       fs << Spree::Core::ProductFilters.brand_filter if Spree::Core::ProductFilters.respond_to?(:brand_filter)
       fs
-    end
-
-    def displayable_variants(currency=nil)
-      Spree::Variant.active(currency).not_deleted.available.includes(:displayable_variants).
-        where([" spree_displayable_variants.taxon_id = ? and spree_displayable_variants.deleted_at is null", self.id ]).
-        order("spree_variants.id desc")
     end
 
     # This is method is here as awesome_nested_set method self_and_ancestors in version 2.1.6 does not seem to work
@@ -100,6 +91,12 @@ module Spree
     #  See #3390 for background.
     def child_index=(idx)
       move_to_child_with_index(parent, idx.to_i) unless self.new_record?
+    end
+
+    private
+
+    def touch_parent
+      parent.touch if parent
     end
   end
 end

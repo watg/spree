@@ -13,7 +13,7 @@ module Spree
                         :user_id, :created_at, :updated_at,
                         :completed_at, :payment_total, :shipment_state,
                         :payment_state, :email, :special_instructions,
-                        :total_quantity, :display_item_total] }
+                        :total_quantity, :display_item_total, :currency] }
 
     let(:address_params) { { :country_id => Country.first.id, :state_id => State.first.id } }
 
@@ -25,7 +25,7 @@ module Spree
                                :city => "Sao Paulo", :zipcode => "1234567", :phone => "12345678",
                                :country_id => Country.first.id, :state_id => State.first.id} }
 
-    let!(:payment_method) { create(:payment_method) }
+    let!(:payment_method) { create(:check_payment_method) }
 
     let(:current_api_user) do
       user = Spree.user_class.new(:email => "spree@example.com")
@@ -173,44 +173,12 @@ module Spree
       expect(Order.last.line_items.first.price.to_f).to eq(variant.price)
     end
 
-    context "import" do
-      let(:tax_rate) { create(:tax_rate, amount: 0.05, calculator: Calculator::DefaultTax.create) }
-      let(:other_variant) { create(:variant) }
-
-      let(:order_params) do
-        {
-          :line_items => {
-            "0" => { :variant_id => variant.to_param, :quantity => 5 },
-            "1" => { :variant_id => other_variant.to_param, :quantity => 5 }
-          }
-        }
-      end
-
-      before do
-        Zone.stub default_tax: tax_rate.zone
-        current_api_user.stub has_spree_role?: true
-      end
+    context "admin user imports order" do
+      before { current_api_user.stub has_spree_role?: true }
 
       it "sets channel" do
         api_post :create, :order => { channel: "amazon" }
         expect(json_response['channel']).to eq "amazon"
-      end
-
-      it "doesnt persist any automatic tax adjustment" do
-        expect {
-          api_post :create, :order => order_params.merge(:import => true)
-        }.not_to change { Adjustment.count }
-
-        expect(response.status).to eq 201
-      end
-
-      it "doesnt blow up when passing a sku into line items hash" do
-        order_params[:line_items]["0"][:sku] = variant.sku
-        order_params[:line_items]["0"][:variant_id] = nil
-        order_params[:line_items]["1"][:sku] = other_variant.sku
-
-        api_post :create, :order => order_params
-        expect(response.status).to eq 201
       end
     end
 
@@ -240,7 +208,7 @@ module Spree
 
       let(:variant) { create(:variant) }
       let!(:line_item) { order.contents.add(variant, 1) }
-      let!(:payment_method) { create(:payment_method) }
+      let!(:payment_method) { create(:check_payment_method) }
 
       let(:address_params) { { :country_id => Country.first.id, :state_id => State.first.id } }
       let(:billing_address) { { :firstname => "Tiago", :lastname => "Motta", :address1 => "Av Paulista",
@@ -398,8 +366,23 @@ module Spree
         it "includes the tax_total in the response" do
           api_get :show, :id => order.to_param
 
-          json_response['tax_total'].should == '0.0'
-          json_response['display_tax_total'].should == '$0.00'
+          json_response['included_tax_total'].should == '0.0'
+          json_response['additional_tax_total'].should == '0.0'
+          json_response['display_included_tax_total'].should == '$0.00'
+          json_response['display_additional_tax_total'].should == '$0.00'
+        end
+
+        it "lists line item adjustments" do
+          adjustment = create(:adjustment,
+            :label => "10% off!",
+            :order => order,
+            :adjustable => order.line_items.first)
+          adjustment.update_column(:amount, 5)
+          api_get :show, :id => order.to_param
+
+          adjustment = json_response['line_items'].first['adjustments'].first
+          adjustment['label'].should == "10% off!"
+          adjustment['amount'].should == "5.0"
         end
 
         context "when in delivery" do
@@ -419,8 +402,8 @@ module Spree
           it "includes the ship_total in the response" do
             api_get :show, :id => order.to_param
 
-            json_response['ship_total'].should == '10.0'
-            json_response['display_ship_total'].should == '$10.00'
+            json_response['ship_total'].should == '0.0'
+            json_response['display_ship_total'].should == '$0.00'
           end
 
           it "returns available shipments for an order" do
@@ -467,10 +450,13 @@ module Spree
       end
 
       it "responds with orders updated_at with miliseconds precision" do
+        if ActiveRecord::Base.connection.adapter_name == "Mysql2"
+          pending "MySQL does not support millisecond timestamps."
+        end
+
         api_get :index
         milisecond = order.updated_at.strftime("%L")
         updated_at = json_response["orders"].first["updated_at"]
-
         expect(updated_at.split("T").last).to have_content(milisecond)
       end
 

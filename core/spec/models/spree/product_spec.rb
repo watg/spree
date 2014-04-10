@@ -12,6 +12,7 @@ end
 describe Spree::Product do
   context 'product instance' do
     let(:product) { create(:product) }
+    let(:variant) { create(:variant, :product => product) }
 
     context '#option_values_for' do
       before do
@@ -61,8 +62,64 @@ describe Spree::Product do
 
         clone = product.duplicate
         clone.name.should == product.name.reverse
+      end
+    end
 
-        Spree::Product.send(:remove_method, :duplicate_extra)
+    context "master variant" do
+      context "when master variant changed" do
+        before do
+          product.master.sku = "Something changed"
+        end
+
+        it "saves the master" do
+          product.master.should_receive(:save)
+          product.save
+        end
+      end
+
+      context "when master default price is a new record" do
+        before do
+          @price = product.master.build_default_price
+          @price.price = 12
+        end
+
+        it "saves the master" do
+          product.master.should_receive(:save)
+          product.save
+        end
+
+        it "saves the default price" do
+          proc do
+            product.save
+          end.should change{ @price.new_record? }.from(true).to(false)
+        end
+
+      end
+
+      context "when master default price changed" do
+        before do
+          master = product.master
+          master.default_price = create(:price, :variant => master)
+          master.save!
+          product.master.default_price.price = 12
+        end
+
+        it "saves the master" do
+          product.master.should_receive(:save)
+          product.save
+        end
+
+        it "saves the default price" do
+          product.master.default_price.should_receive(:save)
+          product.save
+        end
+      end
+
+      context "when master variant and price haven't changed" do
+        it "does not save the master" do
+          product.master.should_not_receive(:save)
+          product.save
+        end
       end
     end
 
@@ -121,11 +178,12 @@ describe Spree::Product do
 
       context "with currency set to JPY" do
         before do
+          product.master.default_price.currency = 'JPY'
+          product.master.default_price.save!
           Spree::Config[:currency] = 'JPY'
         end
 
         it "displays the currency in yen" do
-          create(:price, variant_id: product.master.id, price: 11.00, currency: 'JPY')
           product.display_price.to_s.should == "¥11"
         end
       end
@@ -144,6 +202,11 @@ describe Spree::Product do
         product.available_on = 1.day.from_now
         product.should_not be_available
       end
+
+      it "should not be available if destroyed" do 
+        product.destroy 
+        product.should_not be_available 
+      end 
     end
 
     context "variants_and_option_values" do
@@ -209,68 +272,6 @@ describe Spree::Product do
     end
   end
 
-  context "permalink" do
-    context "build product with similar name" do
-      let!(:other) { create(:product, :name => 'foo bar') }
-      let(:product) { build(:product, :name => 'foo') }
-
-      before { product.valid? }
-
-      it "increments name" do
-        product.permalink.should == 'foo-1'
-      end
-    end
-
-    context "build permalink with quotes" do
-      it "saves quotes" do
-        product = create(:product, :name => "Joe's", :permalink => "joe's")
-        product.permalink.should == "joe's"
-      end
-    end
-
-    context "permalinks must be unique" do
-      before do
-        @product1 = create(:product, :name => 'foo')
-      end
-
-      it "cannot create another product with the same permalink" do
-        @product2 = create(:product, :name => 'foo')
-        lambda do
-          @product2.update_attributes(:permalink => @product1.permalink)
-        end.should raise_error(ActiveRecord::RecordNotUnique)
-      end
-    end
-
-    it "supports Chinese" do
-      create(:product, :name => "你好").permalink.should == "ni-hao"
-    end
-
-    context "manual permalink override" do
-      let(:product) { create(:product, :name => "foo") }
-
-      it "calling save_permalink with a parameter" do
-        product.name = "foobar"
-        product.save
-        product.permalink.should == "foo"
-
-        product.save_permalink(product.name)
-        product.permalink.should == "foobar"
-      end
-    end
-
-    context "override permalink of deleted product" do
-      let(:product) { create(:product, :name => "foo") }
-
-      it "should create product with same permalink from name like deleted product" do
-        product.permalink.should == "foo"
-        product.destroy
-
-        new_product = create(:product, :name => "foo")
-        new_product.permalink.should == "foo"
-      end
-    end
-  end
-
   context "properties" do
     let(:product) { create(:product) }
 
@@ -305,22 +306,36 @@ describe Spree::Product do
       Spree::Property.where(:name => 'foo').first.presentation.should == "Foo's Presentation Name"
       Spree::Property.where(:name => 'bar').first.presentation.should == "bar"
     end
+
+    # Regression test for #4416
+    context "#possible_promotions" do
+      let!(:promotion) do
+        create(:promotion, advertise: true, starts_at: 1.day.ago)
+      end
+      let!(:rule) do
+        Spree::Promotion::Rules::Product.create(
+          promotion: promotion,
+          products: [product]
+        )
+      end
+
+      it "lists the promotion as a possible promotion" do
+        product.possible_promotions.should include(promotion)
+      end
+    end
   end
 
   context '#create' do
-    before do
-      @prototype = create(:prototype)
-      @product = build(:base_product)
-    end
+    let!(:prototype) { create(:prototype) }
+    let!(:product) { Spree::Product.new(name: "Foo", price: 1.99, shipping_category_id: create(:shipping_category).id) }
+
+    before { product.prototype_id = prototype.id }
 
     context "when prototype is supplied" do
-      before { @product.prototype_id = @prototype.id }
-
       it "should create properties based on the prototype" do
-        @product.save!
-        @product.properties.count.should == 1
+        product.save
+        product.properties.count.should == 1
       end
-
     end
 
     context "when prototype with option types is supplied" do
@@ -345,50 +360,45 @@ describe Spree::Product do
         hash
       end
 
-      before { @product.prototype_id = prototype.id }
-
       it "should create option types based on the prototype" do
-        @product.save
-        @product.option_type_ids.length.should == 1
-        @product.option_type_ids.should == prototype.option_type_ids
+        product.save
+        product.option_type_ids.length.should == 1
+        product.option_type_ids.should == prototype.option_type_ids
       end
 
       it "should create product option types based on the prototype" do
-        @product.save
-        @product.product_option_types.pluck(:option_type_id).should == prototype.option_type_ids
+        product.save
+        product.product_option_types.pluck(:option_type_id).should == prototype.option_type_ids
       end
 
       it "should create variants from an option values hash with one option type" do
-        pending("decorator failure #important")
-        @product.option_values_hash = option_values_hash
-        @product.save
-        @product.variants.length.should == 3
+        product.option_values_hash = option_values_hash
+        product.save
+        product.variants.length.should == 3
       end
 
       it "should still create variants when option_values_hash is given but prototype id is nil" do
-        pending("decorator failure #important")
-        @product.option_values_hash = option_values_hash
-        @product.prototype_id = nil
-        @product.save
-        @product.option_type_ids.length.should == 1
-        @product.option_type_ids.should == prototype.option_type_ids
-        @product.variants.length.should == 3
+        product.option_values_hash = option_values_hash
+        product.prototype_id = nil
+        product.save
+        product.option_type_ids.length.should == 1
+        product.option_type_ids.should == prototype.option_type_ids
+        product.variants.length.should == 3
       end
 
       it "should create variants from an option values hash with multiple option types" do
-        pending("decorator failure #important")
+        # pending("decorator failure #important")
         color = build_option_type_with_values("color", %w(Red Green Blue))
         logo  = build_option_type_with_values("logo", %w(Ruby Rails Nginx))
         option_values_hash[color.id.to_s] = color.option_value_ids
         option_values_hash[logo.id.to_s] = logo.option_value_ids
-        @product.option_values_hash = option_values_hash
-        @product.save
-        @product = @product.reload
-        @product.option_type_ids.length.should == 3
-        @product.variants.length.should == 27
+        product.option_values_hash = option_values_hash
+        product.save
+        product.reload
+        product.option_type_ids.length.should == 3
+        product.variants.length.should == 27
       end
     end
-
   end
 
   context "#images" do
@@ -542,6 +552,16 @@ describe Spree::Product do
       product = build(:product)
       product.stub stock_items: [double(Spree::StockItem, count_on_hand: 5)]
       product.total_on_hand.should eql(5)
+    end
+  end
+
+  describe "slugs" do
+    it "normalizes slug on update" do
+      product = stub_model Spree::Product
+      product.slug = "hey//joe"
+
+      product.valid?
+      expect(product.slug).not_to match "/"
     end
   end
 

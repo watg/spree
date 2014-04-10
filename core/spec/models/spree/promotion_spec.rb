@@ -5,25 +5,10 @@ describe Spree::Promotion do
 
   describe "validations" do
     before :each do
-      @valid_promotion = Spree::Promotion.new :name => "A promotion",
-                                              :event_name => 'spree.checkout.coupon_code_added',
-                                              :code => 'XXX'
+      @valid_promotion = Spree::Promotion.new :name => "A promotion"
     end
 
     it "valid_promotion is valid" do
-      @valid_promotion.should be_valid
-    end
-
-    it "validates the coupon code when event is spree.checkout.coupon_code_added" do
-      @valid_promotion.code = nil
-      @valid_promotion.should_not be_valid
-    end
-
-    it "validates the path when event is spree.content.visited" do
-      @valid_promotion.event_name = 'spree.content.visited'
-      @valid_promotion.should_not be_valid
-
-      @valid_promotion.path = 'content/cvv'
       @valid_promotion.should be_valid
     end
 
@@ -72,33 +57,14 @@ describe Spree::Promotion do
 
   describe "#activate" do
     before do
-      @action1 = mock_model(Spree::PromotionAction, :perform => true)
-      @action2 = mock_model(Spree::PromotionAction, :perform => true)
+      @action1 = stub_model(Spree::PromotionAction, :perform => true)
+      @action2 = stub_model(Spree::PromotionAction, :perform => true)
       promotion.promotion_actions = [@action1, @action2]
       promotion.created_at = 2.days.ago
 
       @user = stub_model(Spree::LegacyUser, :email => "spree@example.com")
       @order = stub_model(Spree::Order, :user => @user, :created_at => DateTime.now)
       @payload = { :order => @order, :user => @user }
-    end
-
-    it "should check code if present" do
-      promotion.code = 'xxx'
-      @payload[:coupon_code] = 'xxx'
-      @action1.should_receive(:perform).with(@payload)
-      @action2.should_receive(:perform).with(@payload)
-      promotion.activate(@payload)
-    end
-
-    context "database has uppercase code" do
-      it "always downcase code on comparison" do
-        promotion.stub(:code => 'xxX')
-        @payload[:coupon_code] = 'xxx'
-        @action1.should_receive(:perform).with(@payload)
-        @action2.should_receive(:perform).with(@payload)
-
-        promotion.activate(@payload)
-      end
     end
 
     it "should check path if present" do
@@ -125,24 +91,46 @@ describe Spree::Promotion do
     it "does activate if newer then order" do
       @action1.should_receive(:perform).with(@payload)
       promotion.created_at = DateTime.now + 2
-      promotion.activate(@payload)
+      expect(promotion.activate(@payload)).to be_true
     end
+
+    context "keeps track of the orders" do
+      context "when activated" do
+        it "assigns the order" do
+          expect(promotion.orders).to be_empty
+          expect(promotion.activate(@payload)).to be_true
+          expect(promotion.orders.first).to eql @order
+        end
+      end
+      context "when not activated" do
+        it "will not assign the order" do
+          @order.state = 'complete'
+          expect(promotion.orders).to be_empty
+          expect(promotion.activate(@payload)).to be_false
+          expect(promotion.orders).to be_empty
+        end
+      end
+
+    end
+
   end
 
   context "#usage_limit_exceeded" do
-     it "should not have its usage limit exceeded" do
-       promotion.should_not be_usage_limit_exceeded
-     end
+    let(:promotable) { double('Promotable') }
+    it "should not have its usage limit exceeded with no usage limit" do
+      promotion.usage_limit = 0
+      promotion.usage_limit_exceeded?(promotable).should be_false
+    end
 
-     it "should have its usage limit exceeded" do
-       promotion.usage_limit = 2
-       promotion.stub(:credits_count => 2)
-       promotion.usage_limit_exceeded?.should be_true
+    it "should have its usage limit exceeded" do
+      promotion.usage_limit = 2
+      promotion.stub(:adjusted_credits_count => 2)
+      promotion.usage_limit_exceeded?(promotable).should be_true
 
-       promotion.stub(:credits_count => 3)
-       promotion.usage_limit_exceeded?.should be_true
-     end
-   end
+      promotion.stub(:adjusted_credits_count => 3)
+      promotion.usage_limit_exceeded?(promotable).should be_true
+    end
+  end
 
   context "#expired" do
     it "should not be exipired" do
@@ -185,7 +173,6 @@ describe Spree::Promotion do
   context "#credits_count" do
     let!(:promotion) do
       promotion = Spree::Promotion.new
-      promotion.event_name = 'spree.checkout.coupon_code_added'
       promotion.name = "Foo"
       promotion.code = "XXX"
       calculator = Spree::Calculator::FlatRate.new
@@ -201,11 +188,11 @@ describe Spree::Promotion do
     end
 
     let!(:adjustment) do
-      Spree::Adjustment.create!({
-        :originator => action,
+      Spree::Adjustment.create!(
+        :source => action,
         :amount => 10,
         :label => "Promotional adjustment"
-      })
+      )
     end
 
     it "counts eligible adjustments" do
@@ -251,9 +238,7 @@ describe Spree::Promotion do
   context "#eligible?" do
     before do
       @order = create(:order)
-      promotion.event_name = 'spree.checkout.coupon_code_added'
       promotion.name = "Foo"
-      promotion.code = "XXX"
       calculator = Spree::Calculator::FlatRate.new
       action_params = { :promotion => promotion, :calculator => calculator }
       @action = Spree::Promotion::Actions::CreateAdjustment.create(action_params)
@@ -268,61 +253,69 @@ describe Spree::Promotion do
       before { promotion.expires_at = Time.now + 1.day }
       specify { promotion.should be_eligible(@order) }
     end
-
-    context "when a coupon code has already resulted in an adjustment on the order" do
-      before do
-        promotion.save!
-
-        @order.adjustments.create(
-          :amount => 1,
-          :source => @order,
-          :originator => @action,
-          :label => "Foo"
-        )
-      end
-
-      it "should be eligible" do
-        promotion.should be_eligible(@order)
-      end
-    end
   end
 
-  context "rules" do
-    before { @order = Spree::Order.new }
+  context "#rules_are_eligible?" do
+    let(:promotable) { double('Promotable') }
+    it "true if there are no rules" do
+      promotion.rules_are_eligible?(promotable).should be_true
+    end
 
-    it "should have eligible rules if there are no rules" do
-      promotion.rules_are_eligible?(@order).should be_true
+    it "true if there are no applicable rules" do
+      promotion.promotion_rules = [stub_model(Spree::PromotionRule, :eligible? => true, :applicable? => false)]
+      promotion.promotion_rules.stub(:for).and_return([])
+      promotion.rules_are_eligible?(promotable).should be_true
     end
 
     context "with 'all' match policy" do
       before { promotion.match_policy = 'all' }
 
       it "should have eligible rules if all rules are eligible" do
-        promotion.promotion_rules = [mock_model(Spree::PromotionRule, :eligible? => true),
-                                     mock_model(Spree::PromotionRule, :eligible? => true)]
-        promotion.rules_are_eligible?(@order).should be_true
+        promotion.promotion_rules = [stub_model(Spree::PromotionRule, :eligible? => true, :applicable? => true),
+                                     stub_model(Spree::PromotionRule, :eligible? => true, :applicable? => true)]
+        promotion.promotion_rules.stub(:for).and_return(promotion.promotion_rules)
+        promotion.rules_are_eligible?(promotable).should be_true
       end
 
       it "should not have eligible rules if any of the rules is not eligible" do
-        promotion.promotion_rules = [mock_model(Spree::PromotionRule, :eligible? => true),
-                                     mock_model(Spree::PromotionRule, :eligible? => false)]
-        promotion.rules_are_eligible?(@order).should be_false
+        promotion.promotion_rules = [stub_model(Spree::PromotionRule, :eligible? => true, :applicable? => true),
+                                     stub_model(Spree::PromotionRule, :eligible? => false, :applicable? => true)]
+        promotion.promotion_rules.stub(:for).and_return(promotion.promotion_rules)
+        promotion.rules_are_eligible?(promotable).should be_false
       end
     end
 
     context "with 'any' match policy" do
-      before(:each) do
-        @promotion = Spree::Promotion.new(:name => "Promo", :match_policy => 'any')
-        @promotion.save
-      end
+      let(:promotion) { Spree::Promotion.create(:name => "Promo", :match_policy => 'any') }
+      let(:promotable) { double('Promotable') }
 
-      it "should have eligible rules if any of the rules is eligible" do
-        true_rule = Spree::PromotionRule.create(:promotion => @promotion)
-        true_rule.stub(:eligible?).and_return(true)
-        false_rule = Spree::PromotionRule.create(:promotion => @promotion)
-        false_rule.stub(:eligible?).and_return(false)
-        @promotion.rules << true_rule
-        @promotion.rules_are_eligible?(@order).should be_true
+      it "should have eligible rules if any of the rules are eligible" do
+        Spree::PromotionRule.any_instance.stub(:applicable? => true)
+        true_rule = Spree::PromotionRule.create(:promotion => promotion)
+        true_rule.stub(:eligible? => true)
+        promotion.stub(:rules => [true_rule])
+        promotion.stub_chain(:rules, :for).and_return([true_rule])
+        promotion.rules_are_eligible?(promotable).should be_true
+      end
+    end
+  end
+
+  # regression for #4059
+  # admin form posts the code and path as empty string
+  describe "normalize blank values for code & path" do
+    it "will save blank value as nil value instead" do
+      promotion = Spree::Promotion.create(:name => "A promotion", :code => "", :path => "")
+      expect(promotion.code).to be_nil
+      expect(promotion.path).to be_nil
+    end
+  end
+
+  # Regression test for #4081
+  describe "#with_coupon_code" do
+    context "and code stored in uppercase" do
+      let!(:promotion) { create(:promotion, :code => "MY-COUPON-123") }
+      it "finds the code with lowercase" do
+        expect(Spree::Promotion.with_coupon_code("my-coupon-123")).to eql promotion
       end
     end
   end

@@ -1,7 +1,7 @@
 module Spree
   class OptionType < ActiveRecord::Base
-    has_many :option_values, -> { order(:position) }, dependent: :destroy
-    has_many :product_option_types, dependent: :destroy
+    has_many :option_values, -> { order(:position) }, dependent: :destroy, inverse_of: :option_type
+    has_many :product_option_types, dependent: :destroy, inverse_of: :option_type
     has_many :products, through: :product_option_types
     has_and_belongs_to_many :prototypes, join_table: 'spree_option_types_prototypes'
 
@@ -17,9 +17,6 @@ module Spree
         p.delay.touch
       end
     end
-
-    # Custom validator which can be found in the backend initializer dir
-    # validates_associated_bubbling :option_values
 
     def url_safe_name
       name.downcase.parameterize

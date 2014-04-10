@@ -1,10 +1,8 @@
 module Spree
-
   module Admin
     class OrdersController < Spree::Admin::BaseController
-      require 'spree/core/gateway_error'
       before_filter :initialize_order_events
-      before_filter :load_order, :only => [:edit, :update, :fire, :resend, :open_adjustments, :close_adjustments, :internal, :gift_card_reissue]
+      before_filter :load_order, :only => [:edit, :update, :cancel, :resume, :approve, :resend, :open_adjustments, :close_adjustments]
 
       respond_to :html
 
@@ -98,18 +96,21 @@ module Spree
         render :action => :edit
       end
 
-      def fire
-        # TODO - possible security check here but right now any admin can before any transition (and the state machine
-        # itself will make sure transitions are not applied in the wrong state)
-        event = params[:e]
-        if @order.state_events.include?(event.to_sym) && @order.send("#{event}")
-          flash[:success] = Spree.t(:order_updated)
-        else
-          flash[:error] = Spree.t(:cannot_perform_operation)
-        end
-      rescue Spree::Core::GatewayError => ge
-        flash[:error] = "#{ge.message}"
-      ensure
+      def cancel
+        @order.cancel!
+        flash[:success] = Spree.t(:order_canceled)
+        redirect_to :back
+      end
+
+      def resume
+        @order.resume!
+        flash[:success] = Spree.t(:order_resumed)
+        redirect_to :back
+      end
+
+      def approve
+        @order.approved_by(try_spree_current_user)
+        flash[:success] = Spree.t(:order_approved)
         redirect_to :back
       end
 
@@ -148,7 +149,6 @@ module Spree
           Spree::PDF::ImageSticker.to_pdf(order)
         end
       end
-
         def load_order
           @order = Order.includes(:adjustments).find_by_number!(params[:id])
           authorize! action, @order
@@ -156,7 +156,7 @@ module Spree
 
         # Used for extensions which need to provide their own custom event links on the order details view.
         def initialize_order_events
-          @order_events = %w{cancel resume}
+          @order_events = %w{approve cancel resume}
         end
 
         def model_class
@@ -165,4 +165,3 @@ module Spree
     end
   end
 end
-

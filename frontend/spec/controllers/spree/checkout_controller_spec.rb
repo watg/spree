@@ -59,11 +59,6 @@ describe Spree::CheckoutController do
         order.should_receive(:associate_user!).with(user)
         spree_get :edit, {}, :order_id => 1
       end
-
-      it "should fire the spree.user.signup event if user has just signed up" do
-        controller.should_receive(:fire_event).with("spree.user.signup", :user => user, :order => order)
-        spree_get :edit, {}, :spree_user_signup => true
-      end
     end
   end
 
@@ -74,7 +69,6 @@ describe Spree::CheckoutController do
     end
 
     context "save successful" do
-
       def spree_post_address
         spree_post :update, {
           :state => "address",
@@ -92,7 +86,6 @@ describe Spree::CheckoutController do
         order.stub :ensure_available_shipping_rates => true
         order.line_items << FactoryGirl.create(:line_item)
       end
-
 
       context "with the order in the cart state" do
         before do
@@ -277,7 +270,7 @@ describe Spree::CheckoutController do
             order.next!
           end
           # So that the confirmation step is skipped and we get straight to the action.
-          payment_method = FactoryGirl.create(:bogus_simple_payment_method)
+          payment_method = FactoryGirl.create(:simple_credit_card_payment_method)
           payment = FactoryGirl.create(:payment, :payment_method => payment_method)
           order.payments << payment
         end
@@ -319,6 +312,9 @@ describe Spree::CheckoutController do
         response.should redirect_to spree.cart_path
       end
 
+      it "should set flash message for no inventory" do
+        flash[:error].should == Spree.t(:inventory_error_flash_for_insufficient_quantity , :names => "'#{product.name}'" )
+      end
     end
   end
 
@@ -351,22 +347,7 @@ describe Spree::CheckoutController do
     }.to change { order.line_items }
   end
 
-  context "order with a pending payment" do
-    let(:order) { create(:order_with_pending_payment) }
-  	before do
-  	  subject.stub :authorize! => true, :ensure_api_key => true
-  	  order.stub :can_go_to_state? => false
-  	  subject.stub(:current_order).and_return(order)
-  	  subject.stub(:set_current_order).and_return(order)
-  	end
-
-    it "should not display payment page" do
-      get :edit, state: 'payment', :use_route => :spree
-      expect(response.status).to eq(302)
-      flash[:error].should_not be_blank
-    end
-  end
-  
+ 
   context "newsletter subscription" do
     let(:params) { {chimpy_subscriber: {signupEmail: 'luther@bbc.co.uk', subscribe: true}, state: 'delivery'} }
 

@@ -52,7 +52,7 @@ module Spree
 
     @@product_attributes = [
       :name, :description, :available_on, :permalink, :meta_description,
-      :meta_keywords, :sku, :deleted_at, :prototype_id,
+      :meta_keywords, :price, :sku, :deleted_at, :prototype_id,
       :option_values_hash, :weight, :height, :width, :depth,
       :shipping_category_id, :tax_category_id,
       :taxon_ids, :option_type_ids, :cost_currency, :cost_price, :gang_member_id, :product_group_id]
@@ -71,7 +71,7 @@ module Spree
     @@source_attributes = [
       :number, :month, :year, :expiry, :verification_value,
       :first_name, :last_name, :cc_type, :gateway_customer_profile_id, 
-      :gateway_payment_profile_id, :last_digits, :name, :adyen_encrypted_hash]
+      :gateway_payment_profile_id, :last_digits, :name, :encrypted_data, :adyen_encrypted_hash]
 
     @@stock_item_attributes = [:variant, :stock_location, :backorderable, :variant_id]
 
@@ -87,7 +87,7 @@ module Spree
 
     @@taxon_attributes = [
       :name, :parent_id, :position, :icon, :description, :permalink, :taxonomy_id,
-      :meta_description, :meta_keywords, :meta_title, :child_index, :page_id, :page_type]
+      :meta_description, :meta_keywords, :meta_title, :child_index]
 
     # TODO Should probably use something like Spree.user_class.attributes
     @@user_attributes = [:email, :password, :password_confirmation]
@@ -95,7 +95,7 @@ module Spree
     @@variant_attributes = [
       :name, :presentation, :cost_price, :lock_version,
       :position, :option_value_ids,
-      :product_id, :product, :option_values_attributes, 
+      :product_id, :product, :option_values_attributes, :price,
       :weight, :height, :width, :depth, :sku, :cost_currency, options: [ :name, :value ]]
   end
 end

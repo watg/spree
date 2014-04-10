@@ -9,7 +9,7 @@ module Spree
       end
 
       def total_on_hand
-        if Spree::Config.track_inventory_levels
+        if @variant.should_track_inventory?
           stock_items.sum(:count_on_hand)
         else
           Float::INFINITY
@@ -23,6 +23,8 @@ module Spree
       def can_supply?(required = 1)
         total_on_hand >= required || backorderable?
       end
+
+      private
 
       # return variant when passed either variant object or variant id
       def resolve_variant_id(variant)

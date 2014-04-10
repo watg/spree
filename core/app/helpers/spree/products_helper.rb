@@ -53,6 +53,12 @@ module Spree
       end
     end
 
+    def cache_key_for_products
+      max_updated_at = @products.maximum(:updated_at).to_s(:number)
+      count = Spree::Product.count
+      "#{current_currency}/spree/products/all-#{params[:page]}-#{max_updated_at}-#{count}"
+    end
+
     def get_taxonomies
       @taxonomies ||= Spree::Taxonomy.visible.includes(root: :children)
     end

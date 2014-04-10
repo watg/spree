@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 module Spree
   class Price < ActiveRecord::Base
     acts_as_paranoid
-    
-    belongs_to :variant, class_name: 'Spree::Variant', touch: true
+    belongs_to :variant, class_name: 'Spree::Variant', inverse_of: :prices, touch: true
     CURRENCY_SYMBOL = {'USD' => '$', 'GBP' => '£', 'EUR' => '€'}
     TYPES = [:normal,:normal_sale,:part,:part_sale]
     
@@ -16,7 +14,7 @@ module Spree
     alias :display_price :display_amount
 
     def money
-      Spree::Money.new(amount, { currency: currency })
+      Spree::Money.new(amount || 0, { currency: currency })
     end
 
     def price
@@ -40,22 +38,6 @@ module Spree
       Spree::Variant.unscoped { super }
     end
 
-    def parse_price(price)
-      self.class.parse_price(price)
-    end
-
-    # strips all non-price-like characters from the price, taking into account locale settings
-    def self.parse_price(price)
-      return price unless price.is_a?(String)
-
-      separator, _delimiter = I18n.t([:'number.currency.format.separator', :'number.currency.format.delimiter'])
-      non_price_characters = /[^0-9\-#{separator}]/
-      price.gsub!(non_price_characters, '') # strip everything else first
-      price.gsub!(separator, '.') unless separator == '.' # then replace the locale-specific decimal separator with the standard separator if necessary
-
-      price.to_d
-    end
-
     private
     def check_price
       raise "Price must belong to a variant" if variant.nil?
@@ -65,6 +47,17 @@ module Spree
       end
     end
 
+    # strips all non-price-like characters from the price, taking into account locale settings
+    def parse_price(price)
+      return price unless price.is_a?(String)
+
+      separator, delimiter = I18n.t([:'number.currency.format.separator', :'number.currency.format.delimiter'])
+      non_price_characters = /[^0-9\-#{separator}]/
+      price.gsub!(non_price_characters, '') # strip everything else first
+      price.gsub!(separator, '.') unless separator == '.' # then replace the locale-specific decimal separator with the standard separator if necessary
+
+      price.to_d
+    end
   end
 end
 

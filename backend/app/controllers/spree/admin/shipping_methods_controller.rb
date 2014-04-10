@@ -6,7 +6,7 @@ module Spree
       before_filter :set_zones, :only => [:create, :update]
 
       def destroy
-        @object.touch :deleted_at
+        @object.destroy
 
         flash[:success] = flash_message_for(@object, :successfully_removed)
 
@@ -37,8 +37,9 @@ module Spree
       end
 
       def load_data
-        @available_zones = Spree::Zone.order(:name)
-        @calculators = Spree::ShippingMethod.calculators.sort_by(&:name)
+        @available_zones = Zone.order(:name)
+        @tax_categories = Spree::TaxCategory.order(:name)
+        @calculators = ShippingMethod.calculators.sort_by(&:name)
       end
     end
   end

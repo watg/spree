@@ -20,22 +20,25 @@
 
 module Spree
   class Product < ActiveRecord::Base
+    extend FriendlyId
+    friendly_id :name, use: :slugged
+
     acts_as_paranoid
 
     NATURE = {
       physical: [:kit, :product, :virtual_product, :pattern, :parcel, :made_by_the_gang, :accessory],
       digital:  [:gift_card] } unless defined?(NATURE)
 
-    has_many :product_option_types, dependent: :destroy
+    has_many :product_option_types, dependent: :destroy, inverse_of: :product
     has_many :option_types, through: :product_option_types
     has_many :visible_option_types, -> { where spree_product_option_types: true }, through: :product_option_types
 
-    has_many :product_properties, dependent: :destroy
+    has_many :product_properties, dependent: :destroy, inverse_of: :product
     has_many :properties, through: :product_properties
 
     has_many :displayable_variants
 
-    has_many :classifications, dependent: :delete_all
+    has_many :classifications, dependent: :delete_all, inverse_of: :product
     has_many :taxons, through: :classifications
     has_and_belongs_to_many :promotion_rules, join_table: :spree_products_promotion_rules
 
@@ -43,7 +46,7 @@ module Spree
     has_many :targets, class_name: 'Spree::Target', through: :product_targets
 
     belongs_to :tax_category,      class_name: 'Spree::TaxCategory'
-    belongs_to :shipping_category, class_name: 'Spree::ShippingCategory'
+    belongs_to :shipping_category, class_name: 'Spree::ShippingCategory', inverse_of: :products
     belongs_to :gang_member,       class_name: 'Spree::GangMember'
     belongs_to :product_group,     class_name: 'Spree::ProductGroup', touch: true
 
@@ -87,13 +90,15 @@ module Spree
     has_many :stock_items, through: :variants_including_master
 
     delegate_belongs_to :master, :sku, :price, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :price_normal_in, :amount_in
-    delegate_belongs_to :master, :cost_price if Variant.table_exists? && Variant.column_names.include?('cost_price')
+
+    delegate_belongs_to :master, :cost_price
 
     after_create :set_master_variant_defaults
     after_create :add_properties_and_option_types_from_prototype
     after_create :build_variants_from_option_values_hash, if: :option_values_hash
-
     after_save :save_master
+    after_save :touch
+    # after_touch :touch_taxons
 
     delegate :images, to: :master, prefix: true
     alias_method :images, :master_images
@@ -113,14 +118,14 @@ module Spree
     accepts_nested_attributes_for :product_targets, allow_destroy: true
 
     validates :name, presence: true
-    validates :permalink, presence: true
     validates :shipping_category_id, presence: true
+    validates :slug, length: { minimum: 3 }
+
+    before_validation :normalize_slug, on: :update
 
     attr_accessor :option_values_hash
 
     accepts_nested_attributes_for :product_properties, allow_destroy: true, reject_if: lambda { |pp| pp[:property_name].blank? }
-
-    make_permalink order: :name
 
     alias :options :product_option_types
 
@@ -219,7 +224,7 @@ module Spree
     end
 
     def to_param
-      permalink.present? ? permalink : (permalink_was || name.to_s.to_url)
+      slug
     end
 
     # the master variant is not a member of the variants array
@@ -264,8 +269,11 @@ module Spree
       !!deleted_at
     end
 
+    # determine if product is available.
+    # deleted products and products with nil or future available_on date
+    # are not available
     def available?
-      !(available_on.nil? || available_on.future?)
+      !(available_on.nil? || available_on.future?) && !deleted?
     end
 
     # split variants list into hash which shows mapping of opt value onto matching variants
@@ -328,7 +336,7 @@ module Spree
     end
 
     def possible_promotions
-      promotion_ids = promotion_rules.map(&:activator_id).uniq
+      promotion_ids = promotion_rules.map(&:promotion_id).uniq
       Spree::Promotion.advertised.where(id: promotion_ids).reject(&:expired?)
     end
 
@@ -374,6 +382,9 @@ module Spree
     end
 
     private
+      def normalize_slug
+        self.slug = normalize_friendly_id(slug)
+      end
 
     def touch_assembly_products
       assembly_products.uniq.map(&:touch)
@@ -424,9 +435,9 @@ module Spree
       self.master ||= Variant.new
     end
 
-    def punch_permalink
-      update_attribute :permalink, "#{Time.now.to_i}_#{permalink}" # punch permalink with date prefix
-    end
+      def touch_taxons
+        self.taxons.each(&:touch)
+      end
   end
 end
 

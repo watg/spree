@@ -1,78 +1,93 @@
-## Spree 2.1.4 (unreleased) ##
+## Spree 2.2.1 (unreleased) ##
 
-*   Associate line item and inventory units for better extensibility with
-    product assemblies. Migration was added to set line_item_id for existing
-    inventory units.
-
-* Introduce Core::UserAddress module. Once included on the store user class the user address can be rememembered on checkout
-
-    Washington Luiz / Peter Berkenbosch
-
-* Fixed issue where selecting a payment method that required confirmation would fail, then another payment method that did *not* require confirmation was then chosen, but confirmation step would still appear. #3970
+*   A user_id and payment_method_id column were added to CreditCard. By default
+    both are set when initializing the payment source (via Payment object). That
+    should help improving payment profiles control for both customers and store
+    owners. A Core::UserPaymentSource module was added to exemplify what should
+    be added to the user class to make better use of that feature.
 
     Washington Luiz
 
-* Bumped Kaminari version to 0.15.0
-
-    Ryan Bigg
-
-* Shipments are now "touched" when Inventory Units are updated, and Orders are now "touched" when Payments are updated. Variants are now "touched" when Stock Items are updated. This "touching" will update the record's timestamp.
-  
-    Ryan Bigg
-
-* If a name field now exists on spree_variants, Spree will use that rather than the virtual attribute defined by `delegates_belongs_to`. #4012
-
-    Washington Luiz
-
-* Moved `Money.extract_cents` and `Money.parse` to `Spree::Money`, as those methods are being deprecated in the Money gem, but Spree still uses them to a great extent.
-
-    Ryan Bigg
-
-* Added ability to enable/disable inventory tracking control on the variant-level.
-
-    Michael Tucker
-
-* Only in_stock inventory units are now restocked once an order is canceled.
-
-    Washington Luiz
-
-* Backorders for incomplete orders are now no longer fufiled. #4056
-
-    Sean O'Hara
-
-* Shipment numbers should be 11-characters, not 9. #4063
-
-    Ryan Bigg
-
-* Only available shipping rates are now sorted in `Spree::Stock::Estimator`. #4067
-
-    Ryan Bigg
-
-* Email is now only required once past the address step of the checkout. #4079
-
-    Ryan Bigg
-
-* Ensure state_changes records are no longer created if the state changes. #4072
-
-    Ryan Bigg
-
-* `allow_ssl_in_*` variables are no longer accessed during initialization. #4094
-
-    John Hawthorn
-
-* Promotion rules are now loaded after initialization so that the user rule is loaded correctly. 
+*   refactor the api to use a general importer in `lib/spree/importer/order.rb`
 
     Peter Berkenbosch
 
-* Fixed issue where common shipping methods were not being returned when calculating packages. #4102
+*   Ensure transition to payment processing state happens outside transaction.
 
-    Dan Kubb
+    Chris Salzberg
 
-* Only eligible promotions now count towards `credits_count` on `Spree::Promotion` objects. #4120
-
-    Ryan Bigg
-
-* Order#available_payment_methods will now return payment methods marked as 'Both' #4199
-
-    Francisco Trindade & Ryan Bigg
-
+(??)*   InventoryUnit#backordered_for_stock_item no longer returns readonly objects
+(??)    neither return an ActiveRecored::Association. It returns only an array of
+(??)    writable backordered units for a given stock item #3066
+(??)
+(??)    *Washington Luiz*
+(??)
+(??)*   Scope shipping rates as per shipping method display_on #3119
+(??)    e.g. Shipping methods set to back_end only should not be displayed on frontend too
+(??)
+(??)    *Washington Luiz*
+(??)
+(??)*   Add `propagate_all_variants` attribute to StockLocation. It controls
+(??)    whether a stock items should be created fot the stock location every time
+(??)    a variant or a stock location is created
+(??)
+(??)    *Washington Luiz*
+(??)
+(??)*   Add `backorderable_default` attribute to StockLocation. It sets the
+(??)    backorderable attribute of each new stock item
+(??)
+(??)    *Washington Luiz*
+(??)
+(??)*   Removed `t()` override in `Spree::BaseHelper`. #3083
+(??)
+(??)    *Washington Luiz*
+(??)
+(??)*   Improve performance of `Order#payment_required?` by not updating the totals every time. #3040 #3086
+(??)
+(??)    *Washington Luiz*
+(??)
+(??)*   Fixed the FlexiRate Calculator for cases when max_items is set. #3159
+(??)
+(??)    *Dana Jones*
+(??)
+(??)* Translation for admin tabs are now located under the `spree.admin.tab` key. Previously, they were on the top-level, which lead to conflicts when users wanted to override view translations, like this:
+(??)
+(??)```yml
+(??)en:
+(??)  spree:
+(??)    orders:
+(??)      show:
+(??)        thank_you: "Thanks, buddy!"
+(??)```
+(??)
+(??)See #3133 for more information.
+(??)
+(??)    * Ryan Bigg*
+(??)
+(??)* CreditCard model now validates that the card is not expired.
+(??)
+(??)    *Ryan Bigg*
+(??)
+(??)* Payment model will now no longer provide a vague error message for when the source is invalid. Instead, it will provide error messages like "Credit Card Number can't be blank"
+(??)
+(??)    *Ryan Bigg*
+(??)
+(??)* Calling #destroy on any PaymentMethod, Product, TaxCategory, TaxRate or Variant object will now no longer delete that object. Instead, the `deleted_at` attribute on that object will be set to the current time. Attempting to find that object again using something such as `Spree::Product.find(1)` will fail because there is now a default scope to only find *non*-deleted records on these models. To remove this scope, use `Spree::Product.unscoped.find(1)`. #3321
+(??)
+(??)    *Ryan Bigg*
+(??)
+(??)* Removed `variants_including_master_and_deleted`, in favour of using the Paranoia gem. This scope would now be achieved using `variants_including_master.with_deleted`.
+(??)
+(??)    *Ryan Bigg*
+(??)
+(??)* You can now find the total amount on hand of a variant by calling `Variant#total_on_hand`. #3427
+(??)
+(??)    *Ruben Ascencio*
+(??)
+(??)* Tax categories are now stored on line items. This should make tax calculations slightly faster. #3481
+(??)
+(??)    *Ryan Bigg*
+(??)
+(??)* `update_attribute(s)_without_callbacks` have gone away, in favour of `update_column(s)`
+(??)
+(??)    *Ryan Bigg*

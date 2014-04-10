@@ -1,17 +1,8 @@
-## Spree 2.1.4 (unreleased) ##
+## Spree 2.2.1 (unreleased) ##
 
-* Checkout now may remember user address
-    
-    Washington Luiz / Peter Berkenbosch
-
-* Checkout now no longer redirects back to address state if confirmation step fails. #4117
-
-    Ryan Bigg
-
-* Orders are only created now when there is a product added to the cart. #4136
+*   Mostly inspired by Jeff Squires extension spree_reuse_credit card, checkout
+    now can remember user credit card info. Make sure your user model responds
+    to a `payment_sources` method and customers will be able to reuse their
+    credit card info.
 
     Washington Luiz
-
-* Added Deface Hook for Payment Method fields so that they can be defaced. #42222
-
-    Dave Kiss

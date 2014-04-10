@@ -35,6 +35,7 @@ module Spree
     preference :always_include_confirm_step, :boolean, default: false # Ensures confirmation step is always in checkout_progress bar, but does not force a confirm step if your payment methods do not support it.
     preference :always_put_site_name_in_title, :boolean, default: true
     preference :auto_capture, :boolean, default: false # automatically capture the credit card (as opposed to just authorize and capture later)
+    preference :binary_inventory_cache, :boolean, default: false # only invalidate product cache when a stock item changes whether it is in_stock
     preference :check_for_spree_alerts, :boolean, default: true
     preference :checkout_zone, :string, default: nil # replace with the name of a zone if you would like to limit the countries
     preference :company, :boolean, default: false # Request company field for billing and shipping addr
@@ -57,6 +58,7 @@ module Spree
     preference :orders_per_page, :integer, default: 15
     preference :prices_inc_tax, :boolean, default: false
     preference :products_per_page, :integer, default: 12
+    preference :promotions_per_page, :integer, default: 15
     preference :redirect_https_to_http, :boolean, :default => false
     preference :require_master_price, :boolean, default: true
     preference :shipment_inc_vat, :boolean, default: false
@@ -69,20 +71,6 @@ module Spree
     preference :site_url, :string, default: 'demo.spreecommerce.com'
     preference :tax_using_ship_address, :boolean, default: true
     preference :track_inventory_levels, :boolean, default: true # Determines whether to track on_hand values for variants / products.
-
-    # Preferences related to image settings
-    preference :attachment_default_url, :string, default: '/spree/products/:id/:style/:basename.:extension'
-    preference :attachment_path, :string, default: ':rails_root/public/spree/products/:id/:style/:basename.:extension'
-    preference :attachment_url, :string, default: '/spree/products/:id/:style/:basename.:extension'
-    preference :attachment_styles, :string, default: "{\"mini\":\"48x48>\",\"small\":\"100x100>\",\"product\":\"240x240>\",\"large\":\"600x600>\"}"
-    preference :attachment_default_style, :string, default: 'product'
-    preference :s3_access_key, :string
-    preference :s3_bucket, :string
-    preference :s3_secret, :string
-    preference :s3_headers, :string, default: "{\"Cache-Control\":\"max-age=31557600\"}"
-    preference :use_s3, :boolean, default: false # Use S3 for images rather than the file system
-    preference :s3_protocol, :string
-    preference :s3_host_alias, :string
 
     # Default mail headers settings
     preference :enable_mail_delivery, :boolean, :default => false

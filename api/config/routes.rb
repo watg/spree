@@ -17,6 +17,7 @@ Spree::Core::Engine.add_routes do
     get 'assembly_definitions/:id/out_of_stock_option_values' => 'assembly_definitions#out_of_stock_option_values', :as => 'assembly_definitions_option_values_out_of_stock'
 
     resources :products do
+      resources :images
       resources :variants
       resources :product_properties
     end
@@ -26,39 +27,11 @@ Spree::Core::Engine.add_routes do
       resources :variants, :only => [:index]
     end
 
-    resources :images
-
-    resources :checkouts do
-      member do
-        put :next
-        put :advance
-      end
-    end
-
-    resources :variants, :only => [:index, :show]
-
-    resources :tags
-    resources :targets
-
-    resources :option_types do
-      resources :option_values
-    end
-
-    get '/orders/mine', :to => 'orders#mine', :as => 'my_orders'
-
-    resources :orders do
-      resources :addresses, :only => [:show, :update]
-
-      resources :return_authorizations do
-        member do
-          put :add
-          put :cancel
-          put :receive
-        end
-      end
+    order_routes = lambda {
       member do
         put :cancel
         put :empty
+        put :apply_coupon_code
       end
 
       resources :line_items
@@ -82,10 +55,42 @@ Spree::Core::Engine.add_routes do
           put :remove_by_line_item
         end
       end
+
+      resources :addresses, :only => [:show, :update]
+
+      resources :return_authorizations do
+        member do
+          put :add
+          put :cancel
+          put :receive
+        end
+      end
+    }
+
+    resources :checkouts do
+      member do
+        put :next
+        put :advance
+      end
+      order_routes.call
     end
 
+    resources :variants, :only => [:index, :show] do
+      resources :images
+    end
+
+    resources :option_types do
+      resources :option_values
+    end
+
+    get '/orders/mine', :to => 'orders#mine', :as => 'my_orders'
+
+    resources :orders, &order_routes
+
     resources :zones
-    resources :countries, :only => [:index, :show]
+    resources :countries, :only => [:index, :show] do
+      resources :states, :only => [:index, :show]
+    end
     resources :states,    :only => [:index, :show]
 
     resources :taxonomies do
@@ -98,6 +103,7 @@ Spree::Core::Engine.add_routes do
         end
       end
     end
+
     resources :taxons, :only => [:index]
 
     resources :inventory_units, :only => [:show, :update]
@@ -110,5 +116,8 @@ Spree::Core::Engine.add_routes do
 
     get '/config/money', :to => 'config#money'
     get '/config', :to => 'config#show'
+
+    put '/classifications', :to => 'classifications#update', :as => :classifications
+    get '/taxons/products', :to => 'taxons#products', :as => :taxon_products
   end
 end

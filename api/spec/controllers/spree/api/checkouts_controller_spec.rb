@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'spree/promo/coupon_applicator'
 
 module Spree
   describe Api::CheckoutsController do
@@ -15,11 +14,21 @@ module Spree
       create(:stock_location)
 
       @shipping_method = create(:shipping_method, :zones => [country_zone])
-      @payment_method = create(:bogus_payment_method)
+      @payment_method = create(:credit_card_payment_method)
     end
 
     after do
       Spree::Config[:track_inventory_levels] = true
+    end
+
+    context "GET 'show'" do
+      let(:order) { create(:order) }
+
+      it "redirects to Orders#show" do
+        api_get :show, :id => order.number
+        response.status.should == 301
+        response.should redirect_to("/api/orders/#{order.number}")
+      end
     end
 
     context "POST 'create'" do
@@ -148,7 +157,8 @@ module Spree
           "number" => "4111111111111111",
           "month" => 1.month.from_now.month,
           "year" => 1.month.from_now.year,
-          "verification_value" => "123"
+          "verification_value" => "123",
+          "name" => "Spree Commerce"
         }
 
         api_put :update, :id => order.to_param, :order_token => order.token,
@@ -163,7 +173,8 @@ module Spree
         order.update_column(:state, "payment")
         api_put :update, :id => order.to_param, :order_token => order.token,
           :order => { :payments_attributes => [{ :payment_method_id => @payment_method.id.to_s }],
-                      :payment_source => { @payment_method.id.to_s => { } } }
+                      :payment_source => { @payment_method.id.to_s => { name: "Spree" } } }
+
         response.status.should == 422
         cc_errors = json_response['errors']['payments.Credit Card']
         cc_errors.should include("Number can't be blank")
@@ -215,17 +226,11 @@ module Spree
       end
 
       it "can apply a coupon code to an order" do
-        order.update_column(:state, "payment")
-        Spree::Promo::CouponApplicator.should_receive(:new).with(order).and_call_original
-        Spree::Promo::CouponApplicator.any_instance.should_receive(:apply).and_return({:coupon_applied? => true})
-        api_put :update, :id => order.to_param, :order_token => order.token, :order => { :coupon_code => "foobar" }
-      end
+        pending "ensure that the order totals are properly updated, see frontend orders_controller or checkout_controller as example"
 
-      it "can apply a coupon code to an order" do
         order.update_column(:state, "payment")
-        Spree::Promo::CouponApplicator.should_receive(:new).with(order).and_call_original
-        coupon_result = { :coupon_applied? => true }
-        Spree::Promo::CouponApplicator.any_instance.should_receive(:apply).and_return(coupon_result)
+        PromotionHandler::Coupon.should_receive(:new).with(order).and_call_original
+        PromotionHandler::Coupon.any_instance.should_receive(:apply).and_return({:coupon_applied? => true})
         api_put :update, :id => order.to_param, :order_token => order.token, :order => { :coupon_code => "foobar" }
       end
     end

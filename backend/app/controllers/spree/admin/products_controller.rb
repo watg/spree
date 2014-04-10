@@ -28,7 +28,7 @@ module Spree
       end
 
       def destroy
-        @product = Product.find_by_permalink!(params[:id])
+        @product = Product.friendly.find(params[:id])
         @product.destroy
 
         flash[:success] = Spree.t('notice_messages.product_deleted')
@@ -63,6 +63,71 @@ module Spree
 
       protected
 
+        def find_resource
+          Product.with_deleted.friendly.find(params[:id])
+        end
+
+        def location_after_save
+          spree.edit_admin_product_url(@product)
+        end
+
+        def load_data
+          @taxons = Taxon.order(:name)
+          @option_types = OptionType.order(:name)
+          @tax_categories = TaxCategory.order(:name)
+          @shipping_categories = ShippingCategory.order(:name)
+          @product_groups = ProductGroup.order(:name)
+          @gang_members = GangMember.order(:firstname, :lastname)
+        end
+
+        def collection
+          return @collection if @collection.present?
+          params[:q] ||= {}
+          params[:q][:deleted_at_null] ||= "1"
+
+          params[:q][:s] ||= "name asc"
+          @collection = super
+          @collection = @collection.with_deleted if params[:q][:deleted_at_null] == '0'
+          # @search needs to be defined as this is passed to search_form_for
+          @search = @collection.ransack(params[:q])
+          @collection = @search.result.
+                distinct_by_product_ids(params[:q][:s]).
+                includes(product_includes).
+                page(params[:page]).
+                per(Spree::Config[:admin_products_per_page])
+
+          @collection
+        end
+
+        def create_before
+          type = Spree::MartinProductType.find(params[:product][:martin_type_id])
+          params[:product][:product_type] = mapping[type.name]
+
+          return if params[:product][:prototype_id].blank?
+          @prototype = Spree::Prototype.find(params[:product][:prototype_id])
+        end
+
+        def update_before
+          # note: we only reset the product properties if we're receiving a post from the form on that tab
+          return unless params[:clear_product_properties]
+          params[:product] ||= {}
+        end
+
+        def product_includes
+          [{ :variants => [:images, { :option_values => :option_type }], :master => [:images, :default_price]}]
+        end
+        
+        def clone_object_url resource
+          clone_admin_product_url resource
+        end
+
+        def permit_attributes
+          params.require(:product).permit!
+        end
+
+
+      private		
+
       def update_success(product)
         flash[:success] = flash_message_for(product, :successfully_updated)
 
@@ -78,54 +143,6 @@ module Spree
           format.html { redirect_to edit_admin_product_url(product) }
           format.js   { render :layout => false }
         end
-      end
-
-      def find_resource
-        Product.find_by_permalink!(params[:id])
-      end
-
-      def location_after_save
-        spree.edit_admin_product_url(@product)
-      end
-
-      def load_data
-        @taxons = Taxon.order(:name)
-        @option_types = OptionType.order(:name)
-        @tax_categories = TaxCategory.order(:name)
-        @shipping_categories = ShippingCategory.order(:name)
-        @product_groups = ProductGroup.order(:name)
-        @gang_members = GangMember.order(:firstname, :lastname)
-      end
-
-      def collection
-        return @collection if @collection.present?
-        params[:q] ||= {}
-        params[:q][:deleted_at_null] ||= "1"
-
-        params[:q][:s] ||= "name asc"
-        @collection = super
-        @collection = @collection.with_deleted if params[:q].delete(:deleted_at_null).blank?
-        # @search needs to be defined as this is passed to search_form_for
-        @search = @collection.ransack(params[:q])
-        @collection = @search.result.
-          distinct_by_product_ids(params[:q][:s]).
-          includes(product_includes).
-          page(params[:page]).
-          per(Spree::Config[:admin_products_per_page])
-
-        @collection
-      end
-
-      def create_before
-        type = Spree::MartinProductType.find(params[:product][:martin_type_id])
-        params[:product][:product_type] = mapping[type.name]
-
-        return if params[:product][:prototype_id].blank?
-        @prototype = Spree::Prototype.find(params[:product][:prototype_id])
-      end
-
-      def product_includes
-        [{ :variants => [:images, { :option_values => :option_type }], :master => [:images, :default_price]}]
       end
 
       def mapping
@@ -144,13 +161,6 @@ module Spree
         }
       end
 
-      def clone_object_url resource
-        clone_admin_product_url resource
-      end
-
-      def permit_attributes
-        params.require(:product).permit!
-      end
 
     end
   end

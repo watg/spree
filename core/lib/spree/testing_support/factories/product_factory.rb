@@ -10,6 +10,7 @@ FactoryGirl.define do
 
     weight 0.25
     cost_price 0.25
+		# cost_price 17.00
 
     association :product_group, factory: :product_group, strategy: :build
     association :gang_member, factory: :gang_member, strategy: :build
@@ -27,6 +28,10 @@ FactoryGirl.define do
       factory :product_with_option_types do
         after(:create) { |product| create(:product_option_type, product: product) }
       end
+    end
+
+    after(:create) do |p|
+      p.variants_including_master.each { |v| v.save! }
     end
 
     factory :product_with_prices do

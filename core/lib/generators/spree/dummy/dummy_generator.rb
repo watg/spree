@@ -122,12 +122,7 @@ end
     end
 
     def gemfile_path
-      version_file = File.expand_path("../../Versionfile", Dir.pwd)
-      if File.exist?(version_file)
-        '../../../../Gemfile'
-      else
-        '../../../../../Gemfile'
-      end
+      '../../../../../Gemfile'
     end
   end
 end

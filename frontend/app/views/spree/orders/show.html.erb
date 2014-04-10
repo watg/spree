@@ -1,5 +1,4 @@
-<fieldset id="order_summary" data-hook>
-  <%# <legend align="left"><%ERB Spree.t(:order) + " #" + @order.number ERB></legend> %>
+<fieldset id="order_summary" data-hook>  
   <h1><%= accurate_title %></h1>
 
   <div id="order" data-hook>
@@ -16,7 +15,7 @@
 
     <p data-hook="links">
       <%= link_to Spree.t(:back_to_store), spree.root_path, :class => "button" %>
-        <% unless flash[:commerce_tracking] == 'checkout_complete' %>
+      <% unless params.has_key? :checkout_complete %>
         <% if try_spree_current_user && respond_to?(:spree_account_path) %>
           <%= link_to Spree.t(:my_account), spree_account_path, :class => "button" %>
         <% end %>
