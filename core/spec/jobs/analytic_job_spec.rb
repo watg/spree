@@ -21,7 +21,7 @@ describe Spree::AnalyticJob do
       expect(actual).to include(cid: 'uuid',
                                 ti: order.number,
                                 tr: order.total.to_f,
-                                tt: order.tax_total.to_f,
+                                tt: order.display_tax_total.to_f,
                                 ts: order.shipments.last.cost.to_f)
     end
 

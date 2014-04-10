@@ -211,5 +211,9 @@ module Spree
     def ==(obj)
       @money == obj.money
     end
+
+    def to_f
+      @money.to_f
+    end
   end
 end

@@ -26,19 +26,14 @@ module Spree
 
     make_permalink order: :firstname
 
-    default_styles = ActiveSupport::JSON.decode(Spree::Config[:attachment_styles]).symbolize_keys!
-
     has_attached_file :avatar,
-      :styles        => { :avatar => "150x150>", :mini => default_styles[:mini] },
+      :styles        => { :avatar => "150x150>", :mini => Paperclip::Attachment.default_options[:styles][:mini] },
       :default_style => :small,
       :url           => "/spree/gang_members/:id/:style/:basename.:extension",
       :path          => ":rails_root/public/spree/gang_members/:id/:style/:basename.:extension",
       :convert_options =>  { :all => '-strip -auto-orient' }
 
     process_in_background :avatar
-
-    include Spree::Core::S3Support
-    supports_s3 :avatar
 
     def name
       nickname 

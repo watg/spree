@@ -12,8 +12,9 @@ Spree::Core::Engine.add_routes do
   get '/locale/set', :to => 'locale#set'
 
   # two routes added from spree auth devise due to override below
-  get '/checkout/registration' => 'checkout#registration', :as => :checkout_registration
-  put '/checkout/registration' => 'checkout#update_registration', :as => :update_checkout_registration
+  # uncomment in watg fork
+  # get '/checkout/registration' => 'checkout#registration', :as => :checkout_registration
+  # put '/checkout/registration' => 'checkout#update_registration', :as => :update_checkout_registration
 
   # non-restful checkout stuff
 

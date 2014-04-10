@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe Spree::AssetsBackupJob do
   before do
+    WebMock.enable!
     ENV['AWS_SECRET_ACCESS_KEY'] = 'FAKE_SECRET'
     ENV['AWS_ACCESS_KEY_ID'] = 'FAKE_ID'
   end

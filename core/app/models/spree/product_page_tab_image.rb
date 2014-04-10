@@ -8,8 +8,6 @@ module Spree
       :path          => ":rails_root/public/spree/product_page_tabs/:id/:style/:basename.:extension",
       :convert_options =>  { :all => '-strip -auto-orient' },
       :keep_old_files => false
-
-    supports_s3 :attachment
-
+      
   end
 end

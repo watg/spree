@@ -66,7 +66,7 @@ module Spree
         cid: cid,
         ti: o.number,
         tr: o.total.to_f,
-        tt: o.tax_total.to_f,
+        tt: o.display_tax_total.to_f,
         ts: o.shipments.last.cost.to_f,
         cd1: original_cohort(o.email),
         cm1: latency(o.email),

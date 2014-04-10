@@ -56,11 +56,11 @@ FactoryGirl.define do
       end
 
       after(:create) do |order, evaluator|
-        create_list(:line_item, evaluator.line_items_count, order: order)
-        order.line_items.reload
-
         create(:shipment, order: order)
         order.shipments.reload
+
+        create_list(:line_item, evaluator.line_items_count, order: order)
+        order.line_items.reload
 
         order.update!
       end
@@ -71,7 +71,6 @@ FactoryGirl.define do
         after(:create) do |order|
           order.refresh_shipment_rates
           order.update_column(:completed_at, Time.now)
-(??)
         end
 
         factory :order_with_pending_payment do

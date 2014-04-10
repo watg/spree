@@ -1,3 +1,6 @@
+# maybe require the file in an engine instead
+require 'spree/core/controller_helpers/currency_helpers'
+
 module Spree
   module Core
     module ControllerHelpers

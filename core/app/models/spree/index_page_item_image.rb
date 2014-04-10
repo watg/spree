@@ -9,7 +9,5 @@ module Spree
       :convert_options =>  { :all => '-strip -auto-orient' },
       :keep_old_files => false
 
-    supports_s3 :attachment
-
   end
 end
