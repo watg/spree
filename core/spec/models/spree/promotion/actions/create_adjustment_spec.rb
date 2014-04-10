@@ -8,14 +8,14 @@ describe Spree::Promotion::Actions::CreateAdjustment do
   # From promotion spec:
   context "#perform" do
     before do
-      action.calculator = Spree::Calculator::FlatRate.new(:preferred_amount => 10)
+      action.calculator = Spree::Calculator::FlatRate.new(:preferred_amount => [{type: :integer, name: "USD", value: 10}])
       promotion.promotion_actions = [action]
       action.stub(:promotion => promotion)
     end
 
     # Regression test for #3966
     it "does not apply an adjustment if the amount is 0" do
-      action.calculator.preferred_amount = 0
+      action.calculator.preferred_amount = [{type: :integer, name: "USD", value: 0}]
       action.perform(:order => order)
       promotion.credits_count.should == 0
       order.adjustments.count.should == 0
@@ -47,7 +47,7 @@ describe Spree::Promotion::Actions::CreateAdjustment do
 
   context "#destroy" do
     before(:each) do
-      action.calculator = Spree::Calculator::FlatRate.new(:preferred_amount => 10)
+      action.calculator = Spree::Calculator::FlatRate.new(:preferred_amount => [{type: :integer, name: "USD", value: 10}])
       promotion.promotion_actions = [action]
     end
 
