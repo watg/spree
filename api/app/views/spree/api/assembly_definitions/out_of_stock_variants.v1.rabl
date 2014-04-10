@@ -1,5 +1,5 @@
 object @assembly_definition
-cache @assembly_definition, expires_in: 1.minute
+cache [@assembly_definition,:out_of_stock_variants], expires_in: 1.minute
 
 attributes :id
 
