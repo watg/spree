@@ -138,7 +138,7 @@ module Spree
       }
       has_only_pattern = li_by_product_type.inject(true) {|res, a| res && a }
       less_than_ten =( li_by_product_type.select {|e| e }.size < 11)
-      b_code = "@" + ((has_only_pattern && less_than_ten) ? 'PATTERN' : order.shipping_zone_name)
+      b_code = "@" + ((has_only_pattern && less_than_ten) ? 'PATTERN' : Spree::Zone.match(order.ship_address).name.upcase)
       b_code
     end
 

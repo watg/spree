@@ -3,10 +3,6 @@ require 'spec_helper'
 describe Spree::Order do
   let(:order) { FactoryGirl.create(:order_with_pending_payment) }
 
-  it "with a payment pending should not accept any payment attempt" do
-    order.can_attempt_payment?.should be_false
-  end
-
   context "METAPACK" do
     let(:order_with_weight)  { create(:order_ready_to_be_consigned_and_allocated) }
 

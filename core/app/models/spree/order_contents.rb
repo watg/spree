@@ -15,6 +15,9 @@ module Spree
       currency ||= Spree::Config[:currency] # default to that if none is provided
       line_item = add_to_line_item(variant, quantity, currency, shipment, parts, personalisations, target_id)
       reload_totals
+      PromotionHandler::Cart.new(order, line_item).activate
+      ItemAdjustments.new(line_item).update
+      reload_totals
       line_item
     end
 
@@ -25,8 +28,29 @@ module Spree
       line_item = grab_line_item_by_variant(variant, parts, personalisations, target_id, true)
       remove_by_line_item(line_item, quantity, shipment)
       reload_totals
+      PromotionHandler::Cart.new(order, line_item).activate
+      ItemAdjustments.new(line_item).update
+      reload_totals
+      line_item
     end
 
+    # Probably doesn't work
+    def update_cart(params)
+      if order.update_attributes(params)
+        order.line_items = order.line_items.select {|li| li.quantity > 0 }
+        # Update totals, then check if the order is eligible for any cart promotions.
+        # If we do not update first, then the item total will be wrong and ItemTotal
+        # promotion rules would not be triggered.
+        reload_totals
+        PromotionHandler::Cart.new(order).activate
+        order.ensure_updated_shipments
+        reload_totals
+        true
+      else
+        false
+      end
+    end
+    
     def add_by_line_item(line_item, quantity, shipment=nil)
       add_to_existing_line_item(line_item, quantity, shipment)
       line_item.save!
@@ -46,10 +70,10 @@ module Spree
       line_item
     end
 
-    private
-      def order_updater
-        @updater ||= OrderUpdater.new(order)
-      end
+  private
+    def order_updater
+      @updater ||= OrderUpdater.new(order)
+    end
 
     def add_to_existing_line_item(line_item, quantity, shipment)
       line_item.target_shipment = shipment
@@ -58,6 +82,10 @@ module Spree
     end
 
     def reload_totals
+      order_updater.update_item_count
+      order_updater.update_item_total
+      order_updater.update_adjustment_total
+      order_updater.persist_totals
       order.reload
     end
 

@@ -217,7 +217,6 @@ module Spree
       ActiveSupport::Deprecation.warn("[SPREE] Spree::Product#variants_with_only_master will be deprecated in Spree 1.3. Please use Spree::Product#master instead.")
       master
     end
-    before_destroy :punch_permalink
 
     def visible_option_types
       option_types.where('spree_product_option_types.visible' => true)
