@@ -201,7 +201,8 @@ module Spree
         json_response["attributes"].should == new_attributes.map(&:to_s)
         required_attributes = json_response["required_attributes"]
         required_attributes.should include("name")
-        required_attributes.should include("price")
+        # price has no validation at the moment
+        # required_attributes.should include("price")
         required_attributes.should include("shipping_category_id")
       end
 
@@ -291,7 +292,8 @@ module Spree
 
         it "creates with shipping categories" do
           hash = { :name => "The Other Product",
-                   :price => 19.99,
+                   :gang_member_id => product.gang_member.id,
+                   :product_group_id => product.product_group.id,
                    :shipping_category => "Free Ships" }
 
           api_post :create, :product => hash
@@ -337,7 +339,7 @@ module Spree
           json_response["error"].should == "Invalid resource. Please fix errors and try again."
           errors = json_response["errors"]
           errors.delete("slug") # Don't care about this one.
-          errors.keys.should =~ ["name", "price", "shipping_category_id"]
+          errors.keys.should =~ ["name", "gang_member", "product_group", "shipping_category_id"]
         end
       end
 

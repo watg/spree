@@ -49,7 +49,7 @@ module Spree
       end
 
       it "increases a line item's quantity if it exists already" do
-        order.line_items.create(:variant_id => product.master.id, :quantity => 10)
+        api_post :create, :line_item => { :variant_id => product.master.to_param, :quantity => 10 }
         api_post :create, :line_item => { :variant_id => product.master.to_param, :quantity => 1 }
         response.status.should == 201
         order.reload

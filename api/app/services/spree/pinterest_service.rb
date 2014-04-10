@@ -54,7 +54,7 @@ module Spree
     end
       
     def load_product(permalink)
-      Product.find_by_permalink(permalink)
+      Product.find_by_slug(permalink)
     end
 
     def load_selected_variant(product, variant_option_values)

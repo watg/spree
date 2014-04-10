@@ -27,7 +27,7 @@ module Spree
       it "redirects to Orders#show" do
         api_get :show, :id => order.number
         response.status.should == 301
-        response.should redirect_to("/api/orders/#{order.number}")
+        response.should redirect_to("/shop/api/orders/#{order.number}")
       end
     end
 
