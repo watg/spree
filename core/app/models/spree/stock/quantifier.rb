@@ -8,7 +8,7 @@ module Spree
         # and stock item before initializing.
         if stock_items
           @variant = variant
-          @stock_items = @variant.stock_items
+          @stock_items = stock_items
         else
           @variant = resolve_variant_id(variant)
           @stock_items = Spree::StockItem.joins(:stock_location).where(:variant_id => @variant, Spree::StockLocation.table_name =>{ :active => true})
