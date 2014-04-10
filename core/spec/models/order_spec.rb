@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::Order do
-  let(:order) { FactoryGirl.create(:order_with_pending_payment) }
+  let(:order) { FactoryGirl.create(:completed_order_with_pending_payment) }
 
   context "METAPACK" do
     let(:order_with_weight)  { create(:order_ready_to_be_consigned_and_allocated) }
@@ -47,7 +47,7 @@ describe Spree::Order do
   describe ".unprinted_invoices" do
     let!(:unprinted_invoices) { 2.times.map { FactoryGirl.create(:order_ready_to_ship) } }
     let!(:printed_invoices) { FactoryGirl.create(:invoice_printed_order) }
-    let!(:unfinished_order) { FactoryGirl.create(:order_with_pending_payment) }
+    let!(:unfinished_order) { FactoryGirl.create(:completed_order_with_pending_payment) }
 
     it "returns orders in shipment_state = ready with no invoice print date" do
       pending('cannot make factory work with stock_location')

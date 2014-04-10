@@ -131,7 +131,7 @@ describe Spree::Address do
     it "requires phone" do
       address.phone = ""
       address.valid?
-      address.errors["phone"].should == ["can't be blank"]
+      address.errors["phone"].should == ["can't be blank", "is invalid"]
     end
 
     it "requires zipcode" do

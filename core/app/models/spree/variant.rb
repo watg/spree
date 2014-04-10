@@ -214,7 +214,7 @@ module Spree
     end
 
     def cost_price=(price)
-      self[:cost_price] = parse_price(price) if price.present?
+      self[:cost_price] = parse_price(price)
     end
 
     # returns number of units currently on backorder for this variant.

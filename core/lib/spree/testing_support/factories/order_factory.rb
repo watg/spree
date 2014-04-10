@@ -73,7 +73,7 @@ FactoryGirl.define do
           order.update_column(:completed_at, Time.now)
         end
 
-        factory :order_with_pending_payment do
+        factory :completed_order_with_pending_payment do
           payment_state 'balance due'
           shipment_state 'pending'
           after(:create) do |order|

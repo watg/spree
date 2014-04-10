@@ -40,7 +40,7 @@ describe Spree::OrderContents do
 
     context "running promotions" do
       let(:promotion) { create(:promotion) }
-      let(:calculator) { Spree::Calculator::FlatRate.new(:preferred_amount => 10) }
+      let(:calculator) { Spree::Calculator::FlatRate.new(:preferred_amount => [{type: :integer, name: "USD", value: 10}]) }
 
       shared_context "discount changes order total" do
         before { subject.add(variant, 1) }

@@ -72,7 +72,7 @@ describe Spree::ProductsController do
 	  let(:product) { create(:product_with_variants_displayable, product_type: :kit) }
 	  let(:variant) { product.variants.first }
 	  let(:params)  { {product_id: product.permalink,option_values: 'Magic-Mint/Large' } } 
-	  let(:order)   { create(:order_with_pending_payment) }
+	  let(:order)   { create(:completed_order_with_pending_payment) }
 	  
 	  before do
   		allow(Flip).to receive(:product_pages?) { false }

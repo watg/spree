@@ -96,13 +96,6 @@ describe Spree::Calculator::DefaultTax do
         end
       end
 
-      context "and is computed on order" do
-        before {order.stub :line_items => [line_item_1, line_item_2]}
-        it "will return the deducted amount from the totals" do
-          expect(calculator.compute(order).to_f).to eql 1.67
-        end
-      end
-
     end
 
     context "when tax is not included in price" do

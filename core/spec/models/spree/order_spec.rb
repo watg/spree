@@ -893,10 +893,11 @@ describe Spree::Order do
     end
 
     it "does not include a payment method twice if display_on is blank" do
+      Spree::PaymentMethod.delete_all
       payment_method = Spree::PaymentMethod.create!({
         :name => "Fake",
         :active => true,
-        :display_on => "both",
+        :display_on => "",
         :environment => Rails.env
       })
       expect(order.available_payment_methods.count).to eq(1)

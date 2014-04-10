@@ -30,7 +30,7 @@ module Spree
       end
 
       let!(:promotion_action) do
-        calculator = Calculator::FlatRate.new(:preferred_amount => 10)
+        calculator = Calculator::FlatRate.new(:preferred_amount => [{type: :integer, name: "USD", value: 10}])
         Promotion::Actions::CreateItemAdjustments.create calculator: calculator, promotion: promotion
       end
 
@@ -83,7 +83,7 @@ module Spree
     end
 
     context "best promotion is always applied" do
-      let(:calculator) { Calculator::FlatRate.new(:preferred_amount => 10) }
+      let(:calculator) { Calculator::FlatRate.new(:preferred_amount => [{type: :integer, name: "USD", value: 10}]) }
 
       let(:source) { Promotion::Actions::CreateItemAdjustments.create calculator: calculator }
 

@@ -3,6 +3,7 @@ FactoryGirl.define do
     zone
     amount 0.1
     tax_category
+    currency "USD"
     association(:calculator, factory: :default_tax_calculator)
   end
 end
