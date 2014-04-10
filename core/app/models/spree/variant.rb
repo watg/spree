@@ -82,6 +82,7 @@ module Spree
     NUMBER_PREFIX = 'V'
 
     class << self
+
       def physical
         includes(:product).where('spree_products.product_type' => Spree::Product::NATURE[:physical])
       end
@@ -392,7 +393,6 @@ module Spree
     def product
       Spree::Product.unscoped { super }
     end
-
 
     def total_on_hand
       Spree::Stock::Quantifier.new(self).total_on_hand

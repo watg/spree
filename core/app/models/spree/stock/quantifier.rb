@@ -3,14 +3,21 @@ module Spree
     class Quantifier
       attr_reader :stock_items
 
-      def initialize(variant)
-        @variant = resolve_variant_id(variant)
-        @stock_items = Spree::StockItem.joins(:stock_location).where(:variant_id => @variant, Spree::StockLocation.table_name =>{ :active => true})
+      def initialize(variant, stock_items=nil)
+        # Optimisation, in the case of a large order where we want to eager load all the variants
+        # and stock item before initializing.
+        if stock_items
+          @variant = variant
+          @stock_items = stock_items
+        else
+          @variant = resolve_variant_id(variant)
+          @stock_items = Spree::StockItem.joins(:stock_location).where(:variant_id => @variant, Spree::StockLocation.table_name =>{ :active => true})
+        end
       end
 
       def total_on_hand
         if Spree::Config.track_inventory_levels
-          stock_items.sum(:count_on_hand)
+          stock_items.to_a.sum(&:count_on_hand)
         else
           Float::INFINITY
         end
@@ -53,23 +60,36 @@ module Spree
           data_set = order.line_items.includes(:line_item_parts).without(desired_line_item)
           a = line_item_to_record[data_set]
           b = ( desired_line_item ? line_item_to_record[desired_line_item] : [] )
-          
+
           flatten_list_of_items = (a+b)
-          
+
           variant_quantity_grouping = flatten_list_of_items.reduce({}) {|hsh, c|
                              k = c[:variant_id]
                              hsh[k] ||= 0; hsh[k] += c[:quantity]
                              hsh}
 
+
+          variant_quantity_grouping_with_stock = eager_load_stock_items( variant_quantity_grouping )
+
           errors = []
-          stock_check = variant_quantity_grouping.map {|variant_id, quantity|
-                            variant = Spree::Variant.find(variant_id)
-                            in_stock = Spree::Stock::Quantifier.new(variant).can_supply?(quantity)
-                            errors << add_error(variant, flatten_list_of_items) unless in_stock
-                            in_stock}
+          stock_check = variant_quantity_grouping_with_stock.map {|variant, quantity|
+            # We supply stock_items seperately as a way to optimize the initialize
+            in_stock = Spree::Stock::Quantifier.new(variant, variant.stock_items).can_supply?(quantity)
+            errors << add_error(variant, flatten_list_of_items) unless in_stock
+            in_stock}
           result = stock_check.reduce(true) {|can_supply,c| can_supply && c}
 
           {in_stock: result, errors: errors.flatten}
+        end
+
+        def eager_load_stock_items( variant_quantity_grouping )
+          variants_with_stock = Spree::Variant.includes(:stock_items =>[:stock_location]).
+            where( Spree::StockLocation.table_name =>{ :active => true} ).find(variant_quantity_grouping.keys)
+
+          variants_with_stock.inject({}) do |hash,v| 
+            hash[v] = variant_quantity_grouping[v.id]
+            hash
+          end
         end
 
         def add_error(variant, list_of_existing_li)
