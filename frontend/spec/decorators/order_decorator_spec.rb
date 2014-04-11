@@ -14,7 +14,7 @@ describe Spree::OrderDecorator, type: :decorator do
   let(:variants)    {create_list(:variant,2)} 
   let(:line_items)  {[build(:line_item, order: order, quantity: 2, price: 15, variant: variants.first),
                       build(:line_item, order: order, quantity: 1, price: 7.99, variant: variants.last)]}
-  let(:adjustments)  {[build(:adjustment, order: order, amount: -12.50, label: "My Super discount", originator_type: "Spree::PromotionAction", originator_id: 1)]}
+  let(:adjustments)  {[build(:adjustment, order: order, amount: -12.50, label: "My Super discount", source_type: "Spree::PromotionAction", source_id: 1)]}
 
   before do
     subject.stub(:line_items).and_return(line_items)

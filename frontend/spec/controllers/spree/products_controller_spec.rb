@@ -68,40 +68,6 @@ describe Spree::ProductsController do
   end
 
 
-	context "Flip stuff" do
-	  let(:product) { create(:product_with_variants_displayable, product_type: :kit) }
-	  let(:variant) { product.variants.first }
-	  let(:params)  { {product_id: product.permalink,option_values: 'Magic-Mint/Large' } } 
-	  let(:order)   { create(:completed_order_with_pending_payment) }
-	  
-	  before do
-  		allow(Flip).to receive(:product_pages?) { false }
-  		subject.stub :authorize! => true, :ensure_api_key => true
-  		subject.stub(:current_order).and_return(order)
-  		subject.stub(:set_current_order).and_return(order)
-	  end
-
-	  it "should find selected variant from params option_values" do
-  		Spree::Variant.should_receive(:options_by_product).with(product, ['Magic-Mint','Large']).and_return(product.variants[0])
-  		spree_get :show, params
-  		expect(response.status).to eq(200)
-	  end
-
-	  context "Product Pages active" do
-  		before do
-  		  allow(Flip).to receive(:product_pages?) { true }
-  		  allow(Spree::ProductPageRedirectionService).to receive(:run) { OpenStruct.new(result: {url: '/new-product-pages/r2w/paul-1-0001', http_code: 301}) }
-  		end
-
-  		it 'redirects to new product pages' do
-  		  spree_get :show, params
-
-  		  expect(response.status).to eq(301)
-  		  expect(response).to redirect_to('/new-product-pages/r2w/paul-1-0001')
-  		end
-	  end
-
-  end
-
+ 
 
 end

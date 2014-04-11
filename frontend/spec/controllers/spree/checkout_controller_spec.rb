@@ -296,6 +296,7 @@ describe Spree::CheckoutController do
     let(:line_item) { create(:line_item, order: order) }
 
     before do
+      order.line_items << line_item
       order.stub( :state => "payment")
 
       configure_spree_preferences do |config|
@@ -305,6 +306,7 @@ describe Spree::CheckoutController do
 
     context "and back orders are not allowed" do
       before do
+        allow_any_instance_of(Spree::StockItem).to receive(:backorderable).and_return(false)
         spree_post :update, { :state => "payment" }
       end
 

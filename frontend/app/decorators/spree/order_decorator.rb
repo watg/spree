@@ -29,7 +29,7 @@ class Spree::OrderDecorator < Draper::Decorator
   end
   
   def amtlist
-    (line_items.map {|li| (100 * li.quantity * li.price_without_tax).to_i } + discounts.map {|e| (100 * e.amount).to_i })
+    (line_items.map {|li| (100 * li.quantity * li.price).to_i } + discounts.map {|e| (100 * e.amount).to_i })
   end
   
   def namelist
