@@ -8,8 +8,8 @@ module Spree
       @message = message
       mail(:to => to, :subject => subject)
 
-      mandrill_default_headers(tags: "internal", template: "admin_notifications")
-      headers['X-MC-MergeVars'] = message
+      mandrill_default_headers(template: "admin_notifications")
+      headers['X-MC-MergeVars'] = { message: message }.to_json
     end
 
   end
