@@ -59,7 +59,7 @@ module Spree
       def create_failed(object, error)
         flash[:error] = "Could not create object #{object.name} -- #{error}"
         respond_with(object) do |format|
-          format.html { redirect_to new_admin_product_variant_url(@object.product.permalink) }
+          format.html { redirect_to new_admin_product_variant_url(@object.product.slug) }
           format.js   { render :layout => false }
         end
       end
@@ -75,7 +75,7 @@ module Spree
       def update_failed(object, error)
         flash[:error] = "Could not update object #{object.name} -- #{error}"
         respond_with(object) do |format|
-          format.html { redirect_to edit_admin_product_variant_url(object.product.permalink, object.id) }
+          format.html { redirect_to edit_admin_product_variant_url(object.product.slug, object.id) }
           format.js   { render :layout => false }
         end
       end

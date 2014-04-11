@@ -7,12 +7,12 @@ module Spree
     end
 
     def execute
-      product_permalink, variant_option_values = parse_url
+      product_slug, variant_option_values = parse_url
       if has_errors?
         return
       end
 
-      product = load_product(product_permalink) if product_permalink
+      product = load_product(product_slug) if product_slug
       if !product
         add_error(:url, :could_not_find_product, "Could not find product")
         return
@@ -29,7 +29,7 @@ module Spree
         url: url,
         title: fancy_title(product.name, variant),
         description: product.description,
-        product_id: product_permalink,
+        product_id: product_slug,
         price: variant.current_price_in("GBP").amount,
         currency_code: "GBP",
         availability: variant.in_stock_cache ? "in stock" : "out of stock"
@@ -44,17 +44,17 @@ module Spree
       url_parts = url.match /products\/(.*)/
       if url_parts
         url_parts = url_parts[1].split("/") 
-        product_permalink = url_parts.shift
+        product_slug = url_parts.shift
       else
         add_error(:url, :could_not_parse_url, "Could not parse url")
         return
       end
 
-      [product_permalink, url_parts]
+      [product_slug, url_parts]
     end
       
-    def load_product(permalink)
-      Product.find_by_slug(permalink)
+    def load_product(slug)
+      Product.find_by_slug(slug)
     end
 
     def load_selected_variant(product, variant_option_values)
