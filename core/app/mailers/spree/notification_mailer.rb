@@ -9,7 +9,7 @@ module Spree
       mail(:to => to, :subject => subject)
 
       mandrill_default_headers(template: "admin_notifications")
-      headers['X-MC-MergeVars'] = { message: message }.to_json
+      headers['X-MC-MergeVars'] = { message: message.gsub(/\n/, '<br>') }.to_json
     end
 
   end
