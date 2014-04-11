@@ -285,8 +285,8 @@ module Spree
 
         order = Importer::Order.import(user,params)
         order.adjustments.all?(&:closed?).should be_true
-        order.adjustments.first.label.should eq 'Shipping Discount'
-        order.adjustments.first.amount.should eq -4.99
+        expect(order.adjustments.map(&:label)).to match_array(['Shipping Discount', 'Promotion Discount'])
+        expect(order.adjustments.map(&:amount)).to match_array([-4.99, -3.00])
       end
 
       it "calculates final order total correctly" do
