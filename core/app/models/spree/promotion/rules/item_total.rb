@@ -7,7 +7,9 @@ module Spree
 
         preference :_attributes, :string,  :default => "{}"
 
-      
+        def applicable?(promotable)
+          promotable.is_a?(Spree::Order)
+        end
 
         def eligible?(order, options = {})
 

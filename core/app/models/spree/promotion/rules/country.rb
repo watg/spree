@@ -3,6 +3,10 @@ module Spree
     module Rules
       class Country < PromotionRule
         has_and_belongs_to_many :countries, class_name: '::Spree::Country', join_table: 'spree_countries_promotion_rules', foreign_key: 'promotion_rule_id'
+        
+        def applicable?(promotable)
+          promotable.is_a?(Spree::Order)
+        end
 
         def eligible_country_codes
           countries.pluck(:iso)

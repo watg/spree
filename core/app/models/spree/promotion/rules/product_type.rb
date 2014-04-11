@@ -7,6 +7,10 @@ module Spree
       class ProductType < PromotionRule
         has_and_belongs_to_many :product_types, class_name: '::Spree::ProductType', join_table: 'spree_product_types_promotion_rules', foreign_key: 'promotion_rule_id'
 
+        def applicable?(promotable)
+          promotable.is_a?(Spree::Order)
+        end
+
         # scope/association that is used to test eligibility
         def eligible_product_types
           product_types.pluck(:name)

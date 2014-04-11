@@ -30,8 +30,8 @@ module ApplicationHelper
     t = (line_item.target ? line_item.target.id : nil)
     tab = (variant.product.product_type == 'kit' ? 'knit-your-own': 'made-by-the-gang')
     pp = (variant.product.product_group.product_pages.where(target_id: t).first || variant.product.product_group.product_pages.first)
-    slug = (pp ? pp.slug : 'not-found')
-    product_page_path(id: slug, tab: tab, variant_id: variant.id)
+    permalink = (pp ? pp.permalink : 'not-found')
+    product_page_path(id: permalink, tab: tab, variant_id: variant.id)
   end
 
   def image_url(product,style)

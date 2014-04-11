@@ -1,4 +1,4 @@
-Spree.onAddress = () ->
+onAddress = () ->
   if ($ '#checkout_form_address').is('*')
     ($ '#checkout_form_address').validate()
 
@@ -80,4 +80,4 @@ Spree.onAddress = () ->
     update_shipping_form_state order_use_billing
 
 Spree.ready ($) ->
-  Spree.onAddress()
+  Spree.onAddress = onAddress

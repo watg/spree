@@ -38,7 +38,8 @@
 	</div>
 	
 	<script>
-		Spree.api_key = <%= raw(try_spree_current_user.try(:spree_api_key).to_s.inspect) %>;
+          Spree.api_key = <%= raw(try_spree_current_user.try(:spree_api_key).to_s.inspect) %>;
+          try { Spree.fetch_cart(); } catch(err) {};
 	</script>
 	
 	<script type="text/javascript" src="//assets.pinterest.com/js/pinit.js"></script>

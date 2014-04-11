@@ -11,6 +11,10 @@ module Spree
         MATCH_POLICIES = %w(any all)
         preference :match_policy, :string, default: MATCH_POLICIES.first
 
+        def applicable?(promotable)
+          promotable.is_a?(Spree::Order)
+        end
+
         # scope/association that is used to test eligibility
         def eligible_product_groups
           product_groups

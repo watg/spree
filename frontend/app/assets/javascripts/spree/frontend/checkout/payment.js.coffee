@@ -1,4 +1,4 @@
-Spree.onPayment = () ->
+onPayment = () ->
   if ($ '#checkout_form_payment').is('*')
 
     if ($ '#existing_cards').is('*')
@@ -76,4 +76,4 @@ Spree.onPayment = () ->
         })
 
 Spree.ready ($) ->
-  Spree.onPayment()
+  Spree.onPayment = onPayment
