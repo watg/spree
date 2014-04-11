@@ -36,7 +36,7 @@ FactoryGirl.define do
       end
 
       after :create do |i,evaluator|
-        create(:price, variant_id: i.id, :currency => evaluator.currency, :amount => evaluator.price, :sale => evaluator.sale)
+        # create(:price, variant_id: i.id, :currency => evaluator.currency, :amount => evaluator.price, :sale => evaluator.sale)
         if evaluator.target
           create(:variant_target, variant: i, target: evaluator.target)
         end

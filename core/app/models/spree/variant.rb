@@ -46,8 +46,8 @@ module Spree
       dependent: :destroy,
       inverse_of: :variant
 
-    # validate :check_price
-    # validates :price, numericality: { greater_than_or_equal_to: 0 }
+    validate :check_price
+    validates :price, numericality: { greater_than_or_equal_to: 0 }
 
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
     validates :weight, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
@@ -62,6 +62,7 @@ module Spree
     before_validation :set_cost_currency
     before_validation :generate_variant_number, on: :create
 
+    after_save :save_default_price
     after_create :create_stock_items
     after_create :set_position
     after_create :create_assembly_definition_if_kit
@@ -246,9 +247,9 @@ module Spree
 
     # Hacks to allow the tests to still pass
     #############################################
-    def price
-      current_price_in( Spree::Config[:currency] ).amount
-    end
+    # def price
+    #   current_price_in( Spree::Config[:currency] ).amount
+    # end
 
     def currency
       Spree::Config[:currency]
@@ -344,13 +345,13 @@ module Spree
     # Product may be created with deleted_at already set,
     # which would make AR's default finder return nil.
     # This is a stopgap for that little problem.    
-	def product
+  	def product
      Spree::Product.unscoped { super }
     end
 
-    # def default_price
-    #  Spree::Price.unscoped { super }
-    # end
+    def default_price
+     Spree::Price.unscoped { super }
+    end
 
     def options=(options = {})
       options.each do |option|
@@ -485,20 +486,20 @@ module Spree
     end
 
     # Ensures a new variant takes the product master price when price is not supplied
-    #def check_price
-    #  if price.nil? && Spree::Config[:require_master_price]
-    #    raise 'No master variant found to infer price' unless (product && product.master)
-    #    raise 'Must supply price for variant or master.price for product.' if self == product.master
-    #    self.price = product.master.price
-    #  end
-    #  if currency.nil?
-    #    self.currency = Spree::Config[:currency]
-    #  end
-    #end
+    def check_price
+     if price.nil? && Spree::Config[:require_master_price]
+       raise 'No master variant found to infer price' unless (product && product.master)
+       raise 'Must supply price for variant or master.price for product.' if self == product.master
+       self.price = product.master.price
+     end
+     if currency.nil?
+       self.currency = Spree::Config[:currency]
+     end
+    end
 
-    #def save_default_price
-    #  default_price.save if default_price && (default_price.changed? || default_price.new_record?)
-    #end
+    def save_default_price
+      default_price.save if default_price && (default_price.changed? || default_price.new_record?)
+    end
 
 
     def set_cost_currency

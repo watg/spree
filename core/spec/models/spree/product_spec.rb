@@ -150,21 +150,20 @@ describe Spree::Product do
     context "#price" do
       # Regression test for #1173
       it 'strips non-price characters' do
-        product = create(:product_with_prices)
-        product.price.to_s.should == '19.99'
+        product.price = "$10"
+        product.price.should == 10.0
       end
     end
 
     context "#display_price" do
-      before do
-        create(:price, variant_id: product.master.id, price: 19.99, currency: 'USD')
-      end
+      before { product.price = 10.55 }
+      before { product.save }
 
       context "with display_currency set to true" do
         before { Spree::Config[:display_currency] = true }
 
         it "shows the currency" do
-          product.display_price.to_s.should == "$19.99 USD"
+          product.display_price.to_s.should == "$10.55 USD"
         end
       end
 
@@ -172,7 +171,7 @@ describe Spree::Product do
         before { Spree::Config[:display_currency] = false }
 
         it "does not include the currency" do
-          product.display_price.to_s.should == "$19.99"
+          product.display_price.to_s.should == "$10.55"
         end
       end
 

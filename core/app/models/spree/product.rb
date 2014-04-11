@@ -89,7 +89,7 @@ module Spree
 
     has_many :stock_items, through: :variants_including_master
 
-    delegate_belongs_to :master, :sku, :price, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :price_normal_in, :amount_in
+    delegate_belongs_to :master, :sku, :price, :price=, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :price_normal_in, :amount_in
 
     delegate_belongs_to :master, :cost_price
 
@@ -109,11 +109,6 @@ module Spree
     has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :target_images, through: :variants_including_master
     has_many :personalisation_images, -> { order(:position) }, source: :images, through: :personalisations
 
-     # Hack for the old pages, remove once the new pages are live
-    def variant_images_including_targetted
-      @_images_including_targetted ||= [self.variant_images, self.target_images].flatten.sort_by { |i| i.position }
-    end
-
     accepts_nested_attributes_for :variants, allow_destroy: true
     accepts_nested_attributes_for :product_targets, allow_destroy: true
 
@@ -130,6 +125,11 @@ module Spree
     alias :options :product_option_types
 
     after_initialize :ensure_master
+
+     # Hack for the old pages, remove once the new pages are live
+    def variant_images_including_targetted
+      @_images_including_targetted ||= [self.variant_images, self.target_images].flatten.sort_by { |i| i.position }
+    end
 
     def self.types
       NATURE.values.flatten
@@ -421,7 +421,9 @@ module Spree
     # there's a weird quirk with the delegate stuff that does not automatically save the delegate object
     # when saving so we force a save using a hook.
     def save_master
-      if master && (master.changed? ||  master.new_record? )
+      # d { master }
+      # master.save if master && (master.changed? || master.new_record? || (master.default_price && (master.default_price.changed? || master.default_price.new_record?)))
+      if master && (master.changed? || master.new_record? || (master.default_price && (master.default_price.changed? || master.default_price.new_record?)))
         master.save
         master.errors.each do |attr, message|
           master.product.errors.add(attr, message)
