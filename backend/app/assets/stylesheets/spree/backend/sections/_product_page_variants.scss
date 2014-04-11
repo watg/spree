@@ -1,0 +1,21 @@
+.product-type {
+    margin: 1em 0;
+    padding: 1em 0;
+    border-bottom: 1px solid $color-border;
+}
+
+.available {
+    thead {
+	display: none;
+    }
+
+    tr td {
+	background-color: #fefefe;
+	color: $color-border;
+    }
+}
+
+select {
+  display: block;
+  width: 100%;
+}
