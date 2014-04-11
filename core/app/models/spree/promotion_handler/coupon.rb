@@ -10,7 +10,9 @@ module Spree
 
       def apply
         if order.coupon_code.present?
-          if promotion.present? && promotion.actions.exists?
+          if Spree::GiftCard.match_gift_card_format?(order.coupon_code)
+            handle_gift_card
+          elsif promotion.present? && promotion.actions.exists?
             handle_present_promotion(promotion)
           else
             if Promotion.with_coupon_code(order.coupon_code).try(:expired?)
@@ -33,6 +35,14 @@ module Spree
       end
 
       private
+      def handle_gift_card
+        outcome = Spree::UseGiftCardService.run(order: order, code: order.coupon_code)
+        if outcome.success?
+          self.success = outcome.result
+        else
+          self.error = Spree.t(:coupon_code_not_found)
+        end
+      end
 
       def handle_present_promotion(promotion)
         return promotion_usage_limit_exceeded if promotion.usage_limit_exceeded?(order)

@@ -50,18 +50,18 @@ module Spree
       false
     end
 
-    def create_adjustment(label, target, calculable, mandatory=false, state="open")
-      amount = compute_amount(calculable)
+    def create_adjustment(label, target, order, mandatory=false, state="open")
+      amount = compute_amount(order)
       return if amount == 0 && !mandatory
-      target.adjustments.create(
+      Spree::Adjustment.create!(
                                 amount:     amount,
-                                source:     calculable,
-                                originator: self,
-                                label:      label,
-                                mandatory:  mandatory,
-                                state:      state
+                                order:      order,
+                                adjustable: order,
+                                source:     self,
+                                label:      label
                                 )
-      set_beneficiary(calculable)
+
+      set_beneficiary(order)
     end
 
     def update_adjustment(adjustment, order)
