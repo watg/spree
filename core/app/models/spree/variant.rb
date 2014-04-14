@@ -119,7 +119,7 @@ module Spree
           selector = selector.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
         end
 
-        variants = selector.order( "spree_option_types.position", "spree_option_values.position" )
+        variants = selector.order( "spree_option_types.position", "spree_option_values.position", "spree_assets.position" )
 
         # Preprocess the variants to remove any option_types that only have 1 option value
         valid_option_types = {}
