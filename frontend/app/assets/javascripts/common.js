@@ -101,7 +101,7 @@ WATG.signup = {
 	},
 	
 	getPromo: function() {
-		return '<p>You\'re in! Get 15% off your items* <br/>Enter code when you check out: <br/><strong>hello67645</strong> <br/><br/><small>*This offer expires midnight 10th April.</small></p>';		
+		return '<p>Thanks for signing up. We\'ll automatically apply your discount before you complete your order.<br/><br/><small>Offer ends midnight 30th April 2014. Check <a style="text-decoration: underline;" href="/terms-and-conditions#welcome">our T&amp;Cs</a> for more details</small></p>';		
 	},
 	
 	showError: function() {

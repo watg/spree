@@ -8,6 +8,15 @@
 	h2 {
 		font-size: 1.250em;
 	}
+	li {
+		margin-bottom: 1.25em;
+		font-size: 0.75em;
+		list-style-position: inside;
+	}
+	li li {
+		margin-bottom: 0;
+		font-size: 1em;
+	}
 }
 
 /* Meet The Gang */
