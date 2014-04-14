@@ -11,7 +11,6 @@ FactoryGirl.define do
     weight 0.25
     price 19.99
     cost_price 0.25
-		# cost_price 17.00
 
     association :product_group, factory: :product_group, strategy: :build
     association :gang_member, factory: :gang_member, strategy: :build
@@ -26,9 +25,6 @@ FactoryGirl.define do
       
       # ensure stock item will be created for this products master
       before(:create) { create(:stock_location) if Spree::StockLocation.count == 0 }
-      # after :create do |i,evaluator|
-      #   create(:price, variant: i.master, :currency => 'USD', :amount => 19.99)
-      # end
       
       factory :product_with_option_types do
         after(:create) { |product| create(:product_option_type, product: product) }

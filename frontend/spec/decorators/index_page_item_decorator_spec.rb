@@ -197,7 +197,7 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
     context "without a variant" do
       context "with a kit product on the product page" do
         let(:kit) { create(:product, product_type: "kit") }
-        let!(:variant) { create(:variant, product: kit, price: 9.99, sale: true, in_stock_cache: true) }
+        let!(:variant) { create(:variant, product: kit, price: 9.99, in_sale: true, in_stock_cache: true) }
 
         before :each do
           product_page.product_groups << kit.product_group
@@ -262,12 +262,11 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
 
     context "Dyanmic Kit" do
 
-      let(:dynamic_kit) { create(:base_product, product_type: 'kit', name: 'dynamic kit') }
+      let(:dynamic_kit) { create(:base_product, product_type: 'kit', price: 5.00, name: 'dynamic kit') }
       let(:assembly_definition) { create(:assembly_definition, variant: dynamic_kit.master) }
 
       before do
          subject.product_page.kit = dynamic_kit.reload
-         create(:price, variant: dynamic_kit.master, price: 5.00, sale: false)
       end
 
       it "returns a normal price" do

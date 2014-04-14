@@ -35,7 +35,7 @@ module Spree
 
         context "promotion has item total rule" do
           let(:shirt) { create(:product) }
-          let!(:rule) { Promotion::Rules::ItemTotal.create(preferred_operator: 'gt', preferred_amount: 50, promotion: promotion) }
+          let!(:rule) { Promotion::Rules::ItemTotal.create(preferred_attributes: { 'USD' => { 'amount' =>'50', 'enabled' => 'true' } }, promotion: promotion) }
 
           before do
             # Makes the order eligible for this promotion
