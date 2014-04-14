@@ -488,8 +488,7 @@ module Spree
     def check_price
       if price == 0
         self.price = product.master.try(:price)
-      end
-      if price.nil? && Spree::Config[:require_master_price]
+      elsif price.nil? && Spree::Config[:require_master_price]
         raise 'No master variant found to infer price' unless (product && product.master)
         raise 'Must supply price for variant or master.price for product.' if self == product.master
         self.price = product.master.price

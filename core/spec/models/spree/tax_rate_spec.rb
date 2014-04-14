@@ -273,13 +273,15 @@ describe Spree::TaxRate do
         :amount => 0.10,
         :calculator => Spree::Calculator::DefaultTax.create,
         :tax_category => @category,
-        :zone => @zone
+        :zone => @zone,
+        :currency => "USD"
       )
       @rate2       = Spree::TaxRate.create(
         :amount => 0.05,
         :calculator => Spree::Calculator::DefaultTax.create,
         :tax_category => @category,
-        :zone => @zone
+        :zone => @zone,
+        :currency => "USD"
       )
       @order       = Spree::Order.create!
       @taxable     = create(:product, :tax_category => @category)

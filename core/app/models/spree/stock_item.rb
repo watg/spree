@@ -10,9 +10,11 @@ module Spree
     validates_uniqueness_of :variant_id, scope: [:stock_location_id, :deleted_at]
 
     delegate :weight, :should_track_inventory?, to: :variant
-
+    
     after_save :conditional_variant_touch
+    after_save :check_variant_stock
     after_touch { variant.touch }
+
 
     def backordered_inventory_units
       Spree::InventoryUnit.backordered_for_stock_item(self)

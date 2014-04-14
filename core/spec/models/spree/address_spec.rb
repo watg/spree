@@ -140,15 +140,16 @@ describe Spree::Address do
       address.should have(1).error_on(:zipcode)
     end
 
-    context "phone not required" do
-      before { address.instance_eval{ self.stub :require_phone? => false } }
+    # 14 Apr - We have a non blank validation on phone. Martin Tomov
+    # context "phone not required" do
+    #   before { address.instance_eval{ self.stub :require_phone? => false } }
 
-      it "shows no errors when phone is blank" do
-        address.phone = ""
-        address.valid?
-        address.should have(:no).errors_on(:phone)
-      end
-    end
+    #   it "shows no errors when phone is blank" do
+    #     address.phone = ""
+    #     address.valid?
+    #     address.should have(:no).errors_on(:phone)
+    #   end
+    # end
 
     context "zipcode not required" do
       before { address.instance_eval{ self.stub :require_zipcode? => false } }

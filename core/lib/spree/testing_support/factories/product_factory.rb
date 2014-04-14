@@ -46,8 +46,9 @@ FactoryGirl.define do
         eur_currency 'EUR'
       end
 
+      price { usd_price }
+
       after :create do |i,evaluator|
-        create(:price, variant_id: i.master.id, :currency => evaluator.usd_currency, :amount => evaluator.usd_price)
         create(:price, variant_id: i.master.id, :currency => evaluator.gbp_currency, :amount => evaluator.gbp_price)
         create(:price, variant_id: i.master.id, :currency => evaluator.eur_currency, :amount => evaluator.eur_price)
       end
@@ -111,6 +112,8 @@ FactoryGirl.define do
         eur_currency 'EUR'
       end
 
+      price { usd_price }
+
       # ensure stock item will be created for this products master
       before(:create) { create(:stock_location) if Spree::StockLocation.count == 0 }
 
@@ -118,7 +121,6 @@ FactoryGirl.define do
         i.stock_items.each { |si| si.adjust_count_on_hand(10) }
         i.master.in_stock_cache = true
         i.master.save
-        create(:price, variant_id: i.master.id, :currency => evaluator.usd_currency, :amount => evaluator.usd_price)
         create(:price, variant_id: i.master.id, :currency => evaluator.gbp_currency, :amount => evaluator.gbp_price)
         create(:price, variant_id: i.master.id, :currency => evaluator.eur_currency, :amount => evaluator.eur_price)
       end

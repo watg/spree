@@ -264,21 +264,29 @@ describe Spree::Shipment do
     end
   end
 
-  context "when variant inventory tracking is false" do
-    it "should include line items without inventory if variant inventory tracking is off" do
-      line_items = [mock_model(Spree::LineItem)]
-      line_items.each { |li| li.stub should_track_inventory?: false }
-      order.stub complete?: true
-      order.stub line_items: line_items
-      shipment.line_items.should == line_items
+  context "when order is completed" do
+    after { Spree::Config.set track_inventory_levels: true }
+
+    before do
+      order.stub completed?: true
+      order.stub canceled?: false
     end
 
-    it "should not include line items without inventory if variant inventory tracking is on" do
-      line_items = [mock_model(Spree::LineItem)]
-      line_items.each { |li| li.stub should_track_inventory?: true }
-      order.stub complete?: true
-      order.stub line_items: line_items
-      shipment.line_items.should == []
+    context "with inventory tracking" do
+      before { Spree::Config.set track_inventory_levels: true }
+
+      it "should validate with inventory" do
+        shipment.inventory_units = [create(:inventory_unit)]
+        shipment.valid?.should be_true
+      end
+    end
+
+    context "without inventory tracking" do
+      before { Spree::Config.set track_inventory_levels: false }
+
+      it "should validate with no inventory" do
+        shipment.valid?.should be_true
+      end
     end
   end
 
