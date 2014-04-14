@@ -7,6 +7,11 @@ module Spree
     delegate :order, :currency, to: :shipment
     delegate :name, to: :shipping_method
 
+    scope :with_shipping_method,
+      -> { includes(:shipping_method).
+           references(:shipping_method).
+           order("cost ASC") }
+
     def display_base_price
       Spree::Money.new(cost, currency: currency)
     end

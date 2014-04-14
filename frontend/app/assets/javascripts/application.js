@@ -18,22 +18,22 @@
 
 //= require core
 
-//= require store/spree
-//= require store/checkout
-//= require store/cart
-//= require store/currency
+//= require spree/frontend/spree
+//= require spree/frontend/checkout
+//= require spree/frontend/cart
+//= require spree/frontend/currency
 
-//= require store/core.product-top
-//= require store/core.product-index
-//= require store/core.product-group
-//= require store/core.olapic-gallery
-//= require store/variant_options
+//= require spree/frontend/core.product-top
+//= require spree/frontend/core.product-index
+//= require spree/frontend/core.product-group
+//= require spree/frontend/core.olapic-gallery
+//= require spree/frontend/variant_options
 //= require store/adyen.encrypt
 
 //= require common
-//= require store/product
-//= require store/kit
-//= require store/spree_paypal_express
+//= require spree/frontend/product
+//= require spree/frontend/kit
+//= require spree/frontend/spree_paypal_express
 
 // this is so we are backward compatible with the old product pages, we should delete it when we no longer need them
-//= require store/old_product 
+//= require spree/frontend/old_product 
