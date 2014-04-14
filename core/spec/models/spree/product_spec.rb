@@ -326,14 +326,14 @@ describe Spree::Product do
 
   context '#create' do
     let!(:prototype) { create(:prototype) }
-    let!(:product) { Spree::Product.new(name: "Foo", price: 1.99, shipping_category_id: create(:shipping_category).id) }
+    let!(:product) { build(:base_product, name: "Foo", price: 1.99) }
 
     before { product.prototype_id = prototype.id }
 
     context "when prototype is supplied" do
       it "should create properties based on the prototype" do
         product.save
-        product.properties.count.should == 1
+        product.reload.properties.count.should == 1
       end
     end
 

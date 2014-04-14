@@ -396,11 +396,12 @@ module Spree
       values = values.inject(values.shift) { |memo, value| memo.product(value).map(&:flatten) }
 
       values.each do |ids|
-        variants.create(
-          option_value_ids: ids,
-          prices: master.prices
-        )
+        attrs = { option_value_ids: ids, prices: master.prices, label: master.name }
+        # fix if needed
+        # attrs.merge!(kit_price: master.kit_price) if master.kit_price
+        variants.create(attrs)
       end
+
       save
     end
 

@@ -20,10 +20,10 @@ FactoryGirl.define do
     option_values { [create(:option_value)] }
     sequence(:permalink)  {|n| "knitter-1-00#{n}"}
 
+    # ensure stock item will be created for this variant
+    before(:create) { create(:stock_location) if Spree::StockLocation.count == 0 }
+    
     factory :variant do
-      # ensure stock item will be created for this variant
-      before(:create) { create(:stock_location) if Spree::StockLocation.count == 0 }
-      
       # on_hand 5
       in_stock_cache false
       product { |p| p.association(:product) }
@@ -57,7 +57,7 @@ FactoryGirl.define do
         end
       end
     end
-(??)
+
     factory :master_variant do
       is_master 1
     end
