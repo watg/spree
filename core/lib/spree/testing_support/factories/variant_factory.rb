@@ -2,7 +2,7 @@ FactoryGirl.define do
   sequence(:random_float) { BigDecimal.new("#{rand(200)}.#{rand(99)}") }
 
   factory :base_variant, class: Spree::Variant do
-		price 19.99    
+		price 19.99
 		cost_price 10
 		
 		# upgraded
@@ -18,7 +18,7 @@ FactoryGirl.define do
 
     product { |p| p.association(:base_product) }
     option_values { [create(:option_value)] }
-    sequence(:permalink)  {|n| "knitter-1-00#{n}"}
+    sequence(:permalink)  {|n| "knit1221ter-1-00#{n}"}
 
     # ensure stock item will be created for this variant
     before(:create) { create(:stock_location) if Spree::StockLocation.count == 0 }
@@ -29,9 +29,6 @@ FactoryGirl.define do
       product { |p| p.association(:product) }
 
       ignore do
-        price 19.99
-        currency 'USD'
-        sale false
         target nil
       end
 

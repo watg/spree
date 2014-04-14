@@ -123,7 +123,6 @@ module Spree
         if !target.blank?
           selector = selector.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
         end
-
         variants = selector.order( "spree_option_types.position", "spree_option_values.position" )
 
         # Preprocess the variants to remove any option_types that only have 1 option value
@@ -490,7 +489,6 @@ module Spree
       if price == 0
         self.price = product.master.try(:price)
       end
-
       if price.nil? && Spree::Config[:require_master_price]
         raise 'No master variant found to infer price' unless (product && product.master)
         raise 'Must supply price for variant or master.price for product.' if self == product.master

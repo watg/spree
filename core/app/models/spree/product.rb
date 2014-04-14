@@ -89,7 +89,7 @@ module Spree
 
     has_many :stock_items, through: :variants_including_master
 
-    delegate_belongs_to :master, :sku, :price, :price=, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :price_normal_in, :amount_in
+    delegate_belongs_to :master, :sku, :price, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :price_normal_in, :amount_in
 
     delegate_belongs_to :master, :cost_price
 

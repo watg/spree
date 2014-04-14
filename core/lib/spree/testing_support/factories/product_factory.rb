@@ -17,6 +17,10 @@ FactoryGirl.define do
     association :gang_member, factory: :gang_member, strategy: :build
     shipping_category { |r| Spree::ShippingCategory.first || r.association(:shipping_category) }
 
+    after(:create) do |p|
+      p.variants_including_master.each { |v| v.save! }
+    end
+    
     factory :product, aliases: [:rtw, :kit, :virtual_product] do
       tax_category { |r| Spree::TaxCategory.first || r.association(:tax_category) }
       
@@ -31,9 +35,6 @@ FactoryGirl.define do
       end
     end
 
-    after(:create) do |p|
-      p.variants_including_master.each { |v| v.save! }
-    end
 
     factory :product_with_prices do
       ignore do

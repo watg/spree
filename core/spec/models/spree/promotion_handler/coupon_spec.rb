@@ -32,7 +32,7 @@ module Spree
       context "existing coupon code promotion" do
         let!(:promotion) { Promotion.create name: "promo", :code => "10off"  }
         let!(:action) { Promotion::Actions::CreateItemAdjustments.create(promotion: promotion, calculator: calculator) }
-        let(:calculator) { Calculator::FlatRate.new(preferred_amount: 10) }
+        let(:calculator) { Calculator::FlatRate.new(preferred_amount: [{type: :integer, name: "USD", value: 10}]) }
 
         it "fetches with given code" do
           expect(subject.promotion).to eq promotion
@@ -85,7 +85,7 @@ module Spree
 
             before do
               order.stub :coupon_code => "10off"
-              calculator = Calculator::FlatRate.new(preferred_amount: 10)
+              calculator = Calculator::FlatRate.new(preferred_amount: [{type: :integer, name: "USD", value: 10}])
               general_promo = Promotion.create name: "General Promo"
               general_action = Promotion::Actions::CreateItemAdjustments.create(promotion: general_promo, calculator: calculator)
 
@@ -128,7 +128,7 @@ module Spree
           let!(:action) { Promotion::Actions::CreateAdjustment.create(promotion: promotion, calculator: calculator) }
           context "right coupon given" do
             let(:order) { create(:order) }
-            let(:calculator) { Calculator::FlatRate.new(preferred_amount: 10) }
+            let(:calculator) { Calculator::FlatRate.new(preferred_amount: [{type: :integer, name: "USD", value: 10}]) }
 
             before do 
               order.stub({
