@@ -20,6 +20,9 @@ module Spree
         @collection
       end
 
+      def location_after_save
+        edit_admin_product_group_path(@product_group)
+      end
     end
   end
 end
