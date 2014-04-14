@@ -432,7 +432,8 @@ describe Spree::Order do
         ActiveRecord::Base.connection.open_transactions.should == 0
       end
 
-      order.payments.create!({ :amount => order.outstanding_balance, :payment_method => payment_method, :source => creditcard })
+      result = order.payments.create!({ :amount => order.outstanding_balance, :payment_method => payment_method, :source => creditcard })
+      d { result }
       order.next!
     end
   end

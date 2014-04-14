@@ -1,8 +1,9 @@
 class OrderWalkthrough
   def self.up_to(state)
     # A payment method must exist for an order to proceed through the Address state
-    Spree::PaymentMethod.delete_all
-    FactoryGirl.create(:payment_method)
+    unless Spree::PaymentMethod.exists?
+      FactoryGirl.create(:check_payment_method)
+    end
 
     # Need to create a valid zone too...
     zone = FactoryGirl.create(:zone)
@@ -13,7 +14,8 @@ class OrderWalkthrough
     # A shipping method must exist for rates to be displayed on checkout page
     unless Spree::ShippingMethod.exists?
       FactoryGirl.create(:shipping_method).tap do |sm|
-        sm.calculator.preferred_amount = [{name: Spree::Config[:currency], value: 10}]
+        sm.calculator.preferred_amount = 10
+        sm.calculator.preferred_currency = Spree::Config[:currency]
         sm.calculator.save
       end
     end
