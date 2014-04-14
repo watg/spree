@@ -199,7 +199,7 @@ module Spree
       # end
 
       def gather_order_products
-        order.line_items.each do |line|
+        order.line_items.includes(:variant => :product).each do |line|
           if line.product.product_type != 'kit'
             add_to_products(line.product, line.quantity, line.base_price*line.quantity)
           else
