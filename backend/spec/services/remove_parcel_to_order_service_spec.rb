@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 describe Spree::RemoveParcelToOrderService do
-  # let(:stock_location) { Spree::StockLocation.create!(name: 'warehouse') }
+  let(:stock_location) { Spree::StockLocation.create!(name: 'warehouse') }
   context "#run" do
     let(:subject)   { Spree::RemoveParcelToOrderService }
     let(:box_group) { FactoryGirl.create(:product_group, name: 'box')}
-    let(:small_box) { FactoryGirl.create(:product, product_type: :product, individual_sale: false, product_group_id: box_group.id) }
+    let!(:small_box) { FactoryGirl.create(:product, product_type: :product, individual_sale: false, product_group_id: box_group.id) }
     let(:order)     { FactoryGirl.create(:order) }
 
     it "should invoke success callback when all is good" do
@@ -40,8 +40,8 @@ describe Spree::RemoveParcelToOrderService do
       end
 
       it "should decrement stock of selected box by correct quantity" do
-        Spree::StockLocation.delete_all
-        Spree::StockLocation.create!(name: 'warehouse')
+        # Spree::StockLocation.delete_all
+        # Spree::StockLocation.create!(name: 'warehouse')
         subject.run(box_id: small_box.id, quantity: 4, order_id: order.id)
         puts small_box.stock_items.inspect
         expect(small_box.stock_items[0].count_on_hand).to eq(14)

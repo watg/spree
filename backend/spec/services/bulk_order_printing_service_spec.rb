@@ -50,6 +50,13 @@ describe Spree::BulkOrderPrintingService do
     end
   end
 
+  describe "#print_invoices" do
+    subject     { Spree::BulkOrderPrintingService.new }
+    it "returns a PDF document" do
+      expect(subject.send(:print_invoices)[0,4]).to eq('%PDF')
+    end
+  end
+
 
   describe "#print_image_stickers" do
     subject     { Spree::BulkOrderPrintingService.new }
@@ -57,10 +64,13 @@ describe Spree::BulkOrderPrintingService do
     before do
       Spree::Order.any_instance.stub_chain(:shipping_address, :firstname, :upcase) { "Person Name" }
       allow(Spree::Order).to receive(:unprinted_image_stickers).and_return([order])
-      allow(Spree::PDF::OrdersPrinter).to receive(:print_stickers).and_return(:pdf)
     end
     its(:invoices_have_been_printed?)   { should be_true   }
-    # its(:print_image_stickers)          { should eql(:pdf) }
+
+    it "returns a PDF document" do
+      expect(subject.send(:print_image_stickers)[0,4]).to eq('%PDF')
+    end
+
     it "add sticker print date" do
       expect(order).to receive("batch_sticker_print_date=".to_sym)
       subject.send(:print_image_stickers)

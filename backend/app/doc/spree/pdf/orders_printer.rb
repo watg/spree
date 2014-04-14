@@ -9,15 +9,19 @@ module Spree
       def print_invoices_and_packing_lists
         pdf = Prawn::Document.new
 
-        @orders.each do |order|
+        count = @orders.count - 1
+        @orders.each_with_index do |order, num|
           index = order.batch_print_id
           pdf = PackingList.new(order, pdf).create(index)
-          pdf.start_new_page
           
           if !shipped_to_europe?(order)
-            pdf = CommercialInvoice.new(order, pdf).create
             pdf.start_new_page
+            # switch the two lines below when deploying the new Commercial Invoice
+            # pdf = CommercialInvoice.new(order, pdf).create
+            pdf = PackingList.new(order, pdf).create(index) 
           end
+
+          pdf.start_new_page unless count == num
         end
 
         pdf.render
