@@ -217,7 +217,7 @@ module Spree
 
     def notify(msg)
       # Sends an email to Techadmin
-      NotificationMailer.send_notification(msg)
+      Spree::NotificationMailer.send_notification(msg)
     end
 
     def update_inventory

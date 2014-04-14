@@ -12,7 +12,7 @@ describe Spree::StockCheckAlertJob do
     context "plenty of stock" do
 
       it "sends no notificition" do
-        expect(NotificationMailer).not_to receive(:send_notification)
+        expect(Spree::NotificationMailer).not_to receive(:send_notification)
         subject.perform
       end
     end
@@ -24,7 +24,7 @@ describe Spree::StockCheckAlertJob do
       end
 
       it "sends no notificition" do
-        expect(NotificationMailer).not_to receive(:send_notification)
+        expect(Spree::NotificationMailer).not_to receive(:send_notification)
         subject.perform
       end
     end
@@ -40,7 +40,7 @@ describe Spree::StockCheckAlertJob do
 
       it "sends notificition" do
         message = ["product", "===========", "", "\t Foo,  , http://www.example.com//shop/admin/products/foo/stock","",""].join("\n")
-        expect(NotificationMailer).to receive(:send_notification).with(message, "david@woolandthegang.com", "Items out of stock")
+        expect(Spree::NotificationMailer).to receive(:send_notification).with(message, "david@woolandthegang.com", "Items out of stock")
         subject.perform
       end
     end
@@ -51,7 +51,7 @@ describe Spree::StockCheckAlertJob do
       end
 
       it "sends no notificition" do
-        expect(NotificationMailer).not_to receive(:send_notification)
+        expect(Spree::NotificationMailer).not_to receive(:send_notification)
         subject.perform
       end
 

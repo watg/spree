@@ -105,7 +105,7 @@ module Spree
 
     def notify(msg)
       # Sends an email to Techadmin
-      NotificationMailer.send_notification(msg)
+      Spree::NotificationMailer.send_notification(msg)
       # fail job
       raise msg
     end

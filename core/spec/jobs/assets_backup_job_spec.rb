@@ -23,7 +23,7 @@ describe Spree::AssetsBackupJob do
 
   describe :execute do
     it "runs a backup command" do
-      expect(NotificationMailer).to_not receive(:send_notification)
+      expect(Spree::NotificationMailer).to_not receive(:send_notification)
       subject.send(:execute, "echo 'bytes copied: 0 bytes'")
     end
   end
@@ -36,7 +36,7 @@ describe Spree::AssetsBackupJob do
     end
 
     it "fails to execute command" do
-      expect(NotificationMailer).to receive(:send_notification)
+      expect(Spree::NotificationMailer).to receive(:send_notification)
       subject.send(:execute, "hhhhhhhhhhhhhhhhhhhhhhhhhh")      
     end
     

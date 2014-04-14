@@ -11,7 +11,7 @@ module Spree
       out_of_stock_items = generate_data
       if out_of_stock_items.any?
         message = format_data_to_string( out_of_stock_items )
-        NotificationMailer.send_notification(message, 'david@woolandthegang.com','Items out of stock')
+        Spree::NotificationMailer.send_notification(message, 'david@woolandthegang.com','Items out of stock').deliver
       end
     end
 

@@ -41,7 +41,7 @@ Spree::AssetsBackupJob = Struct.new(:action) do
   def execute(cmd)
     output = %x[#{cmd}]
     if failed?(output)
-      NotificationMailer.send_notification("[S3 BACKUP FAILED]: Could not execute command #{cmd} got output #{output}")
+      Spree::NotificationMailer.send_notification("[S3 BACKUP FAILED]: Could not execute command #{cmd} got output #{output}")
     end
   end
 
