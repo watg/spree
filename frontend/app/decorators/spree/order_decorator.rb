@@ -5,7 +5,7 @@ class Spree::OrderDecorator < Draper::Decorator
       {
       mid:      [LinkShare.merchant_id],
       ord:      [object.number],
-      cur:      [object.currency],
+      cur:      ['GBP'],
       skulist:  skulist,
       qlist:    qlist,
       amtlist:  amtlist,
@@ -29,11 +29,22 @@ class Spree::OrderDecorator < Draper::Decorator
   end
   
   def amtlist
-    (line_items.map {|li| (100 * li.quantity * li.price).to_i } + discounts.map {|e| (100 * e.amount).to_i })
+    (line_items.map {|li| (100 * to_gbp(li, object.currency)).to_i } + discounts.map {|e| (100 * e.amount).to_i })
   end
   
   def namelist
     (line_items.map(&:variant).map {|v| URI.escape("#{v.name}-#{v.number}") } + discounts.map {|d| URI.escape(d.label) })
   end
   
+  def to_gbp(line_item, cur)
+    price_without_tax(line_item).to_f * line_item.quantity  * rates[cur].to_f
+  end
+
+  def price_without_tax(line_item)
+    line_item.price - line_item.adjustments.tax.sum(:amount)
+  end
+
+  def rates
+    Helpers::CurrencyConversion::TO_GBP_RATES
+  end
 end
