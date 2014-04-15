@@ -14,7 +14,7 @@ class Spree::OrderDecorator < Draper::Decorator
   end
   
   def discounts
-    @discounts ||= object.adjustments.eligible.promotion.select {|e| e.source.type != "Spree::Promotion::Actions::CreateShippingAdjustment"}
+    @discounts ||= Spree::Adjustment.promotion.where(order_id: object.id, state: :closed, eligible: true, adjustable_type: ["Spree::LineItem", "Spree::Order"])
   end
   def line_items
     @line_items ||= object.line_items

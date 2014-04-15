@@ -95,7 +95,7 @@ module Spree
       order.update_columns(
         payment_state: order.payment_state,
         shipment_state: order.shipment_state,
-		    item_normal_total: order.item_normal_total,
+        item_normal_total: order.item_normal_total,
         item_total: order.item_total,
         item_count: order.item_count,
         adjustment_total: order.adjustment_total,
