@@ -33,7 +33,7 @@ describe Spree::OrderDecorator, type: :decorator do
     end
 
     it "amtlist" do
-      expected = [3000, 799, -1250]
+      expected = [1800, 479, -1250]
       expect(subject.amtlist).to match_array(expected)
     end
 
