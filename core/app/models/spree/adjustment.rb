@@ -51,8 +51,8 @@ module Spree
     scope :charge, -> { where("#{quoted_table_name}.amount >= 0") }
     scope :credit, -> { where("#{quoted_table_name}.amount < 0") }
     scope :promotion, -> { where(source_type: 'Spree::PromotionAction') }
-    scope :gift_card, -> { where(originator_type: 'Spree::GiftCard') }
-    scope :manual, -> { where(originator_type: nil) }
+    scope :gift_card, -> { where(source_type: 'Spree::GiftCard') }
+    scope :manual, -> { where(source_type: nil) }
     scope :return_authorization, -> { where(source_type: "Spree::ReturnAuthorization") }
     scope :included, -> { where(included: true)  }
     scope :additional, -> { where(included: false) }

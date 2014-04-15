@@ -91,16 +91,15 @@ module Spree
     end
 
     def ga_adjustment_details(ad, cid)
-      order = ad.source
       {
         cid: cid,
-        ti:  order.number,
+        ti:  ad.order.number,
         in:  ad.label,
         ip:  ad.amount.to_f,
         iq:  1,
 #        ic:  name(ad),
-        iv:  ad.originator_type,
-        cu:  order.currency
+        iv:  ad.source_type,
+        cu:  ad.order.currency
       }
     end
 

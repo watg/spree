@@ -45,7 +45,7 @@ module Spree
     def adjustements_template
       t =<<EOF
 <% @order.adjustments.eligible.each do |adjustment| %>
-<% next if (adjustment.originator_type == 'Spree::TaxRate') and (adjustment.amount == 0) %>
+<% next if (adjustment.source_type == 'Spree::TaxRate') and (adjustment.amount == 0) %>
 <tr>
 <td><%= adjustment.label %>: <%= adjustment.display_amount.to_html %></td>
 </tr>
