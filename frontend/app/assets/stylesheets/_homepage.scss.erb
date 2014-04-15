@@ -62,52 +62,6 @@ body.homepage #header {
 	}
 }
 
-.home-main .leader-0 {	
-	/* Small screen background */
-	background: #fef574 url('<%= cdn_url("/homepage/2014-03-27/homepage-count-down-sale-small2.jpg") %>') top center no-repeat;
-	& > div {
-		height: 570px;
-	}
-	.links {
-		padding: 440px 0 0 0;
-		text-align: center;
-		width: 300px;
-		margin: 0 auto;
-		a {
-			margin: 0;
-			width: 120px;
-			height: 40px;
-			display: inline-block;
-			/* IE for inline-block */
-			zoom: 1;
-			*display: inline;
-
-			background: transparent;
-			font-size: 0;
-			line-height: 13px;
-		}
-	}
-
-	/* Large screen background */
-	@media only screen and (min-width: 48em) {
-		background: #fef574 url('<%= cdn_url("/homepage/2014-03-27/homepage-count-down-sale-large2.jpg") %>') top center no-repeat;
-		& > div {
-			height: 570px;
-		}
-		.links {
-			padding: 470px 0 0 0;
-			width: 100%;
-			a {
-				position: relative;
-				width: 110px;
-				left: 0px;
-			}
-		}
-	}
-
-}
-
-
 .home-main .leader-1 {	
 	/* Small screen background */
 	background: #fef574 url('<%= cdn_url("/homepage/2014-03-20/homepage-hero-small.jpg") %>') top center no-repeat;
@@ -128,16 +82,6 @@ body.homepage #header {
 			border: 0;
 		}
 	}
-	.link-eek {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 620px;
-		display: block;
-		font-size: 0;
-		line-height: 0;
-	}
 	/* Large screen background */
 	@media only screen and (min-width: 48em) {
 		background: #fef574 url('<%= cdn_url("/homepage/2014-03-20/homepage-hero-large.jpg") %>') top center no-repeat;
@@ -155,9 +99,6 @@ body.homepage #header {
 				*display: inline;
 			}
 		}
-		.link-eek {
-			height: 570px;
-		}
 	}
 	.button {
 		padding: 0.4em 0.6em 0.4em;
@@ -166,69 +107,81 @@ body.homepage #header {
 
 /* LEADER #2: A full width strip */
 .home-main .leader-2 {
-	background: #f9f9f9 url('<%= cdn_url("/homepage/2014-02-20/homepage-editorial-small.jpg") %>') top center no-repeat;
-	img {
-		display: none;
-	}
+	background: #f9f9f9 url('<%= cdn_url("/homepage/2014-04-15/homepage-mind-the-gap-small.jpg") %>') top center no-repeat;
 	& > div {
-		height: 568px;
+		height: 580px;
 	}
-	.links {
-		margin: 0 auto;
-		padding: 482px 0 0 16px;
-		text-align: center;
-		width: 400px;
-		a {
-			margin-right: 15px;
-			width: 155px;
-			height: 45px;
-			display: inline-block;
-			background: transparent;
-			font-size: 0;
-			line-height: 0;	
-			/* IE for inline-block */
-			zoom: 1;
-			*display: inline;
-		}
-		/*.yarn {
-			width: 124px;
-		}
-		.supplies {
-			width: 155px;
-		}*/
+	a {
+		position: absolute;
+		display: block;
+		line-height: 0;
+		font-size: 0;
+	}
+	.link-mbtg {
+		width: 100%;
+		height: 100%;
+	}
+	.link-kyo {
+		width: 163px;
+		height: 45px;
+		/* Positioning */
+		margin-left: -82px;
+		bottom: 38px;
+		left: 50%;
 	}
 	@media only screen and (min-width: 48em) {
-	  background: #f9f9f9 url('<%= cdn_url("/homepage/2014-02-20/homepage-editorial-large.jpg") %>') top center no-repeat;
-		img {
-			display: inline;
-			position: relative;
-			left: -180px;
-			top: 70px;
-		}
+	  background: #f9f9f9 url('<%= cdn_url("/homepage/2014-04-15/homepage-mind-the-gap-large-updated.jpg") %>') top center no-repeat;
 		& > div {
 			height: 570px;
 		}
-		.links {
-			padding-top: 345px;
-			text-align: right;
-			width: 855px;
-			a {
-				margin-right: 15px;
-			}
+		.link-kyo {
+			top: 472px;
+			right: 80px;
+			/* Positioning */
+			margin: 0;
+			bottom: auto;
+			left: auto;
 		}
 	}
 }
 
 /* LEADER #3: A full width strip */
 .home-main .leader-3 {
-	  background: #fff url('<%= cdn_url("/homepage/2014-03-05/homepage-editorial-small.jpg") %>') top center no-repeat;
+	background: #f9f9f9 url('<%= cdn_url("/homepage/2014-04-15/homepage-baby-shower-blankie-small.jpg") %>') top center no-repeat;
+	position: relative;
 	& > div {
-		height: 568px;
+		height: 580px;
+	}
+	a {
+		position: absolute;
+		display: block;
+		line-height: 0;
+		font-size: 0;
+	}
+	.link-mbtg {
+		width: 100%;
+		height: 100%;
+	}
+	.link-kyo {
+		width: 163px;
+		height: 45px;
+		/* Positioning */		
+		margin-left: -82px;
+		bottom: 29px;
+		left: 50%;
 	}
 	@media only screen and (min-width: 48em) {
-	  background: #fff url('<%= cdn_url("/homepage/2014-03-05/homepage-editorial-large.jpg") %>') top center no-repeat;
+	  background: #fff url('<%= cdn_url("/homepage/2014-04-15/homepage-baby-shower-blankie-large.jpg") %>') top center no-repeat;
 		& > div {
 			height: 570px;
+		}
+		.link-kyo {
+			top: 452px;
+			right: 76px;
+			/* Positioning */			
+			margin: 0;
+			bottom: auto;
+			left: auto;
 		}
 	}
 }
