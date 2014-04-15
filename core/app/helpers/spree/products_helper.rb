@@ -60,7 +60,7 @@ module Spree
     end
 
     def get_taxonomies
-      @taxonomies ||= Spree::Taxonomy.visible.includes(root: :children)
+      @taxonomies ||= Spree::Taxonomy.includes(root: :children)
     end
     
     def get_taxon(name)
