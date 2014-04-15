@@ -4,12 +4,12 @@ describe Spree::GiftCardOrderTTLJob do
   let(:order)     { create(:order) }
   let(:gift_card) { create(:gift_card, state: 'redeemed', beneficiary_order: order, beneficiary_email: order.email) }
   subject { Spree::GiftCardOrderTTLJob.new(order, gift_card) }
-  pending "--------------- THE WHOLE OF GIFT CARD HAS TO BE REVIEWED -----------"
+
   before do
     gift_card.create_adjustment('label', order, order, true)
   end
 
-  xit 'resets gift card' do
+  it 'resets gift card' do
     subject.perform
 
     gift_card.reload
@@ -18,7 +18,7 @@ describe Spree::GiftCardOrderTTLJob do
     expect(gift_card.beneficiary_order).to be_nil
   end
   
-  xit "lock order adjustment for that gift card" do
+  it "lock order adjustment for that gift card" do
     subject.perform
     
     order.reload
