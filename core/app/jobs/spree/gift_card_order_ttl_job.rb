@@ -1,5 +1,7 @@
 module Spree
   GiftCardOrderTTLJob = Struct.new(:order, :gift_card) do
+    # TODO: [gift-card] this blows up because originator_type/id are
+    # called source now
     def perform
       if not self.order.payments.completed.any?
         self.gift_card.reactivate

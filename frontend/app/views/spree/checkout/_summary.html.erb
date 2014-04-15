@@ -48,7 +48,7 @@
 
     <tbody id="summary-order-charges" data-hook>
       <% order.adjustments.eligible.each do |adjustment| %>
-      <% next if (adjustment.originator_type == 'Spree::TaxRate') and (adjustment.amount == 0) %>
+      <% next if (adjustment.source_type == 'Spree::TaxRate') and (adjustment.amount == 0) %>
         <tr>
           <td><%= adjustment.label %>: </td>
           <td><%= adjustment.display_amount.to_html %></td>
