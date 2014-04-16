@@ -36,7 +36,7 @@ module Spree
         xml.updated  variant.updated_at.iso8601
         
         variant.images.each_with_index {|img, idx|
-          src = "http:"+cdn_url(img.attachment.url(:large))
+          src = cdn_url(img.attachment.url(:large))
           if idx == 0
             xml['g'].image_link src
           else
