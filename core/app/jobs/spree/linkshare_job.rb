@@ -136,7 +136,7 @@ module Spree
     def data_source
       Spree::Variant.
         #includes(:targets, :prices, :option_values, :images, product: [product_group: [:product_pages]] ).
-        includes(:targets, :products).
+        includes(:targets, :product).
         where("spree_products.product_type NOT IN (?)", %w(virtual_product parcel)).
         references(:products)
     end
