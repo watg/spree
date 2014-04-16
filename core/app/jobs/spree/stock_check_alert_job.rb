@@ -23,7 +23,10 @@ module Spree
         where(Spree::StockLocation.table_name =>{ :active => true} ).
         where(Spree::StockItem.table_name =>{ :updated_at => 1.day.ago .. Time.now} ).
         find_each do |v|
-          data << v unless Spree::Stock::Quantifier.new(v, v.stock_items).can_supply? 1
+          # we do not want to include master variant if its product has normal variants
+          unless v.is_master? and v.product.variants.any?
+            data << v unless Spree::Stock::Quantifier.new(v, v.stock_items).can_supply? 1
+          end
         end
 
         data.inject({}) do |hash,v|
