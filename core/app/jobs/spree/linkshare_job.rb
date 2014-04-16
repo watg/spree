@@ -93,9 +93,16 @@ module Spree
       end
     end
 
+    def s3_connection
+      AWS::S3.new(
+        access_key_id:      ENV['AWS_ACCESS_KEY_ID'],
+        secret_access_key:  ENV['AWS_SECRET_ACCESS_KEY'],
+        s3_endpoint:        ENV['AWS_S3_ENDPOINT'],
+      )
+    end
+
     def storage_s3(value)
-      s3 = AWS::S3.new
-      s3.buckets[ config[:s3_bucket]].
+      s3_connection.buckets[ config[:s3_bucket]].
         objects[  config[:name]     ].
         write(value, :acl => :public_read)
     rescue
