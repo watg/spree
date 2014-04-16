@@ -20,7 +20,7 @@ staging: &staging
 production:
   linkshare:
     storage_method: s3
-    s3_bucket: watgfeeds  ## items in that bucket have to be publicly accessible
+    s3_bucket: feeds.woolandthegang.com  ## items in that bucket have to be publicly accessible
     name: 'linkshare/atom.xml'
     host:  http://www.woolandthegang.com
-    feed_url: http://watgfeeds.s3-website-eu-west-1.amazonaws.com/linkshare/atom.xml
+    feed_url: http://feeds.woolandthegang.com/linkshare/atom.xml
