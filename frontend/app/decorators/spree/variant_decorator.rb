@@ -184,7 +184,7 @@ class Spree::VariantDecorator < Draper::Decorator
   end
 
   def pinterest_url(product_page)
-    "http://pinterest.com/pin/create/%20button/?url=" + url_encoded_product_page_url(product_page) + "&amp;media=#{ h.url_encode(first_image_url(:large)) }&amp;description=Presenting%20#{ h.url_encode(object.name) }%20by%20Wool%20and%20the%20Gang"
+    "http://pinterest.com/pin/create/button/?url=" + url_encoded_product_page_url(product_page) + "&amp;media=#{ h.url_encode(first_image_url(:large)) }&amp;description=Presenting%20#{ h.url_encode(object.name) }%20by%20Wool%20and%20the%20Gang"
   end
   
   def level
