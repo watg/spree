@@ -196,7 +196,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
                     h.url_encode(knit_your_own_banner_url)
                   end
 
-    "http://pinterest.com/pin/create/button/?url=#{ url_encoded_product_page_url }&amp;media=#{ url_link }&amp;description=Presenting%20#{ h.url_encode(object.title) }%20by%20Wool%20and%20the%20Gang"
+    "http://pinterest.com/pin/create/%20button/?url=#{ url_encoded_product_page_url }&amp;media=#{ url_link }&amp;description=Presenting%20#{ h.url_encode(object.title) }%20by%20Wool%20and%20the%20Gang"
   end
   
   def facebook_image
