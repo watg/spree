@@ -36,9 +36,8 @@ module Spree
         xml.updated  variant.updated_at.iso8601
         
         variant.images.each_with_index {|img, idx|
-          src = cdn_url(img.attachment.url(:large))
           if idx == 0
-            xml['g'].image_link src
+            xml['g'].image_link img.attachment.url(:large)
           else
 # TODO: including it breaks atom validity
 #            xml['g'].additional_image_link src
