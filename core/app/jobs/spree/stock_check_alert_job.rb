@@ -24,7 +24,7 @@ module Spree
         where(Spree::StockItem.table_name =>{ :updated_at => 1.day.ago .. Time.now} ).
         find_each do |v|
           # we do not want to include master variant if its product has normal variants
-          unless v.is_master? and v.product.variants.any?
+          unless v.is_master_but_has_variants?
             data << v unless Spree::Stock::Quantifier.new(v, v.stock_items).can_supply? 1
           end
         end
