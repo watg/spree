@@ -161,6 +161,10 @@ module Spree
 
     end
 
+    def is_master_but_has_variants?
+      self.is_master? and self.product.variants and self.product.variants.any?
+    end
+
     def generate_variant_number(force: false)
       record = true
       while record

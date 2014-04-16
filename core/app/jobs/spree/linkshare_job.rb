@@ -135,7 +135,7 @@ module Spree
     
     def data_source
       Spree::Variant.
-        includes(:product).
+        includes(:targets, :prices, :option_values, :images, product: [product_group: [:product_pages]] ).
         where("spree_products.product_type NOT IN (?)", %w(virtual_product parcel)).
         references(:products)
     end
@@ -144,6 +144,7 @@ module Spree
       data_source.
         find_in_batches(batch_size: 100) do |batch|
           batch.each { |variant|
+            next if variant.is_master_but_has_variants?
             variant.targets.each {|t| 
               ppage = variant.product.
                      product_group.
