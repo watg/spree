@@ -12,6 +12,7 @@
  *
  * Pagewide
  * Groups
+ * Class specific
  */
 
 /**
@@ -66,6 +67,46 @@
 			@media only screen and (max-width: 48em) {
 				li {
 					line-height: 1.75em;
+				}
+			}
+		}
+	}
+}
+
+/**
+ * Class specific
+ *
+ * @section class-specific
+ */
+.product-top.whats-new,
+.product-top.women {
+	.nav-primary,
+	.row-groups {
+		ul {
+			li {
+				a {
+					color: #fff;
+				}
+				// Mobile a
+				@media only screen and (max-width: 48em) {
+					a {
+						color: #000;
+					}
+				}
+			}		
+		}
+	}
+	.nav-primary {
+		ul {
+			li {
+				a.active {
+					border-bottom: 5px solid #fff;
+				}
+				// Mobile a.active
+				@media only screen and (max-width: 48em) {
+					a {
+						border-bottom: 5px solid #000;
+					}
 				}
 			}
 		}
