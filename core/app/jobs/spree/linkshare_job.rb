@@ -31,18 +31,11 @@ module Spree
       xml.entry {
         xml.title    variant.name
         xml.id_      variant.number
-        xml.summary  variant.product.description
+        xml.summary  variant.clean_description
         xml.link(href: entry_url(variant))
         xml.updated  variant.updated_at.iso8601
 
-        variant.images.each_with_index {|img, idx|
-          if idx == 0
-            xml['g'].image_link img.attachment.url(:large)
-          else
-            # TODO: including it breaks atom validity
-            #            xml['g'].additional_image_link src
-          end 
-        }
+        xml['g'].image_link variant.first_image.attachment.url(:large)
 
         xml['g'].price "#{variant.current_price_in("GBP").amount.to_f} GBP"
         xml['g'].condition "new"
@@ -145,12 +138,12 @@ module Spree
       data_source.find_in_batches(batch_size: 100) do |batch|
         batch.each do |variant|
           next if variant.is_master_but_has_variants?
-          variant.targets.each do |t|
+          variant.targets.each do |target|
             ppage = variant.product.
               product_group.
               product_pages.
-              where(target_id: t.id).first
-            yield variant.decorate(context: {target: t}) if ppage 
+              where(target_id: target.id).first
+            yield(variant.decorate(context: {target: target})) if ppage
           end
         end
       end

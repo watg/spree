@@ -34,6 +34,10 @@ class Spree::VariantDecorator < Draper::Decorator
     context[:target]
   end
 
+  def clean_descripition
+    object.product.clean_description_for(target)
+  end
+
   def memoized_product
     @_product ||= object.product
   end
