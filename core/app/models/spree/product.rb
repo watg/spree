@@ -169,6 +169,14 @@ module Spree
       (targeted_images + memoized_variant_images).sort_by(&:position)
     end
 
+    def clean_description
+      Sanitize.clean(description)
+    end
+
+    def clean_description_for(target)
+      Sanitize.clean(description_for(target))
+    end
+
     def description_for(target)
       return description unless target
       product_target = product_targets.find_by(target_id: target.id)
