@@ -27,11 +27,11 @@ class Spree::OrderDecorator < Draper::Decorator
   def qlist
     (line_items.map(&:quantity) + discounts.map {|e| 0})
   end
-  
+
   def amtlist
     (line_items.map {|li| (100 * to_gbp(li, object.currency)).to_i } + discounts.map {|e| (100 * e.amount).to_i })
   end
-  
+
   def namelist
     (line_items.map(&:variant).map {|v| URI.escape("#{v.name}-#{v.number}") } + discounts.map {|d| URI.escape(d.label) })
   end

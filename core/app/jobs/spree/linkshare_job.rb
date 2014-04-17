@@ -14,19 +14,19 @@ module Spree
         xml.feed("xml:lang" => "en-GB", 
                  "xmlns"    => "http://www.w3.org/2005/Atom", 
                  "xmlns:g"  => "http://base.google.com/ns/1.0") { 
-          xml.id_ config[:feed_url]
-          xml.title "Wool And The Gang Atom Feed"
-          xml.updated Time.now.iso8601
-          xml.link(rel: "alternate", type: "text/html", href: config[:host])
-          xml.link(rel: "self", type: "application/atom+xml", href: config[:feed_url])
-          xml.author {
-            xml.name "Wool And The Gang" }
-          
-          variants {|v| entry(xml, v) }}}
+                   xml.id_ config[:feed_url]
+                   xml.title "Wool And The Gang Atom Feed"
+                   xml.updated Time.now.iso8601
+                   xml.link(rel: "alternate", type: "text/html", href: config[:host])
+                   xml.link(rel: "self", type: "application/atom+xml", href: config[:feed_url])
+                   xml.author {
+                     xml.name "Wool And The Gang" }
+
+                   variants {|v| entry(xml, v) }}}
 
       builder.to_xml
     end
-    
+
     def entry(xml, variant)
       xml.entry {
         xml.title    variant.name
@@ -34,14 +34,13 @@ module Spree
         xml.summary  variant.product.description
         xml.link(href: entry_url(variant))
         xml.updated  variant.updated_at.iso8601
-        
+
         variant.images.each_with_index {|img, idx|
-          src = "http:"+cdn_url(img.attachment.url(:large))
           if idx == 0
-            xml['g'].image_link src
+            xml['g'].image_link img.attachment.url(:large)
           else
-# TODO: including it breaks atom validity
-#            xml['g'].additional_image_link src
+            # TODO: including it breaks atom validity
+            #            xml['g'].additional_image_link src
           end 
         }
 
@@ -49,7 +48,7 @@ module Spree
         xml['g'].condition "new"
 
         xml['g'].gender gender(variant)
-                
+
         (variant.color_and_size_option_values[:color] || []).each do |opt|
           xml['g'].color opt.presentation
         end
@@ -57,7 +56,7 @@ module Spree
         (variant.color_and_size_option_values[:size] || []).each do |opt|
           xml['g'].size opt.presentation
         end
-                
+
         if variant.product.product_type.respond_to?(:name)
           xml['g'].google_product_category variant.product.category
           xml['g'].product_type variant.product.product_type.name
@@ -89,14 +88,21 @@ module Spree
     def storage_cache(value)
       path = File.join(Rails.root,'public', config[:name])
       unless open(path, 'w') {|f| 
-          f.write(value); f.flush }
+        f.write(value); f.flush }
         notify("Linkshare Atom feed could no be saved in CACHE path #{path}: #{value[0..100]}...")
       end
     end
 
+    def s3_connection
+      AWS::S3.new(
+        access_key_id:      ENV['AWS_ACCESS_KEY_ID'],
+        secret_access_key:  ENV['AWS_SECRET_ACCESS_KEY'],
+        s3_endpoint:        ENV['AWS_S3_ENDPOINT'],
+      )
+    end
+
     def storage_s3(value)
-      s3 = AWS::S3.new
-      s3.buckets[ config[:s3_bucket]].
+      s3_connection.buckets[ config[:s3_bucket]].
         objects[  config[:name]     ].
         write(value, :acl => :public_read)
     rescue
@@ -105,7 +111,7 @@ module Spree
 
     def notify(msg)
       # Sends an email to Techadmin
-      NotificationMailer.send_notification(msg)
+      Spree::NotificationMailer.send_notification(msg)
       # fail job
       raise msg
     end
@@ -126,25 +132,27 @@ module Spree
       params.merge!(variant_id: v.number) if tab == 'made-by-the-gang'
       product_page_url(params)
     end
-    
+
     def data_source
       Spree::Variant.
-        includes(:product).
+        #includes(:targets, :prices, :option_values, :images, product: [product_group: [:product_pages]] ).
+        includes(:targets, :product).
         where("spree_products.product_type NOT IN (?)", %w(virtual_product parcel)).
         references(:products)
     end
-    
+
     def variants
-      data_source.
-        find_in_batches(batch_size: 100) do |batch|
-          batch.each { |variant|
-            variant.targets.each {|t| 
-              ppage = variant.product.
-                     product_group.
-                     product_pages.
-                     where(target_id: t.id).first
-              yield variant.decorate(context: {target: t}) if ppage }
-          }
+      data_source.find_in_batches(batch_size: 100) do |batch|
+        batch.each do |variant|
+          next if variant.is_master_but_has_variants?
+          variant.targets.each do |t|
+            ppage = variant.product.
+              product_group.
+              product_pages.
+              where(target_id: t.id).first
+            yield variant.decorate(context: {target: t}) if ppage 
+          end
+        end
       end
     end
 

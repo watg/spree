@@ -15,9 +15,9 @@ module Spree
 
     def pdf
       if invoice?
-        Spree::PDF::OrdersToBeDispatched.orders_to_pdf(orders)
+        Spree::PDF::OrdersPrinter.new(orders).print_invoices_and_packing_lists
       elsif image_sticker?
-        Spree::PDF::OrdersToBeDispatched.stickers_to_pdf(orders)
+        Spree::PDF::OrdersPrinter.new(orders).print_stickers
       end
     end
 

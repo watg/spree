@@ -306,6 +306,10 @@
 					}
 				}
 			}
+			.large-4 {
+				max-height: 387px;
+				overflow: hidden;
+			}
 			.large-8 {
 				max-height: 814px;
 				overflow: hidden;
@@ -320,6 +324,12 @@
 							padding: 45% 0 emCalc(10px);
 						}
 					}
+				}
+			}
+			// Mobile .large-4, .large-8
+			@media only screen and (max-width: 48em) {
+				.large-4, .large-8 {
+					max-height: none;
 				}
 			}
 			.more-colours {

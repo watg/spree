@@ -16,16 +16,24 @@ FactoryGirl.define do
     association :gang_member, factory: :gang_member, strategy: :build
     shipping_category { |r| Spree::ShippingCategory.first || r.association(:shipping_category) }
 
+    # ensure stock item will be created for this products master
+    before(:create) { create(:stock_location) if Spree::StockLocation.count == 0 }
+
     after(:create) do |p|
       p.variants_including_master.each { |v| v.save! }
     end
-    
+
     factory :product, aliases: [:rtw, :kit, :virtual_product] do
       tax_category { |r| Spree::TaxCategory.first || r.association(:tax_category) }
-      
+
       # ensure stock item will be created for this products master
       before(:create) { create(:stock_location) if Spree::StockLocation.count == 0 }
-      
+
+# TODO delete the following if there are no problems with tets DD 17/04/14
+#      after :create do |i,evaluator|
+#        create(:price, variant: i.master, :currency => 'USD', :amount => 19.99)
+#      end
+
       factory :product_with_option_types do
         after(:create) { |product| create(:product_option_type, product: product) }
       end

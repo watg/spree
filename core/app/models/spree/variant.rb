@@ -88,6 +88,7 @@ module Spree
     NUMBER_PREFIX = 'V'
 
     class << self
+
       def physical
         includes(:product).where('spree_products.product_type' => Spree::Product::NATURE[:physical])
       end
@@ -123,7 +124,7 @@ module Spree
         if !target.blank?
           selector = selector.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
         end
-        variants = selector.order( "spree_option_types.position", "spree_option_values.position" )
+        variants = selector.order( "spree_option_types.position", "spree_option_values.position", "spree_assets.position" )
 
         # Preprocess the variants to remove any option_types that only have 1 option value
         valid_option_types = {}
@@ -163,6 +164,10 @@ module Spree
         hash
       end
 
+    end
+
+    def is_master_but_has_variants?
+      self.is_master? and self.product.variants and self.product.variants.any?
     end
 
     def generate_variant_number(force: false)
@@ -344,12 +349,12 @@ module Spree
     # Product may be created with deleted_at already set,
     # which would make AR's default finder return nil.
     # This is a stopgap for that little problem.    
-  	def product
-     Spree::Product.unscoped { super }
+    def product
+      Spree::Product.unscoped { super }
     end
 
     def default_price
-     Spree::Price.unscoped { super }
+      Spree::Price.unscoped { super }
     end
 
     def options=(options = {})
@@ -476,7 +481,7 @@ module Spree
     def parse_price(price)
       return price unless price.is_a?(String)
 
-      separator, delimiter = I18n.t([:'number.currency.format.separator', :'number.currency.format.delimiter'])
+      separator, _delimiter = I18n.t([:'number.currency.format.separator', :'number.currency.format.delimiter'])
       non_price_characters = /[^0-9\-#{separator}]/
       price.gsub!(non_price_characters, '') # strip everything else first
       price.gsub!(separator, '.') unless separator == '.' # then replace the locale-specific decimal separator with the standard separator if necessary

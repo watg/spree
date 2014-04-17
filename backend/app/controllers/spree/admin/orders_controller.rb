@@ -53,7 +53,7 @@ module Spree
         @order.save
         redirect_to edit_admin_order_url(@order)
       end
-      
+
       def internal 
         @order.internal= !@order.internal?
         @order.save(validation: false)
@@ -74,6 +74,7 @@ module Spree
 
       def show
         @order = Order.find_by_number!(params[:id])
+        type = (params[:type] or :invoice).to_sym
         pdf    = get_pdf(@order, type)
         respond_to do |format|
           format.pdf do
@@ -138,30 +139,31 @@ module Spree
       end
 
       private
-      def type
-        (params[:type] == 'sticker' ? :sticker : :invoice )
-      end
 
       def get_pdf(order, pdf_type)
-        if pdf_type == :invoice
-          Spree::PDF::CommercialInvoice.to_pdf(order)
+        case pdf_type
+        when :invoice
+          Spree::PDF::CommercialInvoice.new(order).to_pdf
+        when :packing_list
+          Spree::PDF::PackingList.new(order).to_pdf
         else
-          Spree::PDF::ImageSticker.to_pdf(order)
+          Spree::PDF::ImageSticker.new(order).to_pdf
         end
       end
-        def load_order
-          @order = Order.includes(:adjustments).find_by_number!(params[:id])
-          authorize! action, @order
-        end
 
-        # Used for extensions which need to provide their own custom event links on the order details view.
-        def initialize_order_events
-          @order_events = %w{approve cancel resume}
-        end
+      def load_order
+        @order = Order.includes(:adjustments).find_by_number!(params[:id])
+        authorize! action, @order
+      end
 
-        def model_class
-          Spree::Order
-        end
+      # Used for extensions which need to provide their own custom event links on the order details view.
+      def initialize_order_events
+        @order_events = %w{approve cancel resume}
+      end
+
+      def model_class
+        Spree::Order
+      end
     end
   end
 end
