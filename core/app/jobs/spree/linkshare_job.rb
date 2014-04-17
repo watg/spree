@@ -143,7 +143,10 @@ module Spree
               product_group.
               product_pages.
               where(target_id: target.id).first
-            yield(variant.decorate(context: {target: target})) if ppage
+            decorated_variant = variant.decorate(context: {target: target})
+            if ppage and decorated_variant.first_image
+              yield(decorated_variant)
+            end
           end
         end
       end
