@@ -34,7 +34,7 @@ class Spree::VariantDecorator < Draper::Decorator
     context[:target]
   end
 
-  def clean_descripition
+  def clean_description
     object.product.clean_description_for(target)
   end
 
