@@ -3,5 +3,5 @@
   $('<%=params[:drop_zone]%>').html('<img src="<%=params[:url]%>" style="max-width: 250px">')
 <% else %>
   $('#upload_<%=params[:unique_id]%> div.progress').removeClass('active progress-striped').
-  addClass('progress-danger').append('<div><%= escape_javascript(@outcome.errors.message) %></div>');
+  addClass('progress-danger').append('<div><%= escape_javascript(@outcome.errors.message_list.join(': ')) %></div>');
 <% end %>
