@@ -21,7 +21,7 @@ module Spree
           # stock_items.sum(:count_on_hand)
           # But it requires an extra lookup even though the stock_items are eager loaded hence
           # we do the sum in ruby rather than sql
-          stock_items.to_a.sum(:count_on_hand)
+          stock_items.to_a.sum(&:count_on_hand)
         else
           Float::INFINITY
         end
