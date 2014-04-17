@@ -81,3 +81,4 @@ onAddress = () ->
 
 Spree.ready ($) ->
   Spree.onAddress = onAddress
+  onAddress()
