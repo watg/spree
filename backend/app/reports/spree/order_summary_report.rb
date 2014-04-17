@@ -133,8 +133,9 @@ module Spree
         shipping_methods = o.shipments.last.shipping_methods
       end
 
-      first_eligible_promotion = o.adjustments.promotion.eligible.first
-      promo_label = first_eligible_promotion.label if first_eligible_promotion
+      promotions = Spree::Adjustment.promotion.where(order_id: o.id, state: :closed, eligible: true)
+      promo_label = promotions.map(&:label).join('|')
+      if promo_label
       [
         o.id, 
         o.email,
@@ -180,6 +181,7 @@ module Spree
         ( shipping_methods && shipping_methods.find_by_display_on('front_end') ? shipping_methods.find_by_display_on('front_end').name : '' ), 
         ( shipping_methods && shipping_methods.find_by_display_on('back_end') ? shipping_methods.find_by_display_on('back_end').name : '' ),
       ] 
+      end
 
     end
 

@@ -77,9 +77,8 @@ module Spree
     end
 
     def adjustments(o)
-      o.adjustments.eligible.promotion.map do |adjustment|
-        adjustment.label
-      end
+      promotions = Spree::Adjustment.promotion.where(order_id: o.id, state: :closed, eligible: true)
+      promotions.map(&:label)
     end
 
     def option_types_for_variant(variant)
