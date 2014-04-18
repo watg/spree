@@ -2,7 +2,7 @@ module Spree
   class UploadImageToS3Service < Mutations::Command
     
     # Use the format #{bucket}.s3.amazonaws.com to allow for maximum host location flexibility
-    DIRECT_UPLOAD_URL_FORMAT = %r{\Ahttps:\/\/#{Paperclip::Attachment.default_options[:s3_bucket]}.s3.amazonaws.com\/(?<path>uploads\/.+\/(?<filename>.+))\z}.freeze
+    DIRECT_UPLOAD_URL_FORMAT = %r{\Ahttps:\/\/#{Paperclip::Attachment.default_options[:bucket]}.s3.amazonaws.com\/(?<path>uploads\/.+\/(?<filename>.+))\z}.freeze
     
     required do
       string  :direct_upload_url

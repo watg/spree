@@ -20,6 +20,7 @@
 
 //= require spree/frontend/spree
 //= require spree/frontend/checkout
+//= require spree/frontend/checkout/address
 //= require spree/frontend/cart
 //= require spree/frontend/currency
 

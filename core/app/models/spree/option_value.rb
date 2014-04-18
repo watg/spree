@@ -18,10 +18,8 @@ module Spree
 	# The URL parameter should be changed from 'products' to 'option_value' at some point
     has_attached_file :image,
     :styles        => { :small => '18x18#', :medium => '40x30#', :large => '140x110#' },
-    :default_style => :small,
-    :url           => "/spree/products/:id/:style/:basename.:extension",
-    :path          => ":rails_root/public/spree/option_values/:id/:style/:basename.:extension"
-
+    :default_style => :small
+#    TODO: move options values in option_values folder on S3
     
     def has_image?
       image_file_name && !image_file_name.empty?
