@@ -20,6 +20,18 @@ describe Spree::StockCheckJob do
       end
     end
 
+    context "on variant which is a kit" do
+
+      before do
+        stock_item.variant.stub_chain(:isa_kit?).and_return true
+      end
+
+      it "does not update the variant" do
+        expect_any_instance_of(Spree::StockCheckJob).not_to receive(:check_stock)
+        subject.perform
+      end
+    end
+
     context "on variant part of a kit" do
       let(:part) { create(:variant_with_stock_items)}
       subject  { Spree::StockCheckJob.new(part.stock_items.first) }
