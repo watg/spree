@@ -35,7 +35,7 @@ module Spree
         xml.link(href: entry_url(variant))
         xml.updated  variant.updated_at.iso8601
 
-        xml['g'].image_link variant.first_image.attachment.url(:large)
+        xml['g'].image_link variant.first_image.attachment.url(:large) if variant.first_image
 
         xml['g'].price "#{variant.current_price_in("GBP").amount.to_f} GBP"
         xml['g'].condition "new"
