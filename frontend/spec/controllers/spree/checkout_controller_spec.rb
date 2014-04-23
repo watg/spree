@@ -354,15 +354,11 @@ describe Spree::CheckoutController do
     let(:params) { {chimpy_subscriber: {signupEmail: 'luther@bbc.co.uk', subscribe: true}, state: 'delivery'} }
 
     it "should subscribe customer" do
-      expected_data = {
-        email: params[:chimpy_subscriber][:signupEmail],
-        action: :subscribe,
-        source: 'Website - Guest Checkout'
-      }
       
       subject.send(:subscribe_to_newsletter, params[:chimpy_subscriber][:signupEmail])
       expect(Spree::Chimpy::Action.count).to eq 1
       expect(Spree::Chimpy::Action.first.source).to eq 'Website - Guest Checkout'
+      expect(Spree::Chimpy::Action.first.action).to eq "subscribe"
       expect(Spree::Chimpy::Action.first.email).to eq params[:chimpy_subscriber][:signupEmail]
     end
   end
