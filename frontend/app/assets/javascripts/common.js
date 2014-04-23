@@ -192,6 +192,7 @@ WATG.referral = {
 	
 	// Submit both forms
 	submitForms: function() {
+		_gaq.push('_trackEvent', 'competition sign up', 'sign up'); // GA event
 		WATG.referral.showWait();
 
 		// Set referrer for referee form
@@ -294,7 +295,8 @@ $(function() {
 
 	// Refer-your-friends competitions
 	if ($('body').hasClass('competition-2014') ||
-		$('body').hasClass('competition-beatkit')) {
+		$('body').hasClass('competition-beatkit') || 
+		$('body').hasClass('competition-shopping-spree-apr-2014')) {
 		WATG.referral.init();
 	}
 

@@ -270,7 +270,8 @@ body.thank-you {
 /* Refer-a-friend competitions */
 
 .competition-2014,
-.competition-beatkit {
+.competition-beatkit,
+.competition-shopping-spree-apr-2014 {
 	.row-referral {
 		/*min-height: 654px;*/
 		margin: -3em 0 3em;
@@ -280,6 +281,9 @@ body.thank-you {
 		}
 		.text-center {
 			font-size: 0.75em;
+			a {
+				text-decoration: underline;
+			}
 		}
 		.error {
 			margin: 2.75em 0 -1.75em;

@@ -1,19 +1,32 @@
 module Spree
- StockCheckJob = Struct.new(:stock_item) do
+  StockCheckJob = Struct.new(:stock_item) do
     def perform
-      variant_in_stock = Spree::Stock::Quantifier.new(stock_item.variant).can_supply?(1)
-      stock_item.variant.update_attributes(in_stock_cache: variant_in_stock)
 
-      if stock_item.variant.assemblies.first
-        if variant_in_stock
-          check_stock_for_kits_using_this_variant(stock_item.variant)
-        else
-          put_all_kits_using_this_variant_out_of_stock(stock_item.variant)
+      # We do not want to run this peice of code if the variant is a kit as we do 
+      # not track stock on the kit container, although the in_stock_cache get's updated
+      # by a part as it goes in and out of stock
+      if !stock_item.variant.isa_kit?
+        variant_in_stock = check_stock(stock_item)
+
+        if stock_item.variant.assemblies.first
+          if variant_in_stock
+            check_stock_for_kits_using_this_variant(stock_item.variant)
+          else
+            put_all_kits_using_this_variant_out_of_stock(stock_item.variant)
+          end
         end
+
       end
     end
 
     private
+
+    def check_stock(stock_item)
+      variant_in_stock = Spree::Stock::Quantifier.new(stock_item.variant).can_supply?(1)
+      stock_item.variant.update_attributes(in_stock_cache: variant_in_stock)
+      variant_in_stock
+    end
+
     def put_all_kits_using_this_variant_out_of_stock(part)
       variant_ids = list_of_kit_variants_using(part).map(&:id)
       Spree::Variant.where(id: variant_ids).update_all(in_stock_cache: false, updated_at: Time.now) if variant_ids

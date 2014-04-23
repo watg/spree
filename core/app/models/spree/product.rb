@@ -183,7 +183,8 @@ module Spree
     end
 
     def clean_string(string)
-      Sanitize.clean(string).gsub(/\r/," ").gsub(/\n/," ")
+      sanitized_string = Sanitize.clean(string)
+      sanitized_string ? sanitized_string.gsub(/\r/," ").gsub(/\n/," ") : ''
     end
 
     def description_for(target)
