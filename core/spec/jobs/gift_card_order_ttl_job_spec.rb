@@ -23,6 +23,6 @@ describe Spree::GiftCardOrderTTLJob do
     
     order.reload
     expect(order.adjustments.gift_card.first).to_not be_blank
-    expect(order.adjustments.gift_card.first.state).to eql('finalized')
+    expect(order.adjustments.gift_card.first.state).to eql('closed')
   end
 end
