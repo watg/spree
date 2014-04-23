@@ -75,5 +75,15 @@ onPayment = () ->
             return false
         })
 
+paymentMethods = () ->
+  $('.payment-method-tab').click -> 
+    input = $(this).find('input')
+    $('.payment-method').hide()
+    if (input.prop('checked'))
+      $('#payment_method_' + input.val()).show()
+
+  $('.payment-method-tab:first').trigger('click')
+
 Spree.ready ($) ->
   Spree.onPayment = onPayment
+  Spree.paymentMethods = paymentMethods
