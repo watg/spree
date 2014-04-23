@@ -46,7 +46,7 @@ module Spree
         message << ""
 
         variants.each do |v|
-          message << "\t #{v.name}, #{v.sku} , #{url(v.product)}"
+          message << "\t #{v.name}, #{v.sku}, #{url(v.product)}"
         end
         message << ""
         message << ""

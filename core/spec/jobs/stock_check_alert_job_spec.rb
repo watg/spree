@@ -32,14 +32,16 @@ describe Spree::StockCheckAlertJob do
 
     context "recent out of stock item" do
       before do
-        variant.product.name = 'Foo'
-        variant.product.permalink = 'foo'
+        variant.product.name = 'name'
+        variant.product.slug = 'slug'
+        variant.sku =  'sku'
+        variant.save
         variant.product.save
         stock_item.update_columns(updated_at: 1.days.ago, backorderable: false, count_on_hand: 0)
       end
 
       it "sends notificition" do
-        message = ["product", "===========", "", "\t Foo,  , http://www.example.com//shop/admin/products/foo/stock","",""].join("\n")
+        message = ["product", "===========", "", "\t name, sku, http://www.example.com//shop/admin/products/slug/stock","",""].join("\n")
 
         mock_object = double("mock_object")
         mock_object.should_receive(:deliver)
