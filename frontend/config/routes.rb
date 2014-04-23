@@ -31,7 +31,6 @@ Spree::Core::Engine.add_routes do
   get '/orders/:id/token/:token' => 'orders#show', :as => :token_order
 
   resources :orders, :except => [:new, :create, :destroy] do
-    get :receipt, :on => :member, :as => :receipt
     post :populate, :on => :collection
   end
 

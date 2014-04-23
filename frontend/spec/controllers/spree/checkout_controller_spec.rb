@@ -152,7 +152,7 @@ describe Spree::CheckoutController do
         # This inadvertently is a regression test for #2694
         it "should redirect to the order view" do
           spree_post :update, {:state => "confirm"}
-          response.should redirect_to spree.receipt_order_path(order)
+          response.should redirect_to spree.order_path(order)
         end
 
         it "should populate the flash message" do
@@ -354,10 +354,15 @@ describe Spree::CheckoutController do
     let(:params) { {chimpy_subscriber: {signupEmail: 'luther@bbc.co.uk', subscribe: true}, state: 'delivery'} }
 
     it "should subscribe customer" do
+      expected_data = {
+        email: params[:chimpy_subscriber][:signupEmail],
+        action: :subscribe,
+        source: 'Website - Guest Checkout'
+      }
+      
       subject.send(:subscribe_to_newsletter, params[:chimpy_subscriber][:signupEmail])
       expect(Spree::Chimpy::Action.count).to eq 1
       expect(Spree::Chimpy::Action.first.source).to eq 'Website - Guest Checkout'
-      expect(Spree::Chimpy::Action.first.action).to eq "subscribe"
       expect(Spree::Chimpy::Action.first.email).to eq params[:chimpy_subscriber][:signupEmail]
     end
   end
