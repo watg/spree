@@ -51,7 +51,7 @@
 		
 		<ul id="payment-methods" data-hook class="p-methods small-12 columns">
 			<% @order.available_payment_methods.each do |method| %>
-			<li id="payment_method_<%= method.id %>" class="<%= 'last' if method == @order.available_payment_methods.last %>" data-hook>
+			<li id="payment_method_<%= method.id %>" class="<%= "payment-method #{(method == @order.available_payment_methods.last ? 'last' : nil)}" %>" data-hook>
 				<div>
 					<%= render :partial => "spree/checkout/payment/#{method.method_type}", :locals => { :payment_method => method } %>
 				</div>
@@ -64,6 +64,6 @@
 <div class="small-12 columns">
 	<div class="form-buttons" data-hook="buttons">
 		<%= submit_tag Spree.t(:save_and_continue), :class => 'continue button primary' %>
-		<script>Spree.disableSaveOnClick();</script>
+		<script>$( document ).ready(function(){ Spree.paymentMethods(); Spree.disableSaveOnClick(); })</script>
 	</div>
 </div>
