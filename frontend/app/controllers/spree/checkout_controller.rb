@@ -119,7 +119,7 @@ module Spree
 
     # Provides a route to redirect after order completion
     def completion_route
-      spree.order_path(@order)
+      spree.receipt_order_path(@order)
     end
 
     def setup_for_current_state
