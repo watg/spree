@@ -18,6 +18,8 @@ module Spree
       initializer "spree.assets.precompile", :group => :all do |app|
         app.config.assets.precompile += %w[
           spree/backend/all*
+          spree/backend.js
+          spree/backend.css
           spree/backend/orders/edit_form.js
           spree/backend/address_states.js
           jqPlot/excanvas.min.js
