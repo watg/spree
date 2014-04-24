@@ -43,7 +43,7 @@ module Spree
           # remarketing javascript snippets
           # are rendered, we can not use completion_route to pass a
           # param as it is overridden in the auth plugin 
-          flash[:commerce_tracking] = "checkout_complete"
+          flash[:order_completed] = true 
           send_delayed_jobs
           redirect_to completion_route
         else

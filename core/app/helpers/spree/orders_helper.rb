@@ -8,6 +8,7 @@ module Spree
     def truncated_product_description(product)
       truncate_html(raw(product.description))
     end
+
   end
 end
 

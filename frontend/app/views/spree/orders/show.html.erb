@@ -2,7 +2,7 @@
   <h1><%= accurate_title %></h1>
 
   <div id="order" data-hook>
-    <% if flash[:commerce_tracking] == 'checkout_complete' %>
+    <% if order_just_completed?(@order) %>
        <%= render :partial => 'linkshare_conversion_tag' %>
        <%= render :partial => 'google_adword_tag' %>
        <%= render :partial => 'adroll_conversion_tag' %>
@@ -15,7 +15,7 @@
 
     <p data-hook="links">
       <%= link_to Spree.t(:back_to_store), spree.root_path, :class => "button" %>
-      <% unless params.has_key? :checkout_complete %>
+      <% unless order_just_completed?(@order)  %>
         <% if try_spree_current_user && respond_to?(:spree_account_path) %>
           <%= link_to Spree.t(:my_account), spree_account_path, :class => "button" %>
         <% end %>
