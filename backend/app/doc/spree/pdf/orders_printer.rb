@@ -3,7 +3,7 @@ module Spree
     class OrdersPrinter
 
       def initialize(orders)
-        @orders = orders
+        @orders = orders.order(:batch_print_id)
       end
 
       def print_invoices_and_packing_lists
@@ -30,10 +30,11 @@ module Spree
       def print_stickers
         pdf = Prawn::Document.new
         
-        @orders.each do |order|
+        count = @orders.count - 1
+        @orders.each_with_index do |order, num|
           index = order.batch_print_id
           pdf = ImageSticker.new(order, pdf).create(index)
-          pdf.start_new_page
+          pdf.start_new_page unless count == num
         end
 
         pdf.render
@@ -47,8 +48,8 @@ module Spree
       # end
 
       def shipped_to_europe?(order)
-        zone = Spree::Zone.match(order.shipping_address)
-        return true if zone.name == 'UK' or zone.name  == 'EU'
+        eu_zone = Spree::Zone.find_by(name: 'EU')
+        eu_zone.include?(order.shipping_address)
       end
     end
   end
