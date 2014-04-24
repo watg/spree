@@ -3,6 +3,7 @@ module ApplicationHelper
   include Spree::ProductsHelper
   include Spree::BaseHelper
   include Spree::CdnHelper
+  include Spree::OrdersHelper
 
   def present(object, klass = nil)
     klass ||= "#{object.class}Presenter".constantize

@@ -4,7 +4,7 @@
     _gaq.push(['_setAccount', '<%= tracker.analytics_id %>']);
     _gaq.push(['_trackPageview']);
 
-  <% if flash[:commerce_tracking] && @order.present? && @order.bill_address %>
+  <% if order_just_completed?(@order) && @order.bill_address %>
       <%# more info: https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApiEcommerce %>
       _gaq.push(['_addTrans',
         "<%= j @order.number %>",
