@@ -49,7 +49,7 @@ module Spree
 
       def shipped_to_europe?(order)
         eu_zone = Spree::Zone.find_by(name: 'EU')
-        eu_zone.include?(order.shipping_address)
+        eu_zone.include?(order.shipping_address) if eu_zone
       end
     end
   end
