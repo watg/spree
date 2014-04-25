@@ -45,6 +45,11 @@ module Spree
       visible
     end
 
+    # Peruvian (id=14) or WATG (id=2)
+    def peruvian?
+      (id == 14 or id == 2) 
+    end
+
     def to_param
       if permalink.present? 
         permalink
