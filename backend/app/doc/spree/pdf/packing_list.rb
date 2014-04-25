@@ -165,9 +165,9 @@ module Spree
 
         totals_data = [ [ "Sub Total", order.display_item_total.to_s ] ]
         order.adjustments.eligible.each do |adjustment|
-          next if (adjustment.source_type == 'Spree::TaxRate') and (adjustment.amount == 0)
           totals_data  << [ adjustment.label ,  adjustment.display_amount.to_s ]
         end
+        totals_data.push [ "Tax", order.display_additional_tax_total.to_s ] if order.additional_tax_total != 0
         totals_data.push [ "Shipping", order.display_ship_total.to_s ]
         totals_data.push [ "Order Total", order.display_total.to_s ]
 
