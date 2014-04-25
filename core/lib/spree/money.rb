@@ -194,6 +194,14 @@ module Spree
       @money.format(@options)
     end
 
+    def to_s_with_USD
+      if money.currency.iso_code == 'USD'
+        'USD ' + to_s
+      else
+        to_s
+      end
+    end
+
     def to_html(options = { :html => true })
       output = @money.format(@options.merge(options))
       if options[:html]
