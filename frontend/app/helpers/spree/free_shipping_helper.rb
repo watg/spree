@@ -2,10 +2,10 @@ module Spree
   module FreeShippingHelper
 
     FREE_SHIPPING_COUNTRY_CODES = {
-      'US' => '$175.00',
-      'CA' => '$175.00',
-      'GB' => '£95.00',
-      'FR' => '€125.00',
+      'US' => '$120.00',
+      'CA' => '$120.00',
+      'GB' => '£65.00',
+      'FR' => '€70.00',
       'ES' => '€65.00'
     }
 
