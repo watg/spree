@@ -168,6 +168,7 @@ module Spree
           next if (adjustment.source_type == 'Spree::TaxRate') and (adjustment.amount == 0)
           totals_data  << [ adjustment.label ,  adjustment.display_amount.to_s ]
         end
+        totals_data.push [ "Shipping", order.display_ship_total.to_s ]
         totals_data.push [ "Order Total", order.display_total.to_s ]
 
         pdf.table(totals_data, :position => invoice_header_x, :width => 215) do
