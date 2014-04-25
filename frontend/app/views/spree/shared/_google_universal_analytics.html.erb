@@ -1,3 +1,4 @@
+<% if production_or_staging? %>
 <% if tracker_id %>
   <%= javascript_tag do %>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -19,4 +20,5 @@
   <% end %>
 
   <% end %>
+<% end %>
 <% end %>

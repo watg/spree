@@ -87,5 +87,7 @@
 <div class="modal" id="modal-contact">
 	<a class="modal-close" href="#">Close</a>
 	<h3>Contact Us</h3>
-	<iframe src="//woolthegang.desk.com/customer/emails/new"></iframe>
+  <% if production_or_staging? %>
+	  <iframe src="//woolthegang.desk.com/customer/emails/new"></iframe>
+  <% end %>
 </div>
