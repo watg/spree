@@ -6,7 +6,13 @@ module Spree
     validate :no_attachment_errors
 
     has_attached_file :attachment,
-                      styles: { mini: '48x48>', small: '100x100>', product: '240x240>', large: '600x600>' },
+                      styles: {
+                        :mini    => '66x84>',    # thumbs under image (product * 0.14),
+                        :listing => '150x192>',  # listing in basket (product * 0.32),
+                        :small   => '310x396>',  # images on category view (product * 0.66),
+                        :product => '470x600>',  # product page full product image
+                        :large   => '940x1200>'  # light box image
+                      },
                       default_style: :product,
                       # Commented out the colorspace problem until heroku fix their imageMagick issue
                       convert_options: { all: '-strip -auto-orient -colorspace sRGB' }
