@@ -27,8 +27,8 @@ module Spree
     make_permalink order: :firstname
 
     has_attached_file :avatar,
-      :styles        => { :avatar => "150x150>", :mini => Paperclip::Attachment.default_options[:styles][:mini] },
-      :default_style => :small,
+      :styles        => { :avatar => "150x150>", :mini => "66x84>" },
+      :default_style => :mini,
       :convert_options =>  { :all => '-strip -auto-orient' }
 
     process_in_background :avatar
