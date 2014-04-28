@@ -196,7 +196,7 @@ WATG.referral = {
 	
 	// Submit on forms
 	submitForms: function() {
-		_gaq.push('_trackEvent', 'competition sign up', 'sign up'); // GA event
+		_gaq.push(['_trackEvent', 'competition sign up', 'sign up']); // GA event
 		this.showWait();
 
 		$.ajax({
