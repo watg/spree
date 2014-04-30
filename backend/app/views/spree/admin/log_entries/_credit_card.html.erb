@@ -1,4 +1,8 @@
 <tr>
   <td>Message</td>
-  <td><%= entry.parsed_details.message %></td>
+  <% if entry.parsed_details.try(:body) %>
+    <td><%= raw Nokogiri.XML(entry.parsed_details.body).to_xhtml %></td>
+  <% else %>    
+    <td><%= entry.parsed_details.inspect %></td>
+  <% end %>
 </tr>
