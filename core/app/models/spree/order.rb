@@ -724,7 +724,7 @@ module Spree
       else
         line_items_to_delete = self.line_items.select {|li| li.variant.deleted? }
         line_items_to_delete.map do |li|
-          li.destroy
+          OrderContents.new(self).delete_line_item(li)
         end
       end
     end

@@ -26,7 +26,29 @@ module Spree
     # decrementing line_items
     def remove(variant, quantity=1, shipment=nil, parts=nil, personalisations=nil, target_id=nil)
       line_item = grab_line_item_by_variant(variant, parts, personalisations, target_id, true)
-      remove_by_line_item(line_item, quantity, shipment)
+      unsafe_remove_by_line_item(line_item, quantity, shipment)
+      reload_totals
+      PromotionHandler::Cart.new(order, line_item).activate
+      ItemAdjustments.new(line_item).update
+      reload_totals
+      line_item
+    end
+
+    def add_by_line_item(line_item, quantity, shipment=nil)
+      unsafe_add_by_line_item(line_item, quantity, shipment=nil)
+      reload_totals
+      PromotionHandler::Cart.new(order, line_item).activate
+      ItemAdjustments.new(line_item).update
+      reload_totals
+      line_item
+    end
+
+    def delete_line_item(line_item)
+      remove_by_line_item(line_item, line_item.quantity)
+    end
+
+    def remove_by_line_item(line_item, quantity, shipment=nil)
+      unsafe_remove_by_line_item(line_item, quantity, shipment=nil)
       reload_totals
       PromotionHandler::Cart.new(order, line_item).activate
       ItemAdjustments.new(line_item).update
@@ -51,13 +73,14 @@ module Spree
       end
     end
     
-    def add_by_line_item(line_item, quantity, shipment=nil)
+  private
+
+    def unsafe_add_by_line_item(line_item, quantity, shipment=nil)
       add_to_existing_line_item(line_item, quantity, shipment)
       line_item.save!
-      line_item
     end
 
-    def remove_by_line_item(line_item, quantity, shipment=nil)
+    def unsafe_remove_by_line_item(line_item, quantity, shipment=nil)
       line_item.target_shipment = shipment
 
       line_item.quantity += -quantity.to_i
@@ -67,10 +90,8 @@ module Spree
       else
         line_item.save!
       end
-      line_item
     end
 
-  private
     def order_updater
       @updater ||= OrderUpdater.new(order)
     end
