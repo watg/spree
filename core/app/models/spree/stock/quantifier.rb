@@ -89,8 +89,11 @@ module Spree
         end
 
         def eager_load_stock_items( variant_quantity_grouping )
+          # This code relies on us removing deleted variants in OrderController::edit after this is run in
+          # the context of adding an item via the cart, hence a user will add an item, a stock check will be 
+          # completed ( igonring the deleted variant ) then the deleted variant will get pruned
           variants_with_stock = Spree::Variant.includes(:stock_items =>[:stock_location]).
-            where( Spree::StockLocation.table_name =>{ :active => true} ).find(variant_quantity_grouping.keys)
+            where( Spree::StockLocation.table_name =>{ :active => true} ).where( id: variant_quantity_grouping.keys )
 
           variants_with_stock.inject({}) do |hash,v| 
             hash[v] = variant_quantity_grouping[v.id]

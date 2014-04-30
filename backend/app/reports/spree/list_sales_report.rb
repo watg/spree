@@ -27,6 +27,7 @@ module Spree
         product_type
         quantity
         state
+        payment_method
         returning_customer
         email
       )
@@ -108,6 +109,7 @@ module Spree
         variant.product.product_type,
         quantity,
         o.state,
+        (o.payments.first.source_type.split('::').last if o.payments.first.try(:source_type)),
         returning_customer(o,previous_users),
         o.email,
       ] + option_types_for_variant(variant) + adjustments(o)

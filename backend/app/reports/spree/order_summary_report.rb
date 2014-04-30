@@ -21,6 +21,7 @@ module Spree
         shipped_at
         location_shipped
         returning_customer
+        internal
         currency
         cost_price 
         revenue_pre_sale_pre_ship_pre_promo 
@@ -145,6 +146,7 @@ module Spree
         shipped_at,
         o.shipping_address.country.name,
         returning_customer(o,previous_users),
+        o.internal?,
         o.currency,
         o.cost_price_total.to_f,
         o.item_normal_total.to_f,

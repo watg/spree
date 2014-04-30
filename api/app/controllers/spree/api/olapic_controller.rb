@@ -1,6 +1,9 @@
 module Spree
   module Api
     class OlapicController < Spree::Api::BaseController
+      skip_before_filter :check_for_user_or_api_key
+      skip_before_filter :authenticate_user
+
       include Rails.application.routes.url_helpers
       def index
         # Hack to filter out all the product_pages we actually use ( they will have a permalink )
@@ -10,6 +13,5 @@ module Spree
       end
 
     end
-
   end
 end

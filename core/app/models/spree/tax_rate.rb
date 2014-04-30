@@ -26,9 +26,9 @@ module Spree
     # Gets the array of TaxRates appropriate for the specified order
     def self.match(order)
       return [] unless order.tax_zone
-      rates = all.select do |rate|
-		# Apply only the rates for the set currency
-		next unless order.currency == rate.currency
+      rates = includes(zone: { zone_members: :zoneable }).load.select do |rate|
+    		# Apply only the rates for the set currency
+    		next unless order.currency == rate.currency
 
         # Why "potentially"?
         # Go see the documentation for that method.

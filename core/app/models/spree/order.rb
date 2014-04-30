@@ -6,7 +6,7 @@ module Spree
   class Order < ActiveRecord::Base
     include Checkout
     include CurrencyUpdater
-    
+
     checkout_flow do
       go_to_state :address
       go_to_state :delivery
@@ -390,7 +390,7 @@ module Spree
     end
 
     def outstanding_balance?
-     self.outstanding_balance != 0
+      self.outstanding_balance != 0
     end
 
     def name
@@ -426,14 +426,14 @@ module Spree
       updater.run_hooks
 
       touch :completed_at
-      
-	  deliver_gift_card_emails    
+
+      deliver_gift_card_emails    
       deliver_order_confirmation_email unless confirmation_delivered?
 
       consider_risk
-	end
-    
-	def deliver_gift_card_emails
+    end
+
+    def deliver_gift_card_emails
       self.gift_card_line_items.each do |item|
         item.quantity.times {|position| 
           job = Spree::IssueGiftCardJob.new(self, item, position)
@@ -465,7 +465,7 @@ module Spree
     def deliver_order_confirmation_email
       begin
         OrderMailer.confirm_email(self.id).deliver
-		update_column(:confirmation_delivered, true)
+        update_column(:confirmation_delivered, true)
       rescue Exception => e
         logger.error("#{e.class.name}: #{e.message}")
         logger.error(e.backtrace * "\n")
@@ -645,7 +645,7 @@ module Spree
     end
 
     def refresh_shipment_rates
-      shipments.map &:refresh_rates
+      shipments.map(&:refresh_rates)
     end
 
     def shipping_eq_billing_address?
@@ -664,7 +664,7 @@ module Spree
         (cvv_response_code IS NOT NULL and cvv_response_code != 'M') or
         cvv_response_message IS NOT NULL and cvv_response_message != '' or
         state = 'failed'
-      }.squish!).uniq.count > 0
+                          }.squish!).uniq.count > 0
     end
 
     def approved_by(user)
@@ -713,10 +713,20 @@ module Spree
       self.ensure_updated_shipments
     end
 
-
     def find_existing_line_item(variant, parts, personalisations, target_id)
       uuid = Spree::VariantUuid.fetch(variant, parts, personalisations).number
       self.line_items.find_by(variant_id: variant.id, item_uuid: uuid, target_id: target_id)
+    end
+
+    def prune_line_items
+      if self.completed?
+        Rails.logger.error "Can not prune line items from a compelted order: #{self.id}"
+      else
+        line_items_to_delete = self.line_items.select {|li| li.variant.deleted? }
+        line_items_to_delete.map do |li|
+          OrderContents.new(self).delete_line_item(li)
+        end
+      end
     end
 
     private
@@ -749,30 +759,30 @@ module Spree
       end
     end
 
-      def after_cancel
-        shipments.each { |shipment| shipment.cancel! }
-        payments.completed.each { |payment| payment.credit! }
+    def after_cancel
+      shipments.each { |shipment| shipment.cancel! }
+      payments.completed.each { |payment| payment.credit! }
 
-        send_cancel_email
-        self.update_column(:payment_state, 'credit_owed') unless shipped?
-      end
+      send_cancel_email
+      self.update_column(:payment_state, 'credit_owed') unless shipped?
+    end
 
-      def send_cancel_email
-        OrderMailer.cancel_email(self.id).deliver
-      end
+    def send_cancel_email
+      OrderMailer.cancel_email(self.id).deliver
+    end
 
-      def after_resume
-        shipments.each { |shipment| shipment.resume! }
-        consider_risk
-      end
+    def after_resume
+      shipments.each { |shipment| shipment.resume! }
+      consider_risk
+    end
 
-      def use_billing?
-        @use_billing == true || @use_billing == 'true' || @use_billing == '1'
-      end
+    def use_billing?
+      @use_billing == true || @use_billing == 'true' || @use_billing == '1'
+    end
 
-      def set_currency
-        self.currency = Spree::Config[:currency] if self[:currency].nil?
-      end
+    def set_currency
+      self.currency = Spree::Config[:currency] if self[:currency].nil?
+    end
 
   end
 end

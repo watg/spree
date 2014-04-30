@@ -10,6 +10,14 @@ module Spree
         @order = order
         @pdf = pdf || Prawn::Document.new
         @currency = order.currency
+        @order_total = @order.total
+        @order_display_total = @order.display_total
+
+        if @order.adjustments.gift_card.any?
+          amount_gift_cards = @order.adjustments.gift_card.to_a.sum(&:amount).abs
+          @order_total += amount_gift_cards
+          @order_display_total = Spree::Money.new(@order_total, { currency: @currency })
+        end
 
         # hash of unique products 
         # :id => {:product, :quantity, :group, :total_price, :single_price}
@@ -48,19 +56,14 @@ module Spree
       end
 
       def watg_details(address_x, lineheight_y)
-        #start with EON Media Group
-        pdf.text_box "WOOL AND THE GANG Ltd", :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box "Unit C106", :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box "89a Shacklewell Lane", :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box "E8 2EB", :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box "London UK", :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.move_down lineheight_y
-        pdf.text_box "Email: info@woolandthegang.com", :at => [address_x,  pdf.cursor]
+        pdf.text "Commercial Invoice", leading: 8, size: 10, style: :bold
+        pdf.text "WOOL AND THE GANG Ltd", leading: 1
+        pdf.text "Unit C106", leading: 1
+        pdf.text "89a Shacklewell Lane", leading: 1
+        pdf.text "E8 2EB", leading: 1
+        pdf.text "London UK", leading: 12
+        pdf.text "Email: info@woolandthegang.com", leading: 1
+        pdf.text "Tel: +44 (0) 207 241 6420"
       end
 
       def watg_logo
@@ -72,28 +75,21 @@ module Spree
       end
 
       def customer_address(address_x, lineheight_y)
-        pdf.move_down 65
+        pdf.move_down 50
         last_measured_y = pdf.cursor
         
-        pdf.text_box "#{order.shipping_address.firstname} #{order.shipping_address.lastname} ", :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box order.shipping_address.address1, :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box order.shipping_address.address2 || '', :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box order.shipping_address.city, :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-
+        pdf.text "#{order.shipping_address.firstname} #{order.shipping_address.lastname}", leading: 1
+        pdf.text order.shipping_address.address1, leading: 1
+        pdf.text (order.shipping_address.address2 || ''), leading: 1
+        pdf.move_down 10
         if state = order.shipping_address.state_text
-          pdf.text_box state, :at => [address_x,  pdf.cursor]
-          pdf.move_down lineheight_y
+          state = ', ' + state
         end
+        pdf.text order.shipping_address.city + state.to_s, leading: 1
 
-        pdf.text_box order.shipping_address.country.name, :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box order.shipping_address.zipcode, :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box order.shipping_address.phone, :at => [address_x,  pdf.cursor]
+        pdf.text order.shipping_address.zipcode, leading: 1
+        pdf.text order.shipping_address.country.name, leading: 6
+        pdf.text order.shipping_address.phone, leading: 1
 
         pdf.move_cursor_to last_measured_y
       end
@@ -103,7 +99,7 @@ module Spree
           ["Invoice #", order.number ],
           ["Invoice Date", Time.now.strftime("%Y/%m/%d") ],
           ["Order Complete  Date", order.completed_at.strftime("%Y/%m/%d") ],
-          ["Amount Due",   order.display_total.to_s ]
+          ["Amount Due",   order.display_total.to_s_with_USD ]
         ]
 
 
@@ -119,7 +115,7 @@ module Spree
       end
 
       def invoice_details
-        invoice_data = [ [ 'Item', 'Harmonisation Code', 'MID', 'Weight (gr)', 'Price', 'Qty', 'Total' ] ]
+        invoice_data = [ [ 'Item', 'Harmonisation Code', 'MID', 'Weight (gr)', 'Price (' + order.currency + ')', 'Qty', 'Total' ] ]
 
         gather_order_products
         compute_prices
@@ -145,26 +141,23 @@ module Spree
           style(row(0).columns(0), :borders => [:top, :left, :bottom])
           style(row(0).columns(-1), :borders => [:top, :right, :bottom])
           style(row(-1), :borders => [:bottom], :border_width => 2, :border_color => 'dddddd')
-          style(column(3..6), :align => :right)
+          style(column(4..6), :align => :right)
           style(columns(0), :width => 110)
           style(columns(1), :width => 110)
           style(columns(2), :width => 100)
           style(columns(3), :width => 60)
-          style(columns(4), :width => 60)
-          style(columns(5), :width => 50)
+          style(columns(4), :width => 70)
+          style(columns(5), :width => 40)
           style(columns(6), :width => 50)
         end
       end
 
       def totals(invoice_header_x)
         pdf.move_down 1
-
-        totals_data = [ [ "Sub Total", order.display_item_total.to_s ] ]
-        order.adjustments.eligible.each do |adjustment|
-          next if (adjustment.originator_type == 'Spree::TaxRate') and (adjustment.amount == 0)
-          totals_data  << [ adjustment.label ,  adjustment.display_amount.to_s ]
-        end
-        totals_data.push [ "Order Total", order.display_total.to_s ]
+        totals_data = []
+        totals_data.push [ "Sub Total", (@order_display_total.money - order.display_ship_total.money).format ]
+        totals_data.push [ "Shipping", order.display_ship_total.to_s ]
+        totals_data.push [ "Order Total", @order_display_total.to_s_with_USD ]
 
         pdf.table(totals_data, :position => invoice_header_x, :width => 215) do
           style(row(0..-2), :padding => [1, 5, 1, 5], :borders => [])
@@ -229,7 +222,7 @@ module Spree
       def compute_prices
         total_amount = 0
         accummulated_amount = 0
-        order_total_without_shipping = order.total - order.ship_total
+        order_total_without_shipping = @order_total - order.ship_total
 
         # weighted sum of the total amount
         @unique_products.each do |id, item|
@@ -271,7 +264,7 @@ module Spree
 
 
       def product_description_cell(product, group)
-        if group.mid_uk.present? && gang_made?(product.gang_member)
+        if group.mid_uk.present? && !product.gang_member.peruvian?
           origin = 'UK'
         else
           origin = group.origin
@@ -283,16 +276,11 @@ module Spree
       end
 
       def mid_cell(gang_member, group)
-        if group.mid_uk.present? && gang_made?(gang_member)
+        if group.mid_uk.present? && !gang_member.peruvian?
           group.mid_uk
         else
           group.mid
         end
-      end
-
-      # if not Peruvian or WATG
-      def gang_made?(gang_member)
-        (gang_member.try(:id) != 15 || gang_member.try(:id) != 2)
       end
 
     end

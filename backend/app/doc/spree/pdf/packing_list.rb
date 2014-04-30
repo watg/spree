@@ -29,7 +29,6 @@ module Spree
         invoice_details(pdf, order, invoice_header_x)
         totals(invoice_header_x)
         invoice_terms(pdf)
-        invoice_signature(pdf)
 
         pdf
       end
@@ -43,21 +42,14 @@ module Spree
       end
 
       def watg_details(pdf, address_x, lineheight_y)
-        #start with EON Media Group
-        pdf.text_box "WOOL AND THE GANG Ltd", :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box "Unit C106", :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box "89a Shacklewell Lane", :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box "E8 2EB", :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box "London UK", :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.move_down lineheight_y
-        pdf.text_box "Email: info@woolandthegang.com", :at => [address_x,  pdf.cursor]
-
-        pdf
+        pdf.text "Commercial Invoice", leading: 10, size: 10, style: :bold # change to Packing List once ready
+        pdf.text "WOOL AND THE GANG Ltd", leading: 2
+        pdf.text "Unit C106", leading: 2
+        pdf.text "89a Shacklewell Lane", leading: 2
+        pdf.text "E8 2EB", leading: 2
+        pdf.text "London UK", leading: 12
+        pdf.text "Email: info@woolandthegang.com", leading: 2
+        pdf.text "Tel: +44 (0) 207 241 6420"
       end
 
       def watg_logo(pdf)
@@ -72,30 +64,21 @@ module Spree
       def customer_address(pdf, order, address_x, lineheight_y)
         pdf.move_down 65
         last_measured_y = pdf.cursor
-
-        pdf.text_box "#{order.shipping_address.firstname} #{order.shipping_address.lastname} ", :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box order.shipping_address.address1, :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box order.shipping_address.address2 || '', :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box order.shipping_address.city, :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-
+        
+        pdf.text "#{order.shipping_address.firstname} #{order.shipping_address.lastname}", leading: 1
+        pdf.text order.shipping_address.address1, leading: 1
+        pdf.text (order.shipping_address.address2 || ''), leading: 1
+        pdf.move_down 10
         if state = order.shipping_address.state_text
-          pdf.text_box state, :at => [address_x,  pdf.cursor]
-          pdf.move_down lineheight_y
+          state = ', ' + state
         end
+        pdf.text order.shipping_address.city + state.to_s, leading: 1
 
-        pdf.text_box order.shipping_address.country.name, :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box order.shipping_address.zipcode, :at => [address_x,  pdf.cursor]
-        pdf.move_down lineheight_y
-        pdf.text_box order.shipping_address.phone, :at => [address_x,  pdf.cursor]
+        pdf.text order.shipping_address.zipcode, leading: 1
+        pdf.text order.shipping_address.country.name, leading: 6
+        pdf.text order.shipping_address.phone, leading: 1
 
         pdf.move_cursor_to last_measured_y
-
-        pdf
       end
 
       def invoice_details(pdf, order, invoice_header_x)
@@ -182,9 +165,10 @@ module Spree
 
         totals_data = [ [ "Sub Total", order.display_item_total.to_s ] ]
         order.adjustments.eligible.each do |adjustment|
-          next if (adjustment.originator_type == 'Spree::TaxRate') and (adjustment.amount == 0)
           totals_data  << [ adjustment.label ,  adjustment.display_amount.to_s ]
         end
+        totals_data.push [ "Tax", order.display_additional_tax_total.to_s ] if order.additional_tax_total != 0
+        totals_data.push [ "Shipping", order.display_ship_total.to_s ]
         totals_data.push [ "Order Total", order.display_total.to_s ]
 
         pdf.table(totals_data, :position => invoice_header_x, :width => 215) do
@@ -209,28 +193,6 @@ module Spree
         pdf.table(invoice_terms_data, :width => 275) do
           style(row(0..-1).columns(0..-1), :padding => [1, 0, 1, 0], :borders => [])
           style(row(0).columns(0), :font_style => :bold)
-        end
-
-        pdf
-      end
-
-
-
-      def invoice_signature(pdf)
-        pdf.move_down 25
-
-        signature_data = [ 
-          ["Name", "Signature", "Date"],
-          ['','' ,'' ],
-        ]
-
-        pdf.table(signature_data, :width => 350) do
-          style(row(1..-1).columns(0..-1), :padding => [4, 5, 4, 5], :borders => [:bottom], :border_color => 'dddddd')
-          style(row(0), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
-          style(row(0).columns(0..-1), :borders => [:top, :bottom])
-          style(row(0).columns(0), :borders => [:top, :left, :bottom])
-          style(row(0).columns(-1), :borders => [:top, :right, :bottom])
-          style(row(1), :border_width => 2, :height => 20 )
         end
 
         pdf

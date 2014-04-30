@@ -152,7 +152,7 @@ Spree::Core::Engine.add_routes do
 
     resources :shipping_manifests
 
-    resources :orders, :except => [:show] do
+    resources :orders do
       member do
         post :internal
         post :gift_card_reissue

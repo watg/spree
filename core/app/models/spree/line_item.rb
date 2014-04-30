@@ -210,20 +210,13 @@ module Spree
       self.line_item_parts.reduce(0.0) do |w, o|
 
         value = o.variant.send(attribute)
-        # We only want to notify if we are part of an assembly e.g. we are a line_item_part and we have a nil as 
-        # a price
         if value.blank? 
-          notify("The #{attribute} of variant id: #{o.variant.id} is nil for line_item_part: #{o.id}")
+          Rails.logger.warn("The #{attribute} of variant id: #{o.variant.id} is nil for line_item_part: #{o.id}")
           value = BigDecimal.new(0,2)
         end
 
         w + ( value.to_f * o.quantity )
       end
-    end
-
-    def notify(msg)
-      # Sends an email to Techadmin
-      Spree::NotificationMailer.send_notification(msg)
     end
 
     def update_inventory

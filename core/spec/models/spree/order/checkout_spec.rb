@@ -433,7 +433,6 @@ describe Spree::Order do
       end
 
       result = order.payments.create!({ :amount => order.outstanding_balance, :payment_method => payment_method, :source => creditcard })
-      d { result }
       order.next!
     end
   end

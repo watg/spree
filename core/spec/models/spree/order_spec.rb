@@ -17,6 +17,34 @@ describe Spree::Order do
   end
 
 
+  context "#prune_line_items" do
+
+    let(:order_2)   { create(:order) }
+    let!(:line_item1) { create(:line_item, :order => order_2, :quantity => 3 ) }
+    it "does not delete any line_items which have active variants" do
+      order_2.prune_line_items
+      expect(order_2.line_items.size).to eq 1
+    end
+
+    it "does deletes line_items which have deleted variants and calls touch" do
+      line_item1.variant.delete
+      line_item1.variant.save
+
+      order_2.should_receive(:touch)
+      order_2.prune_line_items
+      expect(order_2.reload.line_items.size).to eq 0
+    end
+
+    it "does not delete line_items which have deleted variants but a completed state" do
+      line_item1.variant.delete
+      line_item1.variant.save
+
+      order_2.completed_at = Time.now
+      order_2.prune_line_items
+      expect(order_2.reload.line_items.size).to eq 1
+    end
+  end
+
   context "#cost_price_total" do
 
     let!(:line_item1) { create(:line_item, :order => order, :quantity => 3 ) }

@@ -22,7 +22,11 @@
         </tr>
       </thead>
       <tbody>
+      <% if @payment.payment_method.type =~ /Adyen/i %>
+        <%= render "credit_card", entry: entry %>
+      <% else %>
         <%= render "spree/admin/log_entries/#{@payment.payment_method.name.gsub(' ', '').underscore}", entry: entry %>
+      <% end %>
       </tbody>
   <% end %>
 </table>

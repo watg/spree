@@ -18,7 +18,7 @@
   <div class="omega four columns">
     <%= f.field_container :origin do %>
       <%= f.label :origin, "Country of origin" %> <span class="required">*</span><br />
-      <%= f.select :origin, options_for_select(%w[UK Peru India China Turkey]), {}, :class => 'select2 fullwidth' %>
+      <%= f.select :origin, %w[UK Peru India Hong\ Kong Turkey], {}, :class => 'select2 fullwidth' %>
       <%= f.error_message_on :origin %>
     <% end %>
   </div>
@@ -66,7 +66,7 @@
   <div class="four columns">
     <%= f.field_container :fabric do %>
       <%= f.label :fabric, "Fabric" %> <span class="required">*</span><br />
-      <%= f.select :fabric, options_for_select(%w[Knitted Yarn]), {}, :class => 'select2 fullwidth' %>
+      <%= f.select :fabric, %w[Knitted Yarn Wood Metal Plastic Paper], {}, :class => 'select2 fullwidth' %>
       <%= f.error_message_on :fabric %>
     <% end %>
   </div>

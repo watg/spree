@@ -161,7 +161,7 @@ describe Spree::LineItem do
       line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
       line_item.line_item_parts.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
 
-      line_item.should_receive(:notify).with("The cost_price of variant id: #{variant10.id} is nil for line_item_part: #{lio.id}")
+      Rails.logger.should_receive(:warn).with("The cost_price of variant id: #{variant10.id} is nil for line_item_part: #{lio.id}")
       expect(line_item.cost_price).to eq 24.0
     end
   end
@@ -217,7 +217,7 @@ describe Spree::LineItem do
       line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
       line_item.line_item_parts.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
 
-      line_item.should_receive(:notify).with("The weight of variant id: #{variant10.id} is nil for line_item_part: #{lio.id}")
+      Rails.logger.should_receive(:warn).with("The weight of variant id: #{variant10.id} is nil for line_item_part: #{lio.id}")
       expect(line_item.weight).to eq 22.0
     end
 

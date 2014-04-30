@@ -89,7 +89,6 @@ describe Spree::Product do
     it "scoped by currency" do
       variant3 = create(:variant, price: 120.00, currency: "GBP", product: r2w, in_stock_cache: true)
       variant4 = create(:variant, price: 30.00, currency: "GBP", product: r2w, in_stock_cache: true)
-      d {r2w}
       expect(r2w.lowest_priced_variant("GBP")).to eq(variant4)
     end
 

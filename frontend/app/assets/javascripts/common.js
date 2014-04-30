@@ -122,11 +122,12 @@ WATG.signup = {
 
 WATG.referral = {
 	globals: {},
+	referralForm: null,
 	
 	init: function() {
-		var forms = $('.row-referral form');
+		this.referralForm = $('#referralForm');
 		
-		forms.on('submit', function(e) {
+		this.referralForm.on('submit', function(e) {
 			e.preventDefault();
 			WATG.referral.hideError();
 			if (WATG.referral.checkQualifies() === true) {
@@ -135,23 +136,26 @@ WATG.referral = {
 				WATG.referral.showError();				
 			}
 		});
-		
+
+		form = this.referralForm;
+
 		$('.add-a-friend').on('click', function(e) {
 			e.preventDefault();
 			WATG.referral.hideError();
 			// Clone the first referee input and spit out after the last
-			$('#refereeForm').find('input:eq(1)').clone().val('').insertAfter($('#refereeForm').find('input:last')).hide().fadeIn('slow');
+			form.find('input:eq(2)').clone().val('').insertAfter(form.find('input:last')).hide().fadeIn('slow');
 		});
 	},
 	
 	// Check qualifies
 	checkQualifies: function() {
+
 		var qualifies = true;
 		
 		// Referrer --------------------
 		
 		// Check referrer email valid
-		var email_referrer = $('#referrerForm input[name="signupEmail"]').val();
+		var email_referrer = this.referralForm.find('input[name="referrerEmail"]').val();
 		if (!email_referrer || !WATG.referral.isEmail(email_referrer)) {  // Is valid?
 			qualifies = false;
 		}
@@ -162,7 +166,7 @@ WATG.referral = {
 		var num_referees = 0;
 		var email_referees = [];
 			
-		$('#refereeForm input[name="refereeEmails[]"]').each(function() {
+		this.referralForm.find('input[name="refereeEmails[]"]').each(function() {
 		    var email_referee = $(this).val();
 			// Ignore empty inputs
 			if (!email_referee) return true;
@@ -190,55 +194,43 @@ WATG.referral = {
 		return qualifies;
 	},
 	
-	// Submit both forms
+	// Submit on forms
 	submitForms: function() {
-		_gaq.push('_trackEvent', 'competition sign up', 'sign up'); // GA event
-		WATG.referral.showWait();
+		_gaq.push(['_trackEvent', 'competition sign up', 'sign up']); // GA event
+		this.showWait();
 
-		// Set referrer for referee form
-		$('#refereeForm input[name="referrer_email"]').val($('#referrerForm input[name="signupEmail"]').val());
-
-		var num_submits = 0;
-		var forms = $('.row-referral form');		
-		
-		forms.each(function() {
-			var form = $(this);
-
-			$.ajax({
-			    type: 'POST',
-			    url: form.attr('action'),
-			    data: form.serialize(),
-			    dataType: 'json',
-			    success: function(e) {
-					num_submits++
-					if (num_submits == forms.length) {
-						WATG.referral.showThanks();
-					}
-				}
-			})
-		});
+		$.ajax({
+	    type: 'POST',
+	    url: this.referralForm.attr('action'),
+	    data: this.referralForm.serialize(),
+	    dataType: 'json',
+	    success: function(e) {
+				WATG.referral.showThanks();
+			}
+		})
 	},
 	
 	showWait: function() {
-		$('.row-referral fieldset').hide();
+		this.referralForm.find('fieldset').hide();
 		$('.competition-info').hide(); // Optional
 		$('.text-center').hide(); // Optional
-		$('<p class="wait">Please wait...</p>').hide().insertBefore('#referrerForm').fadeIn('slow').focus();
+		$('<p class="wait">Please wait...</p>').hide().insertAfter(this.referralForm).fadeIn('slow').focus();
 	},
 	
 	showThanks: function() {
 		$('p.wait').remove();
-		$('<p class="thanks">Thanks for entering! <br/>Expect an email from us within the hour confirming your entry and with a discount code as a token of our appreciation. Good luck!</p>').hide().insertBefore('#referrerForm').fadeIn('slow').focus();
+		$('<p class="thanks">Thanks for entering! Good luck!</p>').hide().insertBefore(this.referralForm).fadeIn('slow').focus();
+		//$('<p class="thanks">Thanks for entering! <br/>Expect an email from us within the hour confirming your entry and with a discount code as a token of our appreciation. Good luck!</p>').hide().insertBefore(this.referralForm).fadeIn('slow').focus();
 	},
 	
 	showError: function() {
-		$('<p class="error"><strong>Oops. Something\'s not quite right.</strong> <br/>Please check that you\'ve supplied your own email address, and check your friends addresses are all unique. Thank you!</p>').hide().insertBefore('#referrerForm').fadeIn('slow').focus();
-		$('.row-referral input[type="email"]').css('border', '2px solid #f4bfbf');
+		$('<p class="error"><strong>Oops. Something\'s not quite right.</strong> <br/>Please check that you\'ve supplied your own email address, and check your friends addresses are all unique. Thank you!</p>').hide().insertBefore(this.referralForm).fadeIn('slow').focus();
+		this.referralForm.find('input[type="email"]').css('border', '2px solid #f4bfbf');
 	},
 	
 	hideError: function() {
 		$('p.error').remove();
-		$('.row-referral input[type="email"]').css('border', '1px solid #dadada');
+		this.referralForm.find('input[type="email"]').css('border', '1px solid #dadada');
 	},
 	
 	/* Utility function. Move this out at some point... */
