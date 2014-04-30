@@ -11,7 +11,8 @@ module Spree
 
     delegate :weight, :should_track_inventory?, to: :variant
     
-    after_save :conditional_variant_touch
+    # Removed for the time being as we already have a check for variant stock job
+    #after_save :conditional_variant_touch
     after_save :check_variant_stock
     after_touch { variant.touch }
 
@@ -69,10 +70,10 @@ module Spree
         end
       end
 
-      def conditional_variant_touch
-        if !Spree::Config.binary_inventory_cache || (count_on_hand_changed? && count_on_hand_change.any?(&:zero?))
-          variant.touch
-        end
-      end
+      #def conditional_variant_touch
+      #  if !Spree::Config.binary_inventory_cache || (count_on_hand_changed? && count_on_hand_change.any?(&:zero?))
+      #    variant.touch
+      #  end
+      #end
   end
 end
