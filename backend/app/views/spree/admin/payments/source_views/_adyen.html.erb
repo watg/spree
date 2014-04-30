@@ -1,0 +1,92 @@
+<fieldset data-hook="credit_card">
+  <legend align="center"><%= Spree.t(:credit_card) %></legend>
+
+  <div class="row">
+    <div class="alpha six columns">      
+      <dl>
+        <dt><%= Spree.t(:psp_reference) %>:</dt>
+        <dd><%= payment.source.psp_reference %></dd>
+
+        <dt><%= Spree.t(:auth_code) %>:</dt>
+        <dd><%= payment.source.auth_code %></dd>
+
+        <dt><%= Spree.t(:result_code) %>:</dt>
+        <dd><%= payment.source.result_code %></dd>
+      </dl>
+    </div>
+
+    <div class="omega six columns">
+      <dl>
+        <dt><%= Spree.t(:transaction_id) %>:</dt>
+        <dd><%= payment.source.id %></dd>
+
+        <dt><%= Spree.t(:currency) %>:</dt>
+        <dd><%= payment.source.currency %></dd>
+      </dl>
+    </div>    
+  </div>
+
+</fieldset>
+
+<% if payment.log_entries and payment.log_entries.any?%>
+<fieldset>
+  <legend><%= t('transactions') %></legend>
+
+  <% payment.log_entries.reverse.each do |log| %>
+  <% details = YAML.load(log.details) rescue "" %>
+    <table class="index">
+
+      <% if details.is_a? ActiveMerchant::Billing::Response %>
+        <tr>
+          <th colspan="6"><%= t('psp_reference') %> <%= details.params["pspReference"] %> -  <%= details.params["eventDate"]  %></th>
+        </tr>
+        <tr>
+          <td><label><%= t("message") %>:</label></td>
+          <td width="60%;"colspan="3">
+            <%= details.message %>
+          </td>
+          <td ><label><%= t("authCode") %>:</label></td>
+          <td  width="40%;">
+            <%= details.params["authCode"] %>
+          </td>
+        </tr>
+        
+        <tr>
+          <td width="12%;"><label><%= t('reason') %>:</label></td>
+          <td width="20%;">
+            <%= details.params["reason"] %>
+          </td>
+          <td width="8%;"><label><%= t("merchantReference") %>:</label></td>
+          <td width="20%;">
+            <%= details.params["merchantReference"] %>
+          </td>
+          <td width="15%;"><label><%= t("value") %>:</label></td>
+          <td width="20%;">
+            <%= number_to_currency (details.params["value"].to_f / 100) if details.params["value"] %>
+          </td>
+          
+        </tr>
+        
+        <tr>
+          <td width="12%;"><label><%= t('eventCode') %>:</label></td>
+          <td width="20%;">
+            <%= details.params["eventCode"] %>
+          </td>
+          <td width="8%;"><label><%= t("refusalReason") %>:</label></td>
+          <td width="20%;">
+            <%= details.params["refusalReason"] %>
+          </td>
+          <td width="15%;"><label><%= t("success") %>:</label></td>
+          <td width="20%;">
+            <%= details.params["success"] %>
+          </td>
+        </tr>
+        
+        
+        
+      <% end %>
+    </table>
+  <% end %>
+
+</fieldset>
+<% end %>

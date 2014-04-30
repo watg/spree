@@ -29,7 +29,6 @@
 //= require spree/frontend/core.product-group
 //= require spree/frontend/core.olapic-gallery
 //= require spree/frontend/variant_options
-//= require store/adyen.encrypt
 
 //= require common
 //= require spree/frontend/product
