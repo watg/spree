@@ -73,12 +73,12 @@ module Spree
     # All zoneables belonging to the zone members.  Will be a collection of either
     # countries or states depending on the zone type.
     def zoneables
-      members.collect(&:zoneable)
+      members.includes(:zoneable).collect(&:zoneable)
     end
 
     def country_ids
       if kind == 'country'
-        members.collect(&:zoneable_id)
+        members.pluck(:zoneable_id)
       else
         []
       end
@@ -86,7 +86,7 @@ module Spree
 
     def state_ids
       if kind == 'state'
-        members.collect(&:zoneable_id)
+        members.pluck(:zoneable_id)
       else
         []
       end
@@ -119,7 +119,7 @@ module Spree
       return false if zone_members.empty? || target.zone_members.empty?
 
       if kind == target.kind
-        return false if target.zoneables.any? { |target_zoneable| zoneables.exclude?(target_zoneable) }
+        return false if (target.zoneables.collect(&:id) - zoneables.collect(&:id)).present?
       else
         return false if target.zoneables.any? { |target_state| zoneables.exclude?(target_state.country) }
       end
