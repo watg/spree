@@ -1,3 +1,4 @@
+<% if production_or_staging? %>
 <% if tracker = Spree::Tracker.current %>
   <%= javascript_tag do %>
     var _gaq = _gaq || [];
@@ -36,3 +37,6 @@
     })();
   <% end %>
 <% end %>
+<% end %>
+
+
