@@ -3,7 +3,7 @@ module Spree
     ssl_required :show
 
     before_filter :check_authorization
-#    rescue_from ActiveRecord::RecordNotFound, :with => :render_404
+    rescue_from ActiveRecord::RecordNotFound, :with => :render_404
     helper 'spree/products', 'spree/orders'
 
     respond_to :html
@@ -36,7 +36,11 @@ module Spree
     # Shows the current incomplete order from the session
     def edit
       @order = current_order || Order.new
+
+      # Remove any line_items which have been deleted
+      @order.prune_line_items
       associate_user
+
       if stale?(current_order)
         respond_with(current_order)
       end
