@@ -45,9 +45,9 @@ module Spree
       visible
     end
 
-    # Peruvian (id=14) or WATG (id=2)
+    # Peruvian (id =14 or =15) or WATG (id=2)
     def peruvian?
-      (id == 14 or id == 2) 
+      (id == 14 or id == 15 or id == 2) 
     end
 
     def to_param
