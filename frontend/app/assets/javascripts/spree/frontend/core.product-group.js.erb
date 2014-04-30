@@ -102,7 +102,7 @@ core.productGroup.readySocialWidget = function() {
 core.productGroup.readyPinterestLinks = function() {
 	$('.social .pinterest').on('click', function(e) {
 		e.preventDefault();
-		location.href = $(this).attr('href').replace('%20', '');
+		location.href = $(this).attr('href').replace('%20button', 'button');
 	});
 }
 
