@@ -255,13 +255,6 @@ module Spree
       completed_at.present? || complete?
     end
 
-    def has_ready_made?
-      tmp= line_items.map(&:variant).map {|v|
-        !(v.isa_part? || v.isa_kit? || (v.product_type.to_sym == :pattern))
-      }
-      tmp.inject(false) {|r,a| r= r || a; r}
-    end
-
     # Indicates whether or not the user is allowed to proceed to checkout.
     # Currently this is implemented as a check for whether or not there is at
     # least one LineItem in the Order.  Feel free to override this logic in your

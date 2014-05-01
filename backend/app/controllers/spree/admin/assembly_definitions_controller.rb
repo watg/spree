@@ -16,8 +16,9 @@ module Spree
           @available_products = Spree::Product.
             not_deleted.
             available.
+            not_assembly.
             joins(:master).
-            where("(spree_products.name ILIKE ? OR spree_variants.sku ILIKE ?) AND can_be_part = ? AND product_type NOT IN (?)", query, query, true, ['kit', 'virtual_product']).
+            where("(spree_products.name ILIKE ? OR spree_variants.sku ILIKE ?)", query, query).
             limit(30)
 
           @available_products.uniq!

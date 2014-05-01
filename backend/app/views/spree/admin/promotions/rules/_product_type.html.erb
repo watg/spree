@@ -1,5 +1,5 @@
 <div class="field alpha omega eight columns products_rule_products">
   <%= label_tag "#{param_prefix}_product_type_ids", Spree.t('product_rule.choose_product_types') %>
   
-  <%= select_tag "#{param_prefix}[product_type_ids]", options_for_select(Spree::ProductType.all.collect {|x| [x.name, x.id]}, promotion_rule.product_type_ids), :multiple => true, class: 'select2 fullwidth', id: "promotion_rule_product_type" %>
+  <%= select_tag "#{param_prefix}[product_type_ids]", options_for_select(Spree::MartinProductType.all.collect {|x| [x.name, x.id]}, promotion_rule.product_type_ids), :multiple => true, class: 'select2 fullwidth', id: "promotion_rule_product_type" %>
 </div>

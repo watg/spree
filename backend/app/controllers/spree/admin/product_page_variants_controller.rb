@@ -3,9 +3,10 @@ module Spree
     class ProductPageVariantsController < BaseController
       def index
         @product_page = load_product_page
+        # knit_your_own_tab = @product_page.knit_your_own
 
         @displayed_variants = @product_page.displayed_variants
-        @available_variants = @product_page.available_variants
+        @available_variants = @product_page.available_variants#_for(knit_your_own_tab)
       end
 
       def update_positions

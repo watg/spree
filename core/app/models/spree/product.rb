@@ -126,9 +126,23 @@ module Spree
 
     after_initialize :ensure_master
 
+    # Grab each set of products that have parts, then 
+    scope :not_assembly, lambda {
+      with_parts = joins(variants: [:assemblies_parts]).select('spree_products.id') +
+      joins(:assemblies_parts) .select('spree_products.id') +
+      joins(variants_including_master: [:assembly_definition]).select('spree_products.id')
+
+      where.not(id: with_parts.uniq.map(&:id) )
+    }
+
      # Hack for the old pages, remove once the new pages are live
     def variant_images_including_targetted
       @_images_including_targetted ||= [self.variant_images, self.target_images].flatten.sort_by { |i| i.position }
+    end
+
+    def assmebly?
+      self.assemblies_parts.any? ||
+      self.assembly_definition
     end
 
     def self.types

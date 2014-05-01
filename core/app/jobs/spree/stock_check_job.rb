@@ -2,10 +2,8 @@ module Spree
   StockCheckJob = Struct.new(:stock_item) do
     def perform
 
-      # We do not want to run this peice of code if the variant is a kit as we do 
-      # not track stock on the kit container, although the in_stock_cache get's updated
-      # by a part as it goes in and out of stock
-      if !stock_item.variant.isa_kit?
+      if stock_item.variant.track_inventory?
+
         variant_in_stock = check_stock(stock_item)
 
         if stock_item.variant.assemblies.first

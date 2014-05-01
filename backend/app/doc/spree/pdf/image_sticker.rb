@@ -42,9 +42,12 @@ module Spree
         pdf
       end
 
-    private
-      def made_unique_by
-        order.has_ready_made? ? ASSETS[:made_by_gang] : ASSETS[:made_by_you]
+      private
+      def made_unique_by(order)
+        ready_to_wear = order.line_items.detect do |li|
+          li.variant.martin_type.rtw?
+        end
+        ready_to_wear ? ASSETS[:made_by_gang] : ASSETS[:made_by_you]
       end
 
       def firstname

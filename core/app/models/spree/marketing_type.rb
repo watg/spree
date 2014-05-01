@@ -6,9 +6,9 @@ module Spree
       digital? ? :digital : :physical
     end
 
-    # This should really be kit? and the categoty should be kit
-    def assembly?
-      category == 'assembly' || category == 'kit'
+    def kit?
+      # TODO: migrate assmebly to kit
+      category == 'kit' or category == 'assembly'
     end
     alias_method :kit?, :assembly?
     
