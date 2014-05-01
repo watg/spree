@@ -1,6 +1,6 @@
 object @assembly_definition_part
 attributes :id
 
-child :variants do
+child :variants => :variants do
   attributes :id, :options_text
 end
