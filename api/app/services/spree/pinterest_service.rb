@@ -69,7 +69,7 @@ module Spree
     def fancy_title(product_name, variant)
       if variant.martin_type.assembly?
         product_name + " Knit Kit"
-      elsif variant.martin_type.gang?
+      elsif variant.martin_type.rtw?
         product_name + ' #madeunique by The Gang'
       else
         product_name

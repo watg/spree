@@ -10,8 +10,8 @@ module Spree
       category == 'assembly'
     end
     
-    def gang?
-      name == 'gang'
+    def rtw?
+      category == 'rtw'
     end
     
     def gift_card?
