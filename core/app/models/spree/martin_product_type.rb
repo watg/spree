@@ -1,5 +1,26 @@
 module Spree
   class MartinProductType < ActiveRecord::Base
-    validates :name, uniqueness: true
+    validates_inclusion_of :category, :in => %w(rtw assembly supply gift_card packaging)
+
+    def nature
+      digital? ? :digital : :physical
+    end
+
+    def assembly?
+      category == 'assembly'
+    end
+    
+    def gang?
+      name == 'gang'
+    end
+    
+    def gift_card?
+      category == 'gift_card'
+    end
+    
+    def pattern?
+      name == 'pattern'
+    end
+
   end
 end

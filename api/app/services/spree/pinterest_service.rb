@@ -37,13 +37,12 @@ module Spree
 
     end
 
-  
   private
 
     def parse_url
-      url_parts = url.match /products\/(.*)/
+      url_parts = url.match(/products\/(.*)/)
       if url_parts
-        url_parts = url_parts[1].split("/") 
+        url_parts = url_parts[1].split("/")
         product_slug = url_parts.shift
       else
         add_error(:url, :could_not_parse_url, "Could not parse url")
@@ -68,9 +67,9 @@ module Spree
     end
 
     def fancy_title(product_name, variant)
-      if ['kit','virtual_product'].include? variant.product_type 
+      if variant.martin_type.assembly?
         product_name + " Knit Kit"
-      elsif !variant.isa_part?
+      elsif variant.martin_type.gang?
         product_name + ' #madeunique by The Gang'
       else
         product_name
