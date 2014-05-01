@@ -12,6 +12,7 @@ describe Spree::StockCheckJob do
         allow_any_instance_of(Spree::Stock::Quantifier).
           to receive(:can_supply?).
           and_return(true)
+        stock_item.variant.in_stock_cache = false
       end
 
       it "updates just the variant" do
