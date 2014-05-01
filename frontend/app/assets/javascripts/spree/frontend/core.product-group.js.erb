@@ -100,7 +100,9 @@ core.productGroup.readySocialWidget = function() {
 
 // Remove space in Pinterest URL (we add the space to prevent Pinterest skinning the button)
 core.productGroup.readyPinterestLinks = function() {
-	$('.social .pinterest').on('click', function(e) {
+	var links = $('.social .pinterest');
+	links.off(); // Kill any Pinterest events
+	links.on('click', function(e) {
 		e.preventDefault();
 		location.href = $(this).attr('href').replace('%20button', 'button');
 	});
