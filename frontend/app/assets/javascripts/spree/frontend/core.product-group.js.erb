@@ -10,7 +10,6 @@ $(document).ready(function() {
 	core.productGroup.readyRevealContent('knit-your-own');
 	core.productGroup.readyHistoryPlugin();
 	core.productGroup.readySocialWidget();
-	core.productGroup.readyPinterestLinks();
 	core.productGroup.showHeroImage();
 	core.productGroup.showSelectedVariant();
 	core.productGroup.setHeroColour();
@@ -56,6 +55,7 @@ core.productGroup.runVariantMethods = function() {
 	core.productGroup.readyVariantDetailsArrows();
 	core.productGroup.readyLazyLoadImages();
 	core.productGroup.readyThumbnailImages();
+	core.productGroup.readyPinterestLinks();
 	core.productGroup.readyRevealContent('made-by-the-gang');
 	core.productGroup.checkForSingleVariant();
 	core.productGroup.setAuthToken();
@@ -100,9 +100,11 @@ core.productGroup.readySocialWidget = function() {
 
 // Remove space in Pinterest URL (we add the space to prevent Pinterest skinning the button)
 core.productGroup.readyPinterestLinks = function() {
-	$('.social .pinterest').on('click', function(e) {
+	var links = $('.social .pinterest');
+	links.off();
+	links.on('click', function(e) {
 		e.preventDefault();
-		location.href = $(this).attr('href').replace(/%20button/g, 'button');
+		location.href = $(this).attr('href').replace('%20button', 'button');
 	});
 }
 
