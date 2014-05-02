@@ -1,16 +1,30 @@
 module Spree
   class PinterestService < Mutations::Command
     # http://0.0.0.0:3000/shop/products/florence-sweater/ivory-white
+    # www.woolandthegang.com/shop/api/pinterest/?url=http://www.woolandthegang.com//shop/items/zion-lion-men/made-by-the-gang/879
 
     required do
       string :url
     end
 
     def execute
-      product_slug, variant_option_values = parse_url
-      if has_errors?
-        return
+
+      if url.match(/products\/(.*)/)
+        url_parts = $1.split("/")
+        old_api( *url_parts )
+      elsif url.match(/items\/(.*)/)
+        url_parts = $1.split("/")
+        # we are only interested in the product_page_permalink and variant
+        # and not the tab which is url_parts[1]
+        new_api( url_parts[0], url_parts[2])
+      else
+        add_error(:url, :could_not_parse_url, "Could not parse url")
       end
+    end
+
+
+    def old_api(product_slug, variant_option_values)
+      return if has_errors?
 
       product = load_product(product_slug) if product_slug
       if !product
@@ -34,26 +48,62 @@ module Spree
         currency_code: "GBP",
         availability: variant.in_stock_cache ? "in stock" : "out of stock"
       })
-
     end
 
-  private
+    def new_api(product_page_slug, variant_id)
+      return if has_errors?
 
-    def parse_url
-      url_parts = url.match(/products\/(.*)/)
-      if url_parts
-        url_parts = url_parts[1].split("/")
-        product_slug = url_parts.shift
-      else
-        add_error(:url, :could_not_parse_url, "Could not parse url")
+      product_page = load_product_page(product_page_slug) if product_page_slug
+      if !product_page
+        add_error(:url, :could_not_find_product_page, "Could not find product page")
         return
       end
 
-      [product_slug, url_parts]
+      variant = load_variant(variant_id) if variant_id
+      if !variant
+        add_error(:url, :could_not_find_variant, "Could not find product page")
+        return
+      end
+
+      product = variant.product.decorate
+
+      OpenStruct.new({
+        provider_name: "Wool and the Gang",
+        url: url,
+        title: fancy_title(product.name, variant),
+        description: product.clean_description_for(product_page.target),
+        product_id: variant.number,
+        price: variant.current_price_in("GBP").amount,
+        currency_code: "GBP",
+        availability: variant.in_stock_cache ? "in stock" : "out of stock",
+        gender: gender(product_page.target),
+        # Only supply the first 6 images
+        images: variant.images_for(product_page.target).first(6)
+      })
+
     end
-      
+
+    private
+
+    def gender(target)
+      return 'unisex' unless target
+      target.name.downcase
+    end
+
+    def load_product_page(permalink)
+      ProductPage.where(permalink: permalink).first
+    end
+
+    def load_variant(variant_id)
+      if Spree::Variant.is_number(variant_id)
+        selected_variant = Spree::Variant.where(number: variant_id).first
+      else
+        selected_variant = Spree::Variant.where(id: variant_id).first
+      end
+    end
+
     def load_product(slug)
-      Product.find_by_slug(slug)
+      Product.where(slug: slug).first
     end
 
     def load_selected_variant(product, variant_option_values)
@@ -62,14 +112,14 @@ module Spree
       else
         variant = Spree::Variant.options_by_product(product, variant_option_values)
       end
-      
+
       variant
     end
 
     def fancy_title(product_name, variant)
-      if variant.martin_type.assembly?
+      if variant.product.martin_type.kit?
         product_name + " Knit Kit"
-      elsif variant.martin_type.rtw?
+      elsif variant.product.martin_type.rtw?
         product_name + ' #madeunique by The Gang'
       else
         product_name

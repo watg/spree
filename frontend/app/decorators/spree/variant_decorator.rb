@@ -176,7 +176,7 @@ class Spree::VariantDecorator < Draper::Decorator
   end
 
   def url_encoded_product_page_url(product_page)
-    h.spree.product_page_url(product_page.permalink, :host => h.root_url, tab: product_page.tab, variant_id: object.id ) 
+    h.spree.product_page_url(product_page.permalink, :host => h.root_url, tab: product_page.tab, variant_id: object.number ) 
   end
   
   def twitter_url(product_page)
