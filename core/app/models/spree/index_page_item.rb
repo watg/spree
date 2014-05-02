@@ -15,7 +15,6 @@ module Spree
     default_scope { order(:position,:id) }
     acts_as_list :scope => :index_page
 
-    validates_uniqueness_of :index_page, :scope => [:product_page, :deleted_at]
     validates_presence_of :product_page
     
     LARGE_TOP = 1
