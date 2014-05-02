@@ -1,3 +1,4 @@
+<% if production_or_staging? %>
 <%= javascript_tag do -%>
 (function() {
 	for(identifier=0; document.getElementById("olapic-widget-"+identifier) != null; identifier++){}
@@ -22,3 +23,4 @@
 	document.write('<div id="'+elementId+'"></div>');
 })();
 <% end -%>
+<% end %>

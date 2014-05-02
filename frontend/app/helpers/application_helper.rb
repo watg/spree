@@ -16,6 +16,10 @@ module ApplicationHelper
     @tracker_id ||= (YAML.load_file(File.join(Rails.root, 'config/ga.yaml'))[Rails.env])['tracker_id'] 
   end
 
+  def production_or_staging?
+    Rails.env.production? or Rails.env.staging?
+  end
+
   def product_variant_options_path(variant)
     variant_option_values = variant.option_values.order('option_type_id ASC').map { |ov| ov.name }.join('/')  
     params = {

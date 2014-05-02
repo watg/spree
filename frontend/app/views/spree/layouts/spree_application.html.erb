@@ -11,7 +11,9 @@
 	<%= javascript_include_tag "application" %>
 	
 	<%= csrf_meta_tags %>
-  <script src="//cdn.optimizely.com/js/655644949.js"></script>
+  <% if production_or_staging? %>
+    <script src="//cdn.optimizely.com/js/655644949.js"></script>
+  <% end %>
 	<%= render "spree/shared/routes" %>
 	<%= yield :head %>
 </head>
@@ -40,7 +42,9 @@
           Spree.api_key = <%= raw(try_spree_current_user.try(:spree_api_key).to_s.inspect) %>;
 	</script>
 	
-	<script type="text/javascript" src="//assets.pinterest.com/js/pinit.js"></script>
+  <% if production_or_staging? %>
+	  <script type="text/javascript" src="//assets.pinterest.com/js/pinit.js"></script>
+  <% end %>
 
 
 	<% if body_class == 'homepage' %>
