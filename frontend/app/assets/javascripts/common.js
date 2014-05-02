@@ -48,7 +48,8 @@ WATG.checkSlides = function() {
 
 WATG.signup = {
 	globals: {
-		cookie: 'signupPopKilled'
+		// cookie: 'signupPopKilled'
+		cookie: 'competition2014Killed'
 	},
 
 	init: function() {
@@ -67,12 +68,12 @@ WATG.signup = {
 					var message_cont = WATG.signup.globals.responses.children('div');
 					message_cont.html(e.message);
 					// Switch off response conditional for promos. When we have a promo code to display, we don't mind if the user's already signed up.
-					/*if (e.response !== 'success') {
+					if (e.response !== 'success') {
 						WATG.signup.showError();
-					} else {*/
+					} else {
 						message_cont.html(WATG.signup.getPromo);
 						WATG.signup.setCookie();
-					/*}*/
+					}
 					WATG.signup.globals.responses.fadeIn();
 				}
 			})
@@ -101,7 +102,7 @@ WATG.signup = {
 	},
 	
 	getPromo: function() {
-		return '<p>Thanks for signing up. We\'ll automatically apply your discount before you complete your order.<br/><br/><small>Offer ends midnight 30th April 2014. Check <a style="text-decoration: underline;" href="/terms-and-conditions#welcome">our T&amp;Cs</a> for more details</small></p>';		
+		return '<p>Thanks for entering<br/><br/>fingers crossed!</p>';		
 	},
 	
 	showError: function() {
