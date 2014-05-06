@@ -23,7 +23,7 @@
 				<ul class="no-bullet social">
 					<% [:twitter, :facebook, :pinterest].each do |social| %>
 					<li>
-						<%= link_to("Share with #{social}", @product_page.send("#{social}_url"), target: '_blank', class: social) %>
+					  <%= link_to("Share with #{social}", @product_page.send("#{social}_url"), target: '_blank', class: social) %>
 					</li>
 					<% end %>
 				</ul>
@@ -79,7 +79,7 @@
 			<%= paginate @variants %>
 			<ul class="variants no-bullet">
 				<li class="loading-text">Loading <%= @product_page.made_unique_title %>, just a tick&hellip;</li>
-				<%= render partial: 'variant', :collection => @variants, :as => :variant %>
+				<%= render partial: 'variant', :collection => @variants, :as => :variant, :locals => {tab: :made_by_the_gang} %>
 			</ul>
 		</div>
 	</div><!-- /row -->
@@ -131,7 +131,7 @@
 				<ul class="no-bullet social">
 					<% [:twitter, :facebook, :pinterest].each do |social| %>
 					<li>
-						<%= link_to("Share with #{social}", @product_page.send("#{social}_url"), target: '_blank', class: social) %>
+					  <%= link_to("Share with #{social}", @product_page.send("#{social}_url", :knit_your_own), target: '_blank', class: social) %>
 					</li>
 					<% end %>
 				</ul>

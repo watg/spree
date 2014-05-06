@@ -41,7 +41,7 @@
 			<ul class="no-bullet social">
 				<% [:twitter, :facebook, :pinterest].each do |social| %>
 				<li>
-					<%= link_to("Share with #{social}", variant.send("#{social}_url", @product_page), target: '_blank', class: social) %>
+				  <%= link_to("Share with #{social}", variant.send("#{social}_url", @product_page, tab), target: '_blank', class: social) %>
 				</li>
 				<% end %>
 			</ul>
