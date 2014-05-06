@@ -175,8 +175,16 @@ class Spree::VariantDecorator < Draper::Decorator
      (object.memoized_product.images + object.product.memoized_variant_images).uniq.size > 1
   end
 
+  def tab_made_by_the_gang
+    :made_by_the_gang
+  end
+
+  def tab_knit_your_own
+    :knit_your_own
+  end
+
   def url_encode_tab_name(tab)
-    return 'made-by-the-gang' if tab.blank?
+    tab = tab_made_by_the_gang if tab.blank?
     tab.to_s.gsub(/_/, '-')
   end
 
