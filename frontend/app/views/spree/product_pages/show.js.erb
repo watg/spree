@@ -1,3 +1,3 @@
 $('.loading-text').remove();
-$('.variants').append('<%= j render partial: 'variant', :layout => false, :collection => @variants, :as => :variant %>');
+$('.variants').append('<%= j render partial: 'variant', :layout => false, :collection => @variants, :as => :variant, :locals => :made_by_the_gang %>');
 $('.pagination').replaceWith('<%= j paginate @variants %>');

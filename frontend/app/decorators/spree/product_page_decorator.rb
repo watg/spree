@@ -177,26 +177,33 @@ class Spree::ProductPageDecorator < Draper::Decorator
     end
   end
 
-  def url_encoded_product_page_url
-     h.url_encode( h.spree.product_page_url(object.permalink, :host => h.root_url, :tab => context[:tab] ) )
+  def url_encode_tab_name(tab)
+    return 'made-by-the-gang' if tab.blank?
+    tab.to_s.gsub(/_/, '-')
+  end
+
+  def url_encoded_product_page_url(tab=nil)
+     h.url_encode( h.spree.product_page_url(object.permalink, 
+                                            :host => h.root_url, 
+                                            :tab => url_encode_tab_name(tab) || context[:tab] ) )
   end
   
-  def twitter_url
-    "http://twitter.com/intent/tweet?text=Presenting%20#{ h.url_encode(object.title) }%20by%20Wool%20and%20the%20Gang%3A%20#{ url_encoded_product_page_url }"
+  def twitter_url(tab=nil)
+    "http://twitter.com/intent/tweet?text=Presenting%20#{ h.url_encode(object.title) }%20by%20Wool%20and%20the%20Gang%3A%20#{ url_encoded_product_page_url(tab) }"
   end
 
-  def facebook_url
-    "http://facebook.com/sharer/sharer.php?u=#{ url_encoded_product_page_url }"
+  def facebook_url(tab=nil)
+    "http://facebook.com/sharer/sharer.php?u=#{ url_encoded_product_page_url(tab) }"
   end
 
-  def pinterest_url
+  def pinterest_url(tab=nil)
     url_link  =  if made_by_the_gang_banner?
                     h.url_encode(made_by_the_gang_banner_url)
                   elsif knit_your_own_banner?
                     h.url_encode(knit_your_own_banner_url)
                   end
 
-    "http://pinterest.com/pin/create/%20button/?url=#{ url_encoded_product_page_url }&amp;media=#{ url_link }&amp;description=Presenting%20#{ h.url_encode(object.title) }%20by%20Wool%20and%20the%20Gang"
+    "http://pinterest.com/pin/create/%20button/?url=#{ url_encoded_product_page_url(tab) }&amp;media=#{ url_link }&amp;description=Presenting%20#{ h.url_encode(object.title) }%20by%20Wool%20and%20the%20Gang"
   end
   
   def facebook_image
