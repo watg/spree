@@ -80,11 +80,16 @@
 
 <% if product.price and !product.price.nil? %>
 <div class="add-to-cart">
+  <% if !product.out_of_stock_override? %>
+
 	<label>Quantity</label>
    <%= number_field_tag (product.memoized_targeted_grouped_option_values.any? ? :quantity : "variants[#{product.master.id}]"), 1, :id => 'qty', :min => 1 %>
    <%= button_tag :class => 'add-to-cart-button small', :type => :submit do %>
 	   <%= Spree.t(:add_to_cart) %>
 	 <% end %>
+  <% else %>
+     <h5>Sorry, this item is out of stock</h5>
+  <% end %>
 </div>
 <% end %>
 
