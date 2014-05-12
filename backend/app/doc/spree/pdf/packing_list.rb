@@ -4,7 +4,7 @@ module Spree
       include Common
 
       WATG_LOGO = File.expand_path(File.join(File.dirname(__FILE__), 'images', 'logo-watg-135x99.png')) unless defined?(WATG_LOGO)
-      CHECKBOX = "\xE2\x98\x90" # "☐"
+      CHECKBOX = '|_|'
       attr_reader :order, :pdf, :currency
 
       def initialize(order, pdf = nil)
@@ -109,7 +109,7 @@ module Spree
             '',
             line.variant.option_values.empty? ? '' : line.variant.options_text,
             line.quantity,
-            '|__|'
+            CHECKBOX
           ]
           line.parts.each do |p|
             invoice_services_data << [
@@ -118,7 +118,7 @@ module Spree
               p.variant.name,
               p.variant.option_values.empty? ? '' : p.variant.options_text,
               p.quantity,
-              '|__|'
+              CHECKBOX
             ]
           end
           line.line_item_personalisations.each do |p|
@@ -128,7 +128,7 @@ module Spree
               p.name,
               p.data_to_text,
               '',
-              '|__|'
+              CHECKBOX
             ]
           end
         end
