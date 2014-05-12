@@ -35,7 +35,7 @@ module Spree
     end
 
     def add_by_line_item(line_item, quantity, shipment=nil)
-      unsafe_add_by_line_item(line_item, quantity, shipment=nil)
+      unsafe_add_by_line_item(line_item, quantity, shipment)
       reload_totals
       PromotionHandler::Cart.new(order, line_item).activate
       ItemAdjustments.new(line_item).update
@@ -48,7 +48,7 @@ module Spree
     end
 
     def remove_by_line_item(line_item, quantity, shipment=nil)
-      unsafe_remove_by_line_item(line_item, quantity, shipment=nil)
+      unsafe_remove_by_line_item(line_item, quantity, shipment)
       reload_totals
       PromotionHandler::Cart.new(order, line_item).activate
       ItemAdjustments.new(line_item).update
@@ -58,7 +58,6 @@ module Spree
 
     # Probably doesn't work
     def update_cart(params)
-      d { "update_cart" }
       if order.update_attributes(params)
         order.line_items = order.line_items.select {|li| li.quantity > 0 }
         # Update totals, then check if the order is eligible for any cart promotions.
@@ -84,13 +83,9 @@ module Spree
     # Recap, we are trying to remove 1 from  a quanityt of 2 and it
     # is telling us we can not as it is out of stock!!
     def unsafe_remove_by_line_item(line_item, quantity, shipment=nil)
-      d { "unsafe_remove_by_line_item" }
       line_item.target_shipment = shipment
 
-      d { line_item.quantity }
       line_item.quantity += -quantity.to_i
-      d { line_item }
-      d { quantity.to_i }
 
       if line_item.quantity <= 0
         line_item.destroy
@@ -151,11 +146,7 @@ module Spree
         line_item.item_uuid = Spree::VariantUuid.fetch(variant, parts, personalisations).number
       end
 
-      d{ "just before the save"}
-      d { line_item.changed }
       line_item.save
-      d { line_item.changed }
-      d{ "just after the save"}
       line_item
     end
 
