@@ -75,6 +75,7 @@ module Spree
 
     # Calculate the amount to be used when creating an adjustment
     def compute_amount(calculable)
+      # TODO: use calculator instead
       ( item_and_promo_total(calculable) > self.value ? self.value : item_and_promo_total(calculable)) * -1
     end
 
