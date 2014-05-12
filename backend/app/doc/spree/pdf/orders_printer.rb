@@ -16,9 +16,12 @@ module Spree
           
           if !shipped_to_europe?(order)
             pdf.start_new_page
-            # switch the two lines below when deploying the new Commercial Invoice
-            # pdf = CommercialInvoice.new(order, pdf).create
-            pdf = PackingList.new(order, pdf).create(index) 
+            pdf = CommercialInvoice.new(order, pdf).create
+          end
+           
+          if shipped_to_us_or_canada?(order)
+            pdf.start_new_page
+            pdf = CommercialInvoice.new(order, pdf).create
           end
 
           pdf.start_new_page unless count == num
@@ -43,9 +46,10 @@ module Spree
 
     private
 
-      # def number_of_invoices(order)
-      #   ( shipped_to_europe?(order) ? 1 : 2)
-      # end
+      def shipped_to_us_or_canada?(order)
+        north_america_zone = Spree::Zone.find_by(name: 'North America')
+        north_america_zone.include?(order.shipping_address) if north_america_zone
+      end
 
       def shipped_to_europe?(order)
         eu_zone = Spree::Zone.find_by(name: 'EU')

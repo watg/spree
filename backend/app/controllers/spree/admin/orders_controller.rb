@@ -144,6 +144,8 @@ module Spree
         case pdf_type
         when :invoice
           Spree::PDF::CommercialInvoice.new(order).to_pdf
+        when :emergency_invoice
+          Spree::PDF::EmergencyCommercialInvoice.new(order).to_pdf
         when :packing_list
           Spree::PDF::PackingList.new(order).to_pdf
         else
