@@ -1,6 +1,6 @@
 module Spree
   class OrderContents
-    attr_accessor :order, :currency
+    attr_accessor :order
 
     def initialize(order)
       @order = order
@@ -12,7 +12,7 @@ module Spree
     def add(variant, quantity=1, currency=nil, shipment=nil, parts=nil, personalisations=nil, target_id=nil)
       parts ||= []
       personalisations ||= []
-      currency ||= Spree::Config[:currency] # default to that if none is provided
+      currency ||= @order.currency || Spree::Config[:currency] # default to that if none is provided
       line_item = add_to_line_item(variant, quantity, currency, shipment, parts, personalisations, target_id)
       reload_totals
       PromotionHandler::Cart.new(order, line_item).activate
@@ -58,6 +58,7 @@ module Spree
 
     # Probably doesn't work
     def update_cart(params)
+      d { "update_cart" }
       if order.update_attributes(params)
         order.line_items = order.line_items.select {|li| li.quantity > 0 }
         # Update totals, then check if the order is eligible for any cart promotions.
@@ -80,10 +81,16 @@ module Spree
       line_item.save!
     end
 
+    # Recap, we are trying to remove 1 from  a quanityt of 2 and it
+    # is telling us we can not as it is out of stock!!
     def unsafe_remove_by_line_item(line_item, quantity, shipment=nil)
+      d { "unsafe_remove_by_line_item" }
       line_item.target_shipment = shipment
 
+      d { line_item.quantity }
       line_item.quantity += -quantity.to_i
+      d { line_item }
+      d { quantity.to_i }
 
       if line_item.quantity <= 0
         line_item.destroy
@@ -99,7 +106,6 @@ module Spree
     def add_to_existing_line_item(line_item, quantity, shipment)
       line_item.target_shipment = shipment
       line_item.quantity += quantity.to_i
-      line_item.currency = currency unless currency.nil?
     end
 
     def reload_totals
@@ -125,7 +131,7 @@ module Spree
       else
         line_item = order.line_items.new(quantity: quantity, variant: variant)
         line_item.target_shipment = shipment
-        line_item.currency = currency unless currency.nil?
+        line_item.currency = currency
         line_item.add_parts(parts) 
         line_item.add_personalisations(personalisations)
         line_item.product_nature = variant.product.nature
@@ -145,7 +151,11 @@ module Spree
         line_item.item_uuid = Spree::VariantUuid.fetch(variant, parts, personalisations).number
       end
 
+      d{ "just before the save"}
+      d { line_item.changed }
       line_item.save
+      d { line_item.changed }
+      d{ "just after the save"}
       line_item
     end
 
