@@ -227,8 +227,6 @@ module Spree
       end
     end
 	
-
-	
     ## from Spree Product Assembly
 
     describe "Inventory units for assemblies" do
@@ -278,11 +276,24 @@ module Spree
             expect(updated_units_count).to eql(expected_units_count)
           end
         end
+
+        context "quantity decreases to 0" do
+          before { subject.line_item.quantity = 0 }
+
+          it "remove inventory all units for every bundle part" do # since we decreased the line item quantity by one
+            expected_units_count = original_units_count - parts.to_a.sum(&:quantity) - 1
+            subject.verify
+
+            # needs to reload so that inventory units are fetched from updates order.shipments
+            updated_units_count = OrderInventory.new(line_item.order.reload, line_item.reload).inventory_units.count
+            expect(updated_units_count).to eql(0)
+          end
+        end
+
+    
+
       end
     end
-
-
-
 
     context "same variant within bundle and as regular product" do
       let(:order) { Spree::Order.create }
