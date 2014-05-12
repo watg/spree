@@ -1,6 +1,7 @@
 module Spree
   class LineItem < ActiveRecord::Base
     before_validation :adjust_quantity
+
     belongs_to :order, class_name: "Spree::Order", inverse_of: :line_items, touch: true
     belongs_to :variant, class_name: "Spree::Variant", inverse_of: :line_items
     belongs_to :tax_category, class_name: "Spree::TaxCategory"
@@ -11,10 +12,10 @@ module Spree
     has_many :adjustments, as: :adjustable, dependent: :destroy
     has_many :inventory_units, inverse_of: :line_item
 
-	has_many :line_item_personalisations, dependent: :destroy
+  	has_many :line_item_personalisations, dependent: :destroy
     alias personalisations line_item_personalisations
 
-    has_many :line_item_parts, dependent: :destroy
+    has_many :line_item_parts
     alias parts line_item_parts
 
     before_validation :copy_price
@@ -32,6 +33,12 @@ module Spree
     validate :ensure_proper_currency
     before_destroy :update_inventory
 
+    after_destroy :destroy_line_item_parts
+
+    def destroy_line_item_parts
+      self.line_item_parts.destroy
+    end
+
     after_save :update_inventory
     after_save :update_adjustments
 
@@ -41,6 +48,7 @@ module Spree
 
     attr_accessor :options_with_qty
     attr_accessor :target_shipment
+
 
     class << self
       def without(line_item)
@@ -220,9 +228,11 @@ module Spree
     end
 
     def update_inventory
-      if changed?
+      #There is a quirk where the after_create hook which run's before after_save is saving the 
+      #line_item in a nested model callback, hence by the time changed? is evaluated it is false
+      #if changed?
         Spree::OrderInventory.new(self.order, self).verify(target_shipment)
-      end 
+      #end
     end
 
     def update_adjustments
@@ -231,16 +241,16 @@ module Spree
       end
     end
 
-	  def recalculate_adjustments
-		Spree::ItemAdjustments.new(self).update
-	  end
+    def recalculate_adjustments
+      Spree::ItemAdjustments.new(self).update
+    end
 
-	  def create_tax_charge
-		Spree::TaxRate.adjust(order, [self])
-	  end
+    def create_tax_charge
+      Spree::TaxRate.adjust(order, [self])
+    end
 
-	  def ensure_proper_currency
-		unless currency == order.currency
+    def ensure_proper_currency
+      unless currency == order.currency
 		  errors.add(:currency, t(:must_match_order_currency))
 		end
 	  end

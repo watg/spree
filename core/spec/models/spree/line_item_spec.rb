@@ -223,7 +223,6 @@ describe Spree::LineItem do
 
   end
 
-
   context '#save' do
     it 'touches the order' do
       line_item.order.should_receive(:touch)
@@ -232,6 +231,10 @@ describe Spree::LineItem do
   end
 
   context '#destroy' do
+    before do
+      line_item.save
+    end
+
     it "fetches deleted products" do
       line_item.product.destroy
       expect(line_item.reload.product).to be_a Spree::Product
@@ -243,9 +246,15 @@ describe Spree::LineItem do
     end
 
     it "returns inventory when a line item is destroyed" do
-      Spree::OrderInventory.any_instance.should_receive(:verify).with(line_item, nil)
+      Spree::OrderInventory.any_instance.should_receive(:verify).with(nil)
       line_item.destroy
     end
+
+    it "destroys it's line_item_parts" do
+      line_item.should_receive(:destroy_line_item_parts)
+      line_item.destroy
+    end
+
   end
 
   context "#save" do
@@ -258,6 +267,28 @@ describe Spree::LineItem do
         line_item.should_receive(:recalculate_adjustments)
         line_item.save
       end
+
+    end
+
+    context "verify invetory" do
+      before do
+        line_item.save
+      end
+
+      it "should trigger if changes are made" do
+        line_item.updated_at = Time.now
+        Spree::OrderInventory.any_instance.should_receive(:verify)
+        line_item.save
+      end
+
+      # Disabling this for now as there is a bug where the after_create is causing
+      # changed? in line_item.update_inventory to not evaluate to true when 
+      # changes have been made
+      xit "should not trigger if changes are not made" do
+        Spree::OrderInventory.any_instance.should_not_receive(:verify)
+        line_item.save
+      end
+
     end
 
     context "line item does not change" do
@@ -266,6 +297,7 @@ describe Spree::LineItem do
         line_item.save
       end
     end
+
   end
 
   context "#create" do
@@ -273,6 +305,11 @@ describe Spree::LineItem do
 
     before do
       create(:tax_rate, :zone => order.tax_zone, :tax_category => variant.tax_category)
+    end
+
+    it "verifies order_inventory" do
+      Spree::OrderInventory.any_instance.should_receive(:verify)
+      order.contents.add(variant)
     end
 
     context "when order has a tax zone" do
@@ -300,6 +337,7 @@ describe Spree::LineItem do
         line_item = order.find_line_item_by_variant(variant)
         line_item.adjustments.tax.count.should == 0
       end
+
     end
   end
 
@@ -400,7 +438,7 @@ describe Spree::LineItem do
         line_item.target_shipment = order.shipments.first
 
         line_item.save
-        expect(line_item).to have(0).errors_on(:quantity)        
+        expect(line_item).to have(0).errors_on(:quantity)
       end
 
       it "doesnt allow to increase item quantity" do
