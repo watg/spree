@@ -624,6 +624,11 @@ module Spree
       persist_totals
     end
 
+    def apply_promotions
+      PromotionHandler::Cart.new(self).activate
+      ItemAdjustments.new(self).update
+    end
+
     # Clean shipments and make order back to address state
     #
     # At some point the might need to force the order to transition from address
