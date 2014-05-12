@@ -105,6 +105,53 @@ module Spree
         json_response.should have_attributes(attributes)
       end
 
+      it "can add an inventory unit to a return authorization on the order" do
+        FactoryGirl.create(:return_authorization, :order => order)
+        return_authorization = order.return_authorizations.first
+        inventory_unit = return_authorization.returnable_inventory.first
+        inventory_unit.should be
+        return_authorization.inventory_units.should be_empty
+        api_put :add, :id => return_authorization.id, variant_id: inventory_unit.variant.id, quantity: 1
+        response.status.should == 200
+        json_response.should have_attributes(attributes)
+        return_authorization.reload.inventory_units.should_not be_empty
+      end
+
+      it "can mark a return authorization as received on the order with an inventory unit" do
+        FactoryGirl.create(:new_return_authorization, :order => order, :stock_location_id => order.shipments.first.stock_location.id)
+        return_authorization = order.return_authorizations.first
+        return_authorization.state.should == "authorized"
+
+        # prep (use a rspec context or a factory instead?)
+        inventory_unit = return_authorization.returnable_inventory.first
+        inventory_unit.should be
+        return_authorization.inventory_units.should be_empty
+        api_put :add, :id => return_authorization.id, variant_id: inventory_unit.variant.id, quantity: 1
+        # end prep
+
+        api_delete :receive, :id => return_authorization.id
+        response.status.should == 200
+        return_authorization.reload.state.should == "received"
+      end
+
+      it "cannot mark a return authorization as received on the order with no inventory units" do
+        FactoryGirl.create(:new_return_authorization, :order => order)
+        return_authorization = order.return_authorizations.first
+        return_authorization.state.should == "authorized"
+        api_delete :receive, :id => return_authorization.id
+        response.status.should == 422
+        return_authorization.reload.state.should == "authorized"
+      end
+
+      it "can cancel a return authorization on the order" do
+        FactoryGirl.create(:new_return_authorization, :order => order)
+        return_authorization = order.return_authorizations.first
+        return_authorization.state.should == "authorized"
+        api_delete :cancel, :id => return_authorization.id
+        response.status.should == 200
+        return_authorization.reload.state.should == "canceled"
+      end
+
       it "can delete a return authorization on the order" do
         FactoryGirl.create(:return_authorization, :order => order)
         return_authorization = order.return_authorizations.first
@@ -114,7 +161,7 @@ module Spree
       end
 
       it "can add a new return authorization to an existing order" do
-        api_post :create, :return_autorization => { :order_id => order.number, :amount => 14.22, :reason => "Defective" }
+        api_post :create, :order_id => order.number, :return_authorization => { :amount => 14.22, :reason => "Defective" }
         response.status.should == 201
         json_response.should have_attributes(attributes)
         json_response["state"].should_not be_blank
@@ -140,7 +187,7 @@ module Spree
         return_authorization = order.return_authorizations.first
         api_delete :destroy, :id => return_authorization.id
         assert_unauthorized!
-        lambda { return_authorization.reload }.should_not raise_error(ActiveRecord::RecordNotFound)
+        lambda { return_authorization.reload }.should_not raise_error
       end
     end
   end

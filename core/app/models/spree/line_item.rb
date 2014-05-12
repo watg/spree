@@ -1,13 +1,17 @@
 module Spree
-  class LineItem < ActiveRecord::Base
+  class LineItem < Spree::Base
     before_validation :adjust_quantity
-    belongs_to :order, class_name: "Spree::Order"
-    belongs_to :variant, class_name: "Spree::Variant"
+    belongs_to :order, class_name: "Spree::Order", inverse_of: :line_items, touch: true
+    belongs_to :variant, class_name: "Spree::Variant", inverse_of: :line_items
+    belongs_to :tax_category, class_name: "Spree::TaxCategory"
 
     has_one :product, through: :variant
+
     has_many :adjustments, as: :adjustable, dependent: :destroy
+    has_many :inventory_units, inverse_of: :line_item
 
     before_validation :copy_price
+    before_validation :copy_tax_category
 
     validates :variant, presence: true
     validates :quantity, numericality: {
@@ -18,36 +22,45 @@ module Spree
     validates :price, numericality: true
     validates_with Stock::AvailabilityValidator
 
-    attr_accessible :quantity, :variant_id
+    validate :ensure_proper_currency
+    before_destroy :update_inventory
 
-    before_save :update_inventory
+    after_save :update_inventory
+    after_save :update_adjustments
 
-    after_save :update_order
-    after_destroy :update_order
+    after_create :create_tax_charge
+
+    delegate :name, :description, :should_track_inventory?, to: :variant
 
     attr_accessor :target_shipment
 
     def copy_price
       if variant
         self.price = variant.price if price.nil?
+        self.cost_price = variant.cost_price if cost_price.nil?
         self.currency = variant.currency if currency.nil?
       end
     end
 
-    def increment_quantity
-      ActiveSupport::Deprecation.warn("[SPREE] Spree::LineItem#increment_quantity will be deprecated in Spree 2.1, please use quantity.increment! instead.")
-      self.quantity.increment!
-    end
-
-    def decrement_quantity
-      ActiveSupport::Deprecation.warn("[SPREE] Spree::LineItem#decrement_quantity will be deprecated in Spree 2.1, please use quantity.decrement! instead.")
-      self.quantity.decrement!
+    def copy_tax_category
+      if variant
+        self.tax_category = variant.tax_category
+      end
     end
 
     def amount
       price * quantity
     end
-    alias total amount
+    alias subtotal amount
+
+    def discounted_amount
+      amount + promo_total
+    end
+
+    def final_amount
+      amount + adjustment_total.to_f
+    end
+    alias total final_amount
 
     def single_money
       Spree::Money.new(price, { currency: currency })
@@ -72,19 +85,41 @@ module Spree
       !sufficient_stock?
     end
 
-    def assign_stock_changes_to=(shipment)
-      @preferred_shipment = shipment
+    # Remove product default_scope `deleted_at: nil`
+    def product
+      variant.product
+    end
+
+    # Remove variant default_scope `deleted_at: nil`
+    def variant
+      Spree::Variant.unscoped { super }
     end
 
     private
       def update_inventory
-        Spree::OrderInventory.new(self.order).verify(self, target_shipment)
+        if changed? || target_shipment.present?
+          Spree::OrderInventory.new(self.order, self).verify(target_shipment)
+        end
       end
 
-      def update_order
-        # update the order totals, etc.
-        order.create_tax_charge!
-        order.update!
+      def update_adjustments
+        if quantity_changed?
+          recalculate_adjustments
+        end
+      end
+
+      def recalculate_adjustments
+        Spree::ItemAdjustments.new(self).update
+      end
+
+      def create_tax_charge
+        Spree::TaxRate.adjust(order.tax_zone, [self])
+      end
+
+      def ensure_proper_currency
+        unless currency == order.currency
+          errors.add(:currency, t(:must_match_order_currency))
+        end
       end
   end
 end

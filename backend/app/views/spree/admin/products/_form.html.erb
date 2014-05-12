@@ -7,10 +7,10 @@
       <%= f.error_message_on :name %>
     <% end %>
 
-    <%= f.field_container :permalink do %>
-      <%= f.label :permalink, raw(Spree.t(:permalink) + content_tag(:span, ' *',  :class => "required")) %>
-      <%= f.text_field :permalink, :class => 'fullwidth title' %>
-      <%= f.error_message_on :permalink %>
+    <%= f.field_container :slug do %>
+      <%= f.label :slug, raw(Spree.t(:slug) + content_tag(:span, ' *',  :class => "required")) %>
+      <%= f.text_field :slug, :class => 'fullwidth title' %>
+      <%= f.error_message_on :slug %>
     <% end %>
 
     <%= f.field_container :description do %>
@@ -78,13 +78,13 @@
 
     <%= f.field_container :shipping_categories do %>
       <%= f.label :shipping_category_id, Spree.t(:shipping_categories) %>
-      <%= f.collection_select(:shipping_category_id, @shipping_categories, :id, :name, { :include_blank => 'None' }, { :class => 'select2' }) %>
+      <%= f.collection_select(:shipping_category_id, @shipping_categories, :id, :name, { :include_blank => Spree.t('match_choices.none') }, { :class => 'select2' }) %>
       <%= f.error_message_on :shipping_category %>
     <% end %>
 
     <%= f.field_container :tax_category do %>
       <%= f.label :tax_category_id, Spree.t(:tax_category) %>
-      <%= f.collection_select(:tax_category_id, @tax_categories, :id, :name, { :include_blank => 'None' }, { :class => 'select2' }) %>
+      <%= f.collection_select(:tax_category_id, @tax_categories, :id, :name, { :include_blank => Spree.t('match_choices.none') }, { :class => 'select2' }) %>
       <%= f.error_message_on :tax_category %>
     <% end %>
   </div>
@@ -101,7 +101,6 @@
     <% end %>
   </div>
 
-  <!-- <h2><%= Spree.t(:metadata) %></h2> -->
   <div data-hook="admin_product_form_meta" class="alpha omega twelve columns">
     <%= f.field_container :meta_keywords do %>
       <%= f.label :meta_keywords, Spree.t(:meta_keywords) %>

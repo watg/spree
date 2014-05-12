@@ -7,8 +7,45 @@ module Spree
 
       let(:order) { create(:order) }
 
-      context "order has billing address" do
+      context "with a valid credit card" do
+        it "should process payment correctly" do
+          order = create(:order_with_line_items, :state => "payment")
+          payment_method = create(:credit_card_payment_method, :display_on => "back_end")
+          attributes = {
+            :order_id => order.number,
+            :card => "new",
+            :payment => {
+              :amount => order.total,
+              :payment_method_id => payment_method.id.to_s,
+              :source_attributes => {
+                :name => "Test User",
+                :number => "4111 1111 1111 1111",
+                :expiry => "09 / #{Time.now.year + 1}",
+                :verification_value => "123"
+              }
+            }
+          }
+          spree_post :create, attributes
+          order.payments.count.should == 1
+          expect(response).to redirect_to(spree.admin_order_payments_path(order))
+          expect(order.reload.state).to eq('complete')
+        end
+      end
 
+      # Regression test for #3233
+      context "with a backend payment method" do
+        before do
+          @payment_method = create(:check_payment_method, :display_on => "back_end")
+        end
+
+        it "loads backend payment methods" do
+          spree_get :new, :order_id => order.number
+          response.status.should == 200
+          assigns[:payment_methods].should include(@payment_method)
+        end
+      end
+
+      context "order has billing address" do
         before do
           order.bill_address = create(:address)
           order.save!
@@ -22,7 +59,6 @@ module Spree
         end
 
         context "order has payments" do
-          
           before do
             order.payments << create(:payment, amount: order.total, order: order, state: 'completed')
           end

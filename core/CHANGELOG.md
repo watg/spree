@@ -1,54 +1,29 @@
-## Spree 2.1.0 (unreleased) ##
+## Spree 2.3.0 (unreleased) ##
 
-*   Remove after_save callback for stock items backorders processing and
-    fixes count on hand updates when there are backordered units #3066
+*   More accurate and simpler Order#payment_state options.
 
-    *Washington Luiz*
+    Balance Due. Paid. Credit Owed. Failed. These are the only possible values
+    for order payment_state now. The previous `pending` state has been dropped
+    and order updater logic greatly improved as it now mostly consider total
+    values rather than doing last payment state checks.
 
-*   InventoryUnit#backordered_for_stock_item no longer returns readonly objects
-    neither return an ActiveRecored::Association. It returns only an array of
-    writable backordered units for a given stock item #3066
+    Huge thanks to dan-ding. See https://github.com/spree/spree/issues/4605
 
-    *Washington Luiz*
+*   Config settings related to mail have been removed. This includes
+    `enable_mail_delivery`, `mail_bcc`, `intercept_email`,
+    `override_actionmailer_config`, `mail_host`, `mail_domain`, `mail_port`,
+    `secure_connection_type`, `mail_auth_type`, `smtp_username`, and
+    `smtp_password`.
 
-*   Scope shipping rates as per shipping method display_on #3119
-    e.g. Shipping methods set to back_end only should not be displayed on frontend too
+    These should instead be [configured on actionmailer directly](http://api.rubyonrails.org/classes/ActionMailer/Base.html#class-ActionMailer::Base-label-Configuration+options).
+    The existing functionality can also be used by including the [spree_mail_settings](https://github.com/spree-contrib/spree_mail_settings) gem.
 
-    *Washington Luiz*
+    John Hawthorn
 
-*   Add `propagate_all_variants` attribute to StockLocation. It controls
-    whether a stock items should be created fot the stock location every time
-    a variant or a stock location is created
+*   refactor the api to use a general importer in `lib/spree/importer/order.rb`
 
-    *Washington Luiz*
+    Peter Berkenbosch
 
-*   Add `backorderable_default` attribute to StockLocation. It sets the
-    backorderable attribute of each new stock item
+*   Ensure transition to payment processing state happens outside transaction.
 
-    *Washington Luiz*
-
-*   Removed `t()` override in `Spree::BaseHelper`. #3083
-
-    *Washington Luiz*
-
-*   Improve performance of `Order#payment_required?` by not updating the totals every time. #3040 #3086
-
-    *Washington Luiz*
-
-*   Fixed the FlexiRate Calculator for cases when max_items is set. #3159
-
-    *Dana Jones*
-
-* Translation for admin tabs are now located under the `spree.admin.tab` key. Previously, they were on the top-level, which lead to conflicts when users wanted to override view translations, like this:
-
-```yml
-en:
-  spree:
-    orders:
-      show:
-        thank_you: "Thanks, buddy!"
-```
-
-See #3133 for more information.
-
-    * Ryan Bigg*
+    Chris Salzberg

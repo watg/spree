@@ -4,22 +4,28 @@ module CapybaraExt
   end
 
   def click_icon(type)
-    find(".icon-#{type}").click
+    find(".fa-#{type}").click
   end
 
   def eventually_fill_in(field, options={})
-    Capybara.wait_until do
-      find_field field
-    end
+    page.should have_css('#' + field)
     fill_in field, options
   end
 
   def within_row(num, &block)
-    within("table.index tbody tr:nth-child(#{num})", &block)
+    if example.metadata[:js]
+      within("table.index tbody tr:nth-child(#{num})", &block)
+    else
+      within(:xpath, all("table.index tbody tr")[num-1].path, &block)
+    end
   end
 
   def column_text(num)
-    find("td:nth-child(#{num})").text
+    if example.metadata[:js]
+      find("td:nth-child(#{num})").text
+    else
+      all("td")[num-1].text
+    end
   end
 
   def set_select2_field(field, value)
@@ -27,8 +33,10 @@ module CapybaraExt
   end
 
   def select2_search(value, options)
-    id = find_label_by_text(options[:from])
-    options[:from] = "#s2id_#{id}"
+    label = find_label_by_text(options[:from])
+    within label.first(:xpath,".//..") do
+      options[:from] = "##{find(".select2-container")["id"]}"
+    end
     targetted_select2_search(value, options)
   end
 
@@ -39,10 +47,11 @@ module CapybaraExt
   end
 
   def select2(value, options)
-    id = find_label_by_text(options[:from])
+    label = find_label_by_text(options[:from])
 
-    # generate select2 id
-    options[:from] = "#s2id_#{id}"
+    within label.first(:xpath,".//..") do
+      options[:from] = "##{find(".select2-container")["id"]}"
+    end
     targetted_select2(value, options)
   end
 
@@ -64,9 +73,10 @@ module CapybaraExt
   end
 
   def select_select2_result(value)
-    #p %Q{$("div.select2-result-label:contains('#{value}')").mouseup()}
-    sleep(1)
-    page.execute_script(%Q{$("div.select2-result-label:contains('#{value}')").mouseup()})
+    # results are in a div appended to the end of the document
+    within(:xpath, '//body') do
+      page.find("div.select2-result-label", text: %r{#{Regexp.escape(value)}}i).click
+    end
   end
 
   def find_label_by_text(text)
@@ -84,18 +94,43 @@ module CapybaraExt
       raise "Could not find label by text #{text}"
     end
 
-    label ? label['for'] : text
+    label
   end
 
   def find_label(text)
     first(:xpath, "//label[text()[contains(.,'#{text}')]]")
   end
 
+  def wait_for_ajax
+    counter = 0
+    while page.evaluate_script("typeof($) === 'undefined' || $.active > 0")
+      counter += 1
+      sleep(0.1)
+      raise "AJAX request took longer than 5 seconds." if counter >= 50
+    end
+  end
+
+  def accept_alert
+    page.evaluate_script('window.confirm = function() { return true; }')
+    yield
+  end
+
+  def dismiss_alert
+    page.evaluate_script('window.confirm = function() { return false; }')
+    yield
+    # Restore existing default
+    page.evaluate_script('window.confirm = function() { return true; }')
+  end
+end
+
+Capybara.configure do |config|
+  config.match = :prefer_exact
+  config.ignore_hidden_elements = true
 end
 
 RSpec::Matchers.define :have_meta do |name, expected|
   match do |actual|
-    has_css?("meta[name='#{name}'][content='#{expected}']")
+    has_css?("meta[name='#{name}'][content='#{expected}']", visible: false)
   end
 
   failure_message_for_should do |actual|
@@ -110,7 +145,7 @@ end
 
 RSpec::Matchers.define :have_title do |expected|
   match do |actual|
-    has_css?("title", :text => expected)
+    has_css?("title", :text => expected, visible: false)
   end
 
   failure_message_for_should do |actual|

@@ -38,7 +38,7 @@ describe Spree::Admin::ProductsController do
       spree_delete :destroy, :id => product
       product.reload.deleted_at.should_not be_nil
       product.variants_including_master.each do |variant|
-        varaint.reload.deleted_at.should_not be_nil
+        variant.reload.deleted_at.should_not be_nil
       end
     end
   end
@@ -46,7 +46,7 @@ describe Spree::Admin::ProductsController do
   context "stock" do
     let(:product) { create(:product) }
     it "restricts stock location based on accessible attributes" do
-      Spree::StockLocation.should_receive(:accessible_by)
+      Spree::StockLocation.should_receive(:accessible_by).and_return([])
       spree_get :stock, :id => product
     end
   end

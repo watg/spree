@@ -1,20 +1,20 @@
 module Spree
-  class InventoryUnit < ActiveRecord::Base
-    belongs_to :variant, class_name: "Spree::Variant"
-    belongs_to :order, class_name: "Spree::Order"
-    belongs_to :shipment, class_name: "Spree::Shipment"
+  class InventoryUnit < Spree::Base
+    belongs_to :variant, class_name: "Spree::Variant", inverse_of: :inventory_units
+    belongs_to :order, class_name: "Spree::Order", inverse_of: :inventory_units
+    belongs_to :shipment, class_name: "Spree::Shipment", touch: true, inverse_of: :inventory_units
     belongs_to :return_authorization, class_name: "Spree::ReturnAuthorization"
+    belongs_to :line_item, class_name: "Spree::LineItem", inverse_of: :inventory_units
 
     scope :backordered, -> { where state: 'backordered' }
     scope :shipped, -> { where state: 'shipped' }
     scope :backordered_per_variant, ->(stock_item) do
-      includes(:shipment)
-        .where("spree_shipments.state != 'canceled'")
+      includes(:shipment, :order)
+        .where("spree_shipments.state != 'canceled'").references(:shipment)
         .where(variant_id: stock_item.variant_id)
-        .backordered.order("#{self.table_name}.created_at ASC")
+        .where('spree_orders.completed_at is not null')
+        .backordered.order("spree_orders.completed_at ASC")
     end
-
-    attr_accessible :shipment, :variant_id
 
     # state machine (see http://github.com/pluginaweek/state_machine/tree/master for details)
     state_machine initial: :on_hand do
@@ -36,7 +36,7 @@ module Spree
     # lead to issues once users tried to modify the objects returned. That's due
     # to ActiveRecord `joins(shipment: :stock_location)` only return readonly
     # objects
-    # 
+    #
     # Returns an array of backordered inventory units as per a given stock item
     def self.backordered_for_stock_item(stock_item)
       backordered_per_variant(stock_item).select do |unit|
@@ -45,12 +45,22 @@ module Spree
     end
 
     def self.finalize_units!(inventory_units)
-      inventory_units.map { |iu| iu.update_column(:pending, false) }
+      inventory_units.map do |iu|
+        iu.update_columns(
+          pending: false,
+          updated_at: Time.now,
+        )
+      end
     end
 
     def find_stock_item
       Spree::StockItem.where(stock_location_id: shipment.stock_location_id,
         variant_id: variant_id).first
+    end
+
+    # Remove variant default_scope `deleted_at: nil`
+    def variant
+      Spree::Variant.unscoped { super }
     end
 
     private

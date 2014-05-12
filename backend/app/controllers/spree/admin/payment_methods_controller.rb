@@ -8,7 +8,7 @@ module Spree
       respond_to :html
 
       def create
-        @payment_method = params[:payment_method].delete(:type).constantize.new(params[:payment_method])
+        @payment_method = params[:payment_method].delete(:type).constantize.new(payment_method_params)
         @object = @payment_method
         invoke_callbacks(:create, :before)
         if @payment_method.save
@@ -25,12 +25,15 @@ module Spree
         invoke_callbacks(:update, :before)
         payment_method_type = params[:payment_method].delete(:type)
         if @payment_method['type'].to_s != payment_method_type
-          @payment_method.update_column(:type, payment_method_type)
+          @payment_method.update_columns(
+            type: payment_method_type,
+            updated_at: Time.now,
+          )
           @payment_method = PaymentMethod.find(params[:id])
         end
 
-        payment_method_params = params[ActiveModel::Naming.param_key(@payment_method)] || {}
-        attributes = params[:payment_method].merge(payment_method_params)
+        update_params = params[ActiveModel::Naming.param_key(@payment_method)] || {}
+        attributes = payment_method_params.merge(update_params)
         attributes.each do |k,v|
           if k.include?("password") && attributes[k].blank?
             attributes.delete(k)
@@ -59,6 +62,10 @@ module Spree
           flash[:error] = Spree.t(:invalid_payment_provider)
           redirect_to new_admin_payment_method_path
         end
+      end
+
+      def payment_method_params
+        params.require(:payment_method).permit!
       end
     end
   end

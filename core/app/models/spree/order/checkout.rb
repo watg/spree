@@ -1,5 +1,5 @@
 module Spree
-  class Order < ActiveRecord::Base
+  class Order < Spree::Base
     module Checkout
       def self.included(klass)
         klass.class_eval do
@@ -38,12 +38,18 @@ module Spree
             # To avoid multiple occurrences of the same transition being defined
             # On first definition, state_machines will not be defined
             state_machines.clear if respond_to?(:state_machines)
-            state_machine :state, :initial => :cart do
+            state_machine :state, :initial => :cart, :use_transactions => false, :action => :save_state do
               klass.next_event_transitions.each { |t| transition(t.merge(:on => :next)) }
 
               # Persist the state on the order
-              after_transition do |order|
+              after_transition do |order, transition|
                 order.state = order.state
+                order.state_changes.create(
+                  previous_state: transition.from,
+                  next_state:     transition.to,
+                  name:           'order',
+                  user_id:        order.user_id
+                )
                 order.save
               end
 
@@ -56,28 +62,47 @@ module Spree
               end
 
               event :resume do
-                transition :to => :resumed, :from => :canceled, :if => :allow_resume?
+                transition :to => :resumed, :from => :canceled, :if => :canceled?
               end
 
               event :authorize_return do
                 transition :to => :awaiting_return
               end
 
-              before_transition :to => :complete do |order|
-                begin
+              if states[:payment]
+                before_transition :to => :complete do |order|
                   order.process_payments! if order.payment_required?
-                rescue Spree::Core::GatewayError
-                  !!Spree::Config[:allow_checkout_on_gateway_error]
                 end
               end
 
-              before_transition :to => :delivery, :do => :create_proposed_shipments
+              before_transition :from => :cart, :do => :ensure_line_items_present
+
+              if states[:address]
+                before_transition :from => :address, :do => :create_tax_charge!
+              end
+
+              if states[:payment]
+                before_transition :to => :payment, :do => :set_shipments_cost
+                before_transition :to => :payment, :do => :create_tax_charge!
+              end
+
+              if states[:delivery]
+                before_transition :to => :delivery, :do => :create_proposed_shipments
+                before_transition :to => :delivery, :do => :ensure_available_shipping_rates
+                before_transition :from => :delivery, :do => :apply_free_shipping_promotions
+              end
 
               after_transition :to => :complete, :do => :finalize!
-              after_transition :to => :delivery, :do => :create_tax_charge!
               after_transition :to => :resumed,  :do => :after_resume
               after_transition :to => :canceled, :do => :after_cancel
+
+              after_transition :from => any - :cart, :to => any - [:confirm, :complete] do |order|
+                order.update_totals
+                order.persist_totals
+              end
             end
+
+            alias_method :save_state, :save
           end
 
           def self.go_to_state(name, options={})
@@ -126,12 +151,11 @@ module Spree
 
           def self.remove_transition(options={})
             self.removed_transitions << options
-            if transition = find_transition(options)
-              self.next_event_transitions.delete(transition)
-            end
+            self.next_event_transitions.delete(find_transition(options))
           end
 
           def self.find_transition(options={})
+            return nil if options.nil? || !options.include?(:from) || !options.include?(:to)
             self.next_event_transitions.detect do |transition|
               transition[options[:from].to_sym] == options[:to].to_sym
             end
@@ -145,27 +169,26 @@ module Spree
             @checkout_steps ||= {}
           end
 
+          def self.checkout_step_names
+            self.checkout_steps.keys
+          end
+
           def self.add_transition(options)
             self.next_event_transitions << { options.delete(:from) => options.delete(:to) }.merge(options)
           end
 
           def checkout_steps
-            checkout_steps = []
-            # TODO: replace this with each_with_object once Ruby 1.9 is standard
-            self.class.checkout_steps.each do |step, options|
-              if options[:if]
-                next unless options[:if].call(self)
-              end
+            steps = self.class.checkout_steps.each_with_object([]) { |(step, options), checkout_steps|
+              next if options.include?(:if) && !options[:if].call(self)
               checkout_steps << step
-            end
-            steps = checkout_steps.map(&:to_s)
+            }.map(&:to_s)
             # Ensure there is always a complete step
             steps << "complete" unless steps.include?("complete")
             steps
           end
 
           def has_checkout_step?(step)
-            step.present? ? self.checkout_steps.include?(step) : false
+            step.present? && self.checkout_steps.include?(step)
           end
 
           def checkout_step_index(step)
@@ -177,8 +200,57 @@ module Spree
           end
 
           def can_go_to_state?(state)
-            return false unless self.state.present? && has_checkout_step?(state) && has_checkout_step?(self.state)
+            return false unless has_checkout_step?(self.state) && has_checkout_step?(state)
             checkout_step_index(state) > checkout_step_index(self.state)
+          end
+
+          define_callbacks :updating_from_params, terminator: ->(target, result) { result == false }
+
+          set_callback :updating_from_params, :before, :update_params_payment_source
+
+          def update_from_params(params, permitted_params)
+            success = false
+            @updating_params = params
+            run_callbacks :updating_from_params do
+              attributes = @updating_params[:order] ? @updating_params[:order].permit(permitted_params) : {}
+
+              # Set existing card after setting permitted parameters because
+              # rails would slice parameters containg ruby objects, apparently
+              if @updating_params[:existing_card].present?
+                credit_card = CreditCard.find(@updating_params[:existing_card])
+                if credit_card.user_id != self.user_id || credit_card.user_id.blank?
+                  raise Core::GatewayError.new Spree.t(:invalid_credit_card)
+                end
+
+                attributes[:payments_attributes].first[:source] = credit_card
+                attributes[:payments_attributes].first[:payment_method_id] = credit_card.payment_method_id
+                attributes[:payments_attributes].first.delete :source_attributes
+              end
+
+              success = self.update_attributes(attributes)
+            end
+            @updating_params = nil
+            success
+          end
+
+          private
+          # For payment step, filter order parameters to produce the expected nested
+          # attributes for a single payment and its source, discarding attributes
+          # for payment methods other than the one selected
+          def update_params_payment_source
+            if has_checkout_step?("payment") && self.payment?
+              if @updating_params[:payment_source].present?
+                source_params = @updating_params.delete(:payment_source)[@updating_params[:order][:payments_attributes].first[:payment_method_id].underscore]
+
+                if source_params
+                  @updating_params[:order][:payments_attributes].first[:source_attributes] = source_params
+                end
+              end
+
+              if (@updating_params[:order][:payments_attributes])
+                @updating_params[:order][:payments_attributes].first[:amount] = self.total
+              end
+            end
           end
         end
       end

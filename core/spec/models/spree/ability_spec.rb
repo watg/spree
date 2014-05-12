@@ -71,7 +71,7 @@ describe Spree::Ability do
 
     context 'with admin user' do
       it 'should be able to admin' do
-        user.spree_roles << Spree::Role.find_or_create_by_name('admin')
+        user.spree_roles << Spree::Role.find_or_create_by(name: 'admin')
         ability.should be_able_to :admin, resource
         ability.should be_able_to :index, resource_order
         ability.should be_able_to :show, resource_product
@@ -81,7 +81,7 @@ describe Spree::Ability do
 
     context 'with fakedispatch user' do
       it 'should be able to admin on the order and shipment pages' do
-        user.spree_roles << Spree::Role.find_or_create_by_name('bar')
+        user.spree_roles << Spree::Role.find_or_create_by(name: 'bar')
 
         Spree::Ability.register_ability(BarAbility)
 
@@ -123,26 +123,6 @@ describe Spree::Ability do
   end
 
   context 'as Guest User' do
-
-    context 'for Address' do
-      context 'requested by any user' do
-        let(:resource) {
-          address = Spree::Address.new
-          address.stub user: create(:user)
-          address
-        }
-        it_should_behave_like 'access denied'
-      end
-
-      context 'requested by user' do
-        let(:resource) {
-          address = Spree::Address.new
-          address.stub user: user
-          address
-        }
-        it_should_behave_like 'access granted'
-      end
-    end
 
     context 'for Country' do
       let(:resource) { Spree::Country.new }
@@ -216,27 +196,6 @@ describe Spree::Ability do
 
     context 'for State' do
       let(:resource) { Spree::State.new }
-      context 'requested by any user' do
-        it_should_behave_like 'read only'
-      end
-    end
-
-    context 'for StockItem' do
-      let(:resource) { Spree::StockItem.new }
-      context 'requested by any user' do
-        it_should_behave_like 'read only'
-      end
-    end
-
-    context 'for StockLocation' do
-      let(:resource) { Spree::StockLocation.new }
-      context 'requested by any user' do
-        it_should_behave_like 'read only'
-      end
-    end
-
-    context 'for StockMovement' do
-      let(:resource) { Spree::StockMovement.new }
       context 'requested by any user' do
         it_should_behave_like 'read only'
       end

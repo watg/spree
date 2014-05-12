@@ -10,11 +10,13 @@ namespace :common do
     args.with_defaults(:user_class => "Spree::LegacyUser")
     require "#{ENV['LIB_NAME']}"
 
-    Spree::DummyGenerator.start ["--lib_name=#{ENV['LIB_NAME']}", "--database=#{ENV['DB_NAME']}", "--quiet"]
+    ENV["RAILS_ENV"] = 'test'
+
+    Spree::DummyGenerator.start ["--lib_name=#{ENV['LIB_NAME']}", "--quiet"]
     Spree::InstallGenerator.start ["--lib_name=#{ENV['LIB_NAME']}", "--auto-accept", "--migrate=false", "--seed=false", "--sample=false", "--quiet", "--user_class=#{args[:user_class]}"]
 
     puts "Setting up dummy database..."
-    cmd = "bundle exec rake db:drop db:create db:migrate db:test:prepare"
+    cmd = "bundle exec rake db:drop db:create db:migrate"
 
     if RUBY_PLATFORM =~ /mswin/ #windows
       cmd += " >nul"
@@ -31,5 +33,18 @@ namespace :common do
     rescue LoadError
       puts 'Skipping installation no generator to run...'
     end
+  end
+
+  task :seed do |t, args|
+    puts "Seeding ..."
+    cmd = "bundle exec rake db:seed RAILS_ENV=test"
+
+    if RUBY_PLATFORM =~ /mswin/ #windows
+      cmd += " >nul"
+    else
+      cmd += " >/dev/null"
+    end
+
+    system(cmd)
   end
 end

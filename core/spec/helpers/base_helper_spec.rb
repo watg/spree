@@ -3,6 +3,8 @@ require 'spec_helper'
 describe Spree::BaseHelper do
   include Spree::BaseHelper
 
+  let(:current_store){ create :store }
+
   context "available_countries" do
     let(:country) { create(:country) }
 
@@ -116,7 +118,7 @@ describe Spree::BaseHelper do
     end
 
     def link_to_tracking_html(options = {})
-      node = link_to_tracking(stub(:shipment, options))
+      node = link_to_tracking(double(:shipment, options))
       Nokogiri::HTML(node.to_s)
     end
   end

@@ -1,7 +1,9 @@
 Spree::Core::Engine.config.to_prepare do
   if Spree.user_class
     Spree.user_class.class_eval do
-      include Spree::Core::UserBanners
+
+      include Spree::UserReporting
+      include Spree::UserApiAuthentication
       has_and_belongs_to_many :spree_roles,
                               :join_table => 'spree_roles_users',
                               :foreign_key => "user_id",
@@ -18,7 +20,7 @@ Spree::Core::Engine.config.to_prepare do
       end
 
       def last_incomplete_spree_order
-        spree_orders.incomplete.order('created_at DESC').first
+        spree_orders.incomplete.where(:created_by_id => self.id).order('created_at DESC').first
       end
     end
   end

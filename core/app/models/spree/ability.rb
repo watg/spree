@@ -37,11 +37,6 @@ module Spree
       if user.respond_to?(:has_spree_role?) && user.has_spree_role?('admin')
         can :manage, :all
       else
-        can [:manage], Address do |address|
-          # The addresses user method will be dependent upon your authentication solution.
-          # Spree assumes you will add a user method to Address in order to authorize users other than admins to modify the address.
-          address.user == user
-        end
         can [:index, :read], Country
         can [:index, :read], OptionType
         can [:index, :read], OptionValue
@@ -52,15 +47,16 @@ module Spree
         can :update, Order do |order, token|
           order.user == user || order.token && token == order.token
         end
+        can [:create, :read], Address
+        can :update, Address do |address|
+          user.bill_address == address || user.ship_address == address
+        end
         can [:index, :read], Product
         can [:index, :read], ProductProperty
         can [:index, :read], Property
         can :create, Spree.user_class
         can [:read, :update, :destroy], Spree.user_class, id: user.id
         can [:index, :read], State
-        can [:index, :read], StockItem
-        can [:index, :read], StockLocation
-        can [:index, :read], StockMovement
         can [:index, :read], Taxon
         can [:index, :read], Taxonomy
         can [:index, :read], Variant

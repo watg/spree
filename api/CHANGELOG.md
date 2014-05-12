@@ -1,49 +1,43 @@
-## Spree 2.1.0 (unreleased) ##
+## Spree 2.3.0 (unreleased) ##
 
-* The Products API endpoint now returns an additional key called `display_price`, which is the proper rendering of the price of a product.
+*   Support existing credit card feature on checkout.
 
-    *Ryan Bigg*
+    Checkouts_controller#update now uses the same Order::Checkout#update_from_params
+    from spree frontend which help us to remove a lot of duplicated logic. As a
+    result of that `payment_source` params must be sent now outsite the `order` key.
 
-* The Images API's `attachment_url` key has been removed in favour of keys that reflect the current image styles available in the application, such as `mini_url` and `product_url`. Use these now to references images.
+    Before you'd send a request like this:
 
-    *Ryan Bigg*
+        ```ruby
+        api_put :update, :id => order.to_param, :order_token => order.token,
+          :order => {
+            :payments_attributes => [{ :payment_method_id => @payment_method.id.to_s }],
+            :payment_source => { @payment_method.id.to_s => { name: "Spree" } }
+          }
+        ```
 
-* Fix issue where calling OrdersController#update with line item parameters would *always* create new line items, rather than updating existing ones.
+    Now it should look like this:
 
-    *Ryan Bigg*
+        ```ruby
+        api_put :update, :id => order.to_param, :order_token => order.token,
+          :order => {
+            :payments_attributes => [{ :payment_method_id => @payment_method.id.to_s }]
+          },
+          :payment_source => {
+            @payment_method.id.to_s => { name: "Spree" }
+          }
+        ```
 
-* The Orders API endpoint now returns an additional key called `display_item_total`, which is the proper rendering of the total line item price of an order.
+    Josh Hepworth and Washington
 
-    *Ryan Bigg*
+*   api/orders/show now display credit cards as source under payment
 
-* Include a `per_page` key in Products API end response so that libraries like jQuery.simplePagination can use this to display a pagination element on the page.
+    Washington Luiz
 
-    *Ryan Bigg*
+*   refactor the api to use a general importer in core gem.
 
-* Line item responses now contain `single_display_amount` and `display_amount` for "pretty" versions of the single and total amount for a line item, as well as a `total` node which is an "ugly" version of the total amount of a line item.
+    Peter Berkenbosch
 
-    *Ryan Bigg*
+* Shipment manifests viewed within the context of an order no longer return variant info. The line items for the order already contains this information. #4498
 
-* /api/orders endpoints now accept a `?order_token` parameter which should be the order's token. This can be used to authorize actions on an order without having to pass in an API key.
-
-    *Ryan Bigg*
-
-* Requests to POST /api/line_items will now update existing line items. For example if you have a line item with a variant ID=2 and quantity=10 and you attempt to create a new line item for the same variant with a quantity of 5, the existing line item's quantity will be updated to 15. Previously, a new line item would erroneously be created.
-
-    *Ryan Bigg*
-
-* /api/countries now will a 304 response if no country has been changed since the last request.
-
-    *Ryan Bigg*
-
-* The Shipments API no longer returns inventory units. Instead, it will return manifest objects. This is necessary due to the split shipments changes brought in by Spree 2.
-
-    *Ryan Bigg*
-
-* Checkouts API's update action will now correctly process line item attributes (either `line_items` or `line_item_attributes`)
-
-    *Ryan Bigg*
-
-* The structure of shipments data in the API has changed. Shipments can now have many shipping methods, shipping rates (which in turn have many zones and shipping categories), as well as a new key called "manifest" which returns the list of items contained within just this shipment for the order.
-
-    *Ryan Bigg*
+    * Ryan Bigg

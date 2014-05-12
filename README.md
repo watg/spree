@@ -25,22 +25,26 @@ Spree gem you automatically require all of the necessary gem dependencies which 
 
 All of the gems are designed to work together to provide a fully functional
 e-commerce platform. It is also possible, however, to use only the pieces you are
-interested in. So for example, you could use just the barebones spree\_core gem
-and perhaps combine it with your own custom promotion scheme instead of using
-spree_promo.
+interested in. For example, you could use just the barebones spree\_core gem
+and perhaps combine it with your own custom backend admin instead of using
+spree_api.
 
 [![Code Climate](https://codeclimate.com/github/spree/spree.png)](https://codeclimate.com/github/spree/spree)
 
 Installation
 ------------
 
+**THIS README IS FOR THE MASTER BRANCH OF SPREE AND REFLECTS THE WORK CURRENTLY
+EXISTING ON THE MASTER BRANCH. IF YOU ARE WISHING TO USE A NON-MASTER BRANCH OF
+SPREE, PLEASE CONSULT THAT BRANCH'S README AND NOT THIS ONE.**
+
 The fastest way to get started is by using the spree command line tool
 available in the spree gem which will add Spree to an existing Rails application.
 
 ```shell
-gem install rails -v 3.2.13
+gem install rails -v 4.0.4
 gem install spree
-rails _3.2.13_ new my_store
+rails _4.0.4_ new my_store
 spree install my_store
 ```
 
@@ -65,11 +69,11 @@ Using stable builds and bleeding edge
 -------------
 
 To use a stable build of Spree, you can manually add Spree to your
-Rails 3.2.x application. To use the 2-0-stable branch of Spree, add this line to
+Rails 4.0.x application. To use the 2-2-stable branch of Spree, add this line to
 your Gemfile.
 
 ```ruby
-gem 'spree', github: 'spree/spree', branch: '2-0-stable'
+gem 'spree', github: 'spree/spree', branch: '2-2-stable'
 ```
 
 Alternatively, if you want to use the bleeding edge version of Spree, use this
@@ -87,7 +91,7 @@ If you wish to have authentication included also, you will need to add the
 `spree_auth_devise` gem as well. Either this:
 
 ```ruby
-gem 'spree_auth_devise', github: 'spree/spree_auth_devise', branch: '2-0-stable'
+gem 'spree_auth_devise', github: 'spree/spree_auth_devise', branch: '2-2-stable'
 ```
 
 Or this:
@@ -131,6 +135,7 @@ rails g spree:install --migrate=false --sample=false --seed=false
 You can always perform the steps later by using these commands.
 
 ```shell
+bundle exec rake railties:install:migrations
 bundle exec rake db:migrate
 bundle exec rake db:seed
 bundle exec rake spree_sample:load
@@ -186,13 +191,13 @@ rails server
 Performance
 -----------
 
-You may noticed that your Spree store runs slowly in development mode.  This is
-a side-effect of how Rails works in development mode which is to continuous reload
+You may notice that your Spree store runs slowly in development mode.  This is
+a side-effect of how Rails works in development mode which is to continuously reload
 your Ruby objects on each request.  The introduction of the asset pipeline in
 Rails 3.1 made default performance in development mode significantly worse. There
 are, however, a few tricks to speeding up performance in development mode.
 
-You can recompile your assets as follows:
+You can precompile your assets as follows:
 
 ```shell
 bundle exec rake assets:precompile:nondigest
@@ -248,7 +253,7 @@ Running Tests
 
 We use [TeamCity](http://www.jetbrains.com/teamcity/) to run the tests for Spree.
 
-You can see the build statuses at [http://ci.spreecommerce.com](http://ci.spreecommerce.com/guestLogin.html?guest=1).
+You can see the build statuses at [http://ci.spree.fm](http://ci.spree.fm/guestLogin.html?guest=1).
 
 ---
 
@@ -259,6 +264,12 @@ the tests.  For example, to run the tests for the core project.
 cd core
 bundle exec rake test_app
 bundle exec rspec spec
+```
+
+If you would like to run specs against a particular database you may specify the
+dummy apps database, which defaults to sqlite3.
+```shell
+DB=postgres bundle exec rake test_app
 ```
 
 If you want to run specs for only a single spec file
@@ -287,6 +298,10 @@ generate test applications and run specs for all the facets:
 ```shell
 bash build.sh
 ```
+
+Further Documentation
+------------
+Spree has a number of really useful guides online at [http://guides.spreecommerce.com](http://guides.spreecommerce.com). 
 
 Contributing
 ------------

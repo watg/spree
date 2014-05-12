@@ -1,31 +1,34 @@
-require 'spree/backend/action_callbacks'
-
 class Spree::Admin::ResourceController < Spree::Admin::BaseController
+  include Spree::Backend::Callbacks
+
   helper_method :new_object_url, :edit_object_url, :object_url, :collection_url
   before_filter :load_resource, :except => [:update_positions]
   rescue_from ActiveRecord::RecordNotFound, :with => :resource_not_found
 
   respond_to :html
-  respond_to :js, :except => [:show, :index]
 
   def new
     invoke_callbacks(:new_action, :before)
     respond_with(@object) do |format|
       format.html { render :layout => !request.xhr? }
-      format.js   { render :layout => false }
+      if request.xhr?
+        format.js   { render :layout => false }
+      end
     end
   end
 
   def edit
     respond_with(@object) do |format|
       format.html { render :layout => !request.xhr? }
-      format.js   { render :layout => false }
+      if request.xhr?
+        format.js   { render :layout => false }
+      end
     end
   end
 
   def update
     invoke_callbacks(:update, :before)
-    if @object.update_attributes(params[object_name])
+    if @object.update_attributes(permitted_resource_params)
       invoke_callbacks(:update, :after)
       flash[:success] = flash_message_for(@object, :successfully_updated)
       respond_with(@object) do |format|
@@ -40,7 +43,7 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
 
   def create
     invoke_callbacks(:create, :before)
-    @object.attributes = params[object_name]
+    @object.attributes = permitted_resource_params
     if @object.save
       invoke_callbacks(:create, :after)
       flash[:success] = flash_message_for(@object, :successfully_created)
@@ -56,7 +59,7 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
 
   def update_positions
     params[:positions].each do |id, index|
-      model_class.where(:id => id).update_all(:position => index)
+      model_class.find(id).update_attributes(:position => index)
     end
 
     respond_to do |format|
@@ -70,27 +73,21 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
       invoke_callbacks(:destroy, :after)
       flash[:success] = flash_message_for(@object, :successfully_removed)
       respond_with(@object) do |format|
-        format.html { redirect_to collection_url }
+        format.html { redirect_to location_after_destroy }
         format.js   { render :partial => "spree/admin/shared/destroy" }
       end
     else
       invoke_callbacks(:destroy, :fails)
       respond_with(@object) do |format|
-        format.html { redirect_to collection_url }
+        format.html { redirect_to location_after_destroy }
       end
     end
   end
 
   protected
 
-    def resource_not_found
-      flash[:error] = flash_message_for(model_class.new, :not_found)
-      redirect_to collection_url
-    end
-
     class << self
       attr_accessor :parent_data
-      attr_accessor :callbacks
 
       def belongs_to(model_name, options = {})
         @parent_data ||= {}
@@ -98,26 +95,11 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
         @parent_data[:model_class] = model_name.to_s.classify.constantize
         @parent_data[:find_by] = options[:find_by] || :id
       end
+    end
 
-      def new_action
-        @callbacks ||= {}
-        @callbacks[:new_action] ||= Spree::ActionCallbacks.new
-      end
-
-      def create
-        @callbacks ||= {}
-        @callbacks[:create] ||= Spree::ActionCallbacks.new
-      end
-
-      def update
-        @callbacks ||= {}
-        @callbacks[:update] ||= Spree::ActionCallbacks.new
-      end
-
-      def destroy
-        @callbacks ||= {}
-        @callbacks[:destroy] ||= Spree::ActionCallbacks.new
-      end
+    def resource_not_found
+      flash[:error] = flash_message_for(model_class.new, :not_found)
+      redirect_to collection_url
     end
 
     def model_class
@@ -198,18 +180,12 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
       end
     end
 
-    def location_after_save
+    def location_after_destroy
       collection_url
     end
 
-    def invoke_callbacks(action, callback_type)
-      callbacks = self.class.callbacks || {}
-      return if callbacks[action].nil?
-      case callback_type.to_sym
-        when :before then callbacks[action].before_methods.each {|method| send method }
-        when :after  then callbacks[action].after_methods.each  {|method| send method }
-        when :fails  then callbacks[action].fails_methods.each  {|method| send method }
-      end
+    def location_after_save
+      collection_url
     end
 
     # URL helpers
@@ -245,6 +221,13 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
       else
         spree.polymorphic_url([:admin, model_class], options)
       end
+    end
+
+    # Allow all attributes to be updatable.
+    #
+    # Other controllers can, should, override it to set custom logic
+    def permitted_resource_params
+      params.require(object_name).permit!
     end
 
     def collection_actions

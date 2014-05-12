@@ -1,10 +1,9 @@
 module Spree
-  class Country < ActiveRecord::Base
-    has_many :states, order: 'name ASC'
+  class Country < Spree::Base
+    has_many :states, -> { order('name ASC') }, dependent: :destroy
+    has_many :addresses, dependent: :nullify
 
     validates :name, :iso_name, presence: true
-
-    attr_accessible :name, :iso_name, :states_required
 
     def self.states_required_by_country_id
       states_required = Hash.new(true)

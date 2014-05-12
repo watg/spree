@@ -6,6 +6,7 @@ module Spree
       before_filter :load_data, :except => :index
       create.before :create_before
       update.before :update_before
+      helper_method :clone_object_url
 
       def show
         session[:return_to] ||= request.referer
@@ -24,12 +25,25 @@ module Spree
         if params[:product][:option_type_ids].present?
           params[:product][:option_type_ids] = params[:product][:option_type_ids].split(',')
         end
-        super
+        invoke_callbacks(:update, :before)
+        if @object.update_attributes(permitted_resource_params)
+          invoke_callbacks(:update, :after)
+          flash[:success] = flash_message_for(@object, :successfully_updated)
+          respond_with(@object) do |format|
+            format.html { redirect_to location_after_save }
+            format.js   { render :layout => false }
+          end
+        else
+          # Stops people submitting blank slugs, causing errors when they try to update the product again
+          @product.slug = @product.slug_was if @product.slug.blank?
+          invoke_callbacks(:update, :fails)
+          respond_with(@object)
+        end
       end
 
       def destroy
-        @product = Product.find_by_permalink!(params[:id])
-        @product.delete
+        @product = Product.friendly.find(params[:id])
+        @product.destroy
 
         flash[:success] = Spree.t('notice_messages.product_deleted')
 
@@ -55,12 +69,16 @@ module Spree
         @variants = @product.variants
         @variants = [@product.master] if @variants.empty?
         @stock_locations = StockLocation.accessible_by(current_ability, :read)
+        if @stock_locations.empty?
+          flash[:error] = Spree.t(:stock_management_requires_a_stock_location)
+          redirect_to admin_stock_locations_path
+        end
       end
 
       protected
 
         def find_resource
-          Product.find_by_permalink!(params[:id])
+          Product.with_deleted.friendly.find(params[:id])
         end
 
         def location_after_save
@@ -80,18 +98,16 @@ module Spree
           params[:q][:deleted_at_null] ||= "1"
 
           params[:q][:s] ||= "name asc"
-
-          @search = super.ransack(params[:q])
+          @collection = super
+          @collection = @collection.with_deleted if params[:q][:deleted_at_null] == '0'
+          # @search needs to be defined as this is passed to search_form_for
+          @search = @collection.ransack(params[:q])
           @collection = @search.result.
-            group_by_products_id.
-            includes(product_includes).
-            page(params[:page]).
-            per(Spree::Config[:admin_products_per_page])
+                distinct_by_product_ids(params[:q][:s]).
+                includes(product_includes).
+                page(params[:page]).
+                per(Spree::Config[:admin_products_per_page])
 
-          if params[:q][:s].include?("master_default_price_amount")
-            # PostgreSQL compatibility
-            @collection = @collection.group("spree_prices.amount")
-          end
           @collection
         end
 
@@ -107,9 +123,16 @@ module Spree
         end
 
         def product_includes
-         [{:variants => [:images, {:option_values => :option_type}]}, {:master => [:images, :default_price]}]
+          [{ :variants => [:images, { :option_values => :option_type }], :master => [:images, :default_price]}]
+        end
+        
+        def clone_object_url resource
+          clone_admin_product_url resource
         end
 
+        def permit_attributes
+          params.require(:product).permit!
+        end
     end
   end
 end

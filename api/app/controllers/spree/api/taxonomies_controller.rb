@@ -6,10 +6,7 @@ module Spree
         @taxonomies = Taxonomy.accessible_by(current_ability, :read).order('name').includes(:root => :children).
                       ransack(params[:q]).result.
                       page(params[:page]).per(params[:per_page])
-        last_taxonomy = Spree::Taxonomy.order("updated_at ASC").last
-        if stale?(:etag => last_taxonomy, :last_modified => last_taxonomy.updated_at)
-          respond_with(@taxonomies)
-        end
+        respond_with(@taxonomies)
       end
 
       def show
@@ -24,7 +21,7 @@ module Spree
 
       def create
         authorize! :create, Taxonomy
-        @taxonomy = Taxonomy.new(params[:taxonomy])
+        @taxonomy = Taxonomy.new(taxonomy_params)
         if @taxonomy.save
           respond_with(@taxonomy, :status => 201, :default_template => :show)
         else
@@ -34,7 +31,7 @@ module Spree
 
       def update
         authorize! :update, taxonomy
-        if taxonomy.update_attributes(params[:taxonomy])
+        if taxonomy.update_attributes(taxonomy_params)
           respond_with(taxonomy, :status => 200, :default_template => :show)
         else
           invalid_resource!(taxonomy)
@@ -53,6 +50,13 @@ module Spree
         @taxonomy ||= Taxonomy.accessible_by(current_ability, :read).find(params[:id])
       end
 
+      def taxonomy_params
+        if params[:taxonomy] && !params[:taxonomy].empty?
+          params.require(:taxonomy).permit(permitted_taxonomy_attributes)
+        else
+          {}
+        end
+      end
     end
   end
 end

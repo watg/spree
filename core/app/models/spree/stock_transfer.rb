@@ -1,13 +1,11 @@
 module Spree
-  class StockTransfer < ActiveRecord::Base
+  class StockTransfer < Spree::Base
     has_many :stock_movements, :as => :originator
 
     belongs_to :source_location, :class_name => 'StockLocation'
     belongs_to :destination_location, :class_name => 'StockLocation'
 
     make_permalink field: :number, prefix: 'T'
-
-    attr_accessible :reference
 
     def to_param
       number

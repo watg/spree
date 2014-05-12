@@ -1,16 +1,13 @@
-Spree::Core::Engine.routes.draw do
+Spree::Core::Engine.add_routes do
 
   root :to => 'home#index'
 
-  resources :products
+  resources :products, :only => [:index, :show]
 
-  match '/locale/set', :to => 'locale#set'
-
-  resources :states, :only => :index
-  resources :countries, :only => :index
+  get '/locale/set', :to => 'locale#set'
 
   # non-restful checkout stuff
-  put '/checkout/update/:state', :to => 'checkout#update', :as => :update_checkout
+  patch '/checkout/update/:state', :to => 'checkout#update', :as => :update_checkout
   get '/checkout/:state', :to => 'checkout#edit', :as => :checkout_state
   get '/checkout', :to => 'checkout#edit' , :as => :checkout
 
@@ -19,21 +16,22 @@ Spree::Core::Engine.routes.draw do
     request.referer || '/cart'
   end
 
-  get '/orders/populate', :via => :get, :to => populate_redirect
-  match '/orders/:id/token/:token' => 'orders#show', :via => :get, :as => :token_order
+  get '/orders/populate', :to => populate_redirect
+  get '/orders/:id/token/:token' => 'orders#show', :as => :token_order
 
-  resources :orders do
+  resources :orders, :except => [:index, :new, :create, :destroy] do
     post :populate, :on => :collection
   end
 
   get '/cart', :to => 'orders#edit', :as => :cart
-  put '/cart', :to => 'orders#update', :as => :update_cart
+  patch '/cart', :to => 'orders#update', :as => :update_cart
   put '/cart/empty', :to => 'orders#empty', :as => :empty_cart
 
   # route globbing for pretty nested taxon and product paths
-  match '/t/*id', :to => 'taxons#show', :as => :nested_taxons
+  get '/t/*id', :to => 'taxons#show', :as => :nested_taxons
 
-  match '/unauthorized', :to => 'home#unauthorized', :as => :unauthorized
-  match '/content/cvv', :to => 'content#cvv', :as => :cvv
-  match '/content/*path', :to => 'content#show', :via => :get, :as => :content
+  get '/unauthorized', :to => 'home#unauthorized', :as => :unauthorized
+  get '/content/cvv', :to => 'content#cvv', :as => :cvv
+  get '/content/*path', :to => 'content#show', :as => :content
+  get '/cart_link', :to => 'store#cart_link', :as => :cart_link
 end

@@ -1,11 +1,17 @@
 object @shipment
+cache @shipment
 attributes *shipment_attributes
 node(:order_id) { |shipment| shipment.order.number }
 node(:stock_location_name) { |shipment| shipment.stock_location.name }
+
 child :shipping_rates => :shipping_rates do
-  attributes  :id, :name, :cost, :selected, :shipping_method_id
-  node(:display_cost) { |sr| sr.display_cost.to_s }
+  extends "spree/api/shipping_rates/show"
 end
+
+child :selected_shipping_rate => :selected_shipping_rate do
+  extends "spree/api/shipping_rates/show"
+end
+
 child :shipping_methods => :shipping_methods do
   attributes :id, :name
   child :zones => :zones do
@@ -19,7 +25,7 @@ end
 
 child :manifest => :manifest do
   child :variant => :variant do
-    extends "spree/api/variants/show"
+    extends "spree/api/variants/small"
   end
   node(:quantity) { |m| m.quantity }
   node(:states) { |m| m.states }

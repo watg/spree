@@ -8,28 +8,20 @@ module Spree
 
     respond_to :html
 
+    before_filter :assign_order_with_lock, only: :update
+    before_filter :apply_coupon_code, only: :update
+    skip_before_filter :verify_authenticity_token
+
     def show
       @order = Order.find_by_number!(params[:id])
-      if stale?(:etag => @order, :last_modified => @order.updated_at)
-        respond_with(@order)
-      end
     end
 
     def update
-      @order = current_order
-      unless @order
-        flash[:error] = Spree.t(:order_not_found)
-        redirect_to root_path and return
-      end
-
-      if @order.update_attributes(params[:order])
-        return if after_update_attributes
-        @order.line_items = @order.line_items.select {|li| li.quantity > 0 }
-        fire_event('spree.order.contents_changed')
+      if @order.contents.update_cart(order_params)
         respond_with(@order) do |format|
           format.html do
             if params.has_key?(:checkout)
-              @order.next_transition.run_callbacks if @order.cart?
+              @order.next if @order.cart?
               redirect_to checkout_state_path(@order.checkout_steps.first)
             else
               redirect_to cart_path
@@ -41,19 +33,21 @@ module Spree
       end
     end
 
-
     # Shows the current incomplete order from the session
     def edit
-      @order = current_order(true)
+      @order = current_order || Order.new
       associate_user
+      if stale?(current_order)
+        respond_with(current_order)
+      end
     end
 
     # Adds a new item to the order (creating a new order if none already exists)
     def populate
-      populator = Spree::OrderPopulator.new(current_order(true), current_currency)
-      if populator.populate(params.slice(:products, :variants, :quantity))
-        fire_event('spree.cart.add')
-        fire_event('spree.order.contents_changed')
+      populator = Spree::OrderPopulator.new(current_order(create_order_if_necessary: true), current_currency)
+      if populator.populate(params[:variant_id], params[:quantity])
+        current_order.ensure_updated_shipments
+
         respond_with(@order) do |format|
           format.html { redirect_to cart_path }
         end
@@ -72,7 +66,11 @@ module Spree
     end
 
     def accurate_title
-      @order && @order.completed? ? "#{Spree.t(:order)} #{@order.number}" : Spree.t(:shopping_cart)
+      if @order && @order.completed?
+        Spree.t(:order_number, :number => @order.number)
+      else
+        Spree.t(:shopping_cart)
+      end
     end
 
     def check_authorization
@@ -88,16 +86,20 @@ module Spree
 
     private
 
-    def after_update_attributes
-      coupon_result = Spree::Promo::CouponApplicator.new(@order).apply
-      if coupon_result[:coupon_applied?]
-        flash[:success] = coupon_result[:success] if coupon_result[:success].present?
-        return false
-      else
-        flash[:error] = coupon_result[:error]
-        respond_with(@order) { |format| format.html { render :edit } }
-        return true
+      def order_params
+        if params[:order]
+          params[:order].permit(*permitted_order_attributes)
+        else
+          {}
+        end
       end
-    end
+
+      def assign_order_with_lock
+        @order = current_order(lock: true)
+        unless @order
+          flash[:error] = Spree.t(:order_not_found)
+          redirect_to root_path and return
+        end
+      end
   end
 end

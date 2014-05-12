@@ -94,11 +94,11 @@ module SpreeCmd
         gem :spree, @spree_gem_options
 
         if @install_default_gateways
-          gem :spree_gateway, :git => "https://github.com/spree/spree_gateway.git"
+          gem :spree_gateway, :git => "https://github.com/spree/spree_gateway.git", :branch => "2-1-stable"
         end
 
         if @install_default_auth
-          gem :spree_auth_devise, :git => "https://github.com/spree/spree_auth_devise.git"
+          gem :spree_auth_devise, :git => "https://github.com/spree/spree_auth_devise.git", :branch => "2-1-stable"
         end
 
         run 'bundle install', :capture => true
@@ -161,7 +161,7 @@ module SpreeCmd
       end
 
       def rails_project?
-        File.exists? File.join(@app_path, 'script', 'rails')
+        File.exists? File.join(@app_path, 'bin', 'rails')
       end
 
       def linux?

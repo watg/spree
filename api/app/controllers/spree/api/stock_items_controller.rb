@@ -19,10 +19,9 @@ module Spree
         count_on_hand = 0
         if params[:stock_item].has_key?(:count_on_hand)
           count_on_hand = params[:stock_item][:count_on_hand].to_i
-          params[:stock_item].delete(:count_on_hand)
         end
 
-        @stock_item = scope.new(params[:stock_item])
+        @stock_item = scope.new(stock_item_params)
         if @stock_item.save
           @stock_item.adjust_count_on_hand(count_on_hand)
           respond_with(@stock_item, status: 201, default_template: :show)
@@ -40,7 +39,10 @@ module Spree
           params[:stock_item].delete(:count_on_hand)
         end
 
-        if @stock_item.adjust_count_on_hand(count_on_hand)
+        updated = params[:stock_item][:force] ? @stock_item.set_count_on_hand(count_on_hand)
+                                              : @stock_item.adjust_count_on_hand(count_on_hand)
+
+        if updated
           respond_with(@stock_item, status: 200, default_template: :show)
         else
           invalid_resource!(@stock_item)
@@ -61,7 +63,12 @@ module Spree
       end
 
       def scope
-        @stock_location.stock_items.accessible_by(current_ability, :read).includes(:variant => :product)
+        includes = {:variant => [{ :option_values => :option_type }, :product] }
+        @stock_location.stock_items.accessible_by(current_ability, :read).includes(includes)
+      end
+
+      def stock_item_params
+        params.require(:stock_item).permit(permitted_stock_item_attributes)
       end
     end
   end

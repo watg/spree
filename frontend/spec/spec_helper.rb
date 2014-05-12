@@ -14,8 +14,16 @@ end
 # This file is copied to ~/spec when you run 'ruby script/generate rspec'
 # from the project root directory.
 ENV["RAILS_ENV"] ||= 'test'
-require File.expand_path("../dummy/config/environment", __FILE__)
+
+begin
+  require File.expand_path("../dummy/config/environment", __FILE__)
+rescue LoadError
+  puts "Could not load dummy application. Please ensure you have run `bundle exec rake test_app`"
+  exit
+end
+
 require 'rspec/rails'
+require 'ffaker'
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
@@ -35,8 +43,17 @@ require 'spree/testing_support/controller_requests'
 require 'spree/testing_support/flash'
 require 'spree/testing_support/url_helpers'
 require 'spree/testing_support/order_walkthrough'
+require 'spree/testing_support/caching'
 
 require 'paperclip/matchers'
+
+if ENV['WEBDRIVER'] == 'accessible'
+  require 'capybara/accessible'
+  Capybara.javascript_driver = :accessible
+else
+  require 'capybara/poltergeist'
+  Capybara.javascript_driver = :poltergeist
+end
 
 RSpec.configure do |config|
   config.color = true
@@ -44,11 +61,16 @@ RSpec.configure do |config|
 
   config.fixture_path = File.join(File.expand_path(File.dirname(__FILE__)), "fixtures")
 
-  #config.include Devise::TestHelpers, :type => :controller
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, comment the following line or assign false
   # instead of true.
   config.use_transactional_fixtures = false
+
+  if ENV['WEBDRIVER'] == 'accessible'
+    config.around(:each, :inaccessible => true) do |example|
+      Capybara::Accessible.skip_audit { example.run }
+    end
+  end
 
   config.before(:each) do
     WebMock.disable!
@@ -57,9 +79,11 @@ RSpec.configure do |config|
     else
       DatabaseCleaner.strategy = :transaction
     end
-  end
-
-  config.before(:each) do
+    # TODO: Find out why open_transactions ever gets below 0
+    # See issue #3428
+    if ActiveRecord::Base.connection.open_transactions < 0
+      ActiveRecord::Base.connection.increment_open_transactions
+    end
     DatabaseCleaner.start
     reset_spree_preferences
   end
@@ -68,7 +92,7 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end
 
-  config.after(:each, :type => :request) do
+  config.after(:each, :type => :feature) do
     missing_translations = page.body.scan(/translation missing: #{I18n.locale}\.(.*?)[\s<\"&]/)
     if missing_translations.any?
       #binding.pry

@@ -3,31 +3,30 @@
 # the one component of Spree.
 source 'https://rubygems.org'
 
-gem 'json'
-gem 'multi_json'
-gem 'mysql2'
-gem 'pg'
-gem 'sqlite3'
-
-# Gems used only for assets and not required
-# in production environments by default.
-group :assets do
-  gem 'coffee-rails', '~> 3.2'
-  gem 'sass-rails', '~> 3.2'
+platforms :ruby do
+  gem 'mysql2'
+  gem 'pg'
+  gem 'sqlite3'
 end
+
+platforms :jruby do
+  gem 'jruby-openssl'
+  gem 'activerecord-jdbcsqlite3-adapter'
+end
+
+gem 'coffee-rails', '~> 4.0.0'
+gem 'sass-rails', '~> 4.0.2'
 
 group :test do
-  gem 'capybara', '~> 1.1'
-  gem 'database_cleaner', '0.7.1'
+  gem 'capybara', '~> 2.1'
+  gem 'database_cleaner', '~> 1.0.1'
   gem 'email_spec', '1.4.0'
-  gem 'factory_girl_rails', '~> 4.2.1'
-  gem 'ffaker'
+  gem 'factory_girl_rails', '~> 4.4.0'
   gem 'launchy'
   gem 'pry'
-  gem 'rspec-rails', '~> 2.13.0'
-  gem 'selenium-webdriver', '2.33.0'
+  gem 'rspec-rails', '~> 2.14.0'
   gem 'simplecov'
   gem 'webmock', '1.8.11'
+  gem 'poltergeist', '1.5.0'
+  gem 'timecop'
 end
-
-gemspec

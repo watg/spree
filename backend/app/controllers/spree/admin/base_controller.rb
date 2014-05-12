@@ -11,6 +11,7 @@ module Spree
       before_filter :authorize_admin
 
       protected
+
         def action
           params[:action].to_sym
         end
@@ -19,7 +20,7 @@ module Spree
           if respond_to?(:model_class, true) && model_class
             record = model_class
           else
-            record = Object
+            record = controller_name.to_sym
           end
           authorize! :admin, record
           authorize! action, record
@@ -28,24 +29,17 @@ module Spree
         # Need to generate an API key for a user due to some backend actions
         # requiring authentication to the Spree API
         def generate_admin_api_key
-          if user = try_spree_current_user
-            if user.spree_api_key.blank?
-              user.generate_spree_api_key!
-            end
+          if (user = try_spree_current_user) && user.spree_api_key.blank?
+            user.generate_spree_api_key!
           end
         end
 
         def check_alerts
           return unless should_check_alerts?
-
           unless session.has_key? :alerts
-            begin
-              session[:alerts] = Spree::Alert.current(request.host)
-              filter_dismissed_alerts
-              Spree::Config.set :last_check_for_spree_alerts => DateTime.now.to_s
-            rescue
-              session[:alerts] = nil
-            end
+            session[:alerts] = Spree::Alert.current(request.host)
+            filter_dismissed_alerts
+            Spree::Config.set :last_check_for_spree_alerts => DateTime.now.to_s
           end
         end
 
@@ -81,12 +75,18 @@ module Spree
         def filter_dismissed_alerts
           return unless session[:alerts]
           dismissed = (Spree::Config[:dismissed_spree_alerts] || '').split(',')
-          session[:alerts].reject! { |a| dismissed.include? a["id"].to_s }
+          # If it's a string, something has gone wrong with the alerts service. Ignore it.
+          if session[:alerts].is_a?(String)
+            session[:alerts] = nil
+          else
+            session[:alerts].reject! { |a| dismissed.include? a["id"].to_s }
+          end
         end
 
         def config_locale
           Spree::Backend::Config[:locale]
         end
+
     end
   end
 end

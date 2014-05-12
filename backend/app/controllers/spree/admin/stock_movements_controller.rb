@@ -5,7 +5,9 @@ module Spree
       helper_method :stock_location
 
       def index
-        @stock_movements = stock_location.stock_movements.recent.page(params[:page])
+        @stock_movements = stock_location.stock_movements.recent.
+          includes(:stock_item => { :variant => :product }).
+          page(params[:page])
       end
 
       def new
@@ -13,7 +15,7 @@ module Spree
       end
 
       def create
-        @stock_movement = stock_location.stock_movements.build(params[:stock_movement])
+        @stock_movement = stock_location.stock_movements.build(stock_movement_params)
         @stock_movement.save
         flash[:success] = flash_message_for(@stock_movement, :successfully_created)
         redirect_to admin_stock_location_stock_movements_path(stock_location)
@@ -23,27 +25,14 @@ module Spree
         @stock_movement = StockMovement.find(params[:id])
       end
 
-      def update
-        @stock_movement = StockMovement.find(params[:id])
-        if @stock_movement.update_attributes(params[:stock_movement])
-          flash[:success] = flash_message_for(@stock_movement, :successfully_updated)
-          redirect_to admin_stock_location_stock_movements_path(stock_location)
-        else
-          render :edit
-        end
-      end
-
-      def destroy
-        stock_movement = StockMovement.find(params[:id])
-        flash[:success] = flash_message_for(stock_movement, :successfully_removed)
-        stock_movement.destroy
-        redirect_to admin_stock_location_stock_movements_path(stock_location)
-      end
-
       private
 
       def stock_location
         @stock_location ||= StockLocation.find(params[:stock_location_id])
+      end
+
+      def stock_movement_params
+        params.require(:stock_movement).permit(:quantity, :stock_item_id, :action)
       end
     end
   end

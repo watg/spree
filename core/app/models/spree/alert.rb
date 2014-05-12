@@ -5,13 +5,13 @@ module Spree
     def self.current(host)
       params = {
         version: Spree.version,
-        name: Spree::Config[:site_name],
+        name: Spree::Store.current.name,
         host: host,
         rails_env: Rails.env,
         rails_version: Rails.version
       }
 
-      HTTParty.get('http://alerts.spreecommerce.com/alerts.json', body: params).parsed_response
+      HTTParty.get('http://alerts.spreecommerce.com/alerts.json', query: params).parsed_response
     end
   end
 end

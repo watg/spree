@@ -15,83 +15,61 @@ describe Spree::Order do
         order.state = "confirm"
         order.run_callbacks(:create)
         order.stub :payment_required? => true
-        order.stub :process_payments!
+        order.stub :process_payments! => true
         order.stub :has_available_shipment
       end
 
-      context "with unprocessed payments" do
-        before do
-          order.stub :has_unprocessed_payments? => true
-        end
+      context "when payment processing succeeds" do
+        before { order.stub :process_payments! => true }
 
         it "should finalize order when transitioning to complete state" do
           order.should_receive(:finalize!)
           order.next!
         end
 
-         context "when credit card payment fails" do
-           before do
-             order.stub(:process_payments!).and_raise(Spree::Core::GatewayError)
+        context "when credit card processing fails" do
+          before { order.stub :process_payments! => false }
+
+          it "should not complete the order" do
+             order.next
+             order.state.should == "confirm"
            end
+        end
 
-           context "when not configured to allow failed payments" do
-              before do
-                Spree::Config.set :allow_checkout_on_gateway_error => false
-              end
-
-              it "should not complete the order" do
-                 order.next
-                 order.state.should == "confirm"
-               end
-            end
-
-           context "when configured to allow failed payments" do
-             before do
-               Spree::Config.set :allow_checkout_on_gateway_error => true
-               order.stub :finalize!
-             end
-
-             it "should complete the order" do
-                order.next!
-                order.state.should == "complete"
-              end
-           end
-         end
-       end
-
-       context "with no unprocessed payments" do
-         before do
-           order.stub :has_unprocessed_payments? => false
-          end
-
-         it "cannot transition to complete" do
-           order.next
-           order.state.should == "confirm"
-         end
-       end
-    end
-
-    context "when current state is address" do
-      before do
-        order.stub(:has_available_payment)
-        order.state = "address"
       end
 
-      it "adjusts tax rates when transitioning to delivery" do
-        # Once because the record is being saved
-        # Twice because it is transitioning to the delivery state
-        Spree::TaxRate.should_receive(:adjust).twice
-        order.next!
+      context "when payment processing fails" do
+        before { order.stub :process_payments! => false }
+
+        it "cannot transition to complete" do
+         order.next
+         order.state.should == "confirm"
+        end
       end
     end
 
     context "when current state is delivery" do
       before do
+        order.stub :payment_required? => true
+        order.stub :apply_free_shipping_promotions
         order.state = "delivery"
-        order.stub :total => 10.0
+      end
+
+      it "adjusts tax rates when transitioning to delivery" do
+        # Once for the line items
+        Spree::TaxRate.should_receive(:adjust).once
+        order.stub :set_shipments_cost
+        order.next!
+      end
+
+      it "adjusts tax rates twice if there are any shipments" do
+        # Once for the line items, once for the shipments
+        order.shipments.build
+        Spree::TaxRate.should_receive(:adjust).twice
+        order.stub :set_shipments_cost
+        order.next!
       end
     end
-
   end
 
   context "#can_cancel?" do
@@ -138,7 +116,7 @@ describe Spree::Order do
       shipment.stub(:cancel!)
       order.stub :has_available_shipment
       order.stub :restock_items!
-      mail_message = mock "Mail::Message"
+      mail_message = double "Mail::Message"
       order_id = nil
       Spree::OrderMailer.should_receive(:cancel_email) { |*args|
         order_id = args[0]
@@ -153,7 +131,7 @@ describe Spree::Order do
       before do
         shipment.stub(:ensure_correct_adjustment)
         shipment.stub(:update_order)
-        Spree::OrderMailer.stub(:cancel_email).and_return(mail_message = stub)
+        Spree::OrderMailer.stub(:cancel_email).and_return(mail_message = double)
         mail_message.stub :deliver
 
         order.stub :has_available_shipment
@@ -164,7 +142,7 @@ describe Spree::Order do
       before do
         # TODO: This is ugly :(
         # Stubs methods that cause unwanted side effects in this test
-        Spree::OrderMailer.stub(:cancel_email).and_return(mail_message = stub)
+        Spree::OrderMailer.stub(:cancel_email).and_return(mail_message = double)
         mail_message.stub :deliver
         order.stub :has_available_shipment
         order.stub :restock_items!
@@ -173,8 +151,9 @@ describe Spree::Order do
 
       context "without shipped items" do
         it "should set payment state to 'credit owed'" do
+          # Regression test for #3711
+          order.should_receive(:update_column).with(:payment_state, 'credit_owed')
           order.cancel!
-          order.payment_state.should == 'credit_owed'
         end
       end
 
@@ -186,6 +165,16 @@ describe Spree::Order do
         it "should not alter the payment state" do
           order.cancel!
           order.payment_state.should be_nil
+        end
+      end
+
+      context "with payments" do
+        let(:payment) { create(:payment) }
+
+        it "should automatically refund all payments" do
+          order.stub_chain(:payments, :completed).and_return([payment])
+          payment.should_receive(:cancel!)
+          order.cancel!
         end
       end
     end

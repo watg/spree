@@ -4,22 +4,35 @@ module Spree
       module Order
         def self.included(base)
           base.class_eval do
+            helper_method :simple_current_order
             helper_method :current_order
             helper_method :current_currency
             before_filter :set_current_order
           end
         end
 
+        # Used in the link_to_cart helper.
+        def simple_current_order
+          @order ||= Spree::Order.find_by(id: session[:order_id], currency: current_currency)
+        end
+
         # The current incomplete order from the session for use in cart and during checkout
-        def current_order(create_order_if_necessary = false)
+        def current_order(options = {})
+          options[:create_order_if_necessary] ||= false
+          options[:lock] ||= false
+
           return @current_order if @current_order
+
           if session[:order_id]
-            current_order = Spree::Order.find_by_id_and_currency(session[:order_id], current_currency, :include => :adjustments)
+            current_order = Spree::Order.includes(:adjustments).lock(options[:lock]).find_by(id: session[:order_id], currency: current_currency)
             @current_order = current_order unless current_order.try(:completed?)
           end
-          if create_order_if_necessary and (@current_order.nil? or @current_order.completed?)
-            @current_order = Spree::Order.new(:currency => current_currency)
+
+          if options[:create_order_if_necessary] and (@current_order.nil? or @current_order.completed?)
+            @current_order = Spree::Order.new(currency: current_currency)
             @current_order.user ||= try_spree_current_user
+            # See issue #3346 for reasons why this line is here
+            @current_order.created_by ||= try_spree_current_user
             @current_order.save!
 
             # make sure the user has permission to access the order (if they are a guest)
@@ -27,6 +40,7 @@ module Spree
               session[:access_token] = @current_order.token
             end
           end
+
           if @current_order
             @current_order.last_ip_address = ip_address
             session[:order_id] = @current_order.id
@@ -37,17 +51,7 @@ module Spree
         def associate_user
           @order ||= current_order
           if try_spree_current_user && @order
-            if @order.user.blank? || @order.email.blank?
-              @order.associate_user!(try_spree_current_user)
-            end
-          end
-
-          # This will trigger any "first order" promotions to be triggered
-          # Assuming of course that this session variable was set correctly in
-          # the authentication provider's registrations controller
-          if session[:spree_user_signup] && @order
-            fire_event('spree.user.signup', :user => try_spree_current_user, :order => @order)
-            session[:spree_user_signup] = nil
+            @order.associate_user!(try_spree_current_user) if @order.user.blank? || @order.email.blank?
           end
 
           session[:guest_token] = nil
@@ -58,8 +62,8 @@ module Spree
             last_incomplete_order = user.last_incomplete_spree_order
             if session[:order_id].nil? && last_incomplete_order
               session[:order_id] = last_incomplete_order.id
-            elsif current_order(true) && last_incomplete_order && current_order != last_incomplete_order
-              current_order.merge!(last_incomplete_order)
+            elsif current_order && last_incomplete_order && current_order != last_incomplete_order
+              current_order.merge!(last_incomplete_order, user)
             end
           end
         end
@@ -69,7 +73,7 @@ module Spree
         end
 
         def ip_address
-          request.env['HTTP_X_REAL_IP'] || request.env['REMOTE_ADDR']
+          request.remote_ip
         end
       end
     end

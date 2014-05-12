@@ -10,7 +10,7 @@ describe Spree::Api::BaseController do
 
   context "signed in as a user using an authentication extension" do
     before do
-      controller.stub :try_spree_current_user => stub(:email => "spree@example.com")
+      controller.stub :try_spree_current_user => double(:email => "spree@example.com")
       Spree::Api::Config[:requires_authentication] = true
     end
 
@@ -18,6 +18,29 @@ describe Spree::Api::BaseController do
       api_get :index
       json_response.should == { "products" => [] }
       response.status.should == 200
+    end
+  end
+
+  context "when validating based on an order token" do
+    let!(:order) { create :order }
+
+    context "with a correct order token" do
+      it "succeeds" do
+        api_get :index, order_token: order.token, order_id: order.number
+        response.status.should == 200
+      end
+
+      it "succeeds with an order_number parameter" do
+        api_get :index, order_token: order.token, order_number: order.number
+        response.status.should == 200
+      end
+    end
+
+    context "with an incorrect order token" do
+      it "returns unauthorized" do
+        api_get :index, order_token: "NOT_A_TOKEN", order_id: order.number
+        response.status.should == 401
+      end
     end
   end
 
@@ -29,7 +52,7 @@ describe Spree::Api::BaseController do
     end
 
     it "with an invalid API key" do
-      request.env["X-Spree-Token"] = "fake_key"
+      request.headers["X-Spree-Token"] = "fake_key"
       get :index, {}
       json_response.should == { "error" => "Invalid API key (fake_key) specified." }
       response.status.should == 401
@@ -49,7 +72,7 @@ describe Spree::Api::BaseController do
   end
 
   it "maps symantec keys to nested_attributes keys" do
-    klass = stub(:nested_attributes_options => { :line_items => {},
+    klass = double(:nested_attributes_options => { :line_items => {},
                                                   :bill_address => {} })
     attributes = { 'line_items' => { :id => 1 },
                    'bill_address' => { :id => 2 },

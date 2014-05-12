@@ -14,9 +14,16 @@ end
 # This file is copied to ~/spec when you run 'ruby script/generate rspec'
 # from the project root directory.
 ENV["RAILS_ENV"] ||= 'test'
-require File.expand_path("../dummy/config/environment", __FILE__)
+
+begin
+  require File.expand_path("../dummy/config/environment", __FILE__)
+rescue LoadError
+  puts "Could not load dummy application. Please ensure you have run `bundle exec rake test_app`"
+end
+
 require 'rspec/rails'
 require 'database_cleaner'
+require 'ffaker'
 
 require "support/big_decimal"
 require "support/test_gateway"
@@ -28,14 +35,6 @@ end
 require 'spree/testing_support/factories'
 require 'spree/testing_support/preferences'
 
-require 'spree/testing_support/controller_requests'
-require 'spree/testing_support/authorization_helpers'
-require 'spree/testing_support/flash'
-require 'spree/testing_support/url_helpers'
-require 'spree/testing_support/capybara_ext'
-
-require 'paperclip/matchers'
-
 RSpec.configure do |config|
   config.color = true
   config.mock_with :rspec
@@ -45,30 +44,14 @@ RSpec.configure do |config|
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, comment the following line or assign false
   # instead of true.
-  config.use_transactional_fixtures = false
+  config.use_transactional_fixtures = true
 
   config.before(:each) do
-    if example.metadata[:js]
-      DatabaseCleaner.strategy = :truncation
-    else
-      DatabaseCleaner.strategy = :transaction
-    end
-    DatabaseCleaner.start
     reset_spree_preferences
   end
 
-  config.after(:each) do
-    DatabaseCleaner.clean
-  end
-
   config.include FactoryGirl::Syntax::Methods
-
   config.include Spree::TestingSupport::Preferences
-  config.include Spree::TestingSupport::UrlHelpers
-  config.include Spree::TestingSupport::ControllerRequests
-  config.include Spree::TestingSupport::Flash
-
-  config.include Paperclip::Shoulda::Matchers
 
   config.fail_fast = ENV['FAIL_FAST'] || false
 end
