@@ -80,8 +80,6 @@ module Spree
       line_item.save!
     end
 
-    # Recap, we are trying to remove 1 from  a quanityt of 2 and it
-    # is telling us we can not as it is out of stock!!
     def unsafe_remove_by_line_item(line_item, quantity, shipment=nil)
       line_item.target_shipment = shipment
 
