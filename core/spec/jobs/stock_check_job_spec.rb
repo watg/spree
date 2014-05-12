@@ -34,25 +34,104 @@ describe Spree::StockCheckJob do
     end
 
     context "on variant part of a kit" do
+      let(:kit) {create(:base_variant)}
       let(:part) { create(:variant_with_stock_items)}
+      let(:another_part) { create(:variant_with_stock_items)}
+      let(:out_of_stock_part) { create(:variant)}
+      let!(:ap) do
+        Spree::AssembliesPart.create(part_id: part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1)
+      end
+
       subject  { Spree::StockCheckJob.new(part.stock_items.first) }
+
       before do 
-        Spree::AssembliesPart.create(part_id: part.id, assembly_id: variant_not_part.id, assembly_type: 'Spree::Variant', count: 4)
+        Spree::StockItem.any_instance.stub(backorderable: false)
       end
 
-      context "going in stock" do
-        before do
-          allow_any_instance_of(Spree::Stock::Quantifier).
-            to receive(:can_supply?).
-            and_return(true)
+      context "kit with 1 part in stock" do
+
+        before do 
+          kit.in_stock_cache = false
         end
 
-        it "all of its parts are in stock" do
-          expect(subject).to receive(:check_stock_for_kits_using_this_variant)
+        it "is in stock" do
           subject.perform
+          expect(kit.reload.in_stock_cache).to eq(true)
         end
+
       end
-  
+
+      context "kit with 1 part out of stock" do
+
+        before do 
+          kit.in_stock_cache = true
+          ap.update_column(:part_id, out_of_stock_part.id)
+        end
+
+
+        it "is out of stock when part is out of stock" do
+          subject.perform
+          expect(kit.reload.in_stock_cache).to eq(false)
+        end
+
+      end
+
+      context "kit with 1 part in stock and another part out of stock" do
+
+        before do 
+          kit.in_stock_cache = true
+          Spree::AssembliesPart.create(part_id: out_of_stock_part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1)
+        end
+
+        it "is not in stock" do
+          subject.perform
+          expect(kit.reload.in_stock_cache).to eq(false)
+        end
+
+      end
+
+      context "kit with 1 part in stock and another part out of stock which is optional" do
+
+        before do 
+          kit.in_stock_cache = false
+          Spree::AssembliesPart.create(part_id: out_of_stock_part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1, optional: true)
+        end
+
+        it "is not in stock" do
+          subject.perform
+          expect(kit.reload.in_stock_cache).to eq(true)
+        end
+
+      end
+
+      context "kit with part out of stock and another part in stock" do
+
+        before do 
+          kit.in_stock_cache = true
+          ap.update_column(:part_id, out_of_stock_part.id)
+          Spree::AssembliesPart.create(part_id: part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1)
+        end
+
+        it "is not in stock" do
+          subject.perform
+          expect(kit.reload.in_stock_cache).to eq(false)
+        end
+
+      end
+
+      context "kit with part in stock and another part in stock" do
+
+        before do 
+          kit.in_stock_cache = false
+          Spree::AssembliesPart.create(part_id: another_part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1)
+        end
+
+        it "is not in stock" do
+          subject.perform
+          expect(kit.reload.in_stock_cache).to eq(true)
+        end
+
+      end
 
       context "going out of stock" do
         before do
@@ -60,34 +139,20 @@ describe Spree::StockCheckJob do
             to receive(:can_supply?).
             and_return(false)
         end
-         
+
         it "updates part own stock to out of stock" do
           subject.perform
           expect(part.reload.in_stock_cache).to eq(false)
         end
-        
+
         it "put out of stock all kit that have that part" do
           expect(subject).to receive(:put_all_kits_using_this_variant_out_of_stock)
           subject.perform
         end
       end
 
-    
     end
 
-  end  
-
-  it "ignores any kit that have that part as optional" do
-    arel = double('arel', group_by: {})
-    
-    expect(Spree::AssembliesPart).
-      to receive(:where).
-      with(part_id: variant_not_part.id, optional: false).
-      and_return(arel)
-    
-    subject.send(:list_of_kit_variants_using, variant_not_part)
   end
-
-  
 
 end
