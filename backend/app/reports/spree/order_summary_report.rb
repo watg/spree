@@ -24,15 +24,16 @@ module Spree
         internal
         currency
         cost_price 
-        revenue_pre_sale_pre_ship_pre_promo 
-        revenue_pre_ship_pre_promo
-        revenue_shipping_pre_promo
+        item_normal_total
+        item_total
+        shipping_total
         additional_tax
         shipping_promo
-        promos
+        promo_total
+        gift_card_total
         promo_code
         payment_total
-        revenue_received
+        order_total
         kit_revenue_pre_promo
         virtual_product_pre_promo
         gang_collection_revenue_pre_promo
@@ -156,8 +157,9 @@ module Spree
         o.item_total.to_f, # Total cost
         o.ship_total,
         o.additional_tax_total,
-        o.shipments.to_a.sum(&:promo_total).to_f,
+        o.shipments.sum(:promo_total).to_f,
         o.promo_total,
+        o.adjustments.gift_card.sum(:amount).to_f,
         promo_label,
         o.payment_total.to_f, # Over cost
         o.total.to_f, # Over cost
