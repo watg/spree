@@ -13,7 +13,7 @@
     <span class="info alignright"><input type="checkbox" class="check_all" >Check all</span>
   </td>
   <td>
-    <%= f.select(:displayable_option_type, part.product.option_types.collect { |t| [t.name, t.id] }, {}, multiple: false, class: 'select2 fullwidth') %>
+    <%= f.collection_select(:displayable_option_type_id, part.product.option_types,:id, :name, {}, {:class => 'select2 fullwidth'}) %>
   </td>
   <td><%= f.number_field :count %></td>
   <td><%= f.check_box :optional %></td>
