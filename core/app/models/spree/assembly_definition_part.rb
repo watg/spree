@@ -6,7 +6,7 @@ class Spree::AssemblyDefinitionPart < ActiveRecord::Base
   belongs_to :assembly_definition, class_name: "Spree::AssemblyDefinition", foreign_key: "assembly_definition_id"
   belongs_to :product, class_name: "Spree::Product", foreign_key: "product_id"
   belongs_to :assembly_product, class_name: "Spree::Product", foreign_key: "assembly_product_id", touch: true
-  belongs_to :displayable_option_type, class_name: "Spree::OptionType", foreign_key: "disaplayable_option_type_id"
+  belongs_to :displayable_option_type, class_name: "Spree::OptionType", foreign_key: "displayable_option_type_id"
 
   has_many :assembly_definition_variants, dependent: :delete_all, class_name: 'Spree::AssemblyDefinitionVariant' 
   
@@ -23,10 +23,6 @@ class Spree::AssemblyDefinitionPart < ActiveRecord::Base
 
   def variant_options_tree_for(current_currency)
     variants.options_tree_for(nil, current_currency)
-  end
-
-  def displayable_option_type
-    read_attribute(:displayable_option_type) || self.product.option_types.first
   end
 
   def displayable_option_values
