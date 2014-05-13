@@ -24,11 +24,6 @@
       <% option_values = part.displayable_option_values %>
       <% type = part.displayable_option_type %>
 
-      <!--
-           3. javascript to put things out of stock
-           4. add not null contraint to the displayable_product_id
-      -- >
-
 			<% if option_values.any?  %>
 
         <!--- if it is not optional -->
@@ -96,7 +91,9 @@
 	<div class="assembly-images large-2 small-4 column">
 		<ul class="no-bullet">
 			<% product.assembly_definition.parts.decorate(context: @context).each do |part|%>
-			<li></li>
+        <!-- we do not want to render the image place holder if it is mandotory -->
+			  <% next if !part.optional? and part.displayable_option_values.size == 1 %>
+      <li class="part-image-<%= part.id %>"</li>
 			<% end # assembly_definition.memoized_grouped_option_values.each  %>
 		</ul>
 	</div>
