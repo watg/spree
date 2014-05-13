@@ -1,10 +1,9 @@
 module Spree
   module PDF
-    class PackingList
+    class EmergencyCommercialInvoice
       include Common
 
       WATG_LOGO = File.expand_path(File.join(File.dirname(__FILE__), 'images', 'logo-watg-135x99.png')) unless defined?(WATG_LOGO)
-      CHECKBOX = '|_|'
       attr_reader :order, :pdf, :currency
 
       def initialize(order, pdf = nil)
@@ -28,6 +27,7 @@ module Spree
         watg_logo(pdf)
         customer_address(pdf, order, address_x, lineheight_y)
         invoice_details(pdf, order, invoice_header_x)
+        totals(invoice_header_x)
         invoice_terms(pdf)
 
         pdf
@@ -42,7 +42,7 @@ module Spree
       end
 
       def watg_details(pdf, address_x, lineheight_y)
-        pdf.text "Packing List", leading: 10, size: 10, style: :bold
+        pdf.text "Commercial Invoice", leading: 10, size: 10, style: :bold # change to Packing List once ready
         pdf.text "WOOL AND THE GANG Ltd", leading: 2
         pdf.text "Unit C106", leading: 2
         pdf.text "89a Shacklewell Lane", leading: 2
@@ -84,7 +84,7 @@ module Spree
       def invoice_details(pdf, order, invoice_header_x)
 
         invoice_header_data = [ 
-          ["Order #", order.number ],
+          ["Invoice #", order.number ],
           ["Invoice Date", Time.now.strftime("%Y/%m/%d") ],
           ["Order Complete  Date", order.completed_at.strftime("%Y/%m/%d") ],
           ["Amount Due",   order.display_total.to_s ]
@@ -101,55 +101,84 @@ module Spree
 
         pdf.move_down 45
 
-        invoice_services_data = [ [ 'item', 'sku', 'contents', 'options', 'qty', '' ] ]
-        order.line_items.each do |line|
+        invoice_services_data = [ [ 'item', 'sku', 'type', 'contents', 'options', 'price', 'qty', 'total' ] ]
+        order.line_items.each do |item|
           invoice_services_data << [
-            line.variant.product.name,
-            line.variant.sku,
-            '',
-            line.variant.option_values.empty? ? '' : line.variant.options_text,
-            line.quantity,
-            CHECKBOX
+            item.variant.product.name,
+            item.variant.sku,
+            item.product.product_type,
+            '-',
+            item.variant.option_values.empty? ? '' : item.variant.options_text,
+            item.single_money.to_s,
+            item.quantity,
+            item.display_amount.to_s
           ]
-          line.parts.each do |p|
+          item.line_item_parts.each do |p|
             invoice_services_data << [
-              '',
-              '',
+              '-',
+              '-',
+              'part',
               p.variant.name,
               p.variant.option_values.empty? ? '' : p.variant.options_text,
+              '-',
               p.quantity,
-              CHECKBOX
+              '-',
             ]
           end
-          line.line_item_personalisations.each do |p|
+          item.line_item_personalisations.each do |p|
             invoice_services_data << [
-              '',
+              '-',
+              '-',
               'personalisation',
               p.name,
               p.data_to_text,
-              '',
-              CHECKBOX
+              '-',
+              '-',
+              '-',
             ]
           end
         end
 
-        pdf.table(invoice_services_data, :width => pdf.bounds.width, :cell_style => { :inline_format => true }) do
+        pdf.table(invoice_services_data, :width => pdf.bounds.width) do
           style(row(1..-1).columns(0..-1), :padding => [4, 5, 4, 5], :borders => [:bottom], :border_color => 'dddddd')
           style(row(0), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
           style(row(0).columns(0..-1), :borders => [:top, :bottom])
           style(row(0).columns(0), :borders => [:top, :left, :bottom])
           style(row(0).columns(-1), :borders => [:top, :right, :bottom])
           style(row(-1), :border_width => 2)
-          style(column(4..5), :align => :right)
-          style(columns(0), :width => 120)
-          style(columns(1), :width => 100)
-          style(columns(2), :width => 120)
-          style(columns(3), :width => 120)
-          style(columns(4), :width => 30)
-          style(columns(5), :width => 50)
-          columns(0..5).valign = :center
+          style(column(2..-1), :align => :right)
+          style(columns(0), :width => 70)
+          style(columns(1), :width => 60)
+          style(columns(2), :width => 70)
+          style(columns(3), :width => 70)
+          style(columns(4), :width => 150)
+          style(columns(5), :width => 40)
+          style(columns(6), :width => 30)
         end
       end
+
+
+      def totals(invoice_header_x)
+        pdf.move_down 1
+
+        totals_data = [ [ "Sub Total", order.display_item_total.to_s ] ]
+        order.adjustments.eligible.each do |adjustment|
+          totals_data  << [ adjustment.label ,  adjustment.display_amount.to_s ]
+        end
+        totals_data.push [ "Tax", order.display_additional_tax_total.to_s ] if order.additional_tax_total != 0
+        totals_data.push [ "Shipping", order.display_ship_total.to_s ]
+        totals_data.push [ "Order Total", order.display_total.to_s ]
+
+        pdf.table(totals_data, :position => invoice_header_x, :width => 215) do
+          style(row(0..-2), :padding => [1, 5, 1, 5], :borders => [])
+          style(row(0), :font_style => :bold)
+          style(row(-1), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
+          style(column(1), :align => :right)
+          style(row(-1).columns(0), :borders => [:top, :left, :bottom])
+          style(row(-1).columns(1), :borders => [:top, :right, :bottom])
+        end
+      end
+
 
       def invoice_terms(pdf)
         pdf.move_down 25
