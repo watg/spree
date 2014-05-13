@@ -67,7 +67,7 @@ module Spree
     end
 
     def has_gift_card?(promotable)
-      promotable.has_gift_card?
+      promotable.has_gift_card? if promotable.respond_to?(:has_gift_card?)
     end
 
     # called anytime order.update! happens
