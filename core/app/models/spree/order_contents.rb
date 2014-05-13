@@ -1,6 +1,6 @@
 module Spree
   class OrderContents
-    attr_accessor :order, :currency
+    attr_accessor :order
 
     def initialize(order)
       @order = order
@@ -12,7 +12,7 @@ module Spree
     def add(variant, quantity=1, currency=nil, shipment=nil, parts=nil, personalisations=nil, target_id=nil)
       parts ||= []
       personalisations ||= []
-      currency ||= Spree::Config[:currency] # default to that if none is provided
+      currency ||= @order.currency || Spree::Config[:currency] # default to that if none is provided
       line_item = add_to_line_item(variant, quantity, currency, shipment, parts, personalisations, target_id)
       reload_totals
       PromotionHandler::Cart.new(order, line_item).activate
@@ -35,7 +35,7 @@ module Spree
     end
 
     def add_by_line_item(line_item, quantity, shipment=nil)
-      unsafe_add_by_line_item(line_item, quantity, shipment=nil)
+      unsafe_add_by_line_item(line_item, quantity, shipment)
       reload_totals
       PromotionHandler::Cart.new(order, line_item).activate
       ItemAdjustments.new(line_item).update
@@ -48,7 +48,7 @@ module Spree
     end
 
     def remove_by_line_item(line_item, quantity, shipment=nil)
-      unsafe_remove_by_line_item(line_item, quantity, shipment=nil)
+      unsafe_remove_by_line_item(line_item, quantity, shipment)
       reload_totals
       PromotionHandler::Cart.new(order, line_item).activate
       ItemAdjustments.new(line_item).update
@@ -99,7 +99,6 @@ module Spree
     def add_to_existing_line_item(line_item, quantity, shipment)
       line_item.target_shipment = shipment
       line_item.quantity += quantity.to_i
-      line_item.currency = currency unless currency.nil?
     end
 
     def reload_totals
@@ -125,7 +124,7 @@ module Spree
       else
         line_item = order.line_items.new(quantity: quantity, variant: variant)
         line_item.target_shipment = shipment
-        line_item.currency = currency unless currency.nil?
+        line_item.currency = currency
         line_item.add_parts(parts) 
         line_item.add_personalisations(personalisations)
         line_item.product_nature = variant.product.nature

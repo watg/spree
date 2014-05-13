@@ -2,9 +2,14 @@ module Spree
   module Stock
     class AvailabilityValidator < ActiveModel::Validator
       def validate(line_item)
+
+        # Do not validate if we are reducing the quantity
+        oqtty, nqtty = old_and_new_quantities(line_item)
+        return if oqtty > nqtty
+
         shipment = line_item.target_shipment
         if shipment
-          validate_line_item_on_completed_order(line_item, shipment)
+          validate_line_item_on_completed_order(line_item, shipment, oqtty, nqtty)
         else
           validate_line_item(line_item)
         end
@@ -12,15 +17,16 @@ module Spree
 
       private
 
-      def validate_line_item_on_completed_order(line_item, shipment)
+      def old_and_new_quantities(line_item)
+        (line_item.changes['quantity'] ? line_item.changes['quantity'].map(&:to_i) : [0,0])
+      end
+
+      def validate_line_item_on_completed_order(line_item, shipment, oqtty, nqtty)
         units = shipment.inventory_units_for(line_item.variant)
         return if units.count > line_item.quantity  # quantity on line item is decremented
 
-        oqtty, nqtty = (line_item.changes['quantity'] ? line_item.changes['quantity'].map(&:to_i) : [0,0])
-        return if oqtty > nqtty
-        if line_item.changes['quantity'] && (nqtty > oqtty)
+        if oqtty < nqtty
           increased_quantity = nqtty - oqtty
-
 
           variant_quantity_grouping = get_variant_quantity_grouping(line_item, increased_quantity)
 

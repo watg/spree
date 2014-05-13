@@ -36,8 +36,16 @@ module Spree
 
     def check_stock_for_kits_using_this_variant(part)
       list_of_kit_variants_using(part, false).each do |kit_variant|
-        kit_in_stock = Spree::Stock::Quantifier.new(kit_variant).can_supply?(1)
-        kit_variant.update_attributes(in_stock_cache: kit_in_stock)
+        out_of_stock_parts = kit_variant.required_parts_for_display.select do |p|
+           !Spree::Stock::Quantifier.new(p).can_supply?(1)
+        end
+
+        if out_of_stock_parts.any?
+          kit_variant.update_attributes(in_stock_cache: false)
+        else
+          kit_variant.update_attributes(in_stock_cache: true)
+        end
+
       end
     end
 
