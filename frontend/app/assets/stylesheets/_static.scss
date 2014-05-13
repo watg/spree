@@ -367,6 +367,31 @@ body.thank-you {
 	}
 }
 
+/* Host a knit workshop */
+.host-a-knit-workshop {
+	.utility-page-subtitle img {
+		margin: 0 auto emCalc(15px);
+		display: block;
+	}
+	.utility-page-subtitle p {
+		text-align: center;
+		a {
+			text-transform: uppercase;
+			text-decoration: underline;
+			font-weight: bold;
+		}
+	}
+	iframe {
+		position: relative;
+		overflow: hidden;
+	}
+}
+
+.thank-you-for-your-application {
+	background-color: #fff;
+	text-align: center;
+}
+
 /* ----- Olapic gallery pages ----- */
 .olapic-gallery {
 	.row-shipping-and-contact {
