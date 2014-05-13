@@ -66,9 +66,13 @@ module Spree
       return action_taken
     end
 
+    def has_gift_card?(promotable)
+      promotable.has_gift_card?
+    end
+
     # called anytime order.update! happens
     def eligible?(promotable)
-      return false if expired? || usage_limit_exceeded?(promotable)
+      return false if has_gift_card?(promotable) || expired? || usage_limit_exceeded?(promotable)
       rules_are_eligible?(promotable, {})
     end
 

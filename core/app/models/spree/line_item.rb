@@ -97,6 +97,10 @@ module Spree
       end
     end
 
+    def has_gift_card?
+      self.product.product_type == 'gift_card'
+    end
+
     def base_price
       price - options_and_personalisations_price
     end

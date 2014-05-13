@@ -397,6 +397,17 @@ describe Spree::LineItem do
     end
   end
 
+  describe '.has_gift_card?' do
+    it "returns false when has no gift card" do
+      line_item.should_not be_has_gift_card
+    end
+    
+    it "returns true when have a gift card" do
+      line_item.product.stub(:product_type => 'gift_card')
+      line_item.should be_has_gift_card
+    end
+  end
+
   describe ".sufficient_stock?" do
     it "variant out of stock across order" do
       allow(Spree::Stock::Quantifier).to receive(:can_supply_order?).and_return({errors: [{line_item_id: line_item.id}]})

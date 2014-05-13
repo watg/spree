@@ -242,6 +242,7 @@ describe Spree::Promotion do
       calculator = Spree::Calculator::FlatRate.new
       action_params = { :promotion => promotion, :calculator => calculator }
       @action = Spree::Promotion::Actions::CreateAdjustment.create(action_params)
+      @line_item = Spree::LineItem.new
     end
 
     context "when it is expired" do
@@ -252,6 +253,26 @@ describe Spree::Promotion do
     context "when it is not expired" do
       before { promotion.expires_at = Time.now + 1.day }
       specify { promotion.should be_eligible(@order) }
+    end
+
+    context "when order contains gift card" do
+      before { @order.stub(:has_gift_card?  => true)}
+      specify { promotion.should_not be_eligible(@order) }
+    end
+
+    context "when order does not contain gift card" do
+      before { @order.stub(:has_gift_card?  => false)}
+      specify { promotion.should be_eligible(@order) }
+    end
+
+    context "when line_item contains gift card" do
+      before { @line_item.stub(:has_gift_card?  => true)}
+      specify { promotion.should_not be_eligible(@line_item) }
+    end
+
+    context "when line_item does not contain gift card" do
+      before { @line_item.stub(:has_gift_card?  => false)}
+      specify { promotion.should be_eligible(@line_item) }
     end
   end
 
