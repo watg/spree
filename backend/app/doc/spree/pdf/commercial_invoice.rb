@@ -155,8 +155,8 @@ module Spree
       def totals(invoice_header_x)
         pdf.move_down 1
         totals_data = []
-        totals_data.push [ "Sub Total", (@order_display_total.money - order.display_ship_total.money).format ]
-        totals_data.push [ "Shipping", order.display_ship_total.to_s ]
+        totals_data.push [ "Sub Total", (@order_display_total.money - shipping_cost.money).format ]
+        totals_data.push [ "Shipping", shipping_cost.to_s ]
         totals_data.push [ "Order Total", @order_display_total.to_s_with_USD ]
 
         pdf.table(totals_data, :position => invoice_header_x, :width => 215) do
@@ -191,7 +191,7 @@ module Spree
 
       def gather_order_products
         order.line_items.includes(:variant => :product).each do |line|
-          if line.product.product_type != 'kit'
+          if line.parts.empty?
             add_to_products(line.product, line.quantity, line.base_price*line.quantity)
           else
             amount_required_parts = 0
@@ -222,7 +222,7 @@ module Spree
       def compute_prices
         total_amount = 0
         accummulated_amount = 0
-        order_total_without_shipping = @order_total - order.ship_total
+        order_total_without_shipping = @order_total - shipping_cost.to_f
 
         # weighted sum of the total amount
         @unique_products.each do |id, item|
@@ -281,6 +281,11 @@ module Spree
         else
           group.mid
         end
+      end
+
+      def shipping_cost
+        cost = order.ship_total - order.shipping_discount
+        Spree::Money.new(cost, { currency: currency })
       end
 
     end

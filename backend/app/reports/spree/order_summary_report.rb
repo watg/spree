@@ -27,8 +27,11 @@ module Spree
         revenue_pre_sale_pre_ship_pre_promo 
         revenue_pre_ship_pre_promo
         revenue_shipping_pre_promo
+        additional_tax
+        shipping_promo
         promos
         promo_code
+        payment_total
         revenue_received
         kit_revenue_pre_promo
         virtual_product_pre_promo
@@ -67,7 +70,7 @@ module Spree
       previous_users = CSV.read(File.join(File.dirname(__FILE__),"unique_previous_users.csv")).flatten
       previous_users = previous_users.to_set
 
-      Spree::Order.where( :state => 'complete', :completed_at => @from..@to ).each do |o| 
+      Spree::Order.includes(:shipments).where( :state => 'complete', :completed_at => @from..@to ).find_each do |o| 
         yield generate_csv_line(o,previous_users)
       end
     end
@@ -152,8 +155,11 @@ module Spree
         o.item_normal_total.to_f,
         o.item_total.to_f, # Total cost
         o.ship_total,
+        o.additional_tax_total,
+        o.shipments.to_a.sum(&:promo_total).to_f,
         o.promo_total,
         promo_label,
+        o.payment_total.to_f, # Over cost
         o.total.to_f, # Over cost
         product_type_totals['kit'] || '',
         product_type_totals['virtual_product'] || '',

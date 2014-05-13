@@ -558,5 +558,7 @@ body.thank-you {
 }
 /* Olapic gallery page: HWTG */
 .olapic-gallery.hang-with-the-gang {
-	
+	.row-shipping-and-contact + .container > div.row {
+		background-color: #fff;
+  	}
 }
