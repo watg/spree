@@ -267,7 +267,7 @@ describe Spree::Variant do
     end
   end
 
-  context "#prices for a part" do
+  context "#prices types" do
     let(:product) { build(:product, can_be_part: true)}
     let(:subject) { FactoryGirl.build(:variant, product: product) }
 
@@ -277,22 +277,6 @@ describe Spree::Variant do
         expect(price).to be_a_kind_of(Spree::Price)
       end
 
-      it "should have price type '#{price_type}'" do
-        expect(subject.price_types).to include(price_type)
-      end
-    end
-  end
-
-  context "#prices for a product" do
-    [:normal, :normal_sale].each do |price_type|
-      it "should return price for '#{price_type}'" do
-        price = subject.price_for_type(price_type, 'GBP')
-        expect(price).to be_a_kind_of(Spree::Price)
-      end
-
-      it "should have price type '#{price_type}'" do
-        expect(subject.price_types).to include(price_type)
-      end
     end
   end
 

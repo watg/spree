@@ -235,25 +235,10 @@ module Spree
       }
     end
     # end variant options
-
-    # TODO move this into a decorator as it is view centric
-    def price_types
-      types = [:normal,:normal_sale]
-      if self.isa_part?
-        types << [:part, :part_sale]
-      end
-      types.flatten
-    end
-
+    
     def visible_price_types
-      price_types - [:part_sale]
+      Spree::Price::TYPES - [:part_sale]
     end
-
-    # Hacks to allow the tests to still pass
-    #############################################
-    # def price
-    #   current_price_in( Spree::Config[:currency] ).amount
-    # end
 
     def currency
       Spree::Config[:currency]
