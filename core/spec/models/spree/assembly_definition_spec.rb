@@ -3,15 +3,16 @@ require 'spec_helper'
 describe Spree::AssemblyDefinition do
   let(:assembly) { create(:variant) }
   let(:assembly_product) { assembly.product }
+  let(:option_type) { create(:option_type)}
   subject { Spree::AssemblyDefinition.create(variant_id: assembly.id)}
 
   context "Stock and Option Values" do
 
     let(:variant_no_stock)  { create(:variant, option_values: [create(:option_value)] ) }
-    let(:part1) { Spree::AssemblyDefinitionPart.create(assembly_definition_id: subject.id, product_id: variant_no_stock.product_id, count: 3) }
+    let(:part1) { Spree::AssemblyDefinitionPart.create(assembly_definition_id: subject.id, product_id: variant_no_stock.product_id, count: 3, displayable_option_type: option_type ) }
 
     let(:variant) { create(:variant_with_stock_items) }
-    let(:part2) { Spree::AssemblyDefinitionPart.create(assembly_definition_id: subject.id, product_id: variant.product_id, count: 1) }
+    let(:part2) { Spree::AssemblyDefinitionPart.create(assembly_definition_id: subject.id, product_id: variant.product_id, count: 1, displayable_option_type: option_type ) }
 
     before do
       Spree::AssemblyDefinitionVariant.create(assembly_definition_part_id: part1.id, variant_id: variant_no_stock.id)
