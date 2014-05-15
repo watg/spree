@@ -19,8 +19,6 @@ class Spree::AssemblyDefinitionPart < ActiveRecord::Base
 
   before_create :set_assembly_product
 
-  validates_presence_of :displayable_option_type
-
   def variant_options_tree_for(current_currency)
     variants.options_tree_for(nil, current_currency)
   end
