@@ -20,18 +20,17 @@
 	<div class="assembly-menus large-10 small-8 column">
 		<ol>
 			<% product.assembly_definition.parts.decorate(context: @context).each do |part|%>
-			
-      <% option_values = part.displayable_option_values %>
-      <% type = part.displayable_option_type %>
-
-			<% if option_values.any?  %>
 
         <!--- if it is not optional -->
 			  <% if !part.optional? %>
-          <% if option_values.size == 1 %>
+          <!-- If we have only one variant and it is not optional then it becomes mandatory -->
+          <% if part.variants.size == 1 %>
             <input class="selected-parts" type="hidden" name="parts[<%= part.id %>][]" value=<%= part.variants.first.id %>/>
 
           <% else %>
+
+            <% option_values = part.displayable_option_values %>
+            <% type = part.displayable_option_type %>
             <!-- render parts -->
             <li class="product-variants required" data-tree="<%= part.memoized_variant_options_tree.to_json %>" data-adjustment="0" data-adp-id="<%= part.id %>"><%= part.presentation %> <span class="color-value"></span>
               <div class="variant-options required <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
@@ -48,6 +47,9 @@
 
           <% end %>
         <% else # optional %>
+
+          <% option_values = part.displayable_option_values %>
+          <% type = part.displayable_option_type %>
           <!-- render parts -->
             <li class="product-variants optional" data-tree="<%= part.memoized_variant_options_tree.to_json %>" data-adjustment="0" data-adp-id="<%= part.id %>"><%= part.presentation %> <span class="optional">(Optional)</span> <span class="color-value"></span>
               <div class="variant-options optional <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
@@ -70,7 +72,6 @@
             </li>
           <!-- render parts -->
         <% end %>
-      <% end # any? %>
 
       <% end # each %>
 

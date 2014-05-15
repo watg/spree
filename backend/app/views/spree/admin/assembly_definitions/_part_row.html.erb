@@ -9,7 +9,7 @@
     </span>
   </td>
   <td>
-    <%= f.select(:variant_ids, part.product.variants.collect { |v| [v.options_text, v.id] }, {}, multiple: true, class: 'select2 fullwidth') %>
+    <%= f.select(:variant_ids, part.product.variants_including_master.collect { |v| [v.options_text.blank? ? 'master' : v.options_text, v.id] }, {}, multiple: true, class: 'select2 fullwidth') %>
     <span class="info alignright"><input type="checkbox" class="check_all" >Check all</span>
   </td>
   <td>

@@ -26,6 +26,7 @@ class Spree::AssemblyDefinitionPart < ActiveRecord::Base
   end
 
   def displayable_option_values
+    return [] unless displayable_option_type
     self.option_values.where(option_type: displayable_option_type )
   end
 
