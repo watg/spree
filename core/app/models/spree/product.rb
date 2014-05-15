@@ -25,10 +25,6 @@ module Spree
 
     acts_as_paranoid
 
-    NATURE = {
-      physical: [:kit, :product, :virtual_product, :pattern, :parcel, :made_by_the_gang, :accessory],
-      digital:  [:gift_card] } unless defined?(NATURE)
-
     has_many :product_option_types, dependent: :destroy, inverse_of: :product
     has_many :option_types, through: :product_option_types
     has_many :visible_option_types, -> { where spree_product_option_types: true }, through: :product_option_types
@@ -146,12 +142,7 @@ module Spree
     end
 
     def self.types
-      NATURE.values.flatten
-    end
-
-    def nature
-      return :digital if (NATURE[:digital].include?(product_type) || NATURE[:digital].include?(product_type.to_sym))
-      :physical
+      Spree::MartinProductType.all.map(&:name)
     end
 
     def memoized_gang_member

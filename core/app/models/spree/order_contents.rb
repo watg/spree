@@ -127,7 +127,6 @@ module Spree
         line_item.currency = currency
         line_item.add_parts(parts) 
         line_item.add_personalisations(personalisations)
-        line_item.product_nature = variant.product.nature
         line_item.target_id = target_id
 
         line_item.price = variant.current_price_in(currency).amount

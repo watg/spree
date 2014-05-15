@@ -22,11 +22,6 @@ describe Spree::Product do
     end
   end
 
-  it "has got product type" do
-    types = [:kit, :product, :virtual_product, :pattern, :parcel, :accessory, :made_by_the_gang, :gift_card]
-    Spree::Product::types.should =~ types
-  end
-
   its(:first_variant_or_master) { should eql(variant) }
   context "product has no variant" do
     subject { create(:base_product) }

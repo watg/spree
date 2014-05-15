@@ -2,13 +2,9 @@ module Spree
   class MartinProductType < ActiveRecord::Base
     validates_inclusion_of :category, :in => %w(rtw kit assembly supply gift_card packaging)
 
-    def nature
-      digital? ? :digital : :physical
-    end
-
-    def kit?
-      # TODO: migrate assmebly to kit
-      category == 'kit' or category == 'assembly'
+    # This should really be kit? and the categoty should be kit
+    def assembly?
+      category == 'assembly' || category == 'kit'
     end
     alias_method :kit?, :assembly?
     

@@ -7,7 +7,7 @@ module Spree
 
     delegate_belongs_to :product, :name, :description, :slug, :available_on,
                         :shipping_category_id, :meta_description, :meta_keywords,
-                        :shipping_category
+                        :shipping_category, :is_digital?
 
     has_many :inventory_units
     has_many :line_items, inverse_of: :variant
@@ -89,11 +89,7 @@ module Spree
     class << self
 
       def physical
-        includes(:product).where('spree_products.product_type' => Spree::Product::NATURE[:physical])
-      end
-
-      def digital
-        includes(:product).where('spree_products.product_type' => Spree::Product::NATURE[:digital])
+        joins(:product).where('spree_products.is_digital' => false)
       end
 
       def active(currency = nil)

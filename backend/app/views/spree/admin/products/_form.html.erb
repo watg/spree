@@ -97,6 +97,45 @@
 
   </div>
 
+
+  <div class="twelve columns alpha omega">
+    <fieldset>
+      <legend align="center"><%= Spree.t(:options) %></legend>
+
+
+      <div class="three columns alpha ">
+        <%= f.label :individual_sale, t("individual_sale")%>
+        <%= f.check_box(:individual_sale, :disabled => @product.can_have_parts?) %>
+      </div>
+
+      <div class="three columns omega">
+        <%= f.label :can_be_part, t("can_be_part")%>
+        <%= f.check_box(:can_be_part, :disabled => @product.can_have_parts?) %>
+      </div>
+
+      <% if @product.assembly? %>
+        <% content_for :head do %>
+          <script type="text/javascript">
+            jQuery(document).ready(function(){
+                $("input[id='product_on_hand']").attr('disabled',true).parent().hide();
+                });
+          </script>
+        <% end %>
+      <% end %>
+
+      <div class="three columns ">
+        <%= f.label :out_of_stock_override, t("out_of_stock")%>
+        <%= f.check_box(:out_of_stock_override) %>
+      </div>
+
+      <div class="three columns ">
+        <%= f.label :is_digit, t("is_digital?")%>
+        <%= f.check_box(:is_digital) %>
+      </div>
+
+      </fieldset>
+  </div>
+
   <div class="twelve columns alpha omega">
     <fieldset>
       <legend align="center"><%= "Description for Targets" %></legend>

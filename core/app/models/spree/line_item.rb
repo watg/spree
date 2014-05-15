@@ -44,7 +44,7 @@ module Spree
 
     after_create :create_tax_charge
 
-    delegate :name, :description, :should_track_inventory?, to: :variant
+    delegate :name, :description, :should_track_inventory?, :is_digital?, to: :variant
 
     attr_accessor :options_with_qty
     attr_accessor :target_shipment

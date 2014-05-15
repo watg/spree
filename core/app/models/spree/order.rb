@@ -116,13 +116,13 @@ module Spree
 
       def to_be_packed_and_shipped
         # only physical line item to be dispatched
-        includes(:payments, :line_items).
+        includes(:payments, line_items: [variant: [:product]]).
           includes(:shipments).
           where('spree_orders.state'    => 'complete',
                 'spree_orders.payment_state'  => 'paid',
-                'spree_shipments.state' => 'ready', 
+                'spree_shipments.state' => 'ready',
                 'spree_orders.internal' => false,
-                'spree_line_items.product_nature' => :physical).
+                'spree_products.is_digital' => false).
                 order('spree_orders.created_at DESC')
       end
 
