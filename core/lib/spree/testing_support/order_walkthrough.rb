@@ -42,6 +42,7 @@ class OrderWalkthrough
   def self.address(order)
     order.bill_address = FactoryGirl.create(:address, :country_id => Spree::Zone.global.members.first.zoneable.id)
     order.ship_address = FactoryGirl.create(:address, :country_id => Spree::Zone.global.members.first.zoneable.id)
+    order.save!
     order.next!
   end
 
