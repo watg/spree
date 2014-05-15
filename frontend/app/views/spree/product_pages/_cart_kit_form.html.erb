@@ -20,40 +20,60 @@
 	<div class="assembly-menus large-10 small-8 column">
 		<ol>
 			<% product.assembly_definition.parts.decorate(context: @context).each do |part|%>
-			<% required_class = part.optional ? 'optional' : 'required' %>
 			
-			<% if part.memoized_grouped_option_values.any?  %>
-				<li class="product-variants <%= required_class %>" data-tree="<%= part.memoized_variant_options_tree.to_json %>" data-adjustment="0" data-adp-id="<%= part.id %>"><%= part.presentation %> <% if part.optional? %><span class="optional">(Optional)</span><% end %> <span class="color-value"></span>
-					<% part.memoized_grouped_option_values.each do |type, values| %>
-					<div class="variant-options <%= type.url_safe_name.downcase %> <%= required_class %>" data-type="<%= type.url_safe_name.downcase %>">
-						<p><%= part.product.name %></p>
-						<ul class="variant-option-values <%= type.url_safe_name.downcase %>">
-							<% values.sort_by(&:position).each do |value| %>
-							<% classes = ["option-value", value.url_safe_name, type.url_safe_name] %>
-								<li data-ov-id="<%= value.id %>">
-                				  <%= link_to value.has_image? ? image_tag(value.image.url, :alt => value.presentation) : content_tag(:span, value.presentation), "#", :title => value.presentation, :class => classes.join(" "), data: {type: type.url_safe_name, value: value.url_safe_name, presentation: value.presentation } %>
-				                  <% if value.has_image? %>
-				                    <p class="assembly-name"><%= value.presentation %></p>
-				                  <% end %>
-								</li>
-							<% end %>
-							<% if part.optional? %>
-							<li class="no-thanks">
-								<a class="option-value" href="#" title="No thanks" data-value="" data-type="<%= type.url_safe_name %>" data-presentation=""><span>No&nbsp;thanks</span></a>
-								<% if values[0].has_image? %>
-									<p class="assembly-name">No&nbsp;thanks</p>
-								<% end %>
-							</li>
-							<% end %>
-						</ul>
-					</div>
-					<% end %>
-					<input class="selected-parts" type="hidden" name="parts[<%= part.id %>][]" value="" />
-				</li>
-			<% end %>
-			<% end %>
-		</ol>
-		
+      <% option_values = part.displayable_option_values %>
+      <% type = part.displayable_option_type %>
+
+			<% if option_values.any?  %>
+
+        <!--- if it is not optional -->
+			  <% if !part.optional? %>
+          <% if option_values.size == 1 %>
+            <input class="selected-parts" type="hidden" name="parts[<%= part.id %>][]" value=<%= part.variants.first.id %>/>
+
+          <% else %>
+            <!-- render parts -->
+            <li class="product-variants required" data-tree="<%= part.memoized_variant_options_tree.to_json %>" data-adjustment="0" data-adp-id="<%= part.id %>"><%= part.presentation %> <span class="color-value"></span>
+              <div class="variant-options required <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
+                <p><%= part.product.name %></p>
+                <ul class="variant-option-values <%= type.url_safe_name.downcase %>">
+
+                  <%= render :partial => 'part', locals: { type: type, option_values: option_values } %>
+
+                </ul>
+              </div>
+              <input class="selected-parts" type="hidden" name="parts[<%= part.id %>][]" value="" />
+            </li>
+            <!-- render parts -->
+
+          <% end %>
+        <% else # optional %>
+          <!-- render parts -->
+            <li class="product-variants optional" data-tree="<%= part.memoized_variant_options_tree.to_json %>" data-adjustment="0" data-adp-id="<%= part.id %>"><%= part.presentation %> <span class="optional">(Optional)</span> <span class="color-value"></span>
+              <div class="variant-options optional <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
+
+                <p><%= part.product.name %></p>
+                <ul class="variant-option-values <%= type.url_safe_name.downcase %>">
+
+                  <%= render :partial => 'part', locals: { type: type, option_values: option_values } %>
+
+                  <li class="no-thanks">
+                    <a class="option-value" href="#" title="No thanks" data-value="" data-type="<%= type.url_safe_name %>" data-presentation=""><span>No&nbsp;thanks</span></a>
+                    <% if option_values[0].has_image? %>
+                      <p class="assembly-name">No&nbsp;thanks</p>
+                    <% end %>
+                  </li>
+
+                </ul>
+              </div>
+              <input class="selected-parts" type="hidden" name="parts[<%= part.id %>][]" value="" />
+            </li>
+          <!-- render parts -->
+        <% end %>
+      <% end # any? %>
+
+      <% end # each %>
+
 		<% if product.price and !product.price.nil? %>
 		<div class="add-to-cart">
       <% if !product.out_of_stock_override? %>
@@ -71,7 +91,9 @@
 	<div class="assembly-images large-2 small-4 column">
 		<ul class="no-bullet">
 			<% product.assembly_definition.parts.decorate(context: @context).each do |part|%>
-			<li></li>
+        <!-- we do not want to render the image place holder if it is mandotory -->
+			  <% next if !part.optional? and part.displayable_option_values.size == 1 %>
+      <li class="part-image-<%= part.id %>"</li>
 			<% end # assembly_definition.memoized_grouped_option_values.each  %>
 		</ul>
 	</div>

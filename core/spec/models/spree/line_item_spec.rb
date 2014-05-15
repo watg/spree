@@ -9,6 +9,7 @@ describe Spree::LineItem do
     context "dynamic kit" do
       let(:variant10) { create(:variant, weight: 10) }
       let(:variant7)  { create(:variant, weight: 7) }
+      let(:option_type)  { create(:option_type) }
 
       let(:dynamic_kit_variant) {
         pdt = create(:product, product_type: 'kit')
@@ -16,8 +17,8 @@ describe Spree::LineItem do
         v.assembly_definition = Spree::AssemblyDefinition.create(variant_id: v.id)
         v
       }
-      let(:part1) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant10.product_id, optional: false)}
-      let(:part2) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant7.product_id, optional: true)}
+      let(:part1) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant10.product_id, optional: false, displayable_option_type: option_type)}
+      let(:part2) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant7.product_id, optional: true, displayable_option_type: option_type)}
       
       before do
         subject.variant = dynamic_kit_variant

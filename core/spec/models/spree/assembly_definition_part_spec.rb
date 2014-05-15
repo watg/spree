@@ -7,7 +7,8 @@ describe Spree::AssemblyDefinitionPart do
   let(:assembly_product) { variant.product }
   let(:part)  { create(:base_product) }
   let(:assembly_definition) { create(:assembly_definition, variant: variant) }
-  subject { create(:assembly_definition_part, assembly_definition: assembly_definition, product: part) }
+  let(:colour)   { create(:option_type, name: 'colour', position: 2 )}
+  subject { create(:assembly_definition_part, assembly_definition: assembly_definition, product: part, displayable_option_type: colour ) }
 
   context "Stock and Option Values" do
 
@@ -15,7 +16,7 @@ describe Spree::AssemblyDefinitionPart do
     let(:big)      { create(:option_value, name: 'big', option_type: size, position: 0) }
     let(:small)    { create(:option_value, name: 'small', option_type: size, position: 1) }
 
-    let(:colour)   { create(:option_type, name: 'colour', position: 2 )}
+  #  let(:colour)   { create(:option_type, name: 'colour', position: 2 )}
     let(:pink)     { create(:option_value, name: 'pink', option_type: colour, position: 0) }
     let(:blue)     { create(:option_value, name: 'blue', option_type: colour, position: 1) }
 
@@ -44,14 +45,6 @@ describe Spree::AssemblyDefinitionPart do
       end
     end
 
-    context "#grouped_option_values_in_stock" do
-      it "should return grouped option values" do
-        #expect(subject.grouped_option_values).to eq({ size => [big,small], colour => [pink,blue], language => [english]})
-        # Should not render langauge as there is only one of them
-        expect(subject.grouped_option_values).to eq({ size => [big,small], colour => [pink,blue]})
-      end
-    end
-
     context "#variant_options_tree_for" do
       it "should return variant_options_tree_for" do
         tree = subject.variant_options_tree_for('USD')
@@ -59,14 +52,14 @@ describe Spree::AssemblyDefinitionPart do
         expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to_not be_nil
         expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to_not be_nil
         expect(tree["size"]["big"]["colour"]["blue"]["variant"]).to_not be_nil
-        expect(tree["language"]).to be_nil
+        expect(tree["language"]["english"]).to_not be_nil
       end
     end
   end
 
   context "set_assembly_product" do
     it "set assembly product before create" do
-      adp = Spree::AssemblyDefinitionPart.new(assembly_definition_id: assembly_definition.id, product_id: part.id)
+      adp = Spree::AssemblyDefinitionPart.new(assembly_definition_id: assembly_definition.id, product_id: part.id,  displayable_option_type: colour )
       expect(adp.assembly_product).to be_nil
       adp.save
       expect(adp.assembly_product).to_not be_nil
