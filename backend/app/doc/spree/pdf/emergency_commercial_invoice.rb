@@ -106,7 +106,7 @@ module Spree
           invoice_services_data << [
             item.variant.product.name,
             item.variant.sku,
-            item.product.product_type,
+            '',
             '-',
             item.variant.option_values.empty? ? '' : item.variant.options_text,
             item.single_money.to_s,

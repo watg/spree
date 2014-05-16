@@ -24,7 +24,7 @@ module Spree
         product_sku
         variant_sku
         product_name
-        product_type
+        marketing_type
         quantity
         state
         payment_method
