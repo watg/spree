@@ -24,13 +24,13 @@ module Spree
                 if order_total.send(:>=, BigDecimal.new(amount_enabled['amount'].to_s))
 
                   # If everything else is good but address as not been defined 
-                  # then return false
+                  # then return true
                   if order.shipping_address
                     if Spree::Zone.find(zone_id).include? order.shipping_address
                       return true
                     end
                   else
-                    return false
+                    return true
                   end
 
                 end
