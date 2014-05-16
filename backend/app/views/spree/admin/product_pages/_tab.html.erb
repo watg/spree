@@ -18,7 +18,7 @@
       
       <br>
       <br>
-      <%= f.label :marketing_type_ids, "Marketing Type" %><br />
+      <%= f.label :marketing_type_ids, "Marketing Type" %><br>
       <%= f.select :marketing_type_ids, Spree::MarketingType.all.collect {|x| [x.name, x.id]}, {}, :multiple => true, class: 'select2 fullwidth' %>
     </div>
 

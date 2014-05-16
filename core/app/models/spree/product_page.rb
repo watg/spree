@@ -38,18 +38,13 @@ module Spree
       displayed_variants.in_stock
     end
 
-    def all_variants
-      products.where("product_type <> 'virtual_product' ").map(&:all_variants_or_master).flatten.uniq
-    end
-
+    # made by the gang selected
     def non_kit_variants_with_target
-      all_variants.select do |v|
-        keep = v.product.product_type != 'kit'
-        if self.target.present?
-          keep = keep && v.targets.include?(self.target)
-        end
-        keep
+      result = products.where(marketing_type_id: made_by_the_gang.marketing_type_ids).map(&:all_variants_or_master).flatten
+      if self.target_id.present?
+        result = result.select {|variant| variant.target_ids.include? self.target_id }
       end
+      result
     end
 
     def banner_url

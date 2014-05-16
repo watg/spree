@@ -1,6 +1,5 @@
 module Spree
-  class MartinProductType < ActiveRecord::Base
-    validates_inclusion_of :category, :in => %w(rtw kit assembly supply gift_card packaging)
+  class MarketingType < ActiveRecord::Base
 
     # def nature
     #   digital? ? :digital : :physical
