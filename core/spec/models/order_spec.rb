@@ -13,26 +13,6 @@ describe Spree::Order do
     it "should have max_dimension" do
       order_with_weight.max_dimension.should ==  40.0
     end
-
-    context "booking code" do
-      it "is set to PATTERN when order just have pattern" do
-        order = create(:order_with_pattern_only_ready_to_be_consigned_and_allocated)
-        expect(order.metapack_booking_code).to eql('PATTERN')
-      end
-
-      it "is set to Zone Name when order have other type of line item" do
-        order = create(:order_ready_to_be_consigned_and_allocated)
-        expect(order.metapack_booking_code).to eql('GLOBALZONE')
-      end
-      it "is set to 'PATTERN' for 1-10 parcels" do
-        order = create(:order_with_ten_pattern_only_ready_to_be_consigned_and_allocated)
-        expect(order.metapack_booking_code).to eql('PATTERN')
-      end
-      it "is set to Zone Name when more than 10 patterns" do
-        order = create(:completed_order_with_totals)
-        expect(order.metapack_booking_code).to eql('GLOBALZONE')
-      end
-    end
   end
 
   describe ".unprinted_image_stickers" do

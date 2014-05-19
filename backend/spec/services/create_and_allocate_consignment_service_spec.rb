@@ -2,12 +2,8 @@ require 'spec_helper'
 
 describe Spree::CreateAndAllocateConsignmentService do
   subject { Spree::CreateAndAllocateConsignmentService }
-  let(:order) { FactoryGirl.create(:order_ready_to_be_consigned_and_allocated, line_items_count: 1) }
-  let(:country) { create(:country) }
-
-  before do
-    Spree::ProductGroup.any_instance.stub(:country).and_return country
-  end
+  let(:order) { FactoryGirl.create(:order_ready_to_be_consigned_and_allocated) }
+  let!(:shipping_method) { create(:shipping_method, shipments: order.shipments) }
 
   describe "::run" do
     let(:response) { {
@@ -70,6 +66,11 @@ describe Spree::CreateAndAllocateConsignmentService do
 
     before do
       order.line_items.first.product.update_column(:product_group_id, product_group.id)
+    end
+
+    before do
+      shipping_method.metapack_booking_code = '@GLOBALZONE'
+      shipping_method.save
     end
 
     it "builds all data necessary to create consignment allocation on metapack" do
@@ -147,10 +148,26 @@ describe Spree::CreateAndAllocateConsignmentService do
       expect(consignment.send(:allocation_hash, order)).to eql(expected)
     end
 
+<<<<<<< HEAD
     it "sets booking code" do
       order_with_only_pattern_and_less_than_ten = create(:order_with_pattern_only_ready_to_be_consigned_and_allocated)
       actual = consignment.send(:allocation_hash, order_with_only_pattern_and_less_than_ten)
       expect(actual[:booking_code]).to eql('@PATTERN')
+=======
+    context "terms of trade" do
+      it "should be DDU" do
+        value = consignment.send(:terms_of_trade_code, order)
+        expect(value).to eql('DDU')
+      end
+      it "should be DDP when order amount over $300 and shipping to US/Canada" do
+        canada = create(:country, iso_name: 'CANADA', name: 'Canada', iso: 'CA', iso3: 'CAN', states_required: false, numcode: 123)
+        address = create(:address, country: canada)
+        order_to_us = create(:order, ship_address: address)
+        allow(order_to_us).to receive(:item_normal_total).and_return(BigDecimal.new(300,2))
+        value = consignment.send(:terms_of_trade_code, order_to_us)
+        expect(value).to eql('DDP')
+      end
+>>>>>>> de8ef83... Set the metapack booking code via the shipping method interface
     end
 
   end

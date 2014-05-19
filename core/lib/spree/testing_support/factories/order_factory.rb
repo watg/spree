@@ -86,45 +86,6 @@ FactoryGirl.define do
           end
         end
 
-        factory :order_with_pattern_only_ready_to_be_consigned_and_allocated do
-          payment_state 'paid'
-          shipment_state 'ready'
-          after(:create) do |order|
-            order.line_items.delete_all
-            create(:line_item, quantity: 1, variant: create(:pattern).master, order: order)
-            create(:parcel, order: order, box_id: create(:box).id)
-            create(:payment, amount: order.total, order: order, state: 'completed')
-            order.shipments.each do |shipment|
-              shipment.inventory_units.each { |u| u.update_column('state', 'on_hand') }
-              shipment.update_column('state', 'ready')
-            end
-            order.reload
-          end
-        end
-
-        factory :order_with_ten_pattern_only_ready_to_be_consigned_and_allocated do
-          payment_state 'paid'
-          shipment_state 'ready'
-          
-          ignore do
-            line_items_count 10
-          end
-
-          after(:create) do |order, evaluator|
-            order.line_items.delete_all
-            create_list(:line_item, evaluator.line_items_count, variant: create(:pattern).master, order: order)
-            create(:parcel, order: order, box_id: create(:box).id)
-            create(:payment, amount: order.total, order: order, state: 'completed')
-            order.shipments.each do |shipment|
-              shipment.inventory_units.each { |u| u.update_column('state', 'on_hand') }
-              shipment.update_column('state', 'ready')
-            end
-            order.reload
-          end
-        end
-
-
-
         factory :order_ready_to_be_consigned_and_allocated do
           payment_state 'paid'
           shipment_state 'ready'

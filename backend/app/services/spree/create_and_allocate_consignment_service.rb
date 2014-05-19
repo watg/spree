@@ -45,8 +45,8 @@ module Spree
           lastname:    order.shipping_address.lastname,
           name:        order.shipping_address.full_name
         },
-        terms_of_trade_code: shipping_manifest.terms_of_trade_code,
-        booking_code:  booking_code(order)
+        terms_of_trade_code: terms_of_trade_code(order),
+        booking_code:  order.shipments.first.shipping_method.metapack_booking_code
       }
     end
 
@@ -123,6 +123,7 @@ module Spree
       order.shipments.map(&:ship)
     end
 
+<<<<<<< HEAD
     def booking_code(order)
       li_by_product_type = order.line_items.map {|li|
         li.variant.product.product_type == 'pattern'
@@ -158,5 +159,7 @@ module Spree
       Helpers::CurrencyConversion::TO_GBP_RATES[currency].to_f
     end
 
+=======
+>>>>>>> de8ef83... Set the metapack booking code via the shipping method interface
   end
 end
