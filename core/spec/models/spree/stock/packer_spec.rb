@@ -9,6 +9,13 @@ module Spree
 
       subject { Packer.new(stock_location, order, default_splitters) }
 
+      before do
+        Rails.application.config.spree.stock_splitters = [
+          Spree::Stock::Splitter::ShippingCategory,
+          Spree::Stock::Splitter::Backordered
+        ]
+      end
+
       context 'packages' do
         it 'builds an array of packages' do
           packages = subject.packages
@@ -75,7 +82,7 @@ module Spree
 
         context "order has backordered and on hand items" do
           before do
-            stock_item = stock_location.stock_item(parts.first.variant)
+                        stock_item = stock_location.stock_item(parts.first.variant)
             stock_item.adjust_count_on_hand(10)
           end
 

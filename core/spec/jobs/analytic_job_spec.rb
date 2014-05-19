@@ -33,7 +33,7 @@ describe Spree::AnalyticJob do
         ip:  li.price.to_f,
         iq:  li.quantity,
         ic:  li.variant.sku,
-        iv:  (li.variant.product.product_type.respond_to?(:name) ? li.variant.product.product_type.name : li.variant.product.product_type),
+        iv:  li.variant.product.marketing_type.name,
         cu:  li.order.currency)
       
     end

@@ -42,6 +42,25 @@
               </label>
             </div>
           </div>
+
+          <div class="alpha three columns">
+            <div class="field">
+              <%= f.label :type_cont, Spree.t(:type) %>
+              <!-- '_select2' should be 'select', although it breaks other stuff, we need to investigate -->
+              <!-- backend/app/views/spree/admin/products/new.js.erb -->·
+              <%= f.collection_select :product_type_id_eq, Spree::ProductType.all, :id, :name, {:include_blank => true}, {:class => '_select2 fullwidth'} %>
+            </div>
+          </div>
+
+          <div class="omega three columns">
+            <div class="field">
+              <%= f.label :marketing_type_cont, Spree.t(:marketing_type) %>
+              <!-- '_select2' should be 'select', although it breaks other stuff, we need to investigate -->
+              <!-- backend/app/views/spree/admin/products/new.js.erb -->·
+              <%= f.collection_select :marketing_type_id_eq, Spree::MarketingType.all, :id, :title, {:include_blank => true}, {:class => '_select2 fullwidth'} %>
+            </div>
+          </div>
+
         </div>
 
         <div class="clear"></div>
@@ -53,21 +72,26 @@
   </div>
 <% end %>
 
+
 <div id="new_product_wrapper" data-hook></div>
 
 <%= paginate @collection %>
 
 <% if @collection.any? %>
-  <table class="index" id="listing_products">
+<table class="index" id="listing_products">
     <colgroup>
+       <col style="width: 10%;">
+       <col style="width: 10%;">
        <col style="width: 15%;">
        <col style="width: 10%;">
-       <col style="width: 48%;">
+       <col style="width: 33%;">
        <col style="width: 10%;">
        <col style="width: 17%;">
     </colgroup>
     <thead>
       <tr data-hook="admin_products_index_headers">
+        <th><%= sort_link @search, :product_type, Spree.t(:type), {}, {:title => 'admin_products_listing_product_type_title'} %></th>
+        <th><%= sort_link @search, :marketing_type, Spree.t(:marketing_type), {}, {:title => 'admin_products_listing_marketing_type_title'} %></th>
         <th><%= Spree.t(:sku) %></th>
         <th colspan="2"><%= sort_link @search,:name, Spree.t(:name), { :default_order => "desc" }, {:title => 'admin_products_listing_name_title'} %></th>
         <th><%= sort_link @search,:master_default_price_amount, Spree.t(:master_price), {}, {:title => 'admin_products_listing_price_title'} %></th>
@@ -76,17 +100,19 @@
     </thead>
     <tbody>
       <% @collection.each do |product| %>
-          <tr <%== "style='color: red;'" if product.deleted? %> id="<%= spree_dom_id product %>" data-hook="admin_products_index_rows" class="<%= cycle('odd', 'even') %>">
+          <tr <%= "style='color: red;'" if product.deleted? %> id="<%= spree_dom_id product %>" data-hook="admin_products_index_rows" class="<%= cycle('odd', 'even') %>">
+            <td class="align-center"><%= Spree.t(product.product_type.name) rescue '' %></td>
+            <td class="align-center"><%= Spree.t(product.marketing_type.name) rescue '' %></td>
             <td class="align-center"><%= product.sku rescue '' %></td>
             <td class="align-center"><%= mini_image(product) %></td>
             <td><%= link_to product.try(:name), edit_admin_product_path(product) %></td>
             <td class="align-center"><%= product.display_price.to_html rescue '' %></td>
             <td class="actions" data-hook="admin_products_index_row_actions">
-              <%= link_to_edit product, :no_text => true, :class => 'edit' if can?(:edit, product) && !product.deleted? %>
+              <%= link_to_edit product, :no_text => true, :class => 'edit' unless product.deleted? %>
               &nbsp;
-              <%= link_to_clone product, :no_text => true, :class => 'clone' if can?(:clone, product) %>
+              <%= link_to_clone product, :no_text => true, :class => 'clone' %>
               &nbsp;
-              <%= link_to_delete product, :no_text => true if can?(:delete, product) && !product.deleted? %>
+              <%= link_to_delete product, :no_text => true unless product.deleted? %>
             </td>
           </tr>
       <% end %>

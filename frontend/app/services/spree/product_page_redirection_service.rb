@@ -50,9 +50,7 @@ module Spree
     end
     
     def tab(product)
-      product_type = product.product_type.to_s.downcase
-      return 'knit-your-own'    if product_type == 'kit'
-      return 'made-by-the-gang' if product_type == 'made_by_the_gang'
+      return 'knit-your-own' if product.product_type.kit?
       'made-by-the-gang'
     end
     

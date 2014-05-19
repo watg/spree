@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::IssueGiftCardJob do
-  let(:line_item) { create(:line_item, quantity: 1, variant: create(:product, product_type: :gift_card).master) }
+  let(:line_item) { create(:line_item, quantity: 1, variant: create(:product, product_type: create(:product_type_gift_card)).master) }
   subject { Spree::IssueGiftCardJob.new(line_item.order, line_item, 0) }
 
   it "uses gift card service" do

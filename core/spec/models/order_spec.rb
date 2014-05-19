@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe Spree::Order do
   let(:order) { FactoryGirl.create(:completed_order_with_pending_payment) }
+  let!(:product_type_gift_card) { create(:product_type_gift_card) }
 
   context "METAPACK" do
     let(:order_with_weight)  { create(:order_ready_to_be_consigned_and_allocated) }
@@ -63,7 +64,7 @@ describe Spree::Order do
 
   describe "#deliver_gift_card_emails" do
     subject { create(:order_with_line_items) }
-    let(:li_gc) { create(:line_item, quantity: 1, variant: create(:product, product_type: :gift_card).master, order: subject) }
+    let(:li_gc) { create(:line_item, quantity: 1, variant: create(:product, product_type: product_type_gift_card).master, order: subject) }
     
     it "creates a gift card issuance job" do
       expect(Spree::IssueGiftCardJob).to receive(:new).with(subject, li_gc, anything).and_return(Spree::IssueGiftCardJob.new(subject, li_gc, 0))
@@ -73,7 +74,7 @@ describe Spree::Order do
 
   describe "#line_items_without_gift_cards" do
     subject { create(:order_with_line_items) }
-    let(:li_gc) { create(:line_item, quantity: 1, variant: create(:product, product_type: :gift_card).master, order: subject) }
+    let(:li_gc) { create(:line_item, quantity: 1, variant: create(:product, product_type: product_type_gift_card).master, order: subject) }
 
     it "only returns line items without gift card in them" do
       expect(subject.line_items_without_gift_cards).to match_array(subject.line_items)
@@ -85,12 +86,12 @@ describe Spree::Order do
     its(:has_gift_card?) { should be_false }
 
     it "returns ture when order has at least one gift card" do
-      gift_line_item = create(:line_item, quantity: 1, variant: create(:product, product_type: :gift_card).master, order: subject)
+      gift_line_item = create(:line_item, quantity: 1, variant: create(:product, product_type: product_type_gift_card).master, order: subject)
       expect(subject.reload.has_gift_card?).to be_true
     end
 
     it "creates gift card job when purchased" do
-      gift_line_item = create(:line_item, quantity: 2, variant: create(:product, product_type: :gift_card).master, order: subject)
+      gift_line_item = create(:line_item, quantity: 2, variant: create(:product, product_type: product_type_gift_card).master, order: subject)
 
       expect(Spree::IssueGiftCardJob).
         to receive(:new).

@@ -6,9 +6,9 @@ describe Spree::Admin::ProductPageVariantsController, type: :controller do
 
   describe "GET #index" do
     let(:product_group) { create(:product_group) }
-    let(:kit) { create(:product, product_group: product_group, product_type: "kit")}
+    let(:kit) { create(:product, product_group: product_group, product_type: create(:product_type_kit))}
     let(:kit_variants) { 2.times.map { create(:variant, product: kit) } }
-    let(:r2w_product) { create(:product, product_group: product_group, product_type: "made_by_the_gang")}
+    let(:r2w_product) { create(:product, product_group: product_group)}
     let(:r2w_variants) { 2.times.map { create(:variant, product: r2w_product) } }
     let(:variants) { kit_variants + r2w_variants }
 

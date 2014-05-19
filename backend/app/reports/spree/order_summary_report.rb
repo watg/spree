@@ -2,8 +2,6 @@ module Spree
   class OrderSummaryReport
     include BaseReport
 
-    UNASIGNED = 'unassigned'
-
     def initialize(params)
       @from = params[:from].blank? ? Time.now.midnight : Time.parse(params[:from])  
       @to = params[:to].blank? ? Time.now.tomorrow.midnight : Time.parse(params[:to])  
@@ -94,11 +92,7 @@ module Spree
         # A hack incase someone deletes the variant or product
         variant = Variant.unscoped.find(line.variant_id)
 
-        marketing_type = if variant.product.marketing_type
-                           variant.product.marketing_type.name
-                         else
-                           UNASIGNED
-                         end
+        marketing_type = variant.product.marketing_type.name
 
         h[marketing_type] ||= 0
         h[marketing_type] += line.amount
@@ -116,7 +110,7 @@ module Spree
     private
 
     def marketing_type_lookup
-      Spree::MarketingType.all.map(&:name) << UNASIGNED
+      Spree::MarketingType.all.map(&:name)
     end
 
     def generate_csv_line(o,previous_users)

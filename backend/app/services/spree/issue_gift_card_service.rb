@@ -14,7 +14,7 @@ module Spree
     
     private
     def valid_gift_card_variant?
-      if line_item.variant.product.product_type != 'gift_card'
+      if !line_item.variant.product.product_type.gift_card?
         add_error(:line_item, :invalid, "Product on line item is not a GIFT CARD!")
         return false
       end

@@ -7,7 +7,7 @@
 
     <legend align="center"><%= Spree.t(:new_product) %></legend>
     <div class="row" data-hook="new_product_attrs">
-      <div class="alpha twelve columns">
+      <div class="alpha eight columns">
         <%= f.field_container :name do %>
           <%= f.label :name, Spree.t(:name) %> <span class="required">*</span><br />
           <%= f.text_field :name, :class => 'fullwidth title' %>
@@ -15,13 +15,22 @@
         <% end %>
       </div>
 
+      <div class="four columns">
+        <%= f.field_container :product_type do %>
+          <%= f.label :product_type, Spree.t(:product_type) %><br />
+          <%= f.collection_select :product_type_id, Spree::ProductType.all, :id, :name, {:include_blank => false, :selected => Spree::ProductType.default.id}, {:class => 'select2 fullwidth'} %>
+          <%= f.error_message_on :product_type_id %>
+        <% end %>
+      </div>
+
       <div class="omega four columns">
-        <%= f.field_container :type do %>
+        <%= f.field_container :marketing_type do %>
           <%= f.label :marketing_type_id, Spree.t(:type) %><br />
           <%= f.collection_select :marketing_type_id, Spree::MarketingType.all, :id, :title, {:include_blank => false}, {:class => 'select2 fullwidth'} %>
           <%= f.error_message_on :marketing_type_id %>
         <% end %>
       </div>
+
     </div>
 
     <div class="row">
@@ -59,6 +68,8 @@
           <%= f.error_message_on :shipping_category_id %>
         <% end %>
       </div>
+
+
       
     </div>
     

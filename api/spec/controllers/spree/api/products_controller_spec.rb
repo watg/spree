@@ -11,10 +11,15 @@ module Spree
     let(:show_attributes) { base_attributes.dup.push(:has_variants) }
     let(:new_attributes) { base_attributes }
 
+    let(:product_type) { create(:product_type) }
+    let(:marketing_type) { create(:marketing_type) }
+
     let(:product_data) do
       { name: "The Other Product",
-		gang_member_id: product.gang_member.id,
-		product_group_id: product.product_group.id,
+		    gang_member_id: product.gang_member.id,
+		    product_group_id: product.product_group.id,
+        product_type_id: product_type.id,
+        marketing_type_id: marketing_type.id,
         price: 19.99,
         shipping_category_id: create(:shipping_category).id }
     end
@@ -241,12 +246,16 @@ module Spree
       end
 
       describe "creating a product" do
+
+
         it "can create a new product" do
           api_post :create, :product => { :name => "The Other Product",
                                           :price => 19.99,
-										  :gang_member_id => product.gang_member.id,
+										                      :gang_member_id => product.gang_member.id,
                                           :product_group_id => product.product_group.id,
-                                          :shipping_category_id => create(:shipping_category).id }
+                                          :shipping_category_id => create(:shipping_category).id,
+                                          :product_type_id => product_type.id,
+                                          :marketing_type_id => marketing_type.id }
           json_response.should have_attributes(base_attributes)
           response.status.should == 201
         end
@@ -294,6 +303,8 @@ module Spree
           hash = { :name => "The Other Product",
                    :gang_member_id => product.gang_member.id,
                    :product_group_id => product.product_group.id,
+                   :product_type_id => product.product_type.id,
+                   :marketing_type_id => product.marketing_type.id,
                    :shipping_category => "Free Ships" }
 
           api_post :create, :product => hash
@@ -339,7 +350,7 @@ module Spree
           json_response["error"].should == "Invalid resource. Please fix errors and try again."
           errors = json_response["errors"]
           errors.delete("slug") # Don't care about this one.
-          errors.keys.should =~ ["name", "gang_member", "product_group", "shipping_category_id"]
+          errors.keys.should =~ ["name", "gang_member", "product_group", "shipping_category_id", "product_type", "marketing_type"]
         end
       end
 

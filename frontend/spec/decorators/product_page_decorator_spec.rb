@@ -29,7 +29,7 @@ describe Spree::ProductPageDecorator, type: :decorator do
 
   describe "decorated_first_knit_your_own_product_variant" do
     subject { decorator }
-    let(:kit) { create(:product, product_group: product_group, product_type: "kit") }
+    let(:kit) { create(:product, product_group: product_group, product_type: create(:product_type_kit)) }
     let(:men)           { create(:target, name: 'men') }
     let!(:women_variant) { create(:variant, product: kit, target: women) }
     let!(:men_variant)   { create(:variant, product: kit, target: men) }

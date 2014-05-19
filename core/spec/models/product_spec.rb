@@ -119,7 +119,7 @@ describe Spree::Product do
     end
 
     it "for kit products with some variants out of stock" do
-      kit = create(:base_product, product_type: :kit)
+      kit = create(:base_product, product_type: create(:product_type_kit))
 
       kit_variant1 = create(:variant, price: 14.00, currency: "USD", product: kit, sku: 'v1', in_stock_cache: false)
       kit_variant2 = create(:variant, price: 14.01, currency: "USD", product: kit, sku: 'v2', in_stock_cache: true)

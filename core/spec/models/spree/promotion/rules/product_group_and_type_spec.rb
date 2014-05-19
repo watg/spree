@@ -65,7 +65,7 @@ describe Spree::Promotion::Rules::ProductGroupAndType do
       let(:product_2) { line_item_2.product }
 
       before do
-        product_2.product_type = marketing_type_2
+        product_2.marketing_type = marketing_type_2
         product_2.product_group = product_group_2 
         product_2.save
       end

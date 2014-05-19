@@ -27,57 +27,29 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
   end
 
   describe "#made_by_the_gang_link?" do
-    context "with a variant" do
-      let(:variant) { create(:variant, product: product, in_stock_cache: true) }
+
+    context "with displayed_variants with stock on the product page" do
       before :each do
-        index_page_item.variant = variant
+        product_page.displayed_variants << create(:variant_with_stock_items)
       end
 
-      context "of type non kit" do
-        let(:product) { create(:product, product_type: "made_by_the_gang") }
-        its(:made_by_the_gang_link?) { should be_true }
-
-        context "has_stock" do
-          its(:made_by_the_gang_link?) { should be_true }
-        end
-
-        context "has_no_stock" do
-          before { variant.in_stock_cache = false; variant.save  }
-          its(:made_by_the_gang_link?) { should be_false }
-        end
-
-      end
-
-      context "of type kit" do
-        let(:product) { create(:product, product_type: "kit") }
-        its(:made_by_the_gang_link?) { should be_false }
-      end
-
+      its(:made_by_the_gang_link?) { should be_true }
     end
 
-    context "without a variant" do
-      context "with displayed_variants with stock on the product page" do
-        before :each do
-          product_page.displayed_variants << create(:variant_with_stock_items)
-        end
+    context "with displayed_variants without stock on the product page" do
+      let(:variant) { create(:variant, in_stock_cache: false) }
 
-        its(:made_by_the_gang_link?) { should be_true }
+      before :each do
+        product_page.displayed_variants << variant
       end
 
-      context "with displayed_variants without stock on the product page" do
-        let(:variant) { create(:variant, in_stock_cache: false) }
-
-        before :each do
-          product_page.displayed_variants << variant
-        end
-
-        its(:made_by_the_gang_link?) { should be_false }
-      end
-
-      context "without displayed_variants on the product page" do
-        its(:made_by_the_gang_link?) { should be_false }
-      end
+      its(:made_by_the_gang_link?) { should be_false }
     end
+
+    context "without displayed_variants on the product page" do
+      its(:made_by_the_gang_link?) { should be_false }
+    end
+
   end
 
   describe "#made_by_the_gang_url" do
@@ -85,43 +57,16 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
     let(:variant) { create(:variant, in_stock_cache: true) }
     let(:made_by_the_gang_url_with_variant) { spree.product_page_path(product_page, tab: "made-by-the-gang", variant_id: variant.id) }
 
-    context "with a variant" do
-      context "in  stock" do
-        before :each do 
-          index_page_item.variant = variant
-          allow(helpers).to receive(:product_page_path).
-            with(id: product_page.permalink, tab: "made-by-the-gang", variant_id: variant.id).and_return(made_by_the_gang_url_with_variant)
-        end
-
-        its(:made_by_the_gang_url) { should eq(made_by_the_gang_url_with_variant) }
-      end
-
-      context "out of stock" do
-        before :each do 
-          index_page_item.variant = variant
-          variant.in_stock_cache = false
-          variant.save
-          allow(helpers).to receive(:product_page_path).
-            with(id: product_page.permalink, tab: "made-by-the-gang", variant_id: nil).and_return(made_by_the_gang_url)
-        end
-
-        its(:made_by_the_gang_url) { should eq(made_by_the_gang_url) }
-      end
-
+    before :each do
+      allow(helpers).to receive(:product_page_path).
+        with(id: product_page.permalink, tab: "made-by-the-gang", variant_id: nil).and_return(made_by_the_gang_url)
     end
 
-    context "without a variant" do
-      before :each do
-        allow(helpers).to receive(:product_page_path).
-          with(id: product_page.permalink, tab: "made-by-the-gang", variant_id: nil).and_return(made_by_the_gang_url)
-      end
-
-      its(:made_by_the_gang_url) { should eq(made_by_the_gang_url) }
-    end
+    its(:made_by_the_gang_url) { should eq(made_by_the_gang_url) }
   end
 
   describe "made by the gang prices" do
-    
+
     let(:product) { create(:product_with_prices) }
     let(:product2) { create(:product_with_stock_and_prices, usd_price: 3.00, gbp_price: 7.50) }
     let(:variant) { create(:variant, in_sale: true, in_stock_cache: true) }
@@ -166,59 +111,31 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
   end
 
   describe "#knit_your_own_link?" do
-    context "with a variant" do
-      let(:variant) { create(:variant, product: product, in_stock_cache: true) }
+
+    context "with a kit product on the product page" do
+      let(:kit) { create(:product, product_type: create(:product_type_kit)) }
+      let!(:variant) { create(:variant, product: kit, price: 9.99, in_sale: true, in_stock_cache: true) }
+
       before :each do
-        index_page_item.variant = variant
+        product_page.product_groups << kit.product_group
+        product_page.kit = kit
       end
 
-      context "of type kit" do
-        let(:product) { create(:product, product_type: "kit") }
+      context "has_stock" do
         its(:knit_your_own_link?) { should be_true }
-
-
-        context "has_stock" do
-          its(:knit_your_own_link?) { should be_true }
-        end
-
-        context "has_no_stock" do
-          before { variant.in_stock_cache = false; variant.save } 
-          its(:knit_your_own_link?) { should be_false }
-        end
-
       end
 
-      context "of any other type" do
-        let(:product) { create(:product, product_type: "made_by_the_gang") }
+      context "has_no_stock" do
+        before { kit.variants.each { |v| v.in_stock_cache = false; v.save } }
         its(:knit_your_own_link?) { should be_false }
       end
+
     end
 
-    context "without a variant" do
-      context "with a kit product on the product page" do
-        let(:kit) { create(:product, product_type: "kit") }
-        let!(:variant) { create(:variant, product: kit, price: 9.99, in_sale: true, in_stock_cache: true) }
-
-        before :each do
-          product_page.product_groups << kit.product_group
-          product_page.kit = kit
-        end
-
-        context "has_stock" do
-          its(:knit_your_own_link?) { should be_true }
-        end
-
-        context "has_no_stock" do
-          before { kit.variants.each { |v| v.in_stock_cache = false; v.save } }
-          its(:knit_your_own_link?) { should be_false }
-        end
-
-      end
-
-      context "without a kit product on the product page" do
-        its(:knit_your_own_link?) { should be_false }
-      end
+    context "without a kit product on the product page" do
+      its(:knit_your_own_link?) { should be_false }
     end
+
   end
 
   describe "#knit_your_own_url" do

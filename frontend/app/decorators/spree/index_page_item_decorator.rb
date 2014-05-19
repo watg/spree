@@ -37,7 +37,6 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
   end
 
   def made_by_the_gang_link?
-    ( memoized_variant.present? && ! memoized_variant_is_kit? && memoized_variant_in_stock? ) ||
     ( memoized_product_page.present? && memoized_product_page.displayed_variants_in_stock.any? )
   end
 
@@ -120,7 +119,6 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
   end
 
   def knit_your_own_link?
-    ( variant_knit_your_own? && memoized_variant_in_stock? ) || 
     ( product_page_knit_your_own? &&  memoized_product_page.kit.variants.active(current_currency).in_stock.any?  ) ||
     ( product_page_knit_your_own? && memoized_product_page.kit.assembly_definition )
   end
@@ -133,16 +131,8 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
     end
   end
 
-  def variant_knit_your_own?
-    memoized_variant.present? && memoized_variant_is_kit?
-  end
-
   def product_page_knit_your_own?
       memoized_product_page.present? && memoized_product_page.kit.present?
-  end
-
-  def memoized_variant_is_kit?
-    @_variant_is_kit ||= memoized_variant.product.product_type == 'kit'
   end
 
   def memoized_product_page?

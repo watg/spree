@@ -47,8 +47,11 @@ module Spree
     belongs_to :product_group,     class_name: 'Spree::ProductGroup', touch: true
 
     belongs_to :marketing_type, class_name: 'Spree::MarketingType'
+    belongs_to :product_type, class_name: 'Spree::ProductType'
 
     validates :product_group, :presence => true
+    validates :product_type, :presence => true
+    validates :marketing_type, :presence => true
     validates :gang_member, :presence => true
 
     has_many :personalisations, dependent: :destroy
@@ -139,10 +142,6 @@ module Spree
     def assembly?
       self.assemblies_parts.any? ||
       self.assembly_definition
-    end
-
-    def self.types
-      Spree::MarketingType.pluck(:name)
     end
 
     def memoized_gang_member
@@ -301,7 +300,7 @@ module Spree
     end
 
     def name_and_type
-      "#{name} - #{product_type}"
+      # no longer used, delete me when you delete the displayable_variants
     end
 
     def self.saleable?

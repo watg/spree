@@ -2,7 +2,7 @@ module Spree
   DigitalOnlyOrderShipperJob = Struct.new(:order) do
     
     def perform
-      li_pn_list = order.line_items.map {|li| li.is_digital? }
+      li_pn_list = order.line_items.map {|li| li.variant.product.product_type.is_digital? }
       order_have_only_digital_line_items = li_pn_list.inject(true) {|result, li_pn| result && li_pn} && (li_pn_list.size >= 1)
 
       if order_have_only_digital_line_items

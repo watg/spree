@@ -6,7 +6,6 @@ module Spree
     validates_presence_of :name, :permalink, :title
 
     belongs_to :kit, class_name: "Spree::Product", dependent: :destroy
-    validate :kit_validation
     
     has_and_belongs_to_many :product_groups, join_table: :spree_product_groups_product_pages
 
@@ -126,12 +125,6 @@ module Spree
 
     def touch_index_page_items
       index_page_items.each { |item| item.touch }
-    end
-
-    def kit_validation
-      if self.kit
-        self.kit.product_type == 'kit'
-      end
     end
 
   end

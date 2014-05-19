@@ -12,7 +12,7 @@ describe Spree::LineItem do
       let(:option_type)  { create(:option_type) }
 
       let(:dynamic_kit_variant) {
-        pdt = create(:product, product_type: 'kit')
+        pdt = create(:product, product_type: create(:product_type_kit))
         v = create(:variant, product_id: pdt.id, cost_price: 0, weight: 0)
         v.assembly_definition = Spree::AssemblyDefinition.create(variant_id: v.id)
         v
@@ -109,7 +109,7 @@ describe Spree::LineItem do
     let(:variant7)  { create(:variant, cost_price: 7) }
     let(:variant3)  { create(:variant, cost_price: 3) }
     let(:kit_variant) {
-      pdt = create(:product, product_type: 'kit')
+      pdt = create(:product, product_type: create(:product_type_kit))
       v = create(:variant, product_id: pdt.id, cost_price: 2, weight: 0)
       v
     }
@@ -172,7 +172,7 @@ describe Spree::LineItem do
     let(:variant7)  { create(:variant, weight: 7) }
     let(:variant3)  { create(:variant, weight: 3) }
     let!(:kit_variant) {
-      pdt = create(:product, product_type: 'kit')
+      pdt = create(:product, product_type: create(:product_type_kit))
       v = create(:variant, product_id: pdt.id, cost_price: 0, weight: 1)
       v
     }
@@ -404,7 +404,7 @@ describe Spree::LineItem do
     end
     
     it "returns true when have a gift card" do
-      line_item.product.stub(:product_type => 'gift_card')
+      line_item.product.product_type = create(:product_type_gift_card)
       line_item.should be_has_gift_card
     end
   end
@@ -435,13 +435,14 @@ describe Spree::LineItem do
       ] }
       
       before do
+        create(:product_type_gift_card)
         container.stock_items.update_all count_on_hand: 50, backorderable: false
         part1.stock_items.update_all count_on_hand: 10, backorderable: false
         part2.stock_items.update_all count_on_hand: 5, backorderable: false
 
         order.contents.add(container, 5, nil, nil, parts)
         order.create_proposed_shipments
-        order.finalize!        
+        order.finalize!
       end
 
       it "allows to decrease kit quantity" do

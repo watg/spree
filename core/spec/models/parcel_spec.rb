@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Spree::Parcel do
   let(:order)   { create(:order) }
-  let(:box)     { create(:product, product_type: :parcel) }
+  let(:box)     { create(:product, product_type: create(:product_type_packaging)) }
   subject { Spree::Parcel.new(order_id: order.id,
                               box_id: box.id,
                               weight: 20.0,
