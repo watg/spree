@@ -322,6 +322,7 @@ module Spree
         send_shipped_email
         touch :shipped_at
         update_order_shipment_state
+        metapaaack
       end
 
       def update_order_shipment_state

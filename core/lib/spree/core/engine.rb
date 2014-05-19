@@ -78,7 +78,7 @@ module Spree
           Spree::Promotion::Rules::ItemTotal,
           Spree::Promotion::Rules::Product,
           Spree::Promotion::Rules::ProductGroup,
-          Spree::Promotion::Rules::ProductType,
+          Spree::Promotion::Rules::MarketingType,
           Spree::Promotion::Rules::ProductGroupAndType,
           Spree::Promotion::Rules::User,
           Spree::Promotion::Rules::Country,

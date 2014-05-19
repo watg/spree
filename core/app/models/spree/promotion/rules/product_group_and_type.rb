@@ -6,7 +6,7 @@ module Spree
     module Rules
       class ProductGroupAndType < PromotionRule
         has_and_belongs_to_many :product_groups, class_name: '::Spree::ProductGroup', join_table: 'spree_product_groups_promotion_rules', foreign_key: 'promotion_rule_id'
-        has_and_belongs_to_many :product_types, class_name: '::Spree::ProductType', join_table: 'spree_product_types_promotion_rules', foreign_key: 'promotion_rule_id'
+        has_and_belongs_to_many :marketing_types, class_name: '::Spree::MarketingType', join_table: 'spree_marketing_types_promotion_rules', foreign_key: 'promotion_rule_id'
 
         def applicable?(promotable)
           promotable.is_a?(Spree::Order)
@@ -14,12 +14,12 @@ module Spree
 
         # scope/association that is used to test eligibility
         def eligible?(order,options={})
-          return true if eligible_product_groups.empty? and eligible_product_types.empty?
+          return true if eligible_product_groups.empty? and eligible_marketing_types.empty?
 
           selector = order.line_items.joins(:product)
 
-          if eligible_product_types.any?
-            selector = selector.where("spree_products.product_type in (?)", eligible_product_types)
+          if eligible_marketing_types.any?
+            selector = selector.where("spree_products.marketing_type_id in (?)", eligible_marketing_types)
           end
           if eligible_product_groups.any?
             selector = selector.where("spree_products.product_group_id in (?)", eligible_product_groups)
@@ -42,8 +42,8 @@ module Spree
           product_groups.pluck(:id)
         end
 
-        def eligible_product_types
-          product_types.pluck(:name)
+        def eligible_marketing_types
+          marketing_types.pluck(:id)
         end
 
       end
