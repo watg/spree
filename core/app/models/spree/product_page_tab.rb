@@ -2,7 +2,10 @@ module Spree
   class ProductPageTab < ActiveRecord::Base
     acts_as_paranoid
 
-    TYPES = [:made_by_the_gang, :knit_your_own]
+    KNIT_YOUR_OWN = 'knit_your_own'
+    MADE_BY_THE_GANG = 'made_by_the_gang'
+
+    TYPES = [MADE_BY_THE_GANG, KNIT_YOUR_OWN].map { |ppt| ppt.to_sym }
 
     belongs_to :product_page
     has_one :image, as: :viewable, dependent: :destroy, class_name: "Spree::ProductPageTabImage"

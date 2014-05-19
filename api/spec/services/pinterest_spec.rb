@@ -11,6 +11,7 @@ describe Spree::PinterestService do
     let(:variant_slug) { variant.option_values.first.name }
     let(:variant_target) { create(:variant_target, variant: variant, target: target ) }
     let(:context) { {context: {tab: product_page_tab.tab_type}} }
+    let(:kit_context) { {context: {tab: Spree::ProductPageTab::KNIT_YOUR_OWN }} }
 
     before do
       product_page.target = target
@@ -22,6 +23,7 @@ describe Spree::PinterestService do
     context 'new_url' do
 
       let(:url) { variant.decorate( context ).url_encoded_product_page_url(product_page.decorate( context )) }
+      let(:kit_url) { variant.decorate( kit_context ).url_encoded_product_page_url(product_page.decorate( kit_context )) }
 
       context 'images' do
 

@@ -14,9 +14,7 @@ module Spree
         old_api( *url_parts )
       elsif url.match(/items\/(.*)/)
         url_parts = $1.split("/")
-        # we are only interested in the product_page_permalink and variant
-        # and not the tab which is url_parts[1]
-        new_api( url_parts[0], url_parts[2])
+        new_api( *url_parts )
       else
         add_error(:url, :could_not_parse_url, "Could not parse url")
       end
@@ -50,7 +48,7 @@ module Spree
       })
     end
 
-    def new_api(product_page_slug, variant_id)
+    def new_api(product_page_slug, product_page_tab, variant_id)
       return if has_errors?
 
       product_page = load_product_page(product_page_slug) if product_page_slug
@@ -70,7 +68,7 @@ module Spree
       OpenStruct.new({
         provider_name: "Wool and the Gang",
         url: url,
-        title: fancy_title(product.name, variant),
+        title: fancy_title(product.name, product_page_tab, variant),
         description: product.clean_description_for(product_page.target),
         product_id: variant.number,
         price: variant.current_price_in("GBP").amount,
@@ -116,10 +114,11 @@ module Spree
       variant
     end
 
-    def fancy_title(product_name, variant)
-      if variant.product.martin_type.kit?
+    def fancy_title(product_name, product_page_tab)
+      case product_page_tab.gsub('-','_')
+      when Spree::ProductPageTab::KNIT_YOUR_OWN
         product_name + " Knit Kit"
-      elsif variant.product.martin_type.rtw?
+      when Spree::ProductPageTab::MADE_BY_THE_GANG
         product_name + ' #madeunique by The Gang'
       else
         product_name
