@@ -1,6 +1,6 @@
-jQuery.fn.kitAutocomplete =(product_group_ids, marketing_type_ids) ->
+jQuery.fn.marketingTypeProductAutocomplete =(product_group_ids, marketing_type_ids) ->
   this.select2({
-    placeholder: "Choose a kit"
+    placeholder: "Choose a product"
     minimumInputLength: 0
 
     initSelection: (element, callback) ->
