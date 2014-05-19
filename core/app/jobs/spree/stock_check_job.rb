@@ -6,7 +6,8 @@ module Spree
 
         variant_in_stock = check_stock(stock_item)
 
-        if stock_item.variant.assemblies.first
+        # for old kits
+        if stock_item.variant.assemblies.any?
           if variant_in_stock
             check_stock_for_kits_using_this_variant(stock_item.variant)
           else

@@ -21,10 +21,10 @@ describe Spree::StockCheckJob do
       end
     end
 
-    context "on variant which is a kit" do
+    context "on variant which is not tracking inventory" do
 
       before do
-        stock_item.variant.stub_chain(:isa_kit?).and_return true
+        stock_item.variant.stub(:track_inventory?).and_return false
       end
 
       it "does not update the variant" do

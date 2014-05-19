@@ -17,9 +17,9 @@
 
       <div class="omega four columns">
         <%= f.field_container :type do %>
-          <%= f.label :martin_type_id, Spree.t(:type) %><br />
-          <%= f.collection_select :martin_type_id, Spree::MartinProductType.all, :id, :title, {:include_blank => false}, {:class => 'select2 fullwidth'} %>
-          <%= f.error_message_on :martin_type_id %>
+          <%= f.label :marketing_type_id, Spree.t(:type) %><br />
+          <%= f.collection_select :marketing_type_id, Spree::MarketingType.all, :id, :title, {:include_blank => false}, {:class => 'select2 fullwidth'} %>
+          <%= f.error_message_on :marketing_type_id %>
         <% end %>
       </div>
     </div>

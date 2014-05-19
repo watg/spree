@@ -46,7 +46,7 @@ module Spree
     belongs_to :gang_member,       class_name: 'Spree::GangMember'
     belongs_to :product_group,     class_name: 'Spree::ProductGroup', touch: true
 
-    belongs_to :martin_type, class_name: 'Spree::MartinProductType'
+    belongs_to :marketing_type, class_name: 'Spree::MarketingType'
 
     validates :product_group, :presence => true
     validates :gang_member, :presence => true
@@ -125,7 +125,7 @@ module Spree
     # Grab each set of products that have parts, then 
     scope :not_assembly, lambda {
       with_parts = joins(variants: [:assemblies_parts]).select('spree_products.id') +
-      joins(:assemblies_parts) .select('spree_products.id') +
+      joins(:assemblies_parts).select('spree_products.id') +
       joins(variants_including_master: [:assembly_definition]).select('spree_products.id')
 
       where.not(id: with_parts.uniq.map(&:id) )
@@ -136,13 +136,13 @@ module Spree
       @_images_including_targetted ||= [self.variant_images, self.target_images].flatten.sort_by { |i| i.position }
     end
 
-    def assmebly?
+    def assembly?
       self.assemblies_parts.any? ||
       self.assembly_definition
     end
 
     def self.types
-      Spree::MartinProductType.all.map(&:name)
+      Spree::MarketingType.pluck(:name)
     end
 
     def memoized_gang_member

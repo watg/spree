@@ -249,7 +249,7 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
 
   describe "knit your own prices" do
     
-    let(:kit) { create(:base_product, product_type: 'kit') }
+    let(:kit) { create(:base_product) }
     let!(:kit_variant) { create(:variant, product: kit,  in_sale: true, in_stock_cache: true) }
     let!(:kit_variant2) { create(:variant, product: kit, in_sale: true, in_stock_cache: true) }
     let!(:kit_variant3) { create(:variant, product: kit, in_stock_cache: false) }
@@ -262,8 +262,8 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
 
     context "Dyanmic Kit" do
 
-      let(:dynamic_kit) { create(:base_product, product_type: 'kit', price: 5.00, name: 'dynamic kit') }
-      let(:assembly_definition) { create(:assembly_definition, variant: dynamic_kit.master) }
+      let(:dynamic_kit) { create(:base_product, price: 5.00, name: 'dynamic kit') }
+      let!(:assembly_definition) { create(:assembly_definition, variant: dynamic_kit.master) }
 
       before do
          subject.product_page.kit = dynamic_kit.reload

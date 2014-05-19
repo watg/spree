@@ -8,6 +8,14 @@ describe Spree::Product do
   its(:product_group)        { should be_kind_of(Spree::ProductGroup) }
   its(:gang_member)          { should be_kind_of(Spree::GangMember) }
 
+  context "#not_assembly" do
+    pending "to do"
+    # let(:assembly_definition) { create(:assembly_definition, variant: subject.master)}
+    # let(:assembly_definition_part) { create(:assembly_definition_part, assembly_definition: assembly_definition) }
+    
+    # expect(subject.not_assembly).to eq()
+  end
+
   context "stock control" do
     let!(:variant_in_stock) { create(:variant_with_stock_items, product_id: variant.product.id) }
 

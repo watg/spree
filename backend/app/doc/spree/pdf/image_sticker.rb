@@ -43,9 +43,9 @@ module Spree
       end
 
       private
-      def made_unique_by(order)
-        ready_to_wear = order.line_items.detect do |li|
-          li.variant.martin_type.rtw?
+      def made_unique_by
+        ready_to_wear = order.line_items.detect do |line|
+          line.product.marketing_type.rtw?
         end
         ready_to_wear ? ASSETS[:made_by_gang] : ASSETS[:made_by_you]
       end

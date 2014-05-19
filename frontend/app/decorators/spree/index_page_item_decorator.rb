@@ -60,7 +60,6 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
   def knit_your_own_prices
 
     lowest_price, lowest_sale_price= nil
-
     if memoized_product_page.kit.assembly_definition
       item = object.product_page.kit.master
 

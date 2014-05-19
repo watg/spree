@@ -74,14 +74,14 @@
             <%= hidden_field_tag "page", params[:page] %>
             <%= hidden_field_tag "name_cont", params[:name_cont] %>
           <td class="align-center"><%= link_to product.name, edit_admin_product_path(product) %></td>
-          <td class="align-center"><%= product.martin_type.name %></td>
+          <td class="align-center"><%= product.marketing_type.name %></td>
           <td class="align-center"><%= product.first_variant_or_master.in_stock_cache %></td>
           <td class="align-center">
           <%= select_tag "products[][product_group]", options_from_collection_for_select(Spree::ProductGroup.all, "id", "name", product.product_group_id), {include_blank: true, :class => 'select2 fullwidth'} %>
           </td>
           <td class="align-center"><%= product.gang_member.name %></td>
           <td class="align-center">
-          <%= select_tag "products[][martin_type]", options_from_collection_for_select(Spree::MartinProductType.all, "id", "name", product.martin_type_id), {include_blank: true, :class => 'select2 fullwidth'} %>
+          <%= select_tag "products[][marketing_type]", options_from_collection_for_select(Spree::MarketingType.all, "id", "name", product.marketing_type_id), {include_blank: true, :class => 'select2 fullwidth'} %>
           </td>          
           <td class="align-center">
             <%= check_box_tag "products[]update_flag" %>

@@ -90,7 +90,7 @@ module Spree
       prices = Hash[*prices]
       [ 
         variant.product.name,
-        variant.product.martin_type.name,
+        variant.product.marketing_type.name,
         variant.product.sku,
         variant.sku,
         variant.option_values.empty? ? '' : variant.options_text,

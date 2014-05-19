@@ -102,7 +102,7 @@ module Spree
         variant.product.sku,
         li.item_sku,
         variant.product.name,
-        variant.product.martin_type.name,
+        variant.product.marketing_type.name,
         quantity,
         o.state,
         (o.payments.first.source_type.split('::').last if o.payments.first.try(:source_type)),

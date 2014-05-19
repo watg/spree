@@ -100,7 +100,7 @@ module Spree
         end
 
         def create_before
-          type = Spree::MartinProductType.find(params[:product][:martin_type_id])
+          type = Spree::MarketingType.find(params[:product][:marketing_type_id])
           params[:product][:product_type] = mapping[type.name]
 
           return if params[:product][:prototype_id].blank?

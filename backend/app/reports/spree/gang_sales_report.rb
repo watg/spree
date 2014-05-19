@@ -107,7 +107,7 @@ module Spree
         variant.product.sku,
         variant.sku,
         variant.product.name,
-        variant.product.martin_type.name,
+        variant.product.marketing_type.name,
         o.state,
         li.quantity,
         li.currency,

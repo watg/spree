@@ -6,7 +6,7 @@ describe Spree::PinterestService do
     let!(:product_page_tab) { create(:product_page_tab) }
     let(:target) { create(:target, name: 'female' ) }
     let(:product_page) { product_page_tab.product_page }
-    let(:product) {create(:product_with_variants_displayable, martin_type: create(:martin_type))}
+    let(:product) {create(:product_with_variants_displayable, marketing_type: create(:marketing_type, category: "rtw"))}
     let(:variant) { product.variants.first }
     let(:variant_slug) { variant.option_values.first.name }
     let(:variant_target) { create(:variant_target, variant: variant, target: target ) }
@@ -94,8 +94,8 @@ describe Spree::PinterestService do
       let(:url) {"http://www.woolandthegang.com/shop/products/#{product.slug}/#{variant_slug}"}
 
       it "returns a correct OpenStruct response with a product" do
-        product.martin_type = create(:martin_type)
-        product.save
+        product.marketing_type = create(:marketing_type, category: "rtw")
+        product.save!
 
         outcome = Spree::PinterestService.run({url: url})
 
