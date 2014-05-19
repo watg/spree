@@ -1,7 +1,10 @@
 module Spree
   class PinterestService < Mutations::Command
-    # http://0.0.0.0:3000/shop/products/florence-sweater/ivory-white
-    # www.woolandthegang.com/shop/api/pinterest/?url=http://www.woolandthegang.com//shop/items/zion-lion-men/made-by-the-gang/879
+    # new api
+    # http://0.0.0.0:3000/shop/api/pinterest/?url=http://0.0.0.0:3000/shop/items/zion-lion-men/made-by-the-gang/879
+    # old api
+    # http://0.0.0.0:3000/shop/api/pinterest/?url=http://0.0.0.0:3000/shop/products/florence-sweater/ivory-white
+
 
     required do
       string :url
@@ -36,10 +39,16 @@ module Spree
         return
       end
 
+      tab = if variant.assembly?
+              Spree::ProductPageTab::KNIT_YOUR_OWN
+            else
+              Spree::ProductPageTab::MADE_BY_THE_GANG
+            end
+
       OpenStruct.new({
         provider_name: "Wool and the Gang",
         url: url,
-        title: fancy_title(product.name, variant),
+        title: fancy_title(product.name, tab),
         description: product.description,
         product_id: product_slug,
         price: variant.current_price_in("GBP").amount,
@@ -68,7 +77,7 @@ module Spree
       OpenStruct.new({
         provider_name: "Wool and the Gang",
         url: url,
-        title: fancy_title(product.name, product_page_tab, variant),
+        title: fancy_title(product.name, product_page_tab),
         description: product.clean_description_for(product_page.target),
         product_id: variant.number,
         price: variant.current_price_in("GBP").amount,
