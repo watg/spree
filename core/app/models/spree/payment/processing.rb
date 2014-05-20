@@ -91,9 +91,14 @@ module Spree
           if payment_method.payment_profiles_supported?
             response = payment_method.credit(credit_cents, source, response_code, gateway_options)
           else
-            response = payment_method.credit(credit_cents, response_code, gateway_options)
+            if payment_method.kind_of?(Spree::Gateway::AdyenPaymentEncrypted)
+              response = nil
+            else
+              response = payment_method.credit(credit_cents, response_code, gateway_options)
+            end
           end
-
+          
+          if response
           record_response(response)
 
           if response.success?
@@ -107,6 +112,7 @@ module Spree
             )
           else
             gateway_error(response)
+          end
           end
         end
       end
