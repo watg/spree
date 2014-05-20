@@ -124,7 +124,7 @@ module Spree
 
     # Grab each set of products that have parts, then 
     scope :not_assembly, lambda {
-      with_parts = joins(variants: [:assemblies_parts]).select('spree_products.id') +
+      with_parts = joins(variants_including_master: [:assemblies_parts]).select('spree_products.id') +
       joins(:assemblies_parts).select('spree_products.id') +
       joins(variants_including_master: [:assembly_definition]).select('spree_products.id')
 

@@ -8,12 +8,29 @@ describe Spree::Product do
   its(:product_group)        { should be_kind_of(Spree::ProductGroup) }
   its(:gang_member)          { should be_kind_of(Spree::GangMember) }
 
-  context "#not_assembly" do
-    pending "to do"
-    # let(:assembly_definition) { create(:assembly_definition, variant: subject.master)}
-    # let(:assembly_definition_part) { create(:assembly_definition_part, assembly_definition: assembly_definition) }
-    
-    # expect(subject.not_assembly).to eq()
+  context "#not_assembly returns only products with assembly definition or parts" do
+    it "with assembly definition; without assembly definition parts" do
+      create(:assembly_definition, variant: subject.master)
+
+      expect(Spree::Product.all).to eq [subject]
+      expect(Spree::Product.all.not_assembly).to be_empty
+    end
+
+    it "with assemblies parts attached to the product" do
+      part = create(:variant)
+      subject.add_part part
+
+      expect(Spree::Product.all).to match_array [part.product, subject]
+      expect(Spree::Product.all.not_assembly).to eq [part.product]
+    end
+
+    it "with assemblies parts attached to the variant" do
+      part = create(:variant)
+      subject.master.add_part part
+
+      expect(Spree::Product.all).to match_array [part.product, subject]
+      expect(Spree::Product.all.not_assembly).to eq [part.product]
+    end
   end
 
   context "stock control" do
