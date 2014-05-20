@@ -3,7 +3,7 @@ module Spree
     # new api
     # http://0.0.0.0:3000/shop/api/pinterest/?url=http://0.0.0.0:3000/shop/items/zion-lion-men/made-by-the-gang/879
     # old api
-    # http://0.0.0.0:3000/shop/api/pinterest/?url=http://0.0.0.0:3000/shop/products/florence-sweater/ivory-white
+    # http://0.0.0.0:3000/shop/api/pinterest/?url=http://0.0.0.0:3000/shop/products/florence-sweater-1/ivory-white
 
 
     required do
