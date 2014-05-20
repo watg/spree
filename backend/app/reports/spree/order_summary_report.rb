@@ -2,9 +2,19 @@ module Spree
   class OrderSummaryReport
     include BaseReport
 
+    UNASIGNED = 'unassigned'
+
     def initialize(params)
       @from = params[:from].blank? ? Time.now.midnight : Time.parse(params[:from])  
       @to = params[:to].blank? ? Time.now.tomorrow.midnight : Time.parse(params[:to])  
+    end
+
+    def self.run(from=Time.now.midnight, to=Time.now.tomorrow.midnight)
+      report = self.new( from: from, to: to )
+      puts report.header.join(',')
+      report.retrieve_data do |data|
+        puts data.join(',')
+      end
     end
 
     def filename_uuid
@@ -34,13 +44,9 @@ module Spree
         promo_code
         payment_total
         order_total
-        kit_revenue_pre_promo
-        peruvian_product_pre_promo
-        gang_collection_revenue_pre_promo
-        yarn_revenue_pre_promo
-        patterns_revenue_pre_promo
-        needles_revenue_pre_promo
-
+      ) +
+        marketing_type_headers +
+      %w(
         billing_address_firstname 
         billing_address_lastname 
         billing_address_line_1
@@ -76,27 +82,44 @@ module Spree
       end
     end
 
-    private
 
-    def generate_product_type_totals( o )
-      product_type_totals = Hash.new 
-      
-      o.line_items.each do |line| 
+    def marketing_type_headers
+      marketing_type_lookup.map { |mt| "#{mt}_revenue_pre_promo" }
+    end
+
+    def marketing_type_totals( o )
+
+      totals = o.line_items.inject({}) do |h,line|
+
         # A hack incase someone deletes the variant or product
         variant = Variant.unscoped.find(line.variant_id)
 
-        marketing_type = variant.product.marketing_type
-        product_type_totals[marketing_type.name] ||= 0
-        product_type_totals[marketing_type.name] += line.amount 
+        marketing_type = if variant.product.marketing_type
+                           variant.product.marketing_type.name
+                         else
+                           UNASIGNED
+                         end
+
+        h[marketing_type] ||= 0
+        h[marketing_type] += line.amount
+
+        options_amount = line.line_item_parts.optional.inject(0) { |acc,val| acc + ( val.price * val.quantity ).to_f }
+
+        h[marketing_type] += options_amount
+
+        h
       end
 
-      product_type_totals
+      marketing_type_lookup.map { |mt| totals[mt] || 0.0 }
     end
 
+    private
 
+    def marketing_type_lookup
+      Spree::MarketingType.all.map(&:name) << UNASIGNED
+    end
 
     def generate_csv_line(o,previous_users)
-      product_type_totals = generate_product_type_totals(o)
 
       shipped_at = ''
       if !o.shipments.last.nil? 
@@ -140,15 +163,11 @@ module Spree
         o.adjustments.gift_card.sum(:amount).to_f,
         promo_label,
         o.payment_total.to_f, # Over cost
-        o.total.to_f, # Over cost
-        product_type_totals['kit'] || '',
-        product_type_totals['peruvian'] || '',
-        product_type_totals['gang'] || '',
-        product_type_totals['yarn'] || '',
-        product_type_totals['pattern'] || '',
-        product_type_totals['needle'] || '',
+        o.total.to_f ] + # Over cost
 
-        o.billing_address.firstname,
+        marketing_type_totals(o) +
+
+        [ o.billing_address.firstname,
         o.billing_address.lastname,
         o.billing_address.address1,
         o.billing_address.address2,
