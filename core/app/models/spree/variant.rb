@@ -119,7 +119,7 @@ module Spree
         selector.reorder('amount').first
       end
 
-      def options_tree_for(target, currency)
+      def options_tree_for(target, currency, option_type=nil)
         selector = self.includes(:prices, :images, :option_values => [:option_type])
         if !target.blank?
           selector = selector.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
@@ -129,7 +129,15 @@ module Spree
         hash={}
         variants.each do |v|
           base=hash
-          v.option_values.each_with_index do |o,i|
+
+          # Allow us to pass in an option type so we only pass back a tree with
+          # a depth of 1
+          option_values = v.option_values
+          if !option_type.blank?
+            option_values = option_values.where(option_type: option_type)
+          end
+
+          option_values.each_with_index do |o,i|
             base[o.option_type.url_safe_name] ||= {}
             base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
             base = base[o.option_type.url_safe_name][o.url_safe_name]

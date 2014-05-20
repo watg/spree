@@ -20,7 +20,7 @@ class Spree::AssemblyDefinitionPart < ActiveRecord::Base
   before_create :set_assembly_product
 
   def variant_options_tree_for(current_currency)
-    variants.options_tree_for(nil, current_currency)
+    variants.options_tree_for(nil, current_currency, displayable_option_type)
   end
 
   def displayable_option_values
