@@ -100,6 +100,7 @@ Spree::Core::Engine.add_routes do
       member do
         get :clone
         get :stock
+        get :create_assembly_definition
       end
       resources :variants do
         collection do

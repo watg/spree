@@ -61,6 +61,11 @@ module Spree
         end
       end
 
+      def create_assembly_definition
+        @product.master.build_assembly_definition.save!
+        redirect_to edit_admin_product_url(@product)
+      end
+
       protected
 
         def find_resource

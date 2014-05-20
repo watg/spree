@@ -105,12 +105,12 @@
 
       <div class="three columns alpha ">
         <%= f.label :individual_sale, t("individual_sale")%>
-        <%= f.check_box(:individual_sale, :disabled => @product.can_have_parts?) %>
+        <%= f.check_box(:individual_sale) %>
       </div>
 
       <div class="three columns omega">
         <%= f.label :can_be_part, t("can_be_part")%>
-        <%= f.check_box(:can_be_part, :disabled => @product.can_have_parts?) %>
+        <%= f.check_box(:can_be_part) %>
       </div>
 
       <% if @product.assembly? %>
