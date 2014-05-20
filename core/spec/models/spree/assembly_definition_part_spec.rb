@@ -48,11 +48,11 @@ describe Spree::AssemblyDefinitionPart do
     context "#variant_options_tree_for" do
       it "should return variant_options_tree_for" do
         tree = subject.variant_options_tree_for('USD')
-        expect(tree["size"]["small"]["colour"]["pink"]["variant"]["in_stock"]).to_not be_nil
-        expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to_not be_nil
-        expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to_not be_nil
-        expect(tree["size"]["big"]["colour"]["blue"]["variant"]).to_not be_nil
-        expect(tree["language"]["english"]).to_not be_nil
+        expect(tree["colour"]["pink"]["variant"]["in_stock"]).to_not be_nil
+        expect(tree["colour"]["blue"]["variant"]["in_stock"]).to_not be_nil
+        expect(tree["colour"]["pink"]["variant"]["in_stock"]).to_not be_nil
+        expect(tree["colour"]["blue"]["variant"]).to_not be_nil
+        expect(tree["language"]).to be_nil
       end
     end
   end
