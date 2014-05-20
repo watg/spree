@@ -6,6 +6,7 @@ module Spree
     # http://0.0.0.0:3000/shop/api/pinterest/?url=http://0.0.0.0:3000/shop/products/florence-sweater-1/ivory-white
 
 
+
     required do
       string :url
     end
