@@ -41,4 +41,3 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
   end
 
 end
-

@@ -18,6 +18,11 @@ class Spree::AssemblyDefinitionPart < ActiveRecord::Base
   accepts_nested_attributes_for :variants 
 
   before_create :set_assembly_product
+  class << self
+    def required
+      where(optional: false)
+    end
+  end
 
   def variant_options_tree_for(current_currency)
     variants.options_tree_for(nil, current_currency, displayable_option_type)
