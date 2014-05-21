@@ -31,7 +31,7 @@ describe Spree::Admin::OrdersController, type: :controller do
       end
     end
 
-    let(:order) { mock_model(Spree::Order, :complete? => true, :total => 100, :number => 'R123456789') }
+    let(:order) { mock_model(Spree::Order, :complete? => true, :total => 100, :number => 'R123456789', :can_cancel? => true) }
     before { Spree::Order.stub :find_by_number! => order }
 
     context "#approve" do
