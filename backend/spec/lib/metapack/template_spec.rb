@@ -7,7 +7,24 @@ def consignment_hash
         max_dimension: 30.0,
         order_number:  'order1',
         parcels:       [
-                        {reference: 1, height: 10.0, depth: 20.0, width: 30.0, weight: 1.0}
+                        {
+                          reference: 1,
+                          height: 10.0,
+                          value:  1.2,
+                          depth: 20.0,
+                          width: 30.0,
+                          weight: 1.0,
+                          products: [{
+                            origin: 'UK',
+                            fabric: '50% Cotton 50% Wool',
+                            harmonisation_code: 'CODE012',
+                            description: "Knitted",
+                            type_description: "Sweater",
+                            weight: 0.2,
+                            total_product_value: 23.17,
+                            product_quantity: 5
+                          }]
+                        }
                        ],
         recipient: {
           address: {

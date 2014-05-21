@@ -29,12 +29,13 @@ module Spree
 
     private
     def allocation_hash(order)
+      consignment_value = Spree::ShippingManifest.new(order).order_total * to_gbp_rate(order.currency)
       {
-        value:         order.item_normal_total,
+        value:         consignment_value,
         weight:        order.weight.round(2),
         max_dimension: order.max_dimension.to_f,
         order_number:  order.number,
-        parcels:       parcel(order.parcels, order.weight),
+        parcels:       parcel(order, order.parcels, order.weight),
         recipient: {
           address:     address(order.shipping_address),
           phone:       order.shipping_address.phone,
@@ -62,16 +63,19 @@ module Spree
       (Spree::Country.where(iso: ['CA', 'US']).to_a).include?(order.ship_address.country)
     end
 
-    def parcel(parcels, total_weight)
+    def parcel(order, parcels, total_weight)
       total = parcels.size
       weight = (total_weight / total).round(2)
+      value = (Spree::ShippingManifest.new(order).order_total / total).round(2) * to_gbp_rate(order.currency)
       parcels.map.with_index do |p,index|
         {
           reference: p.id,
           height: p.height.to_f,
+          value:  value,
           depth:  p.depth.to_f,
           width:  p.width.to_f,
-          weight: weight.to_f
+          weight: weight.to_f,
+          products: products(order)
         }
       end
     end
@@ -140,6 +144,31 @@ module Spree
       less_than_ten =( li_by_product_type.select {|e| e }.size < 11)
       b_code = "@" + ((has_only_pattern && less_than_ten) ? 'PATTERN' : Spree::Zone.match(order.ship_address).name.upcase)
       b_code
+    end
+
+    def products(order)
+      unique_products = Spree::ShippingManifest.new(order).create
+
+      # do something about digital , gift_cards
+      unique_products.map do |id, line|
+        product = line[:product]
+        group = line[:group]
+        {
+          origin: group.country.iso,
+          fabric: group.contents,
+          harmonisation_code: group.code,
+          description: group.fabric,
+          type_description: group.garment,
+          weight: product.weight.to_f,
+          total_product_value: line[:total_price].to_f,
+          product_quantity: line[:quantity]
+        }
+      end
+    end
+
+
+    def to_gbp_rate(currency)
+      Helpers::CurrencyConversion::TO_GBP_RATES[currency].to_f
     end
 
   end
