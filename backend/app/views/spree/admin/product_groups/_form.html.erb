@@ -16,10 +16,10 @@
   </div>
 
   <div class="omega four columns">
-    <%= f.field_container :origin do %>
-      <%= f.label :origin, "Country of origin" %> <span class="required">*</span><br />
-      <%= f.select :origin, %w[UK Peru India Hong\ Kong Turkey], {}, :class => 'select2 fullwidth' %>
-      <%= f.error_message_on :origin %>
+    <%= f.field_container :country_id do %>
+      <%= f.label :country_id, "Country of country" %> <span class="required">*</span><br />
+      <%= f.collection_select(:country_id, Spree::Country.all, :id, :name, {},{ :class => 'select2 fullwidth' }) %>
+      <%= f.error_message_on :country_id %>
     <% end %>
   </div>
 </div>

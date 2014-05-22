@@ -23,8 +23,22 @@
               <reference xsi:type="soapenc:string">1</reference>
               <parcelDepth xsi:type="xsd:double">20.0</parcelDepth>
               <parcelHeight xsi:type="xsd:double">10.0</parcelHeight>
+              <parcelValue xsi:type="xsd:double">1.2</parcelValue>
               <parcelWeight xsi:type="xsd:double">1.0</parcelWeight>
               <parcelWidth xsi:type="xsd:double">30.0</parcelWidth>
+              <products soapenc:arrayType="ns2:Product[1]" xsi:type="soapenc:Array">
+                              <item xsi:type="ns2:Product">
+                  <countryOfOrigin xsi:type="soapenc:string">UK</countryOfOrigin>
+                  <fabricContent xsi:type="soapenc:string">50% Cotton 50% Wool</fabricContent>
+                  <harmonisedProductCode xsi:type="soapenc:string">CODE012</harmonisedProductCode>
+                  <productCode xsi:type="soapenc:string">1</productCode>
+                  <productDescription xsi:type="soapenc:string">Knitted</productDescription>
+                  <productTypeDescription xsi:type="soapenc:string">Sweater</productTypeDescription>
+                  <productQuantity xsi:type="xsd:long">5</productQuantity>
+                  <totalProductValue xsi:type="xsd:double">23.17</totalProductValue>
+                  <unitProductWeight xsi:type="xsd:double">0.2</unitProductWeight>
+                </item>
+                            </products>
             </item>
                       </parcels>
           <recipientAddress xsi:type="ns2:Address">

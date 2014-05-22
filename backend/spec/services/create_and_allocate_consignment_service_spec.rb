@@ -2,7 +2,12 @@ require 'spec_helper'
 
 describe Spree::CreateAndAllocateConsignmentService do
   subject { Spree::CreateAndAllocateConsignmentService }
-  let(:order) { FactoryGirl.create(:order_ready_to_be_consigned_and_allocated) }
+  let(:order) { FactoryGirl.create(:order_ready_to_be_consigned_and_allocated, line_items_count: 1) }
+  let(:country) { create(:country) }
+
+  before do
+    Spree::ProductGroup.any_instance.stub(:country).and_return country
+  end
 
   describe "::run" do
     let(:response) { {
@@ -61,6 +66,11 @@ describe Spree::CreateAndAllocateConsignmentService do
 
   context "#allocation_hash" do
     let(:consignment) { Spree::CreateAndAllocateConsignmentService.new }
+    let(:product_group) { create(:product_group, origin: "UK", fabric: "Knitted", code: "CODE123", contents: "10% Wool 90% Cotton", garment: "Sweater") }
+
+    before do
+      order.line_items.first.product.update_column(:product_group_id, product_group.id)
+    end
 
     it "builds all data necessary to create consignment allocation on metapack" do
       variants_weight = order.line_items.map{ |li| li.variant.weight * li.quantity }.sum
@@ -68,14 +78,54 @@ describe Spree::CreateAndAllocateConsignmentService do
 
       p1,p2 = [order.parcels[0],order.parcels[1]]
       address = { line1: "10 Lovely Street", line2: "Northwest", line3: "Herndon", postcode: "20170", country: "USA" }
+      consignment_value = order.total * Helpers::CurrencyConversion::TO_GBP_RATES[order.currency]
+      parcel_value = consignment_value / 2
       expected  = {
-        value:         order.amount,
+        value:         consignment_value,
         weight:        ( variants_weight.to_f + 0.6 ).round(2),
         max_dimension: 40.0,
         order_number:  order.number,
         parcels:       [
-                        {reference: p1.id, height: p1.height.to_f, depth: p1.depth.to_f, width: p1.width.to_f,  weight: parcel_weight},
-                        {reference: p2.id, height: p2.height.to_f, depth: p2.depth.to_f, width: p2.width.to_f,  weight: parcel_weight}
+                        {
+                          reference: p1.id, 
+                          height: p1.height.to_f, 
+                          value: parcel_value,
+                          depth: p1.depth.to_f, 
+                          width: p1.width.to_f,  
+                          weight: parcel_weight,
+                          products: [
+                            {
+                            :origin=> country.iso, 
+                            :fabric=>"10% Wool 90% Cotton",
+                            :harmonisation_code=>"CODE123",
+                            :description=>"Knitted",
+                            :type_description =>"Sweater",
+                            :weight=>0.25,
+                            :total_product_value=>10.0,
+                            :product_quantity=>1
+                            }
+                          ]
+                        },
+                        {
+                          reference: p2.id, 
+                          height: p2.height.to_f, 
+                          value: parcel_value,
+                          depth: p2.depth.to_f, 
+                          width: p2.width.to_f,  
+                          weight: parcel_weight,
+                          products: [
+                            {
+                            :origin=> country.iso, 
+                            :fabric=>"10% Wool 90% Cotton",
+                            :harmonisation_code=>"CODE123",
+                            :description=>"Knitted",
+                            :type_description =>"Sweater",
+                            :weight=>0.25,
+                            :total_product_value=>10.0,
+                            :product_quantity=>1
+                            }
+                          ]
+                        }
                        ],
         recipient: {
           address:   address,

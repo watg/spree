@@ -24,8 +24,24 @@
               <reference xsi:type="soapenc:string"><%= parcel[:reference] %></reference>
               <parcelDepth xsi:type="xsd:double"><%= parcel[:depth] %></parcelDepth>
               <parcelHeight xsi:type="xsd:double"><%= parcel[:height] %></parcelHeight>
+              <parcelValue xsi:type="xsd:double"><%= parcel[:value] %></parcelValue>
               <parcelWeight xsi:type="xsd:double"><%= parcel[:weight] %></parcelWeight>
               <parcelWidth xsi:type="xsd:double"><%= parcel[:width] %></parcelWidth>
+              <products soapenc:arrayType="ns2:Product[<%= parcel[:products].size %>]" xsi:type="soapenc:Array">
+              <% parcel[:products].each do |product| %>
+                <item xsi:type="ns2:Product">
+                  <countryOfOrigin xsi:type="soapenc:string"><%= product[:origin] %></countryOfOrigin>
+                  <fabricContent xsi:type="soapenc:string"><%= product[:fabric] %></fabricContent>
+                  <harmonisedProductCode xsi:type="soapenc:string"><%= product[:harmonisation_code] %></harmonisedProductCode>
+                  <productCode xsi:type="soapenc:string">1</productCode>
+                  <productDescription xsi:type="soapenc:string"><%= escape product[:description] %></productDescription>
+                  <productTypeDescription xsi:type="soapenc:string"><%= escape product[:type_description] %></productTypeDescription>
+                  <productQuantity xsi:type="xsd:long"><%= product[:product_quantity] %></productQuantity>
+                  <totalProductValue xsi:type="xsd:double"><%= product[:total_product_value] %></totalProductValue>
+                  <unitProductWeight xsi:type="xsd:double"><%= product[:weight] %></unitProductWeight>
+                </item>
+              <% end %>
+              </products>
             </item>
             <% end %>
           </parcels>

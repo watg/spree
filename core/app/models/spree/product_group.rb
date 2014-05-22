@@ -4,6 +4,7 @@ module Spree
     
     validates :name, uniqueness: true
     has_and_belongs_to_many :product_pages, join_table: :spree_product_groups_product_pages
+    belongs_to :country, class_name: 'Spree::Country'
 
     after_touch :touch_product_pages 
     after_save :touch_product_pages 

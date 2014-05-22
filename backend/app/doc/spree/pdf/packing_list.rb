@@ -112,6 +112,11 @@ module Spree
             CHECKBOX
           ]
           line.parts.each do |p|
+
+            group = p.variant.product.product_group
+            next if group.name == 'knitters needles'
+            next if group.name =~ /sticker/
+
             invoice_services_data << [
               '',
               '',

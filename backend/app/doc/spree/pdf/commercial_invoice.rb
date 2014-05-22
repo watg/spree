@@ -10,18 +10,11 @@ module Spree
         @order = order
         @pdf = pdf || Prawn::Document.new
         @currency = order.currency
-        @order_total = @order.total
-        @order_display_total = @order.display_total
-
-        if @order.adjustments.gift_card.any?
-          amount_gift_cards = @order.adjustments.gift_card.to_a.sum(&:amount).abs
-          @order_total += amount_gift_cards
-          @order_display_total = Spree::Money.new(@order_total, { currency: @currency })
-        end
-
-        # hash of unique products 
-        # :id => {:product, :quantity, :group, :total_price, :single_price}
-        @unique_products = {} 
+        @shipping_manifest = Spree::ShippingManifest.new(order)
+        
+        order_total = @shipping_manifest.order_total
+        @order_display_total = Spree::Money.new(order_total, { currency: @currency })
+        @shipping_cost = @shipping_manifest.shipping_cost
       end
 
       def create
@@ -117,10 +110,9 @@ module Spree
       def invoice_details
         invoice_data = [ [ 'Item', 'Harmonisation Code', 'MID', 'Weight (gr)', 'Price (' + order.currency + ')', 'Qty', 'Total' ] ]
 
-        gather_order_products
-        compute_prices
+        unique_products = @shipping_manifest.create
 
-        @unique_products.each do |id, line|
+        unique_products.each do |id, line|
           product = line[:product]
           group = line[:group]
           invoice_data << [
@@ -155,8 +147,8 @@ module Spree
       def totals(invoice_header_x)
         pdf.move_down 1
         totals_data = []
-        totals_data.push [ "Sub Total", (@order_display_total.money - shipping_cost.money).format ]
-        totals_data.push [ "Shipping", shipping_cost.to_s ]
+        totals_data.push [ "Sub Total", (@order_display_total.money - @shipping_cost.money).format ]
+        totals_data.push [ "Shipping", @shipping_cost.to_s ]
         totals_data.push [ "Order Total", @order_display_total.to_s_with_USD ]
 
         pdf.table(totals_data, :position => invoice_header_x, :width => 215) do
@@ -189,89 +181,15 @@ module Spree
       #   BigDecimal.new(amount.to_s).round(2, BigDecimal::ROUND_HALF_UP)
       # end
 
-      def gather_order_products
-        order.line_items.includes(:variant => :product).each do |line|
-          if line.parts.empty?
-            add_to_products(line.product, line.quantity, line.base_price*line.quantity)
-          else
-            amount_required_parts = 0
-            line.parts.required.each do |part|
-              amount_required_parts += part.price * part.quantity
-            end
-
-            line.parts.each do |part|
-              variant = part.variant
-              # refactor with the new product types / categorizations
-              group = variant.product.product_group
-              next if group.name == 'knitters needles'
-              next if group.name =~ /sticker/
-
-              if part.optional
-                amount = part.price * part.quantity
-              else
-                # to get a more accurate price figure than the standard normal price for the item
-                # let's use the weighted amount of the base price, which includes only required parts
-                amount = (part.price * part.quantity / amount_required_parts ) * line.base_price if amount_required_parts > 0
-              end
-              add_to_products(variant.product, part.quantity, amount || 0)
-            end
-          end
-        end
-      end
-
-      def compute_prices
-        total_amount = 0
-        accummulated_amount = 0
-        order_total_without_shipping = @order_total - shipping_cost.to_f
-
-        # weighted sum of the total amount
-        @unique_products.each do |id, item|
-          total_amount += item[:total_amount]
-        end
-
-        number_of_items = @unique_products.count - 1 # -1 to match the index counter
-        @unique_products.each_with_index do |(_id, item), index|
-          if number_of_items == index # this is the last part
-            item[:total_price] = order_total_without_shipping - accummulated_amount
-            item[:single_price] = item[:total_price] / item[:quantity]
-          else
-            # weighted calculation
-            proportion = item[:total_amount] / total_amount
-            if proportion == 1.0
-              item[:total_price] = order_total_without_shipping
-            else
-              item[:total_price] = (proportion * order_total_without_shipping).round.to_f
-            end
-            item[:single_price] = item[:total_price] / item[:quantity]
-            accummulated_amount += item[:total_price]
-          end
-        end
-      end
-
-      def add_to_products(product, quantity, amount)
-        if @unique_products.has_key?(product.id)
-          @unique_products[product.id][:quantity] += quantity
-          @unique_products[product.id][:total_amount] += amount
-        else
-          @unique_products[product.id] = {
-            product: product,
-            group: product.product_group,
-            quantity: quantity,
-            total_amount: amount
-          }
-        end
-      end
-
-
       def product_description_cell(product, group)
         if group.mid_uk.present? && !product.gang_member.peruvian?
           origin = 'UK'
         else
-          origin = group.origin
+          origin = group.country.try(:name)
         end
         "<b>" + product.name + "</b>" +
         "\n" + group.garment +
-        "\n" + [group.fabric, origin].join(" - ") + 
+        "\n" + [group.fabric, group.country.try(:name)].join(" - ") + 
         "\n" + group.contents
       end
 
@@ -281,11 +199,6 @@ module Spree
         else
           group.mid
         end
-      end
-
-      def shipping_cost
-        cost = order.ship_total - order.shipping_discount
-        Spree::Money.new(cost, { currency: currency })
       end
 
     end
