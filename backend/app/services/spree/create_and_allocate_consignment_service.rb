@@ -50,7 +50,7 @@ module Spree
     end
 
     def terms_of_trade_code(order)
-      if order.item_normal_total >= 300 && shipping_to_canada_or_usa(order)
+      if shipping_to_usa(order)
         # duty paid by watg
         'DDP'
       else
@@ -59,8 +59,8 @@ module Spree
       end
     end
 
-    def shipping_to_canada_or_usa(order)
-      (Spree::Country.where(iso: ['CA', 'US']).to_a).include?(order.ship_address.country)
+    def shipping_to_usa(order)
+      (Spree::Country.where(iso: ['US']).to_a).include?(order.ship_address.country)
     end
 
     def parcel(order, parcels, total_weight)

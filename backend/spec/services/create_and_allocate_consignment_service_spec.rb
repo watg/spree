@@ -135,7 +135,7 @@ describe Spree::CreateAndAllocateConsignmentService do
           lastname:  "Doe",
           name:      "John Doe"
         },
-        terms_of_trade_code: 'DDU',
+        terms_of_trade_code: 'DDP',
         booking_code: '@GLOBALZONE',
       }
 
@@ -148,17 +148,19 @@ describe Spree::CreateAndAllocateConsignmentService do
     end
 
     context "terms of trade" do
-      it "should be DDU" do
-        value = consignment.send(:terms_of_trade_code, order)
-        expect(value).to eql('DDU')
-      end
-      it "should be DDP when order amount over $300 and shipping to US/Canada" do
-        canada = create(:country, iso_name: 'CANADA', name: 'Canada', iso: 'CA', iso3: 'CAN', states_required: false, numcode: 123)
-        address = create(:address, country: canada)
+      it "should be DDP when shipping to US" do
+        us = create(:country)
+        address = create(:address, country: us)
         order_to_us = create(:order, ship_address: address)
         allow(order_to_us).to receive(:item_normal_total).and_return(BigDecimal.new(300,2))
         value = consignment.send(:terms_of_trade_code, order_to_us)
         expect(value).to eql('DDP')
+      end
+      it "should be DDU for anything but US" do
+        canada = create(:country, iso_name: 'CANADA', name: 'Canada', iso: 'CA', iso3: 'CAN', states_required: false, numcode: 123)
+        order.ship_address.update_column(:country_id, canada.id)
+        value = consignment.send(:terms_of_trade_code, order)
+        expect(value).to eql('DDU')
       end
     end
 
