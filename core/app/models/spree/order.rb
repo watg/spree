@@ -329,6 +329,9 @@ module Spree
       return false unless completed? and state != 'canceled'
       shipment_state.nil? || %w{ready backorder pending}.include?(shipment_state)
     end
+    def can_cancel?
+      allow_cancel?
+    end
 
     def awaiting_returns?
       return_authorizations.any? { |return_authorization| return_authorization.authorized? }
@@ -766,7 +769,7 @@ module Spree
 
     def after_cancel
       shipments.each { |shipment| shipment.cancel! }
-      payments.completed.each { |payment| payment.credit! }
+      payments.completed.each { |payment| payment.credit! if payment.respond_to?(:credit!) }
 
       send_cancel_email
       self.update_column(:payment_state, 'credit_owed') unless shipped?

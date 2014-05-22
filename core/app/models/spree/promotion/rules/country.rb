@@ -12,7 +12,7 @@ module Spree
           countries.pluck(:iso)
         end
 
-        def eligible?(order)
+        def eligible?(order, options = {})
           return true if eligible_country_codes.empty?
 
           eligible_country_codes.include? Geocoder.search(order.last_ip_address).first.try(:country_code)

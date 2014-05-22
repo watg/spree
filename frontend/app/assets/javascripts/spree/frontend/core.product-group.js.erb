@@ -426,8 +426,15 @@ core.productGroup.switchContent = function(tab) {
   }
 
   // Init variant options
-  core.productGroup.readyKitVariantOptions($('.displayable-kit-entity:visible'));
-  core.productGroup.readyVariantOptions($('.displayable-entity:visible'));
+  var displayableKitEntity = $('.displayable-kit-entity:visible')
+  var displayableEntity = $('.displayable-entity:visible')
+
+  if (displayableKitEntity.length > 0) {
+		core.productGroup.readyKitVariantOptions(displayableKitEntity);
+  }
+  else if (displayableEntity.length > 0) {
+		core.productGroup.readyVariantOptions(displayableEntity);
+  }
 }
 
 core.productGroup.showVariantDetails = function(name, before) {

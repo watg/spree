@@ -37,6 +37,14 @@ describe Spree::OrderPopulator do
         expect(parts).to match_array expected_parts 
       end
 
+      context "#attempt_cart_add" do
+        it "adds error on order when some assembly definition parts are missing" do
+          subject.send(:attempt_cart_add, variant_assembly.id, 1, [], [], nil)
+          expect(subject.errors[:base]).to include "Some required parts are missing"
+        end
+      end
+      
+
 
       context "valid params" do
 
@@ -105,6 +113,7 @@ describe Spree::OrderPopulator do
 
   end
 
+
   context "#populate" do
 
     before do
@@ -122,12 +131,19 @@ describe Spree::OrderPopulator do
       context "can take a list of products and options" do
         let(:selected_variant) { create(:variant) }
         let(:part_id) { "23" }
+        let(:option_part) { OpenStruct.new(
+          assembly_definition_part_id: part_id, 
+          variant_id: selected_variant.id,
+          quantity: 1,
+          optional: false,
+          price: 12,
+          currency: "USD") }
 
         it "of assembly definition type" do
           variant.assembly_definition = Spree::AssemblyDefinition.new
-          allow(Spree::OrderPopulator).to receive(:parse_options).with(variant, { part_id => selected_variant.id }, 'USD').and_return([[selected_variant, 3, false, part_id]])
+          allow(Spree::OrderPopulator).to receive(:parse_options).with(variant, { part_id => selected_variant.id }, 'USD').and_return([option_part])
 
-          order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, [[selected_variant, 3, false, part_id]], [], target_id).and_return double.as_null_object
+          order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, [option_part], [], target_id).and_return double.as_null_object
           subject.populate(:products => { product.id => variant.id, :options => { part_id => selected_variant.id } }, :quantity => 1, :target_id => 45)
         end
 

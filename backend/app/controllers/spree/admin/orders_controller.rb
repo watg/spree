@@ -98,8 +98,12 @@ module Spree
       end
 
       def cancel
-        @order.cancel!
-        flash[:success] = Spree.t(:order_canceled)
+        if @order.can_cancel?
+          @order.cancel! 
+          flash[:success] = Spree.t(:order_canceled)
+        else
+          flash[:notice] = "Order cannot be canceled"
+        end
         redirect_to :back
       end
 

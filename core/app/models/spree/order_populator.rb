@@ -4,6 +4,12 @@ module Spree
     attr_reader :errors
 
     class << self
+      def have_all_required_parts(variant, parts)
+        return [] unless variant.assembly_definition
+        parts_id = parts.map(&:assembly_definition_part_id)
+        variant.assembly_definition.parts.required.select {|part| !parts_id.include?(part.id)}
+      end
+
 
       #  Dynamic kit params
       #      params = {
@@ -203,6 +209,13 @@ module Spree
       variant = Spree::Variant.find variant_id
 
       parts = Spree::OrderPopulator.parse_options(variant, option_params, currency)
+
+      missing_required_parts = Spree::OrderPopulator.have_all_required_parts(variant, parts)
+      if missing_required_parts.any?
+        errors.add(:base, "Some required parts are missing")
+        return false
+      end
+
       personalisations = Spree::OrderPopulator.parse_personalisations(personalisation_params, currency)
 
       if quantity > 0

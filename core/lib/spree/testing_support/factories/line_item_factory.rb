@@ -3,6 +3,7 @@ FactoryGirl.define do
     quantity 1
     price { BigDecimal.new('10.00') }
     order
+    currency 'USD'
     variant
     product_nature 'physical'
   end
