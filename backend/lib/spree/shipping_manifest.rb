@@ -1,3 +1,8 @@
+# The shipping manifest is grouping unique products,
+# purchased as part of a kit or separate. It aggregates
+# the prices using weighted averages and sums the
+# quantities accross different variants.
+
 module Spree
   class ShippingManifest
     attr_accessor :order, :currency
@@ -7,9 +12,14 @@ module Spree
       @currency = order.currency
       @order_total = @order.total
 
-      if @order.adjustments.gift_card.any?
-        amount_gift_cards = @order.adjustments.gift_card.to_a.sum(&:amount).abs
+      if order.adjustments.gift_card.any?
+        amount_gift_cards = order.adjustments.gift_card.to_a.sum(&:amount).abs
         @order_total += amount_gift_cards
+      end
+
+      gift_cards_total_amount = order.gift_card_line_items.to_a.sum(&:amount)
+      if gift_cards_total_amount > 0
+        @order_total -= gift_cards_total_amount
       end
 
       # hash of unique products
@@ -32,8 +42,23 @@ module Spree
       Spree::Money.new(cost, { currency: currency })
     end
 
+    def terms_of_trade_code
+      if shipping_to_usa?
+        'DDP' # duty paid by watg
+      else
+        'DDU' # duty unpaid
+      end
+    end
+
+
   private
 
+    # Within the gathering process, information about the products
+    # along with weighted prices is send to the aggregating method
+    # add_to_products
+    # Optional and required parts' prices are separetely computed
+    # to arrive at a more accurate allocation of the actual cost 
+    # of each.
     def gather_order_products
       order.line_items.includes(:variant => :product).each do |line|
         if line.parts.empty?
@@ -46,7 +71,7 @@ module Spree
 
           line.parts.each do |part|
             variant = part.variant
-            # refactor with the new product types / categorizations
+            # refactor with the new product_types to skip `operational` items
             group = variant.product.product_group
             next if group.name == 'knitters needles'
             next if group.name =~ /sticker/
@@ -110,6 +135,10 @@ module Spree
 
     def round_to_two_places(amount)
       BigDecimal.new(amount.to_s).round(2, BigDecimal::ROUND_HALF_UP)
+    end
+
+    def shipping_to_usa?
+      (Spree::Country.where(iso: ['US']).to_a).include?(order.ship_address.country)
     end
 
   end
