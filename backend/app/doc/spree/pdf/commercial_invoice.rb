@@ -170,8 +170,8 @@ module Spree
         pdf.bounding_box [pdf.bounds.left, pdf.bounds.bottom], :width  => pdf.bounds.width, :height => 25 do
           pdf.text 'Goods shipped by Wool and the Gang Ltd.    Company No. 8332008.    VAT No. GB 158 8398 50', size: 7
         end
-        pdf.bounding_box [pdf.bounds.right - 100, pdf.bounds.bottom], :width  => 100, :height => 25 do
-          pdf.text "Terms of trade: <b>#{@terms_of_trade_code}</b>", size: 10, :align => :right, :inline_format => true
+        pdf.bounding_box [pdf.bounds.right - 100, pdf.bounds.bottom+5], :width  => 100, :height => 25 do
+          pdf.text @terms_of_trade_code, size: 18, :align => :right, :style => :bold
         end
       end
 
