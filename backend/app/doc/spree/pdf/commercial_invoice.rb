@@ -10,11 +10,13 @@ module Spree
         @order = order
         @pdf = pdf || Prawn::Document.new
         @currency = order.currency
-        @shipping_manifest = Spree::ShippingManifest.new(order)
+        shipping_manifest = Spree::ShippingManifest.new(order)
         
-        order_total = @shipping_manifest.order_total
+        order_total = shipping_manifest.order_total
+        @unique_products = shipping_manifest.create
+        @terms_of_trade_code = shipping_manifest.terms_of_trade_code
         @order_display_total = Spree::Money.new(order_total, { currency: @currency })
-        @shipping_cost = @shipping_manifest.shipping_cost
+        @shipping_cost = shipping_manifest.shipping_cost
       end
 
       def create
@@ -110,9 +112,7 @@ module Spree
       def invoice_details
         invoice_data = [ [ 'Item', 'Harmonisation Code', 'MID', 'Weight (gr)', 'Price (' + order.currency + ')', 'Qty', 'Total' ] ]
 
-        unique_products = @shipping_manifest.create
-
-        unique_products.each do |id, line|
+        @unique_products.each do |id, line|
           product = line[:product]
           group = line[:group]
           invoice_data << [
@@ -170,16 +170,15 @@ module Spree
         pdf.bounding_box [pdf.bounds.left, pdf.bounds.bottom], :width  => pdf.bounds.width, :height => 25 do
           pdf.text 'Goods shipped by Wool and the Gang Ltd.    Company No. 8332008.    VAT No. GB 158 8398 50', size: 7
         end
+        pdf.bounding_box [pdf.bounds.right - 100, pdf.bounds.bottom], :width  => 100, :height => 25 do
+          pdf.text "Terms of trade: <b>#{@terms_of_trade_code}</b>", size: 10, :align => :right, :inline_format => true
+        end
       end
 
 
       def money(amount)
         Spree::Money.new(amount, { currency: currency }).to_s
       end
-
-      # def round_to_two_places(amount)
-      #   BigDecimal.new(amount.to_s).round(2, BigDecimal::ROUND_HALF_UP)
-      # end
 
       def product_description_cell(product, group)
         if group.mid_uk.present? && !product.gang_member.peruvian?

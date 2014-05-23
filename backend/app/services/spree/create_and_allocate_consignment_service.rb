@@ -29,7 +29,8 @@ module Spree
 
     private
     def allocation_hash(order)
-      consignment_value = Spree::ShippingManifest.new(order).order_total * to_gbp_rate(order.currency)
+      shipping_manifest = Spree::ShippingManifest.new(order)
+      consignment_value = shipping_manifest.order_total * to_gbp_rate(order.currency)
       {
         value:         consignment_value,
         weight:        order.weight.round(2),
@@ -44,23 +45,9 @@ module Spree
           lastname:    order.shipping_address.lastname,
           name:        order.shipping_address.full_name
         },
-        terms_of_trade_code: terms_of_trade_code(order),
+        terms_of_trade_code: shipping_manifest.terms_of_trade_code,
         booking_code:  booking_code(order)
       }
-    end
-
-    def terms_of_trade_code(order)
-      if shipping_to_usa(order)
-        # duty paid by watg
-        'DDP'
-      else
-        # duty unpaid
-        'DDU'
-      end
-    end
-
-    def shipping_to_usa(order)
-      (Spree::Country.where(iso: ['US']).to_a).include?(order.ship_address.country)
     end
 
     def parcel(order, parcels, total_weight)

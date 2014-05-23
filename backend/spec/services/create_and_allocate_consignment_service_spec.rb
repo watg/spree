@@ -147,23 +147,6 @@ describe Spree::CreateAndAllocateConsignmentService do
       expect(consignment.send(:allocation_hash, order)).to eql(expected)
     end
 
-    context "terms of trade" do
-      it "should be DDP when shipping to US" do
-        us = create(:country)
-        address = create(:address, country: us)
-        order_to_us = create(:order, ship_address: address)
-        allow(order_to_us).to receive(:item_normal_total).and_return(BigDecimal.new(300,2))
-        value = consignment.send(:terms_of_trade_code, order_to_us)
-        expect(value).to eql('DDP')
-      end
-      it "should be DDU for anything but US" do
-        canada = create(:country, iso_name: 'CANADA', name: 'Canada', iso: 'CA', iso3: 'CAN', states_required: false, numcode: 123)
-        order.ship_address.update_column(:country_id, canada.id)
-        value = consignment.send(:terms_of_trade_code, order)
-        expect(value).to eql('DDU')
-      end
-    end
-
     it "sets booking code" do
       order_with_only_pattern_and_less_than_ten = create(:order_with_pattern_only_ready_to_be_consigned_and_allocated)
       actual = consignment.send(:allocation_hash, order_with_only_pattern_and_less_than_ten)
