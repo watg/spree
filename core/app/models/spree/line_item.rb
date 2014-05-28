@@ -7,6 +7,9 @@ module Spree
     belongs_to :tax_category, class_name: "Spree::TaxCategory"
     belongs_to :target, class_name: "Spree::Target"
 
+    belongs_to :product_page, class_name: "Spree::ProductPage"
+    belongs_to :product_page_tab, class_name: "Spree::ProductPageTab"
+
     has_one :product, through: :variant
 
     has_many :adjustments, as: :adjustable, dependent: :destroy

@@ -9,11 +9,13 @@ module Spree
     #  Sale feature
     ## Transfer from spree extension product-assembly with options
     #
-    def add(variant, quantity=1, currency=nil, shipment=nil, parts=nil, personalisations=nil, target_id=nil)
+    def add(variant, quantity=1, currency=nil, shipment=nil, parts=nil, personalisations=nil, target_id=nil, product_page_tab_id=nil, product_page_id=nil)
+
+
       parts ||= []
       personalisations ||= []
       currency ||= @order.currency || Spree::Config[:currency] # default to that if none is provided
-      line_item = add_to_line_item(variant, quantity, currency, shipment, parts, personalisations, target_id)
+      line_item = add_to_line_item(variant, quantity, currency, shipment, parts, personalisations, target_id, product_page_tab_id, product_page_id)
       reload_totals
       PromotionHandler::Cart.new(order, line_item).activate
       ItemAdjustments.new(line_item).update
@@ -115,7 +117,7 @@ module Spree
       result[:in_stock]
     end
 
-    def add_to_line_item(variant, quantity, currency, shipment, parts, personalisations, target_id)
+    def add_to_line_item(variant, quantity, currency, shipment, parts, personalisations, target_id, product_page_tab_id, product_page_id)
 
       line_item = grab_line_item_by_variant(variant, parts, personalisations, target_id)
 
@@ -142,6 +144,9 @@ module Spree
 
         line_item.item_uuid = Spree::VariantUuid.fetch(variant, parts, personalisations).number
       end
+
+      line_item.product_page_id = product_page_id if line_item.product_page_id.blank?
+      line_item.product_page_tab_id = product_page_tab_id if line_item.product_page_tab_id.blank?
 
       line_item.save
       line_item

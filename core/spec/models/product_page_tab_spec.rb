@@ -15,6 +15,34 @@ describe Spree::ProductPageTab do
     expect(product_page2.tabs.last.position).to eq(1)
   end
 
+  context "product page tab types" do
+
+    it "work when tab type is made by the gang " do
+      subject.tab_type = Spree::ProductPageTab::MADE_BY_THE_GANG
+      expect(subject.made_by_the_gang?).to be_true
+      expect(subject.knit_your_own?).to be_false
+    end
+
+    it "work when tab type is knit your own" do
+      subject.tab_type = Spree::ProductPageTab::KNIT_YOUR_OWN
+      expect(subject.made_by_the_gang?).to be_false
+      expect(subject.knit_your_own?).to be_true
+    end
+
+  end
+
+  context "url_safe_tab_type" do
+    it "should replace _ with -" do
+      expect(subject.url_safe_tab_type).to eq("made-by-the-gang")
+    end
+  end
+
+  context "to_tab_type" do
+    it "should replace - with _" do
+      expect(subject.class.to_tab_type("made-by-the-gang")).to eq("made_by_the_gang")
+    end
+  end
+
   context "with an image" do
     let(:attachment) { double }
     let(:image) { double(attachment: attachment) }

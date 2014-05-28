@@ -65,8 +65,8 @@ module Spree
     end
 
     def create_tabs
-      tabs.create(tab_type: :made_by_the_gang)
-      tabs.create(tab_type: :knit_your_own)
+      tabs.create(tab_type: Spree::ProductPageTab::MADE_BY_THE_GANG)
+      tabs.create(tab_type: Spree::ProductPageTab::KNIT_YOUR_OWN)
     end
 
     def available_variants
@@ -74,11 +74,11 @@ module Spree
     end
 
     def made_by_the_gang
-      tab(:made_by_the_gang)
+      tab(Spree::ProductPageTab::MADE_BY_THE_GANG)
     end
 
     def knit_your_own
-      tab(:knit_your_own)
+      tab(Spree::ProductPageTab::KNIT_YOUR_OWN)
     end
 
     def tab(tab_type)

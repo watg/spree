@@ -39,12 +39,11 @@ describe Spree::OrderPopulator do
 
       context "#attempt_cart_add" do
         it "adds error on order when some assembly definition parts are missing" do
-          subject.send(:attempt_cart_add, variant_assembly.id, 1, [], [], nil)
+          subject.send(:attempt_cart_add, variant_assembly.id, 1, [], [], nil, nil, nil)
           expect(subject.errors[:base]).to include "Some required parts are missing"
         end
       end
       
-
 
       context "valid params" do
 
@@ -124,7 +123,7 @@ describe Spree::OrderPopulator do
 
     context "with products parameters" do
       it "can take a list of products and add them to the order" do
-        order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, [], [], target_id).and_return double.as_null_object
+        order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, [], [], target_id, nil, nil).and_return double.as_null_object
         subject.populate(:products => { product.id => variant.id }, :quantity => 1, :target_id => 45)
       end
 
@@ -143,7 +142,7 @@ describe Spree::OrderPopulator do
           variant.assembly_definition = Spree::AssemblyDefinition.new
           allow(Spree::OrderPopulator).to receive(:parse_options).with(variant, { part_id => selected_variant.id }, 'USD').and_return([option_part])
 
-          order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, [option_part], [], target_id).and_return double.as_null_object
+          order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, [option_part], [], target_id, nil, nil).and_return double.as_null_object
           subject.populate(:products => { product.id => variant.id, :options => { part_id => selected_variant.id } }, :quantity => 1, :target_id => 45)
         end
 
@@ -191,7 +190,7 @@ describe Spree::OrderPopulator do
               currency: "USD"
             )
           ]
-          order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, match_array(expected_parts), [], target_id).and_return double.as_null_object
+          order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, match_array(expected_parts), [], target_id, nil, nil).and_return double.as_null_object
           outcome = subject.populate(:products => { product.id => variant.id, :options => [part1.id, part2.id] }, :quantity => 1, :target_id => 45)
           expect(outcome).to be_true
         end
@@ -209,7 +208,7 @@ describe Spree::OrderPopulator do
         ]}
 
         it "of simple type" do
-          order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, [], personalisation_params, target_id).and_return double.as_null_object
+          order.contents.should_receive(:add).with(variant, 1, subject.currency, nil, [], personalisation_params, target_id, nil, nil).and_return double.as_null_object
           subject.populate(:products => { 
             product.id => variant.id, 
             enabled_pp_ids: [monogram.id], 
@@ -219,8 +218,6 @@ describe Spree::OrderPopulator do
           }, :quantity => 1, :target_id => 45)
         end
       end
-
-
 
 
       it "does not add any products if a quantity is set to 0" do
@@ -254,10 +251,19 @@ describe Spree::OrderPopulator do
 
     context "with variant parameters" do
       it "can take a list of variants with quantites and add them to the order" do
-        order.contents.should_receive(:add).with(variant, 5, subject.currency, nil, [], [], nil).and_return double.as_null_object
+        order.contents.should_receive(:add).with(variant, 5, subject.currency, nil, [], [], nil, nil, nil).and_return double.as_null_object
         subject.populate(:variants => { variant.id => 5 })
       end
     end
+
+    context "with product_page and tab parameters" do
+      it "can take a list of variants with quantites and add them to the order" do
+        order.contents.should_receive(:add).with(variant, 5, subject.currency, nil, [], [], nil, 2, 1).and_return double.as_null_object
+        subject.populate(:variants => { variant.id => 5} , :product_page_id => 1, :product_page_tab_id => 2 )
+      end
+    end
+
+
 
   end
 end

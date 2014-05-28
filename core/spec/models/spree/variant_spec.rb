@@ -16,6 +16,11 @@ describe Spree::Variant do
 
   end
 
+  context "physical" do
+    subject { Spree::Variant.physical }
+    it { should_not be_nil }
+  end
+
   context "#options_tree_for" do
 
     let(:product) { create(:product_with_variants) }

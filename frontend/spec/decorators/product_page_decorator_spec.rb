@@ -3,8 +3,118 @@ require 'spec_helper'
 describe Spree::ProductPageDecorator, type: :decorator do
   let(:product_group) { create(:product_group) }
   let(:women)         { create(:target, name: 'women') }
-  let(:product_page) { create(:product_page, product_groups: [product_group], target: women ) }
-  let(:decorator) { product_page.decorate }
+  let(:product_page_tab) { create(:product_page_tab)}
+  let(:product_page_tab_kit) { create(:product_page_tab_kit)}
+  let(:product_page) { create(:product_page, product_groups: [product_group], target: women, tabs: [ product_page_tab, product_page_tab_kit]) }
+  let(:decorator) { product_page.decorate( context: { selected_tab: product_page_tab } ) }
+  let(:product_page_kit_tab_selected) { product_page.decorate( context: { selected_tab: product_page_tab_kit } ) }
+
+  subject { decorator }
+
+  context "selected_tab" do
+
+    it "returns the selected tab" do
+      expect(subject.selected_tab).to eq(product_page_tab)
+    end
+
+    it "returns made by the gang tab when nothing is set" do
+      expect(product_page.decorate.selected_tab).to eq(product_page_tab)
+    end
+
+  end
+
+  context "inverted_colour" do
+
+    it "returns inverted" do
+      expect(product_page_kit_tab_selected.inverted_colour).to eq('inverted')
+    end
+
+    it "returns nil" do
+      expect(subject.inverted_colour).to be_nil
+    end
+
+  end
+
+  context "made_by_the_gang_active_class" do
+
+    it "returns ''" do
+      expect(product_page_kit_tab_selected.made_by_the_gang_active_class).to eq('')
+    end
+
+    it "returns active" do
+      expect(subject.made_by_the_gang_active_class).to eq('active')
+    end
+
+  end
+
+  context "knit_your_own_active_class" do
+
+    it "returns ''" do
+      expect(subject.knit_your_own_active_class).to eq('')
+    end
+
+    it "returns active" do
+      expect(product_page_kit_tab_selected.knit_your_own_active_class).to eq('active')
+    end
+
+  end
+
+  context "row_hero_type" do
+
+    it "returns ' made-by-the-gang'" do
+      expect(subject.row_hero_type).to eq(' made-by-the-gang')
+    end
+
+    it "returns ' knit-your-own'" do
+      expect(product_page_kit_tab_selected.row_hero_type).to eq(' knit-your-own')
+    end
+
+  end
+
+  context "made_by_the_gang_tab" do
+
+    it "returns tab " do
+      expect(subject.made_by_the_gang_tab).to eq(product_page_tab)
+    end
+  end
+
+  context "knit_your_own_tab" do
+
+    it "returns tab " do
+      expect(subject.knit_your_own_tab).to eq(product_page_tab_kit)
+    end
+
+  end
+
+  context "url_encode_tab_name" do
+
+    it "returns made-by-the-gang" do
+      expect(subject.url_encode_tab_name(product_page_tab)).to eq('made-by-the-gang')
+    end
+
+
+    it "returns knit-your-own" do
+      expect(subject.url_encode_tab_name(product_page_tab_kit)).to eq('knit-your-own')
+    end
+
+  end
+
+  context "url_encoded_product_page_url" do
+
+    it "returns made-by-the-gang" do
+      expected =  "http://www.example.com//shop/items/#{product_page.permalink}/made-by-the-gang"
+      actual =  URI.unescape(subject.url_encoded_product_page_url(product_page_tab))
+      expect(actual).to eq(expected)
+    end
+
+    it "returns knit-your-own" do
+      expected =  "http://www.example.com//shop/items/#{product_page.permalink}/knit-your-own"
+      actual =  URI.unescape(subject.url_encoded_product_page_url(product_page_tab_kit))
+      expect(actual).to eq(expected)
+    end
+
+  end
+
 
   describe "only items in stock are displayed" do
     subject { decorator }

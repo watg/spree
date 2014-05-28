@@ -3,8 +3,10 @@ require 'spec_helper'
 describe Spree::ShowProductPageService do
   subject { Spree::ShowProductPageService }
 
-  let(:product_page_tab) { create(:product_page_tab) }
-  let(:product_page) { product_page_tab.product_page.decorate }
+  #let(:product_page) { product_page_tab.product_page.decorate }
+  let(:product_page) { create(:product_page).decorate }
+  let(:product_page_tab_kit) { product_page.knit_your_own }
+  let(:product_page_tab) { product_page.made_by_the_gang }
   let(:variant) { build(:variant, in_stock_cache: 1) }
 
   before do
@@ -48,7 +50,7 @@ describe Spree::ShowProductPageService do
       variant.in_stock_cache = false
       variant.save
       outcome = subject.run( permalink: product_page.permalink, tab: 'made-by-the-gang', currency: 'GBP', request: 'foo', variant_id: variant.number  )
-      expect(outcome.result[:redirect_to]).to be_nil# eq('')
+      expect(outcome.result[:redirect_to]).to be_nil
       expect(outcome.result[:decorated_product_page]).to eq(product_page)
       expect(outcome.result[:decorated_product_page].selected_variant).to be_nil 
     end
@@ -59,9 +61,9 @@ describe Spree::ShowProductPageService do
 
     it "is successful with correct tab" do
       outcome = subject.run( permalink: product_page.permalink, tab: 'made-by-the-gang', currency: 'GBP', request: 'foo'  )
-      expect(outcome.result[:redirect_to]).to be_nil# eq('')
+      expect(outcome.result[:redirect_to]).to be_nil
       expect(outcome.result[:decorated_product_page]).to eq(product_page)
-      expect(outcome.result[:decorated_product_page].selected_tab).to eq(:made_by_the_gang)
+      expect(outcome.result[:decorated_product_page].selected_tab).to eq(product_page_tab)
     end
 
     it "should provide a redirect if not a valid permalink" do
@@ -79,33 +81,26 @@ describe Spree::ShowProductPageService do
 
   context "knit-your-own" do
 
-    let(:product_page_2) { create(:product_page_tab_kit).product_page }
-
     it "is successful with correct tab" do
-      outcome = subject.run( permalink: product_page_2.permalink, tab: 'knit-your-own', currency: 'GBP', request: 'foo'  )
+      outcome = subject.run( permalink: product_page.permalink, tab: 'knit-your-own', currency: 'GBP', request: 'foo'  )
       expect(outcome.result[:redirect_to]).to be_nil# eq('')
-      expect(outcome.result[:decorated_product_page]).to eq(product_page_2)
-      expect(outcome.result[:decorated_product_page].selected_tab).to eq(:knit_your_own)
+      expect(outcome.result[:decorated_product_page]).to eq(product_page)
+      expect(outcome.result[:decorated_product_page].selected_tab).to eq(product_page_tab_kit)
     end
 
   end
 
   context "Product Page with no tabs ( e.g. pattern )" do
 
-    let(:product_page_3) { create(:product_page ) }
-
     it "is successful with no tab" do
-      product_page_3.tabs = [] 
-      outcome = subject.run( permalink: product_page_3.permalink, tab: nil, currency: 'GBP', request: 'foo'  )
-      expect(outcome.result[:redirect_to]).to be_nil# eq('')
-      expect(outcome.result[:decorated_product_page]).to eq(product_page_3)
-      expect(outcome.result[:decorated_product_page].selected_tab).to eq(:made_by_the_gang)
+      outcome = subject.run( permalink: product_page.permalink, tab: nil, currency: 'GBP', request: 'foo'  )
+      expect(outcome.result[:redirect_to]).to eq("/shop/items/#{product_page.permalink}/made-by-the-gang")
+      expect(outcome.result[:decorated_product_page]).to be_nil 
     end
 
     it "get redirected with garbled tab" do
-      product_page_3.tabs = [] 
-      outcome = subject.run( permalink: product_page_3.permalink, tab: 'asdasd', currency: 'GBP', request: 'foo'  )
-      expect(outcome.result[:redirect_to]).to eq("/shop/items/#{product_page_3.permalink}")
+      outcome = subject.run( permalink: product_page.permalink, tab: 'asdasd', currency: 'GBP', request: 'foo'  )
+      expect(outcome.result[:redirect_to]).to eq("/shop/items/#{product_page.permalink}/made-by-the-gang")
       expect(outcome.result[:decorated_product_page]).to be_nil 
     end
 

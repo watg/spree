@@ -18,8 +18,28 @@ module Spree
 
     before_create :assign_position
 
+    scope :made_by_the_gang, -> { where(tab_type: MADE_BY_THE_GANG) }
+    scope :knit_your_own, -> { where(tab_type: KNIT_YOUR_OWN) }
+
+
+    def self.to_tab_type(tab)
+      tab.gsub(/-/,'_') unless tab.blank?
+    end
+
+    def made_by_the_gang?
+      tab_type == MADE_BY_THE_GANG
+    end
+
+    def knit_your_own?
+      tab_type == KNIT_YOUR_OWN
+    end
+
     def assign_position
       self.position = (ProductPageTab.where(product_page: product_page).maximum(:position) || -1) + 1
+    end
+
+    def url_safe_tab_type
+      tab_type.gsub(/_/,'-')
     end
 
     def make_default(opts={})

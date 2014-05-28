@@ -11,8 +11,9 @@ describe Spree::ProductPagesController, type: :controller do
   end
 
   describe "GET show" do
-    let(:product_page_tab) { create(:product_page_tab) }
-    let(:product_page) { product_page_tab.product_page.decorate }
+    let(:product_page) { create(:product_page).decorate }
+    let(:product_page_tab_kit) { product_page.knit_your_own }
+    let(:product_page_tab) { product_page.made_by_the_gang }
     let(:variant) { build(:variant) }
 
     context "errors" do
@@ -57,16 +58,8 @@ describe Spree::ProductPagesController, type: :controller do
 
     context "kit" do
 
-      let(:product_page_3) { create(:product_page_tab_kit).product_page }
-
-      before :each do
-        allow(Spree::ProductPage).to receive(:find_by_slug!).
-          with(product_page_3.permalink).
-          and_return(product_page_3)
-      end
-
       it "is successful with kit" do
-        spree_get :show, :id => product_page_3.permalink, :tab => "kit"
+        spree_get :show, :id => product_page.permalink, :tab => "knit-your-own"
         expect(response).to be_success
         assigns(:product_page).class.should == Spree::ProductPageDecorator 
       end
@@ -74,20 +67,10 @@ describe Spree::ProductPagesController, type: :controller do
     end
 
     context "no_tabs" do
-
-      let(:product_page_2) { create(:product_page ).decorate }
-
-      before :each do
-        allow(Spree::ProductPage).to receive(:find_by_slug!).
-          with(product_page_2.permalink).
-          and_return(product_page_2)
-      end
-
       it "is successful with no tab " do
-        product_page_2.tabs = [] 
-        spree_get :show, :id => product_page_2.permalink, :tab => ""
-        expect(response).to be_success
-        assigns(:product_page).should == product_page_2
+        spree_get :show, :id => product_page.permalink, :tab => ""
+        response.status.should == 302
+        response.should redirect_to "http://test.host/shop/items/#{product_page.permalink}/made-by-the-gang" 
       end
 
     end

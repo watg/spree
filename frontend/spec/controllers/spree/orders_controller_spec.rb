@@ -26,8 +26,8 @@ describe Spree::OrdersController do
         end
 
         it "should handle population" do
-          populator.should_receive(:populate).with("variants" => { 1 => "2" }).and_return(true)
-          spree_post :populate, { :order_id => 1, :variants => { 1 => 2 } }
+          populator.should_receive(:populate).with("variants" => { 1 => "2" }, "target_id"=>"3", "product_page_id"=>"1", "product_page_tab_id"=>"2").and_return(true)
+          spree_post :populate, { order_id: 1, variants: { 1 => 2 }, product_page_id: 1, product_page_tab_id: 2, target_id: 3 }
           response.should redirect_to spree.cart_path
         end
 

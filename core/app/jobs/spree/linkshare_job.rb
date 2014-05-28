@@ -50,7 +50,6 @@ module Spree
           xml['g'].size opt.presentation
         end
 
-        xml['g'].google_product_category variant.product.marketing_type.category
         xml['g'].product_type variant.product.marketing_type.name
       }
     end
