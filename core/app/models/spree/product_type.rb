@@ -1,5 +1,4 @@
 module Spree
-  #class ProductType
   class ProductType < ActiveRecord::Base
 
     NORMAL    = 'normal'
@@ -14,6 +13,10 @@ module Spree
 
     def gift_card?
       name == GIFT_CARD
+    end
+
+    def self.default
+      where(name: DEFAULT).first
     end
 
   end

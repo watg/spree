@@ -11,7 +11,7 @@ describe Spree::PinterestService do
     let(:variant_slug) { variant.option_values.first.name }
     let(:variant_target) { create(:variant_target, variant: variant, target: target ) }
     let(:context) { {context: {tab: product_page_tab.tab_type}} }
-    let!(:kit_context) { {context: {tab: Spree::ProductPageTab::KNIT_YOUR_OWN }} }
+    let!(:kit_context) { {context: {tab: product_page.knit_your_own }} }
 
     before do
       product_page.target = target
@@ -23,7 +23,7 @@ describe Spree::PinterestService do
     context 'new_url' do
 
       let(:url) { variant.decorate( context ).url_encoded_product_page_url(product_page.decorate( context )) }
-      let(:kit_url) { variant.decorate( kit_context ).url_encoded_product_page_url(product_page.decorate( kit_context ), Spree::ProductPageTab::KNIT_YOUR_OWN) }
+      let(:kit_url) { variant.decorate( kit_context ).url_encoded_product_page_url(product_page.decorate( kit_context ), product_page.knit_your_own) }
 
       context 'images' do
 
@@ -94,7 +94,7 @@ describe Spree::PinterestService do
       let(:url) {"http://www.woolandthegang.com/shop/products/#{product.slug}/#{variant_slug}"}
 
       it "returns a correct OpenStruct response with a product" do
-        product.marketing_type = create(:marketing_type, category: "rtw")
+        product.product_type = create(:product_type)
         product.save!
 
         outcome = Spree::PinterestService.run({url: url})

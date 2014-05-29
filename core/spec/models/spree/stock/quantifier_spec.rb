@@ -2,8 +2,6 @@ require 'spec_helper'
 
 describe Spree::Stock::Quantifier do
   subject { Spree::Stock::Quantifier }
-  let(:kit) { create(:product, product_type: create(:product_type_kit)) }
-  let(:made_by_the_gang) { create(:product) }
 
   describe "#can_supply_order?" do
     let(:order) { create(:order_with_line_items) }

@@ -181,7 +181,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def url_encode_tab_name(tab)
-    tab = made_by_the_gang_tab if tab.blank?
+    tab = object.made_by_the_gang if tab.blank?
     tab.url_safe_tab_type
   end
 
