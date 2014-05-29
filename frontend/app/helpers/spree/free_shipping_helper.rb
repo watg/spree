@@ -17,5 +17,9 @@ module Spree
     def free_shipping_amount
       FREE_SHIPPING_COUNTRY_CODES[current_country_code]
     end
+
+    def free_shipping_to_uk?
+      current_country_code == 'GB'
+    end
   end
 end
