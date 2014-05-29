@@ -10,7 +10,7 @@ describe Spree::Promotion::Rules::MarketingType do
     let(:marketing_type_3) { create(:marketing_type, name: 'ready_to_wear') }
 
     it "should be eligible if there are no marketing_types" do
-      rule.stub(:eligible_marketing_types => [])
+      rule.stub(:marketing_types => [])
       rule.should be_eligible(order)
     end
 
@@ -22,13 +22,13 @@ describe Spree::Promotion::Rules::MarketingType do
     context "with 'any' match policy" do
       it "should be eligible if any of the product types is in eligible product types" do
         order.stub(:products => [@product1, @product2])
-        rule.stub(:eligible_marketing_types => [marketing_type_1, marketing_type_2])
+        rule.stub(:marketing_types => [marketing_type_1, marketing_type_2])
         rule.should be_eligible(order)
       end
 
       it "should not be eligible if none of the product types is in eligible product types" do
         order.stub(:products => [@product2])
-        rule.stub(:eligible_marketing_types => [marketing_type_1, marketing_type_3])
+        rule.stub(:marketing_types => [marketing_type_1, marketing_type_3])
         rule.should_not be_eligible(order)
       end
     end

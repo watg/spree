@@ -11,14 +11,9 @@ module Spree
           promotable.is_a?(Spree::Order)
         end
 
-        # scope/association that is used to test eligibility
-        def eligible_marketing_types
-          marketing_types.pluck(:id)
-        end
-
         def eligible?(order, options = {})
-          return true if eligible_marketing_types.empty?
-          order.products.any? {|p| eligible_marketing_types.include?(p.marketing_type) }
+          return true if marketing_types.empty?
+          order.products.any? {|p| marketing_types.include?(p.marketing_type) }
         end
       end
     end
