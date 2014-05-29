@@ -19,7 +19,7 @@ module Spree
     
     class << self
       def find_boxes
-        Spree::Product.where(product_type: :parcel)
+        Spree::Product.joins(:product_type).merge(Spree::ProductType.where(name: Spree::ProductType::PACKAGING))
       end
     end
   end

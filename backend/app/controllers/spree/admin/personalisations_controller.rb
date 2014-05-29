@@ -4,7 +4,7 @@ module Spree
       belongs_to 'spree/product', :find_by => :slug
 
       def update_all
-        @product = Spree::Product.find_by_permalink params[:product_id]
+        @product = Spree::Product.find_by slug: params[:product_id]
         outcome = Spree::UpdateAllPersonalisationService.run( params: params[:personalisations])
         if outcome.success?
           flash[:success] = flash_message_for(@product, :successfully_updated)
@@ -19,7 +19,7 @@ module Spree
       end
 
       def create
-        @product = Spree::Product.find_by_permalink params[:product_id]
+        @product = Spree::Product.find_by slug: params[:product_id]
         @personalisation = params[:personalisation][:type].constantize.new( product_id: @product.id )
         if @personalisation.save
           flash[:success] = flash_message_for(@product, :successfully_created)
