@@ -15,7 +15,7 @@ module Spree
   product_sku
   variant_sku
   product_name
-  product_type
+  marketing_type
   state
   quantity
   currency
@@ -107,7 +107,7 @@ module Spree
         variant.product.sku,
         variant.sku,
         variant.product.name,
-        variant.product.product_type,
+        variant.product.marketing_type.name,
         o.state,
         li.quantity,
         li.currency,

@@ -7,8 +7,12 @@
 <% end %>
 
 <%= form_for :order, :url => populate_orders_path do |f| %>
+<%= hidden_field_tag "product_page_id", product_page.id %>
+<%= hidden_field_tag "target_id", product_page.target_id %>
 
-<%= hidden_field_tag "target_id", target_id %>
+<%# do not be tempted to make this product_page.selected_tab.id, as it will 
+cause big cache issues %>
+<%= hidden_field_tag "product_page_tab_id", product_page_tab.id %>
 
 <div class="product-price" data-hook="product_price">
 	<% if variant.has_price? %>

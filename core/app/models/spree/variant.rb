@@ -65,7 +65,6 @@ module Spree
     after_save :save_default_price
     after_create :create_stock_items
     after_create :set_position
-    after_create :create_assembly_definition_if_kit
     after_touch :touch_index_page_items
 
     # This can take a while so run it asnyc with a low priority for now
@@ -90,11 +89,7 @@ module Spree
     class << self
 
       def physical
-        includes(:product).where('spree_products.product_type' => Spree::Product::NATURE[:physical])
-      end
-
-      def digital
-        includes(:product).where('spree_products.product_type' => Spree::Product::NATURE[:digital])
+        joins(product: [:product_type]).where('spree_product_types.is_digital = ?', false)
       end
 
       def active(currency = nil)
@@ -229,7 +224,16 @@ module Spree
       }
     end
     # end variant options
-    
+
+    # TODO move this into a decorator as it is view centric
+    def price_types
+      types = [:normal,:normal_sale]
+      unless product.assembly?
+        types << [:part, :part_sale]
+      end
+      types.flatten
+    end
+
     def visible_price_types
       Spree::Price::TYPES - [:part_sale]
     end
@@ -434,14 +438,6 @@ module Spree
 
     def touch_assembly_products
       assembly_products.map(&:touch)
-    end
-
-    def create_assembly_definition_if_kit
-      if self.isa_kit?
-        if self.assembly_definition.nil?
-          Spree::AssemblyDefinition.create variant_id: self.id
-        end
-      end
     end
 
     def find_normal_price(currency, type)

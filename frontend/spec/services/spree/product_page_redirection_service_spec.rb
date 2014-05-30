@@ -25,7 +25,7 @@ describe Spree::ProductPageRedirectionService, type: :routing do
   end
 
   context 'kit product' do
-    let(:product) { create(:product, name: 'Lil Foxy Roxy', product_type: :kit, product_group: pg, taxons: [women_taxon]) }
+    let!(:product) { create(:product, name: 'Lil Foxy Roxy', product_type: create(:product_type_kit), product_group: pg, taxons: [women_taxon]) }
     let(:variant) { create(:base_variant, product: product) }
     
     it "with selected variant" do
@@ -48,7 +48,7 @@ describe Spree::ProductPageRedirectionService, type: :routing do
   end
 
   context 'made-by-the-gang product' do
-    let(:product) { create(:product, name: 'Lil Foxy Roxy', product_type: :made_by_the_gang, product_group: pg, taxons: [women_taxon]) }
+    let(:product) { create(:product, name: 'Lil Foxy Roxy', product_group: pg, taxons: [women_taxon]) }
     let(:variant) { create(:base_variant, product: product) }
 
     it "with selected variant" do
@@ -71,7 +71,7 @@ describe Spree::ProductPageRedirectionService, type: :routing do
   end
 
   context 'supply product' do
-    let(:product) { create(:product, name: 'Lil Foxy Roxy Pattern', product_type: :pattern, product_group: pg) }
+    let(:product) { create(:product, name: 'Lil Foxy Roxy Pattern', product_group: pg) }
     let(:variant) { create(:base_variant, product: product) }
     let(:page)    { create(:product_page, name: 'Patterns', target: nil, permalink: 'pattern') }
 

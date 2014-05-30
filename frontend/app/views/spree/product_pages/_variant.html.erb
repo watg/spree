@@ -27,7 +27,7 @@
 			<h1><%= variant.name %></h1>
 
 			<div class="cart-form" data-hook="cart_form">
-				<%= render :partial => 'cart_form', :locals => {:variant => variant, :product => product, :target_id => @product_page.target_id } %>
+        <%= render :partial => 'cart_form', :locals => {:variant => variant, :product => product, :product_page => product_page, :product_page_tab => product_page_tab} %>
 			</div>
 
 			<h5 class="reveal-title revealed">Product description</h5>
@@ -41,7 +41,7 @@
 			<ul class="no-bullet social">
 				<% [:twitter, :facebook, :pinterest].each do |social| %>
 				<li>
-				  <%= link_to("Share with #{social}", variant.send("#{social}_url", @product_page, tab), target: '_blank', class: social) %>
+				  <%= link_to("Share with #{social}", variant.send("#{social}_url", product_page, product_page_tab), target: '_blank', class: social) %>
 				</li>
 				<% end %>
 			</ul>
@@ -54,7 +54,7 @@
 </li>
 <!-- /details -->
 <!-- variant -->
-<li class="variant <%= variant.safe_tag_list %>" data-price="<%= variant.display_price %>" data-variant="<%= variant.id %>" data-variant-number="<%= variant.number %>" data-selected-tab="<%= @product_page.selected_tab %>" >
+<li class="variant <%= variant.safe_tag_list %>" data-price="<%= variant.display_price %>" data-variant="<%= variant.id %>" data-variant-number="<%= variant.number %>" >
 	<a href="#">
 		<% url = image_url(variant.memoized_first_image, :product) %>
 		<%= image_tag(variant.placeholder_image, :itemprop => 'image', :class => 'lazy-load', alt: variant.memoized_placeholder_image_alt, :data => { :original => url }) %>

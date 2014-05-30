@@ -22,7 +22,7 @@
           "<%= j @order.number %>",
           "<%= j line_item.item_sku %>",
           "<%= j line_item.variant.product.name %>",
-          "",
+          "<%= j line_item.variant.product.marketing_type.name %>",
           "<%= line_item.price %>",
           "<%= line_item.quantity %>"
         ]);

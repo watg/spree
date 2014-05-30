@@ -59,7 +59,7 @@ describe Spree::ShippingManifest do
   end
 
   context "with digital line items" do
-    let(:digital_product) { create(:product, product_type: 'gift_card') }
+    let(:digital_product) { create(:product, product_type: create(:product_type_gift_card)) }
     let!(:digital_line_item) { create(:line_item, variant: digital_product.master, order: order, price: 12.00, quantity: 2) }
     let!(:normal_line_item) { create(:line_item, order: order, price: 8.00, quantity: 2) }
 

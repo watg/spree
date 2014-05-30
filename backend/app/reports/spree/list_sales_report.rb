@@ -24,7 +24,7 @@ module Spree
         product_sku
         variant_sku
         product_name
-        product_type
+        marketing_type
         quantity
         state
         payment_method
@@ -54,16 +54,12 @@ module Spree
 
           yield csv_array( li, o, shipped_at, variant, li.quantity, previous_users )
 
-          if variant.product.product_type == 'kit' or variant.product.product_type == 'virtual_product'
+          li.line_item_parts.required.each do |p|
+            yield csv_array( li, o, shipped_at, p.variant, p.quantity, 'required_part', previous_users )
+          end
 
-            li.line_item_parts.required.each do |p|
-              yield csv_array( li, o, shipped_at, p.variant, p.quantity, 'required_part', previous_users )
-            end
-
-            li.line_item_parts.optional.each do |p|
-              yield csv_array( li, o, shipped_at, p.variant, p.quantity, 'optional_part', previous_users )
-            end
-
+          li.line_item_parts.optional.each do |p|
+            yield csv_array( li, o, shipped_at, p.variant, p.quantity, 'optional_part', previous_users )
           end
 
         end
@@ -106,7 +102,7 @@ module Spree
         variant.product.sku,
         li.item_sku,
         variant.product.name,
-        variant.product.product_type,
+        variant.product.marketing_type.name,
         quantity,
         o.state,
         (o.payments.first.source_type.split('::').last if o.payments.first.try(:source_type)),

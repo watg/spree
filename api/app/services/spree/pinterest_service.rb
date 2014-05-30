@@ -40,7 +40,7 @@ module Spree
         return
       end
 
-      tab = if variant.assembly?
+      tab = if variant.product.product_type.kit?
               Spree::ProductPageTab::KNIT_YOUR_OWN
             else
               Spree::ProductPageTab::MADE_BY_THE_GANG

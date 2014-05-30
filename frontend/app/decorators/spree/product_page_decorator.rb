@@ -1,5 +1,5 @@
 class Spree::ProductPageDecorator < Draper::Decorator
-  #include Draper::LazyHelper
+
   delegate_all
 
   def current_currency
@@ -7,11 +7,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def selected_tab
-    context[:tab].present? ? context[:tab].gsub('-', '_').to_sym : :made_by_the_gang
-  end
-
-  def tab
-    context[:tab]
+    context[:selected_tab] ||= object.tabs.made_by_the_gang.first
   end
 
   def selected_variant
@@ -23,7 +19,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def inverted_colour
-    selected_tab == :knit_your_own ? 'inverted' : nil
+    selected_tab && selected_tab.knit_your_own? ? 'inverted' : nil
   end
 
   def made_by_the_gang_variants( selected_variant=nil )
@@ -56,7 +52,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def made_by_the_gang_active_class
-    selected_tab == :made_by_the_gang ? 'active' : ''
+    selected_tab && selected_tab.made_by_the_gang? ? 'active' : ''
   end
 
   def decorated_first_knit_your_own_product_variant
@@ -81,7 +77,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def knit_your_own_active_class
-    selected_tab == :knit_your_own ? 'active' : ''
+    selected_tab && selected_tab.knit_your_own? ? 'active' : ''
   end
 
   def kit_description
@@ -99,7 +95,6 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def knit_your_own_product?
-#    knit_your_own_product.present? && knit_your_own_product.variants.any?
     knit_your_own_product.present?
   end
 
@@ -108,7 +103,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def row_hero_type
-    selected_tab == :made_by_the_gang ? ' made-by-the-gang' : ' knit-your-own'
+    selected_tab && selected_tab.made_by_the_gang? ? ' made-by-the-gang' : ' knit-your-own'
   end
 
   def made_by_the_gang_banner?
@@ -177,23 +172,23 @@ class Spree::ProductPageDecorator < Draper::Decorator
     end
   end
 
-  def tab_made_by_the_gang
-    :made_by_the_gang
+  def knit_your_own_tab
+    object.tabs.knit_your_own.first
   end
 
-  def tab_knit_your_own
-    :knit_your_own
+  def made_by_the_gang_tab
+    object.tabs.made_by_the_gang.first
   end
 
   def url_encode_tab_name(tab)
-    tab = tab_made_by_the_gang if tab.blank?
-    tab.to_s.gsub(/_/, '-')
+    tab = object.made_by_the_gang if tab.blank?
+    tab.url_safe_tab_type
   end
 
   def url_encoded_product_page_url(tab=nil)
-     h.url_encode( h.spree.product_page_url(object.permalink, 
-                                            :host => h.root_url, 
-                                            :tab => url_encode_tab_name(tab) || context[:tab] ) )
+     h.url_encode( h.spree.product_page_url(object.permalink,
+                                            :host => h.root_url,
+                                            :tab => url_encode_tab_name(tab)) )
   end
   
   def twitter_url(tab=nil)

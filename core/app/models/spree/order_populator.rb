@@ -140,25 +140,35 @@ module Spree
     #
     #  :products => { product_id => variant_id, product_id => variant_id, pp_ids = [] },
     #  :quantity => quantity+, 
-    #  :target_id => 2
+    #  :target_id => 2,
+    #  :product_page_tab_id => 1,
+    #  :product_page_id => 2,
     #  :options => [56, 34] # array of variant_ids
     #  ....
     def populate(from_hash)
-      # product_assembly
+
+      product_page_id = from_hash[:product_page_id]
+      product_page_tab_id = from_hash[:product_page_tab_id]
+
       options = extract_kit_options(from_hash)
       personalisations = extract_personalisations(from_hash)
 
+
       target_id = from_hash[:target_id]
       # Coearce the target_id to nil if it is blank, as this makes find_by( target_id: target_id ) 
-      # behave as target_id is actually a integer in the DB
+      # behave as target_id is actually a integer in the DB, which is used later as part of the 
+      # variantuuid code
       target_id = nil if target_id.blank?
 
+
       from_hash[:products].each do |product_id,variant_id|
-        attempt_cart_add(variant_id, from_hash[:quantity], options, personalisations, target_id)
+        attempt_cart_add(variant_id, from_hash[:quantity], options, personalisations, target_id,
+                        product_page_tab_id, product_page_id)
       end if from_hash[:products]
 
       from_hash[:variants].each do |variant_id, quantity|
-        attempt_cart_add(variant_id, quantity, options, personalisations, target_id )
+        attempt_cart_add(variant_id, quantity, options, personalisations, target_id,
+                        product_page_tab_id, product_page_id)
       end if from_hash[:variants]
 
       valid?
@@ -197,7 +207,8 @@ module Spree
     end
 
     # This has modifications for options and personalisations
-    def attempt_cart_add(variant_id, quantity, option_params, personalisation_params, target_id)
+    def attempt_cart_add(variant_id, quantity, option_params, personalisation_params, target_id,
+                         product_page_tab_id, product_page_id)
       quantity = quantity.to_i
       # 2,147,483,647 is crazy.
       # See issue #2695.
@@ -219,7 +230,7 @@ module Spree
       personalisations = Spree::OrderPopulator.parse_personalisations(personalisation_params, currency)
 
       if quantity > 0
-        line_item = @order.contents.add(variant, quantity, currency, nil, parts, personalisations, target_id)
+        line_item = @order.contents.add(variant, quantity, currency, nil, parts, personalisations, target_id, product_page_tab_id, product_page_id)
         unless line_item.valid?
           errors.add(:base, line_item.errors.messages.values.join(" "))
           return false

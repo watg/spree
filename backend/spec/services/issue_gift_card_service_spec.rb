@@ -2,9 +2,9 @@ require 'spec_helper'
 
 describe Spree::IssueGiftCardService do
   subject { Spree::IssueGiftCardService }
-  let(:item_with_gift_card) { create(:line_item, quantity: 1, variant: create(:product, product_type: 'gift_card').master) }
+  let(:item_with_gift_card) { create(:line_item, quantity: 1, variant: create(:product, product_type: create(:product_type_gift_card)).master) }
   let(:order) { item_with_gift_card.order }
-  let(:item)  { create(:line_item, quantity: 1, variant: create(:product, product_type: 'made_by_the_gang').master, order: order) }
+  let(:item)  { create(:line_item, quantity: 1, variant: create(:product).master, order: order) }
   let(:gift_card) { create(:gift_card, buyer_order_line_item_id: item_with_gift_card.id, 
                            buyer_email: order.email,
                            buyer_order: order,

@@ -6,7 +6,6 @@ module Spree
     validates_presence_of :name, :permalink, :title
 
     belongs_to :kit, class_name: "Spree::Product", dependent: :destroy
-    validate :kit_validation
     
     has_and_belongs_to_many :product_groups, join_table: :spree_product_groups_product_pages
 
@@ -38,18 +37,13 @@ module Spree
       displayed_variants.in_stock
     end
 
-    def all_variants
-      products.where("product_type <> 'virtual_product' ").map(&:all_variants_or_master).flatten.uniq
-    end
-
+    # made by the gang selected
     def non_kit_variants_with_target
-      all_variants.select do |v|
-        keep = v.product.product_type != 'kit'
-        if self.target.present?
-          keep = keep && v.targets.include?(self.target)
-        end
-        keep
+      result = products.where(marketing_type_id: made_by_the_gang.marketing_type_ids).map(&:all_variants_or_master).flatten
+      if self.target_id.present?
+        result = result.select {|variant| variant.target_ids.include? self.target_id }
       end
+      result
     end
 
     def banner_url
@@ -71,8 +65,8 @@ module Spree
     end
 
     def create_tabs
-      tabs.create(tab_type: :made_by_the_gang)
-      tabs.create(tab_type: :knit_your_own)
+      tabs.create(tab_type: Spree::ProductPageTab::MADE_BY_THE_GANG)
+      tabs.create(tab_type: Spree::ProductPageTab::KNIT_YOUR_OWN)
     end
 
     def available_variants
@@ -80,11 +74,11 @@ module Spree
     end
 
     def made_by_the_gang
-      tab(:made_by_the_gang)
+      tab(Spree::ProductPageTab::MADE_BY_THE_GANG)
     end
 
     def knit_your_own
-      tab(:knit_your_own)
+      tab(Spree::ProductPageTab::KNIT_YOUR_OWN)
     end
 
     def tab(tab_type)
@@ -131,12 +125,6 @@ module Spree
 
     def touch_index_page_items
       index_page_items.each { |item| item.touch }
-    end
-
-    def kit_validation
-      if self.kit
-        self.kit.product_type == 'kit'
-      end
     end
 
   end

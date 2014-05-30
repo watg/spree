@@ -30,8 +30,8 @@ module Spree
         end
 
         data.inject({}) do |hash,v|
-          hash[v.product.product_type.to_s] ||= []
-          hash[v.product.product_type.to_s] << v
+          hash[v.product.marketing_type.name.to_s] ||= []
+          hash[v.product.marketing_type.name.to_s] << v
           hash
         end
 
@@ -40,8 +40,8 @@ module Spree
     def format_data_to_string(data)
       message = []
 
-      data.each do |product_type, variants|
-        message << product_type
+      data.each do |marketing_type, variants|
+        message << marketing_type
         message << "==========="
         message << ""
 

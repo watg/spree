@@ -116,13 +116,13 @@ module Spree
 
       def to_be_packed_and_shipped
         # only physical line item to be dispatched
-        includes(:payments, :line_items).
+        includes(:payments, line_items: [variant: [product: [:product_type]]]).
           includes(:shipments).
           where('spree_orders.state'    => 'complete',
                 'spree_orders.payment_state'  => 'paid',
-                'spree_shipments.state' => 'ready', 
+                'spree_shipments.state' => 'ready',
                 'spree_orders.internal' => false,
-                'spree_line_items.product_nature' => :physical).
+                'spree_product_types.is_digital' => false).
                 order('spree_orders.created_at DESC')
       end
 
@@ -148,14 +148,6 @@ module Spree
 
     def max_dimension
       parcels_grouped_by_box.map(&:longest_edge).sort{ |a,b| b <=> a }.first
-    end
-
-
-    def metapack_booking_code
-      li_by_product_type = line_items.map {|li| li.variant.product.product_type == 'pattern'}
-      has_only_pattern = li_by_product_type.inject(true) {|res, a| res && a }
-      less_than_ten =( li_by_product_type.select {|e| e }.size < 11)
-      ((has_only_pattern && less_than_ten) ? 'PATTERN' : Spree::Zone.match(self.ship_address).name.upcase)
     end
 
     def parcels_grouped_by_box
@@ -253,13 +245,6 @@ module Spree
 
     def completed?
       completed_at.present? || complete?
-    end
-
-    def has_ready_made?
-      tmp= line_items.map(&:variant).map {|v|
-        !(v.isa_part? || v.isa_kit? || (v.product_type.to_sym == :pattern))
-      }
-      tmp.inject(false) {|r,a| r= r || a; r}
     end
 
     # Indicates whether or not the user is allowed to proceed to checkout.
@@ -430,7 +415,7 @@ module Spree
 
       touch :completed_at
 
-      deliver_gift_card_emails    
+      deliver_gift_card_emails
       deliver_order_confirmation_email unless confirmation_delivered?
 
       consider_risk
@@ -451,8 +436,11 @@ module Spree
 
     def gift_card_line_items
       self.line_items.
-        includes(:variant, :product).
-        where("spree_products.product_type" => :gift_card).
+        includes(:variant, product: [:product_type]).
+        # TODO: It would be great if this was more generic e.g. digital rather than
+        # gift_card, that way we can have a generic delviery behaviour with type 
+        # deciding at the very end what is to be delivered
+        where("spree_product_types.name" => Spree::ProductType::GIFT_CARD).
         reorder('spree_line_items.created_at ASC').
         references(:variant, :product)
     end

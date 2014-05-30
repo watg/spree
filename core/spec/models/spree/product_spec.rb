@@ -28,7 +28,7 @@ describe Spree::Product do
       end
 
       it "for kit" do
-        subject  = create(:product, product_type: :kit)
+        subject  = create(:product, product_type: create(:product_type_kit))
         subject.save
 
         _kit_variant1 = create(:variant, product: subject, target: women, in_stock_cache: false)
@@ -575,7 +575,7 @@ describe Spree::Product do
   describe "touching" do
 
     let(:product_group) { create(:product_group) }
-    let(:kit) { create(:product, product_group: product_group, product_type: "kit") }
+    let(:kit) { create(:product, product_group: product_group, product_type: create(:product_type_kit)) }
 
     it "updates a product_group" do
       product_group.update_column(:updated_at, 1.day.ago)

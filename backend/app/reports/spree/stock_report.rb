@@ -90,7 +90,7 @@ module Spree
       prices = Hash[*prices]
       [ 
         variant.product.name,
-        product_type(variant),
+        variant.product.marketing_type.name,
         variant.product.sku,
         variant.sku,
         variant.option_values.empty? ? '' : variant.options_text,
@@ -106,22 +106,6 @@ module Spree
         prices['USD-true-false'],
         prices['USD-true-true'],
       ] 
-    end
-
-    def product_type(variant)
-      if ['kit','virtual_product'].include? variant.product_type 
-        variant.product_type
-      else
-        if variant.sku.match(/^GANG-/)
-          'gang_collection'
-        else
-          if variant.isa_part?
-            'part'
-          else
-            'ready_to_wear'
-          end
-        end
-      end
     end
 
   end

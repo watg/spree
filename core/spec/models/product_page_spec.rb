@@ -69,40 +69,29 @@ describe Spree::ProductPage do
     end
   end
 
-  describe "#available_variants" do
-    let(:kit) { create(:product, product_group: product_group, product_type: "kit") }
-    let(:kit_variants) { create_list(:variant, 2, product: kit) }
 
-    let(:made_by_the_gang_product) { create(:product, product_group: product_group, product_type: "made_by_the_gang") }
-    let(:made_by_the_gang_targeted_variants) { create_list(:variant, 3, product: made_by_the_gang_product) }
-
+  describe "returns available variants" do
     let(:other_target) { create(:target) }
-    let(:made_by_the_gang_other_target_variants) { create_list(:variant, 2, product: made_by_the_gang_product) }
+    let(:marketing_type) { create(:marketing_type) }
+    
+    let!(:product) { create(:product, product_group: product_group, marketing_type: marketing_type) }
+    let(:variants) { create_list(:variant, 3, product: product) }
 
-    let(:displayed_variants) { [made_by_the_gang_targeted_variants[2]] }
+    before do
+      subject.made_by_the_gang.marketing_types << marketing_type
 
-    before :each do
-      kit_variants.each { |v| v.targets << subject.target }
-      made_by_the_gang_targeted_variants.each { |v| v.targets << subject.target }
-      made_by_the_gang_other_target_variants.each { |v| v.targets << other_target }
-      subject.displayed_variants = displayed_variants
+      variants[0].targets << subject.target
+      variants[1].targets << other_target
+      subject.displayed_variants << variants[2]
     end
 
-    it "returns available variants with the same target, excluding kit products" do
-      expect(subject.available_variants).to eq(made_by_the_gang_targeted_variants[0..1])
+    it "for the selected marketing type and target" do
+      expect(subject.available_variants).to eq [variants[0]]
     end
 
-    context "without a product page target" do
-      before do
-        subject.update_attributes(target: nil)
-      end
-
-      it "returns available variants for all targets" do
-        variants = made_by_the_gang_targeted_variants +
-          made_by_the_gang_other_target_variants -
-          displayed_variants
-        expect(subject.available_variants).to eq(variants)
-      end
+    it "for all targets when none is specified for the product page" do
+      subject.update_column(:target_id, nil)
+      expect(subject.available_variants).to eq variants[0..1]
     end
   end
 
@@ -153,7 +142,7 @@ describe Spree::ProductPage do
 
     describe "knit your own" do
       it "for knit your own" do
-        product = create(:product, product_type: :kit, product_group: product_group)
+        product = create(:product, product_group: product_group)
         subject.kit = product
         variant1 = create(:variant, price: 17.99, currency: "USD", product: product, in_stock_cache: true)
         variant2 = create(:variant, price: 1.99, currency: "USD", product: product, in_stock_cache: false)
@@ -226,25 +215,6 @@ describe Spree::ProductPage do
 
   end
 
-  describe "all_variants" do
-    it "returns all_variants_or_master from all products" do
-
-      product1 = create(:product, :product_type => :product, :product_group => product_group)
-      variant1 = create(:base_variant, :product => product1 )
-      variant2 = create(:base_variant, :product => product1 )
-      product2 = create(:product, :product_type => :product, :product_group => product_group)
-      product_page = create(:product_page, :product_groups => [product_group])
-
-      expect(product_page.all_variants.size).to eq 3
-    end
-
-    it "does not return a virtual_product" do
-      virtual_product = create(:product, :product_type => :virtual_product, :product_group => product_group)
-      product_page = create(:product_page, :product_groups => [product_group])
-
-      expect(product_page.all_variants.size).to eq 0
-    end
-  end
 
   describe "touching" do
     let!(:index_page_item) { create(:index_page_item, product_page: subject, updated_at: 1.month.ago) }

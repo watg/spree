@@ -8,6 +8,31 @@ describe Spree::Product do
   its(:product_group)        { should be_kind_of(Spree::ProductGroup) }
   its(:gang_member)          { should be_kind_of(Spree::GangMember) }
 
+  context "#not_assembly returns only products with assembly definition or parts" do
+    it "with assembly definition; without assembly definition parts" do
+      create(:assembly_definition, variant: subject.master)
+
+      expect(Spree::Product.all).to eq [subject]
+      expect(Spree::Product.all.not_assembly).to be_empty
+    end
+
+    it "with assemblies parts attached to the product" do
+      part = create(:variant)
+      subject.add_part part
+
+      expect(Spree::Product.all).to match_array [part.product, subject]
+      expect(Spree::Product.all.not_assembly).to eq [part.product]
+    end
+
+    it "with assemblies parts attached to the variant" do
+      part = create(:variant)
+      subject.master.add_part part
+
+      expect(Spree::Product.all).to match_array [part.product, subject]
+      expect(Spree::Product.all.not_assembly).to eq [part.product]
+    end
+  end
+
   context "stock control" do
     let!(:variant_in_stock) { create(:variant_with_stock_items, product_id: variant.product.id) }
 
@@ -20,11 +45,6 @@ describe Spree::Product do
       variant_in_stock.save
       expect(variant.product.next_variant_in_stock).to be_nil
     end
-  end
-
-  it "has got product type" do
-    types = [:kit, :product, :virtual_product, :pattern, :parcel, :accessory, :made_by_the_gang, :gift_card]
-    Spree::Product::types.should =~ types
   end
 
   its(:first_variant_or_master) { should eql(variant) }
@@ -99,7 +119,7 @@ describe Spree::Product do
     end
 
     it "for kit products with some variants out of stock" do
-      kit = create(:base_product, product_type: :kit)
+      kit = create(:base_product, product_type: create(:product_type_kit))
 
       kit_variant1 = create(:variant, price: 14.00, currency: "USD", product: kit, sku: 'v1', in_stock_cache: false)
       kit_variant2 = create(:variant, price: 14.01, currency: "USD", product: kit, sku: 'v2', in_stock_cache: true)

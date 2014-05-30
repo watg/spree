@@ -7,6 +7,14 @@ module Spree
       @to = params[:to].blank? ? Time.now.tomorrow.midnight : Time.parse(params[:to])  
     end
 
+    def self.run(from=Time.now.midnight, to=Time.now.tomorrow.midnight)
+      report = self.new( from: from, to: to )
+      puts report.header.join(',')
+      report.retrieve_data do |data|
+        puts data.join(',')
+      end
+    end
+
     def filename_uuid
       "#{@from.to_s(:number)}_#{@to.to_s(:number)}"
     end
@@ -34,13 +42,9 @@ module Spree
         promo_code
         payment_total
         order_total
-        kit_revenue_pre_promo
-        virtual_product_pre_promo
-        gang_collection_revenue_pre_promo
-        r2w_revenue_pre_promo
-        patterns_revenue_pre_promo
-        supplies_revenue_pre_promo
-
+      ) +
+        marketing_type_headers +
+      %w(
         billing_address_firstname 
         billing_address_lastname 
         billing_address_line_1
@@ -76,49 +80,40 @@ module Spree
       end
     end
 
-    private
 
-    def generate_product_type_totals( o )
-      product_type_totals = Hash.new 
-      o.line_items.each do |li| 
-
-        # A hack incase someone deletes the variant or product
-        variant = Variant.unscoped.find(li.variant_id)
-
-        cost = li.price.to_f * li.quantity
-        if ['kit','virtual_product'].include? variant.product_type 
-          product_type_totals[ variant.product_type ] ||= 0 
-          product_type_totals[ variant.product_type ] += cost 
-          # Add the optional parts
-          option_costs = li.line_item_parts.optional.inject(0) { |acc,val| acc + ( val.price * val.quantity ).to_f }
-          product_type_totals[ variant.product_type ] += option_costs 
-        elsif variant.product_type == 'pattern'
-          product_type_totals['pattern'] ||= 0 
-          product_type_totals['pattern'] += cost
-        else
-          if variant.sku.match(/^GANG-/)
-            product_type_totals['gang_collection'] ||= 0 
-            product_type_totals['gang_collection'] += cost
-          else
-            if variant.isa_part?
-              product_type_totals['part'] ||= 0 
-              product_type_totals['part'] += cost 
-            else
-              product_type_totals['ready_to_wear'] ||= 0 
-              product_type_totals['ready_to_wear'] += cost
-            end
-          end
-
-        end
-
-      end
-      product_type_totals
+    def marketing_type_headers
+      marketing_type_lookup.map { |mt| "#{mt}_revenue_pre_promo" }
     end
 
+    def marketing_type_totals( o )
 
+      totals = o.line_items.inject({}) do |h,line|
+
+        # A hack incase someone deletes the variant or product
+        variant = Variant.unscoped.find(line.variant_id)
+
+        marketing_type = variant.product.marketing_type.name
+
+        h[marketing_type] ||= 0
+        h[marketing_type] += line.amount
+
+        options_amount = line.line_item_parts.optional.inject(0) { |acc,val| acc + ( val.price * val.quantity ).to_f }
+
+        h[marketing_type] += options_amount
+
+        h
+      end
+
+      marketing_type_lookup.map { |mt| totals[mt] || 0.0 }
+    end
+
+    private
+
+    def marketing_type_lookup
+      Spree::MarketingType.all.map(&:name)
+    end
 
     def generate_csv_line(o,previous_users)
-      product_type_totals = generate_product_type_totals(o)
 
       shipped_at = ''
       if !o.shipments.last.nil? 
@@ -162,15 +157,11 @@ module Spree
         o.adjustments.gift_card.sum(:amount).to_f,
         promo_label,
         o.payment_total.to_f, # Over cost
-        o.total.to_f, # Over cost
-        product_type_totals['kit'] || '',
-        product_type_totals['virtual_product'] || '',
-        product_type_totals['gang_collection'] || '',
-        product_type_totals['ready_to_wear'] || '',
-        product_type_totals['pattern'] || '',
-        product_type_totals['part'] || '',
+        o.total.to_f ] + # Over cost
 
-        o.billing_address.firstname,
+        marketing_type_totals(o) +
+
+        [ o.billing_address.firstname,
         o.billing_address.lastname,
         o.billing_address.address1,
         o.billing_address.address2,

@@ -17,8 +17,9 @@
       <% end %>
       
       <br>
-      <label>Background color</label>
-      # &nbsp; <%= f.text_field :background_color_code, size: 6, maxlength: 6 %>
+      <br>
+      <%= f.label :marketing_type_ids, "Marketing Type" %><br>
+      <%= f.select :marketing_type_ids, Spree::MarketingType.all.collect {|x| [x.name, x.id]}, {}, :multiple => true, class: 'select2 fullwidth' %>
     </div>
 
   </fieldset>

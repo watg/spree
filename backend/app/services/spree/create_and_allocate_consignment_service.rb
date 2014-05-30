@@ -46,7 +46,7 @@ module Spree
           name:        order.shipping_address.full_name
         },
         terms_of_trade_code: shipping_manifest.terms_of_trade_code,
-        booking_code:  booking_code(order)
+        booking_code:  order.shipments.first.shipping_method.metapack_booking_code
       }
     end
 
@@ -121,16 +121,6 @@ module Spree
       order.shipment_state = 'shipped'
       order.save(validate: false)
       order.shipments.map(&:ship)
-    end
-
-    def booking_code(order)
-      li_by_product_type = order.line_items.map {|li|
-        li.variant.product.product_type == 'pattern'
-      }
-      has_only_pattern = li_by_product_type.inject(true) {|res, a| res && a }
-      less_than_ten =( li_by_product_type.select {|e| e }.size < 11)
-      b_code = "@" + ((has_only_pattern && less_than_ten) ? 'PATTERN' : Spree::Zone.match(order.ship_address).name.upcase)
-      b_code
     end
 
     def products(order)

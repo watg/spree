@@ -6,12 +6,12 @@ describe Spree::PinterestService do
     let!(:product_page_tab) { create(:product_page_tab) }
     let(:target) { create(:target, name: 'female' ) }
     let(:product_page) { product_page_tab.product_page }
-    let(:product) {create(:product_with_variants_displayable, martin_type: create(:martin_type))}
+    let(:product) {create(:product_with_variants_displayable)}
     let(:variant) { product.variants.first }
     let(:variant_slug) { variant.option_values.first.name }
     let(:variant_target) { create(:variant_target, variant: variant, target: target ) }
     let(:context) { {context: {tab: product_page_tab.tab_type}} }
-    let!(:kit_context) { {context: {tab: Spree::ProductPageTab::KNIT_YOUR_OWN }} }
+    let!(:kit_context) { {context: {tab: product_page.knit_your_own }} }
 
     before do
       product_page.target = target
@@ -23,7 +23,7 @@ describe Spree::PinterestService do
     context 'new_url' do
 
       let(:url) { variant.decorate( context ).url_encoded_product_page_url(product_page.decorate( context )) }
-      let(:kit_url) { variant.decorate( kit_context ).url_encoded_product_page_url(product_page.decorate( kit_context ), Spree::ProductPageTab::KNIT_YOUR_OWN) }
+      let(:kit_url) { variant.decorate( kit_context ).url_encoded_product_page_url(product_page.decorate( kit_context ), product_page.knit_your_own) }
 
       context 'images' do
 
@@ -94,8 +94,8 @@ describe Spree::PinterestService do
       let(:url) {"http://www.woolandthegang.com/shop/products/#{product.slug}/#{variant_slug}"}
 
       it "returns a correct OpenStruct response with a product" do
-        product.martin_type = create(:martin_type)
-        product.save
+        product.product_type = create(:product_type)
+        product.save!
 
         outcome = Spree::PinterestService.run({url: url})
 
@@ -109,6 +109,8 @@ describe Spree::PinterestService do
       end
 
       it "returns a correct OpenStruct response with a kit" do
+        product.product_type = create(:product_type_kit)
+        product.save!
         Spree::Variant.any_instance.stub :assembly? => true
 
         outcome = Spree::PinterestService.run({url: url})

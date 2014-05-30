@@ -33,6 +33,25 @@ describe Spree::OrderContents do
       expect(order.line_items.second.target_id).to eq(2) 
     end
 
+    context 'product_page params' do
+      let(:product_page) { create(:product_page) } 
+      let(:product_page_tab) { create(:product_page_tab, product_page: product_page) } 
+
+      it "should add params to the line_item" do
+        subject.send(:add, variant, 1, 'USD', nil, nil, nil, 1, product_page_tab.id, product_page.id)
+        expect(order.line_items.first.product_page_tab).to eq(product_page_tab)
+        expect(order.line_items.first.product_page).to eq(product_page)
+      end
+
+      it "should add params to an existing line_item" do
+        subject.send(:add, variant, 1, 'USD', nil, nil, nil, 1, nil, nil)
+        subject.send(:add, variant, 1, 'USD', nil, nil, nil, 1, product_page_tab.id, product_page.id)
+        expect(order.line_items.first.product_page_tab).to eq(product_page_tab)
+        expect(order.line_items.first.product_page).to eq(product_page)
+      end
+
+    end
+
     context 'given a option' do
       let(:variant_option1) { create(:variant) } 
       let(:variant_option2) { create(:variant) } 
@@ -271,7 +290,7 @@ describe Spree::OrderContents do
 
     context "prices" do
       it "should use normal variant price by default" do
-        line_item = subject.send(:add_to_line_item, variant, 1, currency, nil, [], [], nil)
+        line_item = subject.send(:add_to_line_item, variant, 1, currency, nil, [], [], nil, nil, nil)
 
         expect(line_item.in_sale?).to be_false
         expect(line_item.price).to eq(variant.price_normal_in(currency).amount)
@@ -279,7 +298,7 @@ describe Spree::OrderContents do
       end
 
       it "should use normal_sale variant price when variant is in sale" do
-        line_item = subject.send(:add_to_line_item, variant_in_sale, 1, currency, nil, [], [], nil)
+        line_item = subject.send(:add_to_line_item, variant_in_sale, 1, currency, nil, [], [], nil, nil, nil)
 
         expect(line_item.in_sale?).to be_true 
         expect(line_item.price).to eq(variant_in_sale.price_normal_sale_in(currency).amount)
@@ -307,7 +326,7 @@ describe Spree::OrderContents do
           )
         ]
 
-        _line_item = subject.send(:add_to_line_item, variant, 1, 'USD', nil, parts, [], nil)
+        _line_item = subject.send(:add_to_line_item, variant, 1, 'USD', nil, parts, [], nil, nil, nil)
 
         expect(order.line_items.first.price).to eq(75.00)
       end

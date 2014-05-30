@@ -16,6 +16,11 @@ describe Spree::Variant do
 
   end
 
+  context "physical" do
+    subject { Spree::Variant.physical }
+    it { should_not be_nil }
+  end
+
   context "#options_tree_for" do
 
     let(:product) { create(:product_with_variants) }
@@ -139,7 +144,7 @@ describe Spree::Variant do
       # This has been disabled whilst we decide if we want this functionality
       # DD 26/03/14
       xit "weight can be nil for kit variant" do
-        subject.product = create(:product, product_type: 'kit')
+        subject.product = create(:product, product_type: create(:product_type_kit) )
         subject.valid?
         expect(subject.error_on(:weight)).to be_blank
       end
@@ -164,7 +169,7 @@ describe Spree::Variant do
       # This has been disabled whilst we decide if we want this functionality
       # DD 26/03/14
       xit "cost_price can be nil for kit variant" do
-        subject.product = create(:product, product_type: 'kit')
+        subject.product = create(:product, product_type: create(:product_type_kit) )
         subject.valid?
         expect(subject.error_on(:cost_price)).to be_blank
       end

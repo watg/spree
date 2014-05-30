@@ -15,7 +15,7 @@
     <% end %>
   </div>
 
-  <div class="alpha omega twelve columns">
+  <div class="alpha six columns">
     <div data-hook="admin_shipping_method_form_internal_name_field" class="alpha six columns">
       <%= f.field_container :admin_name do %>
         <%= f.label :admin_name, Spree.t(:internal_name) %><br />
@@ -24,6 +24,17 @@
       <% end %>
     </div>
   </div>
+
+  <div class="omega six columns">
+    <div data-hook="admin_shipping_method_form_internal_name_field" class="alpha six columns">
+      <%= f.field_container :admin_name do %>
+        <%= f.label :metapack_booking_code, Spree.t(:metapack_booking_code) %><br />
+        <%= f.text_field :metapack_booking_code, :class => 'fullwidth', :label => false  %>
+        <%= error_message_on :shipping_method, :metapack_booking_code %>
+      <% end %>
+    </div>
+  </div>
+
 
   <div data-hook="admin_shipping_method_form_tracking_url_field" class="alpha twelve columns">
     <%= f.field_container :tracking_url do %>

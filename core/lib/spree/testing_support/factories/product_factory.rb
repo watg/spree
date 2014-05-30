@@ -5,7 +5,6 @@ FactoryGirl.define do
 
     available_on { 1.day.ago }
     deleted_at nil
-    product_type 'product'
     individual_sale true
 
     weight 0.25
@@ -13,6 +12,8 @@ FactoryGirl.define do
     cost_price 0.25
 
     association :product_group, factory: :product_group, strategy: :build
+    association :product_type, factory: :product_type, strategy: :build
+    association :marketing_type, factory: :marketing_type, strategy: :build
     association :gang_member, factory: :gang_member, strategy: :build
     shipping_category { |r| Spree::ShippingCategory.first || r.association(:shipping_category) }
 
@@ -69,7 +70,7 @@ FactoryGirl.define do
       height 20.0
       width 40.0
       depth 5.0
-      product_type :parcel
+      product_type { create(:product_type_packaging) }
 
       after(:create) do |box|
         bg = create(:box_group)

@@ -4,9 +4,11 @@ describe Spree::CreateAndAllocateConsignmentService do
   subject { Spree::CreateAndAllocateConsignmentService }
   let(:order) { FactoryGirl.create(:order_ready_to_be_consigned_and_allocated, line_items_count: 1) }
   let(:country) { create(:country) }
+  let!(:shipping_method) { create(:shipping_method, shipments: order.shipments) }
 
   before do
     Spree::ProductGroup.any_instance.stub(:country).and_return country
+    order.shipments.first.shipping_methods = [shipping_method]
   end
 
   describe "::run" do
@@ -70,6 +72,11 @@ describe Spree::CreateAndAllocateConsignmentService do
 
     before do
       order.line_items.first.product.update_column(:product_group_id, product_group.id)
+    end
+
+    before do
+      shipping_method.metapack_booking_code = '@GLOBALZONE'
+      shipping_method.save
     end
 
     it "builds all data necessary to create consignment allocation on metapack" do
@@ -145,12 +152,6 @@ describe Spree::CreateAndAllocateConsignmentService do
       address = { line1: "10 Lovely Street", line2: "Herndon", postcode: "20170", country: "USA" }
       expected[:recipient][:address] = address
       expect(consignment.send(:allocation_hash, order)).to eql(expected)
-    end
-
-    it "sets booking code" do
-      order_with_only_pattern_and_less_than_ten = create(:order_with_pattern_only_ready_to_be_consigned_and_allocated)
-      actual = consignment.send(:allocation_hash, order_with_only_pattern_and_less_than_ten)
-      expect(actual[:booking_code]).to eql('@PATTERN')
     end
 
   end

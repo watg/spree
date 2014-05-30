@@ -175,26 +175,18 @@ class Spree::VariantDecorator < Draper::Decorator
      (object.memoized_product.images + object.product.memoized_variant_images).uniq.size > 1
   end
 
-  def tab_made_by_the_gang
-    :made_by_the_gang
-  end
-
-  def tab_knit_your_own
-    :knit_your_own
-  end
-
-  def url_encode_tab_name(tab)
-    tab = tab_made_by_the_gang if tab.blank?
-    tab.to_s.gsub(/_/, '-')
+  def url_encode_tab_name(product_page, tab)
+    tab = product_page.made_by_the_gang if tab.blank?
+    tab.url_safe_tab_type
   end
 
   def url_encoded_product_page_url(product_page, tab=nil)
     h.spree.product_page_url(product_page.permalink, 
                              :host => h.root_url, 
-                             tab: url_encode_tab_name(tab) || product_page.tab, 
+                             tab: url_encode_tab_name(product_page, tab) || product_page.selected_tab.url_safe_tab_type,
                              variant_id: object.number ) 
   end
-  
+
   def twitter_url(product_page, tab=nil)
     "http://twitter.com/intent/tweet?text=Presenting%20#{ h.url_encode(object.name) }%20by%20Wool%20and%20the%20Gang%3A%20" + url_encoded_product_page_url(product_page,tab)
   end
@@ -206,7 +198,7 @@ class Spree::VariantDecorator < Draper::Decorator
   def pinterest_url(product_page, tab=nil)
     "http://pinterest.com/pin/create/%20button/?url=" + url_encoded_product_page_url(product_page,tab) + "&amp;media=#{ h.url_encode(first_image_url(:large)) }&amp;description=Presenting%20#{ h.url_encode(object.name) }%20by%20Wool%20and%20the%20Gang"
   end
-  
+
   def level
     object.product.property('level')
   end

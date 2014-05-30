@@ -25,10 +25,6 @@ module Spree
 
     acts_as_paranoid
 
-    NATURE = {
-      physical: [:kit, :product, :virtual_product, :pattern, :parcel, :made_by_the_gang, :accessory],
-      digital:  [:gift_card] } unless defined?(NATURE)
-
     has_many :product_option_types, dependent: :destroy, inverse_of: :product
     has_many :option_types, through: :product_option_types
     has_many :visible_option_types, -> { where spree_product_option_types: true }, through: :product_option_types
@@ -50,9 +46,12 @@ module Spree
     belongs_to :gang_member,       class_name: 'Spree::GangMember'
     belongs_to :product_group,     class_name: 'Spree::ProductGroup', touch: true
 
-    belongs_to :martin_type, class_name: 'Spree::MartinProductType'
+    belongs_to :marketing_type, class_name: 'Spree::MarketingType'
+    belongs_to :product_type, class_name: 'Spree::ProductType'
 
     validates :product_group, :presence => true
+    validates :product_type, :presence => true
+    validates :marketing_type, :presence => true
     validates :gang_member, :presence => true
 
     has_many :personalisations, dependent: :destroy
@@ -126,18 +125,23 @@ module Spree
 
     after_initialize :ensure_master
 
+    # Grab each set of products that have parts, then 
+    scope :not_assembly, lambda {
+      with_parts = joins(variants_including_master: [:assemblies_parts]).select('spree_products.id') +
+      joins(:assemblies_parts).select('spree_products.id') +
+      joins(variants_including_master: [:assembly_definition]).select('spree_products.id')
+
+      where.not(id: with_parts.uniq.map(&:id) )
+    }
+
      # Hack for the old pages, remove once the new pages are live
     def variant_images_including_targetted
       @_images_including_targetted ||= [self.variant_images, self.target_images].flatten.sort_by { |i| i.position }
     end
 
-    def self.types
-      NATURE.values.flatten
-    end
-
-    def nature
-      return :digital if (NATURE[:digital].include?(product_type) || NATURE[:digital].include?(product_type.to_sym))
-      :physical
+    def assembly?
+      self.assemblies_parts.any? ||
+      self.assembly_definition
     end
 
     def memoized_gang_member
@@ -296,7 +300,7 @@ module Spree
     end
 
     def name_and_type
-      "#{name} - #{product_type}"
+      # no longer used, delete me when you delete the displayable_variants
     end
 
     def self.saleable?

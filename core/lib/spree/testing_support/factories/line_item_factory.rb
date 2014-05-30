@@ -5,6 +5,7 @@ FactoryGirl.define do
     order
     currency 'USD'
     variant
-    product_nature 'physical'
+    product_page
+    product_page_tab
   end
 end

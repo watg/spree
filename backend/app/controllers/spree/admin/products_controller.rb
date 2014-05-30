@@ -61,6 +61,11 @@ module Spree
         end
       end
 
+      def create_assembly_definition
+        @product.master.build_assembly_definition.save!
+        redirect_to edit_admin_product_url(@product)
+      end
+
       protected
 
         def find_resource
@@ -100,9 +105,6 @@ module Spree
         end
 
         def create_before
-          type = Spree::MartinProductType.find(params[:product][:martin_type_id])
-          params[:product][:product_type] = mapping[type.name]
-
           return if params[:product][:prototype_id].blank?
           @prototype = Spree::Prototype.find(params[:product][:prototype_id])
         end
@@ -144,23 +146,6 @@ module Spree
           format.js   { render :layout => false }
         end
       end
-
-      def mapping
-        {
-          'peruvian'      => 'product',
-          'gang'          => 'made_by_the_gang',
-          'kit'           => 'kit',
-          'embellishment' => 'accessory',
-          'sticker'       => 'product',
-          'yarn'          => 'accessory',
-          'needle'        => 'accessory',
-          'pattern'       => 'pattern',
-          'e_gift_card'   => 'gift_card',
-          'clasp'         => 'accessory',
-          'parcel'        => 'parcel'
-        }
-      end
-
 
     end
   end

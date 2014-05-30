@@ -41,8 +41,11 @@ module Spree
       end
       @selected_variant = selected_variants.first if selected_variants.any?
 
+      tab_type = Spree::ProductPageTab.to_tab_type( params[:tab] )
+      selected_tab = product_page.tabs.where(tab_type: tab_type).first
+
       @product_page = Spree::ProductPage.find_by_permalink(params[:id]).decorate( context:  {
-        tab:     params[:tab],
+        tab:     selected_tab,
         current_currency: current_currency,
         selected_variant: @selected_variant
       } )

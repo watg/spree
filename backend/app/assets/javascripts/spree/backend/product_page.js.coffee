@@ -22,9 +22,10 @@ jQuery ->
       alert(content.filename + ' failed to upload')
 
   product_group = $('#product_page_product_group_ids')
+  marketing_types = $('#product_page_tabs_attributes_1_marketing_type_ids')
   product_group.productGroupAutocomplete()
   kit = $('#product_page_kit_id')
-  kit.kitAutocomplete(product_group.val())
+  kit.marketingTypeProductAutocomplete(product_group.val(), marketing_types.val())
 
   product_group.on 'change', ->
-    kit.kitAutocomplete(product_group.val())
+    kit.marketingTypeProductAutocomplete(product_group.val(), marketing_types.val())

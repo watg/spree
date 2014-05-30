@@ -50,12 +50,7 @@ module Spree
           xml['g'].size opt.presentation
         end
 
-        if variant.product.product_type.respond_to?(:name)
-          xml['g'].google_product_category variant.product.category
-          xml['g'].product_type variant.product.product_type.name
-        else
-          xml['g'].product_type variant.product_type
-        end 
+        xml['g'].product_type variant.product.marketing_type.name
       }
     end
 
@@ -127,11 +122,7 @@ module Spree
     end
 
     def data_source
-      Spree::Variant.
-        #includes(:targets, :prices, :option_values, :images, product: [product_group: [:product_pages]] ).
-        includes(:targets, :product).
-        where("spree_products.product_type NOT IN (?)", %w(virtual_product parcel)).
-        references(:products)
+      Spree::Variant.active.merge(Spree::Product.where(individual_sale: true)).includes(:product)
     end
 
     def variants

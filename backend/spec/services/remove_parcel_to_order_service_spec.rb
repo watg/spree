@@ -5,7 +5,7 @@ describe Spree::RemoveParcelToOrderService do
   context "#run" do
     let(:subject)   { Spree::RemoveParcelToOrderService }
     let(:box_group) { FactoryGirl.create(:product_group, name: 'box')}
-    let(:small_box) { FactoryGirl.create(:product, product_type: :product, individual_sale: false, product_group_id: box_group.id) }
+    let(:small_box) { FactoryGirl.create(:product, individual_sale: false, product_group_id: box_group.id) }
     let!(:order)     { FactoryGirl.create(:order) }
 
     it "should invoke success callback when all is good" do

@@ -28,11 +28,14 @@ module Spree
           end
         end
 
-        decorated_product_page = decorate_product_page(product_page, selected_variant)
-        if valid_tab(decorated_product_page, tab) 
-          result[:decorated_product_page] = decorated_product_page
+        tab_type = Spree::ProductPageTab.to_tab_type( tab )
+
+        selected_tab = product_page.tabs.where(tab_type: tab_type).first
+
+        if selected_tab
+          result[:decorated_product_page] = decorate_product_page(product_page, selected_variant, selected_tab)
         else
-          result[:redirect_to] = first_valid_tab(decorated_product_page)
+          result[:redirect_to] = first_valid_tab(product_page)
         end
       else
         result[:redirect_to] = Spree::Core::Engine.routes.url_helpers.root_path
@@ -42,29 +45,17 @@ module Spree
 
     private
 
-    def decorate_product_page(product_page, selected_variant)
+    def decorate_product_page(product_page, selected_variant, selected_tab)
        product_page.decorate(context: {
-          tab:     tab,
+          selected_tab:     selected_tab,
           current_currency: currency,
           selected_variant: selected_variant
         } )
     end
 
-    def valid_tab(product_page, tab)
-      # a tab was not supplied and we were not expecting any
-      if ( tab.blank? and product_page.tabs_as_permalinks.blank? )
-        true
-        # product_page contains the tab supplied
-      elsif product_page.tabs_as_permalinks.include? tab
-        true
-      else
-        false
-      end
-    end
-
     def first_valid_tab(product_page)
-      if product_page.tabs_as_permalinks.any?
-        Spree::Core::Engine.routes.url_helpers.product_page_path(product_page.permalink) + '/' + product_page.tabs_as_permalinks.first
+      if product_page.tabs.any?
+        Spree::Core::Engine.routes.url_helpers.product_page_path(product_page.permalink) + '/' + product_page.tabs.first.url_safe_tab_type
       else
         Spree::Core::Engine.routes.url_helpers.product_page_path(product_page.permalink)
       end

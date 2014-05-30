@@ -79,7 +79,7 @@
 			<%= paginate @variants %>
 			<ul class="variants no-bullet">
 				<li class="loading-text">Loading <%= @product_page.made_unique_title %>, just a tick&hellip;</li>
-				<%= render partial: 'variant', :collection => @variants, :as => :variant, :locals => {tab: @product_page.tab_made_by_the_gang} %>
+				<%= render partial: 'variant', :collection => @variants, :as => :variant, :locals => {product_page: @product_page, product_page_tab: @product_page.made_by_the_gang_tab} %>
 			</ul>
 		</div>
 	</div><!-- /row -->
@@ -119,9 +119,9 @@
 
 				<div class="cart-form" data-hook="cart_form">
           <% if product.assembly_definition %>
-					  <%= render :partial => 'cart_kit_form', :locals => {:variant => variant, :product => product, :target_id => @product_page.target_id } %>
+            <%= render :partial => 'cart_kit_form', :locals => {:variant => variant, :product => product, :product_page => @product_page, :product_page_tab => @product_page.knit_your_own_tab } %>
           <% else %>
-					  <%= render :partial => 'cart_form', :locals => {:variant => variant, :product => product, :target_id => @product_page.target_id } %>
+            <%= render :partial => 'cart_form', :locals => {:variant => variant, :product => product, :product_page => @product_page, :product_page_tab => @product_page.knit_your_own_tab } %>
           <% end %>
 				</div>
 
@@ -131,7 +131,7 @@
 				<ul class="no-bullet social">
 					<% [:twitter, :facebook, :pinterest].each do |social| %>
 					<li>
-					  <%= link_to("Share with #{social}", @product_page.send("#{social}_url", @product_page.tab_knit_your_own), target: '_blank', class: social) %>
+					  <%= link_to("Share with #{social}", @product_page.send("#{social}_url", @product_page.knit_your_own_tab), target: '_blank', class: social) %>
 					</li>
 					<% end %>
 				</ul>

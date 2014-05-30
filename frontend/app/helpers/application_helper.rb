@@ -32,11 +32,21 @@ module ApplicationHelper
   end
 
   def path_to_variant(line_item, variant)
-    t = (line_item.target ? line_item.target.id : nil)
-    tab = (variant.product.product_type == 'kit' ? 'knit-your-own': 'made-by-the-gang')
-    pp = (variant.product.product_group.product_pages.where(target_id: t).first || variant.product.product_group.product_pages.first)
+    pp = line_item.product_page
+    unless pp
+      pp = Spree::ProductPage.unscoped.find_by_id line_item.product_page_id
+    end
     permalink = (pp ? pp.permalink : 'not-found')
-    product_page_path(id: permalink, tab: tab, variant_id: variant.id)
+
+
+    tab = line_item.product_page_tab
+    unless tab
+      tab = Spree::ProductPageTab.unscoped.find_by_id line_item.product_page_tab_id
+    end
+
+    safe_tab = ( tab ? tab.url_safe_tab_type : '') 
+
+    spree.product_page_path(id: permalink, tab: safe_tab, variant_id: variant.id)
   end
 
   def image_url(product,style)

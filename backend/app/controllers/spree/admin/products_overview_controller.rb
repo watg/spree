@@ -15,7 +15,7 @@ module Spree
         params[:products].each do |product|
           if product[:update_flag]
             p = Spree::Product.find(product[:id])
-            p.update_attributes(martin_type_id: product[:martin_type], product_group_id: product[:product_group])
+            p.update_attributes(marketing_type_id: product[:marketing_type], product_group_id: product[:product_group])
           end
         end
         redirect_to action: "index", page: params[:page], name_cont: params[:name_cont]
