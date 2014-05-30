@@ -8,6 +8,7 @@ describe Spree::CreateAndAllocateConsignmentService do
 
   before do
     Spree::ProductGroup.any_instance.stub(:country).and_return country
+    order.shipments.first.shipping_methods = [shipping_method]
   end
 
   describe "::run" do
