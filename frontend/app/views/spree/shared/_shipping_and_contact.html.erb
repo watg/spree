@@ -3,11 +3,7 @@
 	<div class="row">
 		<% if free_shipping? %>
 			<div class="large-6 small-6 columns">
-				<% if free_shipping_to_uk? %>
-				<p><b>Free shipping</b> to the UK <b>only until 1st June</b> <a rel="modal" name="modal-shipping" href="#modal-shipping">find out more</a></p>
-				<% else %>
 				<p><strong>Free shipping</strong> on orders over <%= free_shipping_amount %> <a rel="modal" name="modal-shipping" href="#modal-shipping">find out more</a></p>
-				<% end %>
 			</div>
 			<div class="large-6 small-6 columns">
 				<p><strong>We're happy if you're happy</strong> <a rel="modal" name="modal-contact" href="#modal-contact">contact us</a> if you need our help</p>
