@@ -7,7 +7,11 @@ describe Spree::LineItem do
   describe "#item_sku" do
     subject {line_item}
     context "dynamic kit" do
-      let(:variant10) { create(:variant, weight: 10) }
+      # sku's are important as we do a sort on the sku when generating 
+      # the item_sku
+      let(:variant11) { create(:variant, weight: 11, sku: 'c') }
+      let(:variant10) { create(:variant, weight: 10, sku: 'a') }
+      let(:variant8)  { create(:variant, weight: 8, sku: 'b') }
       let(:variant7)  { create(:variant, weight: 7) }
       let(:option_type)  { create(:option_type) }
 
@@ -17,16 +21,20 @@ describe Spree::LineItem do
         v.assembly_definition = Spree::AssemblyDefinition.create(variant_id: v.id)
         v
       }
-      let(:part1) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant10.product_id, optional: false, displayable_option_type: option_type)}
-      let(:part2) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant7.product_id, optional: true, displayable_option_type: option_type)}
+      let(:part1) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant11.product_id, optional: false, displayable_option_type: option_type)}
+      let(:part2) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant10.product_id, optional: false, displayable_option_type: option_type)}
+      let(:part3) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant8.product_id, optional: false, displayable_option_type: option_type)}
+      let(:part4) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant7.product_id, optional: true, displayable_option_type: option_type)}
       
       before do
         subject.variant = dynamic_kit_variant
-        subject.line_item_parts.create(quantity: 1, price: 1, variant_id: variant10.id, optional: false, assembly_definition_part_id: part1.id)
-        subject.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: true, assembly_definition_part_id: part2.id)
+        subject.line_item_parts.create(quantity: 1, price: 1, variant_id: variant11.id, optional: false, assembly_definition_part_id: part1.id)
+        subject.line_item_parts.create(quantity: 1, price: 1, variant_id: variant10.id, optional: false, assembly_definition_part_id: part2.id)
+        subject.line_item_parts.create(quantity: 2, price: 1, variant_id: variant8.id, optional: false, assembly_definition_part_id: part3.id)
+        subject.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: true, assembly_definition_part_id: part4.id)
         subject.save
       end
-      its(:item_sku) { should eq [variant10.product.name, variant10.options_text].join(' - ')}
+      its(:item_sku) { should eq "#{subject.variant.sku} [#{variant10.sku}, #{variant8.sku}, #{variant11.sku}]" }
     end
     context "non - dynamic kit" do
       its(:item_sku) { should eq subject.variant.sku }
