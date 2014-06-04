@@ -1,3 +1,3 @@
 $('.loading-text').remove();
-$('.variants').append('<%= j render partial: 'variant', :layout => false, :collection => @variants, :as => :variant, :locals => {tab: @product_page.made_by_the_gang} %>');
+$('.variants').append('<%= j render partial: 'variant', :layout => false, :collection => @variants, :as => :variant, :locals => {product_page_tab: @product_page.made_by_the_gang, product_page: @product_page} %>');
 $('.pagination').replaceWith('<%= j paginate @variants %>');

@@ -1,5 +1,5 @@
 <h3>Free Shipping</h3>
-<h4>On all orders to the UK *</h4>
+<h4>On all orders <strong>over <%= free_shipping_amount %></strong> to the UK</h4>
 <table>
 	<caption>Shipping to the UK</caption>
 	<tbody>
@@ -9,6 +9,10 @@
 		</tr>
 		<tr>
 			<th>Cost</th>
+			<td>£4.99</td>
+		</tr>
+		<tr>
+			<th>Spend over <%= free_shipping_amount %>*</th>
 			<td>Free</td>
 		</tr>
 	</tbody>

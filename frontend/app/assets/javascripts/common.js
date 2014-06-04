@@ -48,8 +48,8 @@ WATG.checkSlides = function() {
 
 WATG.signup = {
 	globals: {
-		// cookie: 'signupPopKilled'
-		cookie: 'competition2014Killed'
+		cookie: 'signupPopKilled'
+		// cookie: 'competition2014Killed'
 	},
 
 	init: function() {
@@ -71,7 +71,7 @@ WATG.signup = {
 					if (e.response !== 'success') {
 						WATG.signup.showError();
 					} else {
-						message_cont.html(WATG.signup.getPromo);
+						// message_cont.html(WATG.signup.getPromo);
 						WATG.signup.setCookie();
 					}
 					WATG.signup.globals.responses.fadeIn();
