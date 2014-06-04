@@ -37,6 +37,15 @@ describe StaticController, type: :controller do
       ApplicationController.any_instance.stub( :valid_environment? => true )
     end
 
+    it "sets the correct country code when an exception in raised" do
+      subject.request.stub(:location).and_raise("this error")
+
+      spree_get :home_page
+      response.status.should == 200
+      expect(session[:country_code]).to eq "US"
+    end
+
+
     it "sets the correct country code when one is recognized" do
       subject.request.stub :location => double("Location", :country_code => "UK", :cache_hit => false)
 
