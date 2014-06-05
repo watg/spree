@@ -196,15 +196,9 @@ module Spree
     end
 
     def item_sku
-      definition = self.variant.assembly_definition
-      if definition
-        definition.parts.map do |part|
-          option = self.line_item_parts.where(optional: false, assembly_definition_part_id: part.id).first
-          "#{part.product.name} - #{option.variant.options_text}" if option
-        end.compact.join(', ')
-      else
-        self.variant.sku
-      end
+      sku_parts = self.line_item_parts.required.map { |p| p.variant.sku }
+      suffix = sku_parts.any? ? " [#{sku_parts.sort.join(', ')}]" : ''
+      self.variant.sku + suffix
     end
 
     def weight
