@@ -71,7 +71,7 @@ body.homepage #header {
 
 .home-main .leader-1 {	
 	/* Small screen background */
-	background: #000 url('<%= cdn_url("/homepage/2014-05-22/01_Homepage_ClubTropicana_MOBILE.jpg") %>') top center no-repeat;
+	background: #000 url('<%= cdn_url("/homepage/2014-06-05/1_Homepage_ClubTropicana2_MOBILE_V1.jpg") %>') top center no-repeat;
 	& > div {
 		height: 580px;
 	}
@@ -95,7 +95,7 @@ body.homepage #header {
 	}*/
 	/* Large screen background */
 	@media only screen and (min-width: 48em) {
-		background: #000 url('<%= cdn_url("/homepage/2014-05-22/01_Homepage_ClubTropicana_DESKTOP_1.jpg") %>') top center no-repeat;
+		background: #000 url('<%= cdn_url("/homepage/2014-06-05/1_Homepage_ClubTropicana2_DESKTOP_V1.jpg") %>') top center no-repeat;
 		& > div {
 			height: 700px;
 		}
@@ -115,92 +115,44 @@ body.homepage #header {
 
 .home-main .leader-2 {	
 	/* Small screen background */
-	background: #fc9a01 url('<%= cdn_url("/homepage/2014-05-22/02_Homepage_ClubTropicana_MOBILE.jpg") %>') top center no-repeat;
-	& > div {
-		height: 230px;
-	}
-	/* Large screen background */
-	@media only screen and (min-width: 48em) {
-		background: #fc9a01 url('<%= cdn_url("/homepage/2014-05-22/02_Homepage_ClubTropicana_DESKTOP_1_TEXT.jpg") %>') top center no-repeat;
-		& > div {
-			height: 290px;
-		}
-	}
-}
-
-.home-main .leader-3 {	
-	/* Small screen background */
-	background: #000 url('<%= cdn_url("/homepage/2014-05-22/03_Homepage_ClubTropicana_MOBILE.jpg") %>') top center no-repeat;
+	background: #e2b7c0 url('<%= cdn_url("/homepage/2014-06-05/2_Homepage_Festival_MOBILE_V1.jpg") %>') top center no-repeat;
 	& > div {
 		height: 580px;
 	}
+	a {
+		position: absolute;
+		display: block;
+		line-height: 0;
+		font-size: 0;
+	}
+	.link-festival {
+		width: 100%;
+		height: 100%;
+	}
+	.link-pinterest {
+		width: 125px;
+		height: 125px;
+		// Positioning
+		margin-left: 10px;
+		bottom: 10px;
+		left: 50%;
+	}
 	/* Large screen background */
 	@media only screen and (min-width: 48em) {
-		background: #000 url('<%= cdn_url("/homepage/2014-05-22/03_Homepage_ClubTropicana_DESKTOP_2.jpg") %>') top center no-repeat;
+		background: #e2b7c0 url('<%= cdn_url("/homepage/2014-06-05/2_Homepage_Festival_DESKTOP_V1.jpg") %>') top center no-repeat;
 		& > div {
 			height: 700px;
 		}
-	}
-}
-
-.home-main .leader-4 {	
-	/* Small screen background */
-	background: #90ebda url('<%= cdn_url("/homepage/2014-05-22/04_Homepage_ClubTropicana_MOBILE.jpg") %>') top center no-repeat;
-	& > div {
-		height: 230px;
-	}
-	/* Large screen background */
-	@media only screen and (min-width: 48em) {
-		background: #90ebda url('<%= cdn_url("/homepage/2014-05-22/04_Homepage_ClubTropicana_DESKTOP_2_TEXT.jpg") %>') top center no-repeat;
-		& > div {
-			height: 290px;
+		.link-pinterest {
+			// Positioning
+			margin-left: -55px;
+			top: 42px;
+			bottom: auto;
 		}
 	}
-}
-
-.home-main .leader-5 {	
-	/* Small screen background */
-	background: #000 url('<%= cdn_url("/homepage/2014-05-22/05_Homepage_ClubTropicana_MOBILE.jpg") %>') top center no-repeat;
-	& > div {
-		height: 580px;
-	}
-	/* Large screen background */
-	@media only screen and (min-width: 48em) {
-		background: #000 url('<%= cdn_url("/homepage/2014-05-22/05_Homepage_ClubTropicana_DESKTOP_4.jpg") %>') top center no-repeat;
-		& > div {
-			height: 700px;
-		}
-	}
-}
-
-.home-main .leader-6 {	
-	/* Small screen background */
-	background: #22a2f9 url('<%= cdn_url("/homepage/2014-05-22/06_Homepage_ClubTropicana_MOBILE.jpg") %>') top center no-repeat;
-	& > div {
-		height: 230px;
-	}
-	/* Large screen background */
-	@media only screen and (min-width: 48em) {
-		background: #22a2f9 url('<%= cdn_url("/homepage/2014-05-22/06_Homepage_ClubTropicana_DESKTOP_3_TEXT.jpg") %>') top center no-repeat;
-		& > div {
-			height: 290px;
-		}
-	}
-}
-
-.home-main .leader-7 {	
-	/* Small screen background */
-	background: #fff url('<%= cdn_url("/homepage/2014-05-22/07_Homepage_ClubTropicana_MOBILE.jpg") %>') top center no-repeat;
-	& > div {
-		height: 580px;
-	}
-	/* Large screen background */
-	@media only screen and (min-width: 48em) {
-		background: #fff url('<%= cdn_url("/homepage/2014-05-22/07_Homepage_ClubTropicana_DESKTOP_3_TEXT.jpg") %>') top center no-repeat;
-		& > div {
-			height: 700px;
-		}
-	}
+	/*.button {
+		padding: 0.4em 0.6em 0.4em;
+	}*/
 }
 
 /*************************************************************************************/
