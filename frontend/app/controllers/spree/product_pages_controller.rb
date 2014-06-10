@@ -4,7 +4,8 @@ module Spree
 
     PER_PAGE = 6
     
-    respond_to :html
+    respond_to :html, :json
+    rescue_from ActionController::UnknownFormat, with: :render_404
 
     def show
       respond_to do |format|
