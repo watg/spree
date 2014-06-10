@@ -388,6 +388,38 @@ describe Spree::LineItem do
     end
   end
 
+  describe ".normal_display_amount" do
+    before do
+      line_item.price = 3.50
+      line_item.normal_price = 3.50
+      line_item.quantity = 2
+    end
+
+    it "returns a Spree::Money representing the total for this line item" do
+      line_item.normal_display_amount.to_s.should == "$7.00"
+    end
+
+  end
+
+  describe ".sale_display_amount" do
+    before do
+      line_item.price = 2.50
+      line_item.normal_price = 3.50
+      line_item.quantity = 2
+    end
+
+    it "returns a Spree::Money representing the total for this line item" do
+      line_item.sale_display_amount.to_s.should == "$7.00"
+    end
+
+    it "returns a Spree::Money representing the total for this line item when in the sale" do
+      line_item.in_sale = true
+      line_item.sale_display_amount.to_s.should == "$5.00"
+    end
+
+  end
+
+
   describe ".money" do
     before do
       line_item.price = 3.50

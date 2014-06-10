@@ -17,7 +17,11 @@
 			<%= link_to 'Remove', '#', :class => 'delete', :id => "delete_#{dom_id(line_item)}", :title => "Remove" %>
 		</div>
 	</td>
-	<td class="item-total" data-hook="cart_item_total">
-		<%= line_item.display_amount.to_html unless line_item.quantity.nil? %>
+	<td class="item-total" data-hook="cart_item_totaly">
+    <%variant = line_item.variant.decorate( context: {current_currency: line_item.currency, target: line_item.target}) %>
+    <span class="<%=variant.normal_price_classes %>"> <%= line_item.normal_display_amount.to_html unless line_item.quantity.nil? %></span>
+    <% if line_item.in_sale? %>
+      <span class="<%=variant.sale_price_classes %>"> <%= line_item.sale_display_amount.to_html unless line_item.quantity.nil? %></span>
+    <% end %>
 	</td>
 </tr>

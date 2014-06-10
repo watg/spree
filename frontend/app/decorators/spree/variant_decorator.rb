@@ -80,17 +80,17 @@ class Spree::VariantDecorator < Draper::Decorator
 
   def normal_price_classes
     if object.in_sale?
-      ['normal-price','was'].join(' ')
+      ['normal-price','price', 'was'].join(' ')
     else
-      ['normal-price', 'price', 'selling'].join(' ')
+      ['normal-price', 'price'].join(' ')
     end
   end
 
   def sale_price_classes
     if object.in_sale?
-      ['sale-price','price', 'now', 'selling'].join(' ')
+      ['sale-price','price'].join(' ')
     else
-      ['sale-price', 'hide'].join(' ')
+      ['sale-price', 'price', 'hide'].join(' ')
     end
   end
 

@@ -58,12 +58,16 @@ $sale-color: #ff0054;
 .sale-price {
 	color: $sale-color;
 }
-.price.was + .price.now, 
+.price.was + .price.now,
 .was + .price.selling {
 	color: $sale-color;
 }
 .price.was, #product-price .was {
 	text-decoration: line-through;
+}
+
+.price.unselected {
+  opacity: 0.4;
 }
 
 /* Buttons - using Foundation mixins. CSS classes set to FALSE in _settings */

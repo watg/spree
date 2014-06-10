@@ -67,10 +67,9 @@ core.productGroup.readyKitVariantOptions = (entity) ->
 
   entity.find(".prices").on('update',( ->
     if entity.find('.variant-options.required:not(.selected)').length > 0
-      $(this).find('.normal-price').addClass('price now unselected').removeClass('was')
-      $(this).find('.sale-price').addClass('hide').removeClass('selling')
+      $(this).find('.price').addClass('unselected')
     else
-      $(this).find('.normal-price').addClass('selling').removeClass('unselected')
+      $(this).find('.price').removeClass('unselected')
   ))
 
   entity.find(".price").on('recalculate',( ->

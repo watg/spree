@@ -14,10 +14,10 @@
 cause big cache issues %>
 <%= hidden_field_tag "product_page_tab_id", product_page_tab.id %>
 
-<div class="product-price prices" data-hook="product_price">
+<div class="product-price prices" data-hook="product_price" data-in-sale="<%=variant.in_sale?%>">
 	<% if variant.has_price? %>
 		<span class="<%=variant.normal_price_classes %> unselected" data-price="<%= variant.price.in_subunit %>" data-currency="<%= variant.currency_symbol %>"><%= variant.price_html %></span>
-		<span class="<%= variant.sale_price_classes %>" data-price="<%= variant.sale_price.in_subunit %>" data-currency="<%= variant.currency_symbol %>"><%= variant.sale_price_html %></span>
+		<span class="<%=variant.sale_price_classes %> unselected" data-price="<%= variant.sale_price.in_subunit %>" data-currency="<%= variant.currency_symbol %>"><%= variant.sale_price_html %></span>
 	<% end %>
 </div>
 

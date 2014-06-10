@@ -168,6 +168,18 @@ module Spree
     alias display_total money
     alias display_amount money
 
+    def normal_display_amount
+      Spree::Money.new(normal_amount, { currency: currency })
+    end
+
+    def sale_display_amount
+      if in_sale?
+        display_amount
+      else
+        normal_display_amount
+      end
+    end
+
     def adjust_quantity
       self.quantity = 0 if quantity.nil? || quantity < 0
     end
