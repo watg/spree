@@ -127,7 +127,7 @@ core.showCookieMessage = function() {
 
 // Set a random background position (x-axis)
 core.randomiseBackgroundPosition = function() {
-	var x_positions = ['-300px', '0', '300px'];
+	var x_positions = ['760px', '-5px'];
 	var rand_num = Math.floor((Math.random() * x_positions.length));
 	$('.row-hero').css('background-position', x_positions[rand_num] + ' 0');
 }
