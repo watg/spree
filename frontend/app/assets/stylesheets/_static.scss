@@ -400,9 +400,9 @@ body.thank-you {
 		display: none;
 	}
 	.row-shipping-and-contact + .container > div.row {
-  		max-width: none !important;
+			max-width: none !important;
 		background-color: #f9f9f9;
-  	}
+		}
 	.row-olapic-gallery {
 		position: relative;
 		margin: emCalc(60px) auto;
@@ -587,5 +587,64 @@ body.thank-you {
 .olapic-gallery.hang-with-the-gang {
 	.row-shipping-and-contact + .container > div.row {
 		background-color: #fff;
-  	}
+		}
 }
+
+/* Vote for your favourite */
+.vote-for-your-favourite {
+
+	.row-shipping-and-contact + .container > div.row {
+		max-width: none !important;
+		width: none !important;
+	}
+
+	.row-shipping-and-contact + .container > div.row > .columns {
+		padding: 0 !important;
+	}
+
+	.row {
+		margin: 0 auto;
+		position: relative;
+		max-width: 62.5em;
+	}
+
+	.row-hero {
+		background: image-url('watg-img/hero-vote-for-your-favourite.jpg') center top repeat-x #fff;
+
+		h1 {
+			font-size: emCalc(84px);
+			text-align: center;
+			margin-top: 437px;
+			line-height: 0.9em;
+			letter-spacing: 0.09em;
+		}		
+	}
+
+	.row-text {
+		text-align: center;
+
+		h2, h3 {
+			font-size: emCalc(30px);
+			margin: 0;
+		}
+
+		h2 {
+			font-family: $watg-font-secondary-light;
+		}
+
+		h3 {
+			font-family: $watg-font-secondary;	
+			margin-top: emCalc(30px);
+		}
+		
+		a.button {
+			margin-top: emCalc(35px);
+			margin-bottom: emCalc(35px);
+			font-size: emCalc(26px);
+		}
+	}
+
+}
+
+
+
