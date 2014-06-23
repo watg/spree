@@ -8,7 +8,7 @@ $(document).ready(function() {
 	core.readyAccordions();
 	core.readyCarousels();
 	core.showCookieMessage();
-});
+	core.readyAlpacaAttack();
 
 /* ----- Init methods ----- */
 
@@ -43,7 +43,7 @@ core.readyNavigation = function() {
 			}
 		});
 	}
-}
+};
 
 // Ready primary navigation for mobile
 core.readyNavigationMobile = function() {
@@ -53,11 +53,12 @@ core.readyNavigationMobile = function() {
 			core.showSubNavigationMobile();
 		}
 	});
-}
+};
 
 // Show sub primary navigation
 core.showSubNavigation = function(e) {
-	$('.nav-primary li a').removeClass('active') // Needed for tablet
+	$('.nav-primary li a').removeClass('active') 
+	// Needed for tablet
 
 	e.children('a').addClass('active');
 
@@ -67,21 +68,21 @@ core.showSubNavigation = function(e) {
 
 	var sub_id = '.' + e.attr('class') + '-sub';
 	$(sub_id).show();
-}
+};
 
 // Show sub primary navigation for mobile
 core.showSubNavigationMobile = function(e) {
 	$('.nav-primary-sub').toggleClass('expanded');
 	$(".nav-primary-sub [class$='-sub']").show();
 	$('.nav-primary-sub .columns').not('.small-12').hide();
-}
+};
 
 // Hide sub primary navigation
 core.hideSubNavigation = function(e) {
 	e.children('a').removeClass('active');
 	
 	$('.nav-primary-sub').removeClass('expanded');
-}
+};
 
 // Ready modal plugin
 core.readyModals = function() {
@@ -92,21 +93,20 @@ core.readyModals = function() {
 		e.preventDefault();
 		$(this).parent().siblings('.modal-close').click();
 	});
-}
+};
 
 // Reset modal events
 core.resetModals = function() {
 	$('a[rel*=modal]').off();
 	
 	$('.modal .button').off();
-}
+};
 
 // Ready tooltips plugin
 core.readyTooltips = function() {
-    $('.tooltip').tooltipster({
-	   delay: 0
+    $('.tooltip').tooltipster({ delay: 0
 	});
-}
+};
 
 core.readyAccordions = function() {
     $('.accordion-content').hide();
@@ -128,7 +128,7 @@ core.showCookieMessage = function() {
 			row.fadeOut('slow');
 		});
 	}
-}
+};
 
 core.readyCarousels = function() {
 
@@ -171,6 +171,13 @@ core.readyCarousels = function() {
   }  
 }
 
+// Attach event handler for alpaca attack
+core.readyAlpacaAttack = function() {
+	$('#nav-bar .worldwide').on('click', function(e) {
+	 core.runAlpacaAttack();
+  });
+};
+
 /* ----- Non-init methods ----- */
 
 // Test for tablet width or less
@@ -194,3 +201,11 @@ core.getUrlPathAsArray = function() {
 core.isEmail = function(email) {
 	return /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test(email);
 }
+};
+
+// Animation for alpaca attack
+core.runAlpacaAttack = function() {
+  $('.alpaca-attack').css('display', 'block');
+      $('.alpaca-attack').animate({height: 'toggle'});
+      $('.alpaca-attack').animate({width: 'toggle'});
+};
