@@ -1,6 +1,7 @@
 module Olapic
   module Stream
     def olapic_data(url, params)
+      return nil if url.blank?
       params ||= {}
       uri = URI(url)
       query = params.map {|a| a.join('=') }.join('&')
