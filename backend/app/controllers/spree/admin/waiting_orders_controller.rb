@@ -8,8 +8,7 @@ module Spree
         @unprinted_invoice_count = Spree::Order.unprinted_invoices.count
         @unprinted_image_count = Spree::Order.unprinted_image_stickers.count
         if params[:batch_id].present?
-          order = Spree::Order.find_by(batch_print_id: params[:batch_id])
-          @orders = [order]
+          @orders = Spree::Order.where(batch_print_id: params[:batch_id])
         else
           @curr_page, @per_page = pagination_helper(params)
           @orders = load_orders_waiting.order('batch_print_id DESC').page(@curr_page).per(@per_page)
