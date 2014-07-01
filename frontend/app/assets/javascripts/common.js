@@ -290,7 +290,7 @@ $(function() {
 	if ($('body').hasClass('competition-2014') ||
 		$('body').hasClass('competition-beatkit') || 
 		$('body').hasClass('competition-shopping-spree-apr-2014') ||
-		$('body').hasClass('competition-summer-look-jun-2014')) ||
+		$('body').hasClass('competition-summer-look-jun-2014') ||
 		$('body').hasClass('competition-summer-bag-jun-2014')) {
 		WATG.referral.init();
 	}
