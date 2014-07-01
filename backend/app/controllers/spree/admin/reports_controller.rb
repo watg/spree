@@ -11,6 +11,7 @@ module Spree
         :gift_card => { :name => "Gift Card", :description => "Export all registered gift cards", date: false },
         :gang_sales => { :name => Spree.t(:gang_sales), :description => Spree.t(:gang_sales_description), date: true },
         :tara_stiles => { :name => "Tara Stiles",  :description => "Get sales data for TS Hoodie, Tree Huggers, Hot Top, Shatki Shorts, Strala T-Shirt", date: true },
+        :rachel_rutt => { :name => "Rachel Rutt",  :description => "Get a report about Rachel Rutt Sales", date: true },
       }.with_indifferent_access
 
       def index
