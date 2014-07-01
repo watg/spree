@@ -206,6 +206,7 @@ WATG.referral = {
 	    dataType: 'json',
 	    success: function(e) {
 				WATG.referral.showThanks();
+				WATG.referral.addFacebookPixel();
 			}
 		})
 	},
@@ -236,6 +237,10 @@ WATG.referral = {
 	/* Utility function. Move this out at some point... */
 	isEmail: function(email) {
 		return /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test(email);
+	},
+	
+	addFacebookPixel: function() {
+		$('<img/>').attr('src', 'https://www.facebook.com/tr?ev=6014728651499&amp;cd[value]=0.00&amp;cd[currency]=USD').attr('style', 'display: none;').appendTo('body');		
 	}
 }
 
