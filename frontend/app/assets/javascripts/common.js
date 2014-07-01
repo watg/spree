@@ -138,13 +138,12 @@ WATG.referral = {
 			}
 		});
 
-		form = this.referralForm;
-
 		$('.add-a-friend').on('click', function(e) {
 			e.preventDefault();
 			WATG.referral.hideError();
 			// Clone the first referee input and spit out after the last
-			form.find('input:eq(2)').clone().val('').insertAfter(form.find('input:last')).hide().fadeIn('slow');
+			var referee = $('#refereeForm');
+			referee.find('input:eq(2)').clone().val('').insertAfter(referee.find('input:last')).hide().fadeIn('slow');
 		});
 	},
 	
@@ -290,7 +289,8 @@ $(function() {
 	if ($('body').hasClass('competition-2014') ||
 		$('body').hasClass('competition-beatkit') || 
 		$('body').hasClass('competition-shopping-spree-apr-2014') ||
-		$('body').hasClass('competition-summer-look-jun-2014')) {
+		$('body').hasClass('competition-summer-look-jun-2014') ||
+		$('body').hasClass('competition-summer-bag-jun-2014')) {
 		WATG.referral.init();
 	}
 
