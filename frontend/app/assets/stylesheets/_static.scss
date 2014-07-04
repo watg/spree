@@ -593,76 +593,14 @@ body.thank-you {
 
 /* Vote for your favourite */
 .vote-for-your-favourite {
-	.row-shipping-and-contact + .container > div.row {
-		max-width: none !important;
-		width: none !important;
-	}
-
-	.row-shipping-and-contact + .container > div.row > .columns {
-		padding: 0 !important;
-	}
-
-	a:hover {
-		text-decoration: none;
-	}
-
-	.row {
-		margin: 0 auto;
-		position: relative;
-		max-width: 62.5em;
-	}
 
 	.row-hero {
 
-		background: image-url('watg-img/hero-vote-for-your-favourite.jpg') center top repeat-x #fff;
+		background: image-url('watg-img/hero-ganglab-info.jpg') center 0 no-repeat;
+    min-height: 533px;
 
-		h1 {
-			font-size: emCalc(84px);
-			text-align: center;
-			margin-top: 437px;
-			line-height: 0.9em;
-			letter-spacing: 0.09em;
-		}
-
-			/* Just mobile, custom width */
-		@media only screen and (max-width: 400px) {
-		
-			h1 {
-				font-size: emCalc(42px);
-			}
-		}
-	}
-
-	.row-text {
-		text-align: center;
-
-		h2, h3 {
-			font-size: emCalc(30px);
-			margin: 0;
-		}
-
-		h2 {
-			font-family: $watg-font-secondary-light;
-		}
-
-		h3 {
-			font-family: $watg-font-secondary;	
-			margin-top: emCalc(30px);
-		}
-		
-		a.button {
-			margin-top: emCalc(35px);
-			margin-bottom: emCalc(35px);
-			font-size: emCalc(26px);
-		}
-
-			/* Just mobile, custom width */
-		@media only screen and (max-width: 400px) {
-
-			h2, h3 {
-				font-size: emCalc(25px);
-				line-height: 1.3em;
-			}
+		h1, h2 {
+      display: none;
 		}
 	}
 
