@@ -111,6 +111,14 @@
 		li:last-child {
 			padding-right: 0;
 		}
+		li.sale {
+			a {
+				color: #ff0054;
+				&.active {
+					border-bottom: 5px solid #ff0054;
+				}
+			}
+		}
 	}
 }
 
