@@ -196,6 +196,7 @@ WATG.referral = {
 	
 	// Submit on forms
 	submitForms: function() {
+		var _gaq = _gaq || [];
 		_gaq.push(['_trackEvent', 'competition sign up', 'sign up']); // GA event
 		this.showWait();
 
@@ -240,7 +241,7 @@ WATG.referral = {
 	},
 	
 	addFacebookPixel: function() {
-		$('<img/>').attr('src', 'https://www.facebook.com/tr?ev=6014728651499&amp;cd[value]=0.00&amp;cd[currency]=USD').attr('style', 'display: none;').appendTo('body');		
+		$('<img/>').attr('src', 'https://www.facebook.com/tr?ev=6014728651499&amp;cd[value]=0.00&amp;cd[currency]=USD').appendTo('body');		
 	}
 }
 
