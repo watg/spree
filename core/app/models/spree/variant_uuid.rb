@@ -4,7 +4,7 @@ module Spree
     NUMBER_PREFIX = "I"
     
     after_initialize do
-      self.recipe.symbolize_keys! if self.recipe
+      self.recipe.symbolize_keys! if self.recipe.kind_of? Hash
     end
     
     class << self
