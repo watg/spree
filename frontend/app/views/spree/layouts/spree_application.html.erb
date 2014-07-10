@@ -44,11 +44,7 @@
 	  <script type="text/javascript" src="//assets.pinterest.com/js/pinit.js"></script>
   <% end %>
 
-
-	<% if body_class == 'homepage' %>
-		<%= render :partial => 'spree/shared/facebook_pixel' %>
-	<% end %>
-
+	<%= render :partial => 'spree/shared/facebook_pixel' %>
 	<%= render :partial => 'spree/shared/adroll_pixel' %>
 	<%= render :partial => 'spree/shared/google_universal_analytics' %>
  	<%= render :partial => 'spree/shared/google_analytics' %>
