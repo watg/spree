@@ -445,6 +445,14 @@ module Spree
         references(:variant, :product)
     end
 
+    def physical_line_items
+      self.line_items.
+        includes(:variant, product: [:product_type]).
+        where("spree_product_types.is_digital" => false).
+        reorder('spree_line_items.created_at ASC').
+        references(:variant, :product)
+    end
+
     def line_items_without_gift_cards
       (line_items - gift_card_line_items)
     end
