@@ -68,6 +68,15 @@ describe Spree::ShippingManifest do
       expect(order.total.to_f).to eq 40.0
       expect(subject.order_total.to_f).to eq 16.0
     end
+
+    it "does not add them to the products list" do
+      order.updater.update
+      expect(order.total.to_f).to eq 40.0
+      result = subject.create
+      expect(result.size).to eq 1
+      expect(result[normal_line_item.product.id]).to be_present
+      expect(result[digital_product.id]).not_to be_present
+    end
   end
 
 end

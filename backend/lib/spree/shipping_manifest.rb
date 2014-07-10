@@ -60,7 +60,7 @@ module Spree
     # to arrive at a more accurate allocation of the actual cost 
     # of each.
     def gather_order_products
-      order.line_items.includes(:variant => :product).each do |line|
+      order.physical_line_items.each do |line|
         if line.parts.empty?
           add_to_products(line.product, line.quantity, line.base_price*line.quantity)
         else

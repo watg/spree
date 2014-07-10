@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Spree::Order do
   let(:order) { FactoryGirl.create(:completed_order_with_pending_payment) }
-  let!(:product_type_gift_card) { create(:product_type_gift_card) }
+  let(:product_type_gift_card) { create(:product_type_gift_card) }
 
   context "METAPACK" do
     let(:order_with_weight)  { create(:order_ready_to_be_consigned_and_allocated) }
@@ -73,11 +73,20 @@ describe Spree::Order do
   end
 
   describe "#line_items_without_gift_cards" do
-    subject { create(:order_with_line_items) }
-    let(:li_gc) { create(:line_item, quantity: 1, variant: create(:product, product_type: product_type_gift_card).master, order: subject) }
+    subject { create(:order_with_line_items, line_items_count: 1) }
+    let!(:li_gc) { create(:line_item, quantity: 1, variant: create(:product, product_type: product_type_gift_card).master, order: subject) }
 
     it "only returns line items without gift card in them" do
       expect(subject.line_items_without_gift_cards).to match_array(subject.line_items)
+    end
+  end
+
+  describe "#physical_line_items" do
+    subject { create(:order_with_line_items, line_items_count: 1) }
+    let!(:digital_line_item) { create(:line_item, variant: create(:product, product_type: create(:product_type, is_digital: true)).master, order: subject) }
+
+    it "only returns line items without digital items in them" do
+      expect(subject.physical_line_items).to match_array(subject.line_items)
     end
   end
 
