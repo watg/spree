@@ -30,9 +30,11 @@ module Spree
     private
     def allocation_hash(order)
       shipping_manifest = Spree::ShippingManifest.new(order)
-      consignment_value = shipping_manifest.order_total * to_gbp_rate(order.currency)
+      consignment_value = shipping_manifest.order_total
       {
         value:         consignment_value,
+        currency:      order.currency,
+        currencyRate:  currencyRateToGBP(order.currency),
         weight:        order.weight.round(2),
         max_dimension: order.max_dimension.to_f,
         order_number:  order.number,
@@ -53,7 +55,7 @@ module Spree
     def parcel(order, parcels, total_weight)
       total = parcels.size
       weight = (total_weight / total).round(2)
-      value = (Spree::ShippingManifest.new(order).order_total / total).round(2) * to_gbp_rate(order.currency)
+      value = (Spree::ShippingManifest.new(order).order_total / total).round(2)
       parcels.map.with_index do |p,index|
         {
           reference: p.id,
@@ -143,8 +145,7 @@ module Spree
       end
     end
 
-
-    def to_gbp_rate(currency)
+    def currencyRateToGBP(currency)
       Helpers::CurrencyConversion::TO_GBP_RATES[currency].to_f
     end
 
