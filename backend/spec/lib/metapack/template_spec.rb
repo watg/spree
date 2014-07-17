@@ -3,6 +3,8 @@ require 'spec_helper'
 def consignment_hash
       {
         value:         1.2,
+        currency:      "USD",
+        currencyRate:  1.5,
         weight:        1.0,
         max_dimension: 30.0,
         order_number:  'order1',

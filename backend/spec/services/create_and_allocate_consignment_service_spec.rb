@@ -85,10 +85,11 @@ describe Spree::CreateAndAllocateConsignmentService do
 
       p1,p2 = [order.parcels[0],order.parcels[1]]
       address = { line1: "10 Lovely Street", line2: "Northwest", line3: "Herndon", postcode: "20170", country: "USA" }
-      consignment_value = order.total * Helpers::CurrencyConversion::TO_GBP_RATES[order.currency]
-      parcel_value = consignment_value / 2
+      parcel_value = order.total / 2
       expected  = {
-        value:         consignment_value,
+        value:         order.total,
+        currency:      order.currency,
+        currencyRate:  Helpers::CurrencyConversion::TO_GBP_RATES[order.currency],
         weight:        ( variants_weight.to_f + 0.6 ).round(2),
         max_dimension: 40.0,
         order_number:  order.number,

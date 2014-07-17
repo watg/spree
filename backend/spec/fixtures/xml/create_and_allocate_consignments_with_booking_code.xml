@@ -12,6 +12,8 @@
           <moreThanTwentyFiveKgGoodsFlag xsi:type="xsd:boolean">false</moreThanTwentyFiveKgGoodsFlag>
           <twoManLiftFlag xsi:type="xsd:boolean">false</twoManLiftFlag>
           <consignmentLevelDetailsFlag xsi:type="xsd:boolean">false</consignmentLevelDetailsFlag>
+          <consignmentValueCurrencyCode xsi:type="soapenc:string">USD</consignmentValueCurrencyCode>
+          <consignmentValueCurrencyRate xsi:type="xsd:double">1.5</consignmentValueCurrencyRate>
           <consignmentValue xsi:type="xsd:double">1.2</consignmentValue>
           <consignmentWeight xsi:type="xsd:double">1.0</consignmentWeight>
           <maxDimension xsi:type="xsd:double">30.0</maxDimension>
