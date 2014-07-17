@@ -27,6 +27,7 @@
           "<%= line_item.quantity %>"
         ]);
       <% end %>
+      _gaq.push(['_set', 'currencyCode', <%= @order.currency %>]);
       _gaq.push(['_trackTrans']);
     <% end %>
 
