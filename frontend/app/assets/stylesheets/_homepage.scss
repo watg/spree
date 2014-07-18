@@ -86,7 +86,7 @@ body.homepage #header {
 
 .home-main .leader-2 {	
 	/* Small screen background */
-	background: #fbfaf5 cdn-url("/homepage/2014-07-04/1_Homepage_Vogue_MOBILE_V1.jpg") top center no-repeat;
+	background: #fbfaf5 cdn-url("/homepage/2014-07-18/MOBILE_ summer_yarn.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
@@ -118,7 +118,7 @@ body.homepage #header {
 	}
 	/* Large screen background */
 	@media only screen and (min-width: 48em) {
-		background: #fbfaf5 cdn-url("/homepage/2014-07-04/1_Homepage_Vogue_DESKTOP_V1.jpg") top center no-repeat;
+		background: #fbfaf5 cdn-url("/homepage/2014-07-18/HOMEPAGE_ summer_yarn.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
