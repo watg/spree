@@ -34,7 +34,7 @@
 /* Gang Manifesto */
 .gang-manifesto {
 	.utility-hero {
-		min-height: 600px;
+		height: 600px;
 		margin-bottom: 1.250em;
 		font-family: 'Gill Sans W01 Light';
 		font-size: 1.5em;
@@ -661,7 +661,7 @@ body.thank-you {
 		.row-halves {
 			overflow: hidden;
 			.columns {
-				min-height: 600px;
+				height: 600px;
 			}
 		}
 		.row-padding-large {
@@ -679,7 +679,7 @@ body.thank-you {
 		.row-with-care,
 		.row-knitting,
 		.row-materials {
-			min-height: 600px;			
+			height: 600px;			
 		}
 		.row-made-differently {
 			background: cdn-url('/our-story/01_Fashion_Made_Differently.jpg') center center no-repeat;
@@ -717,6 +717,11 @@ body.thank-you {
 		.column-revolution {
 			background: cdn-url('/our-story/06_Revolution.jpg') center center no-repeat;
 		}
+		.column-maker-tag {
+			img {
+				margin-bottom: 60px;
+			}
+		}
 		.column-maker {
 			background: cdn-url('/our-story/08_Maker.jpg') center center no-repeat;
 		}
@@ -731,7 +736,6 @@ body.thank-you {
 		}
 		.column-founders-elizabeth + .columns p {
 			strong {
-				font-family: $watg-font-light;
 				text-transform: uppercase;
 			}
 		}
