@@ -1,6 +1,11 @@
 @import url("//fast.fonts.net/t/1.css?apiType=css&projectid=dd60acf1-a227-4ade-a786-95d05128d9ff");
 
 @font-face{
+font-family:"Trade Gothic W01 Roman";
+src:url("Fonts/413d9688-00d4-47c4-bb55-656a0cd396e9.eot?#iefix");
+src:url("Fonts/413d9688-00d4-47c4-bb55-656a0cd396e9.eot?#iefix") format("eot"),url("Fonts/c4aef0d4-bfcf-4790-acf5-909881f411e8.woff") format("woff"),url("Fonts/e741f29c-bc18-4343-bff3-db2465a0be3e.ttf") format("truetype"),url("Fonts/853e2a9b-4057-42a5-ad7e-0762cda0b13c.svg#853e2a9b-4057-42a5-ad7e-0762cda0b13c") format("svg");
+}
+@font-face{
 font-family:"Trade Gothic W01 Bold";
 src: font-url('2e9af08f_0faf_45e3_9767_78a700434af3.eot?#iefix');
 src: font-url('2e9af08f_0faf_45e3_9767_78a700434af3.eot?#iefix') format("eot"), font-url('f51d24dd_8256_43c6_ba1a_6aeae9d3f262.woff') format("woff"), font-url('955ee494_66b2_4eb2_8f19_bc3a088df16d.ttf') format("truetype"), font-url('d5153ad4_7c93_4757_9147_640e69ec4801.svg#d5153ad4_7c93_4757_9147_640e69ec4801') format("svg");
@@ -26,6 +31,7 @@ src: font-url('acd8a043_828c_4c2c_98cb_b5224f5d4cdb.eot?#iefix');
 src: font-url('acd8a043_828c_4c2c_98cb_b5224f5d4cdb.eot?#iefix') format("eot"), font-url('c56da29d_9c5b_4d94_900f_770cde3dd317.woff') format("woff"), font-url('378182d1_8021_4674_a814_cc8f01f9a937.ttf') format("truetype"), font-url('d8851d95_478d_47a9_a0b0_a8d8e4ca127a.svg#d8851d95_478d_47a9_a0b0_a8d8e4ca127a') format("svg");
 }
 
+$watg-font-text: "Trade Gothic W01 Roman", Helvetica, Arial, sans-serif;
 $watg-font: "Trade Gothic W01 Bold", Helvetica, Arial, sans-serif;
 $watg-font-light: "Trade Gothic W01 Cn 18", Helvetica, Arial, sans-serif;
 $watg-font-secondary: "Gill Sans W01 Book", Helvetica, Arial, sans-serif;

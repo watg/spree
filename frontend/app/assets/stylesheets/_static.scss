@@ -645,7 +645,8 @@ body.thank-you {
 			text-transform: uppercase;
 		}
 		p, li {
-			font-size: emCalc(18px);
+			font-family: $watg-font-text;
+			font-size: emCalc(20px);
 			margin-bottom: 0;
 		}
 		.inverted {
