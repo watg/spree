@@ -644,16 +644,18 @@ body.thank-you {
 		h4 {
 			text-transform: uppercase;
 		}
-		ul {
-			li {
-				
-			}
+		p, li {
+			font-size: emCalc(18px);
+			margin-bottom: 0;
 		}
 		.inverted {
 			background-color: #000;
 			* {
 				color: #fff;
 			}
+		}
+		.spaced {
+			line-height: 1.8em;
 		}
 		.row-halves {
 			overflow: hidden;
@@ -662,10 +664,13 @@ body.thank-you {
 			}
 		}
 		.row-padding-large {
-			padding: emCalc(100px);
+			padding: emCalc(100px) 0;
+		}
+		.row-padding-medium {
+			padding: emCalc(80px) 0;
 		}
 		.row-padding-small {
-			padding: emCalc(30px);
+			padding: emCalc(60px) 0;
 		}
 		/* Row specific */
 		.row-made-differently,
@@ -686,6 +691,14 @@ body.thank-you {
 		}
 		.row-knitting {
 			background: cdn-url('/our-story/09_Knitting_Is_The_New_Yoga.jpg') center center no-repeat;
+		}
+		.row-madeunique {
+			h2, img {
+				float: left;
+			}
+			img {
+				margin: 30px 0 0 120px;
+			}
 		}
 		/* Column specific */
 		.column-by-you {
@@ -714,6 +727,11 @@ body.thank-you {
 		}
 		.column-founders-elizabeth {
 			background: cdn-url('/our-story/13_Meet_The_Founders_ES.jpg') center center no-repeat;
+		}
+		.column-founders-elizabeth + .columns p {
+			strong {
+				text-transform: uppercase;
+			}
 		}
 	}
 }
