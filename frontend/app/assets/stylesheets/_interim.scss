@@ -97,7 +97,7 @@
 
 .filter_choices {
 	font-size: 85%;
-	input { 
+	input {
 		margin: 0 5px 0 0;
 		float: left;
 	}
@@ -248,7 +248,7 @@
 		}
 	}
 }
-	
+
 	/* WATG kit rollover */
 	/*
 	.product-image {
@@ -292,7 +292,7 @@
 	}
 	.kit-level {
 		margin: 0.25em 0 0 0;
-		font-size: 1.250em; 
+		font-size: 1.250em;
 	}
 	#cart-form {
 		margin-top: 1.250em;
@@ -494,7 +494,7 @@
 		/*color: #ff0054;*/
 	}
 	.coupons-updates {
-		padding: 1em;
+		padding: 1.8em;
 		text-align: center;
 		background-color: $watg-tint-med;
 		input, button {
@@ -625,7 +625,7 @@
 			float: right;
 		}
 	}
-	
+
 	/* delivery */
 	.stock-shipping-method-title {
 		margin-top: 1em;
@@ -636,7 +636,7 @@
 	.shipping-instructions label {
 		margin: 1em 0 0.5em 0;
 	}
-	
+
 	/* payment */
 	.payment-method-tab {
 		display: inline-block;
@@ -653,7 +653,7 @@
 			min-height: 80px;
 			background-color: $watg-tint-light;
 		}
-		input {	
+		input {
 			display: inline-block;
 			max-width: 300px;
 		}

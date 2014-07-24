@@ -1,6 +1,15 @@
 <div class="small-12 columns">
-  <h2><%= Spree.t(:delivery) %></h2>
+
+  <div class="coupons-updates">
+    <h5>Do you have a gift card or promo code?</h5>
+
+    <%= form.text_field :coupon_code, :size => 10, :placeholder => 'Enter Gift Card or Promo Code here', value: "" %>
+    <%= button_tag "Update bag", :class => 'inverse', :id => 'update-button', :name => 'refresh_page' %>
+  </div>
+  <br><br>
+  <h4>Order Summary</h4>
 </div>
+
 
 <div class="small-12 columns">
   <table id="cart-detail" class="order-item-listing" data-hook>
