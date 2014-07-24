@@ -645,9 +645,14 @@ body.thank-you {
 			text-transform: uppercase;
 		}
 		p, li {
-			font-family: $watg-font-text;
-			font-size: emCalc(20px);
+			font-size: emCalc(18px);
 			margin-bottom: 0;
+		}
+		ul {
+			margin-top: 2em;
+			li {
+				margin-bottom: 1em;
+			}
 		}
 		.inverted {
 			background-color: #000;
@@ -683,12 +688,21 @@ body.thank-you {
 		}
 		.row-made-differently {
 			background: cdn-url('/our-story/01_Fashion_Made_Differently.jpg') center center no-repeat;
+			h1 {
+				margin-top: 146px;
+			}
 		}
 		.row-is-changing {
 			background: cdn-url('/our-story/02_Fashion_Is_Changing.jpg') center center no-repeat;
+			h2 {
+				margin-top: 223px;
+			}
 		}
 		.row-with-care {
 			background: cdn-url('/our-story/10_Sourced_With_Care.jpg') center center no-repeat;
+			h2 {
+				margin-top: 111px;
+			}
 		}
 		.row-knitting {
 			background: cdn-url('/our-story/09_Knitting_Is_The_New_Yoga.jpg') center center no-repeat;
@@ -702,10 +716,16 @@ body.thank-you {
 			}
 		}
 		/* Column specific */
+		.column-text {
+			padding: emCalc(60px) emCalc(30px);
+			img {
+				margin-bottom: emCalc(60px);
+			}
+		}
 		.column-by-you {
 			background: cdn-url('/our-story/03_Made_By_You.jpg') center center no-repeat;
 			h2 {
-				margin-left: 0.5em; /* Slight offset */
+				margin: 88px 0 0 0.5em; /* Slight offset left */
 				position: relative;
 				left: 50%;
 				z-index: 100;
@@ -717,9 +737,9 @@ body.thank-you {
 		.column-revolution {
 			background: cdn-url('/our-story/06_Revolution.jpg') center center no-repeat;
 		}
-		.column-maker-tag {
-			img {
-				margin-bottom: 60px;
+		.column-revolution-heading {
+			h2 {
+				margin-top: 111px;
 			}
 		}
 		.column-maker {
@@ -727,6 +747,11 @@ body.thank-you {
 		}
 		.column-materials {
 			background: cdn-url('/our-story/11_Our_Materials.jpg') center center no-repeat;
+		}
+		.column-founders-heading {
+			h2 {
+				margin-top: 111px;
+			}
 		}
 		.column-founders-aurelie-jade {
 			background: cdn-url('/our-story/12_Meet_The_Founders_AJ.jpg') center center no-repeat;
