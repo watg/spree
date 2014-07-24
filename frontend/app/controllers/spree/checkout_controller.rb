@@ -26,11 +26,15 @@ module Spree
     # Updates the order and advances to the next state (when possible.)
     def update
       if params[:chimpy_subscriber] && params[:chimpy_subscriber][:subscribe].present?
-        subscribe_to_newsletter(params[:chimpy_subscriber][:signupEmail]) 
+        subscribe_to_newsletter(params[:chimpy_subscriber][:signupEmail])
       end
 
       if @order.update_from_params(params, permitted_checkout_attributes)
         persist_user_address
+
+        # In case a coupon is applied and we want only a page refresh
+        redirect_to(checkout_state_path(@order.state)) and return if params.has_key?(:refresh_page)
+
         unless @order.next
           flash[:error] = @order.errors.full_messages.join("\n")
           redirect_to checkout_state_path(@order.state) and return
@@ -42,7 +46,7 @@ module Spree
           # This is a hack to ensure that both google analytics and google
           # remarketing javascript snippets
           # are rendered, we can not use completion_route to pass a
-          # param as it is overridden in the auth plugin 
+          # param as it is overridden in the auth plugin
           flash[:order_completed] = true
           send_delayed_jobs
           redirect_to completion_route
@@ -56,7 +60,7 @@ module Spree
 
     private
     def send_delayed_jobs
-      ::Delayed::Job.enqueue Spree::AnalyticJob.new(event: :transaction, 
+      ::Delayed::Job.enqueue Spree::AnalyticJob.new(event: :transaction,
                                                     order: @order,
                                                     user_id: tracking_cookie), queue: 'analytics'
       ::Delayed::Job.enqueue Spree::DigitalOnlyOrderShipperJob.new(@order), queue: 'order_shipper'
@@ -91,7 +95,7 @@ module Spree
     end
 
     def load_order_with_lock
-      @order = current_order(lock: true) 
+      @order = current_order(lock: true)
       redirect_to spree.cart_path and return unless @order
 
       if params[:state]
