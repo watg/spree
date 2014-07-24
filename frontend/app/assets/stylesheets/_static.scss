@@ -401,9 +401,9 @@ body.thank-you {
 		display: none;
 	}
 	.row-shipping-and-contact + .container > div.row {
-			max-width: none !important;
+		max-width: none !important;
 		background-color: #f9f9f9;
-		}
+	}
 	.row-olapic-gallery {
 		position: relative;
 		margin: emCalc(60px) auto;
@@ -604,5 +604,116 @@ body.thank-you {
 
 /* Our story */
 .our-story {
+	/* Full width */
+	.row-shipping-and-contact + .container > div.row {
+		max-width: none !important;
+	}
+	.row-shipping-and-contact + .container > div.row > .columns {
+		padding: 0;
+	}
+	.wrapper-our-story div.row {
+		margin: 0 auto;
+		position: relative;
+		max-width: 62.5em;
+	}
 	
+	.wrapper-our-story {
+		text-align: center;
+		h1 {
+			font-size: emCalc(70px);
+		}
+		h2 {
+			font-size: emCalc(70px);
+			span {
+				font-family: $watg-font-secondary-light;
+				font-size: 0.5em;
+				display: block;
+			}
+		}
+		h2.small {
+			font-size: emCalc(60px);
+		}
+		h3 {
+			font-family: $watg-font-secondary-light;
+			font-size: emCalc(30px);
+			strong {
+				font-family: $watg-font-secondary;
+				font-weight: normal;
+			}
+		}
+		h4 {
+			text-transform: uppercase;
+		}
+		ul {
+			li {
+				
+			}
+		}
+		.inverted {
+			background-color: #000;
+			* {
+				color: #fff;
+			}
+		}
+		.row-halves {
+			overflow: hidden;
+			.columns {
+				min-height: 600px;
+			}
+		}
+		.row-padding-large {
+			padding: emCalc(100px);
+		}
+		.row-padding-small {
+			padding: emCalc(30px);
+		}
+		/* Row specific */
+		.row-made-differently,
+		.row-is-changing,
+		.row-with-care,
+		.row-knitting,
+		.row-materials {
+			min-height: 600px;			
+		}
+		.row-made-differently {
+			background: cdn-url('/our-story/01_Fashion_Made_Differently.jpg') center center no-repeat;
+		}
+		.row-is-changing {
+			background: cdn-url('/our-story/02_Fashion_Is_Changing.jpg') center center no-repeat;
+		}
+		.row-with-care {
+			background: cdn-url('/our-story/10_Sourced_With_Care.jpg') center center no-repeat;
+		}
+		.row-knitting {
+			background: cdn-url('/our-story/09_Knitting_Is_The_New_Yoga.jpg') center center no-repeat;
+		}
+		/* Column specific */
+		.column-by-you {
+			background: cdn-url('/our-story/03_Made_By_You.jpg') center center no-repeat;
+			h2 {
+				margin-left: 0.5em; /* Slight offset */
+				position: relative;
+				left: 50%;
+				z-index: 100;
+			}
+		}
+		.column-by-the-gang {
+			background: cdn-url('/our-story/04_Made_By_The_Gang.jpg') center center no-repeat;
+		}
+		.column-revolution {
+			background: cdn-url('/our-story/06_Revolution.jpg') center center no-repeat;
+		}
+		.column-maker {
+			background: cdn-url('/our-story/08_Maker.jpg') center center no-repeat;
+		}
+		.column-materials {
+			background: cdn-url('/our-story/11_Our_Materials.jpg') center center no-repeat;
+		}
+		.column-founders-aurelie-jade {
+			background: cdn-url('/our-story/12_Meet_The_Founders_AJ.jpg') center center no-repeat;
+		}
+		.column-founders-elizabeth {
+			background: cdn-url('/our-story/13_Meet_The_Founders_ES.jpg') center center no-repeat;
+		}
+	}
 }
