@@ -618,6 +618,11 @@ body.thank-you {
 	}
 	
 	.wrapper-our-story {
+		@media only screen and (max-width: 48em) {
+			.only-desktop {
+				display: none;
+			}
+		}
 		text-align: center;
 		h1 {
 			font-size: emCalc(70px);
@@ -763,7 +768,7 @@ body.thank-you {
 			}
 			@media only screen and (max-width: 48em) {
 				h2 {
-					margin-left: 0;
+					margin: 485px 0 0;
 					left: 0;
 				}
 			}
