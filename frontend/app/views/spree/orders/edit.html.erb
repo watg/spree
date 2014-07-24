@@ -17,16 +17,11 @@
 				<div data-hook="cart_items">
 					<%= render :partial => 'form', :locals => { :order_form => order_form } %>
 				</div>
-	
-				<div class="coupons-updates">
-					<%= order_form.text_field :coupon_code, :size => 10, :placeholder => 'Enter Gift Card or Promo Code here' %>
-					<%= button_tag "Update bag", :class => 'inverse', :id => 'update-button' %>
-				</div>
-				
+
 				<div class="subtotal">
 					<span class="subtotal-label"><%= Spree.t(:subtotal) %></span> <span class="sub-total"><%= @order.display_total.to_html %></span>
 				</div>
-				
+
 				<div class="row collapse checkout-link">
 					<%= link_to Spree.t(:continue_shopping), root_path, :class => 'continue-shopping button inverse' %>
 					<%= button_tag :class => '', :id => 'checkout-link', :name => 'checkout' do %>
@@ -40,8 +35,7 @@
 					</ul>
 					%>
 				</div>
-				
-				
+
 			</div>
 		<% end %>
 	</div>
