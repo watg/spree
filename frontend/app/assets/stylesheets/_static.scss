@@ -669,6 +669,9 @@ body.thank-you {
 		h4 {
 			text-transform: uppercase;
 		}
+		a {
+			text-decoration: underline;
+		}
 		p, li {
 			font-size: emCalc(18px);
 			margin-bottom: 0;
