@@ -69,6 +69,21 @@ body.homepage #header {
 	}
 }*/
 
+.home-main .leader-0 {
+	/* Small screen background */
+	background: #ebece7 cdn-url("/homepage/2014-07-28/Homepage_CSM_MOBILE_V1.jpg") top center no-repeat;
+	& > div {
+		height: 580px;
+	}
+	/* Large screen background */
+	@media only screen and (min-width: 48em) {
+		background: #ebece7 cdn-url("/homepage/2014-07-28/Homepage_CSM_DESKTOP_V1.jpg") top center no-repeat;
+		& > div {
+			height: 700px;
+		}
+	}
+}
+
 .home-main .leader-1 {
 	/* Small screen background */
 	background: #fbfaf5 cdn-url("/homepage/2014-07-04/1_Homepage_Vogue_MOBILE_V1.jpg") top center no-repeat;
