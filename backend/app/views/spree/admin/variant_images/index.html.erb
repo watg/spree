@@ -1,17 +1,38 @@
 <%= render :partial => 'spree/admin/shared/product_sub_menu' %>
 
-<%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => 'Product Images'} %>
+<%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => 'Variant Images'} %>
 
 <% content_for :page_actions do %>
-  <li><%= link_to_with_icon('icon-refresh', Spree.t(:update), '#', :class => 'button update_all_images') %></li>
-  <li><%= link_to_with_icon('icon-plus', Spree.t(:new_image), new_admin_product_image_url(@product), :id => 'new_image_link', :class => 'button') %></li>
+  <% if previous_variant = @variant.previous %>
+    <li><%= link_to_with_icon('icon-arrow-left', Spree.t(:previous), admin_variant_images_url(previous_variant) , :class => 'button') %></li>
+  <% end %>
+  <% if next_variant = @variant.next %>
+    <li><%= link_to_with_icon('icon-arrow-right', Spree.t(:next),admin_variant_images_url(next_variant) , :class => 'button') %></li>
+  <% end %>
+<% end %>
+
+
+<% content_for :sidebar do %>
+  <br>
+  <br>
+  <h5 class="sidebar-title">Variants List</h5>
+  <hr>
+  <nav class="menu">
+    <ul>
+      <% @variant.product.variants.each do |v| %>
+        <li <%== 'class="active"' if v == @variant %>>
+          <%= link_to v.options_text, admin_variant_images_url(v) %>
+        </li>
+      <% end %>
+    </ul>
+  </nav>
 <% end %>
 
 
 <div id="images" data-hook></div>
 
 <fieldset>
-  <legend align="center">Upload to S3</legend>
+  <legend align="center"><%= @variant.options_text %></legend>
 
   <div id="uploads_container"></div>
   <script id="template-upload" type="text/x-tmpl">
@@ -22,7 +43,7 @@
   </script>
 
 
-  <%= s3_uploader_form callback_url: s3_callback_admin_product_images_path,
+  <%= s3_uploader_form callback_url: s3_callback_admin_variant_images_path,
     id: "s3_uploader",
     callback_param: "image[direct_upload_url]",
     expiration: 24.hours.from_now.utc.iso8601,
@@ -37,8 +58,7 @@
 </fieldset>
 
 
-
-<table class="index sortable" data-hook="images_table" data-sortable-link="<%= update_positions_admin_product_images_url(@product) %>">
+<table class="index sortable" data-hook="images_table" data-sortable-link="<%= update_positions_admin_variant_images_url(@variant) %>">
   <colgroup>
     <col style="width: 5%">
     <col style="width: 30%">
@@ -54,13 +74,12 @@
   </thead>
 
   <tbody id="images_table_body">
-    <% unless @product.images.any? || @product.personalisation_images.any? %>
+    <% unless @variant.images.any? %>
       <div class="no-objects-found">
         <%= Spree.t(:no_images_found) %>.
       </div>
     <% else %>
-      <%= render partial: 'image', collection: @product.images %>
-      <%= render partial: 'image', collection: @product.personalisation_images %>
+      <%= render partial: 'image', collection: @variant.images %>
     <% end %>
   </tbody>
 </table>

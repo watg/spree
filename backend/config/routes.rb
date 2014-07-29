@@ -110,6 +110,15 @@ Spree::Core::Engine.add_routes do
       resources :variants_including_master, :only => [:update]
     end
 
+    resources :variants do
+      resources :images, controller: "variant_images" do
+        collection do
+          post :s3_callback
+          post :update_positions
+        end
+      end
+    end
+
     get '/variants/search', :to => "variants#search", :as => :search_variants
 
     resources :option_types do

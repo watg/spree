@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe Spree::ProductsController do
-  let!(:product) { create(:product, :available_on => 1.year.from_now) }
+describe Spree::ProductPagesController do
+  #let!(:product) { create(:product, :available_on => 1.year.from_now) }
 
   # not any more relevant due to the new product pages
   # it "should provide the current user to the searcher class" do
@@ -19,7 +19,7 @@ describe Spree::ProductsController do
     request.env['HTTP_REFERER'] = "not|a$url"
 
     # Previously a URI::InvalidURIError exception was being thrown
-    lambda { spree_get :show, :id => product.to_param }.should_not raise_error
+    lambda { spree_get :show }.should_not raise_error
   end
 
   # Regression tests for #2308 & Spree::Core::ControllerHelpers::SSL
@@ -31,7 +31,7 @@ describe Spree::ProductsController do
 
       it "should not redirect to http" do
         #controller.should_not_receive(:redirect_to)
-        spree_get :index
+        spree_get :show
         request.protocol.should eql('https://')
       end
     end
@@ -48,7 +48,7 @@ describe Spree::ProductsController do
     context "receives a non SSL request" do
       it "should not redirect" do
         #controller.should_not_receive(:redirect_to)
-        spree_get :index
+        spree_get :show
         request.protocol.should eql('http://')
       end
     end
@@ -60,7 +60,7 @@ describe Spree::ProductsController do
       end
 
       it "should redirect to http" do
-        spree_get :index
+        spree_get :show
         response.should redirect_to("http://#{request.host}/products?foo=bar")
         response.status.should == 301
       end

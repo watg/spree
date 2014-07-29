@@ -1,21 +1,17 @@
 module Spree
-  class UpdateImageService < Mutations::Command
+  class UpdateImageService < ActiveInteraction::Base
 
-    required do
       model :image, class: 'Spree::Image'
-    end
 
-    optional do
-      integer :variant_id
-      string :target_id, empty: true
-      string :personalisation_id, empty: true
-      string :activate_personalisation, empty: true
-      string :alt
-    end
+      integer :variant_id, default: nil
+      string :target_id, default: nil
+      string :personalisation_id, default: nil
+      string :activate_personalisation, default: nil
+      string :alt, default: nil
 
     def execute
       if variant_id || personalisation_id
-        image.update_attributes(viewable: set_viewable, alt: alt)
+        image.update_attributes(viewable: set_viewable, alt: alt, target_id: target_id)
       else
         image.update_attributes(alt: alt)
       end
@@ -27,8 +23,6 @@ module Spree
     def set_viewable
       if personalisation_id.present? and activate_personalisation
         viewable = Spree::Personalisation.find(personalisation_id)
-      elsif target_id.present?
-        viewable = Spree::Variant.find(variant_id).variant_targets.where(target_id: target_id).first_or_create
       else
         viewable = Spree::Variant.find(variant_id)
       end

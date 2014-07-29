@@ -109,16 +109,12 @@ class Spree::VariantDecorator < Draper::Decorator
   end
 
   def first_image
+    return @_first_image if @_first_image
     images = object.images_for(target)
-    if images.blank?
-      if object.product.memoized_images.empty?
-        nil
-      else
-        object.product.memoized_images.first
-      end
-    else
-      images.first
-    end
+    images = object.memoized_images if images.blank?
+    images = object.product.memoized_images if images.blank?
+    @_first_image = images.first
+    @_first_image
   end
 
   def memoized_first_image_url(style)

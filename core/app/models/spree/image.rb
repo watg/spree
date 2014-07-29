@@ -5,6 +5,8 @@ module Spree
     validates_attachment_presence :attachment
     validate :no_attachment_errors
 
+    belongs_to :target, class_name: 'Spree::Target', inverse_of: :images
+
     has_attached_file :attachment,
                       styles: {
                         :mini    => '66x84>',    # thumbs under image (product * 0.14),
@@ -22,13 +24,10 @@ module Spree
     # we need to look at the write-queue for images which have not been saved yet
     after_post_process :find_dimensions
 
-    def variant_id
-      if viewable_type == "Spree::Variant"
-        return viewable_id
-      elsif viewable_type == "Spree::VariantTarget"
-        return viewable.variant_id
-      end
-    end
+     def self.with_target(target)
+       target_id = target ? target.id : nil 
+       where(target_id: [nil, target_id])
+     end
 
     #used by admin products autocomplete
     def mini_url

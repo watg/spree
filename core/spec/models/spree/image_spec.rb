@@ -12,19 +12,5 @@ describe Spree::Image do
     end
   end
 
-  describe "#variant_id" do
-    let!(:variant) { create(:base_variant) }
-    let!(:variant_image) { create(:image, viewable: variant) }
-
-    let!(:variant_target) { create(:variant_target, variant: variant) }
-    let!(:variant_target_image) { create(:image, viewable: variant_target) }
-
-    it "returns variant id either from the the variant targets table or directly" do
-      expect(variant_target_image.variant_id).to eq(variant.id)
-      expect(variant_image.variant_id).to eq(variant.id)
-    end
-
-  end
-
 
 end

@@ -27,7 +27,7 @@ describe Spree::PinterestService do
 
       context 'images' do
 
-        let!(:image) { create(:image, viewable: variant_target) }
+        let!(:image) { create(:image, viewable: variant, target: target) }
 
         it "returns image information" do
           outcome = Spree::PinterestService.run({url: url})

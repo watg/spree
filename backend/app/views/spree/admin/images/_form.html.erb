@@ -4,10 +4,6 @@
       <%= f.label Spree.t(:filename) %><br>
       <%= f.file_field :attachment %>
     </div>
-    <div data-hook="variant" class="field">
-      <%= f.label Spree::Variant.model_name.human %><br>
-      <%= f.select :viewable_id, @variants, {}, {:class => 'select2 fullwidth'} %>
-    </div>
   </div>
   <div data-hook="alt_text" class="field omega five columns">
     <%= f.label Spree.t(:alt_text) %><br>

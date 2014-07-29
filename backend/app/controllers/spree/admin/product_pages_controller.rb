@@ -12,18 +12,15 @@ module Spree
       end
 
       def s3_callback
-        callback_params = {
+        tab = ProductPageTab.find params[:tab_id]
+        image = ProductPageTabImage.where(viewable: tab).first_or_create
+        @outcome = UploadImageToS3Service.run(
+          image: image,
           attachment_file_name: params[:filename],
           attachment_content_type: params[:filetype],
           attachment_file_size: params[:filesize],
           direct_upload_url: params[:image][:direct_upload_url]
-        }
-        if params[:tab_id]
-          tab = ProductPageTab.find params[:tab_id]
-          image = ProductPageTabImage.where(viewable: tab).first_or_create
-        end
-
-        @outcome = UploadImageToS3Service.run(callback_params, image: image)
+        )
       end
 
       protected

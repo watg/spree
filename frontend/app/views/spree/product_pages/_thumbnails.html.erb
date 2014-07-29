@@ -31,7 +31,7 @@
     <% product.memoized_variant_images.each do |i| %>
 
       <% next if product.memoized_images.include?(i) %>
-      <li class="vtmb tmb-<%= i.variant_id %>" style="<%= show_thumb(i, variant)%>">
+      <li class="vtmb tmb-<%= i.viewable_id %>" style="<%= show_thumb(i, variant)%>">
         <a href="<%= i.attachment.url(:large) %>" target="_blank" class="fancybox" data-fancybox-group="product-gallery-<%= variant.id %>">
           <%= image_tag(variant.placeholder_thumbnails, :class => 'lazy-load', :data => { :original => i.attachment.url(:mini) }) %>
         </a>

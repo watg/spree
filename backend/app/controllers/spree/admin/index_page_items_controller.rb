@@ -5,14 +5,14 @@ module Spree
 
       def s3_callback
         item = @index_page.items.find(params[:id])
-        callback_params = {
+        image = Spree::IndexPageItemImage.where(viewable: item).first_or_create
+        @outcome = UploadImageToS3Service.run(
+          image: image,
           attachment_file_name: params[:filename],
           attachment_content_type: params[:filetype],
           attachment_file_size: params[:filesize],
           direct_upload_url: params[:image][:direct_upload_url]
-        }
-        image = Spree::IndexPageItemImage.where(viewable: item).first_or_create
-        @outcome = UploadImageToS3Service.run(callback_params, image: image)
+        )
       end
 
       def location_after_save

@@ -5,6 +5,35 @@ require 'spec_helper'
 describe Spree::Variant do
   let!(:variant) { create(:variant) }
 
+  context "variant navigation" do
+    let(:product) { create(:base_product) }
+    let(:product_2) { create(:base_product) }
+    # Plesae note the order in which these are created
+    # dictates the position attribute.
+    let!(:previous_variant_from_product_2) { create(:base_variant, product: product_2) }
+    let!(:previous_variant) { create(:base_variant, product: product) }
+    let!(:middle_variant) { create(:base_variant, product: product ) }
+    let!(:next_variant) { create(:base_variant, product: product) }
+    let!(:next_variant_from_product_2) { create(:base_variant, product: product_2) }
+
+    it "moves to the next variant" do
+      expect(middle_variant.next).to eq next_variant
+    end
+
+    it "moves to the previous variant" do
+      expect(middle_variant.previous).to eq previous_variant
+    end
+
+    it "does not return next if there is not one" do
+      expect(next_variant.next).to be_nil
+    end
+
+    it "does not return previous if there is not one" do
+      expect(previous_variant.previous).to be_nil
+    end
+
+  end
+
   context "stock control" do
     let!(:variant_in_stock) { create(:variant_with_stock_items, product_id: variant.product.id) }
 
@@ -15,6 +44,7 @@ describe Spree::Variant do
     end
 
   end
+
 
   context "physical" do
     subject { Spree::Variant.physical }
@@ -601,12 +631,12 @@ describe Spree::Variant do
 
   describe "#images_for" do
     let(:variant) { create(:variant) }
-    let!(:variant_images) { create_list(:image, 1, viewable: variant) }
+    let!(:variant_images) { create_list(:image, 1, viewable: variant, position: 2) }
     let(:target) { create(:target) }
 
     context "with a VariantTarget" do
       let(:variant_target) { create(:variant_target, variant: variant, target: target) }
-      let(:variant_target_images) { create_list(:image, 1, viewable: variant_target) }
+      let(:variant_target_images) { create_list(:image, 1, viewable: variant, target: target, position: 1) }
       let!(:images) { variant_target_images + variant_images }
 
       it "returns all images linked to the VariantTarget and Variant" do
