@@ -4,6 +4,15 @@
 
 <%= render :partial => 'spree/shared/error_messages', :locals => { :target => @variant } %>
 
+<% content_for :page_actions do %>
+  <% if previous_variant = @variant.previous %>
+    <li><%= link_to_with_icon('icon-arrow-left', Spree.t(:previous), edit_admin_product_variant_url(@product, previous_variant) , :class => 'button') %></li>
+  <% end %>
+  <% if next_variant = @variant.next %>
+    <li><%= link_to_with_icon('icon-arrow-right', Spree.t(:next), edit_admin_product_variant_url(@product, next_variant) , :class => 'button') %></li>
+  <% end %>
+<% end %>
+
 <%= form_for [:admin, @product, @variant] do |f| %>
   <fieldset class="no-border-top">
     <div data-hook="admin_variant_edit_form">

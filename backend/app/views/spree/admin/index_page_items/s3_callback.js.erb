@@ -1,4 +1,4 @@
-<% if @outcome.success? %>
+<% if @outcome.valid? %>
   $('#upload_<%=params[:unique_id]%>').hide();
   $('<%=params[:drop_zone]%>').html('<img src="<%=params[:url]%>" style="max-width: 250px">')
 <% else %>

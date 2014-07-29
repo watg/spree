@@ -22,15 +22,9 @@ module Spree
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
     
     has_many :variant_targets, class_name: 'Spree::VariantTarget', dependent: :destroy
-    has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :images, through: :variant_targets
     has_many :targets, class_name: 'Spree::Target', through: :variant_targets
 
     has_many :assembly_definition_variants, class_name: 'Spree::AssemblyDefinitionVariant'
-
-     # Hack for the old pages, remove once the new pages are live
-    def images_including_targetted
-      @_images_including_targetted ||= [self.images, self.target_images].flatten.sort_by { |i| i.position }
-    end
 
     has_one :default_price,
       -> { where currency: Spree::Config[:currency] },
@@ -85,6 +79,15 @@ module Spree
     scope :in_stock, lambda { where(in_stock_cache: true) }
 
     NUMBER_PREFIX = 'V'
+
+
+    def previous
+      self.product.variants.where("position < ?", self.position).last
+    end
+
+    def next
+      self.product.variants.where("position > ?", self.position).first
+    end
 
     class << self
 
@@ -155,6 +158,10 @@ module Spree
 
     end
 
+    def memoized_images
+      @_memoized_images ||= images
+    end
+
     def is_master_but_has_variants?
       self.is_master? and self.product.variants and self.product.variants.any?
     end
@@ -176,11 +183,7 @@ module Spree
     end
 
     def images_for(target)
-      return images unless target
-
-      variant_target = variant_targets.where(target_id: target.id).first
-      targeted_images = variant_target ? variant_target.images : []
-      (targeted_images + images).sort_by(&:position)
+      images.with_target(target)
     end
 
     def visible?

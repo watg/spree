@@ -6,16 +6,15 @@ module Spree
       update.before :set_viewable
 
       def s3_callback
-        callback_params = {
+        image = AssemblyDefinitionImage.new(viewable: @assembly_definition)
+        @outcome = UploadImageToS3Service.run(
+          image: image,
           attachment_file_name: params[:filename],
           attachment_content_type: params[:filetype],
           attachment_file_size: params[:filesize],
-          direct_upload_url: params[:image][:direct_upload_url],
-        }
-        image = AssemblyDefinitionImage.new(viewable: @assembly_definition)
-        @outcome = UploadImageToS3Service.run(callback_params, image: image)
+          direct_upload_url: params[:image][:direct_upload_url]
+        )
       end
-
 
       private
 

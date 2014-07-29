@@ -39,13 +39,12 @@ describe Spree::Variant do
 
   describe "#images_for" do
     let(:variant) { create(:variant) }
-    let!(:variant_images) { create_list(:image, 1, viewable: variant) }
+    let!(:variant_images) { create_list(:image, 1, viewable: variant, position: 2) }
     let(:target) { create(:target) }
 
     context "with a VariantTarget" do
-      let(:variant_target) { create(:variant_target, variant: variant, target: target) }
-      let(:variant_target_images) { create_list(:image, 1, viewable: variant_target) }
-      let!(:images) { variant_target_images + variant_images }
+      let(:variant_target_images) { create_list(:image, 1, viewable: variant, target: target, position: 3) }
+      let!(:images) { variant_images + variant_target_images }
 
       it "returns all images linked to the VariantTarget and Variant" do
         expect(variant.images_for(target)).to eq(images)
@@ -57,6 +56,17 @@ describe Spree::Variant do
         expect(variant.images_for(target)).to eq(variant_images)
       end
     end
+
+    context "with a position" do
+      let(:variant_target_images) { create_list(:image, 1, viewable: variant, target: target, position: 1) }
+      let!(:images) { variant_target_images + variant_images }
+
+      it "returns all images linked to the VariantTarget and Variant" do
+        expect(variant.images_for(target)).to eq(images)
+      end
+    end
+
+
   end
 
   describe "touching" do

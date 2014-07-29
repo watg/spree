@@ -3,7 +3,7 @@ require 'spec_helper'
 # In this file, we want to test that the controller helpers function correctly
 # So we need to use one of the controllers inside Spree.
 # ProductsController is good.
-describe Spree::ProductsController do
+describe Spree::ProductPagesController do
 
   before do
     I18n.stub(:available_locales => [:en, :de])
@@ -18,7 +18,7 @@ describe Spree::ProductsController do
   # Regression test for #1184
   it "sets the default locale based off Spree::Frontend::Config[:locale]" do
     I18n.locale.should == :en
-    spree_get :index
+    spree_get :show
     I18n.locale.should == :de
   end
 end

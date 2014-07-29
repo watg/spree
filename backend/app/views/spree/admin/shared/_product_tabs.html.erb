@@ -12,29 +12,40 @@
       <%= content_tag :li, :class => ('active' if current == 'Product Details') do %>
         <%= link_to_with_icon 'icon-edit', Spree.t(:product_details), edit_admin_product_url(@product) %>
       <% end if can?(:admin, Spree::Product) %>
-      <%= content_tag :li, :class => ('active' if current == 'Images') do %>
-        <%= link_to_with_icon 'icon-picture', Spree.t(:images), admin_product_images_url(@product) %>
-      <% end if can?(:admin, Spree::Image) %>
+
+      <%= content_tag :li, :class => ('active' if current == 'Product Images') do %>
+        <%= link_to_with_icon 'icon-picture', "Product Images", admin_product_images_url(@product) %>
+      <% end %>
+
       <%= content_tag :li, :class => ('active' if current == 'Variants') do %>
         <%= link_to_with_icon 'icon-th-large', Spree.t(:variants),  admin_product_variants_url(@product) %>
+      <% end %>
+
+      <%= content_tag :li, :class => ('active' if current == 'Variant Images') do %>
+        <%= link_to_with_icon 'icon-picture', "Variant Images", admin_variant_images_url(@product.variants.first) if @product.variants.any? %>
+      <% end %>
+
+      <!-- <li<%# ' class="active"' if current == 'Displayable Variants' %>>
+        <%# link_to_with_icon 'icon-th-large', Spree.t(:displayable_variants), admin_displayable_variants_url(product_id: @product.id) %>
       </li>
-      <li<%== ' class="active"' if current == 'Displayable Variants' %>>
-        <%= link_to_with_icon 'icon-th-large', Spree.t(:displayable_variants), admin_displayable_variants_url(product_id: @product.id) %>
-      </li>
+ -->
       <li<%== ' class="active"' if current == 'Product Properties' %>>
         <%= link_to_with_icon 'icon-tasks', Spree.t(:product_properties), admin_product_product_properties_url(@product) %>
-      <% end if can?(:admin, Spree::ProductProperty) %>
+      </li>
+
       <%= content_tag :li, :class => ('active' if current == 'Stock Management') do %>
         <%= link_to_with_icon 'icon-tasks', Spree.t(:stock_management), stock_admin_product_url(@product) %>
       <% end if can?(:stock, Spree::Product) %>
-      </li>
+
       <li<%== 'class="active"' if current == 'Prices' %>>
         <%= link_to_with_icon 'icon-money', t(:Prices),  admin_product_prices_url(@product) %>
       </li>
+
       <li<%== 'class="active"' if current == 'Personalisations' %>>
         <%= link_to_with_icon 'icon-edit', t(:Personalisations),  admin_product_personalisations_url(@product) %>
       </li>
-      <li<%= ' class="active"' if current == "Parts" %>>
+
+      <li<%== ' class="active"' if current == "Parts" %>>
         <% if @product.master.assembly_definition %>
           <%= link_to_with_icon 'icon-sitemap', "Assembly Definition", edit_admin_assembly_definition_url(@product.master.assembly_definition) %>
         <% end %>

@@ -104,8 +104,7 @@ module Spree
 
     delegate :assembly_definition, to: :master
 
-    has_many :variant_images, -> { order(:position) }, source: :images, through: :variants_including_master
-    has_many :target_images, -> { select('spree_assets.*, spree_variant_targets.variant_id, spree_variant_targets.target_id').order(:position) }, source: :target_images, through: :variants_including_master
+    has_many :variant_images, -> { order(:viewable_id, :position) }, source: :images, through: :variants
     has_many :personalisation_images, -> { order(:position) }, source: :images, through: :personalisations
 
     accepts_nested_attributes_for :variants, allow_destroy: true
@@ -133,11 +132,6 @@ module Spree
 
       where.not(id: with_parts.uniq.map(&:id) )
     }
-
-     # Hack for the old pages, remove once the new pages are live
-    def variant_images_including_targetted
-      @_images_including_targetted ||= [self.variant_images, self.target_images].flatten.sort_by { |i| i.position }
-    end
 
     def assembly?
       self.assemblies_parts.any? ||
@@ -168,14 +162,8 @@ module Spree
       self.variants.in_stock
     end
 
-    def variant_and_target_images
-      (memoized_variant_images + target_images).sort_by(&:position)
-    end
-
     def images_for(target)
-      return memoized_variant_images unless target
-      targeted_images = target_images.where("spree_variant_targets.target_id = ?", target.id)
-      (targeted_images + memoized_variant_images).sort_by(&:position)
+      variant_images.with_target(target)
     end
 
     def clean_description

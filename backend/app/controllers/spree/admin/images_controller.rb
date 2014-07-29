@@ -7,20 +7,25 @@ module Spree
       update.before :set_viewable
 
       def s3_callback
-        callback_params = {
+        image = Image.new(viewable: @product.master)
+        @outcome = UploadImageToS3Service.run(
+          image: image,
           attachment_file_name: params[:filename],
           attachment_content_type: params[:filetype],
           attachment_file_size: params[:filesize],
-          direct_upload_url: params[:image][:direct_upload_url],
-        }
-        image = Image.new(viewable: Variant.find(@product.master))
-        @outcome = UploadImageToS3Service.run(callback_params, image: image)
+          direct_upload_url: params[:image][:direct_upload_url]
+        )
       end
 
       def update
         invoke_callbacks(:update, :before)
-        outcome = Spree::UpdateImageService.run(params[:image], image: Spree::Image.find(params[:id]))
-        if outcome.success?
+        outcome = Spree::UpdateImageService.run(
+          params[:image].merge(
+                               image: Spree::Image.find(params[:id]),
+                               variant_id: @product.master.id
+                              )
+        )
+        if outcome.valid?
           invoke_callbacks(:update, :after)
           flash[:success] = flash_message_for(outcome.result, :successfully_updated)
           respond_with(outcome.result) do |format|

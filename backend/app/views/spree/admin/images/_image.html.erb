@@ -26,10 +26,6 @@
     <% end %>
 
     <fieldset>
-      <div class='<%="image-variant-#{image.id} #{image_variant_hidden}"%>'>
-      <%= label :variant_id, Spree.t(:variant) %><br>
-      <%= select_tag 'image[variant_id]', options_for_select(@variants, get_variant_id(image)), :class => 'select2' %>
-      <br><br>
       <%= label :target_id, "Target" %><br>
       <%= select_tag 'image[target_id]', options_from_collection_for_select(Spree::Target.all, 'id', 'name', image.try(:target_id)), include_blank: true, class: 'select2' %>
       <br><br>
