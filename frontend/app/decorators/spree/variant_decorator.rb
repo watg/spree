@@ -1,9 +1,9 @@
 class Spree::VariantDecorator < Draper::Decorator
   delegate_all
-  
+
   def color_and_size_option_values
     hash = object.option_values.group_by(&:option_type)
-    hash.inject({}) {|hsh, t| 
+    hash.inject({}) {|hsh, t|
       key = t[0].name.downcase.to_sym
       key = :color if key == :colour
       hsh[key] = t.last
@@ -14,7 +14,7 @@ class Spree::VariantDecorator < Draper::Decorator
   def price_with_currency
     "#{price.amount.to_f} #{currency}"
   end
-  
+
   def current_currency
     context[:current_currency] || Spree::Config[:currency]
   end
@@ -111,7 +111,6 @@ class Spree::VariantDecorator < Draper::Decorator
   def first_image
     return @_first_image if @_first_image
     images = object.images_for(target)
-    images = object.memoized_images if images.blank?
     images = object.product.memoized_images if images.blank?
     @_first_image = images.first
     @_first_image
@@ -177,10 +176,10 @@ class Spree::VariantDecorator < Draper::Decorator
   end
 
   def url_encoded_product_page_url(product_page, tab=nil)
-    h.spree.product_page_url(product_page.permalink, 
-                             :host => h.root_url, 
+    h.spree.product_page_url(product_page.permalink,
+                             :host => h.root_url,
                              tab: url_encode_tab_name(product_page, tab) || product_page.selected_tab.url_safe_tab_type,
-                             variant_id: object.number ) 
+                             variant_id: object.number )
   end
 
   def twitter_url(product_page, tab=nil)

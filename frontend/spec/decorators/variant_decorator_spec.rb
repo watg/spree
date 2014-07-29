@@ -65,7 +65,7 @@ describe Spree::VariantDecorator do
 
     it "returns first image without target" do
       allow(variant).to receive(:images_for).and_return([])
-      allow(variant).to receive(:images).and_return(images)
+      variant.stub_chain(:product, :memoized_images).and_return(images)
       subject = variant.decorate( context: { current_currency: currency } )
       subject.first_image.should eq(images.sort_by(&:position).first)
     end
