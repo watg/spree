@@ -15,6 +15,7 @@
 //= require lib/jquery.history.js
 //= require lib/jquery.leanmodal.min.js
 //= require lib/jquery.tooltipster.min.js
+//= require lib/jquery.jcarousel.min.js
 
 //= require core
 

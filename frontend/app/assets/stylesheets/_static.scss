@@ -273,7 +273,8 @@ body.thank-you {
 .competition-beatkit,
 .competition-shopping-spree-apr-2014,
 .competition-summer-look-jun-2014,
-.competition-summer-bag-jun-2014 {
+.competition-summer-bag-jun-2014,
+.free-patterns {
 	.row-referral {
 		/*min-height: 654px;*/
 		margin: -3em 0 3em;
@@ -586,6 +587,8 @@ body.thank-you {
 }
 /* Olapic gallery page: HWTG */
 .olapic-gallery.hang-with-the-gang {
+	text-align: center;
+
 	.row-shipping-and-contact + .container > div.row {
 		background-color: #fff;
 		}
@@ -810,4 +813,174 @@ body.thank-you {
 			}
 		}
 	}
+}
+
+/* Free patterns */
+.free-patterns {
+	 text-align: center;
+
+	.row-shipping-and-contact + .container > div.row {
+		max-width: none !important;
+	}
+	.row-shipping-and-contact + .container > div.row > .columns {
+		padding: 0;
+	}
+	.wrapper-free-patterns div.row {
+		margin: 0 auto;
+		position: relative;
+		max-width: 62.5em;
+	}
+
+	.row-hero {
+		background: cdn-url('static/free-knitting-patterns/free-patterns-banner.jpg') center 0 no-repeat;
+		/*min-height: 350px;*/
+		width: 100%;
+		h1 {
+			color: #5b06aa;
+      margin-top: 370px;
+      font-family: $watg-font;
+      font-size: emCalc(80px);
+      text-transform: uppercase;
+      text-align: center;
+      letter-spacing: 0.1em;
+      line-height: 0.9em;
+      margin-bottom: 20px;
+    }
+    
+    @media only screen and (max-width: 320px) {
+      
+      h1 {
+        font-size: emCalc(60px);
+        margin-top: 380px;
+      }
+    }
+	}
+	
+	.row-intro {
+    div {
+      text-align: center;
+      h2 {
+        font-family: $watg-font-secondary-light;
+        font-size: emCalc(30px);
+      }
+	  
+      @media only screen and (max-width: 320px) {
+        h2 {
+          font-size: emCalc(25px);
+        }
+      }
+    }
+  }
+
+  .logo-images {
+  	#small-logo {
+  		display: none
+  	}
+  }
+
+  /*desktop mode (normal) see carosel settings in mobile below*/
+  .jcarousel {
+    h2 {
+        font-family: $watg-font-secondary-light;
+        font-size: emCalc(20px);
+        span, strong {
+          font-family: $watg-font-secondary;
+          font-weight: normal;
+        }
+      }
+    
+    h3 {
+      margin-top: 40px;
+    }
+
+    ul {
+      list-style-type: none;
+      li {
+        display: inline-block;
+        width: 190px;
+        h3 {
+          margin: 0;
+          font-size: emCalc(20px);
+        }
+        h2 {
+          font-size: emCalc(20px);
+        }
+ 
+      }
+    }
+  }
+
+  .jcarousel-control-prev, .jcarousel-control-next {
+    display: none;
+  }
+
+  @media only screen and (max-width: 320px) {
+    /** Carousel **/
+   
+    /* This is the visible area of carousel.
+    Set a width here to define how much items are visible.
+    Position must be relative!
+    */
+    .jcarousel {
+      position: relative;
+      overflow: hidden;
+    }
+
+    /*
+    You must ensure that the position is relative or absolute and
+    that the width is big enough to contain all items.
+    */
+    .jcarousel ul {
+      width: 20000em;
+      position: relative;
+
+      /* Optional, required in this case since it's a <ul> element */
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    /*
+    jCarousel works best, if the items
+    have a fixed width and height (but it's not required).
+    */
+    .jcarousel li {
+      /* Required only for block elements like <li>'s */
+      float: left;
+      display: list-item;
+      width: 305px !important;
+    }
+    .jcarousel-control-prev, .jcarousel-control-next {
+      position: absolute;
+      top: 0;
+      display: block !important;
+    }
+
+    .jcarousel-control-next {
+      right: 0;
+    }
+  }
+
+ .sign-up-header {
+  	margin-bottom: 40px;  	
+  	h3 {
+  		margin-top: 40px;
+  	}
+  }
+
+  #refereeForm {
+  	margin-top: 30px;
+  }
+
+  @media only screen and (max-width: 320px) {
+    
+  	.logo-images {
+  		#small-logo {
+  			display: inline;
+  		}
+  		#large-logo {
+  			display: none;
+  		}
+  	}
+  }
 }

@@ -5,6 +5,7 @@ $(document).ready(function() {
 	core.readyNavigationMobile();
 	core.readyModals();
 	core.readyTooltips();
+	core.readyCarousels();
 	core.showCookieMessage();
 });
 
@@ -121,21 +122,67 @@ core.showCookieMessage = function() {
 	}
 }
 
+core.readyCarousels = function() {
+
+  if (core.isMobileWidthOrLess() === true) {
+    // Carousel initialization
+  $('.jcarousel')
+      .jcarousel({
+          // Options go here
+      });
+
+  /*
+   Prev control initialization
+   */
+  $('.jcarousel-control-prev')
+      .on('jcarouselcontrol:active', function() {
+          $(this).removeClass('inactive');
+      })
+      .on('jcarouselcontrol:inactive', function() {
+          $(this).addClass('inactive');
+      })
+      .jcarouselControl({
+          // Options go here
+          target: '-=1'
+      });
+
+  /*
+   Next control initialization
+   */
+  $('.jcarousel-control-next')
+      .on('jcarouselcontrol:active', function() {
+          $(this).removeClass('inactive');
+      })
+      .on('jcarouselcontrol:inactive', function() {
+          $(this).addClass('inactive');
+      })
+      .jcarouselControl({
+          // Options go here
+          target: '+=1'
+      });
+  }  
+}
+
 /* ----- Non-init methods ----- */
 
 // Test for tablet width or less
 core.isTabletWidthOrLess = function() {
-	var test = $(window).width() <= 768 ? true : false;
-	return test;
+  var test = $(window).width() <= 768 ? true : false;
+  return test;
 }
 
 // Test for mobile width or less
 core.isMobileWidthOrLess = function() {
-	var test = $(window).width() <= 320 ? true : false;
-	return test;
+  var test = $(window).width() <= 320 ? true : false;
+  return test;
 }
 
 // Return current path as array
 core.getUrlPathAsArray = function() {
-	return window.location.pathname.split('/');
+  return window.location.pathname.split('/');
+}
+
+/* Check for a valid email address */
+core.isEmail = function(email) {
+  return /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test(email);
 }

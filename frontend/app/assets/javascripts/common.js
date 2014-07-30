@@ -144,7 +144,7 @@ WATG.referral = {
 			// Clone the first referee input and spit out after the last
 			var referee = $('#refereeForm');
 			referee.find('input:eq(2)').clone().val('').insertAfter(referee.find('input:last')).hide().fadeIn('slow');
-		});
+			});
 	},
 	
 	// Check qualifies
@@ -196,10 +196,11 @@ WATG.referral = {
 	
 	// Submit on forms
 	submitForms: function() {
+
 		var _gaq = _gaq || [];
 		_gaq.push(['_trackEvent', 'competition sign up', 'sign up']); // GA event
 		this.showWait();
-
+		
 		$.ajax({
 	    type: 'POST',
 	    url: this.referralForm.attr('action'),
@@ -221,8 +222,9 @@ WATG.referral = {
 	
 	showThanks: function() {
 		$('p.wait').remove();
-		$('<p class="thanks">Thanks for entering! Good luck!</p>').hide().insertBefore(this.referralForm).fadeIn('slow').focus();
+		// $('<p class="thanks">Thanks for entering! Good luck!</p>').hide().insertBefore(this.referralForm).fadeIn('slow').focus();
 		//$('<p class="thanks">Thanks for entering! <br/>Expect an email from us within the hour confirming your entry and with a discount code as a token of our appreciation. Good luck!</p>').hide().insertBefore(this.referralForm).fadeIn('slow').focus();
+		$('<p class="thanks">Thanks for singing up! <br/>Your pattern is on its way to you <br/><br/> <a href="/">See what\'s new</a> </p>' ).hide().insertBefore(this.referralForm).fadeIn('slow').focus();
 	},
 	
 	showError: function() {
@@ -296,7 +298,8 @@ $(function() {
 		$('body').hasClass('competition-beatkit') || 
 		$('body').hasClass('competition-shopping-spree-apr-2014') ||
 		$('body').hasClass('competition-summer-look-jun-2014') ||
-		$('body').hasClass('competition-summer-bag-jun-2014')) {
+		$('body').hasClass('competition-summer-bag-jun-2014') ||
+		$('body').hasClass('free-patterns')) {
 		WATG.referral.init();
 	}
 
