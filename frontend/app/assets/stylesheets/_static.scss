@@ -837,7 +837,7 @@ body.thank-you {
 		width: 100%;
 		h1 {
 			color: #5b06aa;
-      margin-top: 370px;
+      margin-top: 299px;
       font-family: $watg-font;
       font-size: emCalc(80px);
       text-transform: uppercase;
@@ -851,7 +851,7 @@ body.thank-you {
       
       h1 {
         font-size: emCalc(60px);
-        margin-top: 380px;
+        margin-top: 299px;
       }
     }
 	}
@@ -875,6 +875,12 @@ body.thank-you {
   .logo-images {
   	#small-logo {
   		display: none
+  	}
+  }
+
+  .logo-images, .pattern-title{
+  	h3 {
+  		padding: 40px;
   	}
   }
 
@@ -965,6 +971,12 @@ body.thank-you {
   	margin-bottom: 40px;  	
   	h3 {
   		margin-top: 40px;
+  	}
+  }
+
+  #referralForm {
+  	fieldset {
+  		margin-top: 0;
   	}
   }
 
