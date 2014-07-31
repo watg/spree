@@ -224,7 +224,7 @@ WATG.referral = {
 		$('p.wait').remove();
 		// $('<p class="thanks">Thanks for entering! Good luck!</p>').hide().insertBefore(this.referralForm).fadeIn('slow').focus();
 		//$('<p class="thanks">Thanks for entering! <br/>Expect an email from us within the hour confirming your entry and with a discount code as a token of our appreciation. Good luck!</p>').hide().insertBefore(this.referralForm).fadeIn('slow').focus();
-		$('<p class="thanks">Thanks for singing up! <br/>Your pattern is on its way to you <br/><br/> <a href="/">See what\'s new</a> </p>' ).hide().insertBefore(this.referralForm).fadeIn('slow').focus();
+		$('<p class="thanks">Thanks for singing up! <br/>Your patterns are on there way to you <br/><br/> <a href="/shop/knitwear/knitting/wool-and-cotton">Don\'t forget to get your yarn!</a> </p>' ).hide().insertBefore(this.referralForm).fadeIn('slow').focus();
 	},
 	
 	showError: function() {

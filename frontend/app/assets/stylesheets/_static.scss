@@ -848,10 +848,12 @@ body.thank-you {
     }
     
     @media only screen and (max-width: 320px) {
-      
+      background: cdn-url('static/free-knitting-patterns/free-pattern-mobile-hero.jpg') center 0 no-repeat;
+
       h1 {
-        font-size: emCalc(60px);
-        margin-top: 299px;
+        margin-top: 23px;
+        font-size: emCalc(35px);
+        color: #000000;
       }
     }
 	}
@@ -859,14 +861,28 @@ body.thank-you {
 	.row-intro {
     div {
       text-align: center;
-      h2 {
-        font-family: $watg-font-secondary-light;
-        font-size: emCalc(30px);
+      .desktop-intro {
+        h2 {
+          font-family: $watg-font-secondary-light;
+          font-size: emCalc(30px);
+        }
+      }
+      .mobile-intro {
+        display: none;
       }
 	  
       @media only screen and (max-width: 320px) {
-        h2 {
-          font-size: emCalc(25px);
+        .mobile-intro {
+          display: inline;
+          h2 {
+            margin-top: 20px;
+            font-family: $watg-font-secondary-light;
+            font-size: emCalc(25px);
+          }
+        }
+
+        .desktop-intro {
+          display:none;
         }
       }
     }
@@ -882,6 +898,29 @@ body.thank-you {
   	h3 {
   		padding: 40px;
   	}
+  }
+
+  @media only screen and (max-width: 320px) {
+    
+    .logo-images {
+      h3 {
+        padding: 20px;
+      }
+      #small-logo {
+        display: inline;
+      }
+      #large-logo {
+        display: none;
+      }
+    }
+  }
+
+  @media only screen and (max-width: 320px) {
+    .pattern-title {
+      h3 {
+        padding-bottom: 0;
+      }
+    }
   }
 
   /*desktop mode (normal) see carosel settings in mobile below*/
@@ -923,6 +962,9 @@ body.thank-you {
   @media only screen and (max-width: 320px) {
     /** Carousel **/
    
+   .jcarousel-wrapper {
+    padding-bottom: 20px;
+   }
     /* This is the visible area of carousel.
     Set a width here to define how much items are visible.
     Position must be relative!
@@ -971,8 +1013,16 @@ body.thank-you {
   	margin-bottom: 40px;  	
   	h3 {
   		margin-top: 40px;
+      span {
+        font-size: emCalc(15px);
+      }
   	}
   }
+
+  .row-form {
+    max-width: none !important;
+  	background-color: #fafafa;
+  } 
 
   #referralForm {
   	fieldset {
@@ -984,15 +1034,13 @@ body.thank-you {
   	margin-top: 30px;
   }
 
-  @media only screen and (max-width: 320px) {
-    
-  	.logo-images {
-  		#small-logo {
-  			display: inline;
-  		}
-  		#large-logo {
-  			display: none;
-  		}
-  	}
+  .row-tsandcs {
+    h4 {
+      font-size: 11px;
+      font-family: "Gill Sans W01 Light";
+      padding: 20px;
+      text-transform: none;
+    }
   }
+  
 }
