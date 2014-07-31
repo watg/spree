@@ -71,13 +71,14 @@ body.homepage #header {
 
 .home-main .leader-0 {
 	/* Small screen background */
-	background: #ebece7 cdn-url("/homepage/2014-07-29/Homepage_MadeWithBling_MOBILE_V1.jpg") top center no-repeat;
+	background: #ebece7 cdn-url("/homepage/2014-07-28/Homepage_CSM_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
 	/* Large screen background */
 	@media only screen and (min-width: 48em) {
-		background: #ebece7 cdn-url("/homepage/2014-07-29/Homepage_MadeWithBling_DESKTOP_V1.jpg") top center no-repeat;
+  	background: #ebece7 cdn-url("/homepage/2014-07-28/Homepage_CSM_DESKTOP_V1.jpg") top center no-repeat;
+
 		& > div {
 			height: 700px;
 		}
@@ -118,7 +119,7 @@ body.homepage #header {
 	}
 	/* Large screen background */
 	@media only screen and (min-width: 48em) {
-		background: #fbfaf5 cdn-url("/homepage/2014-07-28/Homepage_CSM_DESKTOP_V1.jpg") top center no-repeat;
+		background: #fbfaf5 cdn-url("/homepage/2014-07-04/1_Homepage_Vogue_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
