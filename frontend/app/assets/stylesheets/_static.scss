@@ -1048,18 +1048,30 @@ body.thank-you {
 /*Knit Your Selfie*/
 .knit-your-selfie {
 
-	.row-shipping-and-contact + .container > div.row {
-		max-width: none !important;
-		background-color: #ffffff;
-	}
+  text-align: center;
 
-	.row-hero {
-		background-image: cdn-url('static/doityourselfie-hero.jpg') center 0 no-repeat;
-	}
+  .row-shipping-and-contact + .container > div.row {
+    max-width: none !important;
+    background-color: #ffffff;
+  }
+  .row-shipping-and-contact + .container > div.row > .columns {
+    padding: 0;
+  }
+
+  .row-hero {
+    background: cdn-url('static/doityourselfie-hero.jpg') center 0 no-repeat;
+    height: 249px;
+    max-height: 249px;
+	}    
+
+  @media only screen and (max-width: 320px) {
+    .row-hero {
+      background: cdn-url('static/doityourselfie-mobile-hero.jpg') center 0 no-repeat;
+    }
+  }
 
 	.row-intro {
 		text-align: center;
-		background-image: cdn-url('static/doityourselfie-hero.jpg') center 0 no-repeat;
 		h1 {
 			font-family: $watg-font;
       font-size: emCalc(60px);
@@ -1085,8 +1097,15 @@ body.thank-you {
 			font-family: $watg-font-secondary-light;
       font-size: emCalc(15px);
       margin-top: 40px;
-		}	
+		}
 	}
+
+  @media only screen and (max-width: 320px) {
+    h1 {
+      font-size: emCalc(40px) !important;
+    }
+  }
+
 
 	.row.row-olapic-gallery {
 		margin-top: 0;
@@ -1102,11 +1121,22 @@ body.thank-you {
 
 /*knit your selfie terms*/
 .knit-your-selfie-terms {
-  
-  h1 {
-    text-align: center;
+  text-align: center;
+
+  .row-shipping-and-contact + .container > div.row {
+    max-width: none !important;
+    background-color: #ffffff;
+  }
+  .row-shipping-and-contact + .container > div.row > .columns {
+    padding: 0;
   }
 
+  .row-hero {
+    background: cdn-url('static/doityourselfie-hero.jpg') center 0 no-repeat;
+    height: 249px;
+    max-height: 249px;
+  }    
+  
   .inner-list {
     list-style-type: none;
   }
