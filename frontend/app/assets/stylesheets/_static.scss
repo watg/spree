@@ -1121,7 +1121,6 @@ body.thank-you {
 
 /*knit your selfie terms*/
 .knit-your-selfie-terms {
-  text-align: center;
 
   .row-shipping-and-contact + .container > div.row {
     max-width: none !important;
@@ -1135,6 +1134,10 @@ body.thank-you {
     background: cdn-url('static/doityourselfie-hero.jpg') center 0 no-repeat;
     height: 249px;
     max-height: 249px;
+  }
+
+  h1 {
+  	text-align: center;
   }    
   
   .inner-list {
