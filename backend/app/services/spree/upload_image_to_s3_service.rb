@@ -15,7 +15,7 @@ module Spree
       self.direct_upload_url = CGI.unescape(direct_upload_url)
 
       unless DIRECT_UPLOAD_URL_FORMAT.match(direct_upload_url)
-        add_error(:direct_upload_url, :incorrect_format, "Url not correctly formatted")
+        errors.add(:direct_upload_url, "Url not correctly formatted")
         return
       end
 
@@ -28,7 +28,7 @@ module Spree
       image.processed = false
       image.update_attributes(inputs.except(:image))
       if !image.persisted?
-        add_error(:image, :not_persisted, "Image was not persisted")
+        errors.add(:image, "Image was not persisted")
         return
       end
 
