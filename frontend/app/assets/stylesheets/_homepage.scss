@@ -87,6 +87,21 @@ body.homepage #header {
 
 .home-main .leader-1 {
 	/* Small screen background */
+	background: #000 cdn-url("/homepage/2014-08-04/Homepage_DoitYourSelfie_MOBILE_V1.jpg") top center no-repeat;
+	& > div {
+		height: 580px;
+	}
+	/* Large screen background */
+	@media only screen and (min-width: 48em) {
+  	background: #fff cdn-url("/homepage/2014-08-04/Homepage_DoitYourSelfie_DESKTOP_V1.jpg") top center no-repeat;
+
+		& > div {
+			height: 700px;
+		}
+	}
+}
+
+/*.home-main .leader-1 {
 	background: #fbfaf5 cdn-url("/homepage/2014-07-28/Homepage_CSM_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
@@ -117,7 +132,6 @@ body.homepage #header {
 		bottom: 20px;
 		left: 50%;
 	}
-	/* Large screen background */
 	@media only screen and (min-width: 48em) {
 		background: #fbfaf5 cdn-url("/homepage/2014-07-04/1_Homepage_Vogue_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
@@ -134,7 +148,7 @@ body.homepage #header {
 			// Positioning
 		}
 	}
-}
+}*/
 
 .home-main .leader-2 {	
 	/* Small screen background */
