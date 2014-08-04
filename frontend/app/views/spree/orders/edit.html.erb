@@ -18,11 +18,12 @@
 					<%= render :partial => 'form', :locals => { :order_form => order_form } %>
 				</div>
 
-				<div class="subtotal">
-					<span class="subtotal-label"><%= Spree.t(:subtotal) %></span> <span class="sub-total"><%= @order.display_total.to_html %></span>
-				</div>
+        <div class="subtotal">
+          <span class="subtotal-label"><%= Spree.t(:subtotal) %></span> <span class="sub-total"><%= @order.display_total.to_html %></span>
+        </div>
 
 				<div class="row collapse checkout-link">
+          <%= button_tag "Update bag", :class => 'inverse', :id => 'update-button' %>
 					<%= link_to Spree.t(:continue_shopping), root_path, :class => 'continue-shopping button inverse' %>
 					<%= button_tag :class => '', :id => 'checkout-link', :name => 'checkout' do %>
 						<%= Spree.t(:checkout) %>
