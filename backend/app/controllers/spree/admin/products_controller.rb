@@ -63,7 +63,7 @@ module Spree
 
       def create_assembly_definition
         @product.master.build_assembly_definition.save!
-        @product.variants.map(&:delete)
+        @product.variants.select { |v| v.assembly_definition.blank? }.map(&:delete)
         redirect_to edit_admin_product_url(@product)
       end
 
