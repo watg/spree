@@ -18,6 +18,21 @@ describe Spree::Admin::ProductsController, type: :controller do
     end
   end
 
+
+  context "#create_assembly_definition" do
+    let(:product) { create(:product_with_variants) }
+    let(:params) { { id: product.slug } }
+
+    it "should be successful" do
+      spree_put :create_assembly_definition, params
+
+      expect(response.status).to eq(302)
+      expect(product.master.assembly_definition).not_to be_nil
+      expect(product.variants.size).to eq(0)
+    end
+  end
+
+
   # ------------------------------------------------------
 
   def to_params(product)
