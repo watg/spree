@@ -423,7 +423,7 @@ module Spree
 
     def deliver_gift_card_emails
       self.gift_card_line_items.each do |item|
-        item.quantity.times {|position| 
+        item.quantity.times {|position|
           job = Spree::IssueGiftCardJob.new(self, item, position)
           ::Delayed::Job.enqueue job, :queue => 'gift_card'
         }
@@ -438,7 +438,7 @@ module Spree
       self.line_items.
         includes(:variant, product: [:product_type]).
         # TODO: It would be great if this was more generic e.g. digital rather than
-        # gift_card, that way we can have a generic delviery behaviour with type 
+        # gift_card, that way we can have a generic delviery behaviour with type
         # deciding at the very end what is to be delivered
         where("spree_product_types.name" => Spree::ProductType::GIFT_CARD).
         reorder('spree_line_items.created_at ASC').
@@ -621,11 +621,6 @@ module Spree
       shipments.each { |shipment| ItemAdjustments.new(shipment).update }
       updater.update_shipment_total
       persist_totals
-    end
-
-    def apply_promotions
-      PromotionHandler::Cart.new(self).activate
-      ItemAdjustments.new(self).update
     end
 
     # Clean shipments and make order back to address state

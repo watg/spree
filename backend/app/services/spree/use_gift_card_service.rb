@@ -22,12 +22,12 @@ module Spree
 
     private
     def find_redeemable_card
-      card = Spree::GiftCard.where(state: 'not_redeemed',  code: code.upcase).first      
+      card = Spree::GiftCard.where(state: 'not_redeemed',  code: code.upcase).first
       return  if card.blank?
       if card.currency != order.currency
         add_error(:wrong_currency, :wrong_currency, "Your must have the same currency as your gift card!")
         return
-      end 
+      end
       if card.expiry_date < Time.now
         add_error(:expired, :expired, "Your gift card has expired!")
         return
@@ -41,9 +41,9 @@ module Spree
 
     def success_message(card)
       [
-       "#{adjustment_label(card)} applied",
-       "Your gift card was successfully registered",
-       "Happy days! and don't forget to thank someone",
+       "#{adjustment_label(card)} applied.",
+       "Your gift card was successfully registered.",
+       "Happy days! And don't forget to thank someone."
       ][ rand(3) ]
     end
   end

@@ -78,8 +78,6 @@ module Spree
               before_transition :from => :cart, :do => :ensure_line_items_present
 
               if states[:address]
-                # at this stage we can apply promotions, which depend on the presence of an address
-                before_transition :from => :address, :do => :apply_promotions
                 before_transition :from => :address, :do => :create_tax_charge!
               end
 

@@ -130,7 +130,7 @@ module Spree
             let(:order) { create(:order) }
             let(:calculator) { Calculator::FlatRate.new(preferred_amount: [{type: :integer, name: "USD", value: 10}]) }
 
-            before do 
+            before do
               order.stub({
                 :coupon_code => "10off",
                 # These need to be here so that promotion adjustment "wins"
@@ -178,7 +178,8 @@ module Spree
                 :amount => 0.10,
                 :calculator => Spree::Calculator::DefaultTax.create,
                 :tax_category => @category,
-                :zone => @zone
+                :zone => @zone,
+                :currency => "USD"
             )
 
             @order = Spree::Order.create!
@@ -193,7 +194,7 @@ module Spree
             end
             it "successfully applies the promo" do
               # 3 * (9 + 0.9)
-              @order.total.should == 29.7
+              @order.reload.total.should == 29.7
               coupon = Coupon.new(@order)
               coupon.apply
               expect(coupon.success).to be_present
@@ -223,7 +224,7 @@ module Spree
           context "and multiple quantity per line item" do
             before(:each) do
               twnty_off = Promotion.create name: "promo", :code => "20off"
-              twnty_off_calc = Calculator::FlatRate.new(preferred_amount: 20)
+              twnty_off_calc = Calculator::FlatRate.new(preferred_amount: [{type: :integer, name: "USD", value: 20}])
               Promotion::Actions::CreateItemAdjustments.create(promotion: twnty_off,
                                                                calculator: twnty_off_calc)
 

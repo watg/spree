@@ -134,12 +134,6 @@ describe Spree::Order do
         order.total.should == 10.5
       end
 
-      it "applies promotions" do
-        order.stub(:ensure_available_shipping_rates => true)
-        order.should_receive(:apply_promotions)
-        order.next!
-      end
-
       it "transitions to delivery" do
         order.stub(:ensure_available_shipping_rates => true)
         order.next!

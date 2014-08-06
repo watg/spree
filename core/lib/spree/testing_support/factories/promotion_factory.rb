@@ -9,7 +9,7 @@ FactoryGirl.define do
 
       after(:create) do |promotion, evaluator|
         calculator = Spree::Calculator::FlatRate.new
-        calculator.preferred_amount = evaluator.adjustment_rate
+        calculator.preferred_amount = [{type: :integer, name: "USD", value: evaluator.adjustment_rate}]
         action = Spree::Promotion::Actions::CreateItemAdjustments.create(:calculator => calculator)
         promotion.actions << action
         promotion.save
@@ -24,7 +24,7 @@ FactoryGirl.define do
 
       after(:create) do |promotion, evaluator|
         calculator = Spree::Calculator::FlatRate.new
-        calculator.preferred_amount = evaluator.order_adjustment_amount
+        calculator.preferred_amount = [{type: :integer, name: "USD", value: evaluator.order_adjustment_amount}]
         action = Spree::Promotion::Actions::CreateAdjustment.create!(:calculator => calculator)
         promotion.actions << action
         promotion.save!
@@ -38,8 +38,8 @@ FactoryGirl.define do
 
       after(:create) do |promotion, evaluator|
         rule = Spree::Promotion::Rules::ItemTotal.create!(
-          preferred_operator: 'gte', 
-          preferred_amount: evaluator.item_total_threshold_amount
+          # preferred_operator: 'gte',
+          preferred_attributes: {Spree::Zone.first.id => { 'USD' => { 'amount' => evaluator.item_total_threshold_amount, 'enabled' => 'true' } }}
         )
         promotion.rules << rule
         promotion.save!
