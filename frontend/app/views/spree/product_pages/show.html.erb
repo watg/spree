@@ -8,7 +8,7 @@
 <% end %>
 
 <input type="hidden" name="authenticity_token_fresh" value="<%= form_authenticity_token %>" />
-<% @body_class = 'product-group' %>
+<% @body_class = 'product-group no-sitewide-promo' %>
 <% cache [@product_page, @variants, @product_page.target, @product_page.selected_tab, current_currency] do %>
 <div class="wrapper-product-group" itemscope itemtype="http://schema.org/Product">
 	

@@ -7,6 +7,7 @@ module Spree
         before { Config.override_actionmailer_config = true }
 
         it "calls override!" do
+          allow(Rails.env).to receive(:test?).and_return(false)
           ActionMailer::Base.should_receive(:delivery_method=).with(:spree)
           MailSettings.init
         end

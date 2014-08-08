@@ -26,7 +26,7 @@ describe Spree::ProductPagesController, type: :controller do
       it "re-directs to the shop page" do
         spree_get :show, :tab => "made-by-the-gang"
         response.status.should == 302
-        response.should redirect_to "/shop/"
+        response.should redirect_to "/shop"
       end
     end
 
@@ -52,7 +52,7 @@ describe Spree::ProductPagesController, type: :controller do
       it "should provide a redirect if not a valid product_page" do
         spree_get :show, :id => 'fobar', :tab => "kit"
         response.status.should == 302
-        response.should redirect_to "/shop/"
+        response.should redirect_to "/shop"
       end
     end
 

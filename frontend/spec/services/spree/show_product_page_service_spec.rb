@@ -74,7 +74,7 @@ describe Spree::ShowProductPageService do
 
     it "should redirect back to the shope if a valid product_page can not be found" do
       outcome = subject.run( permalink: 'asdasd', tab: 'made-by-the-gang', currency: 'GBP', request: 'foo'  )
-      expect(outcome.result[:redirect_to]).to eq("/shop/")
+      expect(outcome.result[:redirect_to]).to eq("/shop")
       expect(outcome.result[:decorated_product_page]).to be_nil 
     end
   end

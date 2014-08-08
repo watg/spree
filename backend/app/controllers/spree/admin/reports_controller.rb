@@ -12,10 +12,13 @@ module Spree
         :gang_sales => { :name => Spree.t(:gang_sales), :description => Spree.t(:gang_sales_description), date: true },
         :tara_stiles => { :name => "Tara Stiles",  :description => "Get sales data for TS Hoodie, Tree Huggers, Hot Top, Shatki Shorts, Strala T-Shirt", date: true },
         :rachel_rutt => { :name => "Rachel Rutt",  :description => "Get a report about Rachel Rutt Sales", date: true },
+        :referrer => { :name => "Referrer",  :description => "Refer a Friend", date: true },
+        :referee => { :name => "Referee",  :description => "Refer a Friend", date: true },
       }.with_indifferent_access
 
       def index
         @reports = AVAILABLE_REPORTS
+        @last_reports = Spree::Report.last(10)
       end
 
       def report
@@ -25,7 +28,7 @@ module Spree
       def refresh
         @report = Spree::Report.find(params[:id])
         @name = params[:name]
-        render :create 
+        render :create
       end
 
       def create

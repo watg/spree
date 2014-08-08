@@ -12,6 +12,11 @@ module Spree
     before_filter :apply_coupon_code, only: :update
     skip_before_filter :verify_authenticity_token
 
+    def index
+      redirect_to root_path and return unless try_spree_current_user
+      @orders = try_spree_current_user.orders.complete.order('completed_at desc')
+    end
+
     def show
       @order = Order.find_by_number!(params[:id])
     end

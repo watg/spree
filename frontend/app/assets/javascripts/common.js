@@ -314,12 +314,7 @@ $(function() {
 // On document fully loaded...
 $(window).bind('load', function() {
 	// Signup starts
-	if (
-		$('body').hasClass('product-top') || 
-		$('body').hasClass('product-index') || 
-		$('body').hasClass('product-group') || 
-		$('body').hasClass('host-a-knit-workshop')) 
-	return false; // Die if product top, index or group page, etc.
+	if ($('body').hasClass('no-sitewide-promo')) return false; // Die if sitewide promo not required
 	
 	WATG.signup.globals.signupForms = $('.signup-form');
 	WATG.signup.globals.container = $('#signupPromo');

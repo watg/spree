@@ -121,7 +121,7 @@ module Spree
     end
 
     def buyer_email_buyer_order_id
-      encode([buyer_email, buyer_order.id].join, 4)
+      encode([buyer_email, buyer_order.try(:id) || SecureRandom.urlsafe_base64(5, false)].join, 4)
     end
 
     def currency_value_uuid

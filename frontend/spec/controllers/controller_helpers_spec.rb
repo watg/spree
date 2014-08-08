@@ -21,4 +21,5 @@ describe Spree::ProductPagesController do
     spree_get :show
     I18n.locale.should == :de
   end
+
 end

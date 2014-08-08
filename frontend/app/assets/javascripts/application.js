@@ -15,6 +15,8 @@
 //= require lib/jquery.history.js
 //= require lib/jquery.leanmodal.min.js
 //= require lib/jquery.tooltipster.min.js
+//= require lib/jquery.tagmanager.js
+//= require lib/jquery.typeahead.min.js
 //= require lib/jquery.jcarousel.min.js
 
 //= require core
@@ -38,3 +40,8 @@
 
 // this is so we are backward compatible with the old product pages, we should delete it when we no longer need them
 //= require spree/frontend/old_product 
+
+// Refer-a-friend module
+//= require spree/frontend/spree_raf
+//= require spree/frontend/referee_landing
+

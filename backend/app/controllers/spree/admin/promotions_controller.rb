@@ -18,6 +18,9 @@ module Spree
           return @collection if @collection.present?
           params[:q] ||= HashWithIndifferentAccess.new
 
+          params[:q][:dynamic_null] ||= '1'
+          @hide_dynamic = params[:q][:dynamic_null] == '1'
+
           @collection = super
           @search = @collection.ransack(params[:q])
           @collection = @search.result(distinct: true).

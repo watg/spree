@@ -19,7 +19,7 @@ describe Spree::Admin::BaseController do
     it "checks error" do
       controller.stub root_path: "/rooot"
       get :index
-      expect(response).to redirect_to "/shop/"
+      expect(response).to redirect_to "/shop"
     end
   end
 

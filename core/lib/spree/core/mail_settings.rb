@@ -16,7 +16,7 @@ module Spree
       end
 
       def self.override!
-        ActionMailer::Base.delivery_method = :spree
+        ActionMailer::Base.delivery_method = :spree unless Rails.env.test? or Rails.env.features?
         ActionMailer::Base.default_url_options[:host] ||= Config.site_url
       end
 

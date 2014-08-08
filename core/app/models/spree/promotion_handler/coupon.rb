@@ -37,10 +37,10 @@ module Spree
       private
       def handle_gift_card
         outcome = Spree::UseGiftCardService.run(order: order, code: order.coupon_code)
-        if outcome.success?
+        if outcome.valid?
           self.success = outcome.result
         else
-          self.error = Spree.t(:coupon_code_not_found)
+          self.error = outcome.errors.full_messages.to_sentence
         end
       end
 

@@ -3,14 +3,14 @@
 <footer class="row">
 	<!-- Newsletter signup / social media -->
 	<div class="marketing large-6 columns">
-		<form action="/shop/subscribe" method="post" class="signup-form newsletter-subscribe">
+		<form action="/subscribe" method="post" class="signup-form newsletter-subscribe">
 			<label for="email">Sign up for wooly news</label>
 			<input type="email" value="" name="signupEmail" placeholder="Enter your email here" />
 			<input type="hidden" name="source" value="Website - Footer" />
 			<button type="submit">Submit</button>
 		</form>
 		<div class="signup-response">
-			<div>        
+			<div>
 			</div>
 		</div>
 
@@ -65,7 +65,7 @@
 			<li><%= link_to('Ts & Cs', '/terms-and-conditions') %></li>
 			<li><%= link_to('Privacy', '/privacy') %></li>
 		</ul>
-	</section>	
+	</section>
 </footer>
 <% end %>
 
@@ -93,3 +93,5 @@
 	  <iframe src="//woolthegang.desk.com/customer/emails/new"></iframe>
   <% end %>
 </div>
+
+<%= yield :modals %>

@@ -1,10 +1,9 @@
 require  File.join(Rails.root,'vendor/spree/core/app/jobs/spree/gift_card_order_ttl_job.rb')
 module Spree
-  class UseGiftCardService < Mutations::Command
-    required do
-      duck :order
-      string :code
-    end
+  class UseGiftCardService < ActiveInteraction::Base
+
+    string  :code
+    model :order, class: 'Spree::Order'
 
     def execute
       card = find_redeemable_card
@@ -13,26 +12,29 @@ module Spree
         card.create_adjustment(adjustment_label(card), order, order, true)
         ::Delayed::Job.enqueue Spree::GiftCardOrderTTLJob.new(order, card), queue: 'gift_card', run_at: 2.hours.from_now
         return success_message(card)
-      else
-        add_error(:card_not_found, :card_not_found, "Gift card not found!")
       end
-      rescue Exception => e
-      add_error(:could_not_apply, :could_not_apply, "Could not apply this gift card code")
+      card
+    rescue Exception => e
+      errors.add(:could_not_apply, "Could not apply this gift card code")
+      nil
     end
 
     private
     def find_redeemable_card
       card = Spree::GiftCard.where(state: 'not_redeemed',  code: code.upcase).first
-      return  if card.blank?
+      if card.blank?
+        errors.add(:card_not_found, "Gift card not found!")
+        return
+      end
       if card.currency != order.currency
-        add_error(:wrong_currency, :wrong_currency, "Your must have the same currency as your gift card!")
+        errors.add(:wrong_currency, "Ensure your purchase is in the currency your gift card is applicable for (#{card.currency})")
         return
       end
       if card.expiry_date < Time.now
-        add_error(:expired, :expired, "Your gift card has expired!")
+        errors.add(:expired, "Your gift card has expired!")
         return
       end
-      return card
+      card
     end
 
     def adjustment_label(card)

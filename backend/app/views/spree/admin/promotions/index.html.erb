@@ -8,6 +8,8 @@
   </li>
 <% end %>
 
+<%= render :partial => 'spree/admin/shared/incentives_sub_menu' %>
+
 <% content_for :table_filter_title do %>
   <%= Spree.t(:search) %>
 <% end %>
@@ -33,7 +35,14 @@
         <div class="field">
           <%= label_tag nil, 'path' %>
           <%= f.text_field :path_cont, tabindex: 1 %>
+          <br>
+          <br>
+          <label>
+            <%= f.check_box :dynamic_null, {checked: @hide_dynamic}, '1', '0' %>
+            Hide dynamic promotions
+          </label>
         </div>
+
       </div>
 
       <div class="clearfix"></div>
