@@ -9,7 +9,7 @@ $(document).ready(function() {
 	core.readyCarousels();
 	core.showCookieMessage();
 	core.readyAlpacaAttack();
-
+});
 /* ----- Init methods ----- */
 
 // Ready primary navigation
@@ -201,11 +201,78 @@ core.getUrlPathAsArray = function() {
 core.isEmail = function(email) {
 	return /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test(email);
 }
-};
 
 // Animation for alpaca attack
 core.runAlpacaAttack = function() {
-  $('.alpaca-attack').css('display', 'block');
-      $('.alpaca-attack').animate({height: 'toggle'});
-      $('.alpaca-attack').animate({width: 'toggle'});
+
+  var array = ['0', '400px', '-200px'];
+  var position = array[Math.floor(Math.random() * array.length)];
+  console.log(position)
+   
+    $('.alpaca-attack').css({
+      'top': position,
+      'display': 'block', 
+      'left': '-150px'
+      }); 
+      $('.alpaca-attack').animate({
+        if (position === '-200px') {
+          top: "+=250px"
+        } else {
+          left: "+=150px"
+        }
+      }, 1000 );
+      $('.alpaca-attack').animate({
+        if (position === '-200px') {
+          top: "-=500px"
+        } else {
+          left: "-=150px"
+        }
+      }, 1000 );
+
+// currrently if statement not working.
+
+
+    // $('.alpaca-attack').css({'display': 'block', 'left': '-150px', 'top': '0'});
+    //   $('.alpaca-attack').animate({
+    //     left: "+=150px",
+    //   }, 1000 );
+    //   $('.alpaca-attack').animate({
+    //     left: "-=150px",
+    //   }, 1000 );,
+
+  //   $('.alpaca-attack').css({'display': 'block', 
+  //      'left': '-150px', 
+  //      'top': '400px'});
+  //     $('.alpaca-attack').animate({
+  //       left: "+=150px",
+  //     }, 1000 );
+  //     $('.alpaca-attack').animate({
+  //       left: "-=150px",
+  //     }, 1000 );
+
+    // $('.alpaca-attack').css({'transform': 'rotate(90deg)', 
+    //   'display': 'block', 
+    //   'left': '-500px', 
+    //   'top': '0'});
+    // $('.alpaca-attack').animate({
+    //   left: "+=450px",
+    // }, 1000 );
+    // $('.alpaca-attack').animate({
+    //   left: "-=450px",
+    // }, 1000 );
+
+  //   $('.alpaca-attack').css({'transform': 'rotate(90deg)', 
+  //     'display': 'block', 
+  //     'left': '200px', 
+  //     'top': '-200px'});
+  //   $('.alpaca-attack').animate({
+  //     top: "+=250px",
+  //   }, 1000 );
+  //   $('.alpaca-attack').animate({
+  //     top: "-=500px",
+  //   }, 1000 );
+
+    var selectFruit = ["Apple", "Orange", "Banana", "Cherry"];
+    var rand = selectFruit[Math.floor(Math.random() * selectFruit.length)];
+    console.log(rand);
 };
