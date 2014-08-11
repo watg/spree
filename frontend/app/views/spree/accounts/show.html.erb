@@ -39,9 +39,9 @@
 					<%= cdn_image_tag("raf/account-icon-refer-unhappy.png", class: 'only-desktop', width: "55", height: "55", alt: "Refer a friend") %>
 					<%= cdn_image_tag("raf/account-icon-refer-unhappy-mobile.png", class: 'only-mobile', width: "83", height: "83", alt: "Refer a friend") %>
 				<% end %>
-				<h3><a href="<%= spree.raf_referrer_path %>">Refer a friend</a></h3>
+				<h3><a href="<%= spree.raf_invite_path %>">Refer a friend</a></h3>
 				<p><% if @no_profile %>The easiest way to get<br/> your next order for free!<% else %>You haven't earned any money yet.<br/> Keep on referring!<% end %></p>
-				<p class="only-desktop"><a class="button" href="<%= spree.raf_referrer_path %>">Refer &amp; get rewarded</a></p>
+				<p class="only-desktop"><a class="button" href="<%= spree.raf_invite_path %>">Refer &amp; get rewarded</a></p>
 				<% if @no_profile %><% else %><p>No money? Your rewards will appear here 30 days<br/> after a friend places an order for the first time.</p><% end %>
 			</div>
 			<div class="large-4 columns column-email">
