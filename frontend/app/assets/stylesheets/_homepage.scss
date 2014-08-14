@@ -70,17 +70,70 @@ body.homepage #header {
 }*/
 
 .home-main .leader-0 {
-	/* Small screen background */
-	background: #ebece7 cdn-url("/homepage/2014-07-28/Homepage_CSM_MOBILE_V1.jpg") top center no-repeat;
+	background: #bad0ff cdn-url("/homepage/2014-08-14/Homepage_ReverseSale_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
-	/* Large screen background */
+	a {
+		position: absolute;
+		display: block;
+		line-height: 0;
+		font-size: 0;
+	}
+	.link-women {
+		width: 100%;
+		height: 100%;
+	}
+	.link-men {
+		width: 110px;
+		height: 45px;
+		// Positioning
+		bottom: 120px;
+		left: 51%;
+	}
+	.link-kids {
+		width: 110px;
+		height: 45px;
+		// Positioning
+		bottom: 80px;
+		left: 16%;
+	}
+	.link-yarn {
+		width: 110px;
+		height: 45px;
+		// Positioning
+		bottom: 80px;
+		left: 51%;
+	}
 	@media only screen and (min-width: 48em) {
-  	background: #ebece7 cdn-url("/homepage/2014-07-28/Homepage_CSM_DESKTOP_V1.jpg") top center no-repeat;
-
+		background: #dae6ff cdn-url("/homepage/2014-08-14/Homepage_ReverseSale_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
+		}
+		.link-women {
+			width: 100%;
+			height: 100%;
+		}
+		.link-men {
+			width: 110px;
+			height: 45px;
+			// Positioning
+			bottom: 100px;
+			left: 40%;
+		}
+		.link-kids {
+			width: 110px;
+			height: 45px;
+			// Positioning
+			bottom: 100px;
+			left: 51%;
+		}
+		.link-yarn {
+			width: 110px;
+			height: 45px;
+			// Positioning
+			bottom: 100px;
+			left: 62%;
 		}
 	}
 }
