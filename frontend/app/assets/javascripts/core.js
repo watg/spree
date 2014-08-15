@@ -205,74 +205,68 @@ core.isEmail = function(email) {
 // Animation for alpaca attack
 core.runAlpacaAttack = function() {
 
-  var array = ['0', '400px', '-200px'];
-  var position = array[Math.floor(Math.random() * array.length)];
-  console.log(position)
-   
-    $('.alpaca-attack').css({
-      'top': position,
-      'display': 'block', 
-      'left': '-150px'
-      }); 
-      $('.alpaca-attack').animate({
-        if (position === '-200px') {
-          top: "+=250px"
-        } else {
-          left: "+=150px"
-        }
-      }, 1000 );
-      $('.alpaca-attack').animate({
-        if (position === '-200px') {
-          top: "-=500px"
-        } else {
-          left: "-=150px"
-        }
-      }, 1000 );
+  // lining up the army of alpacas
+  var normalPosition = {transform: 'none', 
+  left: '-150px',
+  top: 0,
+  leftanimate: '+=150px',
+  leftanimateend: '-=150px',
+  topanimate: 'none',
+  topanimateend: 'none'};
 
-// currrently if statement not working.
+  var lowerPosition = {
+  transform: 'none',
+  left:'-150px',
+  top: '400px',
+  leftanimate: '+=150px',
+  leftanimateend: '-=150px',
+  topanimate: 'none',
+  topanimateend: 'none'};
 
+  var rotatedSide ={
+    transform: 'rotate(90deg)',
+    left: '-500px',
+    top: '0',
+    leftanimate: '+=450px',
+    leftanimateend: '-=450px',
+    topanimate: 'none',
+    topanimateend: 'none'};
 
-    // $('.alpaca-attack').css({'display': 'block', 'left': '-150px', 'top': '0'});
-    //   $('.alpaca-attack').animate({
-    //     left: "+=150px",
-    //   }, 1000 );
-    //   $('.alpaca-attack').animate({
-    //     left: "-=150px",
-    //   }, 1000 );,
+  var rotatedTop = {
+    transform: 'rotate(180deg)',
+    left: '200px',
+    top: '-500px',
+    leftanimate: '200px',
+    leftanimateend: '200px',
+    topanimate: '+=250px',
+    topanimateend: '-=500px'};
 
-  //   $('.alpaca-attack').css({'display': 'block', 
-  //      'left': '-150px', 
-  //      'top': '400px'});
-  //     $('.alpaca-attack').animate({
-  //       left: "+=150px",
-  //     }, 1000 );
-  //     $('.alpaca-attack').animate({
-  //       left: "-=150px",
-  //     }, 1000 );
+  var middleTop = {
+    transform: 'rotate(180deg)',
+    left: '800px',
+    top: '-500px',
+    leftanimate: '800px',
+    leftanimateend: '800px',
+    topanimate: '+=250px',
+    topanimateend: '-=500px'};
 
-    // $('.alpaca-attack').css({'transform': 'rotate(90deg)', 
-    //   'display': 'block', 
-    //   'left': '-500px', 
-    //   'top': '0'});
-    // $('.alpaca-attack').animate({
-    //   left: "+=450px",
-    // }, 1000 );
-    // $('.alpaca-attack').animate({
-    //   left: "-=450px",
-    // }, 1000 );
+  // choosing tributes from the army of alpacas
+  var alpacas = [middleTop, rotatedTop, rotatedSide, lowerPosition, normalPosition]
+  var random_alpaca = alpacas[Math.floor(Math.random() * alpacas.length)]
 
-  //   $('.alpaca-attack').css({'transform': 'rotate(90deg)', 
-  //     'display': 'block', 
-  //     'left': '200px', 
-  //     'top': '-200px'});
-  //   $('.alpaca-attack').animate({
-  //     top: "+=250px",
-  //   }, 1000 );
-  //   $('.alpaca-attack').animate({
-  //     top: "-=500px",
-  //   }, 1000 );
-
-    var selectFruit = ["Apple", "Orange", "Banana", "Cherry"];
-    var rand = selectFruit[Math.floor(Math.random() * selectFruit.length)];
-    console.log(rand);
+  // sending the aplaca off to do its mission
+  $('.alpaca-attack').css({
+      'display': 'block',
+      'transform': random_alpaca.transform,  
+      'left': random_alpaca.left, 
+      'top': random_alpaca.top
+    });
+  $('.alpaca-attack').animate({
+    left: random_alpaca.leftanimate,
+    top: random_alpaca.topanimate
+  }, 1000 );
+  $('.alpaca-attack').animate({
+    left: random_alpaca.leftanimateend,
+    top: random_alpaca.topanimateend
+  }, 80 );
 };
