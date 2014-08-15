@@ -174,9 +174,10 @@ core.readyCarousels = function() {
 // Attach event handler for alpaca attack
 core.readyAlpacaAttack = function() {
 	$('#nav-bar .worldwide').on('click', function(e) {
-	 core.runAlpacaAttack();
+    if ($('.alpaca-attack').hasClass('.alpaca-attack.moving')) return false;
+    core.runAlpacaAttack();
   });
-};
+}
 
 /* ----- Non-init methods ----- */
 
@@ -206,22 +207,23 @@ core.isEmail = function(email) {
 core.runAlpacaAttack = function() {
 
   // lining up the army of alpacas
-  var normalPosition = {transform: 'none', 
-  left: '-150px',
-  top: 0,
-  leftanimate: '+=150px',
-  leftanimateend: '-=150px',
-  topanimate: 'none',
-  topanimateend: 'none'};
+  var normalPosition = {
+    transform: 'none', 
+    left: '-150px',
+    top: 0,
+    leftanimate: '+=150px',
+    leftanimateend: '-=150px',
+    topanimate: 'none',
+    topanimateend: 'none'};
 
   var lowerPosition = {
-  transform: 'none',
-  left:'-150px',
-  top: '400px',
-  leftanimate: '+=150px',
-  leftanimateend: '-=150px',
-  topanimate: 'none',
-  topanimateend: 'none'};
+    transform: 'none',
+    left:'-150px',
+    top: '400px',
+    leftanimate: '+=150px',
+    leftanimateend: '-=150px',
+    topanimate: 'none',
+    topanimateend: 'none'};
 
   var rotatedSide ={
     transform: 'rotate(90deg)',
@@ -255,11 +257,14 @@ core.runAlpacaAttack = function() {
   var random_alpaca = alpacas[Math.floor(Math.random() * alpacas.length)]
 
   // sending the aplaca off to do its mission
+  console.log('heeeellllo')
+  $('.alpaca-attack').addClass('moving');
+  console.log( $('.alpaca-attack'));
   $('.alpaca-attack').css({
-      'display': 'block',
+      'display': 'initial',
       'transform': random_alpaca.transform,  
       'left': random_alpaca.left, 
-      'top': random_alpaca.top
+      'top': random_alpaca.top,
     });
   $('.alpaca-attack').animate({
     left: random_alpaca.leftanimate,
@@ -269,4 +274,6 @@ core.runAlpacaAttack = function() {
     left: random_alpaca.leftanimateend,
     top: random_alpaca.topanimateend
   }, 80 );
+  $('.alpaca-attack').removeClass('moving');
 };
+
