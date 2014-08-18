@@ -70,7 +70,7 @@ body.homepage #header {
 }*/
 
 .home-main .leader-0 {
-	background: #bad0ff cdn-url("/homepage/2014-08-14/Homepage_ReverseSale_MOBILE_V1.jpg") top center no-repeat;
+	background: #000 cdn-url("/homepage/2014-08-18/Homepage_GangLabs_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
@@ -80,60 +80,31 @@ body.homepage #header {
 		line-height: 0;
 		font-size: 0;
 	}
-	.link-women {
+	.link-shop {
 		width: 100%;
 		height: 100%;
 	}
-	.link-men {
-		width: 110px;
+	.link-blog {
+		width: 235px;
 		height: 45px;
 		// Positioning
-		bottom: 120px;
-		left: 51%;
-	}
-	.link-kids {
-		width: 110px;
-		height: 45px;
-		// Positioning
-		bottom: 80px;
-		left: 16%;
-	}
-	.link-yarn {
-		width: 110px;
-		height: 45px;
-		// Positioning
-		bottom: 80px;
-		left: 51%;
+		bottom: 20px;
+		left: 33%;
 	}
 	@media only screen and (min-width: 48em) {
-		background: #dae6ff cdn-url("/homepage/2014-08-14/Homepage_ReverseSale_DESKTOP_V1.jpg") top center no-repeat;
+		background: #fff cdn-url("/homepage/2014-08-18/Homepage_GangLabs_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
-		.link-women {
+		.link-shop {
 			width: 100%;
 			height: 100%;
 		}
-		.link-men {
-			width: 110px;
+		.link-blog {
 			height: 45px;
 			// Positioning
-			bottom: 100px;
-			left: 40%;
-		}
-		.link-kids {
-			width: 110px;
-			height: 45px;
-			// Positioning
-			bottom: 100px;
-			left: 51%;
-		}
-		.link-yarn {
-			width: 110px;
-			height: 45px;
-			// Positioning
-			bottom: 100px;
-			left: 62%;
+			bottom: 70px;
+			left: 72%;
 		}
 	}
 }
