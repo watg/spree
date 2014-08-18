@@ -174,8 +174,10 @@ core.readyCarousels = function() {
 // Attach event handler for alpaca attack
 core.readyAlpacaAttack = function() {
 	$('#nav-bar .worldwide').on('click', function(e) {
-    if ($('.alpaca-attack').hasClass('.alpaca-attack.moving')) return false;
-    core.runAlpacaAttack();
+    if ($('.alpaca-attack').hasClass('moving')) { return false;
+      console.log('this should return false')
+    } else {
+    core.runAlpacaAttack()};
   });
 }
 
@@ -257,7 +259,7 @@ core.runAlpacaAttack = function() {
   var random_alpaca = alpacas[Math.floor(Math.random() * alpacas.length)]
 
   // sending the aplaca off to do its mission
-  console.log('heeeellllo')
+  console.log( $('.alpaca-attack'));
   $('.alpaca-attack').addClass('moving');
   console.log( $('.alpaca-attack'));
   $('.alpaca-attack').css({
@@ -275,5 +277,6 @@ core.runAlpacaAttack = function() {
     top: random_alpaca.topanimateend
   }, 80 );
   $('.alpaca-attack').removeClass('moving');
+  
 };
 
