@@ -135,7 +135,7 @@ module Spree
 
     def options_and_personalisations_price
       ( line_item_parts.blank? ? 0 : amount_all_parts ) +
-        ( line_item_personalisations.blank? ? 0 : amount_all_personalisations ) 
+        ( line_item_personalisations.blank? ? 0 : amount_all_personalisations )
     end
 
     def amount_all_parts
@@ -204,7 +204,7 @@ module Spree
 
     # Remove variant default_scope `deleted_at: nil`
     def variant
-      Spree::Variant.unscoped { super }
+      Spree::Variant.unscoped.find self.variant_id
     end
 
     def item_sku
@@ -231,7 +231,7 @@ module Spree
       self.line_item_parts.reduce(0.0) do |w, o|
 
         value = o.variant.send(attribute)
-        if value.blank? 
+        if value.blank?
           Rails.logger.warn("The #{attribute} of variant id: #{o.variant.id} is nil for line_item_part: #{o.id}")
           value = BigDecimal.new(0,2)
         end
@@ -241,7 +241,7 @@ module Spree
     end
 
     def update_inventory
-      #There is a quirk where the after_create hook which run's before after_save is saving the 
+      #There is a quirk where the after_create hook which run's before after_save is saving the
       #line_item in a nested model callback, hence by the time changed? is evaluated it is false
       #if changed?
       Spree::OrderInventory.new(self.order, self).verify(target_shipment)
