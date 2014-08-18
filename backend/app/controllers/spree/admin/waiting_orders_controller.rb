@@ -2,17 +2,25 @@ module Spree
   module Admin
 
     class WaitingOrdersController < Spree::Admin::BaseController
+
       def index
         @all_boxes = Spree::Parcel.find_boxes
         @batch_size = Spree::BulkOrderPrintingService::BATCH_SIZE
         @unprinted_invoice_count = Spree::Order.unprinted_invoices.count
         @unprinted_image_count = Spree::Order.unprinted_image_stickers.count
-        if params[:batch_id].present?
-          @orders = Spree::Order.where(batch_print_id: params[:batch_id])
-        else
-          @curr_page, @per_page = pagination_helper(params)
-          @orders = load_orders_waiting.order('batch_print_id DESC').page(@curr_page).per(@per_page)
-        end
+
+        # return @collection if @collection.present?
+
+        params[:q] ||= {}
+        params[:q] = JSON.parse(params[:q]) if params[:q].kind_of? String
+
+        @collection = Spree::Order.to_be_packed_and_shipped.order("completed_at desc")
+        # @search needs to be defined as this is passed to search_form_for
+        @search = @collection.ransack(params[:q])
+        @collection = @search.result.
+          page(params[:page]).
+          per( 15 )
+        @collection
       end
 
       def update
@@ -62,7 +70,7 @@ module Spree
         if outcome.success?
           respond_to do |format|
             format.html {
-              redirect_to admin_waiting_orders_url(page: params[:page], batch_id: params[:batch_id])
+              redirect_to admin_waiting_orders_url(q: params[:q])
             }
             format.json { render :json => {success: true}.to_json}
           end

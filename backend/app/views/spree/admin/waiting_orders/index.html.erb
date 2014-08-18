@@ -4,12 +4,12 @@
 
 <% content_for :page_actions do %>
   <li>
-    <%= button_link_to "Print next #{[@batch_size, @unprinted_invoice_count].min} invoices", invoices_admin_waiting_orders_url(format: :pdf), :icon => 'icon-plus', :id => 'invoices-pdf', :target => "_blank" %>
+    <%= button_link_to "Print next #{[@batch_size, @unprinted_invoice_count].min} invoices", invoices_admin_waiting_orders_url(format: :pdf), :icon => 'icon-print', :id => 'invoices-pdf', :target => "_blank" %>
     <br/>
     <em><%= @unprinted_invoice_count %> unprinted</em>
   </li>
   <li>
-    <%= button_link_to "Print next #{[@batch_size, @unprinted_image_count].min} stickers", image_stickers_admin_waiting_orders_url(format: :pdf), :icon => 'icon-plus', :id => 'image-stickers-pdf', :target => "_blank" %>
+    <%= button_link_to "Print next #{[@batch_size, @unprinted_image_count].min} stickers", image_stickers_admin_waiting_orders_url(format: :pdf), :icon => 'icon-print', :id => 'image-stickers-pdf', :target => "_blank" %>
     <br/>
     <em><%= @unprinted_image_count %> ready to print</em>
   </li>
@@ -18,19 +18,56 @@
 
 <%= render :partial => 'spree/admin/shared/order_sub_menu' %>
 
-<%= form_tag admin_waiting_orders_path, :method => :get do %>
-<fieldset>
-<%= label_tag "Batch ID" %>
-<%= text_field_tag :batch_id, params[:batch_id] %>
-<%= submit_tag "Filter" %>
-</fieldset>
+<% content_for :table_filter_title do %>
+  <%= Spree.t(:search) %>
 <% end %>
 
-<% if @curr_page -%>
-  <%= paginate @orders %>
-<% end -%>
+<% content_for :table_filter do %>
+  <div>
+    <%= search_form_for @search, url: admin_waiting_orders_path do |f| %>
+      <div>
+        <div class="alpha four columns">
+          <div class="field">
+            <%= f.label :batch_print_id_eq, "Batch" %>
+            <%= f.text_field :batch_print_id_eq, :size => 15 %>
+          </div>
+        </div>
+        <div class="four columns">
+          <div class="field">
+            <%= f.label :number_eq, "Order Number" %>
+            <%= f.text_field :number_eq, :size => 15 %>
+          </div>
+        </div>
+        <div class="four columns">
+          <div class="field">
+            <%= f.label :email_cont, "Email" %>
+            <%= f.text_field :email_cont, :size => 15 %>
+          </div>
+        </div>
+        <div class="omega four columns">
+          <div class="field">
+            <br>
+            <label>
+              <%= f.check_box :batch_print_id_null %>
+              Without a batch number
+            </label>
+          </div>
+        </div>
+      </div>
 
-<% unless @orders.empty? %>
+      <div class="clear"></div>
+
+      <div class="form-buttons actions filter-actions">
+        <%= button Spree.t(:search), 'icon-search' %>
+      </div>
+    <% end %>
+
+  </div>
+<% end %>
+
+<%= paginate @collection %>
+
+<% unless @collection.empty? %>
   <table class="index responsive" id="listing_orders" data-hook>
     <colgroup>
        <col style="width: 10%;">
@@ -54,13 +91,16 @@
       </tr>
     </thead>
     <tbody>
-    <% @orders.each_with_index do |order| %>
+    <% @collection.each_with_index do |order| %>
       <tr data-hook="admin_orders_index_rows" class="state-<%= order.state.downcase %> <%= cycle('odd', 'even') %>">
         <td class="align-center"><%= order.batch_print_id %></td>
-        <td class="align-center"><%= link_to order.number, edit_admin_order_path(order) %></td>
+        <td class="align-center">
+          <%= link_to order.number, edit_admin_order_path(order) %>
+          <small><%= order.completed_at.to_datetime.to_s(:short) %></small>
+        </td>
         <td class="align-center"><%= order.batch_invoice_print_date.present? ? "Printed" : "Not printed" %></td>
         <td class="align-center"><%= order.batch_sticker_print_date.present? ? "Printed" : "Not printed" %></td>
-        <td><%= mail_to order.email %></td>
+        <td><%= order.email %></td>
         <td class="align-center"><%= order.display_total.to_html %></td>
         <td class="align-center"><%= render :partial => 'boxes', :locals => {order: order, all_boxes: @all_boxes} %></td>
         <td class='actions align-center' data-hook="admin_orders_index_row_actions">
@@ -77,15 +117,13 @@
   </div>
 <% end %>
 
-<% if @curr_page -%>
-  <%= paginate @orders %>
-<% end -%>
+<%= paginate @collection %>
 
 <script>
 $(document).ready(function(){
-$('.add-box-to-order').on('click', function(){
-$('#'+$(this).data('order')).show();
-return false;
-});
+  $('.add-box-to-order').on('click', function(){
+  $('#'+$(this).data('order')).show();
+    return false;
+  });
 })
 </script>
