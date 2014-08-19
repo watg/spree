@@ -173,6 +173,8 @@ core.readyCarousels = function() {
 
 // Attach event handler for alpaca attack
 core.readyAlpacaAttack = function() {
+  if (core.isMobileWidthOrLess()) return false; // Die if mobile
+
   $('#nav-bar .worldwide').on('click', function(e) {
 	core.resetAlpacaAttack();
     core.runAlpacaAttack();
