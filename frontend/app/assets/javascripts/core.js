@@ -173,11 +173,9 @@ core.readyCarousels = function() {
 
 // Attach event handler for alpaca attack
 core.readyAlpacaAttack = function() {
-	$('#nav-bar .worldwide').on('click', function(e) {
-    if ($('.alpaca-attack').hasClass('moving')) { return false;
-      console.log('this should return false')
-    } else {
-    core.runAlpacaAttack()};
+  $('#nav-bar .worldwide').on('click', function(e) {
+	core.resetAlpacaAttack();
+    core.runAlpacaAttack();
   });
 }
 
@@ -255,28 +253,35 @@ core.runAlpacaAttack = function() {
     topanimateend: '-=500px'};
 
   // choosing tributes from the army of alpacas
-  var alpacas = [middleTop, rotatedTop, rotatedSide, lowerPosition, normalPosition]
-  var random_alpaca = alpacas[Math.floor(Math.random() * alpacas.length)]
+  var alpaca = $('.alpaca-attack');
+  var alpacas = [middleTop, rotatedTop, rotatedSide, lowerPosition, normalPosition];
+  var random_alpaca = alpacas[Math.floor(Math.random() * alpacas.length)];
 
   // sending the aplaca off to do its mission
-  console.log( $('.alpaca-attack'));
-  $('.alpaca-attack').addClass('moving');
-  console.log( $('.alpaca-attack'));
-  $('.alpaca-attack').css({
+  alpaca.css({
       'display': 'initial',
       'transform': random_alpaca.transform,  
       'left': random_alpaca.left, 
-      'top': random_alpaca.top,
+      'top': random_alpaca.top
     });
-  $('.alpaca-attack').animate({
+  alpaca.animate({
     left: random_alpaca.leftanimate,
     top: random_alpaca.topanimate
-  }, 1000 );
-  $('.alpaca-attack').animate({
+  }, 1000);
+  alpaca.animate({
     left: random_alpaca.leftanimateend,
     top: random_alpaca.topanimateend
-  }, 80 );
-  $('.alpaca-attack').removeClass('moving');
-  
+  }, 250);
 };
+
+// Reset animation for alpaca attack
+core.resetAlpacaAttack = function() {
+	var alpaca = $('.alpaca-attack');
+	alpaca.stop(true, true);
+	alpaca.css({
+		'display': 'none',
+		'top': 0,
+		'left': 0
+	});
+}
 
