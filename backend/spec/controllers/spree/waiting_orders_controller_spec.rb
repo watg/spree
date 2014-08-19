@@ -33,14 +33,15 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
       expect(assigns[:unprinted_image_count]).to eq(3)
     end
 
-    context "with a batch_id" do
+    context "with a q params" do
       let(:orders) {
         2.times.map { |i| create(:order_ready_to_ship, :batch_print_id => i) }
       }
 
       it "assigns a single order" do
-        spree_get :index, :batch_id => orders.last.batch_print_id.to_param
-        expect(assigns[:orders]).to eq([orders.last])
+        pending('cannot make factory work with stock_location')
+        spree_get :index, q: {batch_id_eq: orders.last.batch_print_id}
+        expect(assigns[:collection]).to eq([orders.last])
       end
     end
   end
@@ -61,9 +62,10 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
 
     context "with a batch id" do
       it "redirects to the batch id" do
+        q = {q: {id_eq: 1234}}
         allow(Spree::AddParcelToOrderService).to receive(:run).with(expected_params).and_return(outcome)
-        spree_put :update, params.merge(batch_id: 1234)
-        expect(:response).to redirect_to(spree.admin_waiting_orders_path(batch_id: 1234))
+        spree_put :update, params.merge(q)
+        expect(:response).to redirect_to(spree.admin_waiting_orders_path(q))
       end
     end
   end
