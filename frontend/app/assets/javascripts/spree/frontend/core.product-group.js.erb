@@ -100,7 +100,7 @@ core.productGroup.readySocialWidget = function() {
 
 // Remove space in Pinterest URL (we add the space to prevent Pinterest skinning the button)
 core.productGroup.readyPinterestLinks = function() {
-	var links = $('.social .pinterest');
+	var links = $('.icons-social .pinterest');
 	links.off();
 	links.on('click', function(e) {
 		e.preventDefault();
@@ -526,7 +526,7 @@ core.productGroup.triggerLazyLoadImages = function(container) {
 }
 
 core.productGroup.updateSocialLinks = function(tab) {
-	var links = $('.social a');
+	var links = $('.icons-social a');
 
 	links.each(function() {
 		if (tab == 'knit-your-own') {
