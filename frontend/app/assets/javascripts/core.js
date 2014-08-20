@@ -9,6 +9,10 @@ $(document).ready(function() {
 	core.readyCarousels();
 	core.showCookieMessage();
 	core.readyAlpacaAttack();
+
+  if ($('body').hasClass('vote-for-your-favourite')) {
+    core.randomiseBackgroundPosition();
+  }
 });
 /* ----- Init methods ----- */
 
@@ -180,6 +184,14 @@ core.readyAlpacaAttack = function() {
     core.runAlpacaAttack();
   });
 }
+
+// Set a random background position (x-axis)
+core.randomiseBackgroundPosition = function() {
+ var x_positions = ['-300px', '0', '300px'];
+ var rand_num = Math.floor((Math.random() * x_positions.length));
+ $('.row-hero').css('background-position', x_positions[rand_num] + ' 0');
+}
+
 
 /* ----- Non-init methods ----- */
 

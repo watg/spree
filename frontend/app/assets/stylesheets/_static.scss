@@ -596,13 +596,76 @@ body.thank-you {
 
 /* Vote for your favourite */
 .vote-for-your-favourite {
+  text-decoration: none;
+  .row-shipping-and-contact + .container > div.row {
+    max-width: none !important;
+  }
+  
+  a:hover {
+    text-decoration: none;
+  }
+
 	.row-hero {
-		background: image-url('watg-img/hero-ganglab-info.jpg') center 0 no-repeat;
-		min-height: 533px;
-		h1, h2 {
-			display: none;
-		}
+		background: cdn-url('static/gang-labs/gang-labs-banner.jpg') center 0;
+		min-height: 407px;
+    max-height: 407px;
+  	margin-bottom: emCalc(50px);
+    h1 {
+      color: #5b06aa;
+      margin-top: emCalc(67.5px);
+      font-family: $watg-font;
+      font-size: emCalc(85px);
+      text-transform: uppercase;
+      text-align: center;
+      letter-spacing: 0.1em;
+      line-height: 1em;
+      margin-bottom: 20px;
+      
+      @media only screen and (max-width: 48em) {
+        margin-top: emCalc(140px);
+         font-size: emCalc(48px);
+      }
+      @media only screen and (max-width: 24em) {
+         margin-top: emCalc(140px);
+         font-size: emCalc(48px);
+      }
+    }
 	}
+
+  .row-text {
+    text-align: center;
+    margin-top: emCalc(125px);
+
+    @media only screen and (max-width: 48em) {
+      margin-top: emCalc(80px);
+    }
+    @media only screen and (max-width: 24em) {
+      margin-top: emCalc(140px);
+    }
+
+    h3 {
+      font-family: $watg-font-secondary-light;
+      font-size: emCalc(30px);
+      margin: 40px;
+    }
+
+    h2 {
+      font-family: $watg-font-secondary-light;
+      font-size: emCalc(25px);
+      margin: 30px;
+    }
+
+    h4 {
+      font-size: emCalc(15px);
+      margin: 20px;
+    }
+
+    .button {
+      margin: 20px;
+      font-size: emCalc(20px);
+      margin-bottom: emCalc(70px);
+    }
+  }
 }
 
 /* Our story */
