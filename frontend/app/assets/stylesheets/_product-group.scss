@@ -83,8 +83,8 @@
 		display: block;
 	}
 	/* Social */
-	.social {
-		margin: emCalc(10px) 0 0;
+	.icons-social {
+		margin: 0;
 		padding: 0;
 		li {
 			margin-right: emCalc(5px);
@@ -113,7 +113,7 @@
 		}
 	}
 	.panel-social {
-		margin: emCalc(10px) 0 emCalc(15px);
+		margin: -1em 0 emCalc(15px);
 		padding: 0 0 emCalc(15px) 0;
 		border-bottom: 1px dotted #333;
 	}
