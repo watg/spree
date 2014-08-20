@@ -128,13 +128,15 @@
 				<h5 class="reveal-title revealed">Kit content</h5>
 				<p class="reveal-content"><%= @product_page.kit_description %></p>
 
-				<ul class="no-bullet social">
+				<ul class="no-bullet social panel-social">
 					<% [:twitter, :facebook, :pinterest].each do |social| %>
 					<li>
 					  <%= link_to("Share with #{social}", @product_page.send("#{social}_url", @product_page.knit_your_own_tab), target: '_blank', class: social) %>
 					</li>
 					<% end %>
 				</ul>
+			
+				<p class="promo-raf">Get your next order for free! <a href="/raf/invite">Find out more</a></p>
 			</div>
 		</div>
 		

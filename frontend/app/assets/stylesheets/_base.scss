@@ -446,11 +446,26 @@ table {
     background-color: #000;
     display: none;
 }
-
+/* Alpaca */
 .alpaca-attack {
 	display: none;
 	position: absolute;
 	z-index: 99999;
 	top: 0;
 	left: 0;
+}
+/* RAF promo */
+p.promo-raf {
+	font-family: $watg-font-light;
+	font-size: emCalc(16px);
+	text-transform: uppercase;
+	a {
+		padding-left: 25px;
+		font-family: $watg-font;
+		text-decoration: underline;
+		background: image-url('product-group/icon-smile.png') 0 0 no-repeat;
+	}
+}
+footer p.promo-raf {
+	margin-top: emCalc(20px);
 }

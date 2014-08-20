@@ -38,13 +38,15 @@
 			<p class="reveal-content"><%= product.memoized_gang_member_profile %></p>
 			<% end %>
 			
-			<ul class="no-bullet social">
+			<ul class="no-bullet social panel-social">
 				<% [:twitter, :facebook, :pinterest].each do |social| %>
 				<li>
 				  <%= link_to("Share with #{social}", variant.send("#{social}_url", product_page, product_page_tab), target: '_blank', class: social) %>
 				</li>
 				<% end %>
 			</ul>
+			
+			<p class="promo-raf">Get your next order for free! <a href="/raf/invite">Find out more</a></p>
 		</div>
 	</div>
 	
