@@ -2,8 +2,14 @@ module Spree
   class RachelRuttReport
     include BaseReport
 
+    # Genereate new slugs
+    #
+    # Spree::IndexPage.where(permalink: "collections/rachel-rutt-x-watg").first.index_page_items.map(&:product_page).map(&:products).flatten.map(&:slug)
+    #
     SLUGS = [
+      "totally-tunic-36197664-4b25-407b-9520-8df292c8eed2",
       "totally-tunic",
+      "primo-sweater-9a3dde40-36ec-4802-8251-e1834c338d55",
       "primo-sweater",
       "breezy-bathers",
       "teeny-tiny-bikini",
