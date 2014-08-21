@@ -39,8 +39,7 @@ module Spree
 
     def retrieve_data
       line_items.find_each do |line_item|
-
-        variant = line_item.variant
+        variant = Spree::Variant.unscoped.find_by_id(line_item.variant_id)
         o = line_item.order
         yield [variant.name, variant.sku, line_item.currency, line_item.normal_price, line_item.price, o.completed_at, o.number]
       end
