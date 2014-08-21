@@ -2,21 +2,13 @@ module Spree
   class RachelRuttReport
     include BaseReport
 
-    # Genereate new slugs
-    #
-    # Spree::IndexPage.where(permalink: "collections/rachel-rutt-x-watg").first.index_page_items.map(&:product_page).map(&:products).flatten.map(&:slug)
-    #
-    SLUGS = [
-      "totally-tunic-36197664-4b25-407b-9520-8df292c8eed2",
-      "totally-tunic",
-      "primo-sweater-9a3dde40-36ec-4802-8251-e1834c338d55",
-      "primo-sweater",
-      "breezy-bathers",
-      "teeny-tiny-bikini",
-      "tubular-skirt"
-    ]
-
     attr_writer :search_names
+
+    NAMES = ['Totally Tunic',"Primo Sweater", "Teeny Tiny Bikini"]
+
+    def search_variants
+      Spree::Variant.unscoped.where( product_id: Spree::Product.unscoped.where(name: NAMES).map(&:id) ).flatten.uniq
+    end
 
     def initialize(params)
       @from = params[:from].blank? ? Time.now.midnight : Time.parse(params[:from])  
@@ -39,25 +31,19 @@ module Spree
       )
     end
 
-    def retrieve_data
-      Spree::Order.where( :state => 'complete', :completed_at => @from..@to ).find_each do |o| 
-        o.line_items.each do |line_item|
-          variant = line_item.variant
-          if search_variants.include?(variant)
-            yield [variant.name, variant.sku, line_item.currency, line_item.normal_price, line_item.price, o.completed_at, o.number]
-          end
-        end
-      end
+    def line_items
+      Spree::LineItem.where(variant_id: search_variants.map(&:id)).merge(
+        Spree::Order.complete.where(:completed_at => @from..@to)
+      ).references(:order).includes(:order, :variant )
     end
 
-    private
+    def retrieve_data
+      line_items.find_each do |line_item|
 
-    def search_variants
-      found_products = []
-      SLUGS.each do |name|
-        found_products << Spree::Product.where(slug: name)
+        variant = line_item.variant
+        o = line_item.order
+        yield [variant.name, variant.sku, line_item.currency, line_item.normal_price, line_item.price, o.completed_at, o.number]
       end
-      found_products.empty? ? [] : found_products.flatten.uniq.map(&:variants).flatten
     end
 
   end
