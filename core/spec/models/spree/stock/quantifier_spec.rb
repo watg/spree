@@ -1,63 +1,102 @@
 require 'spec_helper'
 
-describe Spree::Stock::Quantifier do
-  subject { Spree::Stock::Quantifier }
+shared_examples_for 'unlimited supply' do
+  it 'can_supply? any amount' do
+    subject.can_supply?(1).should be_true
+    subject.can_supply?(101).should be_true
+    subject.can_supply?(100_001).should be_true
+  end
+end
 
-  describe "#can_supply_order?" do
-    let(:order) { create(:order_with_line_items) }
+module Spree
+  module Stock
+    describe Quantifier do
 
-    it "checks if an order can be supplied" do
-      actual_result = subject.can_supply_order?(order)
+      before(:all) { Spree::StockLocation.destroy_all } #FIXME leaky database
 
-      expect(actual_result[:in_stock]).to eq true
-      expect(actual_result[:errors]).to be_empty
-    end
+      let!(:stock_location) { create :stock_location_with_items  }
+      let!(:stock_item) { stock_location.stock_items.order(:id).first }
 
-    context "an variant is out of stock" do
-      before do
-        order.line_items[0].variant.stock_items[0].set_count_on_hand(0)
-        order.line_items[0].variant.stock_items[0].backorderable = false
-        order.line_items[0].variant.stock_items[0].save
-        order.reload
+      subject { described_class.new(stock_item.variant) }
+
+      specify { subject.stock_items.should == [stock_item] }
+
+
+      context 'with a single stock location/item' do
+        it 'total_on_hand should match stock_item' do
+          subject.total_on_hand.should ==  stock_item.count_on_hand
+        end
+
+        context 'when track_inventory_levels is false' do
+          before { configure_spree_preferences { |config| config.track_inventory_levels = false } }
+
+          specify { subject.total_on_hand.should == Float::INFINITY }
+
+          it_should_behave_like 'unlimited supply'
+        end
+
+        context 'when variant inventory tracking is off' do
+          before { stock_item.variant.track_inventory = false }
+
+          specify { subject.total_on_hand.should == Float::INFINITY }
+
+          it_should_behave_like 'unlimited supply'
+        end
+
+        context 'when stock item allows backordering' do
+
+          specify { subject.backorderable?.should be_true }
+
+          it_should_behave_like 'unlimited supply'
+        end
+
+        context 'when stock item prevents backordering' do
+          before { stock_item.update_attributes(backorderable: false) }
+
+          specify { subject.backorderable?.should be_false }
+
+          it 'can_supply? only upto total_on_hand' do
+            subject.can_supply?(1).should be_true
+            subject.can_supply?(10).should be_true
+            subject.can_supply?(11).should be_false
+          end
+        end
+
       end
-      it "order can no longer be supplied" do
-        actual_result = subject.can_supply_order?(order)
-        
-        expect(actual_result[:in_stock]).to eq false
-        out_of_stock_line_item = actual_result[:errors].map {|li| li[:line_item_id] }
-        expect(out_of_stock_line_item).to match_array([order.line_items[0].id])
-      end
-    end
 
-    context "add variant to order" do
-      let(:variant) { create(:variant) }
-      let(:adding_rtw) { Spree::LineItem.new(variant_id: variant.id, quantity: 3) }
-      let(:adding_kit) {
-        li = Spree::LineItem.new(variant_id: variant.id, quantity: 1)
-        li.line_item_parts = [Spree::LineItemPart.new(variant_id: variant.id, quantity: 5)]
-        li
-      }
-      before do
-        variant.stock_items.first.backorderable = false
-        variant.stock_items.first.save
-        variant.stock_items.first.set_count_on_hand(4)
-        variant.stock_items.first.save
+      context 'with multiple stock locations/items' do
+        let!(:stock_location_2) { create :stock_location }
+        let!(:stock_location_3) { create :stock_location, active: false }
+
+        before do
+          stock_location_2.stock_items.where(variant_id: stock_item.variant).update_all(count_on_hand: 5, backorderable: false)
+          stock_location_3.stock_items.where(variant_id: stock_item.variant).update_all(count_on_hand: 5, backorderable: false)
+        end
+
+        it 'total_on_hand should total all active stock_items' do
+          subject.total_on_hand.should == 15
+        end
+
+        context 'when any stock item allows backordering' do
+          specify { subject.backorderable?.should be_true }
+
+          it_should_behave_like 'unlimited supply'
+        end
+
+        context 'when all stock items prevent backordering' do
+          before { stock_item.update_attributes(backorderable: false) }
+
+          specify { subject.backorderable?.should be_false }
+
+          it 'can_supply? upto total_on_hand' do
+            subject.can_supply?(1).should be_true
+            subject.can_supply?(15).should be_true
+            subject.can_supply?(16).should be_false
+          end
+        end
+
       end
 
-      it "adding simple variant" do
-        actual_result = subject.can_supply_order?(order, adding_rtw)
-        
-        expect(actual_result[:in_stock]).to eq true
-        expect(actual_result[:errors]).to be_empty        
-      end
-
-      it "adding kit variant" do
-        pending("variant is backorderable")
-        actual_result = subject.can_supply_order?(order, adding_kit)
-        
-        expect(actual_result[:in_stock]).to eq false
-        expect(actual_result[:errors].size).to eq 1      
-      end
     end
   end
 end

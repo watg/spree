@@ -560,7 +560,7 @@ describe Spree::LineItem do
         line_item.target_shipment = order.shipments.first
 
         line_item.save
-        expect(line_item).to have(2).errors_on(:quantity)
+        expect(line_item).to have(1).error_on(:quantity)
       end
     end
 

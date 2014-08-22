@@ -25,7 +25,7 @@ FactoryGirl.define do
         line_items_count 1
         stock_location { create(:stock_location) }
       end
-      
+
       after(:create) do |order, evaluator|
         create(:payment, amount: order.total, order: order, state: 'completed')
         create(:shipment, order: order, state: 'ready')
@@ -35,7 +35,7 @@ FactoryGirl.define do
         order.update!
         # order.line_items << create_list(:line_item, evaluator.line_items_count, order: order)
       end
- 
+
       factory :invoice_printed_order do
         sequence(:batch_print_id)
         batch_invoice_print_date { Date.today }
@@ -56,11 +56,11 @@ FactoryGirl.define do
       end
 
       after(:create) do |order, evaluator|
-        create(:shipment, order: order)
-        order.shipments.reload
-
         create_list(:line_item, evaluator.line_items_count, order: order)
         order.line_items.reload
+
+        create(:shipment, order: order)
+        order.shipments.reload
 
         order.update!
       end

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::AddParcelToOrderService do
-  let!(:stock_location) { Spree::StockLocation.create!(name: 'warehouse') }
+
   context "#run" do
     let(:subject)   { Spree::AddParcelToOrderService }
     let(:box_group) { FactoryGirl.create(:product_group, name: 'box')}
