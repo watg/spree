@@ -20,28 +20,40 @@ module Spree
       #  Old style Kit params
       #  params = [ 123, 34, 1 ]
       def parse_options(variant, params, currency)
-        parts = if params.class == Array
-                  parse_options_for_old_kit(variant, params, currency)
+        parts = []
+        return parts unless params
 
-                elsif variant.assembly_definition and params
-                  parse_options_for_assembly(variant, params, currency)
+        if params.kind_of? Array
+          parts = parse_options_for_old_kit(variant, params, currency)
+          parts += add_required_parts(variant, currency)
+        elsif variant.assembly_definition
+          parts = parse_options_for_assembly(variant, params, currency)
+        end
 
-                else
-                  []
-                end
-        parts + add_required_parts(variant, currency)
+        parts
       end
 
+      # This will return an array of hashes in case
+      # we have multiple personalisations
+      # "enabled_pp_ids" => ["65"],  # personalisation_id
+      # "pp_ids" => {
+      #   "65"=>{
+      #     "colour"=>"2",
+      #     "initials"=>"XXXX"
+      #   }
+      # }
       def parse_personalisations(params, currency)
         return [] unless params[:enabled_pp_ids]
         params[:enabled_pp_ids].map do |pp_id|
           pp_params = params[:pp_ids][pp_id]
           pp = Spree::Personalisation.find pp_id
           safe_params = pp.validate( pp_params )
+          # line_item_part_id = safe_params.delete(:line_item_part_id)
           OpenStruct.new(
-            personalisation_id: pp_id, 
+            personalisation_id: pp_id,
             amount: pp.prices[currency],
-            data: safe_params
+            data: safe_params,
+            # line_item_part_id: line_item_part_id
           )
         end
       end
@@ -62,25 +74,55 @@ module Spree
       end
 
       def parse_options_for_assembly(variant, params, currency)
-        params.inject([]) do |parts, t|
-          part_id, selected_part_variant_id = t.flatten.map(&:to_i)
+        parts = []
 
-          if assembly_definition_part = valid_part( variant, part_id )
+        params.each_with_index do |(part_id, selected_part_variant_id), index|
+          if assembly_definition_part = valid_part( variant, part_id.to_i )
 
-            if selected_part_variant = valid_selected_part_variant( assembly_definition_part, selected_part_variant_id )
+            if selected_part_variant = valid_selected_part_variant( assembly_definition_part, selected_part_variant_id.to_i )
+              if selected_part_variant.required_parts_for_display.any?
+                # Adding the container. It may be optional.
+                parts << OpenStruct.new(
+                  assembly_definition_part_id: assembly_definition_part.id,
+                  variant_id:                  selected_part_variant.id,
+                  quantity:                    assembly_definition_part.count,
+                  optional:                    assembly_definition_part.optional,
+                  price:                       selected_part_variant.price_part_in(currency).amount,
+                  currency:                    currency,
+                  assembled:                   assembly_definition_part.assembled,
+                  container:                   true,
+                  id:                          index
+                )
 
-              parts << OpenStruct.new(
-                assembly_definition_part_id: assembly_definition_part.id,
-                variant_id:                  selected_part_variant.id,
-                quantity:                    assembly_definition_part.count, 
-                optional:                    assembly_definition_part.optional,
-                price:                       selected_part_variant.price_part_in(currency).amount,
-                currency:                    currency
-              )
+                # Adding the parts of the container. They are always required.
+                selected_part_variant.required_parts_for_display.each do |sub_part|
+                  parts << OpenStruct.new(
+                    assembly_definition_part_id: assembly_definition_part.id,
+                    variant_id:                  sub_part.id,
+                    quantity:                    sub_part.count_part * assembly_definition_part.count,
+                    optional:                    false,
+                    price:                       selected_part_variant.price_part_in(currency).amount,
+                    currency:                    currency,
+                    assembled:                   assembly_definition_part.assembled,
+                    parent_part_id:              index
+                  )
+                end
+              else
+                parts << OpenStruct.new(
+                  assembly_definition_part_id: assembly_definition_part.id,
+                  variant_id:                  selected_part_variant.id,
+                  quantity:                    assembly_definition_part.count,
+                  optional:                    assembly_definition_part.optional,
+                  price:                       selected_part_variant.price_part_in(currency).amount,
+                  currency:                    currency,
+                  assembled:                   assembly_definition_part.assembled,
+                )
+              end
             end
           end
-          parts
         end
+
+        parts
       end
 
       def valid_part( variant, part_id )
@@ -88,9 +130,9 @@ module Spree
       end
 
       def valid_selected_part_variant( assembly_definition_part, selected_part_variant_id )
-        boolean = assembly_definition_part.assembly_definition_variants.detect do |v| 
-          v.variant_id == selected_part_variant_id 
-        end 
+        boolean = assembly_definition_part.assembly_definition_variants.detect do |v|
+          v.variant_id == selected_part_variant_id
+        end
         if boolean
           Spree::Variant.find(selected_part_variant_id)
         else
@@ -139,7 +181,7 @@ module Spree
     #   ** - pp_ids need to be moved out of the products hash
     #
     #  :products => { product_id => variant_id, product_id => variant_id, pp_ids = [] },
-    #  :quantity => quantity+, 
+    #  :quantity => quantity+,
     #  :target_id => 2,
     #  :product_page_tab_id => 1,
     #  :product_page_id => 2,
@@ -155,8 +197,8 @@ module Spree
 
 
       target_id = from_hash[:target_id]
-      # Coearce the target_id to nil if it is blank, as this makes find_by( target_id: target_id ) 
-      # behave as target_id is actually a integer in the DB, which is used later as part of the 
+      # Coearce the target_id to nil if it is blank, as this makes find_by( target_id: target_id )
+      # behave as target_id is actually a integer in the DB, which is used later as part of the
       # variantuuid code
       target_id = nil if target_id.blank?
 
@@ -189,15 +231,6 @@ module Spree
       (value || [])
     end
 
-    # This will return an array of hashes in case
-    # we have multiple personalisations
-    # "enabled_pp_ids" => ["65"],  # personalisation_id
-    # "pp_ids" => {
-    #   "65"=>{
-    #     "colour"=>"2", 
-    #     "initials"=>"XXXX"
-    #   }
-    # }
     def extract_personalisations(hash)
       return {} unless hash[:products]
       {
@@ -230,7 +263,16 @@ module Spree
       personalisations = Spree::OrderPopulator.parse_personalisations(personalisation_params, currency)
 
       if quantity > 0
-        line_item = @order.contents.add(variant, quantity, currency, nil, parts, personalisations, target_id, product_page_tab_id, product_page_id)
+        options = {
+          shipment: nil,
+          personalisations: personalisations,
+          target_id: target_id,
+          parts: parts,
+          product_page_tab_id: product_page_tab_id,
+          product_page_id: product_page_id
+        }
+
+        line_item = @order.contents.add(variant, quantity, currency, options)
         unless line_item.valid?
           errors.add(:base, line_item.errors.messages.values.join(" "))
           return false

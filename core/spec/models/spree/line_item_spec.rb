@@ -7,7 +7,7 @@ describe Spree::LineItem do
   describe "#item_sku" do
     subject {line_item}
     context "dynamic kit" do
-      # sku's are important as we do a sort on the sku when generating 
+      # sku's are important as we do a sort on the sku when generating
       # the item_sku
       let(:variant11) { create(:variant, weight: 11, sku: 'c') }
       let(:variant10) { create(:variant, weight: 10, sku: 'a') }
@@ -25,7 +25,7 @@ describe Spree::LineItem do
       let(:part2) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant10.product_id, optional: false, displayable_option_type: option_type)}
       let(:part3) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant8.product_id, optional: false, displayable_option_type: option_type)}
       let(:part4) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant7.product_id, optional: true, displayable_option_type: option_type)}
-      
+
       before do
         subject.variant = dynamic_kit_variant
         subject.line_item_parts.create(quantity: 1, price: 1, variant_id: variant11.id, optional: false, assembly_definition_part_id: part1.id)
@@ -45,14 +45,15 @@ describe Spree::LineItem do
 
     let(:parts) {[
       OpenStruct.new(
-        variant_id: create(:variant).id,
+        variant_id: 20,
         quantity:   2,
         optional:   true,
         price:      5,
-        currency:   'GBP'
+        currency:   'GBP',
+        assembled:  true
       ),
       OpenStruct.new(
-        variant_id: create(:variant).id,
+        variant_id: 21,
         quantity:   1,
         optional:   true,
         price:      5,
@@ -63,11 +64,17 @@ describe Spree::LineItem do
     it "should allow a part to be added" do
       line_item.add_parts(parts)
       expect(line_item.parts.size).to eq 2
-      expect(line_item.parts.first.variant_id).to eq parts.first.variant_id
-      expect(line_item.parts.first.quantity).to eq parts.first.quantity
-      expect(line_item.parts.first.optional).to eq parts.first.optional
-      expect(line_item.parts.first.price).to eq parts.first.price
-      expect(line_item.parts.first.currency).to eq parts.first.currency
+
+      part1 = line_item.parts.first
+      expect(part1.variant_id).to eq 20
+      expect(part1.quantity).to eq parts.first.quantity
+      expect(part1.optional).to eq parts.first.optional
+      expect(part1.price).to eq parts.first.price
+      expect(part1.currency).to eq parts.first.currency
+      expect(part1.assembled).to be_true
+
+      part2 = line_item.parts.last
+      expect(part2.assembled).to be_false
     end
 
     it "should deal with a nil price" do
@@ -75,6 +82,59 @@ describe Spree::LineItem do
       line_item.add_parts(parts)
       expect(line_item.parts.size).to eq 2
       expect(line_item.parts.first.price).to eq BigDecimal.new(0)
+    end
+
+    context "when some of the parts are containers" do
+      let(:container) {
+        OpenStruct.new(
+          id: 0,
+          variant_id: "5",
+          quantity:   2,
+          optional:   true,
+          price:      5,
+          container:  true,
+          currency:   'GBP'
+        )
+      }
+      let(:contained_part1) {
+        OpenStruct.new(
+          variant_id: "6",
+          quantity:   2,
+          optional:   true,
+          price:      5,
+          currency:   'GBP',
+          parent_part_id: 0
+        )
+      }
+      let(:contained_part2) {
+        OpenStruct.new(
+          variant_id: "7",
+          quantity:   2,
+          optional:   true,
+          price:      5,
+          currency:   'GBP',
+          parent_part_id: 0
+        )
+      }
+      before do
+        parts << container
+        parts << contained_part1
+        parts << contained_part2
+      end
+
+      it "should properly assign parent part ids to containers children" do
+        line_item.add_parts(parts)
+        parts = line_item.parts.reload
+
+        expect(parts.size).to eq 5
+        expect(parts.where(parent_part_id: 0).size).to eq 0
+        expect(parts.containers.size).to eq 1
+
+        container = line_item.parts.containers.first
+        expect(container.id).not_to eq 0
+        expect(container.children.size).to eq 2
+        expect(container.children.map(&:variant_id)).to match_array [6, 7]
+      end
     end
 
   end
@@ -291,7 +351,7 @@ describe Spree::LineItem do
       end
 
       # Disabling this for now as there is a bug where the after_create is causing
-      # changed? in line_item.update_inventory to not evaluate to true when 
+      # changed? in line_item.update_inventory to not evaluate to true when
       # changes have been made
       xit "should not trigger if changes are not made" do
         Spree::OrderInventory.any_instance.should_not_receive(:verify)
@@ -442,7 +502,7 @@ describe Spree::LineItem do
     it "returns false when has no gift card" do
       line_item.should_not be_has_gift_card
     end
-    
+
     it "returns true when have a gift card" do
       line_item.product.product_type = create(:product_type_gift_card)
       line_item.should be_has_gift_card
@@ -466,21 +526,21 @@ describe Spree::LineItem do
     let(:variant) { create(:variant) }
 
     context "line item with parts" do
-      let(:container) { create(:variant) } 
+      let(:container) { create(:variant) }
       let(:part1) { create(:variant) }
       let(:part2) { create(:variant) }
       let(:parts) { [
        OpenStruct.new(variant_id: part1.id, optional: false, quantity: 2, price: 1),
        OpenStruct.new(variant_id: part2.id, optional: true, quantity: 1, price: 1),
       ] }
-      
+
       before do
         create(:product_type_gift_card)
         container.stock_items.update_all count_on_hand: 50, backorderable: false
         part1.stock_items.update_all count_on_hand: 10, backorderable: false
         part2.stock_items.update_all count_on_hand: 5, backorderable: false
 
-        order.contents.add(container, 5, nil, nil, parts)
+        order.contents.add(container, 5, nil, parts: parts)
         order.create_proposed_shipments
         order.finalize!
       end

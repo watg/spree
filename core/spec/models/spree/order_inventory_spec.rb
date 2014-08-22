@@ -51,7 +51,7 @@ module Spree
           variant.stock_items.destroy_all
 
           # The before_save callback in LineItem would verify inventory
-          line_item = order.contents.add variant, 1, nil, shipment
+          line_item = order.contents.add variant, 1, nil, shipment: shipment
 
           units = shipment.inventory_units_for(line_item.variant)
           expect(units.count).to eq 1
@@ -226,7 +226,7 @@ module Spree
         end
       end
     end
-	
+
     ## from Spree Product Assembly
 
     describe "Inventory units for assemblies" do
@@ -290,7 +290,7 @@ module Spree
           end
         end
 
-    
+
 
       end
     end
@@ -305,23 +305,23 @@ module Spree
 
       let(:bundle) { create(:product) }
       let(:line_item_parts) {[
-        OpenStruct.new( 
-                       variant_id: guitar.id, 
-                       quantity:   1, 
+        OpenStruct.new(
+                       variant_id: guitar.id,
+                       quantity:   1,
                        optional:   true,
                        price:      5,
                        currency:   'GBP'
                       ),
-        OpenStruct.new( 
-                       variant_id: bass.id, 
-                       quantity:   1, 
+        OpenStruct.new(
+                       variant_id: bass.id,
+                       quantity:   1,
                        optional:   true,
                        price:      5,
                        currency:   'GBP'
                       )
       ]}
 
-      let!(:bundle_item) { contents.add(bundle.master, 5, nil, nil, line_item_parts) }
+      let!(:bundle_item) { contents.add(bundle.master, 5, nil, parts: line_item_parts) }
       let!(:guitar_item) { contents.add(guitar, 3) }
 
       let!(:shipment) { order.create_proposed_shipments.first }

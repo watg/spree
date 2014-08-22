@@ -9,7 +9,7 @@ module Spree
         authorize! :create, Shipment
         quantity = params[:quantity].to_i
         @shipment = @order.shipments.create(stock_location_id: params[:stock_location_id])
-        @order.contents.add(variant, quantity, nil, @shipment, options_with_qty)
+        @order.contents.add(variant, quantity, nil, shipment: @shipment, parts: options_with_qty)
 
         @shipment.refresh_rates
         @shipment.save!
@@ -56,7 +56,7 @@ module Spree
 
       def add
         quantity = params[:quantity].to_i
-        @order.contents.add(variant, quantity, @order.currency, @shipment, options_with_qty)
+        @order.contents.add(variant, quantity, @order.currency, shipment: @shipment, parts: options_with_qty)
         respond_with(@shipment, default_template: :show)
       end
 
