@@ -18,26 +18,43 @@ module Spree
     #
     def verify(shipment = nil)
       if order.completed? || shipment.present?
-        parts_total = line_item.parts.sum(:quantity)
-        if inventory_units.size < (parts_total * line_item.quantity) + line_item.quantity
-          old_quantity = (inventory_units.size == 0) ? 0 : inventory_units.size / (1 + parts_total)
-          quantity_to_add = line_item.quantity - old_quantity
 
-          # Add line item to the shipment
-          shipment = determine_target_shipment unless shipment
-          add_to_shipment(shipment, quantity_to_add)
+        if line_item.parts.any?
+          # Handle line item parts add/remove to the shipment
 
-          # Add line item parts to the shipment
-          line_item.parts.each do |part|
-            quantity_of_parts_to_add = part.quantity * quantity_to_add
+          parts_total = line_item.parts.stock_tracking.sum(:quantity)
 
-            self.variant = part.variant
-            shipment = determine_target_shipment unless shipment
-            add_to_shipment(shipment, quantity_of_parts_to_add)
+          if inventory_units.size < (parts_total * line_item.quantity)
+            old_quantity = (inventory_units.size == 0) ? 0 : inventory_units.size / parts_total
+            quantity_to_add = line_item.quantity - old_quantity
+
+            line_item.parts.stock_tracking.each do |part|
+              quantity_of_parts_to_add = part.quantity * quantity_to_add
+
+              self.variant = part.variant
+              shipment = determine_target_shipment unless shipment
+              add_to_shipment(shipment, quantity_of_parts_to_add)
+            end
+
+          elsif inventory_units.size > (parts_total * line_item.quantity)
+            remove(shipment)
           end
-        elsif inventory_units.size > (parts_total * line_item.quantity) + line_item.quantity
-          remove(shipment)
+
+        else
+          # Handle line item add/remove to the shipment
+
+          if inventory_units.size < line_item.quantity
+            quantity_to_add = line_item.quantity - inventory_units.size
+
+            shipment = determine_target_shipment unless shipment
+            add_to_shipment(shipment, quantity_to_add)
+
+          elsif inventory_units.size > line_item.quantity
+            remove(shipment)
+          end
+
         end
+
       end
     end
 
@@ -47,19 +64,19 @@ module Spree
 
     private
     def remove(shipment = nil)
-      parts_total = line_item.parts.sum(:quantity)
-      old_quantity = (inventory_units.size == 0) ? 0 : inventory_units.size / (1 + parts_total)
-      quantity_to_remove = old_quantity - line_item.quantity
+      if line_item.parts.any?
+        parts_total = line_item.parts.stock_tracking.sum(:quantity)
+        old_quantity = (inventory_units.size == 0) ? 0 : inventory_units.size / parts_total
+        quantity_to_remove = old_quantity - line_item.quantity
 
-      remove_quantity_from_shipment(quantity_to_remove, shipment)
-
-      line_item.parts.each do |part|
-        quantity_of_parts_to_remove = part.quantity * quantity_to_remove
-
-        self.variant = part.variant
-
-        remove_quantity_from_shipment(quantity_of_parts_to_remove, shipment)
-      
+        line_item.parts.stock_tracking.each do |part|
+          quantity_of_parts_to_remove = part.quantity * quantity_to_remove
+          self.variant = part.variant
+          remove_quantity_from_shipment(quantity_of_parts_to_remove, shipment)
+        end
+      else
+        quantity_to_remove = inventory_units.size - line_item.quantity
+        remove_quantity_from_shipment(quantity_to_remove, shipment)
       end
     end
 

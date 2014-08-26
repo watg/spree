@@ -234,6 +234,7 @@ module Spree
       let(:line_item) { order.line_items.first }
       let(:bundle) { line_item.product }
       let(:parts) { (1..3).map { create(:part, line_item: line_item) } }
+      let!(:container_part) { create(:part, quantity: 2, line_item: line_item, container: true) }
 
       before do
         parts.first.update_column(:quantity, 3)
@@ -245,8 +246,8 @@ module Spree
       end
 
       context "inventory units count" do
-        it "calculates the proper value for the line item + parts" do
-          expected_units_count = line_item.quantity * parts.to_a.sum(&:quantity) + line_item.quantity
+        it "calculates the proper value for all physical parts (without the line item itself or containers)" do
+          expected_units_count = line_item.quantity * parts.to_a.sum(&:quantity)
           expect(subject.inventory_units.count).to eql(expected_units_count)
         end
       end
@@ -257,8 +258,8 @@ module Spree
         context "quantity increases" do
           before { subject.line_item.quantity += 1 }
 
-          it "inserts new inventory units for every bundle part" do
-            expected_units_count = original_units_count + parts.to_a.sum(&:quantity) + 1 # since we increased the line item quantity by one
+          it "inserts new inventory units for every bundle part with disregard to the line item itself" do
+            expected_units_count = original_units_count + parts.to_a.sum(&:quantity)
             subject.verify
             expect(OrderInventory.new(line_item.order, line_item.reload).inventory_units.count).to eql(expected_units_count)
           end
@@ -267,8 +268,8 @@ module Spree
         context "quantity decreases" do
           before { subject.line_item.quantity -= 1 }
 
-          it "remove inventory units for every bundle part" do # since we decreased the line item quantity by one
-            expected_units_count = original_units_count - parts.to_a.sum(&:quantity) - 1
+          it "remove inventory units for every bundle part with disregard to the line item itself" do
+            expected_units_count = original_units_count - parts.to_a.sum(&:quantity)
             subject.verify
 
             # needs to reload so that inventory units are fetched from updates order.shipments
@@ -280,8 +281,8 @@ module Spree
         context "quantity decreases to 0" do
           before { subject.line_item.quantity = 0 }
 
-          it "remove inventory all units for every bundle part" do # since we decreased the line item quantity by one
-            expected_units_count = original_units_count - parts.to_a.sum(&:quantity) - 1
+          it "remove inventory all units for every bundle part" do
+            expected_units_count = original_units_count - parts.to_a.sum(&:quantity)
             subject.verify
 
             # needs to reload so that inventory units are fetched from updates order.shipments
