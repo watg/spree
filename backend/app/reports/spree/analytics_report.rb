@@ -2,12 +2,45 @@ module Spree
   class AnalyticsReport
     include BaseReport
 
-    # It is gang or peru not gang and peru
     # TODO take into account shipping and promotions
     # periodic job to update the views
+    # GROUPS:
+    #   0. ALL
+    #   1. PERU MADE + GANG MADE
+    #   2. KNIT YOUR OWN
+    #   3. YARN + ROSEWOOD NEEEDLES + CLASPS + EMBELISHMENTS
+    #   4. KNITTING PATTERN
+    #   5. RTW + MIX
+    #   1,2,3,4,[1,2-4]
+
+    GROUPS = {
+      rtw: ['peruvian','gang'],
+      kit: ['kit'],
+      sup: ["yarn","needle","embellishment","clasp"],
+      pat: ['pattern'],
+    }
+
+    def self.groups
+      GROUPS.merge(all: GROUPS.values.flatten.uniq)
+    end
 
     def initialize(marketing_types)
       @marketing_types = marketing_types || []
+    end
+
+    def self.run_all
+      groups.each do |key,values|
+        # Create filename with the group and a date
+        marketing_types = Spree::MarketingType.where(name: values).to_a
+        obj = self.new(marketing_types)
+        filename = File.join(Rails.root, 'tmp', "ltv_#{key.to_s}_#{Date.today.to_s}.csv")
+        CSV.open(filename, "wb") do |csv|
+          csv << obj.header
+          obj.retrieve_data do |data|
+            csv << data
+          end
+        end
+      end
     end
 
     def self.create_views
@@ -59,16 +92,15 @@ module Spree
   DATE_TRUNC('month', t1.completed_at) first_purchase_date,
   t2.date purchase_date,
   t2.currency currency,
-  SUM(t2.item_total) total_spend,
-  SUM(t2.purchases) total_purchases,
-  SUM(t2.item_total) / SUM(t2.purchases) avg_spend
+  SUM(t2.payment_total) total_spend,
+  SUM(t2.purchases) total_purchases
 from
   (#{ email_marketing_types_sql(marketing_types) }) as t1
 LEFT OUTER JOIN
   (
     SELECT
       email, DATE_TRUNC('month', completed_at) date,
-      SUM(item_total) item_total, 
+      SUM(payment_total) payment_total,
       currency,
       COUNT(email) purchases
     FROM spree_orders
@@ -89,8 +121,6 @@ ORDER BY first_purchase_date, purchase_date, currency "
         hash[key] ||= {}
         hash[key]['total_purchases'] ||= 0
         hash[key]['total_purchases'] += r["total_purchases"].to_i
-        hash[key]['avg_spend'] ||= 0
-        hash[key]['avg_spend'] += xe(r["avg_spend"], r["currency"])
         hash[key]['total_spend'] ||= 0
         hash[key]['total_spend'] += xe(r["total_spend"], r["currency"])
         hash
@@ -118,17 +148,6 @@ ORDER BY first_purchase_date, purchase_date, currency "
       WHERE id NOT IN(#{marketing_type_ids_string})
     )
     GROUP BY email"
-
-      join_sql = []
-      marketing_type_ids.each_with_index do |mt_id,i|
-        join_sql << "INNER JOIN 
-      (
-        SELECT email
-        FROM email_marketing_types_view
-        WHERE marketing_type_id=#{mt_id}
-      ) emtv_#{i} ON emtv_#{i}.email=emtv.email
-        "
-      end
 
       sql = "SELECT emtv.email email, MIN(emtv.completed_at) completed_at
     FROM email_marketing_types_view emtv

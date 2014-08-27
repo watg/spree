@@ -50,31 +50,32 @@ describe Spree::AnalyticsReport do
     Spree::AnalyticsReport.create_views
   end
 
-  it "returns the correct emails for a given marketing types" do
-    sql = subject.send(:email_marketing_types_sql, [gang_marketing_type, peru_marketing_type])
-    records = ActiveRecord::Base.connection.execute(sql).to_a
-    d { records.map{ |r| r["email"] } }
-    expect(records.size).to eq 3
-    expect(records.first["email"]).to eq peru_gang.email
-  end
-
-  context "Multiple orders from same user" do
-    let!(:order_peru_and_gang_2) { create(:order, user: kit) }
-    let!(:order_kit_2) { create(:order, user: peru_gang) }
-    before do
-      create(:line_item, variant: gang_variant, order: order_peru_and_gang_2)
-      create(:line_item, variant: peru_variant, order: order_peru_and_gang_2)
-      create(:line_item, variant: kit_variant, order: order_kit_2)
-      order_peru_and_gang_2.update_column(:completed_at, '2014-01-02')
-      order_kit_2.update_column(:completed_at, '2014-01-02')
-    end
-
+  describe "email_marketing_types_sql" do
     it "returns the correct emails for a given marketing types" do
       sql = subject.send(:email_marketing_types_sql, [gang_marketing_type, peru_marketing_type])
       records = ActiveRecord::Base.connection.execute(sql).to_a
-      d { records }
       expect(records.size).to eq 3
-      expect(records.first["email"]).to eq peru_gang.email
+      expect(records.map { |r| r['email']}).to match_array [ peru_gang.email, peru.email, gang.email ]
+    end
+
+    context "Multiple orders from same user" do
+      let!(:order_peru_and_gang_2) { create(:order, user: kit) }
+      let!(:order_kit_2) { create(:order, user: peru_gang) }
+      before do
+        create(:line_item, variant: gang_variant, order: order_peru_and_gang_2)
+        create(:line_item, variant: peru_variant, order: order_peru_and_gang_2)
+        create(:line_item, variant: kit_variant, order: order_kit_2)
+        order_peru_and_gang_2.update_column(:completed_at, '2014-01-02')
+        order_kit_2.update_column(:completed_at, '2014-01-02')
+      end
+
+      it "returns the correct emails for a given marketing types" do
+        sql = subject.send(:email_marketing_types_sql, [gang_marketing_type, peru_marketing_type])
+        records = ActiveRecord::Base.connection.execute(sql).to_a
+
+        expect(records.size).to eq 3
+        expect(records.map { |r| r['email']}).to match_array [ peru_gang.email, peru.email, gang.email ]
+      end
     end
 
     describe "life_time_value_sql" do
@@ -83,40 +84,135 @@ describe Spree::AnalyticsReport do
 
         before do
           2.times do
-            user = create(:user)
-
-            # First order
-            order = create(:order, user: user, item_total: 100, currency: 'USD')
-            create(:line_item, variant: gang_variant, order: order)
-            create(:line_item, variant: peru_variant, order: order)
-            order.update_column(:completed_at, '2014-02-01')
-
-            # Second order
-            order = create(:order, user: user, item_total: 50, currency: 'USD')
-            create(:line_item, variant: kit_variant, order: order)
-            order.update_column(:completed_at, '2014-03-01')
-
-            # Third order
-            order = create(:order, user: user, item_total: 50, currency: 'GBP')
-            create(:line_item, variant: kit_variant, order: order, currency: 'GBP')
-            order.update_column(:completed_at, '2014-04-01')
-
-            # Fourth order
-            order = create(:order, user: user, item_total: 50, currency: 'EUR')
-            create(:line_item, variant: kit_variant, order: order, currency: 'EUR')
-            order.update_column(:completed_at, '2014-04-02')
+            create_first_order
           end
         end
 
         it "returns the correct emails for a given marketing types" do
           sql = subject.send(:life_time_value_sql, [gang_marketing_type, peru_marketing_type])
           records = ActiveRecord::Base.connection.execute(sql).to_a
-          d {records}
+          expect(records.size).to eq 5
+          expected = {
+            "currency" => "USD",
+            "first_purchase_date" => "2014-01-01 00:00:00",
+            "purchase_date" => "2014-01-01 00:00:00",
+            "total_purchases" => "3",
+            "total_spend" => "0.00"
+          },
+          {
+            "currency" => "USD",
+            "first_purchase_date" => "2014-02-01 00:00:00",
+            "purchase_date" => "2014-02-01 00:00:00",
+            "total_purchases" => "2",
+            "total_spend" => "200.00"
+          },
+          {
+            "currency" => "USD",
+            "first_purchase_date" => "2014-02-01 00:00:00",
+            "purchase_date" => "2014-03-01 00:00:00",
+            "total_purchases" => "2",
+            "total_spend" => "100.00"
+          },
+          {
+            "currency" => "EUR",
+            "first_purchase_date" => "2014-02-01 00:00:00",
+            "purchase_date" => "2014-04-01 00:00:00",
+            "total_purchases" => "2",
+            "total_spend" => "100.00"
+          },
+          {
+            "currency" => "GBP",
+            "first_purchase_date" => "2014-02-01 00:00:00",
+            "purchase_date" => "2014-04-01 00:00:00",
+            "total_purchases" => "2",
+            "total_spend" => "100.00"
+          }
+
+          expect(records).to eq expected
         end
 
       end
 
     end
+
+    describe "retrieve_data" do
+
+      context "Multiple orders from multiple users" do
+
+        before do
+          2.times do
+            create_first_order
+          end
+        end
+
+        it "returns the correct emails for a given marketing types" do
+          data = []
+          subject.retrieve_data do |r|
+            data << r
+          end
+          expect(data.size).to eq 4
+
+          expected = [
+            [
+              "2014-01-01 00:00:00",
+              "2014-01-01 00:00:00",
+              3,
+              0.0
+            ],
+            [
+              "2014-02-01 00:00:00",
+              "2014-02-01 00:00:00",
+              2,
+              122.0
+            ],
+            [
+              "2014-02-01 00:00:00",
+              "2014-03-01 00:00:00",
+              2,
+              61.0
+            ],
+            [
+              "2014-02-01 00:00:00",
+              "2014-04-01 00:00:00",
+              4,
+              183.0
+            ]
+          ]
+          expect(data).to eq expected
+        end
+
+      end
+
+    end
+
+ 
+  end
+
+
+  def create_first_order
+    user = create(:user)
+
+    # First order
+    order = create(:order, user: user, payment_total: 100, currency: 'USD')
+    create(:line_item, variant: gang_variant, order: order)
+    create(:line_item, variant: peru_variant, order: order)
+    order.update_column(:completed_at, '2014-02-01')
+
+    # Second order
+    order = create(:order, user: user, payment_total: 50, currency: 'USD')
+    create(:line_item, variant: kit_variant, order: order)
+    order.update_column(:completed_at, '2014-03-01')
+
+    # Third order
+    order = create(:order, user: user, payment_total: 50, currency: 'GBP')
+    create(:line_item, variant: kit_variant, order: order, currency: 'GBP')
+    order.update_column(:completed_at, '2014-04-01')
+
+    # Fourth order
+    order = create(:order, user: user, payment_total: 50, currency: 'EUR')
+    create(:line_item, variant: kit_variant, order: order, currency: 'EUR')
+    order.update_column(:completed_at, '2014-04-02')
+
   end
 
 end
