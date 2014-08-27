@@ -43,5 +43,6 @@
 
 // Refer-a-friend module
 //= require spree/frontend/spree_raf
+//= require spree/frontend/referral_landing
 //= require spree/frontend/referee_landing
 
