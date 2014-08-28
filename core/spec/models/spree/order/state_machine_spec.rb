@@ -127,6 +127,17 @@ describe Spree::Order do
       order_id.should == order.id
     end
 
+    it "should unset completed_at" do
+      # Stub methods that cause side-effects in this test
+      shipment.stub(:cancel!)
+      order.stub :has_available_shipment
+      order.stub :restock_items!
+      order.stub :send_cancel_email
+      order.completed_at = '2014-01-01'
+      order.cancel!
+      expect(order.completed_at).to be_nil
+    end
+
     context "restocking inventory" do
       before do
         shipment.stub(:ensure_correct_adjustment)
@@ -152,6 +163,7 @@ describe Spree::Order do
       context "without shipped items" do
         it "should set payment state to 'credit owed'" do
           # Regression test for #3711
+          order.stub :unset_completed_at
           order.should_receive(:update_column).with(:payment_state, 'credit_owed')
           order.cancel!
         end
@@ -191,5 +203,14 @@ describe Spree::Order do
       # Stubs method that cause unwanted side effects in this test
       order.stub :has_available_shipment
     end
+
+    it "should set completed_at" do
+      # Stub methods that cause side-effects in this test
+      order.completed_at = nil
+      order.resume!
+      expect(order.completed_at).not_to be_nil
+    end
+
+
   end
 end
