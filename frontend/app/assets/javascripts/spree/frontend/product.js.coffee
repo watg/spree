@@ -13,7 +13,7 @@ core.productGroup.readyVariantOptions = (entity) ->
   for option_value in option_values
     variant_details = toggle_option_values(entity, option_value[0], option_value[1], option_value[2], option_type_order, master_tree)
   if variant_details
-    set_stock_level(entity, variant_details['id'], variant_details['total_on_hand'])
+    set_stock_level(entity, variant_details['total_on_hand'])
     set_prices(entity, variant_details['id'], variant_details['normal_price'], variant_details['sale_price'], variant_details['in_sale'])
     entity.find('li.tmb-' + variant_details['id']).show()
 
@@ -56,7 +56,7 @@ core.productGroup.readyVariantOptions = (entity) ->
     selected_presentation = $(this).data('presentation')
     variant_details = toggle_option_values(entity, selected_type, selected_value, selected_presentation, option_type_order, master_tree)
     if variant_details
-      set_stock_level(entity, variant_details['id'], variant_details['total_on_hand'])
+      set_stock_level(entity, variant_details['total_on_hand'])
       toggle_images(entity, variant_details['id'])
       set_prices(entity, variant_details['id'], variant_details['normal_price'], variant_details['sale_price'], variant_details['in_sale'])
 
@@ -176,7 +176,7 @@ set_prices = (entity, variant_id, normal_price, sale_price, in_sale) ->
     entity.find('.normal-price').removeClass('was')
     entity.find('.sale-price').removeClass('now selling').addClass('hide')
 
-set_stock_level = (entity, variant_id, total_on_hand) ->
+set_stock_level = (entity, total_on_hand) ->
 	entity.find('.stock-value').text(total_on_hand + ' left')
 
 # Modify the images based on the selected variant
