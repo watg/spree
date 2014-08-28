@@ -177,7 +177,11 @@ set_prices = (entity, variant_id, normal_price, sale_price, in_sale) ->
     entity.find('.sale-price').removeClass('now selling').addClass('hide')
 
 set_stock_level = (entity, total_on_hand) ->
-	entity.find('.stock-value').text(total_on_hand + ' left')
+	if total_on_hand <= 5
+		entity.find('.stock-level').show()
+		entity.find('.stock-value').text(total_on_hand + ' left')
+	else
+		entity.find('.stock-level').hide()
 
 # Modify the images based on the selected variant
 toggle_images = (entity, variant_id) ->
