@@ -80,7 +80,6 @@ module Spree
 
     NUMBER_PREFIX = 'V'
 
-
     def previous
       self.product.variants.where("position < ?", self.position).last
     end
@@ -146,7 +145,8 @@ module Spree
           base['variant']['sale_price']=v.price_normal_sale_in(currency).in_subunit
           base['variant']['part_price']=v.price_part_in(currency).in_subunit
           base['variant']['in_sale']=v.in_sale
-          base['variant']['in_stock']= v.in_stock_cache 
+          base['variant']['in_stock']= v.in_stock_cache
+          base['variant']['total_on_hand']= v.total_on_hand
           if v.images.any?
             #base['variant']['image_url']= v.images.reorder(:position).first.attachment.url(:mini)
             # above replaced by below, as it was causing extra sql queries
@@ -254,7 +254,6 @@ module Spree
     end
 
     #############################################
-
 
     def current_price_in(currency_code)
       self.in_sale? ? price_normal_sale_in(currency_code) : price_normal_in(currency_code)
@@ -484,7 +483,6 @@ module Spree
     def save_default_price
       default_price.save if default_price && (default_price.changed? || default_price.new_record?)
     end
-
 
     def set_cost_currency
       self.cost_currency = Spree::Config[:currency] if cost_currency.nil? || cost_currency.empty?
