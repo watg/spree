@@ -763,12 +763,7 @@ module Spree
       payments.completed.each { |payment| payment.credit! if payment.respond_to?(:credit!) }
 
       send_cancel_email
-      unset_completed_at
       self.update_column(:payment_state, 'credit_owed') unless shipped?
-    end
-
-    def unset_completed_at
-      self.update_column(:completed_at, nil)
     end
 
     def send_cancel_email
@@ -777,7 +772,6 @@ module Spree
 
     def after_resume
       shipments.each { |shipment| shipment.resume! }
-      self.update_column(:completed_at, DateTime.now)
       consider_risk
     end
 
