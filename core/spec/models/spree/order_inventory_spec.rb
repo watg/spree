@@ -20,7 +20,7 @@ module Spree
       let(:shipment) { order.shipments.first }
 
       context "order is not completed" do
-        before { order.stub completed?: false }
+        before { order.stub complete?: false }
 
         it "doesn't unstock items" do
           shipment.stock_location.should_not_receive(:unstock)
@@ -146,7 +146,7 @@ module Spree
         let(:variant) { subject.variant }
 
         context "order is not completed" do
-          before { order.stub completed?: false }
+          before { order.stub complete?: false }
 
           it "doesn't restock items" do
             shipment.stock_location.should_not_receive(:restock)

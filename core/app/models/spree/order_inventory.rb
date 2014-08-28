@@ -99,7 +99,7 @@ module Spree
       end
 
       # adding to this shipment, and removing from stock_location
-      if order.completed?
+      if order.complete?
         shipment.stock_location.unstock(variant, quantity, shipment)
       end
 
@@ -124,7 +124,7 @@ module Spree
       shipment.destroy if shipment.inventory_units.count == 0
 
       # removing this from shipment, and adding to stock_location
-      if order.completed?
+      if order.complete?
         shipment.stock_location.restock variant, removed_quantity, shipment
       end
 
