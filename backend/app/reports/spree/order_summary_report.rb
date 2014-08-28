@@ -75,7 +75,9 @@ module Spree
       previous_users = CSV.read(File.join(File.dirname(__FILE__),"unique_previous_users.csv")).flatten
       previous_users = previous_users.to_set
 
-      Spree::Order.includes(:shipments).where( :state => 'complete', :completed_at => @from..@to ).find_each do |o| 
+      Spree::Order.includes(:shipments, line_items: [ :line_item_parts] ).
+        where( :state => 'complete', :completed_at => @from..@to ).find_each do |o|
+        #Spree::Order.includes(:shipments).where( :state => 'complete', :completed_at => @from..@to ).find_each do |o| 
         yield generate_csv_line(o,previous_users)
       end
     end
