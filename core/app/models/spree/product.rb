@@ -59,7 +59,7 @@ module Spree
     has_many :assembly_definitions, -> { order "position" }, class_name: "Spree::AssemblyDefinition", foreign_key: :assembly_id
 
 
-    # Ensure that we blow the cache for any assemblies that have a part which belongs to 
+    # Ensure that we blow the cache for any assemblies that have a part which belongs to
     # this product
     has_many :assembly_definition_variants, through: :variants
     has_many :assembly_products, through: :assembly_definition_variants
@@ -124,12 +124,9 @@ module Spree
 
     after_initialize :ensure_master
 
-    # Grab each set of products that have parts, then 
+    # Grab each set of products that have parts, then
     scope :not_assembly, lambda {
-      with_parts = joins(variants_including_master: [:assemblies_parts]).select('spree_products.id') +
-      joins(:assemblies_parts).select('spree_products.id') +
-      joins(variants_including_master: [:assembly_definition]).select('spree_products.id')
-
+      with_parts = joins(variants_including_master: [:assembly_definition]).select('spree_products.id')
       where.not(id: with_parts.uniq.map(&:id) )
     }
 

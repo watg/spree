@@ -46,16 +46,15 @@
       </li>
       <% if @product.product_type.kit? %>
         <li><hr></li>
-
-        <li<%= ' class="active"' if current == "Parts" %>>
-          <%= link_to_with_icon 'icon-sitemap', Spree.t(:parts) + " (" + @product.assemblies_parts.count.to_s + ")", admin_product_parts_url(@product) %>
-        </li>
-
-        <li<%== ' class="active"' if current == "Assembly Definition" %>>
-          <% if @product.master.assembly_definition and @product.assemblies_parts !%>
-            <%= link_to_with_icon 'icon-sitemap', "Assembly Definition", edit_admin_assembly_definition_url(@product.master.assembly_definition) %>
-          <% end %>
-        </li>
+        <% if @product.master.assembly_definition %>
+          <li<%== ' class="active"' if current == "Assembly Definition" %>>
+              <%= link_to_with_icon 'icon-sitemap', "Assembly Definition", edit_admin_assembly_definition_url(@product.master.assembly_definition) %>
+          </li>
+        <% else %>
+          <li<%== ' class="active"' if current == "Parts" %>>
+            <%= link_to_with_icon 'icon-sitemap', Spree.t(:parts) + " (" + @product.assemblies_parts.count.to_s + ")", admin_product_parts_url(@product) %>
+          </li>
+        <% end %>
       <% end %>
     </ul>
   </nav>
