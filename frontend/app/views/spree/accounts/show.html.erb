@@ -1,10 +1,10 @@
 <% content_for :title do %>Your account<% end %>
-<% content_for :meta do %>
-<meta content="Knitwear, Knitting, Knitted, Wool, Unique, Handmade, Sustainable yarn, How to knit, Learn to knit" name="keywords" />
-<meta content="Your WATG account details" name="description" />
-<% end %>
+	<% content_for :meta do %>
+	<meta content="Knitwear, Knitting, Knitted, Wool, Unique, Handmade, Sustainable yarn, How to knit, Learn to knit" name="keywords" />
+	<meta content="Your WATG account details" name="description" />
+	<% end %>
 
-<% @body_class = 'spree-referral referral-account' %>
+	<% @body_class = 'spree-referral referral-account' %>
 
 <%# referrer_maximum_earnings = Spree::Raf::Config["referrer_maximum_earnings_#{current_currency.to_s.downcase}".to_sym] %>
 
@@ -21,7 +21,7 @@
 			<h2>Welcome gangsta. To make your shopping experience as simple as possible,<br class="only-desktop" /> all your personal information is here for you to update and browse</h2>
 		</div>
 	</div><!-- /row -->
-	
+
 	<div class="row-options">
 		<div class="row">
 			<div class="large-4 columns column-orders">
@@ -32,26 +32,63 @@
 				<p class="only-desktop"><a class="button" href="<%= spree.orders_path %>">View order history</a></p>
 			</div>
 			<div class="large-4 columns column-refer">
-				<% if @no_profile %>
+				<% if @redeemed_all_rewards %>
+					<%= cdn_image_tag("raf/account-icon-refer-happy-updated.png", class: 'only-desktop', width: "55", height: "55", alt: "Refer a friend") %>
+					<%= cdn_image_tag("raf/account-icon-refer-happy.png", class: 'only-mobile', width: "83", height: "83", alt: "Refer a friend") %>
+				<% elsif @redeemable_rewards %>
+					<span class="circle-green"><%= @redeemable_rewards %></span>
+				<% elsif @no_profile %>
 					<%= cdn_image_tag("raf/account-icon-refer.png", class: 'only-desktop', width: "55", height: "55", alt: "Refer a friend") %>
 					<%= cdn_image_tag("raf/account-icon-refer-mobile.png", class: 'only-mobile', width: "83", height: "83", alt: "Refer a friend") %>
 				<% else %>
 					<%= cdn_image_tag("raf/account-icon-refer-unhappy.png", class: 'only-desktop', width: "55", height: "55", alt: "Refer a friend") %>
 					<%= cdn_image_tag("raf/account-icon-refer-unhappy-mobile.png", class: 'only-mobile', width: "83", height: "83", alt: "Refer a friend") %>
-				<% end %>
-				<h3><a href="<%= spree.raf_invite_path %>">Refer a friend</a></h3>
-				<p><% if @no_profile %>The easiest way to get<br/> your next order for free!<% else %>You haven't earned any money yet.<br/> Keep on referring!<% end %></p>
-				<p class="only-desktop"><a class="button" href="<%= spree.raf_invite_path %>">Refer &amp; get rewarded</a></p>
-				<% if @no_profile %><% else %><p>No money? Your rewards will appear here 30 days<br/> after a friend places an order for the first time.</p><% end %>
-			</div>
-			<div class="large-4 columns column-email">
-				<%= cdn_image_tag("raf/account-icon-email.png", class: 'only-desktop', width: "82", height: "66", alt: "Email") %>
-				<%= cdn_image_tag("raf/account-icon-email-mobile.png", class: 'only-mobile', width: "115", height: "92", alt: "Email") %>
-				<h3><a href="<%= spree.edit_account_path %>">Email</a></h3>
-				<p>Your account email is:<br/> <strong><%= @user.email %></strong></p>
-				<p class="only-desktop"><a class="button" href="<%= spree.edit_account_path %>">Change your email</a></p>
-			</div>
-		</div>
-	</div><!-- /row -->
+				<% end %>			
 
-</div><!--/wrapper -->
+					<h3 class="only-desktop"><a href="<%= spree.raf_invite_path %>">Refer a friend</a></h3>
+					<h3 class="only-mobile">
+						<% if @redeemable_rewards %>
+						<p><a href="<%= spree.raf_rewards_path %>">Refer a friend</a></p>
+						<% else %>
+						<p><a href="<%= spree.raf_invite_path %>">Refer a friend</a></p>
+						<% end %>
+					</h3>
+
+					<p>
+						<% if @redeemed_all_rewards %>
+						You redeemed your earnings.<br/> 
+						You're a pro. Refer more friends
+						<% elsif @redeemable_rewards %>
+						Yay! You've earned money to<br/> 
+						spend on woolandthegang.com
+						<% elsif @no_profile %>
+						The easiest way to get<br/> 
+						your next order for free!
+						<% else %>
+						You haven't earned any money yet.<br/> 
+						Keep on referring!
+						<% end %>
+					</p>
+					<p class="only-desktop">
+						<% if @redeemable_rewards && !@redeemed_all_rewards %>
+						<a class="button" href="<%= spree.raf_rewards_path %>">Check or redeem</a>
+						<% else %>
+						<a class="button" href="<%= spree.raf_invite_path %>">Refer &amp; get rewarded</a>
+						<% end %>
+					</p>
+					<p class="referrer-footnote">
+						<% if @pending_rewards %>
+						No money? Your rewards will appear here 30 days after a friend places an order for the first time
+						<% end %>
+					</p>		
+				</div>
+				<div class="large-4 columns column-email">
+					<%= cdn_image_tag("raf/account-icon-email.png", class: 'only-desktop', width: "82", height: "66", alt: "Email") %>
+					<%= cdn_image_tag("raf/account-icon-email-mobile.png", class: 'only-mobile', width: "115", height: "92", alt: "Email") %>
+					<h3><a href="<%= spree.edit_account_path %>">Email</a></h3>
+					<p>Your account email is:<br/> <strong><%= @user.email %></strong></p>
+					<p class="only-desktop"><a class="button" href="<%= spree.edit_account_path %>">Change your email</a></p>
+				</div>
+			</div>
+		</div><!-- /row -->
+	</div><!--/wrapper -->

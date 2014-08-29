@@ -117,7 +117,8 @@
 		padding: 0 0 emCalc(15px) 0;
 		border-bottom: 1px dotted #333;
 	}
-	/* Level */
+	/* Stock level and level */
+	.stock-level,
 	.level {
 		margin-bottom: 0;
 		font-family: $watg-font;
@@ -128,6 +129,13 @@
 		}
 		span:before {
 			content: "/ ";
+		}
+	}
+	.stock-level {
+		display: none;
+		color: #8224e3;
+		span {
+			color: #000;
 		}
 	}
 }

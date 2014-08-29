@@ -18,6 +18,7 @@
 //= require lib/jquery.tagmanager.js
 //= require lib/jquery.typeahead.min.js
 //= require lib/jquery.jcarousel.min.js
+//= require lib/jquery.elevatezoom.min.js
 
 //= require core
 
@@ -43,5 +44,7 @@
 
 // Refer-a-friend module
 //= require spree/frontend/spree_raf
+//= require spree/frontend/referral_landing
 //= require spree/frontend/referee_landing
+//= require spree/frontend/reward_landing
 

@@ -21,7 +21,7 @@ module Spree
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants, class_name: "Spree::OptionValue"
 
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
-    
+
     has_many :variant_targets, class_name: 'Spree::VariantTarget', dependent: :destroy
     has_many :targets, class_name: 'Spree::Target', through: :variant_targets
 
@@ -83,7 +83,6 @@ module Spree
 
     # This will be used to setup the first stock item for the variant
     attr_accessor :supplier
-
 
     def previous
       self.product.variants.where("position < ?", self.position).last
@@ -150,7 +149,8 @@ module Spree
           base['variant']['sale_price']=v.price_normal_sale_in(currency).in_subunit
           base['variant']['part_price']=v.price_part_in(currency).in_subunit
           base['variant']['in_sale']=v.in_sale
-          base['variant']['in_stock']= v.in_stock_cache 
+          base['variant']['in_stock']= v.in_stock_cache
+          base['variant']['total_on_hand']= v.total_on_hand
           if v.images.any?
             #base['variant']['image_url']= v.images.reorder(:position).first.attachment.url(:mini)
             # above replaced by below, as it was causing extra sql queries
@@ -259,7 +259,6 @@ module Spree
 
     #############################################
 
-
     def current_price_in(currency_code)
       self.in_sale? ? price_normal_sale_in(currency_code) : price_normal_in(currency_code)
     end
@@ -338,7 +337,7 @@ module Spree
 
     # Product may be created with deleted_at already set,
     # which would make AR's default finder return nil.
-    # This is a stopgap for that little problem.    
+    # This is a stopgap for that little problem.
     def product
       Spree::Product.unscoped { super }
     end
@@ -394,7 +393,7 @@ module Spree
     def name_and_sku
       "#{name} - #{sku}"
     end
-	
+
     # The new in_stock? is using Rails cache
     # def in_stock?(quantity=1)
     #  Spree::Stock::Quantifier.new(self).can_supply?(quantity)
@@ -488,7 +487,6 @@ module Spree
     def save_default_price
       default_price.save if default_price && (default_price.changed? || default_price.new_record?)
     end
-
 
     def set_cost_currency
       self.cost_currency = Spree::Config[:currency] if cost_currency.nil? || cost_currency.empty?
