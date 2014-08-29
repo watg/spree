@@ -18,6 +18,7 @@
 //= require lib/jquery.tagmanager.js
 //= require lib/jquery.typeahead.min.js
 //= require lib/jquery.jcarousel.min.js
+//= require lib/jquery.elevatezoom.min.js
 
 //= require core
 
