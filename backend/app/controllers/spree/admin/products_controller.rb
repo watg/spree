@@ -62,8 +62,13 @@ module Spree
       end
 
       def create_assembly_definition
-        @product.master.build_assembly_definition.save!
-        @product.variants.select { |v| v.assembly_definition.blank? }.map(&:delete)
+        if @product.product_type.kit?
+          @product.master.build_assembly_definition.save!
+          @product.variants.select { |v| v.assembly_definition.blank? }.map(&:delete)
+          flash[:success] = "Assembly definition successfully added!"
+        else
+          flash[:error] = "Cannot create an assembly definition for a non-kit product."
+        end
         redirect_to edit_admin_product_url(@product)
       end
 
@@ -119,7 +124,7 @@ module Spree
         def product_includes
           [{ :variants => [:images, { :option_values => :option_type }], :master => [:images, :default_price]}]
         end
-        
+
         def clone_object_url resource
           clone_admin_product_url resource
         end
@@ -129,7 +134,7 @@ module Spree
         end
 
 
-      private		
+      private
 
       def update_success(product)
         flash[:success] = flash_message_for(product, :successfully_updated)

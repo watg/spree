@@ -75,7 +75,7 @@ module Spree
 
         let(:bundle_item_quantity) { order.find_line_item_by_variant(bundle_variant).quantity }
 
-        it "haha" do
+        it "calculates items quantity properly" do
           expect(bundle_item_quantity).to eq 1
           line_items_without_parts = order.line_items.to_a.sum(&:quantity) - bundle_item_quantity
           expected_units_on_package = line_items_without_parts + (parts.count * bundle_item_quantity)

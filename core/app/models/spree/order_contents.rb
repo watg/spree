@@ -9,13 +9,9 @@ module Spree
     #  Sale feature
     ## Transfer from spree extension product-assembly with options
     #
-    def add(variant, quantity=1, currency=nil, shipment=nil, parts=nil, personalisations=nil, target_id=nil, product_page_tab_id=nil, product_page_id=nil)
-
-
-      parts ||= []
-      personalisations ||= []
+    def add(variant, quantity=1, currency=nil, options = {})
       currency ||= @order.currency || Spree::Config[:currency] # default to that if none is provided
-      line_item = add_to_line_item(variant, quantity, currency, shipment, parts, personalisations, target_id, product_page_tab_id, product_page_id)
+      line_item = add_to_line_item(variant, quantity, currency, options)
       reload_totals
       PromotionHandler::Cart.new(order, line_item).activate
       ItemAdjustments.new(line_item).update
@@ -24,7 +20,7 @@ module Spree
     end
 
     # Remove variant qty from line_item
-    # We need to fix the method below if we ever plan to use the api for incrementing and 
+    # We need to fix the method below if we ever plan to use the api for incrementing and
     # decrementing line_items
     def remove(variant, quantity=1, shipment=nil, parts=nil, personalisations=nil, target_id=nil)
       line_item = grab_line_item_by_variant(variant, parts, personalisations, target_id, true)
@@ -74,7 +70,7 @@ module Spree
         false
       end
     end
-    
+
   private
 
     def unsafe_add_by_line_item(line_item, quantity, shipment=nil)
@@ -111,25 +107,27 @@ module Spree
       order.reload
     end
 
-    def check_stock_levels_for_line_item(line_item)
-      result = Spree::Stock::Quantifier.can_supply_order?(@order, line_item)
-      result[:errors].each {|error_msg| @order.errors.add(:base, error_msg) }
-      result[:in_stock]
-    end
+    # def check_stock_levels_for_line_item(line_item)
+    #   result = Spree::Stock::Quantifier.can_supply_order?(@order, line_item)
+    #   result[:errors].each {|error_msg| @order.errors.add(:base, error_msg) }
+    #   result[:in_stock]
+    # end
 
-    def add_to_line_item(variant, quantity, currency, shipment, parts, personalisations, target_id, product_page_tab_id, product_page_id)
+    def add_to_line_item(variant, quantity, currency, options={})
+      options[:parts] ||= []
+      options[:personalisations] ||= []
 
-      line_item = grab_line_item_by_variant(variant, parts, personalisations, target_id)
+      line_item = grab_line_item_by_variant(variant, options[:parts], options[:personalisations], options[:target_id])
 
       if line_item
-        add_to_existing_line_item(line_item, quantity, shipment)
+        add_to_existing_line_item(line_item, quantity, options[:shipment])
       else
         line_item = order.line_items.new(quantity: quantity, variant: variant)
-        line_item.target_shipment = shipment
+        line_item.target_shipment = options[:shipment]
         line_item.currency = currency
-        line_item.add_parts(parts) 
-        line_item.add_personalisations(personalisations)
-        line_item.target_id = target_id
+        line_item.add_parts(options[:parts])
+        line_item.add_personalisations(options[:personalisations])
+        line_item.target_id = options[:target_id]
 
         line_item.price = variant.current_price_in(currency).amount
         line_item.normal_price = variant.price_normal_in(currency).amount
@@ -142,11 +140,11 @@ module Spree
 
         line_item.in_sale = variant.in_sale if variant.in_sale?
 
-        line_item.item_uuid = Spree::VariantUuid.fetch(variant, parts, personalisations).number
+        line_item.item_uuid = Spree::VariantUuid.fetch(variant, options[:parts], options[:personalisations]).number
       end
 
-      line_item.product_page_id = product_page_id if line_item.product_page_id.blank?
-      line_item.product_page_tab_id = product_page_tab_id if line_item.product_page_tab_id.blank?
+      line_item.product_page_id = options[:product_page_id] if line_item.product_page_id.blank?
+      line_item.product_page_tab_id = options[:product_page_tab_id] if line_item.product_page_tab_id.blank?
 
       line_item.save
       line_item

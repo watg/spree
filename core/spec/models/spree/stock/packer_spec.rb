@@ -75,10 +75,11 @@ module Spree
         end
       end
 
-      # from spree product assembly for adding the parts along with 
-      # the main line item to the inventory units table
+      # from spree product assembly for adding the
+      # parts only to the inventory units table
       context 'build bundle product package' do
         let!(:parts) { (1..3).map { create(:part, line_item: order.line_items.first) } }
+        let!(:container_part) { create(:part, line_item: order.line_items.first, container: true) }
         let(:number_of_line_items_with_parts) { 1 }
 
         it 'adds all bundle parts to the shipment' do
@@ -99,33 +100,33 @@ module Spree
 
         context "store doesn't track inventory" do
           before { Spree::Config.track_inventory_levels = false }
-          
+
           it 'adds items as on-hand, not backordered' do
             stock_item = stock_location.stock_item(order.line_items.first)
-            
+
             package = subject.product_assembly_package
             package.contents.size.should eq number_of_line_items + parts.count - number_of_line_items_with_parts
             package.contents.each {|ci| ci.state.should eq :on_hand}
           end
         end
-      
+
         context "are tracking inventory" do
           before do
             Spree::Config.track_inventory_levels = true
             # by default, variant factory sets track_inventory to true
           end
-          
+
           it 'adds items as backordered' do
             package = subject.product_assembly_package
             package.contents.size.should eq number_of_line_items + parts.count - number_of_line_items_with_parts
             package.contents.each {|ci| ci.state.should eq :backordered}
           end
         end
-      
+
         context 'variants and parts do not track inventory' do
           before(:each) do
             Spree::Config.track_inventory_levels = true
-            order.line_items.each do |li| 
+            order.line_items.each do |li|
               li.variant.track_inventory = false
               li.save!
               if li.parts.any?
@@ -136,7 +137,7 @@ module Spree
               end
             end
           end
-          
+
           it 'adds items as on-hand, not backordered' do
             package = subject.product_assembly_package
             package.contents.size.should eq number_of_line_items + parts.count - number_of_line_items_with_parts

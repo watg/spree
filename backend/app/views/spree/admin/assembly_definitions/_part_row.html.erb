@@ -7,6 +7,11 @@
     <span class="info">
       <%= link_to_with_icon 'icon-external-link', part.product.name, edit_admin_product_path(part.product), target: :blank %>
     </span>
+    <br><br>
+
+    <label>Displayable Type</label>
+    <%= f.collection_select(:displayable_option_type_id, part.product.option_types,:id, :name, {}, {:class => 'select2 fullwidth'}) %>
+
   </td>
   <td>
     <% if part.product.variants.any? %>
@@ -17,11 +22,11 @@
     <span class="info alignright"><input type="checkbox" class="check_all" >Check all</span>
   </td>
   <td>
-    <%= f.collection_select(:displayable_option_type_id, part.product.option_types,:id, :name, {}, {:class => 'select2 fullwidth'}) %>
+    <%= f.number_field :count %>
   </td>
-  <td><%= f.number_field :count %></td>
+  <td><%= f.check_box :assembled %></td>
   <td><%= f.check_box :optional %></td>
   <td class="actions">
     <%= link_to_delete part, :url => admin_assembly_definition_part_path(@assembly_definition, f.object), :no_text => true %>
-  </td>        
+  </td>
 </tr>

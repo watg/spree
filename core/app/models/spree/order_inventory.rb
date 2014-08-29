@@ -22,29 +22,26 @@ module Spree
         inventory_units = @line_item.inventory_units
 
         if line_item.parts.any?
-
           process_line_item_parts(@line_item, inventory_units, shipment)
-
         else
           process_line_item(@line_item, inventory_units, shipment)
-
         end
+
       end
     end
 
 
     def process_line_item_parts(line_item, inventory_units, shipment)
-      parts_total = line_item.parts.sum(:quantity)
+      parts = line_item.parts.stock_tracking
 
-      old_quantity = (inventory_units.size == 0) ? 0 : inventory_units.size / parts_total
+      old_quantity = (inventory_units.size == 0) ? 0 : inventory_units.size / parts.sum(:quantity)
       quantity_change = line_item.quantity - old_quantity
 
       if quantity_change > 0
 
-        line_item.parts.each do |part|
+        parts.each do |part|
           quantity_of_parts = part.quantity * quantity_change
 
-          # TODO : ARGGGGGGGGGGGGGGGGGGHHHHHHHHHHHHHHHHHHHHHHHHH
           # This is horrible code, and we must change it at some point
           self.variant = part.variant
           shipment = determine_target_shipment unless shipment
@@ -54,10 +51,9 @@ module Spree
 
       elsif quantity_change < 0
 
-        line_item.parts.each do |part|
+        parts.each do |part|
           quantity_of_parts = part.quantity * quantity_change
 
-          # TODO : ARGGGGGGGGGGGGGGGGGGHHHHHHHHHHHHHHHHHHHHHHHHH
           # This is horrible code, and we must change it at some point
           self.variant = part.variant
           remove_quantity_from_shipment(shipment, quantity_of_parts * -1 )

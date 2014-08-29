@@ -10,7 +10,7 @@
 <%= hidden_field_tag "product_page_id", product_page.id %>
 <%= hidden_field_tag "target_id", product_page.target_id %>
 
-<%# do not be tempted to make this product_page.selected_tab.id, as it will 
+<%# do not be tempted to make this product_page.selected_tab.id, as it will
 cause big cache issues %>
 <%= hidden_field_tag "product_page_tab_id", product_page_tab.id %>
 
@@ -30,7 +30,7 @@ cause big cache issues %>
 			  <% if !part.optional? %>
           <!-- If we have only one variant and it is not optional then it becomes mandatory -->
           <% if part.variants.size == 1 %>
-            <input class="selected-parts" type="hidden" name="parts[<%= part.id %>][]" value=<%= part.variants.first.id %>/>
+            <input class="selected-parts" type="hidden" name="parts[<%= part.id %>]" value=<%= part.variants.first.id %>/>
 
           <% else %>
 
@@ -46,7 +46,7 @@ cause big cache issues %>
 
                 </ul>
               </div>
-              <input class="selected-parts" type="hidden" name="parts[<%= part.id %>][]" value="" />
+              <input class="selected-parts" type="hidden" name="parts[<%= part.id %>]" value="" />
             </li>
             <!-- render parts -->
 
@@ -73,7 +73,7 @@ cause big cache issues %>
 
                 </ul>
               </div>
-              <input class="selected-parts" type="hidden" name="parts[<%= part.id %>][]" value="" />
+              <input class="selected-parts" type="hidden" name="parts[<%= part.id %>]" value="" />
             </li>
           <!-- render parts -->
         <% end %>

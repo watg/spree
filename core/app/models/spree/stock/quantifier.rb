@@ -48,18 +48,22 @@ module Spree
         def can_supply_order?(order, desired_line_item=nil)
           line_item_to_record = lambda do |li|
             [li].flatten.map do |line_item|
-              d  = []
-              d << { line_item_id: line_item.id,
-                variant_id: line_item.variant_id, 
-                quantity:   line_item.quantity }
-              line_item.line_item_parts.each do |pa|
-                d << {
+              array  = []
+              array << {
+                line_item_id: line_item.id,
+                variant_id: line_item.variant_id,
+                quantity:   line_item.quantity
+              }
+
+              line_item.parts.each do |part|
+                next if part.container?
+                array << {
                   line_item_id: line_item.id,
-                  variant_id:   pa.variant_id,
-                  quantity:     pa.quantity * line_item.quantity
+                  variant_id:   part.variant_id,
+                  quantity:     part.quantity * line_item.quantity
                 }
               end
-              d
+              array
             end.flatten
           end
 
@@ -90,12 +94,12 @@ module Spree
 
         def eager_load_stock_items( variant_quantity_grouping )
           # This code relies on us removing deleted variants in OrderController::edit after this is run in
-          # the context of adding an item via the cart, hence a user will add an item, a stock check will be 
+          # the context of adding an item via the cart, hence a user will add an item, a stock check will be
           # completed ( igonring the deleted variant ) then the deleted variant will get pruned
           variants_with_stock = Spree::Variant.includes(:stock_items =>[:stock_location]).
             where( Spree::StockLocation.table_name =>{ :active => true} ).where( id: variant_quantity_grouping.keys )
 
-          variants_with_stock.inject({}) do |hash,v| 
+          variants_with_stock.inject({}) do |hash,v|
             hash[v] = variant_quantity_grouping[v.id]
             hash
           end

@@ -7,28 +7,20 @@ describe Spree::Product do
   its(:visible_option_types) { should be_blank }
   its(:product_group)        { should be_kind_of(Spree::ProductGroup) }
 
-  context "#not_assembly returns only products with assembly definition or parts" do
-    it "with assembly definition; without assembly definition parts" do
+  describe "#not_assembly" do
+    it "excludes products with assembly definition" do
       create(:assembly_definition, variant: subject.master)
 
       expect(Spree::Product.all).to eq [subject]
       expect(Spree::Product.all.not_assembly).to be_empty
     end
 
-    it "with assemblies parts attached to the product" do
+    it "includes kits without assembly definition" do
       part = create(:variant)
       subject.add_part part
 
       expect(Spree::Product.all).to match_array [part.product, subject]
-      expect(Spree::Product.all.not_assembly).to eq [part.product]
-    end
-
-    it "with assemblies parts attached to the variant" do
-      part = create(:variant)
-      subject.master.add_part part
-
-      expect(Spree::Product.all).to match_array [part.product, subject]
-      expect(Spree::Product.all.not_assembly).to eq [part.product]
+      expect(Spree::Product.all.not_assembly).to match_array [part.product, subject]
     end
   end
 

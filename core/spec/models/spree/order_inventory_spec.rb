@@ -48,8 +48,8 @@ module Spree
       end
 
       context "inventory units state" do
-        before do 
-          shipment.inventory_units.destroy_all 
+        before do
+          shipment.inventory_units.destroy_all
         end
 
         it 'sets inventory_units state as per stock location availability' do
@@ -71,7 +71,7 @@ module Spree
         let(:supplier_1) { create :supplier }
         let(:supplier_2) { create :supplier }
 
-        before do 
+        before do
           shipment.inventory_units.destroy_all
         end
 
@@ -96,7 +96,7 @@ module Spree
           units = shipment.inventory_units_for(subject.variant).inject({}) do |h,unit|
             h[unit.state] ||= {}
             h[unit.state][unit.supplier] ||= 0
-            h[unit.state][unit.supplier] += 1 
+            h[unit.state][unit.supplier] += 1
             h
           end
 
@@ -119,7 +119,7 @@ module Spree
           variant.stock_items.destroy_all
 
           # The before_save callback in LineItem would verify inventory
-          line_item = order.contents.add variant, 1, nil, shipment
+          line_item = order.contents.add variant, 1, nil, shipment: shipment
 
           units = shipment.inventory_units_for(line_item.variant)
           expect(units.count).to eq 1
@@ -187,7 +187,7 @@ module Spree
           expect(si1.reload.count_on_hand).to eq 0
           expect(si2.reload.count_on_hand).to eq 0
 
-          # check the stock movements 
+          # check the stock movements
           movement = si1.stock_movements.last
           movement.originator.should == shipment
           movement.quantity.should == -3
@@ -211,7 +211,7 @@ module Spree
           expect(si1.reload.count_on_hand).to eq 0
           expect(si2.reload.count_on_hand).to eq 0
 
-          # check the stock movements 
+          # check the stock movements
           movement = stock_item.stock_movements.last
           movement.quantity.should == -2
 
@@ -355,8 +355,8 @@ module Spree
         context "inventory units state with suppliers" do
           let(:supplier_1) { create :supplier }
           let(:supplier_2) { create :supplier }
-          before do 
-            shipment.inventory_units.destroy_all 
+          before do
+            shipment.inventory_units.destroy_all
             FillStatusItem = Struct.new(:supplier, :count)
           end
 
@@ -402,7 +402,7 @@ module Spree
         end
       end
     end
-	
+
     ## from Spree Product Assembly
 
     describe "Inventory units for assemblies" do
@@ -410,6 +410,7 @@ module Spree
       let(:line_item) { order.line_items.first }
       let(:bundle) { line_item.product }
       let(:parts) { (1..3).map { create(:part, line_item: line_item) } }
+      let!(:container_part) { create(:part, quantity: 2, line_item: line_item, container: true) }
 
       before do
         parts.first.update_column(:quantity, 3)
@@ -420,7 +421,7 @@ module Spree
       end
 
       context "inventory units count" do
-        it "calculates the proper value for the line item + parts" do
+        it "calculates the proper value for all physical parts (without the line item itself or containers)" do
           expected_units_count = line_item.quantity * parts.to_a.sum(&:quantity)
           expect(subject.inventory_units.count).to eql(expected_units_count)
         end
@@ -448,7 +449,7 @@ module Spree
         context "quantity increases" do
           before { subject.line_item.quantity += 1 }
 
-          it "inserts new inventory units for every bundle part" do
+          it "inserts new inventory units for every bundle part with disregard to the line item itself" do
             expected_units_count = original_units_count + parts.to_a.sum(&:quantity)
             subject.verify
             expect(OrderInventory.new(line_item.order, line_item.reload).inventory_units.count).to eql(expected_units_count)
@@ -458,7 +459,7 @@ module Spree
         context "quantity decreases" do
           before { subject.line_item.quantity -= 1 }
 
-          it "remove inventory units for every bundle part" do # since we decreased the line item quantity by one
+          it "remove inventory units for every bundle part with disregard to the line item itself" do
             expected_units_count = original_units_count - parts.to_a.sum(&:quantity)
             subject.verify
 
@@ -471,7 +472,7 @@ module Spree
         context "quantity decreases to 0" do
           before { subject.line_item.quantity = 0 }
 
-          it "remove inventory all units for every bundle part" do # since we decreased the line item quantity by one
+          it "remove inventory all units for every bundle part" do
             expected_units_count = original_units_count - parts.to_a.sum(&:quantity)
             subject.verify
 
@@ -494,23 +495,23 @@ module Spree
 
       let(:bundle) { create(:product) }
       let(:line_item_parts) {[
-        OpenStruct.new( 
-                       variant_id: guitar.id, 
-                       quantity:   1, 
+        OpenStruct.new(
+                       variant_id: guitar.id,
+                       quantity:   1,
                        optional:   true,
                        price:      5,
                        currency:   'GBP'
                       ),
-        OpenStruct.new( 
-                       variant_id: bass.id, 
-                       quantity:   1, 
+        OpenStruct.new(
+                       variant_id: bass.id,
+                       quantity:   1,
                        optional:   true,
                        price:      5,
                        currency:   'GBP'
                       )
       ]}
 
-      let!(:bundle_item) { contents.add(bundle.master, 5, nil, nil, line_item_parts) }
+      let!(:bundle_item) { contents.add(bundle.master, 5, nil, parts: line_item_parts) }
       let!(:guitar_item) { contents.add(guitar, 3) }
 
       let!(:shipment) { order.create_proposed_shipments.first }

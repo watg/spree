@@ -20,11 +20,10 @@ describe Spree::Admin::ProductsController, type: :controller do
 
 
   context "#create_assembly_definition" do
-    let(:product) { create(:product_with_variants) }
+    let(:product) { create(:product_with_variants, product_type: create(:product_type_kit)) }
     let(:params) { { id: product.slug } }
     let(:variant) { product.variants.first}
     let!(:assembly_definition) { create(:assembly_definition, variant: variant) }
-    let(:ad) { create(:assembly_definition) }
 
     it "should not delete any variants which have an assembly defintiion" do
 

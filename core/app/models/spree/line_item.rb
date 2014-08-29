@@ -79,15 +79,29 @@ module Spree
     def add_parts(collection)
       objects = collection.map do |o|
         Spree::LineItemPart.new(
+          id: o.id,
           line_item: self,
           quantity: o.quantity,
           price: o.price || BigDecimal.new(0),
           assembly_definition_part_id: o.assembly_definition_part_id,
           variant_id: o.variant_id,
           optional: o.optional,
-          currency: o.currency
+          currency: o.currency,
+          assembled: o.assembled,
+          container: o.container,
+          parent_part_id: o.parent_part_id
         )
       end
+
+      # associate child parts with their parent container
+      objects.select{ |o| o.parent_part_id.present? }.each do |child|
+        child.parent_part = objects.find { |o| o.id == child.parent_part_id }
+      end
+      # delete the container index ids and allow active record to set the auto-generated ones
+      objects.select{ |o| o.id.present? }.each do |container|
+        container.id = nil
+      end
+
       self.line_item_parts = objects
     end
 
@@ -140,7 +154,7 @@ module Spree
 
     def options_and_personalisations_price
       ( line_item_parts.blank? ? 0 : amount_all_parts ) +
-        ( line_item_personalisations.blank? ? 0 : amount_all_personalisations ) 
+        ( line_item_personalisations.blank? ? 0 : amount_all_personalisations )
     end
 
     def amount_all_parts
@@ -235,7 +249,7 @@ module Spree
     def options_value_for(attribute)
       self.line_item_parts.reduce(0.0) do |w, o|
         value = o.variant.send(attribute)
-        if value.blank? 
+        if value.blank?
           Rails.logger.warn("The #{attribute} of variant id: #{o.variant.id} is nil for line_item_part: #{o.id}")
           value = BigDecimal.new(0,2)
         end
@@ -244,7 +258,7 @@ module Spree
     end
 
     def update_inventory
-      #There is a quirk where the after_create hook which run's before after_save is saving the 
+      #There is a quirk where the after_create hook which run's before after_save is saving the
       #line_item in a nested model callback, hence by the time changed? is evaluated it is false
       #if changed?
       Spree::OrderInventory.new(self.order, self).verify(target_shipment)
