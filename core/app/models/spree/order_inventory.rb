@@ -134,7 +134,7 @@ module Spree
           unstock[item.supplier] += item.count
         end
 
-        if order.completed?
+        if order.complete?
           unstock.each do |supplier,count|
             shipment.stock_location.unstock(variant, count, shipment, supplier)
           end
@@ -143,9 +143,10 @@ module Spree
       else
         quantity.times { shipment.set_up_inventory('on_hand', variant, order, line_item) }
 
-      # adding to this shipment, and removing from stock_location
-      if order.completed?
-        shipment.stock_location.unstock(variant, quantity, shipment)
+        # adding to this shipment, and removing from stock_location
+        if order.complete?
+          shipment.stock_location.unstock(variant, quantity, shipment)
+        end
       end
 
       quantity
@@ -175,8 +176,10 @@ module Spree
       shipment.destroy if shipment.inventory_units.count == 0
 
       # removing this from shipment, and adding to stock_location
-      if order.completed?
-        shipment.stock_location.restock variant, removed_quantity, shipment
+      if order.complete?
+        removed.map do |supplier, quantity|
+          shipment.stock_location.restock variant, quantity, shipment, supplier
+        end
       end
 
       removed_quantity

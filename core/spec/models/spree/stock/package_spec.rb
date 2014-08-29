@@ -3,7 +3,7 @@ require 'spec_helper'
 module Spree
   module Stock
     describe Package do
-      let(:variant) { build(:variant, weight: 25.0) }
+      let(:variant) { create(:variant, weight: 25.0) }
       let(:line_item) { build(:line_item, variant: variant) }
       let(:supplier) { create(:supplier)}
       let(:line_item_part) { create(:line_item_part, line_item: line_item)}
