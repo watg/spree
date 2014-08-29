@@ -7,9 +7,14 @@ class Spree::AccountsController < Spree::StoreController
   include Spree::Core::ControllerHelpers
 
   def show
-    if @user.referrer_profile.present?
-      total = @user.referrer_profile.rewards.redeemed.sum(:amount)
-      @redeemed_amount = Spree::Money.new(total, { currency: @user.referrer_profile.currency }).to_html(no_cents: true)
+    if @user.referrer_profile.present?    
+      outcome = Spree::Raf::CalculateApprovedRewardsService.run(
+        user: @user,
+        currency: @user.referrer_profile.currency)
+
+      @redeemable_rewards = outcome.result[:redeemable_rewards]
+      @redeemed_all_rewards = outcome.result[:redeemed_all_rewards]
+      @pending_rewards = outcome.result[:pending_rewards]
     else
       @no_profile = true
     end
@@ -17,10 +22,10 @@ class Spree::AccountsController < Spree::StoreController
 
   private
 
-    def load_object
-      @user ||= try_spree_current_user
-      redirect_to root_path and return unless @user
-      authorize! params[:action].to_sym, @user
-    end
+  def load_object
+    @user ||= try_spree_current_user
+    redirect_to root_path and return unless @user
+    authorize! params[:action].to_sym, @user
+  end
 
 end

@@ -45,4 +45,5 @@
 //= require spree/frontend/spree_raf
 //= require spree/frontend/referral_landing
 //= require spree/frontend/referee_landing
+//= require spree/frontend/reward_landing
 
