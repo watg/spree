@@ -19,5 +19,11 @@ module Spree
       where(name: DEFAULT).first
     end
 
+    def requires_supplier?
+      !is_operational? and
+      !is_digital? and
+      !is_assembly?
+    end
+
   end
 end

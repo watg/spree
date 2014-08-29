@@ -4,19 +4,28 @@ module Spree
       include Common
 
       WATG_LOGO = File.expand_path(File.join(File.dirname(__FILE__), 'images', 'logo-watg-135x99.png')) unless defined?(WATG_LOGO)
-      attr_reader :order, :pdf, :currency
+      attr_reader :order, :pdf, :currency, :errors
 
       def initialize(order, pdf = nil)
         @order = order
         @pdf = pdf || Prawn::Document.new
         @currency = order.currency
-        shipping_manifest = Spree::ShippingManifest.new(order)
-        
-        order_total = shipping_manifest.order_total
-        @unique_products = shipping_manifest.create
-        @terms_of_trade_code = shipping_manifest.terms_of_trade_code
-        @order_display_total = Spree::Money.new(order_total, { currency: @currency })
-        @shipping_cost = shipping_manifest.shipping_cost
+        @errors = []
+
+        shipping_manifest = Spree::ShippingManifestService.run(order: order)
+        if shipping_manifest.valid?
+
+          shipping_cost = shipping_manifest.result[:shipping_costs]
+          @shipping_cost = Spree::Money.new(shipping_cost, { currency: @currency })
+
+          @unique_products = shipping_manifest.result[:unique_products]
+          @terms_of_trade_code = shipping_manifest.result[:terms_of_trade_code]
+          order_total = shipping_manifest.result[:order_total]
+          @order_display_total = Spree::Money.new(order_total, { currency: @currency })
+        else
+          @errors += shipping_manifest.errors
+          return
+        end
       end
 
       def create
@@ -94,9 +103,8 @@ module Spree
           ["Invoice #", order.number ],
           ["Invoice Date", Time.now.strftime("%Y/%m/%d") ],
           ["Order Complete  Date", order.completed_at.strftime("%Y/%m/%d") ],
-          ["Amount Due",   order.display_total.to_s_with_USD ]
+          ["Amount Due", @order_display_total.to_s_with_USD ]
         ]
-
 
         pdf.table(invoice_header_data, :position => invoice_header_x, :width => 215) do
           style(row(0..2).columns(0..1), :padding => [1, 5, 1, 5], :borders => [])
@@ -112,15 +120,15 @@ module Spree
       def invoice_details
         invoice_data = [ [ 'Item', 'Harmonisation Code', 'MID', 'Weight (gr)', 'Price (' + order.currency + ')', 'Qty', 'Total' ] ]
 
-        @unique_products.each do |id, line|
+        @unique_products.map do |line|
           product = line[:product]
           group = line[:group]
           invoice_data << [
-            product_description_cell(product, group),
+            product_description_cell(product, group, line[:country]),
             group.code,
-            mid_cell(product.gang_member, group),
+            line[:mid_code],
             product.weight,
-            money(line[:single_price]),
+            money(line[:total_price] / line[:quantity]),
             line[:quantity],
             money(line[:total_price])
           ]
@@ -180,24 +188,11 @@ module Spree
         Spree::Money.new(amount, { currency: currency }).to_s
       end
 
-      def product_description_cell(product, group)
-        if group.mid_uk.present? && !product.gang_member.peruvian?
-          origin = 'UK'
-        else
-          origin = group.country.try(:name)
-        end
+      def product_description_cell(product, group, country)
         "<b>" + product.name + "</b>" +
         "\n" + group.garment +
-        "\n" + [group.fabric, group.country.try(:name)].join(" - ") + 
+        "\n" + [group.fabric, country.try(:name)].join(" - ") + 
         "\n" + group.contents
-      end
-
-      def mid_cell(gang_member, group)
-        if group.mid_uk.present? && !gang_member.peruvian?
-          group.mid_uk
-        else
-          group.mid
-        end
       end
 
     end

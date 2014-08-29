@@ -8,20 +8,28 @@ module Spree
       def create
         invoke_callbacks(:create, :before)
         @variant = Spree::Variant.new( product_id: @product.id )
-        outcome = Spree::UpdateVariantService.run(variant: @variant, details: params[:variant], prices: params[:prices])
-        if outcome.success?
+        outcome = Spree::UpdateVariantService.run(
+          variant: @variant,
+          details: params[:variant],
+          prices:  params[:prices]
+        )
+        if outcome.valid?
           create_success(@object)
         else
-          create_failed(@object, outcome.errors.message_list.join(', '))
+          create_failed(@object, outcome.errors.full_messages.to_sentence)
         end
       end
 
       def update
-        outcome = Spree::UpdateVariantService.run(variant: @variant, details: params[:variant], prices: params[:prices])
-        if outcome.success?
+        outcome = Spree::UpdateVariantService.run(
+          variant: @variant,
+          details: params[:variant],
+          prices: params[:prices]
+        )
+        if outcome.valid?
           update_success(@variant)
         else
-          update_failed(@variant, outcome.errors.message_list.join(', '))
+          update_failed(@variant, outcome.errors.full_messages.to_sentence)
         end
       end
 

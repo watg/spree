@@ -4,13 +4,13 @@ module Spree
       include Common
 
       WATG_LOGO = File.expand_path(File.join(File.dirname(__FILE__), 'images', 'logo-watg-135x99.png')) unless defined?(WATG_LOGO)
-      CHECKBOX = '|_|'
       attr_reader :order, :pdf, :currency
 
       def initialize(order, pdf = nil)
         @order = order
         @pdf = pdf || Prawn::Document.new
         @currency = order.currency
+        @invoice_services_data = Spree::PackingListService.run(order: order).result
       end
 
       def create(batch_index = nil)
@@ -94,51 +94,15 @@ module Spree
         pdf.table(invoice_header_data, :position => invoice_header_x, :width => 215) do
           style(row(0..2).columns(0..1), :padding => [1, 5, 1, 5], :borders => [])
           style(row(3), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
-          style(column(2), :align => :right)
+          style(column(2), :align => :centre)
           style(row(3).columns(0), :borders => [:top, :left, :bottom])
           style(row(3).columns(1), :borders => [:top, :right, :bottom])
         end
 
         pdf.move_down 45
 
-        invoice_services_data = [ [ 'item', 'sku', 'contents', 'options', 'qty', '' ] ]
-        order.line_items.each do |line|
-          invoice_services_data << [
-            line.variant.product.name,
-            line.variant.sku,
-            '',
-            line.variant.option_values.empty? ? '' : line.variant.options_text,
-            line.quantity,
-            CHECKBOX
-          ]
-          line.parts.each do |p|
 
-            group = p.variant.product.product_group
-            next if group.name == 'knitters needles'
-            next if group.name =~ /sticker/
-
-            invoice_services_data << [
-              '',
-              '',
-              p.variant.name,
-              p.variant.option_values.empty? ? '' : p.variant.options_text,
-              p.quantity,
-              CHECKBOX
-            ]
-          end
-          line.line_item_personalisations.each do |p|
-            invoice_services_data << [
-              '',
-              'personalisation',
-              p.name,
-              p.data_to_text,
-              '',
-              CHECKBOX
-            ]
-          end
-        end
-
-        pdf.table(invoice_services_data, :width => pdf.bounds.width, :cell_style => { :inline_format => true }) do
+        pdf.table(@invoice_services_data, :width => pdf.bounds.width, :cell_style => { :inline_format => true }) do
           style(row(1..-1).columns(0..-1), :padding => [4, 5, 4, 5], :borders => [:bottom], :border_color => 'dddddd')
           style(row(0), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
           style(row(0).columns(0..-1), :borders => [:top, :bottom])

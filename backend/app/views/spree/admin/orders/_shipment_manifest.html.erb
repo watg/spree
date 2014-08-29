@@ -11,9 +11,6 @@
         <%= "(" + variant_options(item.variant) + ")" unless item.variant.option_values.empty? %>
       </strong>
       SKU: <%= item.variant.sku %>
-        <hr />
-        Gang Member Nickname: <%= item.variant.product.gang_member.nickname %>
-      <hr />
 
       <% if item.line_item_parts.required.any? %>
         <h6>Parts:</h6>

@@ -33,10 +33,21 @@
 			<h5 class="reveal-title revealed">Product description</h5>
 			<p class="reveal-content"><%= product.description %></p>
 
-			<% if product.memoized_gang_member_visible? %>
-			<h5 class="reveal-title"><%= image_tag(product.memoized_gang_member_avatar_url, alt: "#{product.memoized_gang_member_nickname} portrait", width: "40", height: "40" ) %> #madeunique <span>by <%= product.memoized_gang_member_nickname%></span></h5>
-			<p class="reveal-content"><%= product.memoized_gang_member_profile %></p>
-			<% end %>
+
+      <h5 class="reveal-title">
+        <% variant.suppliers.each do |supplier| %>
+          <%= image_tag(supplier.avatar.url(:avatar), alt: "#{supplier.nickname} portrait", width: "40", height: "40" ) %>
+        <% end %>
+        #madeunique <span>by <%= variant.suppliers.map(&:nickname).to_sentence%></span>
+      </h5>
+      <p class="reveal-content">
+         <% variant.suppliers.each_with_index do |supplier, i| %>
+           <strong><%= supplier.nickname%></strong>: <%=supplier.profile%>
+           <% if ( i < variant.suppliers.size - 1 ) %>
+             <br/><br/>
+           <% end %>
+         <% end %>
+      </p>
 			
 			<ul class="no-bullet icons-social panel-social">
 				<% [:twitter, :facebook, :pinterest].each do |social| %>
@@ -60,7 +71,7 @@
 	<a href="#">
 		<% url = image_url(variant.memoized_first_image, :product) %>
 		<%= image_tag(variant.placeholder_image, :itemprop => 'image', :class => 'lazy-load', alt: variant.memoized_placeholder_image_alt, :data => { :original => url }) %>
-    <h4><%= variant.display_name_including_options %><br/> by <%= product.memoized_gang_member_nickname %><br/>
+    <h4><%= variant.display_name_including_options %><br/>
       <% if variant.in_sale? %>
         <span class="price was"><%= variant.price_html %></span>
         <span class="price now" itemprop="price"><%= variant.sale_price_html %></span>

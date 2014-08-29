@@ -1,0 +1,27 @@
+  <fieldset>
+    <legend align="center"><%= Spree.t(:last_added_stock_item) %></legend>
+      <table>
+        <colgroup>
+          <col style="width: 30%" />
+          <col style="width: 30%" />
+          <col style="width: 30%" />
+          <col style="width: 10%" />
+        </colgroup>
+        <thead>
+          <th><%= Spree.t(:sku) %></th>
+          <th><%= Spree.t(:sku) %></th>
+          <th><%= Spree.t(:supplier_id) %></th>
+          <th><%= Spree.t(:quantity) %></th>
+        </thead>
+        <tbody>
+          <% item = @product.stock_items.reorder(:updated_at).last %>
+          <tr id="stock-item-<%= item.id %>" class="<%= cycle('odd', 'even', :name => 'stock_locations')%>">
+            <td><strong><%= item.variant.options_text  %></strong></td>
+            <td><strong><%= item.variant.sku %></strong></td>
+            <td><strong><%= item.supplier.permalink if item.supplier %></strong></td>
+            <td><strong><%= item.stock_movements.reorder(:created_at).where('spree_stock_movements.quantity > 0').last.try(:quantity) %></strong></td>
+          </tr>
+        </tbody>
+      </table>
+  </fieldset>
+

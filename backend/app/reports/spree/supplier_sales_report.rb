@@ -6,9 +6,9 @@ module Spree
   order_id
   number
   line_item_id
-  gang_member_firstname
-  gang_member_lastname
-  gang_member_nickname
+  supplier_firstname
+  supplier_lastname
+  supplier_nickname
   created_at
   shipped_at
   completed_at
@@ -48,21 +48,24 @@ module Spree
     end
 
     def retrieve_data
+      completed_line_items( @from, @to ).find_each do |li|
 
-      Spree::Order.where( :state => 'complete', :completed_at => @from..@to ).each do |o| 
-        o.line_items.each do |li|
+        grouped_inventory_units(li).each do |unit|
 
           # A hack incase someone deletes the variant or product
-          variant = Variant.unscoped.find(li.variant_id)
+          variant = Variant.unscoped.find(unit[:variant])
+          supplier = unit[:supplier]
+          quantity = unit[:quantity]
+          order = li.order
 
           if variant.sku.match(/^GANG-/)
 
             shipped_at = ''
-            if !o.shipments.last.shipped_at.blank? 
-              shipped_at = o.shipments.last.shipped_at.to_s(:db)
+            if !order.shipments.last.shipped_at.blank? 
+              shipped_at = order.shipments.last.shipped_at.to_s(:db)
             end
 
-            yield csv_array( li, o, variant, shipped_at )
+            yield csv_array( li, supplier, quantity, order, variant, shipped_at )
 
           end
         end
@@ -70,6 +73,25 @@ module Spree
     end
 
     private
+
+    def grouped_inventory_units(line)
+      grouped = line.inventory_units.group_by do |iu|
+        [ Spree::Variant.unscoped.find_by_id(iu.variant_id), iu.supplier]
+      end
+      grouped.map do |k,v|
+        variant = k[0]
+        supplier = k[1]
+        is_part = ( variant == line.variant )? false : true
+        { variant: variant, supplier: supplier, quantity: v.count, is_part: is_part }
+      end
+    end
+
+    def completed_line_items(from, to)
+      Spree::LineItem.all.merge(
+        Spree::Order.complete.where(:completed_at => from..to)
+      ).references(:order).includes(:order, :variant, inventory_units: [:supplier] )
+    end
+
     def generate_option_types
       Spree::OptionType.all.map do |ot|
         [ ot.name, ot.id ]
@@ -93,14 +115,14 @@ module Spree
       end
     end
 
-    def csv_array(li, o, variant, shipped_at)
+    def csv_array(li, supplier, quantity, o, variant, shipped_at)
       [
-        o.id, 
-        o.number, 
-        li.id, 
-        variant.product.gang_member.firstname,
-        variant.product.gang_member.lastname,
-        variant.product.gang_member.nickname,
+        o.id,
+        o.number,
+        li.id,
+        supplier.firstname,
+        supplier.lastname,
+        supplier.nickname,
         o.created_at.to_s(:db),
         shipped_at,
         o.completed_at.to_s(:db), 
@@ -109,7 +131,7 @@ module Spree
         variant.product.name,
         variant.product.marketing_type.name,
         o.state,
-        li.quantity,
+        quantity,
         li.currency,
         li.normal_price || li.price,
         li.price,
@@ -121,7 +143,7 @@ module Spree
         o.total.to_f, # Over cost
 
         o.email,
-      ] + option_types_for_variant(li.variant) + adjustments(o)
+      ] + option_types_for_variant(variant) + adjustments(o)
 
     end
 

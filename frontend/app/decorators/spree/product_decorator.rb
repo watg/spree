@@ -33,22 +33,6 @@ class Spree::ProductDecorator < Draper::Decorator
     @_memoized_personalisations ||= object.personalisations
   end
   
-  def memoized_gang_member_visible?
-    @_gang_member_visible ||= object.memoized_gang_member.try(:visible?)
-  end
-
-  def memoized_gang_member_avatar_url
-    @_gang_member_avatart_url ||= object.memoized_gang_member.avatar.url(:avatar)
-  end
-
-  def memoized_gang_member_nickname
-    @_gang_member_nickname ||= object.memoized_gang_member.nickname
-  end
-
-  def memoized_gang_member_profile
-    @_gang_member_profile ||= object.memoized_gang_member.profile
-  end
-
   def first_image
     images = context[:target].nil? ? object.variant_images : object.images_for(context[:target])
     images.first if images.any?

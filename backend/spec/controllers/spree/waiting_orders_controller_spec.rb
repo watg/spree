@@ -5,7 +5,7 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
   let(:box_group) { create(:product_group, name: 'box')}
   let(:small_box) { create(:product, product_type: create(:product_type_packaging), individual_sale: false, product_group_id: box_group.id) }
   let(:params) { build_valid_params }
-  let(:outcome)   { OpenStruct.new(:success? => true) }
+  let(:outcome)   { OpenStruct.new(:valid? => true) }
 
   context "#index" do
     it "should load all boxes in the system" do
@@ -85,14 +85,14 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
 
   context "PDF generation" do
     let(:list_of_orders) { [create(:order)] }
-    let(:result)         { double(:result => :pdf, :success? => true) }
+    let(:outcome) { OpenStruct.new(:valid? => true, :result => :pdf) }
     before do
       subject.stub(:load_orders_waiting).and_return( list_of_orders )
     end
 
     [ :invoices, :image_stickers].each do |action|
       it "renders all #{action}" do
-        expect(Spree::BulkOrderPrintingService).to receive(:run).with(pdf: action).and_return(result)
+        expect(Spree::BulkOrderPrintingService).to receive(:run).with(pdf: action).and_return(outcome)
         spree_get action, format: :pdf
         expect(response.body).to eq("pdf")
         expect(response.headers["Content-Type"]).to eq("application/pdf")
@@ -102,7 +102,7 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
 
   end
   context "#create_and_allocate_consignment" do
-    let(:outcome)   { OpenStruct.new(:success? => true, :result => :pdf) }
+    let(:outcome) { OpenStruct.new(:valid? => true, :result => :pdf) }
 
     it "submits order details to metapack" do
       Spree::CreateAndAllocateConsignmentService.should_receive(:run).with(order_id: '1').and_return(outcome)

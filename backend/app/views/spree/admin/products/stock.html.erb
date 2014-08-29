@@ -8,6 +8,7 @@
 
 <div id="add_stock_form">
   <%= render 'add_stock_form' %>
+  <%= render 'last_added_stock' %>
 </div>
 
 <table class="index" id="listing_product_stock">
@@ -46,17 +47,19 @@
           <td colspan="5" class="stock_location_info">
             <table>
               <colgroup>
+                <col style="width: 20%" />
+                <col style="width: 20%" />
                 <col style="width: 10%" />
-                <col style="width: 40%" />
-                <col style="width: 20%" />
-                <col style="width: 20%" />
+                <col style="width: 10%" />
+                <col style="width: 10%" />
                 <col style="width: 10%" />
               </colgroup>
               <thead>
-                <th><%= Spree.t(:sku_to_be_shipped) %></th>
                 <th><%= Spree.t(:stock_location) %></th>
+                <th><%= Spree.t(:supplier) %></th>
+                <th><%= Spree.t(:sku_to_be_shipped) %></th>
                 <th><%= Spree.t(:count_on_hand) %></th>
-                <th><%= Spree.t(:backorderable) %></th>
+                <th><%= Spree.t(:back_order_able) %></th>
                 <th class="actions"></th>
               </thead>
               <tbody>
@@ -64,8 +67,9 @@
                   <% next unless @stock_locations.include?(item.stock_location) %>
 
                   <tr id="stock-item-<%= item.id %>" class="<%= cycle('odd', 'even', :name => 'stock_locations')%>">
-                    <td><%= variant.number_of_shipment_pending %></td>
                     <td><%= item.stock_location.name %></td>
+                    <td><%= item.supplier.name if item.supplier %></td>
+                    <td><%= variant.number_of_shipment_pending(item.supplier) %></td>
                     <td class="align-center"><%= item.count_on_hand %></td>
                     <td class="align-center">
                       <%= form_tag admin_stock_item_path(item), method: :put, class: 'toggle_stock_item_backorderable' do %>

@@ -4,7 +4,8 @@ describe Spree::Stock::Quantifier do
   subject { Spree::Stock::Quantifier }
 
   describe "#can_supply_order?" do
-    let(:order) { create(:order_with_line_items) }
+    let(:order) { create(:order) }
+    let(:line_item) { create(:line_item, order: order) }
 
     it "checks if an order can be supplied" do
       actual_result = subject.can_supply_order?(order)
@@ -15,10 +16,10 @@ describe Spree::Stock::Quantifier do
 
     context "an variant is out of stock" do
       before do
-        order.line_items[0].variant.stock_items[0].set_count_on_hand(0)
-        order.line_items[0].variant.stock_items[0].backorderable = false
-        order.line_items[0].variant.stock_items[0].save
-        order.reload
+        line_item.variant.stock_items[0].set_count_on_hand(0)
+        line_item.variant.stock_items[0].backorderable = false
+        line_item.variant.stock_items[0].save
+        line_item.reload
       end
       it "order can no longer be supplied" do
         actual_result = subject.can_supply_order?(order)

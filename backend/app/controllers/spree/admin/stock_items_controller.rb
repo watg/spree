@@ -14,14 +14,23 @@ module Spree
         variant = Variant.find(params[:variant_id])
         stock_location = StockLocation.find(params[:stock_location_id])
         stock_movement = stock_location.stock_movements.build(stock_movement_params)
-        stock_movement.stock_item = stock_location.set_up_stock_item(variant)
 
-        if stock_movement.save
-          flash[:success] = flash_message_for(stock_movement, :successfully_created)
+        outcome = Spree::StockItemSupplierService.run(
+          variant: variant, 
+          supplier_id: params[:supplier_id]
+        )
+        if outcome.valid?
+          stock_movement.stock_item = stock_location.set_up_stock_item(variant, outcome.result)
+
+          if stock_movement.save
+            flash[:success] = flash_message_for(stock_movement, :successfully_created)
+          else
+            flash[:error] = Spree.t(:could_not_create_stock_movement)
+          end
+
         else
-          flash[:error] = Spree.t(:could_not_create_stock_movement)
+          flash[:error] = outcome.errors.full_messages.to_sentence
         end
-
         redirect_to :back
       end
 

@@ -68,4 +68,16 @@
   <% end %>
 </div>
 
+<% if @product.product_type.requires_supplier? and @variant.new_record? %>
+  <div class="six columns omega">
+  <%= f.field_container :supplier do %>
+    <%= label_tag :supplier_id, Spree.t(:supplier) %>
+  <%= select_tag 'variant[supplier_id]', options_from_collection_for_select(Spree::Supplier.all, :id, :name), :include_blank => true,
+    class: 'select2 fullwidth' %>
+<% end %>
+  </div>
+<% end %>
+
+
+
 <div class="clear"></div>

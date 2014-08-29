@@ -9,6 +9,7 @@
           <%= f.number_field :quantity, class: 'fullwidth', value: 1 %>
         <% end %>
       </div>
+
       <div class="five columns">
         <%= f.field_container :stock_location do %>
           <%= label_tag :stock_location_id, Spree.t(:stock_location) %>
@@ -17,7 +18,17 @@
         <% end %>
       </div>
 
-      <div class="five columns omega">
+      <% if @product.product_type.requires_supplier? %>
+        <div class="five columns omega">
+          <%= f.field_container :supplier do %>
+            <%= label_tag :supplier_id, Spree.t(:supplier) %>
+            <%= select_tag 'supplier_id', options_from_collection_for_select(@suppliers, :id, :name), :include_blank => true,
+              class: 'select2 fullwidth' %>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="five columns alpha">
         <%= f.field_container :variant_id do %>
           <%= label_tag 'variant_id', Spree.t(:variant) %>
           <%= select_tag 'variant_id', options_from_collection_for_select(@variants, :id, :sku_and_options_text),

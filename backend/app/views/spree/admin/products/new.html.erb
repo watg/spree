@@ -53,14 +53,6 @@
         <% end %>
       </div>
       
-      <div class="four columns">
-        <%= f.field_container :gang_member do %>
-          <%= f.label :gang_member_id, "Gang Member" %><span class="required">*</span><br />
-          <%= f.collection_select :gang_member_id, Spree::GangMember.all, :id, :name, {:include_blank => true}, {:class => 'select2 fullwidth gang-member-id'} %>
-          <%= f.error_message_on :gang_member_id %>
-        <% end %>
-      </div>
-
       <div class="omega four columns">
         <%= f.field_container :shipping_category do %>
           <%= f.label :shipping_category_id, Spree.t(:shipping_category) %><span class="required">*</span><br />
@@ -68,7 +60,6 @@
           <%= f.error_message_on :shipping_category_id %>
         <% end %>
       </div>
-
 
       
     </div>

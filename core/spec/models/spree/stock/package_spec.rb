@@ -5,8 +5,13 @@ module Spree
     describe Package do
       let(:variant) { build(:variant, weight: 25.0) }
       let(:line_item) { build(:line_item, variant: variant) }
+      let(:supplier) { create(:supplier)}
+      let(:line_item_part) { create(:line_item_part, line_item: line_item)}
       let(:stock_location) { build(:stock_location) }
       let(:order) { build(:order) }
+
+      let(:other_supplier) { build(:supplier) }
+      let(:other_line_item_part) { build(:line_item_part) }
 
       subject { Package.new(stock_location, order) }
 
@@ -50,6 +55,16 @@ module Spree
         flattened.select { |i| i.state == :backordered }.size.should eq 2
       end
 
+      it 'get flattened contents with optional params supplier and line_item_part' do
+        subject.add line_item, 4, :on_hand, nil, supplier, line_item_part
+        subject.add line_item, 2, :on_hand, nil, other_supplier, other_line_item_part
+        flattened = subject.flattened
+        flattened.select { |i| i.supplier == supplier }.size.should eq 4
+        flattened.select { |i| i.line_item_part == line_item_part }.size.should eq 4
+        flattened.select { |i| i.supplier == other_supplier }.size.should eq 2
+        flattened.select { |i| i.line_item_part == other_line_item_part }.size.should eq 2
+      end
+
       it 'set contents from flattened' do
         flattened = [Package::ContentItem.new(line_item, variant, 1, :on_hand),
                     Package::ContentItem.new(line_item, variant, 1, :on_hand),
@@ -61,6 +76,20 @@ module Spree
         subject.on_hand.first.quantity.should eq 2
 
         subject.backordered.size.should eq 1
+      end
+
+      it 'set contents from flattened with optional params supplier and line_item_part' do
+        flattened = [Package::ContentItem.new(line_item, variant, 1, :on_hand, supplier, line_item_part),
+                    Package::ContentItem.new(line_item, variant, 1, :on_hand, supplier, line_item_part),
+                    Package::ContentItem.new(line_item, variant, 1, :on_hand, other_supplier, other_line_item_part),
+                    Package::ContentItem.new(line_item, variant, 1, :on_hand, other_supplier, other_line_item_part)]
+
+        subject.flattened = flattened
+
+        subject.contents.select { |i| i.supplier == supplier }.size.should eq 2
+        subject.contents.select { |i| i.line_item_part == line_item_part }.size.should eq 2
+        subject.contents.select { |i| i.supplier == other_supplier }.size.should eq 2
+        subject.contents.select { |i| i.line_item_part == other_line_item_part }.size.should eq 2
       end
 
       # Contains regression test for #2804
@@ -91,7 +120,7 @@ module Spree
       end
 
       it "can convert to a shipment" do
-        flattened = [Package::ContentItem.new(line_item, variant, 2, :on_hand),
+        flattened = [Package::ContentItem.new(line_item, variant, 2, :on_hand, supplier, line_item_part),
                     Package::ContentItem.new(line_item, variant, 1, :backordered)]
         subject.flattened = flattened
 
@@ -106,21 +135,44 @@ module Spree
         first_unit = shipment.inventory_units.first
         first_unit.variant.should == variant
         first_unit.state.should == 'on_hand'
+        first_unit.supplier.should == supplier
+        first_unit.line_item_part.should == line_item_part
         first_unit.order.should == subject.order
         first_unit.should be_pending
 
         last_unit = shipment.inventory_units.last
         last_unit.variant.should == variant
         last_unit.state.should == 'backordered'
+        last_unit.supplier.should be_nil
+        last_unit.line_item_part.should be_nil
         last_unit.order.should == subject.order
 
         shipment.shipping_method.should eq shipping_method
       end
 
+      context "add" do
+
+
+        before do
+          subject.add(line_item, 4, :on_hand, variant, supplier, line_item_part)
+        end
+
+        it "creates a content item" do
+          expect(subject.contents.size).to eq 1
+          expect(subject.contents.first.line_item).to eq line_item
+          expect(subject.contents.first.line_item_part).to eq line_item_part
+          expect(subject.contents.first.variant).to eq variant
+          expect(subject.contents.first.quantity).to eq 4
+          expect(subject.contents.first.supplier).to eq supplier
+        end
+
+
+      end
+
       context "line item and variant don't refer same product" do
         let(:other_variant) { build(:variant) }
 
-        before { subject.add(line_item, 4, :on_hand, other_variant) }
+        before { subject.add(line_item, 4, :on_hand, other_variant, supplier, line_item_part) }
 
         it "cant find the item given wrong variant" do
           expect(subject.find_item(variant, :on_hand)).to be_nil
@@ -128,8 +180,20 @@ module Spree
 
         it "finds the item when given proper variant and line item" do
           expect(subject.find_item(other_variant, :on_hand)).to eq subject.contents.last
-          expect(subject.find_item(other_variant, :on_hand, line_item)).to eq subject.contents.last
         end
+
+        it "finds the item when given the correct params" do
+          expect(subject.find_item(other_variant, :on_hand)).to eq subject.contents.last
+          expect(subject.find_item(other_variant, :on_hand, line_item)).to eq subject.contents.last
+          expect(subject.find_item(other_variant, :on_hand, line_item, supplier)).to eq subject.contents.last
+          expect(subject.find_item(other_variant, :on_hand, line_item, supplier, line_item_part)).to eq subject.contents.last
+        end
+
+        it "does not finds the item when given the wrong params" do
+          expect(subject.find_item(other_variant, :on_hand, line_item, other_supplier)).to be_nil
+          expect(subject.find_item(other_variant, :on_hand, line_item, supplier, other_line_item_part)).to be_nil
+        end
+
       end
     end
   end

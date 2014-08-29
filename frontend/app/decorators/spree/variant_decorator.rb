@@ -50,10 +50,6 @@ class Spree::VariantDecorator < Draper::Decorator
     (object.kit_price_in(currency) * 100 * count ).to_i
   end
 
-  def gang_member
-    object.product.memoized_gang_member
-  end
-
   def price
     object.price_normal_in(context[:current_currency])
   end
@@ -159,7 +155,7 @@ class Spree::VariantDecorator < Draper::Decorator
   end
 
   def placeholder_image_alt
-    object.name + ' by ' + gang_member.nickname
+    object.name
   end
 
   def placeholder_thumbnails

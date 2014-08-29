@@ -11,6 +11,7 @@ module Spree
         packages = build_packages
         packages = prioritize_packages(packages)
         packages = estimate_packages(packages)
+        packages
       end
 
       # Build packages as per stock location
@@ -25,7 +26,6 @@ module Spree
       def build_packages(packages = Array.new)
         StockLocation.active.each do |stock_location|
           next unless stock_location.stock_items.where(:variant_id => order.line_items.pluck(:variant_id)).exists?
-
           packer = build_packer(stock_location, order)
           packages += packer.packages
         end
@@ -52,7 +52,6 @@ module Spree
 
       def splitters(stock_location)
         # extension point to return custom splitters for a location
-        # Note this could have been overriden in initializer/spree.rb
         Rails.application.config.spree.stock_splitters
       end
     end

@@ -1,12 +1,10 @@
 module Spree
-  class AddParcelToOrderService < Mutations::Command
+  class AddParcelToOrderService < ActiveInteraction::Base
 
-    required do
-      integer :box_id
-      integer :quantity
-      integer :order_id
-    end
-    
+    integer :box_id
+    integer :quantity
+    integer :order_id
+
     def execute
       return unless verify_quantity(quantity)
       order, box = load_models(order_id, box_id)
@@ -15,7 +13,7 @@ module Spree
       quantity.times { Spree::Parcel.create!(parcel_attrs(box).merge(order_id: order.id)) }
       reduce_stock_for(box, quantity)
     rescue Exception => error
-      add_error(:parcel, :parcel_error, error)
+      errors.add(:parcel, error.inspect)
     end
 
     private
@@ -40,7 +38,7 @@ module Spree
 
     def verify_quantity(quantity)
       if quantity < 0
-        add_error(:quantity, :quantity_cannot_be_negative, "Quantity cannot be negative")
+        errors.add(:quantity, "Quantity cannot be negative")
         return false
       end
       true
@@ -48,7 +46,7 @@ module Spree
 
     def is_addition_allowed?(order)
       if order.metapack_allocated
-        add_error(:allocated, :cannot_add_parcel_to_allocated_order, "Cannot add parcels to allocated order")
+        errors.add(:allocated, "Cannot add parcels to allocated order")
         return false
       end
       true

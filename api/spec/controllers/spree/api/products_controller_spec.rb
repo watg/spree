@@ -16,7 +16,6 @@ module Spree
 
     let(:product_data) do
       { name: "The Other Product",
-		    gang_member_id: product.gang_member.id,
 		    product_group_id: product.product_group.id,
         product_type_id: product_type.id,
         marketing_type_id: marketing_type.id,
@@ -251,7 +250,6 @@ module Spree
         it "can create a new product" do
           api_post :create, :product => { :name => "The Other Product",
                                           :price => 19.99,
-										                      :gang_member_id => product.gang_member.id,
                                           :product_group_id => product.product_group.id,
                                           :shipping_category_id => create(:shipping_category).id,
                                           :product_type_id => product_type.id,
@@ -301,7 +299,6 @@ module Spree
 
         it "creates with shipping categories" do
           hash = { :name => "The Other Product",
-                   :gang_member_id => product.gang_member.id,
                    :product_group_id => product.product_group.id,
                    :product_type_id => product.product_type.id,
                    :marketing_type_id => product.marketing_type.id,
@@ -350,7 +347,7 @@ module Spree
           json_response["error"].should == "Invalid resource. Please fix errors and try again."
           errors = json_response["errors"]
           errors.delete("slug") # Don't care about this one.
-          errors.keys.should =~ ["name", "gang_member", "product_group", "shipping_category_id", "product_type", "marketing_type"]
+          errors.keys.should =~ ["name", "product_group", "shipping_category_id", "product_type", "marketing_type"]
         end
       end
 

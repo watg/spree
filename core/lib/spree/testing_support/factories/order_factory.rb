@@ -2,6 +2,7 @@ FactoryGirl.define do
   factory :order, class: Spree::Order do
     user
     bill_address
+    # do not be tempted to add ship_address, it will break the shipping_spec
     completed_at nil
     email { user.email }
     created_at Time.now
@@ -56,13 +57,15 @@ FactoryGirl.define do
       end
 
       after(:create) do |order, evaluator|
-        create(:shipment, order: order)
-        order.shipments.reload
 
         create_list(:line_item, evaluator.line_items_count, order: order)
         order.line_items.reload
 
+        shipment = create(:shipment, order: order)
+        order.shipments.reload
+
         order.update!
+
       end
 
       factory :completed_order_with_totals do
@@ -79,7 +82,9 @@ FactoryGirl.define do
           after(:create) do |order|
             create(:payment, amount: order.total, order: order, state: 'pending')
             order.shipments.each do |shipment|
-              shipment.inventory_units.each { |u| u.update_column('state', 'on_hand') }
+              shipment.inventory_units.each do |u|
+                u.update_columns(state: 'on_hand', supplier_id: create(:supplier))
+              end
               shipment.update_column('state', 'ready')
             end
             order.reload
@@ -94,15 +99,14 @@ FactoryGirl.define do
             create(:parcel, order: order, box_id: create(:box).id)
             create(:payment, amount: order.total, order: order, state: 'completed')
             order.shipments.each do |shipment|
-              shipment.inventory_units.each { |u| u.update_column('state', 'on_hand') }
+              shipment.inventory_units.each do |u|
+                u.update_columns(state: 'on_hand', supplier_id: create(:supplier))
+              end
               shipment.update_column('state', 'ready')
             end
             order.reload
           end
 
-          factory :allocated_order do
-            metapack_allocated true
-          end
         end
 
         factory :shipped_order do

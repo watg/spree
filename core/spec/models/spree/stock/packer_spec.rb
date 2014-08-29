@@ -3,7 +3,8 @@ require 'spec_helper'
 module Spree
   module Stock
     describe Packer do
-      let!(:order) { create(:order_with_line_items, line_items_count: 5) }
+      let(:number_of_line_items) { 6 }
+      let!(:order) { create(:order_with_line_items, line_items_count: number_of_line_items) }
       let(:stock_location) { create(:stock_location) }
       let(:default_splitters) { Rails.application.config.spree.stock_splitters }
 
@@ -20,7 +21,7 @@ module Spree
         it 'builds an array of packages' do
           packages = subject.packages
           packages.size.should eq 1
-          packages.first.contents.size.should eq 5
+          packages.first.contents.size.should eq number_of_line_items
         end
 
         it 'allows users to set splitters to an empty array' do
@@ -32,16 +33,20 @@ module Spree
       context 'default_package' do
         it 'contains all the items' do
           package = subject.default_package
-          package.contents.size.should eq 5
+          package.contents.size.should eq number_of_line_items
           package.weight.should > 0
         end
 
         it 'variants are added as backordered without enough on_hand' do
-          stock_location.should_receive(:fill_status).exactly(5).times.and_return([2,3])
+          rtn = [
+            [OpenStruct.new( supplier: nil, count: 2 )],
+            [OpenStruct.new( supplier: nil, count: 3 )],
+          ]
+          stock_location.should_receive(:fill_status).exactly(number_of_line_items).times.and_return(rtn)
 
           package = subject.default_package
-          package.on_hand.size.should eq 5
-          package.backordered.size.should eq 5
+          package.on_hand.size.should eq number_of_line_items
+          package.backordered.size.should eq number_of_line_items
         end
 
         context "location doesn't have order items in stock" do
@@ -74,15 +79,16 @@ module Spree
       # the main line item to the inventory units table
       context 'build bundle product package' do
         let!(:parts) { (1..3).map { create(:part, line_item: order.line_items.first) } }
+        let(:number_of_line_items_with_parts) { 1 }
 
         it 'adds all bundle parts to the shipment' do
           package = subject.product_assembly_package
-          package.contents.size.should eq 5 + parts.count
+          package.contents.size.should eq number_of_line_items + parts.count - number_of_line_items_with_parts
         end
 
         context "order has backordered and on hand items" do
           before do
-                        stock_item = stock_location.stock_item(parts.first.variant)
+            stock_item = stock_location.stock_item(parts.first.variant)
             stock_item.adjust_count_on_hand(10)
           end
 
@@ -98,7 +104,7 @@ module Spree
             stock_item = stock_location.stock_item(order.line_items.first)
             
             package = subject.product_assembly_package
-            package.contents.size.should eq 5 + parts.count
+            package.contents.size.should eq number_of_line_items + parts.count - number_of_line_items_with_parts
             package.contents.each {|ci| ci.state.should eq :on_hand}
           end
         end
@@ -111,7 +117,7 @@ module Spree
           
           it 'adds items as backordered' do
             package = subject.product_assembly_package
-            package.contents.size.should eq 5 + parts.count
+            package.contents.size.should eq number_of_line_items + parts.count - number_of_line_items_with_parts
             package.contents.each {|ci| ci.state.should eq :backordered}
           end
         end
@@ -133,7 +139,7 @@ module Spree
           
           it 'adds items as on-hand, not backordered' do
             package = subject.product_assembly_package
-            package.contents.size.should eq 5 + parts.count
+            package.contents.size.should eq number_of_line_items + parts.count - number_of_line_items_with_parts
             package.contents.each {|ci| ci.state.should eq :on_hand}
           end
         end

@@ -1,14 +1,16 @@
 module Spree
-  class CreateAndAllocateConsignmentService < Mutations::Command
 
-    required do
-      integer :order_id
-    end
+ class CreateAndAllocateConsignmentService < ActiveInteraction::Base
+
+    integer :order_id
 
     def execute
       order = Spree::Order.find(order_id)
       return unless valid_consignment?(order)
-      response = Metapack::Client.create_and_allocate_consignment_with_booking_code(allocation_hash(order))
+
+      shipping_manifest = compose(Spree::ShippingManifestService, order: order)
+
+      response = Metapack::Client.create_and_allocate_consignment_with_booking_code(allocation_hash(order, shipping_manifest))
       order.update_attributes!(order_attrs(response))
       update_parcels(order, response[:tracking])
       if order.metapack_allocated
@@ -16,7 +18,7 @@ module Spree
         Metapack::Client.create_labels_as_pdf(response[:metapack_consignment_code])
       else
         msg = "Cannot print Shipping Label for Consignment '#{response[:metapack_consignment_code]}' with status #{response[:metapack_status]}"
-        add_error(:metapack, :metapack_allocation_error, msg)
+        errors.add(:metapack, msg)
       end
 
     rescue Exception => error
@@ -24,13 +26,13 @@ module Spree
       Rails.logger.info error.inspect
       Rails.logger.info error.backtrace
 
-      add_error(:metapack, :metapack_error, error.inspect)
+      errors.add(:metapack, error.inspect)
     end
 
     private
-    def allocation_hash(order)
-      shipping_manifest = Spree::ShippingManifest.new(order)
-      consignment_value = shipping_manifest.order_total
+    def allocation_hash(order, shipping_manifest)
+
+      consignment_value = shipping_manifest[:order_total]
       {
         value:         consignment_value,
         currency:      order.currency,
@@ -38,7 +40,7 @@ module Spree
         weight:        order.weight.round(2),
         max_dimension: order.max_dimension.to_f,
         order_number:  order.number,
-        parcels:       parcel(order, order.parcels, order.weight),
+        parcels:       parcel(order, order.parcels, order.weight, shipping_manifest),
         recipient: {
           address:     address(order.shipping_address),
           phone:       order.shipping_address.phone,
@@ -47,15 +49,15 @@ module Spree
           lastname:    order.shipping_address.lastname,
           name:        order.shipping_address.full_name
         },
-        terms_of_trade_code: shipping_manifest.terms_of_trade_code,
+        terms_of_trade_code: shipping_manifest[:terms_of_trade_code],
         booking_code:  order.shipments.first.shipping_method.metapack_booking_code
       }
     end
 
-    def parcel(order, parcels, total_weight)
+    def parcel(order, parcels, total_weight, shipping_manifest)
       total = parcels.size
       weight = (total_weight / total).round(2)
-      value = (Spree::ShippingManifest.new(order).order_total / total).round(2)
+      value = (shipping_manifest[:order_total] / total).round(2)
       parcels.map.with_index do |p,index|
         {
           reference: p.id,
@@ -64,7 +66,7 @@ module Spree
           depth:  p.depth.to_f,
           width:  p.width.to_f,
           weight: weight.to_f,
-          products: products(order)
+          products: products(shipping_manifest)
         }
       end
     end
@@ -90,12 +92,12 @@ module Spree
 
     def valid_consignment?(order)
       if order.parcels.blank?
-        add_error(:consignment, :cannot_create_consignment, "Order needs at least one parcel to create consignment")
+        errors.add(:consignment, "Order needs at least one parcel to create consignment")
         return false
       end
 
       if order.shipped?
-        add_error(:consignment, :consignment_already_created, "A consignment has already been created")
+        errors.add(:consignment, "A consignment has already been created")
         return false
       end
 
@@ -125,15 +127,16 @@ module Spree
       order.shipments.map(&:ship)
     end
 
-    def products(order)
-      unique_products = Spree::ShippingManifest.new(order).create
+    def products(shipping_manifest)
+      unique_products = shipping_manifest[:unique_products]
 
       # do something about digital , gift_cards
-      unique_products.map do |id, line|
+      unique_products.map do |line|
         product = line[:product]
         group = line[:group]
+        country = line[:country]
         {
-          origin: group.country.iso,
+          origin: country.iso,
           fabric: group.contents,
           harmonisation_code: group.code,
           description: group.fabric,

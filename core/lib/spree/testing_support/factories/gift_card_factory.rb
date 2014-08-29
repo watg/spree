@@ -8,7 +8,7 @@ FactoryGirl.define do
       o = create(:order_with_line_items)
       card.buyer_order_line_item = o.line_items.first
       card.buyer_email = o.email
-      card.buyer_order = o      
+      card.buyer_order = o
     end
   end
 end

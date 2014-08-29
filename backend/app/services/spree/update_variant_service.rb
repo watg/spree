@@ -1,69 +1,42 @@
 module Spree
-  class UpdateVariantService < Mutations::Command
+  class UpdateVariantService < ActiveInteraction::Base
     include ServiceTrait::Prices
-    required do
-      duck :variant#, class: 'Spree::Variant'
-    end
 
-    optional do
-      hash :details do
-        optional do
-          string :sku
-          array :option_value_ids do
-            string
-          end
-          string :tags, empty: true
-          string :target_ids, empty: true
-
-          float :height
-          float :depth
-          float :width
-          float :weight
-          string :label, nils: true, empty: true
-          integer :part_id
-
-          string :track_inventory
-        end
-
-      end
-
-      hash :prices do
-        optional do
-          duck :normal
-          duck :normal_sale
-        end
-
-        optional do
-          duck :part
-          duck :part_sale
-        end
-      end
-    end
+    model :variant, class: 'Spree::Variant'
+    hash :details, strip: false
+    hash :prices, strip: false
 
     def execute
       validate_prices(prices) if prices
-      unless has_errors? 
-        ActiveRecord::Base.transaction do
+      unless errors.any?
 
-          tags = details.delete(:tags)
-          target_ids = details.delete(:target_ids)
+        tags = details.delete(:tags)
+        target_ids = details.delete(:target_ids)
 
-          variant.update_attributes!(details)
+        # Set the supplier, but only on a create and not an update
+        supplier_id = details.delete(:supplier_id)
 
-          update_tags(variant, split_params(tags).map(&:to_i) ) if tags
-          assign_targets(variant, split_params(target_ids).map(&:to_i) ) if target_ids 
-          update_prices(prices, variant) if prices
-
-          variant
+        if variant.new_record?
+          supplier = compose(Spree::StockItemSupplierService, variant: variant, supplier_id: supplier_id.to_s)
+          variant.supplier = supplier
         end
+
+        variant.update_attributes!(details)
+
+        update_tags(variant, split_params(tags).map(&:to_i) ) if tags
+        assign_targets(variant, split_params(target_ids).map(&:to_i) ) if target_ids 
+        update_prices(prices, variant) if prices
+
+        variant
       end
-    rescue Exception => e
-      puts e.backtrace
-      Rails.logger.error "[NewVariantService] #{e.message} -- #{e.backtrace}"
-      add_error(:variant, :exception, e.message)
     end
 
     private
+
+    # Allows us to use the price trait
+    def add_error(first, _second, message)
+      errors.add(first, message)
+    end
 
     def update_tags(variant, tag_ids)
       tags = tag_ids.map do |tag_id|

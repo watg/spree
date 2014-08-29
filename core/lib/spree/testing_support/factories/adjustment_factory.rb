@@ -5,6 +5,12 @@ FactoryGirl.define do
     label 'Shipping'
     association(:source, factory: :tax_rate)
     eligible true
+
+    factory :gift_card_adjustment, class: Spree::Adjustment do
+      label 'gift card'
+      association(:source, factory: :gift_card)
+    end
+
   end
 
   factory :tax_adjustment, class: Spree::Adjustment do

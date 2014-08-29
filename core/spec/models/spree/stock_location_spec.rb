@@ -5,6 +5,7 @@ module Spree
     subject { create(:stock_location_with_items, backorderable_default: true) }
     let(:stock_item) { subject.stock_items.order(:id).first }
     let(:variant) { stock_item.variant }
+    let(:supplier) { create(:supplier) }
 
     it 'creates stock_items for all variants' do
       subject.stock_items.count.should eq Variant.count
@@ -40,6 +41,16 @@ module Spree
             }.to change{ StockItem.count }.by(1)
           end
 
+          context "with supplier" do
+            it "creates a new stock item" do
+              stock_item = nil
+              expect {
+                stock_item = subject.propagate_variant(variant, supplier)
+              }.to change{ StockItem.count }.by(1)
+              expect(stock_item.supplier).to eq supplier
+            end
+          end
+
           context "passes backorderable default config" do
             context "true" do
               before { subject.backorderable_default = true }
@@ -73,52 +84,124 @@ module Spree
               subject.save!
             end
           end
+
         end
       end
     end
 
-    it 'finds a stock_item for a variant' do
-      stock_item = subject.stock_item(variant)
-      stock_item.count_on_hand.should eq 10
-    end
+    context "#stock_item" do
 
-    it 'finds a stock_item for a variant by id' do
-      stock_item = subject.stock_item(variant.id)
-      stock_item.variant.should eq variant
-    end
+      it 'finds a stock_item for a variant' do
+        stock_item = subject.stock_item(variant)
+        stock_item.count_on_hand.should eq 10
+      end
 
-    it 'returns nil when stock_item is not found for variant' do
-      stock_item = subject.stock_item(100)
-      stock_item.should be_nil
-    end
+      it 'finds a stock_item for a variant by id' do
+        stock_item = subject.stock_item(variant.id)
+        stock_item.variant.should eq variant
+      end
 
-    it 'creates a stock_item if not found for a variant' do
-      variant = create(:variant)
-      variant.stock_items.destroy_all
-      variant.save
+      it 'returns nil when stock_item is not found for variant' do
+        stock_item = subject.stock_item(100)
+        stock_item.should be_nil
+      end
 
-      stock_item = subject.stock_item_or_create(variant)
-      stock_item.variant.should eq variant
-    end
+      it 'creates a stock_item if not found for a variant' do
+        variant = create(:variant)
+        variant.stock_items.destroy_all
+        variant.save
 
-    it 'finds a count_on_hand for a variant' do
-       subject.count_on_hand(variant).should eq 10
-    end
+        stock_item = subject.stock_item_or_create(variant)
+        stock_item.variant.should eq variant
+      end
 
-    it 'finds determines if you a variant is backorderable' do
-      subject.backorderable?(variant).should be_true
+      it 'finds a count_on_hand for a variant' do
+        subject.count_on_hand(variant).should eq 10
+      end
+
+      it 'finds determines if you a variant is backorderable' do
+        subject.backorderable?(variant).should be_true
+      end
+
+      context "with supplier" do
+        let(:supplier_2) { create(:supplier) }
+        
+        before do
+          stock_item.supplier = supplier
+          stock_item.save
+        end
+
+        it 'finds a stock_item for a variant and supplier' do
+          stock_item = subject.stock_item(variant, supplier)
+          stock_item.count_on_hand.should eq 10
+        end
+
+        it 'finds a stock_item for variant  and supplier id' do
+          stock_item = subject.stock_item(variant, supplier.id)
+          stock_item.variant.should eq variant
+        end
+
+        it 'returns nil when stock_item is not found for supplier' do
+          stock_item = subject.stock_item(variant, 100)
+          stock_item.should be_nil
+        end
+
+        it 'creates a stock_item if not found for a variant and supplier' do
+          variant = create(:variant)
+          variant.stock_items.destroy_all
+          variant.save
+
+          stock_item = subject.stock_item_or_create(variant, supplier)
+          stock_item.variant.should eq variant
+          stock_item.supplier.should eq supplier
+        end
+
+        # We create 2 x extra stock_items ontop of the existing one that belongs to supplier
+        # supplier: nil ( test whether 
+        context "count_on_hand" do
+          before do
+            si1 = variant.stock_items.create( stock_location: subject, supplier: nil)
+            si1.set_count_on_hand(3)
+            si2 = variant.stock_items.create( stock_location: subject, supplier: supplier_2)
+            si2.set_count_on_hand(2)
+          end
+
+          it 'returns total count inc stock_items without suppliers' do
+            subject.count_on_hand(variant).should eq 15
+          end
+
+          it 'finds a count_on_hand for a variant and supplier' do
+            subject.count_on_hand(variant, supplier).should eq 10
+          end
+        end
+
+        it 'finds determines if you a variant is backorderable' do
+          subject.backorderable?(variant, supplier).should be_true
+        end
+
+      end
+
     end
 
     it 'restocks a variant with a positive stock movement' do
       originator = double
-      subject.should_receive(:move).with(variant, 5, originator)
-      subject.restock(variant, 5, originator)
+      supplier = double
+      subject.should_receive(:move).with(variant, 5, originator, supplier)
+      subject.restock(variant, 5, originator, supplier )
     end
 
-    it 'unstocks a variant with a negative stock movement' do
-      originator = double
-      subject.should_receive(:move).with(variant, -5, originator)
-      subject.unstock(variant, 5, originator)
+    context "unstock" do
+      before { Timecop.freeze }
+      after { Timecop.return }
+
+      it 'unstocks a variant with a negative stock movement' do
+        originator = double
+        supplier = double
+        mock_movement = mock_model(Spree::StockMovement, stock_item: stock_item)
+        stock_item.should_receive(:update_columns).with({last_unstocked_at:  Time.now})
+        subject.should_receive(:move).with(variant, -5, originator, supplier).and_return(mock_movement)
+        subject.unstock(variant, 5, originator, supplier)
+      end
     end
 
     it 'it creates a stock_movement' do
@@ -136,57 +219,137 @@ module Spree
     context 'fill_status' do
       it 'all on_hand with no backordered' do
         on_hand, backordered = subject.fill_status(variant, 5)
-        on_hand.should eq 5
-        backordered.should eq 0
+        on_hand.should eq [Spree::StockLocation::FillStatusItem.new( nil, 5 )]
+        backordered.should eq []
       end
 
       it 'some on_hand with some backordered' do
         on_hand, backordered = subject.fill_status(variant, 20)
-        on_hand.should eq 10
-        backordered.should eq 10
+        on_hand.should eq [Spree::StockLocation::FillStatusItem.new( nil, 10 )]
+        backordered.should eq [Spree::StockLocation::FillStatusItem.new( nil, 10 )]
       end
 
       it 'zero on_hand with all backordered' do
-        zero_stock_item = mock_model(StockItem,
-                                     count_on_hand: 0,
-                                     backorderable?: true)
-        subject.should_receive(:stock_item).with(variant).and_return(zero_stock_item)
+        subject.should_receive(:stock_items_on_hand).with(variant).and_return([])
 
         on_hand, backordered = subject.fill_status(variant, 20)
-        on_hand.should eq 0
-        backordered.should eq 20
+        on_hand.should eq []
+        backordered.should eq [Spree::StockLocation::FillStatusItem.new( nil, 20 )]
+      end
+
+      context 'with supplier' do
+        let(:supplier_2) { create(:supplier) }
+        let(:si_1) {variant.stock_items.create( stock_location: subject, supplier: supplier, backorderable: true, last_unstocked_at: Time.now)}
+        let(:si_2) {variant.stock_items.create( stock_location: subject, supplier: supplier_2, backorderable: false, last_unstocked_at: Time.now.yesterday)}
+
+        before do
+          stock_item.backorderable = false
+          stock_item.last_unstocked_at = Time.now.yesterday
+          stock_item.save
+          stock_item.set_count_on_hand(1)
+          si_1.set_count_on_hand(3)
+          si_2.set_count_on_hand(2)
+        end
+
+        context "all on_hand with no backordered" do
+
+          it "tries to satisfy with the same supplier" do
+            on_hand, backordered = subject.fill_status(variant, 3)
+            on_hand.should eq [
+              Spree::StockLocation::FillStatusItem.new( supplier, 3 ),
+            ]
+            backordered.should eq []
+          end
+
+          it "tries to satisfy with the all suppliers if needed" do
+            on_hand, backordered = subject.fill_status(variant, 6)
+            on_hand.should eq [
+              Spree::StockLocation::FillStatusItem.new( supplier, 3 ),
+              Spree::StockLocation::FillStatusItem.new( supplier_2, 2 ),
+              Spree::StockLocation::FillStatusItem.new( nil, 1 ),
+            ]
+            backordered.should eq []
+          end
+
+          it "tries to satisfy in last unstocked_at order" do
+            on_hand, backordered = subject.fill_status(variant, 2)
+            on_hand.should eq [
+              Spree::StockLocation::FillStatusItem.new( supplier_2, 2 )
+            ]
+            backordered.should eq []
+          end
+
+        end
+
+        context "some on_hand with some backordered" do
+
+          it "tries to satisfy with the all suppliers if needed" do
+            on_hand, backordered = subject.fill_status(variant, 10)
+            on_hand.should eq [
+              Spree::StockLocation::FillStatusItem.new( supplier, 3 ),
+              Spree::StockLocation::FillStatusItem.new( supplier_2, 2 ),
+              Spree::StockLocation::FillStatusItem.new( nil, 1 ),
+            ]
+            backordered.should eq [
+              Spree::StockLocation::FillStatusItem.new( supplier, 4 ),
+            ]
+          end
+
+        end
+
+        context "zero on_hand with all backordered" do
+          before do
+            stock_item.set_count_on_hand(0)
+            si_1.set_count_on_hand(0)
+            si_2.set_count_on_hand(0)
+          end
+
+          it "tries to satisfy with the all suppliers if needed" do
+            on_hand, backordered = subject.fill_status(variant, 10)
+            on_hand.should eq []
+            backordered.should eq [
+              Spree::StockLocation::FillStatusItem.new( supplier, 10 ),
+            ]
+          end
+
+        end
+
       end
 
       context 'when backordering is not allowed' do
         before do
-          @stock_item = mock_model(StockItem, backorderable?: false)
-          subject.should_receive(:stock_item).with(variant).and_return(@stock_item)
+          subject.should_receive(:stock_items_backorderable).with(variant).and_return([])
+          @mock_stock_item = mock_model(StockItem, backorderable?: false, supplier: nil)
         end
 
         it 'all on_hand' do
-          @stock_item.stub(count_on_hand: 10)
+          @mock_stock_item.stub(count_on_hand: 10)
+          subject.stub(stock_items_on_hand: [@mock_stock_item] )
 
           on_hand, backordered = subject.fill_status(variant, 5)
-          on_hand.should eq 5
-          backordered.should eq 0
+          on_hand.should eq [Spree::StockLocation::FillStatusItem.new( nil, 5 )]
+          backordered.should eq []
         end
 
         it 'some on_hand' do
-          @stock_item.stub(count_on_hand: 10)
+          @mock_stock_item.stub(count_on_hand: 10)
+          subject.stub(stock_items_on_hand: [@mock_stock_item] )
 
           on_hand, backordered = subject.fill_status(variant, 20)
-          on_hand.should eq 10
-          backordered.should eq 0
+          on_hand.should eq [Spree::StockLocation::FillStatusItem.new( nil, 10 )]
+          backordered.should eq []
         end
 
         it 'zero on_hand' do
-          @stock_item.stub(count_on_hand: 0)
+          @mock_stock_item.stub(count_on_hand: 0)
+          subject.stub(stock_items_on_hand: [@mock_stock_item] )
 
           on_hand, backordered = subject.fill_status(variant, 20)
-          on_hand.should eq 0
-          backordered.should eq 0
+          on_hand.should eq []
+          backordered.should eq []
         end
       end
+
 
       context 'without stock_items' do
         subject { create(:stock_location) }
@@ -196,8 +359,8 @@ module Spree
           subject
           variant.stock_items.destroy_all
           on_hand, backordered = subject.fill_status(variant, 1)
-          on_hand.should eq 0
-          backordered.should eq 0
+          on_hand.should eq []
+          backordered.should eq []
         end
       end
     end

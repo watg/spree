@@ -179,20 +179,23 @@ module Spree
       !shipped?
     end
 
-    ManifestItem = Struct.new(:line_item, :variant, :quantity, :states)
+    ManifestItem = Struct.new(:line_item, :variant, :supplier, :quantity, :states)
 
     def manifest
       # Grouping by the ID means that we don't have to call out to the association accessor
       # This makes the grouping by faster because it results in less SQL cache hits.
       inventory_units.group_by(&:variant_id).map do |variant_id, units|
         units.group_by(&:line_item_id).map do |line_item_id, units|
+          units.group_by(&:supplier_id).map do |supplier_id, units|
 
-          states = {}
-          units.group_by(&:state).each { |state, iu| states[state] = iu.count }
+            states = {}
+            units.group_by(&:state).each { |state, iu| states[state] = iu.count }
 
-          line_item = units.first.line_item
-          variant = units.first.variant
-          ManifestItem.new(line_item, variant, units.length, states)
+            line_item = units.first.line_item
+            variant = units.first.variant
+            supplier = units.first.supplier
+            ManifestItem.new(line_item, variant, supplier, units.length, states)
+          end
         end
       end.flatten
     end
@@ -272,13 +275,16 @@ module Spree
       package
     end
 
-    def set_up_inventory(state, variant, order, line_item)
-      self.inventory_units.create(
+    def set_up_inventory(state, variant, order, line_item, supplier=nil, line_item_part=nil)
+      create_params = {
         state: state,
         variant_id: variant.id,
         order_id: order.id,
-        line_item_id: line_item.id
-      )
+        line_item_id: line_item.id,
+      }
+      create_params.merge!(supplier_id: supplier.id) if !supplier.nil?
+      create_params.merge!(line_item_part_id: line_item_part.id) if !line_item_part.nil?
+      self.inventory_units.create create_params
     end
 
     def update_amounts
@@ -294,16 +300,16 @@ module Spree
     private
 
       def manifest_unstock(item)
-        stock_location.unstock item.variant, item.quantity, self
+        stock_location.unstock item.variant, item.quantity, self, item.supplier
       end
 
       def manifest_restock(item)
         if item.states["on_hand"].to_i > 0
-         stock_location.restock item.variant, item.states["on_hand"], self
+          stock_location.restock item.variant, item.states["on_hand"], self, item.supplier
         end
 
         if item.states["backordered"].to_i > 0
-          stock_location.restock_backordered item.variant, item.states["backordered"]
+          stock_location.restock_backordered item.variant, item.states["backordered"], item.supplier
         end
       end
 

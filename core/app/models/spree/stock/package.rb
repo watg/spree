@@ -1,7 +1,7 @@
 module Spree
   module Stock
     class Package
-      ContentItem = Struct.new(:line_item, :variant, :quantity, :state)
+      ContentItem = Struct.new(:line_item, :variant, :quantity, :state, :supplier, :line_item_part)
 
       attr_reader :stock_location, :order, :contents
       attr_accessor :shipping_rates
@@ -13,8 +13,8 @@ module Spree
         @shipping_rates = Array.new
       end
 
-      def add(line_item, quantity, state = :on_hand, variant = nil)
-        contents << ContentItem.new(line_item, variant || line_item.variant, quantity, state)
+      def add(line_item, quantity, state = :on_hand, variant = nil, supplier = nil, line_item_part = nil )
+        contents << ContentItem.new(line_item, variant || line_item.variant, quantity, state, supplier, line_item_part)
       end
 
       def weight
@@ -31,11 +31,13 @@ module Spree
 
       # Consider extensions and applications might create a inventory unit
       # where the variant and the line_item might not refer to the same product
-      def find_item(variant, state = :on_hand, line_item = nil)
+      def find_item(variant, state = :on_hand, line_item = nil, supplier = nil, line_item_part = nil)
         contents.select do |item|
           item.variant == variant &&
           item.state == state &&
-          (line_item.nil? || line_item == item.line_item)
+          (line_item.nil? || line_item == item.line_item) &&
+          (supplier.nil? || supplier == item.supplier) &&
+          (line_item_part.nil? || line_item_part == item.line_item_part)
         end.first
       end
 
@@ -58,7 +60,7 @@ module Spree
         flat = []
         contents.each do |item|
           item.quantity.times do
-            flat << ContentItem.new(item.line_item, item.variant, 1, item.state)
+            flat << ContentItem.new(item.line_item, item.variant, 1, item.state, item.supplier, item.line_item_part)
           end
         end
         flat
@@ -67,11 +69,11 @@ module Spree
       def flattened=(flattened)
         contents.clear
         flattened.each do |item|
-          current_item = find_item(item.variant, item.state)
+          current_item = find_item(item.variant, item.state, item.supplier, item.line_item_part)
           if current_item
             current_item.quantity += 1
           else
-            add(item.line_item, item.quantity, item.state)
+            add(item.line_item, item.quantity, item.state, item.variant, item.supplier, item.line_item_part)
           end
         end
       end
@@ -106,7 +108,9 @@ module Spree
           item.quantity.times do |n|
             unit = shipment.inventory_units.build
             unit.pending = true
+            unit.supplier = item.supplier
             unit.order = order
+            unit.line_item_part = item.line_item_part
             unit.variant = item.variant
             unit.line_item = item.line_item
             unit.state = item.state.to_s

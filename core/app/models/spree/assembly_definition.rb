@@ -14,9 +14,9 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
   before_create :set_assembly_product
 
   def selected_variants_out_of_stock
-    Spree::AssemblyDefinitionVariant.joins(:assembly_definition_part, variant: [:stock_items]).
-      where("spree_stock_items.count_on_hand < spree_assembly_definition_parts.count").
-      where("spree_assembly_definition_parts.assembly_definition_id = ?", self.id).inject({}) do |hash,adv| 
+    Spree::AssemblyDefinitionVariant.joins(:assembly_definition_part, :variant).
+      where("spree_variants.in_stock_cache='t'").
+      where("spree_assembly_definition_parts.assembly_definition_id = ?", self.id).inject({}) do |hash,adv|
         hash[adv.assembly_definition_part_id] ||= []
         hash[adv.assembly_definition_part_id] << adv.variant_id
         hash
@@ -24,10 +24,10 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
   end
 
   def selected_variants_out_of_stock_option_values
-    Spree::AssemblyDefinitionVariant.joins(:assembly_definition_part, variant: [:stock_items]).
+    Spree::AssemblyDefinitionVariant.joins(:assembly_definition_part, :variant).
       includes(variant: [:option_values]).
-      where("spree_stock_items.count_on_hand < spree_assembly_definition_parts.count").
-      where("spree_assembly_definition_parts.assembly_definition_id = ?", self.id).inject({}) do |hash,adv| 
+      where("spree_variants.in_stock_cache='t'").
+      where("spree_assembly_definition_parts.assembly_definition_id = ?", self.id).inject({}) do |hash,adv|
         hash[adv.assembly_definition_part_id] ||= []
         hash[adv.assembly_definition_part_id] << adv.variant.option_values.map(&:id)
         hash
@@ -36,7 +36,7 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
 
   private
 
-  def set_assembly_product 
+  def set_assembly_product
     self.assembly_product = self.variant.product
   end
 

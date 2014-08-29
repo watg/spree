@@ -86,7 +86,7 @@ module Spree
         ic:  li.item_sku,
         iv:  li.variant.product.marketing_type.name,
         cu:  li.order.currency,
-        cd2: maker(li.variant)
+        #cd2: maker(li.variant)
       }
     end
 
@@ -103,9 +103,9 @@ module Spree
       }
     end
 
-    def maker(variant)
-      variant.product.gang_member.name
-    end
+    #def maker(variant)
+    #  variant.product.supplier.name
+    #end
 
     def name(adjustment)
       if adjustment.kind_of?(Spree::Promotion::Actions::CreateAdjustment)

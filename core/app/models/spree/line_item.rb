@@ -52,6 +52,11 @@ module Spree
     attr_accessor :options_with_qty
     attr_accessor :target_shipment
 
+    scope :digital, lambda { joins(variant: [ product: [ :product_type ] ] ).merge( Spree::ProductType.where( is_digital: true ) ) }
+    scope :physical, lambda { joins(variant: [ product: [ :product_type ] ] ).merge( Spree::ProductType.where( is_digital: false ) ) }
+
+    scope :operationl, lambda { joins(variant: [ product: [ :product_type ] ] ).merge( Spree::ProductType.where( is_operational: true ) ) }
+    scope :not_operational, lambda { joins(variant: [ product: [ :product_type ] ] ).merge( Spree::ProductType.where( is_operational: false ) ) }
 
     class << self
       def without(line_item)
@@ -229,13 +234,11 @@ module Spree
 
     def options_value_for(attribute)
       self.line_item_parts.reduce(0.0) do |w, o|
-
         value = o.variant.send(attribute)
         if value.blank? 
           Rails.logger.warn("The #{attribute} of variant id: #{o.variant.id} is nil for line_item_part: #{o.id}")
           value = BigDecimal.new(0,2)
         end
-
         w + ( value.to_f * o.quantity )
       end
     end

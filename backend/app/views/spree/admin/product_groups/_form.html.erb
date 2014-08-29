@@ -15,17 +15,9 @@
     <% end %>
   </div>
 
-  <div class="omega four columns">
-    <%= f.field_container :country_id do %>
-      <%= f.label :country_id, "Country of country" %> <span class="required">*</span><br />
-      <%= f.collection_select(:country_id, Spree::Country.all, :id, :name, {},{ :class => 'select2 fullwidth' }) %>
-      <%= f.error_message_on :country_id %>
-    <% end %>
-  </div>
 </div>
 
 <!-- <div class="clear"></div> -->
-
 
 
 <div class="row">
@@ -37,23 +29,6 @@
     <% end %>
   </div>
 
-  <div class="four columns">
-    <%= f.field_container :mid do %>
-      <%= f.label :mid, "MID Code" %> <span class="required">*</span><br />
-      <%= f.text_field :mid, :class => 'fullwidth' %>
-      <%= f.error_message_on :mid %>
-    <% end %>
-  </div>
-
-  <div class="omega four columns">
-    <%= f.field_container :mid_uk do %>
-      <%= f.label :mid_uk, "MID UK Code" %> (for gang made)<br />
-      <%= f.text_field :mid_uk, :class => 'fullwidth' %>
-      <%= f.error_message_on :mid_uk %>
-    <% end %>
-  </div>
-
-  <br><br><br><br><br><br>
 
   <div class="four columns">
     <%= f.field_container :garment do %>

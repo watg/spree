@@ -18,52 +18,84 @@ module Spree
     #
     def verify(shipment = nil)
       if order.completed? || shipment.present?
-        parts_total = line_item.parts.sum(:quantity)
-        if inventory_units.size < (parts_total * line_item.quantity) + line_item.quantity
-          old_quantity = (inventory_units.size == 0) ? 0 : inventory_units.size / (1 + parts_total)
-          quantity_to_add = line_item.quantity - old_quantity
 
-          # Add line item to the shipment
-          shipment = determine_target_shipment unless shipment
-          add_to_shipment(shipment, quantity_to_add)
+        inventory_units = @line_item.inventory_units
 
-          # Add line item parts to the shipment
-          line_item.parts.each do |part|
-            quantity_of_parts_to_add = part.quantity * quantity_to_add
+        if line_item.parts.any?
 
-            self.variant = part.variant
-            shipment = determine_target_shipment unless shipment
-            add_to_shipment(shipment, quantity_of_parts_to_add)
-          end
-        elsif inventory_units.size > (parts_total * line_item.quantity) + line_item.quantity
-          remove(shipment)
+          process_line_item_parts(@line_item, inventory_units, shipment)
+
+        else
+          process_line_item(@line_item, inventory_units, shipment)
+
         end
       end
     end
+
+
+    def process_line_item_parts(line_item, inventory_units, shipment)
+      parts_total = line_item.parts.sum(:quantity)
+
+      old_quantity = (inventory_units.size == 0) ? 0 : inventory_units.size / parts_total
+      quantity_change = line_item.quantity - old_quantity
+
+      if quantity_change > 0
+
+        line_item.parts.each do |part|
+          quantity_of_parts = part.quantity * quantity_change
+
+          # TODO : ARGGGGGGGGGGGGGGGGGGHHHHHHHHHHHHHHHHHHHHHHHHH
+          # This is horrible code, and we must change it at some point
+          self.variant = part.variant
+          shipment = determine_target_shipment unless shipment
+          add_to_shipment(shipment, quantity_of_parts, part)
+
+        end
+
+      elsif quantity_change < 0
+
+        line_item.parts.each do |part|
+          quantity_of_parts = part.quantity * quantity_change
+
+          # TODO : ARGGGGGGGGGGGGGGGGGGHHHHHHHHHHHHHHHHHHHHHHHHH
+          # This is horrible code, and we must change it at some point
+          self.variant = part.variant
+          remove_quantity_from_shipment(shipment, quantity_of_parts * -1 )
+
+        end
+
+      else
+        # do nothing
+      end
+    end
+
+    def process_line_item(line_item, inventory_units, shipment)
+
+      quantity_change = line_item.quantity - inventory_units.size
+
+      if quantity_change > 0
+
+        shipment = determine_target_shipment unless shipment
+        add_to_shipment(shipment, quantity_change)
+
+      elsif quantity_change < 0
+
+        remove_quantity_from_shipment(shipment, quantity_change * -1 )
+
+      else
+        # do nothing
+      end
+
+    end
+
 
     def inventory_units
       line_item.inventory_units
     end
 
     private
-    def remove(shipment = nil)
-      parts_total = line_item.parts.sum(:quantity)
-      old_quantity = (inventory_units.size == 0) ? 0 : inventory_units.size / (1 + parts_total)
-      quantity_to_remove = old_quantity - line_item.quantity
 
-      remove_quantity_from_shipment(quantity_to_remove, shipment)
-
-      line_item.parts.each do |part|
-        quantity_of_parts_to_remove = part.quantity * quantity_to_remove
-
-        self.variant = part.variant
-
-        remove_quantity_from_shipment(quantity_of_parts_to_remove, shipment)
-      
-      end
-    end
-
-    def remove_quantity_from_shipment(quantity, shipment)
+    def remove_quantity_from_shipment(shipment, quantity)
       if shipment.present?
         remove_from_shipment(shipment, quantity)
       else
@@ -88,19 +120,37 @@ module Spree
       end
     end
 
-    def add_to_shipment(shipment, quantity)
-      if variant.should_track_inventory?
-        on_hand, back_order = shipment.stock_location.fill_status(variant, quantity)
+    def add_to_shipment(shipment, quantity, line_item_part=nil)
 
-        on_hand.times { shipment.set_up_inventory('on_hand', variant, order, line_item) }
-        back_order.times { shipment.set_up_inventory('backordered', variant, order, line_item) }
+      if variant.should_track_inventory?
+        on_hand, backordered = shipment.stock_location.fill_status(variant, quantity)
+
+        unstock = {}
+        on_hand.map do |item|
+          item.count.times { shipment.set_up_inventory('on_hand', variant, order, line_item, item.supplier, line_item_part) }
+          unstock[item.supplier] ||= 0
+          unstock[item.supplier] += item.count
+        end
+
+        backordered.map do |item|
+          item.count.times { shipment.set_up_inventory('backordered', variant, order, line_item, item.supplier, line_item_part) }
+          unstock[item.supplier] ||= 0
+          unstock[item.supplier] += item.count
+        end
+
+        if order.completed?
+          unstock.each do |supplier,count|
+            shipment.stock_location.unstock(variant, count, shipment, supplier)
+          end
+        end
+
       else
         quantity.times { shipment.set_up_inventory('on_hand', variant, order, line_item) }
-      end
 
-      # adding to this shipment, and removing from stock_location
-      if order.completed?
-        shipment.stock_location.unstock(variant, quantity, shipment)
+        if order.completed?
+          shipment.stock_location.unstock(variant, quantity, shipment)
+        end
+
       end
 
       quantity
@@ -115,17 +165,25 @@ module Spree
 
       removed_quantity = 0
 
+      removed = {}
+
       shipment_units.each do |inventory_unit|
         break if removed_quantity == quantity
         inventory_unit.destroy
         removed_quantity += 1
+
+        # please note supplier will be nil, if none has been setup
+        removed[inventory_unit.supplier] ||= 0
+        removed[inventory_unit.supplier] += 1
       end
 
       shipment.destroy if shipment.inventory_units.count == 0
 
       # removing this from shipment, and adding to stock_location
       if order.completed?
-        shipment.stock_location.restock variant, removed_quantity, shipment
+        removed.map do |supplier, quantity|
+          shipment.stock_location.restock variant, quantity, shipment, supplier
+        end
       end
 
       removed_quantity

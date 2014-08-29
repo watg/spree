@@ -1,11 +1,9 @@
 module Spree
-  class BulkOrderPrintingService < Mutations::Command
+  class BulkOrderPrintingService < ActiveInteraction::Base
 
     BATCH_SIZE = 25
 
-    required do
-      string :pdf
-    end
+    symbol :pdf
 
     def execute
       return unless valid_pdf_type?(pdf)
@@ -15,7 +13,7 @@ module Spree
     private
     def valid_pdf_type?(pdf)
       if not [:invoices , :image_stickers].include?(pdf.to_sym)
-        add_error(:pdf_name, :unknown_pdf_name, "No defined pdf for #{pdf}")
+        errors.add(:pdf_name, "No defined pdf for #{pdf}")
         return false
       end
       true
@@ -57,7 +55,7 @@ module Spree
 
     def invoices_have_been_printed?
       if not Spree::Order.unprinted_image_stickers.any?
-        add_error(:image_sticker, :image_sticker_cannot_be_printed, "You must print invoices before printing the image stickers")
+        errors.add(:image_sticker, "You must print invoices before printing the image stickers")
         return false
       end
       true

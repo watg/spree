@@ -2,6 +2,8 @@
 require 'spec_helper'
 
 describe Spree::UpdateVariantService do
+  subject { Spree::UpdateVariantService }
+
   let(:product) { create(:product) }
   let(:variant) { create(:variant, product_id: product.id) }
   let(:variant2) { create(:variant, product_id: product.id) }
@@ -28,26 +30,24 @@ describe Spree::UpdateVariantService do
   } }
 
   context "#run" do
-    subject { Spree::UpdateVariantService }
 
     it "should invoke success callback when all is good" do
       outcome = subject.run(variant: variant, details: valid_params, prices: prices)
-
-      expect(outcome.errors).to be_nil
-      expect(outcome).to be_success
+      expect(outcome.valid?).to be_true
     end
 
     it "should invoke failure callback on any error" do
       outcome = subject.run(variant: variant, details: "wrong params!", prices: prices)
-      expect(outcome).not_to be_success
+      expect(outcome.valid?).to be_false
+      expect(outcome.errors.full_messages.to_sentence).to eq 'Details is not a valid hash'
     end
 
     it "should return validate_prices failures" do
       bad_prices = prices.dup
       bad_prices[:normal]['GBP'] = '£0'
       outcome = subject.run(variant: variant, details: valid_params, prices: bad_prices)
-      expect(outcome).not_to be_success
-      expect(outcome.errors.message_list.join(', ')).to eq('amount can not be <= 0 for currency: GBP and normal price')
+      expect(outcome.valid?).to be_false
+      expect(outcome.errors.full_messages.to_sentence).to eq 'Variant amount can not be <= 0 for currency: GBP and normal price'
     end
 
     it "sets the prices on the master" do
@@ -89,12 +89,130 @@ describe Spree::UpdateVariantService do
       params = valid_params.dup
       params[:target_ids] = t.id.to_s
       outcome = subject.run(variant: variant, details: params, prices: prices)
-      expect(outcome.errors).to be_nil
-      expect(outcome).to be_success
+      expect(outcome.valid?).to be_true
       new_ppv = product_page.reload.product_page_variants
       expect(new_ppv).to match_array([ppv])
     end
 
   end
 
+  context "requires a supplier" do
+
+    let(:supplier) { create(:supplier) }
+
+    before { Spree::ProductType.any_instance.stub requires_supplier?: true }
+
+    context "on create" do
+
+      let(:variant) { build(:variant, product_id: product.id) }
+
+      context "with supplier supplied" do
+        before { valid_params.merge!(supplier_id: supplier.id) }
+
+        it "sets the supplier on variant" do
+          outcome = subject.run(variant: variant, details: valid_params, prices: prices)
+          expect(outcome.valid?).to be_true
+          expect(variant.supplier).to eq supplier
+        end
+      end
+
+      context "no supplier supplied" do
+
+        let(:variant) { build(:variant, product_id: product.id) }
+
+        it "provides an error" do
+          outcome = subject.run(variant: variant, details: valid_params, prices: prices)
+          expect(outcome.errors.full_messages.to_sentence).to eq 'Supplier is required'
+        end
+
+      end
+
+    end
+
+    context "on update" do
+
+      context "with supplier supplied" do
+        before { valid_params.merge!(supplier_id: supplier.id) }
+        it "does not set the supplier on variant" do
+          outcome = subject.run(variant: variant, details: valid_params, prices: prices)
+          expect(outcome.valid?).to be_true
+          expect(variant.supplier).to be_nil
+        end
+      end
+
+      context "no supplier supplied" do
+
+        it "does not provide an error" do
+          outcome = subject.run(variant: variant, details: valid_params, prices: prices)
+          expect(outcome.valid?).to be_true
+          expect(variant.supplier).to be_nil
+        end
+
+      end
+
+    end
+
+  end
+
+  context "does not require a supplier" do
+
+    let(:supplier) { create(:supplier) }
+
+    before { Spree::ProductType.any_instance.stub requires_supplier?: false }
+
+    context "on create" do
+
+      let(:variant) { build(:variant, product_id: product.id) }
+
+      context "with supplier supplied" do
+        before { valid_params.merge!(supplier_id: supplier.id) }
+
+        it "sets the supplier on variant" do
+          outcome = subject.run(variant: variant, details: valid_params, prices: prices)
+          expect(outcome.valid?).to be_true
+          expect(variant.supplier).to be_nil
+        end
+      end
+
+      context "no supplier supplied" do
+
+        let(:variant) { build(:variant, product_id: product.id) }
+
+        it "provides an error" do
+          outcome = subject.run(variant: variant, details: valid_params, prices: prices)
+          expect(outcome.valid?).to be_true
+          expect(variant.supplier).to be_nil
+        end
+
+      end
+
+    end
+
+    context "on update" do
+
+      context "with supplier supplied" do
+        before { valid_params.merge!(supplier_id: supplier.id) }
+        it "does not set the supplier on variant" do
+          outcome = subject.run(variant: variant, details: valid_params, prices: prices)
+          expect(outcome.valid?).to be_true
+          expect(variant.supplier).to be_nil
+        end
+      end
+
+      context "no supplier supplied" do
+
+        it "does not provide an error" do
+          outcome = subject.run(variant: variant, details: valid_params, prices: prices)
+          expect(outcome.valid?).to be_true
+          expect(variant.supplier).to be_nil
+        end
+
+      end
+
+    end
+
+  end
+
+
 end
+

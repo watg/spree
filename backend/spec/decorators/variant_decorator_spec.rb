@@ -51,6 +51,25 @@ describe Spree::Admin::VariantDecorator do
       expect(variant.number_of_shipment_pending).to eq 1 
     end
 
+    context "supplier" do
+      let(:supplier) { create(:supplier) }
+
+      before do
+        unit.supplier = supplier
+        unit.save
+      end
+
+      it "take no supplier" do
+        expect(variant.number_of_shipment_pending).to eq 0
+      end
+
+      it "takes into account a supplier" do
+        expect(variant.number_of_shipment_pending(supplier)).to eq 1
+      end
+
+    end
+
+
   end
 
 end

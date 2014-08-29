@@ -14,6 +14,7 @@ module Spree
 
     has_many :stock_items, dependent: :destroy, inverse_of: :variant
     has_many :stock_locations, through: :stock_items
+    has_many :suppliers, through: :stock_items
     has_many :stock_movements
     has_many :displayable_variants
 
@@ -79,6 +80,9 @@ module Spree
     scope :in_stock, lambda { where(in_stock_cache: true) }
 
     NUMBER_PREFIX = 'V'
+
+    # This will be used to setup the first stock item for the variant
+    attr_accessor :supplier
 
 
     def previous
@@ -492,7 +496,9 @@ module Spree
 
     def create_stock_items
       StockLocation.all.each do |stock_location|
-        stock_location.propagate_variant(self) if stock_location.propagate_all_variants?
+        if stock_location.propagate_all_variants?
+          stock_location.propagate_variant(self, supplier)
+        end
       end
     end
 

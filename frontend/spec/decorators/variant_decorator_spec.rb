@@ -10,7 +10,6 @@ describe Spree::VariantDecorator do
   its(:id) { should eq(variant.id) }
   its(:name) { should eq(variant.name) }
   its(:product) { should eq(variant.product) }
-  its(:gang_member) { should eq(variant.product.gang_member) }
 
   let(:women)         { create(:target, name: 'women') }
   let(:product_group) { create(:product_group) }

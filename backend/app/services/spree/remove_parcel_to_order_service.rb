@@ -1,11 +1,9 @@
 module Spree
-  class RemoveParcelToOrderService < Mutations::Command
+  class RemoveParcelToOrderService < ActiveInteraction::Base
 
-    required do
       integer :box_id
       integer :quantity
       integer :order_id
-    end
     
     def execute
       return unless verify_quantity(quantity)
@@ -15,7 +13,7 @@ module Spree
       Spree::Parcel.destroy(order.parcels.map(&:id))
       add_stock_for(box, quantity)
     rescue Exception => error
-      add_error(:parcel, :parcel_error, error)
+      errors.add(:parcel, error.inspect)
     end
 
     private
@@ -30,7 +28,7 @@ module Spree
 
     def verify_quantity(quantity)
       if quantity < 0
-        add_error(:quantity, :quantity_cannot_be_negative, "Quantity cannot be negative")
+        errors.add(:quantity,"Quantity cannot be negative")
         return false
       end
       true
@@ -38,7 +36,7 @@ module Spree
 
     def is_allowed?(order)
       if order.metapack_allocated
-        add_error(:allocated, :cannot_remove_parcel_from_allocated_order, "Cannot remove parcels from allocated order")
+        errors.add(:allocated, "Cannot remove parcels from allocated order")
         return false
       end
       true

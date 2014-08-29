@@ -62,7 +62,7 @@ Spree::Core::Engine.add_routes do
 
       resources :product_groups
 
-      resources :gang_members
+      resources :suppliers
 
       resources :promotions do
         resources :promotion_rules

@@ -57,7 +57,8 @@ module Spree
             expect(line_item.parts.to_a.sum(&:quantity)).to eq 4
             expect(order.line_items.to_a.sum(&:quantity)).to eq 10
 
-            expected_units_on_package = order.line_items.to_a.sum(&:quantity) + (line_item.parts.to_a.sum(&:quantity) * bundle_item_quantity)
+            line_items_without_parts = order.line_items.to_a.sum(&:quantity) - bundle_item_quantity
+            expected_units_on_package = line_items_without_parts + (line_item.parts.to_a.sum(&:quantity) * bundle_item_quantity)
 
             expect(subject.packages.sum(&:quantity)).to eql expected_units_on_package
           end
@@ -76,12 +77,12 @@ module Spree
 
         it "haha" do
           expect(bundle_item_quantity).to eq 1
-          expected_units_on_package = order.line_items.to_a.sum(&:quantity) + (parts.count * bundle_item_quantity)
+          line_items_without_parts = order.line_items.to_a.sum(&:quantity) - bundle_item_quantity
+          expected_units_on_package = line_items_without_parts + (parts.count * bundle_item_quantity)
           expect(subject.packages.sum(&:quantity)).to eql expected_units_on_package
 
         end
       end
-
 
     end
   end

@@ -19,7 +19,7 @@ describe Spree::BulkOrderPrintingService do
     expect(Spree::Order).to receive(:unprinted_invoices).and_return(@unprinted_invoices)
     expect_any_instance_of(Spree::PDF::OrdersPrinter).to receive(:print_invoices_and_packing_lists).and_return(:pdf)
     outcome = subject.run(pdf: :invoices)
-    expect(outcome).to be_success
+    expect(outcome.valid?).to be_true
     expect(outcome.result).to eq(:pdf)
   end
 
@@ -27,7 +27,7 @@ describe Spree::BulkOrderPrintingService do
     expect(Spree::Order).to receive(:unprinted_image_stickers).twice.and_return(@unprinted_invoices)
     expect_any_instance_of(Spree::PDF::OrdersPrinter).to receive(:print_stickers).and_return(:pdf)
     outcome = subject.run(pdf: :image_stickers)
-    expect(outcome).to be_success
+    expect(outcome.valid?).to be_true
     expect(outcome.result).to eq(:pdf)
   end
 

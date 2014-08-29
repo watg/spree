@@ -604,6 +604,20 @@ describe Spree::Variant do
     end
   end
 
+  describe "create_stock_items" do
+
+    let(:variant) { build(:variant) }
+    let(:supplier) { create(:supplier) }
+    before { variant.supplier  = supplier}
+
+    it "should pass the correct params" do
+      expect_any_instance_of(Spree::StockLocation).to receive(:propagate_variant).with(variant, supplier)
+      variant.save
+    end
+  end
+
+
+
   context "Option Values, Targets and Stock" do
     let(:size)     { create(:option_type, name: 'size', position: 2 )}
     let(:big)      { create(:option_value, name: 'big', option_type: size, position: 0) }

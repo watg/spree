@@ -210,7 +210,7 @@ module Spree
 
       it 'ensures_country_id for country fields' do
         [:name, :iso, :iso_name, :iso3].each do |field|
-          address = { :country => { field => country.send(field) }}
+          address = { :country => { field.to_s => country.send(field) }}
           Importer::Order.ensure_country_id_from_params(address)
           address[:country_id].should eq country.id
         end

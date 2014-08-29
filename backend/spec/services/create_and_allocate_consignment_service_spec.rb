@@ -27,7 +27,7 @@ describe Spree::CreateAndAllocateConsignmentService do
 
     context "successfull case" do
       it "service outcome is positive" do
-        expect(@outcome).to be_true
+        expect(@outcome.valid?).to be_true
       end
 
       it "updates order with metapack consignment code" do
@@ -50,13 +50,13 @@ describe Spree::CreateAndAllocateConsignmentService do
       it "cannot create consignment when order has no parcel" do
         order_no_parcel = FactoryGirl.create(:order_ready_to_ship)
         outcome = subject.run(order_id: order_no_parcel.id)
-        expect(outcome.success?).to be_false
+        expect(outcome.valid?).to be_false
       end
 
       it "order is already shipped" do
         shipped_order = FactoryGirl.create(:shipped_order)
         outcome = subject.run(order_id: shipped_order.id)
-        expect(outcome.success?).to be_false
+        expect(outcome.valid?).to be_false
       end
     end
 
@@ -147,12 +147,13 @@ describe Spree::CreateAndAllocateConsignmentService do
         booking_code: '@GLOBALZONE',
       }
 
-      expect(consignment.send(:allocation_hash, order)).to eql(expected)
+      shipping_manifest = Spree::ShippingManifestService.run(order: order )
+      expect(consignment.send(:allocation_hash, order, shipping_manifest.result )).to eql(expected)
 
       order.shipping_address.update_attributes(address2: nil)
       address = { line1: "10 Lovely Street", line2: "Herndon", postcode: "20170", country: "USA" }
       expected[:recipient][:address] = address
-      expect(consignment.send(:allocation_hash, order)).to eql(expected)
+      expect(consignment.send(:allocation_hash, order, shipping_manifest.result )).to eql(expected)
     end
 
   end

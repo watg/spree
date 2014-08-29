@@ -14,7 +14,6 @@ FactoryGirl.define do
     association :product_group, factory: :product_group, strategy: :build
     association :product_type, factory: :product_type, strategy: :build
     association :marketing_type, factory: :marketing_type, strategy: :build
-    association :gang_member, factory: :gang_member, strategy: :build
     shipping_category { |r| Spree::ShippingCategory.first || r.association(:shipping_category) }
 
     # ensure stock item will be created for this products master

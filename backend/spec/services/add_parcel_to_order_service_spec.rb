@@ -10,7 +10,7 @@ describe Spree::AddParcelToOrderService do
 
     it "should invoke success callback when all is good" do
       outcome = subject.run(box_id: small_box.id, quantity: 1, order_id: order.id)
-      expect(outcome).to be_success
+      expect(outcome.valid?).to be_true
     end
 
     it "should add parcel to order" do
@@ -29,17 +29,17 @@ describe Spree::AddParcelToOrderService do
 
     it "should invoke failure callback on wrong quantity" do
       outcome = subject.run(box_id: small_box.id, quantity: -1, order_id: order.id)
-      expect(outcome).not_to be_success
+      expect(outcome.valid?).to be_false
     end
 
     it "should invoke failure callback on wrong box_id" do
       outcome = subject.run(box_id: 99999999, quantity: 1, order_id: order.id)
-      expect(outcome).not_to be_success
+      expect(outcome.valid?).to be_false
     end
 
     it "should invoke failure callback on wrong box_id" do
       outcome = subject.run(box_id: small_box.id, quantity: 1, order_id: 99999999)
-      expect(outcome).not_to be_success
+      expect(outcome.valid?).to be_false
     end
 
     context "stock level control" do
@@ -55,12 +55,12 @@ describe Spree::AddParcelToOrderService do
     end
 
     context "allocated order" do
-      let(:order) { FactoryGirl.create(:allocated_order) }
+      before { order.metapack_allocated = true }
       it "cannot have more parcels" do
         allow(Spree::Order).to receive(:find).and_return(order)
         outcome = subject.run(box_id: small_box.id, quantity: 4, order_id: order.id)
 
-        expect(outcome.success?).to be_false
+        expect(outcome.valid?).to be_false
       end
     end
   end

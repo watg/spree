@@ -1,9 +1,0 @@
-<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @gang_member } %>
-
-<%= form_for [:admin, @gang_member] do |f| %>
-  <fieldset data-hook="admin_gang_member_new_form">
-    <legend align="center"><%= Spree.t(:new_gang_member) %></legend>
-    <%= render :partial => 'form', :locals => { :f => f } %>
-    <%= render :partial => 'spree/admin/shared/new_resource_links' %>
-  </fieldset>
-<% end %>

@@ -6,7 +6,6 @@ describe Spree::Product do
 
   its(:visible_option_types) { should be_blank }
   its(:product_group)        { should be_kind_of(Spree::ProductGroup) }
-  its(:gang_member)          { should be_kind_of(Spree::GangMember) }
 
   context "#not_assembly returns only products with assembly definition or parts" do
     it "with assembly definition; without assembly definition parts" do

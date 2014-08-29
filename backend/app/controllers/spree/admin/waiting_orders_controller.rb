@@ -58,16 +58,16 @@ module Spree
       end
 
       def handle_pdf(outcome, filename)
-        if outcome.success?
+        if outcome.valid?
           send_data outcome.result, disposition: :inline, filename: filename, type: "application/pdf"
         else
-          flash[:error] = outcome.errors.message_list.join('<br/ >')
+          flash[:error] = outcome.errors.full_messages.to_sentence
           redirect_to admin_waiting_orders_url
         end
       end
 
       def handle(outcome)
-        if outcome.success?
+        if outcome.valid?
           respond_to do |format|
             format.html {
               redirect_to admin_waiting_orders_url(q: params[:q])
@@ -77,7 +77,7 @@ module Spree
         else
           respond_to do |format|
             format.html {
-              flash[:error] = outcome.errors.message_list.join('<br/ >')
+              flash[:error] = outcome.errors.full_messages.to_sentence
               redirect_to admin_waiting_orders_url
             }
             format.json { render :json => {success: false}.to_json}

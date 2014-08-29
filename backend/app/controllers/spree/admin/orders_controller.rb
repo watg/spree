@@ -75,10 +75,15 @@ module Spree
       def show
         @order = Order.find_by_number!(params[:id])
         type = (params[:type] or :invoice).to_sym
-        pdf    = get_pdf(@order, type)
-        respond_to do |format|
-          format.pdf do
-            send_data pdf, :filename => "#{type}.pdf",  :type => "application/pdf", disposition: :inline
+        object = get_pdf(@order, type)
+        if object.errors.any?
+
+        else
+          pdf = object.to_pdf
+          respond_to do |format|
+            format.pdf do
+              send_data pdf, :filename => "#{type}.pdf",  :type => "application/pdf", disposition: :inline
+            end
           end
         end
       end
@@ -147,13 +152,13 @@ module Spree
       def get_pdf(order, pdf_type)
         case pdf_type
         when :invoice
-          Spree::PDF::CommercialInvoice.new(order).to_pdf
+          Spree::PDF::CommercialInvoice.new(order)
         when :emergency_invoice
-          Spree::PDF::EmergencyCommercialInvoice.new(order).to_pdf
+          Spree::PDF::EmergencyCommercialInvoice.new(order)
         when :packing_list
-          Spree::PDF::PackingList.new(order).to_pdf
+          Spree::PDF::PackingList.new(order)
         else
-          Spree::PDF::ImageSticker.new(order).to_pdf
+          Spree::PDF::ImageSticker.new(order)
         end
       end
 
