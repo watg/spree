@@ -18,7 +18,7 @@ module Spree
     # along with weighted prices is send to the aggregating method
     # add_to_products
     # Optional and required parts' prices are separetely computed
-    # to arrive at a more accurate allocation of the actual cost 
+    # to arrive at a more accurate allocation of the actual cost
     # of each.
     def gather_order_products
 
@@ -59,13 +59,13 @@ module Spree
     def process_line_item_parts(line, inventory_units)
       products = []
 
-      total_price_of_required_parts = line.parts.required.to_a.sum do |p| 
+      total_price_of_required_parts = line.parts.required.stock_tracking.to_a.sum do |p|
         p.price * p.quantity * line.quantity
       end
       proportion = ( line.base_price * line.quantity ) / total_price_of_required_parts
 
       line.quantity.times do
-        line.parts.each do |part|
+        line.parts.stock_tracking.each do |part|
           part.quantity.times do
 
             index = inventory_units.index{|iu| iu.variant_id == part.variant_id }
