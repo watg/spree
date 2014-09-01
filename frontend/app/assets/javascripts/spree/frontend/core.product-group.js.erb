@@ -219,8 +219,9 @@ core.productGroup.readyLazyLoadImages = function() {
 core.productGroup.readyThumbnailImages = function() {
 	$('.thumbnails a').on('click', function(e) {
 		e.preventDefault();
-		var image = $('.main-image img');
+		var image = $('.main-image img'); // Main image
 		image.attr('src', $(this).attr('href'));
+		image.attr('data-zoomable', $(this).attr('data-original'));
 		$.scrollTo(image, 500, {axis: 'y', easing: 'swing'});
 	});
 }
