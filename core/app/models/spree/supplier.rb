@@ -16,6 +16,8 @@ module Spree
     has_many :variants, -> { uniq }, through: :stock_items
 
     belongs_to :country, class_name: 'Spree::Country'
+    
+    scope :displayable, -> { where(is_displayable: true) }
 
     make_permalink
 

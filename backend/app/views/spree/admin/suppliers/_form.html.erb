@@ -23,6 +23,11 @@
     <%= f.check_box :is_company %>
   <% end %>
 
+  <%= f.field_container :is_displayable do %>
+    <%= f.label :is_displayable, Spree.t(:is_displayable) %>
+    <%= f.check_box :is_displayable %>
+  <% end %>
+
   <%= f.field_container :company_name do %>
     <%= f.label :company_name, Spree.t(:company_name) %>
     <%= f.text_field :company_name, :class => 'fullwidth title' %>
