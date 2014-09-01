@@ -221,10 +221,10 @@ core.productGroup.readyThumbnailImages = function() {
 	$('.thumbnails a').on('click', function(e) {
 		e.preventDefault();
 		var image = $('.main-image img'); // Main image
-		//image.attr('src', $(this).attr('href'));
-		//image.attr('data-zoomable', $(this).attr('data-original'));
-		image.data('elevateZoom').swaptheimage($(this).attr('href'), $(this).attr('data-original'));
+		image.attr('src', $(this).attr('href'));
+		image.attr('data-zoomable', $(this).attr('data-original'));
 		$.scrollTo(image, 500, {axis: 'y', easing: 'swing'});
+		core.readyImageZoom(); // Redo zoomable
 	});
 }
 
