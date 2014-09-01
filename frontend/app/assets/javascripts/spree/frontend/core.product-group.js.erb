@@ -219,9 +219,19 @@ core.productGroup.readyLazyLoadImages = function() {
 core.productGroup.readyThumbnailImages = function() {
 	$('.thumbnails a').on('click', function(e) {
 		e.preventDefault();
-		var image = $('.main-image img'); // Main image
+		var image = $('.main-image:visible img'); // Main image
+		
+		// Kill existing zoom instance
+		$('.zoomContainer').remove();
+		image.removeData('elevateZoom');
+		
+		// Update image
 		image.attr('src', $(this).attr('href'));
-		$('.zoomWindow').css('background-image', $(this).attr('data-original'));
+		image.attr('data-zoomable', $(this).attr('data-original'));
+		
+		// Reinit zoom
+		core.readyImageZoom();
+		
 		$.scrollTo(image, 500, {axis: 'y', easing: 'swing'});
 	});
 }
