@@ -2,9 +2,6 @@ Spree.ready ($) ->
 
   return false unless $("body").hasClass("product-details") # Die if incorrect product page
 
-  # Hack to get the fancybox working, this is really wrong!!! needs fixing
-  $("body").trigger("thumbs_updated")
-
   master_tree =  $('#product-variants').data('tree')
   # A hash to allow us to walk downsream from each of the option types
   # e.g. Colour -> Size -> nil

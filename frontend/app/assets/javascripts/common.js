@@ -3,47 +3,6 @@
 /* Site-wide WATG clientside scripts */
 var WATG = window.WATG || {};
 
-// oMQ breakpoints - see _onmediaquery.scss
-WATG.queries = [
-    {
-        context : 'tiny',
-        match   : function() {
-        	// Kill any Fancybox listeners
-        	//$(document).unbind('click.fb-start');
-        },
-        unmatch : function() {  }
-    },
-    {
-        context : 'small',
-        match   : function() {
-			/*
-			$(".fancybox").fancybox({
-				helpers:  {
-					title:  null
-				}
-			});
-			*/
-        },
-        unmatch : function() {  }
-    }
-];
-
-WATG.checkSlides = function() {
-	// prevent "slide doubling"
-	var $thumbs = $('#thumbnails a');
-	var $main = $('#main-image a');
-    if ($thumbs.length > 0) {
-		$main
-			.removeClass('fancybox').removeAttr('rel')
-			.on('click', function(e) {
-				e.preventDefault();
-				$('#thumbnails a:visible').eq(0).click();
-			});
-	} else {
-		$main.addClass('fancybox').attr('rel', 'product-gallery');
-	}
-};
-
 /* --- Sitewide signup starts --- */
 
 WATG.signup = {
@@ -258,10 +217,7 @@ WATG.referral = {
 /* --- */
 
 // On document ready...
-$(function() {
-
-    oMQ.init(WATG.queries);
-    
+$(function() {    
     // FAQ togglers
     $('.faq-content').hide();
     $('.faq-title').on('click', function() {
@@ -273,31 +229,6 @@ $(function() {
     $('.career-title').on('click', function() {
         $(this).parent().next().slideToggle();
     });
-
-	// JS for old product page
-	// Can be deleted once new page is live (plus called methods)
-	if ($('body').hasClass('product-details')) {
-		// prevent "slide doubling"
-	    WATG.checkSlides();
-    
-	    // If there are NO variants or NO thumbs
-	    if ($('#product-variants').length === 0 || $('#thumbnails a').length === 0) {
-	            $('.fancybox').fancybox({
-	             helpers: {
-	                 title: null
-	             }
-	        });
-	    }
-
-	    $("body").on("thumbs_updated", function(){
-			WATG.checkSlides();
-	        $('#product-images a:visible').fancybox({
-	             helpers:  {
-	                 title:  null
-	             }
-	        });
-	    });
-	}
 
 	// Refer-your-friends competitions
 	if ($('body').hasClass('competition-2014') ||

@@ -217,8 +217,11 @@ core.productGroup.readyLazyLoadImages = function() {
 }
 
 core.productGroup.readyThumbnailImages = function() {
-	$('.fancybox').fancybox({
-		preload: 1
+	$('.thumbnails a').on('click', function(e) {
+		e.preventDefault();
+		var image = $('.main-image img');
+		image.attr('src', $(this).attr('href'));
+		$.scrollTo(image, 500, {axis: 'y', easing: 'swing'});
 	});
 }
 
