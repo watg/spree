@@ -48,6 +48,7 @@ core.productGroup.runVariantMethods = function() {
 	// Kill existing event handlers before reassigning...
 	$('.row-made-by-the-gang').find('*').off();
 	
+	core.readyImageZoom();
 	core.productGroup.readyVariantMenu();
 	core.productGroup.readyVariantMixing();
 	core.productGroup.readyVariantDetails();

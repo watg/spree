@@ -180,6 +180,7 @@ core.readyCarousels = function() {
 // Ready zoomable images
 core.readyImageZoom = function() {
 	$('.zoomable').elevateZoom({
+		responsive: true,
 		zoomType: 'inner',
 		cursor: 'pointer',
 		zoomWindowFadeIn: 500,
