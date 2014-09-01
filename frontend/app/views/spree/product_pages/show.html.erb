@@ -106,7 +106,7 @@
 				<div class="product-images" data-hook="product_images">
 					<div class="main-image" data-hook>
 						<a href="<%= image_url(variant.memoized_first_image,:product) %>" target="_blank" class="fancybox" data-fancybox-group="product-gallery-<%= variant.id %>">
-							<%= image_tag(variant.placeholder_image, :itemprop => 'image', :class => 'lazy-load', :data => { :original => variant.memoized_first_image_url(:product) }) %>		
+							<%= image_tag(variant.placeholder_image, :itemprop => 'image', :class => 'lazy-load zoomable', :data => { :original => variant.memoized_first_image_url(:product), :zoomable => variant.memoized_first_image_url(:original) }) %>
 						</a>
 					</div>
 					<div class="thumbnails" data-hook>
