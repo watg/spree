@@ -893,7 +893,7 @@
 	.thumbnails {
 		margin: 0 0 emCalc(15px);
 		li {
-			margin-right: emCalc(15px);
+			margin: 0 emCalc(15px) emCalc(15px) 0;
 			list-style: none;
 			float: left;
 		}
