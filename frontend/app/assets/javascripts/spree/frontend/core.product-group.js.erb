@@ -46,9 +46,8 @@ core.productGroup.runVariantMethods = function() {
 	$('.loading-text').remove();
 	
 	// Kill existing event handlers before reassigning...
-	$('.row-made-by-the-gang').find('*').off();
+	$('.row-made-by-the-gang').find('*').not('.zoomable').off();
 	
-	core.readyImageZoom();
 	core.productGroup.readyVariantMenu();
 	core.productGroup.readyVariantMixing();
 	core.productGroup.readyVariantDetails();
@@ -222,9 +221,8 @@ core.productGroup.readyThumbnailImages = function() {
 		e.preventDefault();
 		var image = $('.main-image img'); // Main image
 		image.attr('src', $(this).attr('href'));
-		image.attr('data-zoomable', $(this).attr('data-original'));
+		$('.zoomWindow').css('background-image', $(this).attr('data-original'));
 		$.scrollTo(image, 500, {axis: 'y', easing: 'swing'});
-		core.readyImageZoom(); // Redo zoomable
 	});
 }
 

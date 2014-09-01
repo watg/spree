@@ -179,8 +179,6 @@ core.readyCarousels = function() {
 
 // Ready zoomable images
 core.readyImageZoom = function() {
-	core.resetImageZoom(); // Tear down before building up (currently no 'destroy' method in the plugin)
-	
 	$('.zoomable').elevateZoom({
 		responsive: true,
 		zoomType: 'inner',
@@ -188,11 +186,6 @@ core.readyImageZoom = function() {
 		zoomWindowFadeIn: 500,
 		zoomWindowFadeOut: 500
 	});
-}
-
-core.resetImageZoom = function() {
-	$('.zoomable').removeData('elevateZoom');
-	$('.zoomContainer').remove();
 }
 
 // Attach event handler for alpaca attack
