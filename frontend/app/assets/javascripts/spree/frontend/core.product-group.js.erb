@@ -222,15 +222,15 @@ core.productGroup.readyThumbnailImages = function() {
 		var image = $('.main-image:visible img'); // Main image
 		
 		// Kill existing zoom instance
-		$('.zoomContainer').remove();
-		image.removeData('elevateZoom');
+		/*$('.zoomContainer').remove();
+		image.removeData('elevateZoom');*/
 		
 		// Update image
 		image.attr('src', $(this).attr('href'));
 		image.attr('data-zoomable', $(this).attr('data-original'));
 		
 		// Reinit zoom
-		core.readyImageZoom();
+		//core.readyImageZoom();
 		
 		$.scrollTo(image, 500, {axis: 'y', easing: 'swing'});
 	});
