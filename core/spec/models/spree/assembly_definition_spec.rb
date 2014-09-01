@@ -8,10 +8,10 @@ describe Spree::AssemblyDefinition do
 
   context "Stock and Option Values" do
 
-    let(:variant_no_stock)  { create(:variant, option_values: [create(:option_value)], in_stock_cache: true ) }
+    let(:variant_no_stock)  { create(:variant, option_values: [create(:option_value)], in_stock_cache: false ) }
     let(:part1) { Spree::AssemblyDefinitionPart.create(assembly_definition_id: subject.id, product_id: variant_no_stock.product_id, count: 3, displayable_option_type: option_type ) }
 
-    let(:variant) { create(:variant, in_stock_cache: false) }
+    let(:variant) { create(:variant, in_stock_cache: true) }
     let(:part2) { Spree::AssemblyDefinitionPart.create(assembly_definition_id: subject.id, product_id: variant.product_id, count: 1, displayable_option_type: option_type ) }
 
     before do

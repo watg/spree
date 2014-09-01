@@ -6,7 +6,7 @@
 			<h6><%= Spree.t(:shipping_address) %> <%= link_to "(#{Spree.t(:edit)})", checkout_state_path(:address) unless @order.completed? %></h6>
 			<%= render :partial => 'spree/shared/address', :locals => { :address => order.ship_address } %>
 		</div>
-	
+
 		<div class="large-6 columns" data-hook="order-bill-address">
 			<h6><%= Spree.t(:billing_address) %> <%= link_to "(#{Spree.t(:edit)})", checkout_state_path(:address) unless @order.completed? %></h6>
 			<%= render :partial => 'spree/shared/address', :locals => { :address => order.bill_address } %>
@@ -34,7 +34,7 @@
 			<div class="payment-info">
 				<% order.payments.valid.each do |payment| %>
 				<%= render payment %><br/>
-				
+
 				<% end %>
 			</div>
 		</div>
@@ -66,11 +66,11 @@
 					<h4><%= link_to item.variant.product.name, path_to_variant(item, item.variant) %></h4>
 
           <%= item.variant.options_text unless item.variant.option_values.empty? %>
-          <% if item.line_item_parts.required.any? %>
+          <% if item.line_item_parts.required.not_operational.without_subparts.any? %>
             <h6>Parts:</h6>
             <ul class='assembly_parts'>
-              <% item.line_item_parts.required.each do |o| %>
-                <li><%= link_to [o.variant.name, o.variant.options_text].delete_if(&:empty?).join(' -- '), product_path(o.variant.product) %></li>
+              <% item.line_item_parts.required.not_operational.without_subparts.each do |o| %>
+                <li><%= [o.variant.name, o.variant.options_text].delete_if(&:empty?).join(' -- ') %></li>
               <% end %>
             </ul>
           <% end %>
@@ -79,7 +79,7 @@
             <h6>Optional Parts:</h6>
             <ul class='assembly_parts'>
               <% item.line_item_parts.optional.each do |o| %>
-                <li><%= link_to [o.variant.name, o.variant.options_text].delete_if(&:empty?).join(' -- '), product_path(o.variant.product) %></li>
+                <li><%= [o.variant.name, o.variant.options_text].delete_if(&:empty?).join(' -- ') %></li>
               <% end %>
             </ul>
           <% end %>
@@ -109,7 +109,7 @@
 			<td class="total"><span id="order_total"><%= @order.display_total.to_html %></span></td>
 		</tr>
 	</tfoot>
-	
+
 	<% if @order.line_item_adjustments.exists? %>
     <% if order.all_adjustments.promotion.eligible.exists? %>
       <tfoot id="price-adjustments" data-hook="order_details_price_adjustments">

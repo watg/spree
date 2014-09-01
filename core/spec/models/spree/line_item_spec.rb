@@ -319,11 +319,28 @@ describe Spree::LineItem do
       line_item.destroy
     end
 
-    it "destroys it's line_item_parts" do
-      line_item.should_receive(:destroy_line_item_parts)
-      line_item.destroy
+  end
+
+  context "updates bundle product line item" do
+    let(:parts) { (1..2).map { create(:line_item_part) } }
+
+    before do
+      line_item.parts << parts
+      order.create_proposed_shipments
+      order.finalize!
     end
 
+    it "destroys units along with line item" do
+      expect(Spree::OrderInventory.new(line_item.order, line_item).inventory_units).not_to be_empty
+      line_item.destroy_along_with_units
+      expect(Spree::InventoryUnit.where(line_item_id: line_item.id).to_a).to be_empty
+    end
+
+    it "destroys its line_item_parts" do
+      line_item.destroy
+      expect { parts.first.reload }.to raise_error(ActiveRecord::RecordNotFound)
+      expect { parts.last.reload }.to raise_error(ActiveRecord::RecordNotFound)
+    end
   end
 
   context "#save" do

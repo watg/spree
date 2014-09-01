@@ -5,10 +5,10 @@
     <span class="out-of-stock"><%= Spree.t(:out_of_stock) %>&nbsp;&nbsp;<br /></span>
   <% end %>
 
-  <% if line_item.line_item_parts.required.any? %>
+  <% if line_item.line_item_parts.required.not_operational.without_subparts.any? %>
     <h6>Parts:</h6>
     <ul class='assembly_parts'>
-      <% line_item.line_item_parts.required.without_subparts.each do |o| %>
+      <% line_item.line_item_parts.required.not_operational.without_subparts.each do |o| %>
         <li class="line-item-option"><%= "#{[o.variant.name, o.variant.options_text].delete_if(&:empty?).join(' -- ')}" %></li>
       <% end %>
     </ul>

@@ -3,8 +3,8 @@ class Spree::LineItemPart < ActiveRecord::Base
   validates :price, numericality: true
   validates :variant_id, presence: true
 
-  belongs_to :variant
-  belongs_to :line_item, inverse_of: :line_item_parts
+  belongs_to :variant, class_name: "Spree::Variant"
+  belongs_to :line_item, class_name: "Spree::LineItem", inverse_of: :line_item_parts
   belongs_to :parent_part, class_name: "Spree::LineItemPart"
 
   has_many :inventory_units, inverse_of: :line_item_part
@@ -15,6 +15,8 @@ class Spree::LineItemPart < ActiveRecord::Base
   scope :stock_tracking, lambda { where(container: [false, nil]) }
   scope :assembled, lambda { where(assembled: true) }
   scope :without_subparts, lambda { where(parent_part_id: nil) }
+
+  scope :not_operational, lambda { joins(variant: [product: :product_type]).merge(Spree::ProductType.where(is_operational: [nil, false])) }
 
 
   def required?

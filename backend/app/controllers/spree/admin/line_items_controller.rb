@@ -21,17 +21,21 @@ module Spree
         end
       end
 
-      def destroy
-        @line_item.destroy
-        render_order_form
+      def update
+        @line_item.update_attributes(line_item_params)
+        render nothing: true
       end
 
-      def update
-        @line_item.update_attributes(params[:line_item])
-        render_order_form
+      def destroy
+        @line_item.destroy_along_with_units
+        render nothing: true
       end
 
       private
+        def line_item_params
+          params.require(:line_item).permit(permitted_line_item_attributes)
+        end
+
         def render_order_form
           render :partial => 'spree/admin/orders/form', :locals => { :order => @order.reload }
         end

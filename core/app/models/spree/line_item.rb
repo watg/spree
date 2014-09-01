@@ -18,7 +18,7 @@ module Spree
     has_many :line_item_personalisations, dependent: :destroy
     alias personalisations line_item_personalisations
 
-    has_many :line_item_parts
+    has_many :line_item_parts#, dependent: :destroy
     alias parts line_item_parts
 
     before_validation :copy_price
@@ -39,7 +39,15 @@ module Spree
     after_destroy :destroy_line_item_parts
 
     def destroy_line_item_parts
-      self.line_item_parts.destroy
+      self.line_item_parts.destroy_all
+    end
+
+    # Destroy and verify inventory so that units are restocked back to the
+    # stock location
+    def destroy_along_with_units
+      self.quantity = 0
+      OrderInventory.new(self.order, self).verify
+      self.destroy
     end
 
     after_save :update_inventory

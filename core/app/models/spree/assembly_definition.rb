@@ -3,7 +3,7 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
   belongs_to :variant, class_name: "Spree::Variant"
   belongs_to :assembly_product, class_name: "Spree::Product", foreign_key: "assembly_product_id", touch: true
 
-  has_many :assembly_definition_parts,  -> { order(:position) }, dependent: :delete_all, class_name: 'Spree::AssemblyDefinitionPart' 
+  has_many :assembly_definition_parts,  -> { order(:position) }, dependent: :delete_all, class_name: 'Spree::AssemblyDefinitionPart'
   alias_method :parts, :assembly_definition_parts
 
   has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::AssemblyDefinitionImage"
@@ -15,7 +15,7 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
 
   def selected_variants_out_of_stock
     Spree::AssemblyDefinitionVariant.joins(:assembly_definition_part, :variant).
-      where("spree_variants.in_stock_cache='t'").
+      where("spree_variants.in_stock_cache='f'").
       where("spree_assembly_definition_parts.assembly_definition_id = ?", self.id).inject({}) do |hash,adv|
         hash[adv.assembly_definition_part_id] ||= []
         hash[adv.assembly_definition_part_id] << adv.variant_id
@@ -26,7 +26,7 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
   def selected_variants_out_of_stock_option_values
     Spree::AssemblyDefinitionVariant.joins(:assembly_definition_part, :variant).
       includes(variant: [:option_values]).
-      where("spree_variants.in_stock_cache='t'").
+      where("spree_variants.in_stock_cache='f'").
       where("spree_assembly_definition_parts.assembly_definition_id = ?", self.id).inject({}) do |hash,adv|
         hash[adv.assembly_definition_part_id] ||= []
         hash[adv.assembly_definition_part_id] << adv.variant.option_values.map(&:id)

@@ -44,7 +44,18 @@ $(document).ready(function () {
     var quantity = parseInt(save.parents('tr').find('input.line_item_quantity').val());
 
     toggleItemEdit();
-    adjustShipmentItemsByLineItemId(shipment_number, line_item_id, variant_id, quantity);
+
+    $.ajax({
+      type: "PUT",
+      url: $(this).attr("href"),
+      data: { line_item: { quantity: quantity } }
+    }).success(function () {
+      window.location.reload();
+    }).error(function (msg) {
+      console.log(msg);
+    });
+
+    // adjustShipmentItemsByLineItemId(shipment_number, line_item_id, variant_id, quantity);
     return false;
   });
 
@@ -57,8 +68,19 @@ $(document).ready(function () {
       var line_item_id = del.data('line-item-id');
 
       toggleItemEdit();
-      adjustShipmentItemsByLineItemId(shipment_number, line_item_id, variant_id, 0);
+
+      $.ajax({
+        type: "DELETE",
+        url: $(this).attr("href")
+      }).success(function () {
+        window.location.reload();
+      }).error(function (msg) {
+        console.log(msg);
+      });
+
+      // adjustShipmentItemsByLineItemId(shipment_number, line_item_id, variant_id, 0);
     }
+    return false;
   });
 
   // handle ship click
@@ -158,33 +180,37 @@ adjustShipmentItemsByVariantId = function(shipment_number, variant_id, quantity,
     }
 }
 
-adjustShipmentItemsByLineItemId = function(shipment_number, line_item_id, variant_id, quantity){
-    var shipment = _.findWhere(shipments, {number: shipment_number + ''});
-    var inventory_units = _.where(shipment.inventory_units, {line_item_id: line_item_id, variant_id: variant_id});
+// adjustShipmentItemsByLineItemId = function(shipment_number, line_item_id, variant_id, quantity){
+//     var shipment = _.findWhere(shipments, {number: shipment_number + ''});
+//     var inventory_units = _.where(shipment.inventory_units, {line_item_id: line_item_id, variant_id: variant_id});
+//     console.log(inventory_units);
+//     return;
 
-    var url = Spree.routes.orders_api + "/" + order_number + "/shipments/" + shipment_number;
-    var new_quantity = 0;
-    if(inventory_units.length<quantity){
-      url += "/add_by_line_item"
-      new_quantity = (quantity - inventory_units.length);
-    }else if(inventory_units.length>quantity){
-      url += "/remove_by_line_item"
-      new_quantity = (inventory_units.length - quantity);
-    }
-    url += '.json';
+//     var url = Spree.routes.orders_api + "/" + order_number + "/shipments/" + shipment_number;
+//     var new_quantity = 0;
+//     hsh = $(lineItem).data('item-quantity');
 
-    if(new_quantity!=0){
-      $.ajax({
-        type: "PUT",
-        url: Spree.url(url),
-        data: { line_item_id: line_item_id, quantity: new_quantity }
-      }).done(function( msg ) {
-        advanceOrder();
-      }).error(function( msg ) {
-        show_flash('error', msg.responseText);
-      });
-    }
-}
+//     if(inventory_units.length<quantity){
+//       url += "/add_by_line_item"
+//       new_quantity = (quantity - inventory_units.length);
+//     }else if(inventory_units.length>quantity){
+//       url += "/remove_by_line_item"
+//       new_quantity = (inventory_units.length - quantity);
+//     }
+//     url += '.json';
+
+//     if(new_quantity!=0){
+//       $.ajax({
+//         type: "PUT",
+//         url: Spree.url(url),
+//         data: { line_item_id: line_item_id, quantity: new_quantity }
+//       }).done(function( msg ) {
+//         advanceOrder();
+//       }).error(function( msg ) {
+//         show_flash('error', msg.responseText);
+//       });
+//     }
+// }
 
 toggleTrackingEdit = function(){
   var link = $(this);
@@ -330,13 +356,13 @@ selected_variants = function(lineItem) {
   }
   else {
     hsh = {};
-    $.map($('#stock_details').find(':input.part-options'), function(e) { 
-      var i = $(e); 
-      var k= i.data('key'); 
-      if(k != null && k != "undefined"){ hsh[k] = i.val(); } 
+    $.map($('#stock_details').find(':input.part-options'), function(e) {
+      var i = $(e);
+      var k= i.data('key');
+      if(k != null && k != "undefined"){ hsh[k] = i.val(); }
     });
   }
-  
+
   return hsh;
 }
 
