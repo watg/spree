@@ -73,13 +73,11 @@ describe Spree::ProductPage do
   describe "returns available variants" do
     let(:other_target) { create(:target) }
     let(:marketing_type) { create(:marketing_type) }
-    
+
     let!(:product) { create(:product, product_group: product_group, marketing_type: marketing_type) }
     let(:variants) { create_list(:variant, 3, product: product) }
 
     before do
-      subject.made_by_the_gang.marketing_types << marketing_type
-
       variants[0].targets << subject.target
       variants[1].targets << other_target
       subject.displayed_variants << variants[2]
@@ -105,12 +103,12 @@ describe Spree::ProductPage do
       let(:product5) { create(:product_with_stock_and_prices, usd_price: 33.01, gbp_price: 7.49) }
 
       before do
-        sale_price1 = create(:price, sale: true, amount: 1.00, currency: 'GBP', variant: product4.master ) 
+        sale_price1 = create(:price, sale: true, amount: 1.00, currency: 'GBP', variant: product4.master )
         sale_price2 = create(:price, sale: true, amount: 2.00, currency: 'GBP', variant: product5.master )
         product5.master.update_attributes(in_sale: true)
 
         [product1,product2,product3,product4,product5].each do |product|
-          subject.displayed_variants << product.master 
+          subject.displayed_variants << product.master
         end
       end
 
@@ -143,7 +141,10 @@ describe Spree::ProductPage do
     describe "knit your own" do
       it "for knit your own" do
         product = create(:product, product_group: product_group)
-        subject.kit = product
+        tab = subject.knit_your_own
+        tab.product = product
+        tab.save!
+
         variant1 = create(:variant, price: 17.99, currency: "USD", product: product, in_stock_cache: true)
         variant2 = create(:variant, price: 1.99, currency: "USD", product: product, in_stock_cache: false)
         variant3 = create(:variant, price: 18.99, currency: "USD", product: product, in_stock_cache: true)
