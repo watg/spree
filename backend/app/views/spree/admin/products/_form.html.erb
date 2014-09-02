@@ -87,12 +87,6 @@
       <%= f.error_message_on :product_group %>
     <% end %>
 
-    <%= f.field_container :supplier do %>
-      <%= f.label :supplier_id, Spree.t(:supplier) %>
-      <%= f.collection_select(:supplier_id, @suppliers, :id, :name, { :include_blank => Spree.t('match_choices.none') }, { :class => 'select2' }) %>
-      <%= f.error_message_on :supplier %>
-    <% end %>
-
   </div>
 
 
