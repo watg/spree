@@ -1,0 +1,23 @@
+<script type='text/template' id='product_autocomplete_template'>
+  <div class='variant-autocomplete-item'>
+    <figure class='variant-image'>
+      {{#if product.image }}
+        <img src='{{product.image}}' />
+      {{ else }}
+        <img src='<%= image_path("noimage/small.png") %>' />
+      {{/if}}
+    </figure>
+
+    <div class='variant-details'>
+
+      <h6 class="variant-name">{{product.name}}</h6>
+
+      <strong><%= Spree.t(:sku) %>:</strong> {{product.master.sku}}
+      <br>
+      <strong>Marketing Type</strong>: {{product.marketing_type}}
+      <br>
+      <strong>Product Type</strong>: {{product.product_type}}
+
+    </div>
+  </div>
+</script>

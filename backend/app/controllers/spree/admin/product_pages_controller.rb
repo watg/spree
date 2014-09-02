@@ -25,8 +25,8 @@ module Spree
 
       protected
       def product_page_params
-        params.require(:product_page).permit(:name, :title, :permalink, :target_id, :accessories, :tags, :kit_id, :product_group_ids, 
-          :tabs_attributes => [ :id, :marketing_type_ids => [] ])
+        params.require(:product_page).permit(:name, :title, :permalink, :target_id, :accessories, :tags, :kit_id, :product_group_ids,
+          :tabs_attributes => [ :id, :product_id ])
       end
 
       def find_resource

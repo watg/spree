@@ -2,7 +2,12 @@
   <fieldset>
     <legend><%= tab_type(f.object) %></legend>
 
+
     <div class="six columns alpha">
+      <div class="field">
+        <%= f.label :product_id, Spree.t('product_rule.choose_products') %>
+        <%= f.hidden_field :product_id, :class => "product_autocomplete fullwidth" %>
+      </div>
       <div class="dropzone" id="<%= f.object.tab_type %>_image_container">
         <div class="product_page_item_image">
           <%= f.fields_for :image do |image_fields| %>
@@ -15,11 +20,7 @@
         <%= image_fields.hidden_field :_destroy %>
         <%= link_to_with_icon 'icon-trash', "Delete Image", "#", class: "remove_image" %>
       <% end %>
-      
-      <br>
-      <br>
-      <%= f.label :marketing_type_ids, "Marketing Type" %><br>
-      <%= f.select :marketing_type_ids, Spree::MarketingType.all.collect {|x| [x.name, x.id]}, {}, :multiple => true, class: 'select2 fullwidth' %>
+
     </div>
 
   </fieldset>
