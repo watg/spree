@@ -137,20 +137,6 @@ describe Spree::ProductPageDecorator, type: :decorator do
     its(:tags) { should match_array(visible_tag_names) }
   end
 
-  describe "decorated_first_knit_your_own_product_variant" do
-    subject { decorator }
-    let(:kit) { create(:product, product_group: product_group, product_type: create(:product_type_kit)) }
-    let(:men)           { create(:target, name: 'men') }
-    let!(:women_variant) { create(:variant, product: kit, target: women) }
-    let!(:men_variant)   { create(:variant, product: kit, target: men) }
-
-    before :each do
-      product_page.kit = kit
-    end
-
-    its(:decorated_first_knit_your_own_product_variant) { should eq(women_variant) }
-  end
-
   describe "tab banners" do
     let(:tab) { product_page.tabs.first }
     subject { decorator }

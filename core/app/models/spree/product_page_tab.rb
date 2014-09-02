@@ -8,8 +8,11 @@ module Spree
     TYPES = [MADE_BY_THE_GANG, KNIT_YOUR_OWN].map { |ppt| ppt.to_sym }
 
     belongs_to :product_page
+    belongs_to :product, class_name: "Spree::Product"
     has_one :image, as: :viewable, dependent: :destroy, class_name: "Spree::ProductPageTabImage"
-    has_and_belongs_to_many :marketing_types, :join_table => 'spree_product_page_tab_marketing_type'
+
+    # Delete the table at some point
+    # has_and_belongs_to_many :marketing_types, :join_table => 'spree_product_page_tab_marketing_type'
 
     accepts_nested_attributes_for :image, allow_destroy: true
 

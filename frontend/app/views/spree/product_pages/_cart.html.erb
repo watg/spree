@@ -1,0 +1,69 @@
+<% cache [product, product_page_tab, @product_page.target, @product_page.selected_tab, current_currency] do %>
+
+<% target = @product_page.target %>
+<% context = { current_currency: current_currency, target: target } %>
+<% product = product.decorate(context: context) %>
+<% active_class = 'row-' + product_page_tab.url_safe_tab_type + ' ' + @product_page.active_tab(product_page_tab) %>
+
+
+<% if product.assembly_definition %>
+
+  <% variant = product.master.decorate(context: context) %>
+  <div class="displayable-kit-entity row <%= active_class %>">
+
+<% else %>
+
+  <% variant = product.variants_for(target).first.decorate(context: context) %>
+<div class="displayable-entity row <%= active_class %>"
+  data-option-values="<%= variant.option_types_and_values.to_json %>"
+  data-tree="<%= product.memoized_variant_options_tree.to_json  %>"
+  data-option-type-order="<%= product.memoized_option_type_order.to_json %>" >
+
+<% end %>
+
+  <h3>Martin Title</h3>
+  <div class="row">
+    <div class="large-6 small-12 columns">
+      <div class="product-images" data-hook="product_images">
+        <div class="main-image" data-hook>
+          <a href="<%= image_url(variant.memoized_first_image,:product) %>" target="_blank" class="fancybox" data-fancybox-group="product-gallery-<%= variant.id %>">
+            <%= image_tag(variant.placeholder_image, :itemprop => 'image', :class => 'lazy-load zoomable', :data => { :original => variant.memoized_first_image_url(:product), :zoomable => variant.memoized_first_image_url(:original) }) %>
+          </a>
+        </div>
+        <div class="thumbnails" data-hook>
+          <%= render :partial => 'thumbnails', :locals => {:variant => variant, :product => product} %>
+        </div>
+      </div>
+    </div>
+    <div class="large-6 small-12 columns">
+      <h1><%= product.name %></h1>
+
+      <div class="cart-form" data-hook="cart_form">
+        <% if product.assembly_definition %>
+          <%= render :partial => 'cart_kit_form', :locals => {:variant => variant, :product => product, :product_page => @product_page, :product_page_tab => product_page_tab } %>
+        <% else %>
+          <%= render :partial => 'cart_form', :locals => {:variant => variant, :product => product, :product_page => @product_page, :product_page_tab => product_page_tab } %>
+        <% end %>
+      </div>
+
+      <h5 class="reveal-title revealed">Content</h5>
+      <p class="reveal-content"><%= product.clean_description_for(target) %></p>
+
+      <ul class="no-bullet icons-social panel-social">
+        <% [:twitter, :facebook, :pinterest].each do |social| %>
+        <li>
+          <%= link_to("Share with #{social}", @product_page.send("#{social}_url", product_page_tab), target: '_blank', class: social) %>
+        </li>
+        <% end %>
+      </ul>
+
+      <p class="promo-raf">Get your next order for free! <a href="/raf/invite">Find out more</a></p>
+    </div>
+  </div>
+
+  <div class="row row-social">
+    <div class="large-12 columns"></div>
+  </div>
+</div><!-- /row -->
+
+<% end %><!-- /end cache -->

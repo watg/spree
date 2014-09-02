@@ -45,7 +45,7 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
   end
 
   def made_by_the_gang_url
-    if memoized_variant.present? && memoized_variant_in_stock? 
+    if memoized_variant.present? && memoized_variant_in_stock?
       product_page_url("made-by-the-gang", memoized_variant.id)
     else
       product_page_url("made-by-the-gang")
@@ -53,18 +53,18 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
   end
 
   def memoized_variant_in_sale?
-    @_memoized_variant_in_sale ||= memoized_variant.in_sale? 
+    @_memoized_variant_in_sale ||= memoized_variant.in_sale?
   end
 
   def knit_your_own_prices
 
     lowest_price, lowest_sale_price= nil
-    if memoized_product_page.kit.assembly_definition
-      item = object.product_page.kit.master
+    if memoized_product_page.knit_your_own.product.assembly_definition
+      item = object.product_page.knit_your_own.product.master
 
-      lowest_price = item.price_normal_in(current_currency) 
+      lowest_price = item.price_normal_in(current_currency)
       if item.in_sale?
-        lowest_sale_price = item.price_normal_sale_in(current_currency) 
+        lowest_sale_price = item.price_normal_sale_in(current_currency)
       end
     else
         flavour = :knit_your_own
@@ -98,7 +98,7 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
 
     render_prices(lowest_price, lowest_sale_price)
   end
-  
+
   def render_prices(lowest_price, sale_price)
     prefix = 'from'
     if lowest_price
@@ -119,8 +119,8 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
   end
 
   def knit_your_own_link?
-    ( product_page_knit_your_own? &&  memoized_product_page.kit.variants.active(current_currency).in_stock.any?  ) ||
-    ( product_page_knit_your_own? && memoized_product_page.kit.assembly_definition )
+    ( product_page_knit_your_own? && memoized_product_page.knit_your_own.product.variants.active(current_currency).in_stock.any?  ) ||
+    ( product_page_knit_your_own? && memoized_product_page.knit_your_own.product.assembly_definition )
   end
 
   def knit_your_own_url
@@ -132,7 +132,7 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
   end
 
   def product_page_knit_your_own?
-      memoized_product_page.present? && memoized_product_page.kit.present?
+      memoized_product_page.present? && memoized_product_page.knit_your_own.product.present?
   end
 
   def memoized_product_page?

@@ -5,8 +5,6 @@ module Spree
     validates_uniqueness_of :name, :permalink
     validates_presence_of :name, :permalink, :title
 
-    belongs_to :kit, class_name: "Spree::Product", dependent: :destroy
-    
     has_and_belongs_to_many :product_groups, join_table: :spree_product_groups_product_pages
 
     has_many :products, through: :product_groups
@@ -39,7 +37,9 @@ module Spree
 
     # made by the gang selected
     def non_kit_variants_with_target
-      result = products.where(marketing_type_id: made_by_the_gang.marketing_type_ids).map(&:all_variants_or_master).flatten
+      # delete this at some point
+      types = Spree::MarketingType.where.not(name: ['kit', 'parcel', 'sticker', 'unassigned']).pluck(:id)
+      result = products.where(marketing_type_id: types).map(&:all_variants_or_master).flatten
       if self.target_id.present?
         result = result.select {|variant| variant.target_ids.include? self.target_id }
       end
@@ -97,7 +97,7 @@ module Spree
         uniq.
         pluck(:value)
     end
-    
+
     def to_param
       permalink.present? ? permalink.to_s.to_url : name.to_s.to_url
     end
@@ -108,7 +108,7 @@ module Spree
       if flavour == :made_by_the_gang
         displayed_variants.in_stock.active(currency)
       elsif flavour == :knit_your_own
-        kit.variants.in_stock.active(currency)
+        knit_your_own.product.variants.in_stock.active(currency)
       end
     end
 

@@ -8,7 +8,7 @@
 <input id="searchtext" size="25">
 <% end %>
 <br>
-<div id="search_hits"></div>  
+<div id="search_hits"></div>
 
 <%= form_for [:admin, @assembly_definition] do |f| %>
 
@@ -43,10 +43,21 @@
         <% end %>
       </tbody>
     </table>
+  </fieldset>
 
-    <br/>
+  <fieldset>
+    <legend align="center">Main Part</legend>
+    <div class="row">
+      <div class="eft six columns alpha">
+      <%= f.label :main_part_id, "Main Part" %> <span class="required">*</span><br />
+      <%= f.collection_select(:main_part_id, @assembly_definition.parts, :id, :presentation, {},{
+        :class => 'select2 fullwidth'}) %>
+      <%= f.error_message_on :main_part_id %>
+      </div>
+    </div>
+  </fieldset>
 
-
+  <fieldset>
     <legend align="center">Images</legend>
     <div id="uploads_container"></div>
     <script id="template-upload" type="text/x-tmpl">
@@ -56,7 +67,7 @@
       </div>
     </script>
 
-  
+
     <table class="index sortable" data-hook="images_table" data-sortable-link="<%= update_positions_admin_assembly_definition_images_path(@assembly_definition) %>">
       <colgroup>
         <col style="width: 5%">
@@ -118,7 +129,7 @@
          }
     });
   };
-  
+
   activateCheckAll();
 
 
@@ -130,15 +141,15 @@
 
   function search_for_parts(){
     $.ajax({
-     data: {q: $("#searchtext").val() }, 
+     data: {q: $("#searchtext").val() },
      dataType: 'html',
      success: function(request){
        jQuery('#search_hits').html(request);
        $('#search_hits').show();
-     }, 
-     type: 'GET', 
+     },
+     type: 'GET',
      url: '<%= available_supply_products_admin_assembly_definition_url(@assembly_definition) %>'
-    });    
+    });
   }
 
   $("#searchtext").keypress(function (e) {
@@ -172,8 +183,8 @@
         type: method,
         data: post_params,
         dataType: 'script',
-        success: function (data, textStatus) { 
-           spinner.hide(); 
+        success: function (data, textStatus) {
+           spinner.hide();
         }
     });
 
