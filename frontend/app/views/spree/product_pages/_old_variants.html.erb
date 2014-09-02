@@ -1,0 +1,40 @@
+<div class="row row-made-by-the-gang <%= @product_page.made_by_the_gang_active_class %>">
+	<% unless @product_page.accessories? %>
+	<h3>All our #madeunique <%= @product_page.made_unique_title %></h3>
+	<% end %>
+
+	<div class="row">
+		<div class="large-3 push-3 small-6 columns">
+			<ul class="menu-variants no-bullet">
+				<li><a href="#">Filter by price</a>
+					<ul class="no-bullet">
+						<li class="sort" data-sort="data-price" data-order="asc"><a href="#">High to low</a></li>
+						<li class="sort" data-sort="data-price" data-order="desc"><a href="#">Low to high</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<div class="large-3 pull-3 small-6 columns">
+			<% if @product_page.tags? -%>
+			<ul class="menu-variants no-bullet">
+				<li><a href="#">Filter by style</a>
+					<ul class="no-bullet">
+						<li class="filter" data-filter="all"><a href="#">All styles</a></li>
+						<% @product_page.tags.each do |tag| -%>
+						<li class="filter" data-filter="<%= safe_tag(tag) %>"><a href="#"><%= tag %></a></li>
+						<% end -%>
+					</ul>
+				</li>
+			</ul>
+			<% end -%>
+		</div>
+	</div>
+
+	<div class="row">
+		<%= paginate @variants %>
+		<ul class="variants no-bullet">
+			<li class="loading-text">Loading <%= @product_page.made_unique_title %>, just a tick&hellip;</li>
+			<%= render partial: 'variant', :collection => @variants, :as => :variant, :locals => {product_page: @product_page, product_page_tab: @product_page.made_by_the_gang_tab} %>
+		</ul>
+	</div>
+</div><!-- /row -->
