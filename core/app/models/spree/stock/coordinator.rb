@@ -25,7 +25,7 @@ module Spree
       # Returns an array of Package instances
       def build_packages(packages = Array.new)
         StockLocation.active.each do |stock_location|
-          next unless stock_location.stock_items.where(:variant_id => order.line_items.pluck(:variant_id)).exists?
+          next unless has_any_stock_items?(stock_location, order)
           packer = build_packer(stock_location, order)
           packages += packer.packages
         end
@@ -55,6 +55,19 @@ module Spree
         # Note this could have been overriden in initializer/spree.rb
         Rails.application.config.spree.stock_splitters
       end
+
+      # TODO: Adjust the part bit to look for `all` instead of `any`.
+      # Stock location should return true if we can satisfy a complete assembly.
+      def has_any_stock_items?(stock_location, order)
+        order.line_items.detect do |line|
+          if line.parts.any?
+            stock_location.stock_items.where(:variant_id => line.parts.pluck(:variant_id)).exists?
+          else
+            stock_location.stock_items.where(:variant_id => line.variant_id).exists?
+          end
+        end
+      end
+
     end
   end
 end
