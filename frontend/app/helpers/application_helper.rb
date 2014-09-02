@@ -13,7 +13,7 @@ module ApplicationHelper
   end
 
   def tracker_id
-    @tracker_id ||= (YAML.load_file(File.join(Rails.root, 'config/ga.yaml'))[Rails.env])['tracker_id'] 
+    @tracker_id ||= (YAML.load_file(File.join(Rails.root, 'config/ga.yaml'))[Rails.env])['tracker_id']
   end
 
   def production_or_staging?
@@ -21,13 +21,13 @@ module ApplicationHelper
   end
 
   def product_variant_options_path(variant)
-    variant_option_values = variant.option_values.order('option_type_id ASC').map { |ov| ov.name }.join('/')  
+    variant_option_values = variant.option_values.order('option_type_id ASC').map { |ov| ov.name }.join('/')
     params = {
       controller:    'spree/products',
       action:        :show,
       id:            variant.product.slug
     }
-    
+
     "#{url_for(params)}/#{variant_option_values}"
   end
 
@@ -44,9 +44,13 @@ module ApplicationHelper
       tab = Spree::ProductPageTab.unscoped.find_by_id line_item.product_page_tab_id
     end
 
-    safe_tab = ( tab ? tab.url_safe_tab_type : '') 
+    safe_tab = ( tab ? tab.url_safe_tab_type : '')
 
-    spree.product_page_path(id: permalink, tab: safe_tab, variant_id: variant.id)
+    if variant.assembly_definition.present?
+      spree.product_page_path(id: permalink, tab: safe_tab)
+    else
+      spree.product_page_path(id: permalink, tab: safe_tab, variant_id: variant.id)
+    end
   end
 
   def image_url(product,style)
@@ -84,5 +88,5 @@ module ApplicationHelper
     end
   end
 
-  
+
 end
