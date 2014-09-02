@@ -26,8 +26,8 @@ class Spree::ProductPageDecorator < Draper::Decorator
     selector = object.displayed_variants_in_stock
     if selected_variant
       selector = selector.reorder("
-                        spree_variants.id = #{selected_variant.id} desc, 
-                        spree_product_page_variants.position asc, 
+                        spree_variants.id = #{selected_variant.id} desc,
+                        spree_product_page_variants.position asc,
                         spree_product_page_variants.id asc"
                       )
     end
@@ -81,17 +81,17 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def kit_description
-    description = object.kit.description_for(object.target).to_s rescue Spree.t(:product_has_no_description)
+    description = object.knit_your_own.product.description_for(object.target).to_s rescue Spree.t(:product_has_no_description)
     description = description.gsub(/(.*?)\r?\n\r?\n/m, '\1<br><br>')
     description.gsub(/_/, '').gsub(/-/, '&ndash;').html_safe
   end
 
   def kit_name
-    object.kit.name
+    object.knit_your_own.product.name
   end
 
   def knit_your_own_product
-    object.kit
+    object.knit_your_own.product
   end
 
   def knit_your_own_product?
@@ -140,7 +140,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
 
   def hero_data_attributes
     data_attributes = []
-    
+
     if made_by_the_gang_banner?
       data_attributes << %{data-hero-made-by-the-gang="#{made_by_the_gang_banner_url}"}
     end
@@ -190,7 +190,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
                                             :host => h.root_url,
                                             :tab => url_encode_tab_name(tab)) )
   end
-  
+
   def twitter_url(tab=nil)
     "http://twitter.com/intent/tweet?text=Presenting%20#{ h.url_encode(object.title) }%20by%20Wool%20and%20the%20Gang%3A%20#{ url_encoded_product_page_url(tab) }"
   end
@@ -208,14 +208,14 @@ class Spree::ProductPageDecorator < Draper::Decorator
 
     "http://pinterest.com/pin/create/%20button/?url=#{ url_encoded_product_page_url(tab) }&amp;media=#{ url_link }&amp;description=Presenting%20#{ h.url_encode(object.title) }%20by%20Wool%20and%20the%20Gang"
   end
-  
+
   def facebook_image
     url_link =  if made_by_the_gang_banner?
                   made_by_the_gang_banner_url
                 elsif knit_your_own_banner?
                   knit_your_own_banner_url
                 end
-                
+
     "#{ url_link }"
   end
 

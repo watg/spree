@@ -143,9 +143,12 @@ describe Spree::ProductPageDecorator, type: :decorator do
     let(:men)           { create(:target, name: 'men') }
     let!(:women_variant) { create(:variant, product: kit, target: women) }
     let!(:men_variant)   { create(:variant, product: kit, target: men) }
+    let(:tab) { product_page.knit_your_own }
 
     before :each do
-      product_page.kit = kit
+      tab.update_column(:product_id, kit.id)
+      # Running that will product quite a few Tabs ..
+      # d {Spree::ProductPageTab.all.reload.to_a}
     end
 
     its(:decorated_first_knit_your_own_product_variant) { should eq(women_variant) }
