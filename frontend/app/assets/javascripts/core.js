@@ -7,7 +7,6 @@ $(document).ready(function() {
 	core.readyTooltips();
 	core.readyAccordions();
 	core.readyCarousels();
-	core.readyImageZoom();
 	core.showCookieMessage();
 	core.readyAlpacaAttack();
 
@@ -175,17 +174,6 @@ core.readyCarousels = function() {
           target: '+=1'
       });
   }  
-}
-
-// Ready zoomable images
-core.readyImageZoom = function() {
-	/*$('.zoomable').elevateZoom({
-		responsive: true,
-		zoomType: 'inner',
-		cursor: 'pointer',
-		zoomWindowFadeIn: 500,
-		zoomWindowFadeOut: 500
-	});*/
 }
 
 // Attach event handler for alpaca attack

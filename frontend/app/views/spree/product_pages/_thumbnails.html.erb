@@ -3,7 +3,7 @@
   <% if product.assembly_definition %>
     <% product.master.decorate( context: @context ).assembly_definition.images.each do |i| %>
       <li class='tmb-assembly-definition tmb-assembly-definition-<%= variant.id %>' style="display: none;" >
-        <a href="<%= i.attachment.url(:product) %> data-original="<%= i.attachment.url(:original) %>">
+        <a href="<%= i.attachment.url(:product) %>">
          <%= image_tag(i.attachment.url(:mini)) %>
         </a>
       </li>
@@ -12,7 +12,7 @@
 
   <% product.memoized_images.each do |i| %>
   <li class="tmb-all tmb-<%= i.viewable.id %>" style="<%= show_thumb(i, product.master)%>">
-    <a href="<%= i.attachment.url(:product) %>" data-original="<%= i.attachment.url(:original) %>">
+    <a href="<%= i.attachment.url(:product) %>">
       <%= image_tag(variant.placeholder_thumbnails, :class => 'lazy-load', :data => { :original => i.attachment.url(:mini) }) %>
     </a>
   </li>
@@ -20,7 +20,7 @@
  
  <% product.memoized_personalisation_images.each do |i| %>
     <li class="tmb-personalisation tmb-personalisation-<%= i.viewable.id %>" style="<%= show_thumb(i, variant)%>" >
-      <a href="<%= i.attachment.url(:product) %> data-original="<%= i.attachment.url(:original) %>">
+      <a href="<%= i.attachment.url(:product) %>">
         <%= image_tag(variant.placeholder_thumbnails, :class => 'lazy-load', :data => { :original => i.attachment.url(:mini) }) %>
       </a>
     </li>
@@ -30,7 +30,7 @@
     <% product.memoized_variant_images.each do |i| %>
       <% next if product.memoized_images.include?(i) %>
       <li class="vtmb tmb-<%= i.viewable_id %>" style="<%= show_thumb(i, variant)%>">
-        <a href="<%= i.attachment.url(:product) %>" data-original="<%= i.attachment.url(:original) %>">
+        <a href="<%= i.attachment.url(:product) %>">
           <%= image_tag(variant.placeholder_thumbnails, :class => 'lazy-load', :data => { :original => i.attachment.url(:mini) }) %>
         </a>
       </li>

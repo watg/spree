@@ -10,6 +10,7 @@ $(document).ready(function() {
 	core.productGroup.readyRevealContent('knit-your-own');
 	core.productGroup.readyHistoryPlugin();
 	core.productGroup.readySocialWidget();
+	//core.productGroup.readyZoomableImages();
 	core.productGroup.showHeroImage();
 	core.productGroup.showSelectedVariant();
 	core.productGroup.setHeroColour();
@@ -96,6 +97,13 @@ core.productGroup.readySocialWidget = function() {
 	} else {
 		$('.row-social').hide();
 	}
+}
+
+core.productGroup.readyZoomableImages = function() {
+	var images = $('img.zoomable');
+	images.load(function() {
+		core.productGroup.handleZoomableImage($(this));
+	});
 }
 
 // Remove space in Pinterest URL (we add the space to prevent Pinterest skinning the button)
@@ -187,7 +195,9 @@ core.productGroup.readyVariantDetailsClose = function() {
 	$('.close').on('click', function(e) {
 		e.preventDefault();
 		$(this).closest('li').slideUp(500);
-
+		
+		//$('.zoomContainer').remove(); // Kill zoom containers
+		
 		// Update URL
 		var path = core.getUrlPathAsArray();
 		History.replaceState(null, null, '/' + path[1] + '/' + path[2] + '/' + path[3] + '/' + path[4]);
@@ -219,20 +229,9 @@ core.productGroup.readyLazyLoadImages = function() {
 core.productGroup.readyThumbnailImages = function() {
 	$('.thumbnails a').on('click', function(e) {
 		e.preventDefault();
-		var image = $('.main-image:visible img'); // Main image
-		
-		// Kill existing zoom instance
-		/*$('.zoomContainer').remove();
-		image.removeData('elevateZoom');*/
-		
-		// Update image
-		image.attr('src', $(this).attr('href'));
-		image.attr('data-zoomable', $(this).attr('data-original'));
-		
-		// Reinit zoom
-		//core.readyImageZoom();
-		
-		$.scrollTo(image, 500, {axis: 'y', easing: 'swing'});
+		var image = $('.main-image:visible img'); // The visible main image (VMI)
+		image.attr('src', $(this).attr('href')); // Update the VMI
+		$.scrollTo(image, 500, {axis: 'y', easing: 'swing'}); // Scroll to the VMI
 	});
 }
 
@@ -557,4 +556,12 @@ core.productGroup.showLoadingImage = function() {
 
 core.productGroup.hideLoadingImage = function() {
 	$('.loading-image').remove();
+}
+
+core.productGroup.handleZoomableImage = function(image) {
+	if (image.data('elevateZoom')) { // If image already has zoom instance, just change the zoom image...
+		$('.zoomWindowContainer div').stop().css('background-image', 'url(' + image.attr('src').replace('product', 'original') + ')');
+	} else { // Init zoom instance
+		image.elevateZoom({ responsive: true, zoomType: 'inner', cursor: 'crosshair', zoomWindowFadeIn: 250, zoomWindowFadeOut: 250 });
+	}
 }
