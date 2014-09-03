@@ -49,6 +49,14 @@
       <h5 class="reveal-title revealed">Content</h5>
       <p class="reveal-content"><%= product.clean_description_for(target) %></p>
 
+      <% if product.assembly_definition %>
+        <% part = product.assembly_definition.main_part || product.assembly_definition.parts.first %>
+        <%= render 'suppliers', variant: part.variants.first %>
+      <% else %>
+        <%= render 'suppliers', variant: variant %>
+      <% end %>
+
+
       <ul class="no-bullet icons-social panel-social">
         <% [:twitter, :facebook, :pinterest].each do |social| %>
         <li>
