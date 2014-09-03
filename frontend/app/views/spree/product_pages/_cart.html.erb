@@ -50,8 +50,8 @@
       <p class="reveal-content"><%= product.clean_description_for(target) %></p>
 
       <% if product.assembly_definition %>
-        <% part = product.assembly_definition.main_part || product.assembly_definition.parts.first %>
-        <%= render 'suppliers', variant: part.variants.first %>
+        <%# part = product.assembly_definition.main_part || product.assembly_definition.parts.first %>
+        <%#= render 'suppliers', variant: part.variants.first %>
       <% else %>
         <%= render 'suppliers', variant: variant %>
       <% end %>
