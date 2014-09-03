@@ -4,7 +4,7 @@ module Spree
 
     model :variant, class: 'Spree::Variant'
     hash :details, strip: false
-    hash :prices, strip: false
+    hash :prices, strip: false, default: nil
 
     def execute
       validate_prices(prices) if prices
@@ -24,7 +24,7 @@ module Spree
         variant.update_attributes!(details)
 
         update_tags(variant, split_params(tags).map(&:to_i) ) if tags
-        assign_targets(variant, split_params(target_ids).map(&:to_i) ) if target_ids 
+        assign_targets(variant, split_params(target_ids).map(&:to_i) ) if target_ids
         update_prices(prices, variant) if prices
 
         variant

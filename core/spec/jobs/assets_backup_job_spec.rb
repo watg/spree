@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Spree::AssetsBackupJob do
   include WebMock::API
-  
+
   before do
     WebMock.enable!
     ENV['AWS_SECRET_ACCESS_KEY'] = 'FAKE_SECRET'
@@ -13,9 +13,10 @@ describe Spree::AssetsBackupJob do
   its(:source)        { should match_array(['bucket1', 'bucket2']) }
   its(:destination)   { should eq 'dest-buck'}
 
-  it "performs without error" do
-    expect { subject.perform }.to_not raise_error
-  end
+  # removing the most annoying spec output ever
+  # it "performs without error" do
+  #   expect { subject.perform }.to_not raise_error
+  # end
 
   describe :capture do
     it "sends backup capture command" do
@@ -40,8 +41,8 @@ describe Spree::AssetsBackupJob do
 
     it "fails to execute command" do
       expect(Spree::NotificationMailer).to receive(:send_notification)
-      subject.send(:execute, "hhhhhhhhhhhhhhhhhhhhhhhhhh")      
+      subject.send(:execute, "ls")
     end
-    
+
   end
 end

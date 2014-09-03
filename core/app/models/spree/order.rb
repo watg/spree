@@ -59,6 +59,7 @@ module Spree
     end
 
     has_many :parcels
+    has_many :line_item_parts, through: :line_items
 
     belongs_to :invoice_print_job, class_name: "PrintJob"
     belongs_to :image_sticker_print_job, class_name: "PrintJob"
@@ -419,6 +420,9 @@ module Spree
       deliver_order_confirmation_email unless confirmation_delivered?
 
       consider_risk
+
+      # temporary notification until we implement the Assembly State Machine
+      mark_as_internal_and_send_email_if_assembled
     end
 
     def deliver_gift_card_emails
@@ -427,6 +431,19 @@ module Spree
           job = Spree::IssueGiftCardJob.new(self, item, position)
           ::Delayed::Job.enqueue job, :queue => 'gift_card'
         }
+      end
+    end
+
+    # temporary notification until we implement the Assembly State Machine
+    def mark_as_internal_and_send_email_if_assembled
+      if self.line_item_parts.assembled.any?
+        self.update_column(:internal, true)
+        order_url = Spree::Core::Engine.routes.url_helpers.edit_admin_order_url(self)
+        message = "Hello,\n
+          Order ##{self.number} contains a personalisation. It has been marked as internal.\n
+          Have a look at it here: #{order_url}.\n
+          Thank you."
+        Spree::NotificationMailer.delay.send_notification(message, Rails.application.config.personalisation_email_list,'Personalisation Order #' + self.number.to_s)
       end
     end
 

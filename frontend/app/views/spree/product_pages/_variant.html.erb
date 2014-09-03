@@ -2,9 +2,9 @@
 <% product = variant.product.decorate( context: @context ) %>
 <% variant = variant.decorate( context: @context ) %>
 <% cache [product,variant,variant.target,@current_currency] do %>
-<li class="displayable-entity details" data-variant="<%= variant.id %>" 
-	data-option-values="<%= variant.option_types_and_values.to_json %>" 
-	data-tree="<%= product.memoized_variant_options_tree.to_json %>" 
+<li class="displayable-entity details" data-variant="<%= variant.id %>"
+	data-option-values="<%= variant.option_types_and_values.to_json %>"
+	data-tree="<%= product.memoized_variant_options_tree.to_json %>"
 	data-option-type-order="<%= product.memoized_option_type_order.to_json %>">
 
 	<a class="close" href="#">Close</a>
@@ -15,7 +15,7 @@
 			<div class="product-images" data-hook="product_images">
 				<div class="main-image" data-hook>
 					<a href="<%= image_url(variant.memoized_first_image,:product) %>" target="_blank" class="fancybox" data-fancybox-group="product-gallery-<%= variant.id %>">
-						<%= image_tag(variant.placeholder_image, :itemprop => 'image', :class => 'lazy-load zoomable', :data => { :original => variant.memoized_first_image_url(:product), :zoomable => variant.memoized_first_image_url(:original) }) %>	
+						<%= image_tag(variant.placeholder_image, :itemprop => 'image', :class => 'lazy-load zoomable', :data => { :original => variant.memoized_first_image_url(:product), :zoomable => variant.memoized_first_image_url(:original) }) %>
 					</a>
 				</div>
 				<div class="thumbnails" data-hook>
@@ -34,22 +34,8 @@
 			<h5 class="reveal-title revealed">Product description</h5>
 			<p class="reveal-content"><%= product.description %></p>
 
+      <%= render 'suppliers', variant: variant %>
 
-      <h5 class="reveal-title">
-        <% variant.suppliers.each do |supplier| %>
-          <%= image_tag(supplier.avatar.url(:avatar), alt: "#{supplier.nickname} portrait", width: "40", height: "40" ) %>
-        <% end %>
-        #madeunique <span>by <%= variant.suppliers.map(&:nickname).to_sentence%></span>
-      </h5>
-      <p class="reveal-content">
-         <% variant.suppliers.each_with_index do |supplier, i| %>
-           <strong><%= supplier.nickname%></strong>: <%=supplier.profile%>
-           <% if ( i < variant.suppliers.size - 1 ) %>
-             <br/><br/>
-           <% end %>
-         <% end %>
-      </p>
-			
 			<ul class="no-bullet icons-social panel-social">
 				<% [:twitter, :facebook, :pinterest].each do |social| %>
 				<li>
@@ -57,11 +43,11 @@
 				</li>
 				<% end %>
 			</ul>
-			
+
 			<p class="promo-raf">Get your next order for free! <a href="/raf/invite">Find out more</a></p>
 		</div>
 	</div>
-	
+
 	<div class="row row-social">
 		<div class="large-12 columns"></div>
 	</div>
