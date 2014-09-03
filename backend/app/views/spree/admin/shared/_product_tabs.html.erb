@@ -57,6 +57,14 @@
         <% end %>
       <% end %>
     </ul>
+
+      <hr>
+      <div class="field">
+      <% Spree::ProductPageTab.where(product: @product).each do |tab| %>
+        <%= link_to_with_icon 'icon-external-link', tab.product_page.name, edit_admin_product_page_path(tab.product_page), target: :blank %>
+        <br>
+      <% end %>
+      </div>
   </nav>
 
 <% end %>

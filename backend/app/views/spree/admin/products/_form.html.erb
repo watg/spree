@@ -148,10 +148,21 @@
   </div>
 
   <div class="twelve columns alpha omega">
+    <div class="field">
+      <label>Product Pages</label>
+      <span class="info">
+        <% Spree::ProductPageTab.where(product: @product).each do |tab| %>
+          <%= link_to_with_icon 'icon-external-link', "Jump to " + tab.product_page.name, edit_admin_product_page_path(tab.product_page), target: :blank %>
+          <br>
+        <% end %>
+      </span>
+    </div>
+
     <%= f.field_container :taxons do %>
       <%= f.label :taxon_ids, Spree.t(:taxons) %>
       <%= f.hidden_field :taxon_ids, :value => @product.taxon_ids.join(',') %>
     <% end %>
+
 
     <%= f.field_container :option_types do %>
       <%= f.label :option_type_ids, Spree.t(:option_types) %>
