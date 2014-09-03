@@ -65,7 +65,7 @@ describe Spree::Order do
   describe "#deliver_gift_card_emails" do
     subject { create(:order_with_line_items) }
     let(:li_gc) { create(:line_item, quantity: 1, variant: create(:product, product_type: product_type_gift_card).master, order: subject) }
-    
+
     it "creates a gift card issuance job" do
       expect(Spree::IssueGiftCardJob).to receive(:new).with(subject, li_gc, anything).and_return(Spree::IssueGiftCardJob.new(subject, li_gc, 0))
       subject.deliver_gift_card_emails
@@ -113,6 +113,31 @@ describe Spree::Order do
         and_return(double('job', perform: true))
 
       subject.finalize!
+    end
+  end
+
+  describe "#mark_as_internal_and_send_email_if_assembled" do
+    subject { create(:order_with_line_items, line_items_count: 1) }
+    let(:email_array) {%(
+      cade@woolandthegang.com
+      martin@woolandthegang.com
+      ).squish}
+    before do
+      Delayed::Worker.delay_jobs = false
+      line_item = subject.line_items.first
+      create(:part, line_item: line_item, variant_id: 0, assembled: true)
+    end
+
+    after { Delayed::Worker.delay_jobs = true }
+
+    it "marks the order as internal and sends an email" do
+      expect(Spree::NotificationMailer).to receive(:send_notification).with(anything, email_array, 'To personalise #' + subject.number.to_s).and_return double.as_null_object
+
+      expect {
+        subject.finalize!
+      }.to change { ActionMailer::Base.deliveries.size }.by(1)
+
+      expect(subject.reload.internal).to be_true
     end
 
   end
