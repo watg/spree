@@ -7,8 +7,8 @@ module Spree
 
     TYPES = [MADE_BY_THE_GANG, KNIT_YOUR_OWN].map { |ppt| ppt.to_sym }
 
-    belongs_to :product_page
-    belongs_to :product, class_name: "Spree::Product"
+    belongs_to :product_page, inverse_of: :tabs, touch: true
+    belongs_to :product, inverse_of: :product_page_tabs, class_name: "Spree::Product"
     has_one :image, as: :viewable, dependent: :destroy, class_name: "Spree::ProductPageTabImage"
 
     # Delete the table at some point

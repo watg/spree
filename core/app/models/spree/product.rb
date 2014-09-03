@@ -56,6 +56,8 @@ module Spree
 
     has_many :assembly_definitions, -> { order "position" }, class_name: "Spree::AssemblyDefinition", foreign_key: :assembly_id
 
+    has_many :product_page_tabs,  class_name: 'Spree::ProductPageTab'
+    after_touch { delay(:priority => 20).touch_product_page_tabs }
 
     # Ensure that we blow the cache for any assemblies that have a part which belongs to
     # this product
@@ -383,6 +385,10 @@ module Spree
 
     def touch_assembly_products
       assembly_products.uniq.map(&:touch)
+    end
+
+    def touch_product_page_tabs
+      product_page_tabs.uniq.map(&:touch)
     end
 
     # Builds variants from a hash of option types & values

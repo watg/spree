@@ -69,4 +69,18 @@ describe Spree::ProductPageTab do
       expect(subject).to be_valid
     end
   end
+
+  context "touching" do
+
+    let(:product_page) { create(:product_page) }
+    let(:product_page_tab) { create(:product_page_tab, product_page: product_page) }
+
+    it "updates a product_page" do
+      product_page.update_column(:updated_at, 1.day.ago)
+      product_page_tab.reload.touch
+      product_page.reload.updated_at.should be_within(3.seconds).of(Time.now)
+    end
+
+  end
+
 end
