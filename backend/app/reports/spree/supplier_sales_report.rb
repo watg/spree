@@ -9,6 +9,8 @@ module Spree
   supplier_firstname
   supplier_lastname
   supplier_nickname
+  supplier_company_name
+  supplier_is_company
   created_at
   shipped_at
   completed_at
@@ -23,7 +25,7 @@ module Spree
   item_revenue_pre_sale
   item_revenue
 
-  order_revenue_pre_sale_pre_ship_pre_promo 
+  order_revenue_pre_sale_pre_ship_pre_promo
   order_revenue_pre_ship_pre_promo
   order_revenue_shipping_pre_promo
   order_promos
@@ -33,9 +35,9 @@ module Spree
     ) unless defined?(HEADER)
 
     def initialize(params)
-      @option_types = generate_option_types 
-      @from = params[:from].blank? ? Time.now.midnight : Time.parse(params[:from])  
-      @to = params[:to].blank? ? Time.now.tomorrow.midnight : Time.parse(params[:to])  
+      @option_types = generate_option_types
+      @from = params[:from].blank? ? Time.now.midnight : Time.parse(params[:from])
+      @to = params[:to].blank? ? Time.now.tomorrow.midnight : Time.parse(params[:to])
     end
 
     def filename_uuid
@@ -61,7 +63,7 @@ module Spree
           if variant.sku.match(/^GANG-/)
 
             shipped_at = ''
-            if !order.shipments.last.shipped_at.blank? 
+            if !order.shipments.last.shipped_at.blank?
               shipped_at = order.shipments.last.shipped_at.to_s(:db)
             end
 
@@ -110,7 +112,7 @@ module Spree
         if ov
           ov.name
         else
-          '' 
+          ''
         end
       end
     end
@@ -123,9 +125,11 @@ module Spree
         supplier.firstname,
         supplier.lastname,
         supplier.nickname,
+        supplier.company_name,
+        supplier.is_company,
         o.created_at.to_s(:db),
         shipped_at,
-        o.completed_at.to_s(:db), 
+        o.completed_at.to_s(:db),
         variant.product.sku,
         variant.sku,
         variant.product.name,
