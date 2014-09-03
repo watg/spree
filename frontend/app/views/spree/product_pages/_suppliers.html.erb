@@ -1,13 +1,14 @@
 <h5 class="reveal-title">
-  <% variant.suppliers.each do |supplier| %>
+  <% displayable_suppliers = variant.suppliers.displayable %>
+  <% displayable_suppliers.each do |supplier| %>
     <%= image_tag(supplier.avatar.url(:avatar), alt: "#{supplier.nickname} portrait", width: "40", height: "40" ) %>
   <% end %>
-  #madeunique <span>by <%= variant.suppliers.map(&:nickname).to_sentence%></span>
+  #madeunique <span>by <%= displayable_suppliers.map(&:nickname).to_sentence%></span>
 </h5>
 <p class="reveal-content">
-   <% variant.suppliers.each_with_index do |supplier, i| %>
+   <% displayable_suppliers.each_with_index do |supplier, i| %>
      <strong><%= supplier.nickname %></strong>: <%=supplier.profile%>
-     <% if ( i < variant.suppliers.size - 1 ) %>
+     <% if ( i < displayable_suppliers.size - 1 ) %>
        <br/><br/>
      <% end %>
    <% end %>
