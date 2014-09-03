@@ -443,8 +443,7 @@ module Spree
           Order ##{self.number} contains a personalisation. It has been marked as internal.\n
           Have a look at it here: #{order_url}.\n
           Thank you."
-        email_array = %(martin@woolandthegang.com)
-        Spree::NotificationMailer.delay.send_notification(message, email_array,'Personalisation Order #' + self.number.to_s)
+        Spree::NotificationMailer.delay.send_notification(message, Rails.application.config.personalisation_email_list,'Personalisation Order #' + self.number.to_s)
       end
     end
 

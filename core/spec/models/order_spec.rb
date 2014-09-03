@@ -118,10 +118,6 @@ describe Spree::Order do
 
   describe "#mark_as_internal_and_send_email_if_assembled" do
     subject { create(:order_with_line_items, line_items_count: 1) }
-    let(:email_array) {%(
-      cade@woolandthegang.com
-      martin@woolandthegang.com
-      ).squish}
     before do
       Delayed::Worker.delay_jobs = false
       line_item = subject.line_items.first
@@ -131,7 +127,7 @@ describe Spree::Order do
     after { Delayed::Worker.delay_jobs = true }
 
     it "marks the order as internal and sends an email" do
-      expect(Spree::NotificationMailer).to receive(:send_notification).with(anything, email_array, 'To personalise #' + subject.number.to_s).and_return double.as_null_object
+      expect(Spree::NotificationMailer).to receive(:send_notification).with(anything, ['test@woolandthegang.com'], 'Personalisation Order #' + subject.number.to_s).and_return double.as_null_object
 
       expect {
         subject.finalize!
