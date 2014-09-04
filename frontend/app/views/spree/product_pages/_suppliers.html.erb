@@ -1,7 +1,7 @@
 <h5 class="reveal-title">
   <% displayable_suppliers = variant.suppliers.displayable %>
   <% displayable_suppliers.each do |supplier| %>
-    <%= image_tag(supplier.avatar.url(:avatar), alt: "#{supplier.nickname} portrait", width: "40", height: "40" ) %>
+    <%= image_tag(supplier.avatar.url(:avatar), alt: "", width: "40", height: "40" ) %>
   <% end %>
   #madeunique <span>by <%= displayable_suppliers.map(&:nickname).to_sentence%></span>
 </h5>
