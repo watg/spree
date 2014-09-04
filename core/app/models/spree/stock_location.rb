@@ -100,7 +100,7 @@ module Spree
     # quantity: integer
     # Params:
     # +variant+: object - Spree::Variant object
-    # +quantity+: integer - number of variants required 
+    # +quantity+: integer - number of variants required
     # +supplier+: array - a preference list of suppliers and the desired quantity
     def fill_status(variant, quantity, suppliers=[])
 
@@ -126,8 +126,12 @@ module Spree
       [on_hand, backordered]
     end
 
-    private
+    def first_on_hand(variant)
+      items = stock_items_on_hand(variant)
+      items.first
+    end
 
+    private
 
     def fill_with_on_hand(items, quantity)
       # Only exit the loop once we have either satisified the qauntity
@@ -147,8 +151,6 @@ module Spree
       on_hand
     end
 
-    def fill_with_backordered(item)
-    end
 
     def create_stock_items
       Variant.find_each { |variant| self.propagate_variant(variant) }

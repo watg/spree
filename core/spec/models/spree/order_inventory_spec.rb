@@ -129,17 +129,22 @@ module Spree
 
       context "variant doesnt track inventory" do
         let(:variant) { create(:variant) }
-        before { variant.track_inventory = false }
+        let(:supplier) { create(:supplier) }
+
+        before do
+          shipment.stock_location.stock_items.map { |si| si.supplier = supplier }
+          variant.track_inventory = false
+          variant.stock_items.map { |si| si.supplier = supplier; si.save }
+        end
 
         it "creates only on hand inventory units" do
-          variant.stock_items.destroy_all
-
           line_item = order.contents.add variant, 1
           subject.verify(shipment)
 
           units = shipment.inventory_units_for(line_item.variant)
           expect(units.count).to eq 1
           expect(units.first).to be_on_hand
+          expect(units.first.supplier).to eq supplier
         end
       end
 

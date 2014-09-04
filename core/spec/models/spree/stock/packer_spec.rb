@@ -138,10 +138,17 @@ module Spree
             end
           end
 
+          let(:supplier) { create(:supplier) }
+
+          before do
+            stock_location.stock_items.map { |si| si.supplier = supplier; si.save }
+          end
+
           it 'adds items as on-hand, not backordered' do
             package = subject.product_assembly_package
             package.contents.size.should eq number_of_line_items + parts.count - number_of_line_items_with_parts
             package.contents.each {|ci| ci.state.should eq :on_hand}
+            package.contents.each {|ci| ci.supplier.should eq supplier}
           end
         end
       end
