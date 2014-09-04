@@ -1,8 +1,5 @@
 core.productGroup.readyVariantOptions = (entity) ->
 
-# Hack to get the fancybox working, this is really wrong!!! needs fixing
-  $("body").trigger("thumbs_updated")
-
   master_tree = entity.data('tree')
   option_type_order = entity.data('option-type-order')
   option_values = entity.data('option-values')
@@ -190,11 +187,6 @@ toggle_images = (entity, variant_id) ->
   all_thumbs.hide()
   variant_thumbs = entity.find('li.tmb-' + variant_id)
   variant_thumbs.show()
-
-  # Hack - this allows us to ensure that only the variant images
-  # make it to the image gallery
-  all_thumbs.find('a').removeClass('fancybox')
-  variant_thumbs.find('a').addClass('fancybox')
 
   thumb = entity.find("ul.thumbnails li.tmb-" + variant_id + ":first").eq(0)
   if (thumb.length == 0)
