@@ -125,7 +125,7 @@ module Spree
 
       context "with supplier" do
         let(:supplier_2) { create(:supplier) }
-        
+
         before do
           stock_item.supplier = supplier
           stock_item.save
@@ -157,7 +157,7 @@ module Spree
         end
 
         # We create 2 x extra stock_items ontop of the existing one that belongs to supplier
-        # supplier: nil ( test whether 
+        # supplier: nil ( test whether
         context "count_on_hand" do
           before do
             si1 = variant.stock_items.create( stock_location: subject, supplier: nil)
@@ -214,6 +214,34 @@ module Spree
       create(:stock_location, :active => true)
       create(:stock_location, :active => false)
       Spree::StockLocation.active.count.should eq 1
+    end
+
+    context 'first_on_hand' do
+
+      before do
+        stock_item.backorderable = false
+        stock_item.last_unstocked_at = Time.now.yesterday
+        stock_item.save
+      end
+
+      it "will return the first available on_hand stock item" do
+        item = subject.first_on_hand(variant)
+        expect(item).to eq stock_item
+      end
+
+      context "no on_hand in stock" do
+
+        before do
+          stock_item.set_count_on_hand(0)
+        end
+
+        it "will return the first available on_hand stock item" do
+          item = subject.first_on_hand(variant)
+          expect(item).to eq stock_item
+        end
+
+      end
+
     end
 
     context 'fill_status' do

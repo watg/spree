@@ -141,11 +141,13 @@ module Spree
         end
 
       else
-        quantity.times { shipment.set_up_inventory('on_hand', variant, order, line_item) }
+
+        item = shipment.stock_location.first_on_hand(variant)
+        quantity.times { shipment.set_up_inventory('on_hand', variant, order, line_item, item.supplier, line_item_part) }
 
         # adding to this shipment, and removing from stock_location
         if order.complete?
-          shipment.stock_location.unstock(variant, quantity, shipment)
+          shipment.stock_location.unstock(variant, quantity, shipment, item.supplier)
         end
       end
 
