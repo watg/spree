@@ -26,7 +26,7 @@ describe Spree::PackingListService do
       data = result.second
       expect(data).to eq [
         variant.product.name,
-        "#{variant.sku} \n [#{supplier.permalink}]", 
+        "#{variant.sku} \n [#{supplier.permalink}]",
         "",
         variant.options_text,
         1,
@@ -34,6 +34,25 @@ describe Spree::PackingListService do
       ]
     end
 
+    context "when supplier is not a company" do
+      before do
+        supplier.update_column(:is_company, true)
+      end
+
+      it "does not show supplier permalink " do
+        result = subject.result
+        expect(result.size).to eq 2
+        data = result.second
+        expect(data).to eq [
+          variant.product.name,
+          "#{variant.sku}",
+          "",
+          variant.options_text,
+          1,
+          "|_|"
+        ]
+      end
+    end
 
     context "Inventory units have different suppliers" do
 
@@ -48,7 +67,7 @@ describe Spree::PackingListService do
           Spree::PackingListService::HEADER,
           [
             variant.product.name,
-            "#{variant.sku} \n [#{supplier.permalink}]", 
+            "#{variant.sku} \n [#{supplier.permalink}]",
             "",
             variant.options_text,
             1,
@@ -56,7 +75,7 @@ describe Spree::PackingListService do
           ],
           [
             variant.product.name,
-            "#{variant.sku} \n [#{supplier_2.permalink}]", 
+            "#{variant.sku} \n [#{supplier_2.permalink}]",
             "",
             variant.options_text,
             1,
@@ -99,7 +118,7 @@ describe Spree::PackingListService do
         ],
         [
           "",
-          "#{variant_2.sku} \n [#{supplier_2.permalink}]", 
+          "#{variant_2.sku} \n [#{supplier_2.permalink}]",
           variant_2.product.name,
           variant_2.options_text,
           4,
@@ -133,7 +152,7 @@ describe Spree::PackingListService do
           ],
           [
             "",
-            "#{variant_2.sku} \n [#{supplier_2.permalink}]", 
+            "#{variant_2.sku} \n [#{supplier_2.permalink}]",
             variant_2.product.name,
             variant_2.options_text,
             3,
@@ -141,7 +160,7 @@ describe Spree::PackingListService do
           ],
           [
             "",
-            "#{variant_2.sku} \n [#{supplier_3.permalink}]", 
+            "#{variant_2.sku} \n [#{supplier_3.permalink}]",
             variant_2.product.name,
             variant_2.options_text,
             1,

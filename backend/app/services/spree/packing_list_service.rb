@@ -56,14 +56,14 @@ module Spree
 
     def format_grouped_inventory_unit(item)
       variant = item[:variant]
-      supplier = item[:supplier]
-      quantity = item[:quantity] 
+      supplier = " \n [#{item[:supplier].permalink}]" unless item[:supplier].is_company?
+      quantity = item[:quantity]
       is_part = item[:is_part]
       item = is_part ? '' : variant.product.name
       content = is_part ? variant.product.name : ''
       [
         item,
-        "#{variant.sku} \n [#{supplier.permalink}]",
+        variant.sku + supplier.to_s,
         content,
         variant.option_values.empty? ? '' : variant.options_text,
         quantity,
