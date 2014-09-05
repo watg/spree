@@ -18,11 +18,7 @@ jQuery.fn.productAutocompleteSingle = ->
         per_page: 10
         page: page
         q:
-          name_cont: term
-          sku_cont: term
-        m: 'OR'
-        # token: Spree.api_key
-
+          name_or_master_sku_cont: term
 
       results: (data, page) ->
         {results: data.products || []}
