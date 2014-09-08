@@ -10,7 +10,7 @@ class Spree::AssemblyDefinitionVariant < ActiveRecord::Base
 
   private
 
-  def set_assembly_product 
+  def set_assembly_product
     self.assembly_product = self.assembly_definition_part.assembly_definition.variant.product
   end
 

@@ -1,6 +1,10 @@
 <% part = f.object %>
 <tr id="<%= spree_dom_id f.object %>">
   <td><span class="handle"></span></td>
+  <td><span class="auto-update-variant">
+    <%= f.label :add_all_available_variants, Spree.t(:add_all_available_variants) %>
+    <%= f.check_box :add_all_available_variants %></span>
+  </td>
   <td class="presentation">
     <%= f.text_field :presentation %>
     <br>
