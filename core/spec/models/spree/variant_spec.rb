@@ -51,7 +51,7 @@ describe Spree::Variant do
     it "builds the correct sku" do
       expect(variant.sku).to be_nil
       variant.save
-      expect(variant.sku).to match "ABC-COL-HOT_PIN"
+      expect(variant.sku).to match "ABC-COL-HO_PI"
     end
 
   end
