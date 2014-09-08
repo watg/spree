@@ -12,17 +12,17 @@ describe Spree::AssemblyDefinitionPart do
 
   context "Stock and Option Values" do
 
-    let(:size)     { create(:option_type, name: 'size', position: 1 )}
-    let(:big)      { create(:option_value, name: 'big', option_type: size, position: 0) }
-    let(:small)    { create(:option_value, name: 'small', option_type: size, position: 1) }
+    let(:size)     { create(:option_type, name: 'size', presentation: 'Size', position: 1 )}
+    let(:big)      { create(:option_value, name: 'big', presentation: 'Big', option_type: size, position: 0) }
+    let(:small)    { create(:option_value, name: 'small', presentation: 'Small', option_type: size, position: 1) }
 
   #  let(:colour)   { create(:option_type, name: 'colour', position: 2 )}
-    let(:pink)     { create(:option_value, name: 'pink', option_type: colour, position: 0) }
-    let(:blue)     { create(:option_value, name: 'blue', option_type: colour, position: 1) }
+    let(:pink)     { create(:option_value, name: 'pink', presentation: 'Pink', option_type: colour, position: 0) }
+    let(:blue)     { create(:option_value, name: 'blue', presentation: 'Blue', option_type: colour, position: 1) }
 
-    let(:language) { create(:option_type, name: 'language', position: 3 )}
-    let(:french)   { create(:option_value, name: 'french', option_type: language, position: 0) }
-    let(:english)   { create(:option_value, name: 'english', option_type: language, position: 1) }
+    let(:language) { create(:option_type, name: 'language', presentation: 'Language', position: 3 )}
+    let(:french)   { create(:option_value, name: 'french', presentation: 'French', option_type: language, position: 0) }
+    let(:english)   { create(:option_value, name: 'english', presentation: 'English', option_type: language, position: 1) }
 
 
     let!(:variant_in_stock1)  { create(:variant_with_stock_items, product: product, option_values: [pink,small] ) }

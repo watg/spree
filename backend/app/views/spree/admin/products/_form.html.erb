@@ -87,6 +87,13 @@
       <%= f.error_message_on :product_group %>
     <% end %>
 
+    <%= f.field_container :marketing_type do %>
+      <%= f.label :marketing_type_id, Spree.t(:marketing_type) %>
+    <%= f.collection_select :marketing_type_id, Spree::MarketingType.all, :id, :title, {:include_blank => false}, {:class => 'select2 fullwidth'} %>
+    <%= f.error_message_on :marketing_type_id %>
+  <% end %>
+
+
   </div>
 
 

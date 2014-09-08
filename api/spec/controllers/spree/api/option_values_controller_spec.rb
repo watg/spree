@@ -48,8 +48,8 @@ module Spree
       end
 
       it "can retreive a list of option types" do
-        option_value_1 = create(:option_value, :option_type => option_type)
-        option_value_2 = create(:option_value, :option_type => option_type)
+        option_value_1 = create(:option_value, :option_type => option_type, :name => 'red')
+        option_value_2 = create(:option_value, :option_type => option_type, :name => 'blue')
         api_get :index, :ids => [option_value.id, option_value_1.id]
         json_response.count.should == 2
       end

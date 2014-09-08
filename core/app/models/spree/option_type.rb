@@ -5,10 +5,12 @@ module Spree
     has_many :products, through: :product_option_types
     has_and_belongs_to_many :prototypes, join_table: 'spree_option_types_prototypes'
 
-    validates :name, :presentation, presence: true
+    validates :name, :presentation, :sku_part, presence: true
     # default_scope -> { order("#{self.table_name}.position") }
 
-    accepts_nested_attributes_for :option_values, reject_if: lambda { |ov| ov[:name].blank? || ov[:presentation].blank? }, allow_destroy: true
+    before_validation { update_presentation_and_sku_part }
+
+    accepts_nested_attributes_for :option_values, reject_if: lambda { |ov| ov[:presentation].blank? and ov[:name].blank? }, allow_destroy: true
 
     after_touch :touch_all_products
 
@@ -20,6 +22,31 @@ module Spree
 
     def url_safe_name
       name.downcase.parameterize
+    end
+    
+    private
+
+    def update_presentation_and_sku_part
+      if self.name
+        self.presentation = self.url_safe_name.split('-').map(&:capitalize).join(' ') if self.presentation.blank?
+        self.sku_part = safe_sku if self.sku_part.blank?
+      end
+    end
+
+    def safe_sku
+      string = self.url_safe_name.split('-').map { |a| a[0..2].upcase }.join('_')
+
+      numbers = Spree::OptionType.where("sku_part like '#{string}%'").map do |ot|
+        matches = ot.sku_part.match(/^#{string}(_(\d+))?$/)
+        matches ? matches[2].to_i : 0
+      end
+
+      if numbers.any?
+        next_number = numbers.compact.sort.last + 1
+        string = "#{string}_#{next_number}"
+      end
+
+      string
     end
 
   end

@@ -1,17 +1,26 @@
 <div data-hook="admin_option_type_form_fields" class="align-center row">
-  <div class="alpha eight columns">
-    <%= f.field_container :name do %>
+
+  <div class="alpha six columns">
+   <%= f.field_container :name do %>
       <%= f.label :name, Spree.t(:name) %> <span class="required">*</span><br />
       <%= f.text_field :name, :class => "fullwidth" %>
       <%= f.error_message_on :name %>
     <% end %>
   </div>
 
-  <div class="omega eight columns">
+  <div class="five columns">
     <%= f.field_container :presentation do %>
       <%= f.label :presentation, Spree.t(:presentation) %> <span class="required">*</span><br />
-      <%= f.text_field :presentation, :class => "fullwidth" %>
-      <%= f.error_message_on :presentation %>
+    <%= f.text_field :presentation, :class => "fullwidth" %>
+    <%= f.error_message_on :presentation %>
+  <% end %>
+  </div>
+
+  <div class="omega five columns">
+    <%= f.field_container :sku_part do %>
+      <%= f.label :sku_part, Spree.t(:sku_part) %> <span class="required">*</span><br />
+      <%= f.text_field :sku_part, :class => "fullwidth" %>
+      <%= f.error_message_on :sku_part %>
     <% end %>
   </div>
 </div>

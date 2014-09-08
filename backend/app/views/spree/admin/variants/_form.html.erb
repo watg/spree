@@ -8,16 +8,17 @@
       </div>
     <% end %>
 
-    <div class="field" data-hook="sku">
-      <%= f.label :sku, Spree.t(:sku) %>
-      <%= f.text_field :sku, :class => 'fullwidth' %>
-    </div>
+    <% if !@variant.new_record? %>
+      <div class="field" data-hook="sku">
+        <%= f.label :sku, Spree.t(:sku) %>
+        <%= f.text_field :sku, :class => 'fullwidth' %>
+      </div>
+    <% end %>
 
     <div class="field" data-hook="cost_price">
       <%= f.label :cost_price, Spree.t(:cost_price) %>
       <%= f.text_field :cost_price, :value => number_to_currency(@variant.cost_price, :unit => '') || 0.0, :class => 'fullwidth' %>
     </div>
-
 
     <div class="field" data-hook="tax_category">
       <%= f.label :tax_category_id, Spree.t(:tax_category) %>

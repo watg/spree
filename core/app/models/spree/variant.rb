@@ -58,6 +58,7 @@ module Spree
     before_validation :generate_variant_number, on: :create
 
     after_save :save_default_price
+    before_create :create_sku
     after_create :create_stock_items
     after_create :set_position
     after_touch :touch_index_page_items
@@ -497,6 +498,13 @@ module Spree
         if stock_location.propagate_all_variants?
           stock_location.propagate_variant(self, supplier)
         end
+      end
+    end
+
+    def create_sku
+      unless self.sku.present?
+        sku_parts = [ product.master.sku ] + self.option_values.map { |ov| [ ov.option_type.sku_part, ov.sku_part ] }
+        self.sku = sku_parts.flatten.join('-')
       end
     end
 

@@ -45,6 +45,17 @@ describe Spree::Variant do
 
   end
 
+  context "create_sku" do
+    let(:variant) { build(:base_variant, sku: nil) }
+
+    it "builds the correct sku" do
+      expect(variant.sku).to be_nil
+      variant.save
+      expect(variant.sku).to match "ABC-COL-HOT_PIN"
+    end
+
+  end
+
 
   context "physical" do
     subject { Spree::Variant.physical }

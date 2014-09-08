@@ -15,5 +15,6 @@ FactoryGirl.define do
   factory :option_type, class: Spree::OptionType do
     name 'color'
     presentation 'Color'
+    sku_part 'COL'
   end
 end

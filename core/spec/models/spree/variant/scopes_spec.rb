@@ -16,13 +16,13 @@ describe "Variant scopes" do
   context "finding by option values" do
     let!(:option_type) { create(:option_type, :name => "bar") }
     let!(:option_value_1) do
-      option_value = create(:option_value, :name => "foo", :option_type => option_type)
+      option_value = create(:option_value, :name => "foo", :presentation => 'Foo', :option_type => option_type)
       variant_1.option_values << option_value
       option_value
     end
 
     let!(:option_value_2) do
-      option_value = create(:option_value, :name => "fizz", :option_type => option_type)
+      option_value = create(:option_value, :name => "fizz", :presentation => 'Fizz', :option_type => option_type)
       variant_1.option_values << option_value
       option_value
     end

@@ -1,20 +1,22 @@
 module Spree
   class OptionValue < ActiveRecord::Base
+
     belongs_to :option_type, class_name: 'Spree::OptionType', touch: true, inverse_of: :option_values
     acts_as_list scope: :option_type
     has_and_belongs_to_many :variants, join_table: 'spree_option_values_variants', class_name: "Spree::Variant"
 
-    validates :name, :presentation, presence: true
+    validates :name, :presentation, :sku_part, presence: true
     validates_uniqueness_of :name, :scope => [:option_type_id]
+    validates_uniqueness_of :sku_part, :scope => [:option_type_id]
 
-    validate :name_is_url_safe
-
-    # from variant options
+    #validate :name_is_url_safe
 
     default_scope { order("#{quoted_table_name}.position") }
 
+    before_validation { update_presentation_and_sku_part }
+
     after_touch :touch_all_variants
-	
+
 	# The URL parameter should be changed from 'products' to 'option_value' at some point
     has_attached_file :image,
     :styles        => { :small => '18x18#', :medium => '40x30#', :large => '140x110#' },
@@ -24,12 +26,12 @@ module Spree
     def has_image?
       image_file_name && !image_file_name.empty?
     end
-    
+
     scope :for_product, lambda { |product, stock|
       v_ids = (stock ? product.variants_in_stock : product.variants).map(&:id)
       select("#{table_name}.*").
-      where("spree_option_values_variants.variant_id IN (?)", v_ids).references(:option_values_variants).
-      joins(:variants).uniq
+        where("spree_option_values_variants.variant_id IN (?)", v_ids).references(:option_values_variants).
+        joins(:variants).uniq
     }
 
     scope :with_target, lambda {|target|
@@ -43,6 +45,34 @@ module Spree
     end
 
     private
+
+    def update_presentation_and_sku_part
+      if self.name
+        self.presentation = self.url_safe_name.split('-').map(&:capitalize).join(' ') if self.presentation.blank?
+        self.sku_part = safe_sku if self.sku_part.blank?
+      end
+    end
+
+    # Ensure the sku_part is generated uniq
+    def safe_sku
+      string = self.url_safe_name.split('-').map { |a| a[0..2].upcase }.join('_')
+
+      # Grab bothe the saved and none saved option_values, all because someone loves nested attributes
+      ovs = option_type.option_values + Spree::OptionValue.where(option_type_id: option_type.id)
+      numbers = ovs.uniq.map do |ov|
+        if ov.sku_part
+          matches = ov.sku_part.match(/^#{string}(_(\d+))?$/)
+          matches ? matches[2].to_i : 0
+        end
+      end
+
+      if numbers.any?
+        next_number = numbers.compact.sort.last + 1
+        string = "#{string}_#{next_number}"
+      end
+
+      string
+    end
 
     def name_is_url_safe
       if Rack::Utils.escape_path(name) != name
