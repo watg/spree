@@ -85,5 +85,29 @@ describe Spree::AssemblyDefinitionPart do
 
   end
 
+  context "when add all variants is set to true (default)" do
+
+    it 'adds all available variants' do
+      expect(subject.add_all_available_variants).to be_true
+      expect(subject.assembly_definition_variants).to eq (2)
+
+      # set up roughly 5 different variants - probs above
+      # expect the variant count to be all the variants
+    end
+
+  end
+
+  context "when add all variants is set to true" do
+
+    it 'does not add all available variants' do
+      subject.add_all_available_variants = false
+
+      expect(subject.add_all_available_variants).to be_false
+      expect(subject.assembly_definition_variants).to eq (2)
+        # not sure about what to pop in here
+        # when the amount of variants is set to false,
+        # the number of variants = nil
+    end
+  end
 end
 

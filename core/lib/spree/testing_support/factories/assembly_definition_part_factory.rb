@@ -4,7 +4,7 @@ FactoryGirl.define do
 
     before(:create) do |c|
       if c.displayable_option_type.blank?
-        c.displayable_option_type = create(:option_type) 
+        c.displayable_option_type = create(:option_type)
       end
     end
 
