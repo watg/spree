@@ -60,8 +60,7 @@ module Spree
       # Grab bothe the saved and none saved option_values, all because someone loves nested attributes
       ovs = option_type.option_values + Spree::OptionValue.where(option_type_id: option_type.id)
       numbers = ovs.uniq.map do |ov|
-        if ov.sku_part
-          matches = ov.sku_part.match(/^#{string}(_(\d+))?$/)
+        if matches = ov.sku_part.match(/^#{string}(_(\d+))?$/)
           matches ? matches[2].to_i : 0
         end
       end
