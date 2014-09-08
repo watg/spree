@@ -57,10 +57,15 @@ module Spree
     def safe_sku
       string = self.url_safe_name.split('-').map { |a| a[0..2].upcase }.join('_')
 
-      # Grab bothe the saved and none saved option_values, all because someone loves nested attributes
-      ovs = option_type.option_values + Spree::OptionValue.where(option_type_id: option_type.id)
-      numbers = ovs.uniq.map do |ov|
-        if matches = ov.sku_part.match(/^#{string}(_(\d+))?$/)
+      # This is an optimistaion to deal with the nested_attributes which we have to deal with
+      # we first check the in memory data structure, then followed by the DB
+      option_values_1 = option_type.option_values.select { |ov| ov.sku_part.to_s.match(/^#{string}/) } +
+      option_values_2  = Spree::OptionValue.where(option_type_id: option_type.id)
+        .where("sku_part like '#{string}%'")
+      option_values = option_values_1 + option_values_2
+
+      numbers = option_values.uniq.map do |ov|
+        if matches = ov.sku_part.to_s.match(/^#{string}(_(\d+))?$/)
           matches ? matches[2].to_i : 0
         end
       end
