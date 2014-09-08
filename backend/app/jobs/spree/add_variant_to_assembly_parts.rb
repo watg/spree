@@ -7,7 +7,9 @@ module Spree
 
       def perform
         variant.product.assembly_definition_parts.each do |part|
-          part.assembly_definition_variants.find_or_create_by(variant_id: variant.id)
+          if part.add_all_available_variants == true
+            part.assembly_definition_variants.find_or_create_by(variant_id: variant.id)
+          end
         end
       end
 

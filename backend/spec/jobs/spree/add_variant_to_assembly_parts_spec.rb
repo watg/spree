@@ -32,4 +32,20 @@ describe Spree::Jobs::AddVariantToAssemblyPart do
     end
   end
 
+  context 'add_all_available_variants is false' do
+    let(:another_variant) { create(:base_variant, product: part_product)}
+    let(:non_updating_assembly_definition_part) { create(:assembly_definition_part, assembly_definition: assembly_definition)}
+
+    before do
+      non_updating_assembly_definition_part.add_all_available_variants = false
+    end
+
+    it 'does not add variant to assembly definition part' do
+      expect(non_updating_assembly_definition_part.add_all_available_variants).to be_false
+      expect(non_updating_assembly_definition_part.assembly_definition_variants).to be_empty
+      Spree::Jobs::AddVariantToAssemblyPart.new(another_variant).perform
+      expect(non_updating_assembly_definition_part.assembly_definition_variants.count).to eq(0)
+    end
+  end
+
 end
