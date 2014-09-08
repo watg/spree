@@ -48,7 +48,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
 
   def render_tabs?
     # Show row if we have both gang made and knit your own
-    made_by_the_gang_variants? && knit_your_own_product?
+    (made_by_the_gang_product? || made_by_the_gang_variants? ) && knit_your_own_product?
   end
 
   def made_by_the_gang_active_class
@@ -73,6 +73,10 @@ class Spree::ProductPageDecorator < Draper::Decorator
 
   def knit_your_own_product?
     knit_your_own_product.present?
+  end
+
+  def made_by_the_gang_product?
+    made_by_the_gang_product.present?
   end
 
   def made_unique_title
