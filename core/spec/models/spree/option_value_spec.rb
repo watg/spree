@@ -12,7 +12,7 @@ describe Spree::OptionValue do
       expect(option_value.sku_part).to be_nil
       option_value.save
       expect(option_value.presentation).to eq 'Hot Pink'
-      expect(option_value.sku_part).to eq 'HOT_PIN'
+      expect(option_value.sku_part).to eq 'HO_PI'
     end
 
     context "safe_sku" do
@@ -24,7 +24,7 @@ describe Spree::OptionValue do
 
       it "should deal with duplicates" do
         safe_sku = option_value_2.send(:safe_sku)
-        expect(safe_sku).to eq 'HOT_PIN_1'
+        expect(safe_sku).to eq 'HO_PI_1'
       end
 
     end

@@ -55,7 +55,7 @@ module Spree
 
     # Ensure the sku_part is generated uniq
     def safe_sku
-      string = self.url_safe_name.split('-').map { |a| a[0..2].upcase }.join('_')
+      string = self.url_safe_name.split('-').map { |a| a[0..1].upcase }.join('_')
 
       # This is an optimistaion to deal with the nested_attributes which we have to deal with
       # we first check the in memory data structure, then followed by the DB

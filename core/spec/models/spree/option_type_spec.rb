@@ -30,8 +30,8 @@ describe Spree::OptionType do
       option_type.save
       option_value.save
       option_value_2.save
-      expect(option_value.sku_part).to eq 'HOT_PIN'
-      expect(option_value_2.sku_part).to eq 'HOT_PIN_1'
+      expect(option_value.sku_part).to eq 'HO_PI'
+      expect(option_value_2.sku_part).to eq 'HO_PI_1'
     end
 
   end
