@@ -755,4 +755,21 @@ describe Spree::Variant do
     end
   end
 
+  context "check_stock" do
+
+    let(:variant) { create(:variant) }
+
+    it "calls check_stock in an after save" do
+      expect(variant).to receive(:check_stock)
+      variant.save
+    end
+
+    it "creates a job after save" do
+      mock_object = double('stock_check_job', perform: true)
+      expect(Spree::StockCheckJob).to receive(:new).with(variant).and_return(mock_object)
+      expect(::Delayed::Job).to receive(:enqueue).with(mock_object, queue: 'stock_check', priority: 10)
+      variant.send(:check_stock)
+    end
+  end
+
 end

@@ -47,11 +47,18 @@ describe Spree::StockItem do
       copy.count_on_hand.should eq(current_on_hand + 10)
     end
 
+    context "check_variant_stock" do
 
-    context "Delayed Job" do
-      it "creates a job after save" do
-        expect(::Delayed::Job).to receive(:enqueue)
+      it "calls check_variant_stock in an after save" do
+        expect(subject).to receive(:check_variant_stock)
         subject.save
+      end
+
+      it "creates a job after save" do
+        mock_object = double('stock_check_job', perform: true)
+        expect(Spree::StockCheckJob).to receive(:new).with(subject.variant).and_return(mock_object)
+        expect(::Delayed::Job).to receive(:enqueue).with(mock_object, queue: 'stock_check', priority: 10)
+        subject.send(:check_variant_stock)
       end
     end
 
@@ -183,6 +190,9 @@ describe Spree::StockItem do
         end
       end
     end
+
+    context ""
+
 
 # Does not work with our version of stock cache / touching
 

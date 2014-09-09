@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Spree::StockCheckJob do
   let(:variant_not_part) {create(:variant_with_stock_items)}
   let(:stock_item) { variant_not_part.stock_items.first }
-  subject  { Spree::StockCheckJob.new(stock_item) }
+  subject  { Spree::StockCheckJob.new(variant_not_part) }
 
   
   describe "#perform" do
@@ -21,18 +21,6 @@ describe Spree::StockCheckJob do
       end
     end
 
-    context "on variant which is not tracking inventory" do
-
-      before do
-        stock_item.variant.stub(:track_inventory?).and_return false
-      end
-
-      it "does not update the variant" do
-        expect_any_instance_of(Spree::StockCheckJob).not_to receive(:check_stock)
-        subject.perform
-      end
-    end
-
     context "on variant part of a kit" do
       let(:kit) {create(:base_variant)}
       let(:part) { create(:variant_with_stock_items)}
@@ -42,7 +30,7 @@ describe Spree::StockCheckJob do
         Spree::AssembliesPart.create(part_id: part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1)
       end
 
-      subject  { Spree::StockCheckJob.new(part.stock_items.first) }
+      subject  { Spree::StockCheckJob.new(part) }
 
       before do 
         Spree::StockItem.any_instance.stub(backorderable: false)
