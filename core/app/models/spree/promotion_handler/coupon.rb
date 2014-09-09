@@ -39,6 +39,8 @@ module Spree
         outcome = Spree::UseGiftCardService.run(order: order, code: order.coupon_code)
         if outcome.valid?
           self.success = outcome.result
+          order.update_totals
+          order.persist_totals
         else
           self.error = outcome.errors.full_messages.to_sentence
         end
