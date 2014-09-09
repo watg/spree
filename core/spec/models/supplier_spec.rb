@@ -15,6 +15,22 @@ describe Spree::Supplier do
     expect(supplier3.permalink).to eq "queen-marry-knitter-3"
   end
 
+  context "is_company" do
+
+    it "is false by default" do
+      expect(supplier.is_company).to be_false
+    end
+
+  end
+
+  context "is_displayable" do
+
+    it "is true by default" do
+      expect(supplier.is_displayable).to be_true
+    end
+
+  end
+
   context "name" do
     it "returns the name" do
       expect(supplier.name).to eq "Dave Dawson"

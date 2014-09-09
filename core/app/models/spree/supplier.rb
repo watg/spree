@@ -19,6 +19,8 @@ module Spree
     
     scope :displayable, -> { where(is_displayable: true) }
 
+    after_initialize :init
+
     make_permalink
 
     has_attached_file :avatar,
@@ -75,6 +77,10 @@ module Spree
 
     private
 
+    def init
+      self.is_company ||= false
+      self.is_displayable ||= true
+    end
 
     def slug_candidates
       [
