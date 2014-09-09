@@ -106,9 +106,13 @@ module Spree
 
     def variants_for_flavour(flavour, currency)
       if flavour == :made_by_the_gang
-        displayed_variants.in_stock.active(currency)
+        if product = made_by_the_gang.product
+          made_by_the_gang.product.all_variants_or_master.in_stock.active(currency)
+        else
+          displayed_variants.in_stock.active(currency)
+        end
       elsif flavour == :knit_your_own
-        knit_your_own.product.variants.in_stock.active(currency)
+        knit_your_own.product.all_variants_or_master.in_stock.active(currency)
       end
     end
 

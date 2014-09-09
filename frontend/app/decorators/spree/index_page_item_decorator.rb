@@ -58,20 +58,12 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
   end
 
   def knit_your_own_prices
-
+    flavour = :knit_your_own
     lowest_price, lowest_sale_price= nil
-    if memoized_product_page.knit_your_own.product.assembly_definition
-      item = object.product_page.knit_your_own.product.master
 
-      lowest_price = item.price_normal_in(current_currency)
-      if item.in_sale?
-        lowest_sale_price = item.price_normal_sale_in(current_currency)
-      end
-    else
-        flavour = :knit_your_own
-        lowest_price = memoized_product_page.lowest_normal_price(current_currency, flavour)
-        lowest_sale_price = memoized_product_page.lowest_sale_price(current_currency, flavour)
-    end
+    lowest_price = memoized_product_page.lowest_normal_price(current_currency, flavour)
+    lowest_sale_price = memoized_product_page.lowest_sale_price(current_currency, flavour)
+
     render_prices(lowest_price, lowest_sale_price)
   end
 
@@ -80,22 +72,9 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
     flavour = :made_by_the_gang
     lowest_price, lowest_sale_price = nil
 
-    if memoized_variant.present?
-
-      if memoized_variant_in_stock?
-
-        lowest_price = memoized_variant.price_normal_in(current_currency)
-        if memoized_variant_in_sale?
-          lowest_sale_price = memoized_variant.price_normal_sale_in(current_currency)
-        end
-      else
-        lowest_price = memoized_product_page.lowest_normal_price(current_currency, flavour)
-        lowest_sale_price = memoized_product_page.lowest_sale_price(current_currency, flavour)
-      end
-    else
-      lowest_price = memoized_product_page.lowest_normal_price(current_currency, flavour)
-      lowest_sale_price = memoized_product_page.lowest_sale_price(current_currency, flavour)
-    end
+    # old style
+    lowest_price = memoized_product_page.lowest_normal_price(current_currency, flavour)
+    lowest_sale_price = memoized_product_page.lowest_sale_price(current_currency, flavour)
 
     render_prices(lowest_price, lowest_sale_price)
   end
