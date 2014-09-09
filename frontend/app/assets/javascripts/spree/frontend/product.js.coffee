@@ -192,7 +192,6 @@ toggle_images = (entity, variant_id) ->
   if (thumb.length == 0)
     thumb = entity.find('ul.thumbnails li').eq(0)
   change_main_image(entity, thumb)
-  core.productGroup.triggerLazyLoadImages($('.row-knit-your-own')) # Force load of lazy images
 
 change_main_image = (entity, thumb) ->
   newImg = thumb.find('a').attr('href')
