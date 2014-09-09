@@ -156,8 +156,12 @@ module Spree
       self.variants.in_stock
     end
 
-    def images_for(target)
+    def variant_images_for(target)
       variant_images.with_target(target)
+    end
+
+    def images_for(target)
+      images.with_target(target)
     end
 
     def clean_description

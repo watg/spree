@@ -120,28 +120,6 @@ describe Spree::Product do
     end
   end
 
-  describe "#images_for" do
-    let!(:variant_images) { create_list(:image, 1, viewable: variant, position: 3) }
-    let(:target1) { create(:target) }
-    let(:target2) { create(:target) }
-
-    context "with a Variant and  Target" do
-      let(:variant_target_image1) { create_list(:image, 1, viewable: variant, target: target1, position: 1) }
-      let(:variant_target_image2) { create_list(:image, 1, viewable: variant, target: target2, position: 2) }
-      let!(:images) { variant_target_image1 + variant_images }
-
-      it "returns all images linked to the Variant and Variant" do
-        expect(subject.images_for(target1)).to eq(images)
-      end
-    end
-
-    context "with no VariantTarget" do
-      it "returns all images linked to the Variant" do
-        expect(subject.images_for(target1)).to eq(variant_images)
-      end
-    end
-  end
-
   describe "#description_for" do
     subject { create(:base_product, description: "Just a very basic description") }
     let(:target1) { create(:target) }

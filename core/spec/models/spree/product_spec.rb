@@ -40,6 +40,42 @@ describe Spree::Product do
       end
     end
 
+    describe "#variant_images_for" do
+      let(:variant) { create(:variant) }
+      let(:target) { create(:target) }
+      let(:target_2) { create(:target) }
+      let!(:variant_images) { create_list(:image, 1, viewable: variant, position: 2) }
+      let!(:variant_target_images) { create_list(:image, 1, viewable: variant, target: target, position: 1) }
+      let!(:variant_target_images_2) { create_list(:image, 1, viewable: variant, target: target_2, position: 1) }
+
+      it "returns targeted only images" do
+        expect(variant.product.variant_images_for(target)).to eq( variant_target_images + variant_images )
+      end
+
+      it "returns non targeted images" do
+        expect(variant.product.variant_images_for(nil)).to eq( variant_images )
+      end
+
+    end
+
+    describe "#images_for" do
+      let(:product) { create(:product) }
+      let(:target) { create(:target) }
+      let(:target_2) { create(:target) }
+      let!(:product_images) { create_list(:image, 1, viewable: product.master, position: 2) }
+      let!(:product_target_images) { create_list(:image, 1, viewable: product.master, target: target, position: 1) }
+      let!(:product_target_images_2) { create_list(:image, 1, viewable: product.master, target: target_2, position: 1) }
+
+      it "returns targeted only images" do
+        expect(product.images_for(target)).to eq( product_target_images + product_images )
+      end
+
+      it "returns non targeted images" do
+        expect(product.images_for(nil)).to eq( product_images )
+      end
+
+    end
+
     context '#duplicate' do
       before do
         product.stub :taxons => [create(:taxon)]
