@@ -65,8 +65,6 @@ describe Spree::Variant do
         expect(variant.images_for(target)).to eq(images)
       end
     end
-
-
   end
 
   describe "touching" do
@@ -89,6 +87,28 @@ describe Spree::Variant do
         variant.touch
         expect(index_page_item.reload.updated_at).to be_within(1.seconds).of(Time.now)
       end
+    end
+  end
+
+  describe "#add_to_all_assembly_definitions" do
+    context 'after creating a new variant' do
+      let(:variant) { build(:base_variant) }
+
+      before do
+        Delayed::Worker.delay_jobs = false
+      end
+
+      after { Delayed::Worker.delay_jobs = true }
+
+      it 'is automatically added to all assembly definition variants' do
+        mock = double(Spree::Jobs::AddVariantToAssemblyPart)
+
+        expect(Spree::Jobs::AddVariantToAssemblyPart).to receive(:new).once.with(variant).and_return(mock)
+        expect(mock).to receive(:perform).once
+
+        variant.save
+      end
+
     end
   end
 
