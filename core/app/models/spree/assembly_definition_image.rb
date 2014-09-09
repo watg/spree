@@ -8,4 +8,10 @@ module Spree
       :keep_old_files => false
 
   end
+
+  def self.with_target(target)
+    target_id = target ? target.id : nil 
+    where(target_id: [nil, target_id])
+  end
+
 end

@@ -2,11 +2,11 @@ class Spree::ProductDecorator < Draper::Decorator
   delegate_all
   
   def memoized_variant_images
-    @_variant_images ||= object.images_for(context[:target])
+    @_variant_images ||= object.variant_images_for(context[:target])
   end
 
   def memoized_images
-    @_images ||= object.images
+    @_images ||= object.images_for(context[:target])
   end
 
   def memoized_personalisation_images

@@ -35,6 +35,10 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
       end
   end
 
+  def images_for(target)
+    images.with_target(target)
+  end
+
   private
 
   def set_assembly_product
