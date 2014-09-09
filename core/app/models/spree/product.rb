@@ -63,6 +63,7 @@ module Spree
     # this product
     has_many :assembly_definition_variants, through: :variants
     has_many :assembly_products, through: :assembly_definition_variants
+    has_many :assembly_definition_parts
     after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
 
     has_one :master,

@@ -61,6 +61,7 @@ module Spree
     before_create :create_sku
     after_create :create_stock_items
     after_create :set_position
+    after_create { delay(:priority => 20).add_to_all_assembly_definitions }
     after_touch :touch_index_page_items
 
     # This can take a while so run it asnyc with a low priority for now
@@ -522,6 +523,10 @@ module Spree
 
     def touch_index_page_items
       index_page_items.each { |item| item.touch }
+    end
+
+    def add_to_all_assembly_definitions
+      Spree::Jobs::AddVariantToAssemblyPart.new(self).perform
     end
 
   end
