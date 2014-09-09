@@ -5,8 +5,8 @@
     <% end %>
   <% end %>
 
-  <% @order.all_adjustments.tax.eligible.group_by(&:label).each do |label, adjustments| %>
-    <%= render "spree/orders/adjustment_row", :label => label, :adjustments => adjustments, :type => Spree.t(:tax) %>
+  <% @order.all_adjustments.tax.additional.eligible.group_by(&:label).each do |label, adjustments| %>
+      <%= render "spree/orders/adjustment_row", :label => label, :adjustments => adjustments, :type => Spree.t(:tax) %>
   <% end %>
 
   <% @order.shipments.each do |shipment| %>

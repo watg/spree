@@ -32,7 +32,7 @@ module Spree
 
     class << self
       def match_gift_card_format?(code)
-        code =~ /\w{4}\-\w{6}\-\w{4}/
+        !!(code =~ /\w{4}\-\w{6}\-\w{4}/)
       end
     end
 
@@ -111,13 +111,13 @@ module Spree
     end
 
     def generate_code
-      if self.code.blank? 
+      if self.code.blank?
         self.code = [
                      buyer_email_buyer_order_id,
                      currency_value_uuid,
                      expiry_date_time_now
                     ].join('-')
-      end 
+      end
     end
 
     def buyer_email_buyer_order_id
@@ -131,7 +131,7 @@ module Spree
     def expiry_date_time_now
       encode([expiry_date, Time.now].join, 4, -4)
     end
-    
+
     def encode(string, length, offset=0)
       Digest::MD5.hexdigest(string).upcase[offset, length]
     end

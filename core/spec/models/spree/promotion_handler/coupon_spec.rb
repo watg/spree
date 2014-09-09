@@ -12,6 +12,23 @@ module Spree
       end
 
 
+      context "with valid gift card" do
+        let(:gift_card) { create(:gift_card, value: 10) }
+        let(:order_with_giftcard) { gift_card.buyer_order }
+        let(:giftcard_coupon) {Coupon.new(order_with_giftcard)}
+
+        before { order_with_giftcard.coupon_code = gift_card.code }
+
+        it "sutracts gift card amount from order total" do
+          # due to convuluted factories, instead of stating an order value,
+          # value it determined through the order total attributed to GifrCard Factory
+          original_order_total = gift_card.buyer_order.total
+
+          giftcard_coupon.apply
+          expect(order_with_giftcard.reload.total).to eq original_order_total - gift_card.value
+        end
+      end
+
       context "coupon code promotion doesnt exist" do
         before { Promotion.create name: "promo", :code => nil }
 
