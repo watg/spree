@@ -82,6 +82,7 @@ module Spree
             if selected_part_variant = valid_selected_part_variant( assembly_definition_part, selected_part_variant_id.to_i )
               if selected_part_variant.required_parts_for_display.any?
                 # Adding the container. It may be optional.
+                #
                 parts << OpenStruct.new(
                   assembly_definition_part_id: assembly_definition_part.id,
                   variant_id:                  selected_part_variant.id,
@@ -101,7 +102,7 @@ module Spree
                     variant_id:                  sub_part.id,
                     quantity:                    sub_part.count_part * assembly_definition_part.count,
                     optional:                    false,
-                    price:                       selected_part_variant.price_part_in(currency).amount,
+                    price:                       sub_part.price_part_in(currency).amount,
                     currency:                    currency,
                     assembled:                   assembly_definition_part.assembled,
                     parent_part_id:              index

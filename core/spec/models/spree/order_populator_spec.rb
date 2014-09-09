@@ -80,10 +80,15 @@ describe Spree::OrderPopulator do
         let(:other_part) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: other_product, count: 1) }
         let!(:other_part_variant) { create(:assembly_definition_variant, assembly_definition_part: other_part, variant: other_variant) }
 
+        # Overide the price to 0 as this is now a container
+
         let(:part_attached_to_product) { create(:base_variant) }
         let(:part_attached_to_variant) { create(:base_variant) }
+        let!(:part_product_price) { create(:price, variant: part_attached_to_product, price: 1.99, sale: false, is_kit: true, currency: 'USD') }
+        let!(:part_variant_price) { create(:price, variant: part_attached_to_variant, price: 3.99, sale: false, is_kit: true, currency: 'USD') }
 
         before do
+          variant_part.prices.map { |p| p.amount = 0 }
           variant_part.product.add_part(part_attached_to_product, 3, false)
           variant_part.add_part(part_attached_to_variant, 4, false)
         end
@@ -94,7 +99,7 @@ describe Spree::OrderPopulator do
             variant_id: part_attached_to_product.id,
             quantity: 6,
             optional: adp.optional,
-            price: price.amount,
+            price: part_product_price.amount,
             currency: "USD",
             assembled: true,
             parent_part_id: 0 # the id refers to the parent container index
@@ -104,7 +109,7 @@ describe Spree::OrderPopulator do
             variant_id: part_attached_to_variant.id,
             quantity: 8,
             optional: adp.optional,
-            price: price.amount,
+            price: part_variant_price.amount,
             currency: "USD",
             assembled: true,
             parent_part_id: 0 # the id refers to the parent container index
