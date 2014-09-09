@@ -1,7 +1,7 @@
 <ul class="product-thumbnails thumbnails" data-hook>
 
   <% if product.assembly_definition %>
-    <% product.master.decorate( context: @context ).assembly_definition.images.each do |i| %>
+    <% product.master.assembly_definition.images_for(@context[:target]).each do |i| %>
       <li class='tmb-assembly-definition tmb-assembly-definition-<%= variant.id %>' style="display: none;" >
         <a href="<%= i.attachment.url(:product) %>">
          <%= image_tag(i.attachment.url(:mini)) %>
