@@ -188,6 +188,32 @@ describe Spree::UpdateVariantService do
 
     end
 
+    context "set_product_type_defaults" do
+
+      it "sets defaults" do
+        outcome = subject.run(variant: variant, details: valid_params, prices: prices)
+        expect(outcome.valid?).to be_true
+        expect(variant.track_inventory).to be_true
+        expect(variant.in_stock_cache).to be_false
+      end
+
+      context "when an assembly" do
+
+        before do
+          variant.product.product_type.is_assembly = true
+        end
+
+        it "sets defaults" do
+          outcome = subject.run(variant: variant, details: valid_params, prices: prices)
+          expect(outcome.valid?).to be_true
+          expect(variant.track_inventory).to be_false
+          expect(variant.in_stock_cache).to be_true
+        end
+
+      end
+
+    end
+
     context "on update" do
 
       context "with supplier supplied" do

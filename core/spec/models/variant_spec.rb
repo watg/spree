@@ -24,6 +24,28 @@ describe Spree::Variant do
     its(:tag_names) { should eq(tags.map(&:value)) }
   end
 
+  context "set_defaults" do
+
+    it "sets defaults" do
+      expect(variant.track_inventory_levels).to be_true
+      expect(variant.in_stock_cache).to be_false
+    end
+
+    context "when an assembly" do
+
+      before do
+        variant.product.product_type.is_assembly = true
+      end
+
+      it "sets defaults" do
+        expect(variant.track_inventory_levels).to be_false
+        expect(variant.in_stock_cache).to be_true
+      end
+
+    end
+
+  end
+
 
   describe '#total_on_hand' do
     it 'should be infinite if track_inventory_levels is false' do

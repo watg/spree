@@ -21,17 +21,28 @@ module Spree
           variant.supplier = supplier
         end
 
+        set_product_type_defaults(variant)
+
         variant.update_attributes!(details)
 
         update_tags(variant, split_params(tags).map(&:to_i) ) if tags
         assign_targets(variant, split_params(target_ids).map(&:to_i) ) if target_ids
         update_prices(prices, variant) if prices
 
+
         variant
       end
     end
 
     private
+
+    # TODO: this should be maybe in the product type?
+    def set_product_type_defaults(variant)
+      if variant.product.product_type.is_assembly?
+        variant.in_stock_cache = true
+        variant.track_inventory = false
+      end
+    end
 
     # Allows us to use the price trait
     def add_error(first, _second, message)
