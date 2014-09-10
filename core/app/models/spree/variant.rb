@@ -71,6 +71,7 @@ module Spree
     after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
 
     after_touch :clear_in_stock_cache
+    after_save  :check_stock
 
     # default variant scope only lists non-deleted variants
     scope :deleted, lambda { where.not(deleted_at: nil) }
@@ -494,6 +495,7 @@ module Spree
       self.cost_currency = Spree::Config[:currency] if cost_currency.nil? || cost_currency.empty?
     end
 
+
     def create_stock_items
       StockLocation.all.each do |stock_location|
         if stock_location.propagate_all_variants?
@@ -519,7 +521,11 @@ module Spree
 
 		def clear_in_stock_cache
 		  Rails.cache.delete(in_stock_cache_key)
-		end
+    end
+
+    def check_stock
+      ::Delayed::Job.enqueue Spree::StockCheckJob.new(self), queue: 'stock_check', priority: 10
+    end
 
     def touch_index_page_items
       index_page_items.each { |item| item.touch }

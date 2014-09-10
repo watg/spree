@@ -24,7 +24,6 @@ describe Spree::Variant do
     its(:tag_names) { should eq(tags.map(&:value)) }
   end
 
-
   describe '#total_on_hand' do
     it 'should be infinite if track_inventory_levels is false' do
       Spree::Config[:track_inventory_levels] = false

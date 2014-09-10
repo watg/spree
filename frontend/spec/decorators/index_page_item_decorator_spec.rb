@@ -82,11 +82,6 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
       end
     end
 
-    it "returns sale and normal from prices with a variant" do
-      index_page_item.variant = variant
-      expect(subject.made_by_the_gang_prices).to eq '<span class="price was" itemprop="price">from $19.99</span><span class="price now">$2.99</span>'
-    end
-
     it "does not returns out-of-stock from prices with a variant with no stock but " do
       variant.in_stock_cache = false
       variant.save
@@ -188,6 +183,7 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
 
       before do
         tab.product = dynamic_kit.reload
+        dynamic_kit.master.update_column(:in_stock_cache, true)
         tab.save!
       end
 

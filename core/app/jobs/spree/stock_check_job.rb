@@ -1,29 +1,26 @@
 module Spree
-  StockCheckJob = Struct.new(:stock_item) do
+  StockCheckJob = Struct.new(:variant) do
     def perform
 
-      if stock_item.variant.track_inventory?
+      variant_in_stock = check_stock(variant)
 
-        variant_in_stock = check_stock(stock_item)
-
-        # for old kits
-        if stock_item.variant.assemblies.any?
-          if variant_in_stock
-            check_stock_for_kits_using_this_variant(stock_item.variant)
-          else
-            put_all_kits_using_this_variant_out_of_stock(stock_item.variant)
-          end
+      # for old kits
+      if variant.assemblies.any?
+        if variant_in_stock
+          check_stock_for_kits_using_this_variant(variant)
+        else
+          put_all_kits_using_this_variant_out_of_stock(variant)
         end
-
       end
+
     end
 
     private
 
-    def check_stock(stock_item)
-      variant_in_stock = Spree::Stock::Quantifier.new(stock_item.variant).can_supply?(1)
-      if stock_item.variant.in_stock_cache != variant_in_stock
-        stock_item.variant.update_attributes(in_stock_cache: variant_in_stock)
+    def check_stock(variant)
+      variant_in_stock = Spree::Stock::Quantifier.new(variant).can_supply?(1)
+      if variant.in_stock_cache != variant_in_stock
+        variant.update_attributes(in_stock_cache: variant_in_stock)
       end
       variant_in_stock
     end
