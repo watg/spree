@@ -25,6 +25,24 @@ describe Spree::AssemblyDefinition do
 
   end
 
+  context "validate_prices" do
+
+    let!(:assembly_definition) { create(:assembly_definition) }
+    let!(:part) { create(:assembly_definition_part, assembly_definition: assembly_definition) }
+    let!(:variant) { create(:base_variant) }
+    let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: part, variant: variant) }
+
+    before do
+      variant.prices.map { |p| p.amount = 0;  p.is_kit=true; p.save }
+    end
+
+    it "should provide an error" do
+      assembly_definition.reload.save
+      expect(assembly_definition.errors.any?).to be_true
+    end
+
+  end
+
   context "validate_main_part" do
 
     let(:assembly_definition) { create(:assembly_definition) }
