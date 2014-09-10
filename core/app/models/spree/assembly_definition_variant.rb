@@ -8,6 +8,10 @@ class Spree::AssemblyDefinitionVariant < ActiveRecord::Base
 
   before_create :set_assembly_product
 
+  def part_prices
+    variant.part_prices
+  end
+
   private
 
   def set_assembly_product

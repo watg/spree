@@ -14,6 +14,27 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
 
   before_create :set_assembly_product
 
+  validate :validate_main_part
+  validate :validate_part_prices
+
+  def validate_main_part
+    # if we have a assembled we need a main part
+    if self.assembly_definition_parts.detect(&:assembled).present? != self.main_part_id.present?
+      errors.add(:assembly_definition, "can not have assmebled parts without a main part")
+    end
+  end
+
+  def validate_part_prices
+    bad_parts = self.assembly_definition_parts.map do |adp|
+      adp.assembly_definition_variants.select do |adv|
+        adv.part_prices.detect {|p| p.amount.to_f == 0 }.present?
+      end
+    end.flatten
+    bad_parts.each do |p|
+      errors.add(:bad_prices_for, "#{p.variant.options_text}")
+    end
+  end
+
   def selected_variants_out_of_stock
     Spree::AssemblyDefinitionVariant.joins(:assembly_definition_part, :variant).
       where("spree_variants.in_stock_cache='f'").

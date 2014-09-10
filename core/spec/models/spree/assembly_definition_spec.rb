@@ -4,6 +4,7 @@ describe Spree::AssemblyDefinition do
   let(:assembly) { create(:variant) }
   let(:assembly_product) { assembly.product }
   let(:option_type) { create(:option_type)}
+
   subject { Spree::AssemblyDefinition.create(variant_id: assembly.id)}
 
   context "Stock and Option Values" do
@@ -21,6 +22,42 @@ describe Spree::AssemblyDefinition do
 
     its(:selected_variants_out_of_stock) { should eq( {part1.id => [variant_no_stock.id]} )}
     its(:selected_variants_out_of_stock_option_values) { should eq( {part1.id => [variant_no_stock.option_values.pluck(:id)] } )}
+
+  end
+
+  context "validate_main_part" do
+
+    let(:assembly_definition) { create(:assembly_definition) }
+    let(:part) { create(:assembly_definition_part, assembly_definition: assembly_definition) }
+
+    context "no main part but assembled parts set" do
+
+      before do
+        assembly_definition.main_part = part
+      end
+
+      it "should provide an error" do
+        assembly_definition.save
+        expect(assembly_definition.errors.any?).to be_true
+      end
+
+    end
+
+    context "no assmebled parts but main part set" do
+
+      before do
+        part.assembled = true
+        part.save
+        assembly_definition.reload
+      end
+
+      it "should provide an error" do
+        assembly_definition.save
+        expect(assembly_definition.errors.any?).to be_true
+      end
+
+    end
+
   end
 
   describe "set_assembly_product" do

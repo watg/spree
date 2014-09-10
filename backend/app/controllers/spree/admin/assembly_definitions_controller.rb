@@ -1,6 +1,11 @@
 module Spree
   module Admin
     class AssemblyDefinitionsController < ResourceController
+      before_filter :load_data, :only => [:new, :create, :edit, :update]
+
+      def load_data
+        @product = @assembly_definition.variant.product
+      end
 
       def edit
         @assembly_definition = Spree::AssemblyDefinition.find(params[:id])
@@ -25,7 +30,6 @@ module Spree
         end
         render 'spree/admin/assembly_definitions/available'
       end
-
 
       def location_after_save
         edit_admin_assembly_definition_path(@assembly_definition)

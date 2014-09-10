@@ -193,6 +193,44 @@ describe Spree::ShippingManifestService::UniqueProducts do
       end
     end
 
+    context "with assembled parts and a main part" do
+      let(:part2_variant) { create(:base_variant) }
+      let(:part3_variant) { create(:base_variant) }
+      let!(:part2) { create(:line_item_part, line_item: line_item_1, quantity: 2, price: 24.00, variant: part2_variant, assembled: true, main_part: true) }
+      let!(:part3) { create(:line_item_part, line_item: line_item_1, quantity: 2, price: 5.00, variant: part3_variant, assembled: true) }
+
+      before do
+        line_item_1.quantity.times do
+          part2.quantity.times do
+            create(:base_inventory_unit, line_item: part2.line_item, order: order, variant: part2.variant, supplier: supplier_2)
+          end
+          part3.quantity.times do
+            create(:base_inventory_unit, line_item: part3.line_item, order: order, variant: part3.variant, supplier: supplier_2)
+          end
+        end
+      end
+
+      it "uses the main part, ignores the assembled parts" do
+        unique_products = subject.result
+
+        expect(unique_products.count).to eq 2
+        up1 = unique_products.detect { |x| x[:product] ==  variant_2.product }
+        up2 = unique_products.detect { |x| x[:product] ==  part2.product }
+        
+        expect(up1[:mid_code]).to eq supplier_2.mid_code
+        expect(up1[:quantity]).to eq 4
+        expect(up1[:total_price].to_f).to eq 25.00
+        expect(up1[:group]).to eq variant_2.product.product_group
+
+        expect(up2[:mid_code]).to eq supplier_2.mid_code
+        expect(up2[:quantity]).to eq 4
+        expect(up2[:total_price].to_f).to eq 75.00
+        expect(up2[:group]).to eq part2_variant.product.product_group
+
+      end
+    end
+
+
     context "multiple required parts" do
       let(:variant_3) { create(:variant) }
       let!(:part2) { create(:line_item_part, optional: false, line_item: line_item_1, quantity: 2, variant: variant_3, price: 2.0) }

@@ -58,14 +58,15 @@ module Spree
 
     def process_line_item_parts(line, inventory_units)
       products = []
+      parts = line.parts.stock_tracking.where("(assembled = ? and main_part = ?) or assembled = ?", true, true, false)
 
-      total_price_of_required_parts = line.parts.required.stock_tracking.to_a.sum do |p|
+      total_price_of_required_parts = parts.required.to_a.sum do |p|
         p.price * p.quantity * line.quantity
       end
       proportion = ( line.base_price * line.quantity ) / total_price_of_required_parts
 
       line.quantity.times do
-        line.parts.stock_tracking.each do |part|
+        parts.each do |part|
           part.quantity.times do
 
             index = inventory_units.index{|iu| iu.variant_id == part.variant_id }

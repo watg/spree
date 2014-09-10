@@ -6,6 +6,7 @@ class Spree::LineItemPart < ActiveRecord::Base
   belongs_to :variant, class_name: "Spree::Variant"
   belongs_to :line_item, class_name: "Spree::LineItem", inverse_of: :line_item_parts
   belongs_to :parent_part, class_name: "Spree::LineItemPart"
+  belongs_to :assembly_definition_part
 
   has_many :inventory_units, inverse_of: :line_item_part
 
@@ -17,7 +18,6 @@ class Spree::LineItemPart < ActiveRecord::Base
   scope :without_subparts, lambda { where(parent_part_id: nil) }
 
   scope :not_operational, lambda { joins(variant: [product: :product_type]).merge(Spree::ProductType.where(is_operational: [nil, false])) }
-
 
   def required?
     !optional?

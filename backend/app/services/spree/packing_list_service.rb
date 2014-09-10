@@ -23,6 +23,7 @@ module Spree
         line.line_item_personalisations.each do |p|
           invoice_services_data << format_personalisation(p)
         end
+
       end
 
       invoice_services_data
@@ -32,6 +33,10 @@ module Spree
     private
 
     def grouped_inventory_units(line)
+      # TODO the methods below will help us format the picking list much better
+      # line.parts.select { |p| p.parent_part.nil? }.map(&:variant).map(&:options_text).join(', '),
+      #inventory_units = line.inventory_units.select { |i| !i.line_item_part.assembled or (i.line_item_part.assembled && i.line_item_part.main_part) }
+      #grouped = inventory_units.group_by do |iu|
       grouped = line.inventory_units.group_by do |iu|
         [ Spree::Variant.unscoped.find_by_id(iu.variant_id), iu.supplier]
       end
