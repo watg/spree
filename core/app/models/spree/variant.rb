@@ -443,6 +443,10 @@ module Spree
       assembly_definition.try(:parts) || []
     end
 
+    def part_prices
+      prices.select{ |price| (price.sale == false) && (price.is_kit == true) }
+    end
+
     private
 
     def touch_assembly_products
