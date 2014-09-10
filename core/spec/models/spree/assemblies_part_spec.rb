@@ -6,12 +6,25 @@ module Spree
     let(:part) { create(:variant) }
     let(:variant) { create(:variant, :id => 123) }
 
-    before do
-      product.parts.push part
-      variant.parts.push part
+    context "validate_prices" do
+
+      before do
+        variant.prices.map { |p| p.amount = 0;  p.is_kit=true; p.save }
+      end
+
+      it "should provide an error" do
+        ap = product.assemblies_parts.create( :part_id => variant.id, :optional => true, :count => 1 )
+        expect(ap.errors.any?).to be_true
+      end
+
     end
 
     describe "touching" do
+
+      before do
+        product.parts.push part
+        variant.parts.push part
+      end
 
       it "updates a product" do
         ap1 = Spree::AssembliesPart.where(part_id: part.id, assembly_id: product.id, assembly_type: 'Spree::Product').first
