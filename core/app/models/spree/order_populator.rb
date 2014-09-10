@@ -68,7 +68,9 @@ module Spree
             quantity:                    r.count_part,
             optional:                    false,
             price:                       r.price_part_in(currency).amount,
-            currency:                    currency
+            currency:                    currency,
+            main_part:                   false,
+            container:                   false
           )
         end
       end
@@ -80,9 +82,12 @@ module Spree
           if assembly_definition_part = valid_part( variant, part_id.to_i )
 
             if selected_part_variant = valid_selected_part_variant( assembly_definition_part, selected_part_variant_id.to_i )
+
+              main_part_id = assembly_definition_part.assembly_definition.main_part_id
+
               if selected_part_variant.required_parts_for_display.any?
                 # Adding the container. It may be optional.
-                #
+
                 parts << OpenStruct.new(
                   assembly_definition_part_id: assembly_definition_part.id,
                   variant_id:                  selected_part_variant.id,
@@ -92,7 +97,8 @@ module Spree
                   currency:                    currency,
                   assembled:                   assembly_definition_part.assembled,
                   container:                   true,
-                  id:                          index
+                  id:                          index,
+                  main_part:                   (assembly_definition_part.id == main_part_id)
                 )
 
                 # Adding the parts of the container. They are always required.
@@ -102,10 +108,12 @@ module Spree
                     variant_id:                  sub_part.id,
                     quantity:                    sub_part.count_part * assembly_definition_part.count,
                     optional:                    false,
+                    container:                   false,
                     price:                       sub_part.price_part_in(currency).amount,
                     currency:                    currency,
                     assembled:                   assembly_definition_part.assembled,
-                    parent_part_id:              index
+                    parent_part_id:              index,
+                    main_part:                   false
                   )
                 end
               else
@@ -117,6 +125,8 @@ module Spree
                   price:                       selected_part_variant.price_part_in(currency).amount,
                   currency:                    currency,
                   assembled:                   assembly_definition_part.assembled,
+                  container:                   false,
+                  main_part:                   (assembly_definition_part.id == main_part_id)
                 )
               end
             end
@@ -152,7 +162,9 @@ module Spree
               quantity:   part_quantity(variant,o),
               optional:   true,
               price:      o.price_part_in(currency).amount,
-              currency:   currency
+              currency:   currency,
+              main_part:  false,
+              container:  false
             )
           end
         end

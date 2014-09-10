@@ -29,12 +29,62 @@ describe Spree::OrderPopulator do
           optional: adp.optional,
           price: price.amount,
           currency: "USD",
-          assembled: true
+          assembled: true,
+          container: false,
+          main_part: false
         ) ] }
 
       it "can parse parts from the options" do
         parts = subject.class.parse_options(variant_assembly, {adp.id.to_s => variant_part.id.to_s}, 'USD')
         expect(parts).to match_array expected_parts
+      end
+
+      # for required part and not
+      context "Setting the main part" do
+        #let!(:assembly_definition) { create(:assembly_definition, variant: variant_assembly, main_part: adp) }
+        let(:expected_parts) { [
+          OpenStruct.new(
+            assembly_definition_part_id: adp.id,
+            variant_id: variant_part.id,
+            quantity: 2,
+            optional: adp.optional,
+            price: price.amount,
+            currency: "USD",
+            assembled: true,
+            container: false,
+            main_part: true
+          )
+        ] }
+
+        before do
+          adp.assembled = true
+          adp.optional = true
+          adp.save
+          assembly_definition.reload
+          assembly_definition.main_part = adp
+          assembly_definition.save
+        end
+#
+        context "non required part" do
+          it "creates the correct params" do
+            parts = subject.class.parse_options(variant_assembly, {adp.id.to_s => variant_part.id.to_s}, 'USD')
+            expect(parts).to match_array expected_parts
+          end
+        end
+
+        context "required part" do
+
+          before do
+            adp.optional = false
+            adp.save
+          end
+
+          it "creates the correct params" do
+            parts = subject.class.parse_options(variant_assembly, {adp.id.to_s => variant_part.id.to_s}, 'USD')
+            expect(parts).to match_array expected_parts
+          end
+
+        end
       end
 
       context "#attempt_cart_add" do
@@ -43,7 +93,6 @@ describe Spree::OrderPopulator do
           expect(subject.errors[:base]).to include "Some required parts are missing"
         end
       end
-
 
       context "valid params" do
 
@@ -74,6 +123,7 @@ describe Spree::OrderPopulator do
 
       end
 
+      
       context "when the part has parts of its own (old kit in an assembly)" do
         let(:other_product)  { create(:base_product) }
         let(:other_variant)  { create(:base_variant, product: other_product) }
@@ -88,6 +138,7 @@ describe Spree::OrderPopulator do
         let!(:part_variant_price) { create(:price, variant: part_attached_to_variant, price: 3.99, sale: false, is_kit: true, currency: 'USD') }
 
         before do
+          assembly_definition.main_part = other_part
           variant_part.prices.map { |p| p.amount = 0 }
           variant_part.product.add_part(part_attached_to_product, 3, false)
           variant_part.add_part(part_attached_to_variant, 4, false)
@@ -102,7 +153,9 @@ describe Spree::OrderPopulator do
             price: part_product_price.amount,
             currency: "USD",
             assembled: true,
-            parent_part_id: 0 # the id refers to the parent container index
+            parent_part_id: 0, # the id refers to the parent container index
+            container: false,
+            main_part: false
           ),
           OpenStruct.new(
             assembly_definition_part_id: adp.id,
@@ -112,7 +165,9 @@ describe Spree::OrderPopulator do
             price: part_variant_price.amount,
             currency: "USD",
             assembled: true,
-            parent_part_id: 0 # the id refers to the parent container index
+            parent_part_id: 0, # the id refers to the parent container index
+            container: false,
+            main_part: false
           ),
           OpenStruct.new(
             assembly_definition_part_id: adp.id,
@@ -123,7 +178,8 @@ describe Spree::OrderPopulator do
             currency: "USD",
             assembled: true,
             container: true,
-            id: 0 # the id here refers to the container index
+            id: 0, # the id here refers to the container index
+            main_part: false
           ),
           OpenStruct.new(
             assembly_definition_part_id: other_part.id,
@@ -132,7 +188,9 @@ describe Spree::OrderPopulator do
             optional: false,
             price: nil,
             currency: "USD",
-            assembled: false
+            assembled: false,
+            container: false,
+            main_part: false
           )
         ] }
 
@@ -155,7 +213,9 @@ describe Spree::OrderPopulator do
           quantity: 2,
           optional: false,
           price: nil,
-          currency: "USD"
+          currency: "USD",
+          container: false,
+          main_part: false
         ),
         OpenStruct.new(
           assembly_definition_part_id: nil,
@@ -163,7 +223,9 @@ describe Spree::OrderPopulator do
           quantity: 1,
           optional: true,
           price: nil,
-          currency: "USD"
+          currency: "USD",
+          container: false,
+          main_part: false
         ),
       ] }
 
@@ -249,7 +311,9 @@ describe Spree::OrderPopulator do
               quantity: 2,
               optional: false,
               price: nil,
-              currency: "USD"
+              currency: "USD",
+              container: false,
+              main_part: false
             ),
             OpenStruct.new(
               assembly_definition_part_id: nil,
@@ -257,7 +321,9 @@ describe Spree::OrderPopulator do
               quantity: 1,
               optional: false,
               price: nil,
-              currency: "USD"
+              currency: "USD",
+              container: false,
+              main_part: false
             ),
             OpenStruct.new(
               assembly_definition_part_id: nil,
@@ -265,7 +331,9 @@ describe Spree::OrderPopulator do
               quantity: 1,
               optional: true,
               price: nil,
-              currency: "USD"
+              currency: "USD",
+              container: false,
+              main_part: false
             ),
             OpenStruct.new(
               assembly_definition_part_id: nil,
@@ -273,7 +341,9 @@ describe Spree::OrderPopulator do
               quantity: 2,
               optional: true,
               price: nil,
-              currency: "USD"
+              currency: "USD",
+              container: false,
+              main_part: false
             )
           ]
 

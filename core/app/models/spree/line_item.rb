@@ -97,6 +97,7 @@ module Spree
           currency: o.currency,
           assembled: o.assembled,
           container: o.container,
+          main_part: o.main_part,
           parent_part_id: o.parent_part_id
         )
       end
