@@ -1,8 +1,8 @@
-
 <%= render :partial => 'spree/admin/shared/product_sub_menu' %>
 
 <%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => "Parts"} %>
 
+<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @assembly_definition } %>
 
 <%= form_tag('#') do %>
 <label><%= t('search') %>:</label>
@@ -52,7 +52,7 @@
     <div class="row">
       <div class="eft six columns alpha">
       <%= f.label :main_part_id, "Main Part" %> <span class="required">*</span><br />
-      <%= f.collection_select(:main_part_id, @assembly_definition.parts, :id, :presentation, {},{
+      <%= f.collection_select(:main_part_id, @assembly_definition.parts, :id, :presentation, {:include_blank => true},{
         :class => 'select2 fullwidth'}) %>
       <%= f.error_message_on :main_part_id %>
       </div>

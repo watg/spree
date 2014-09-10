@@ -14,6 +14,15 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
 
   before_create :set_assembly_product
 
+  validate :validate_main_part
+
+  def validate_main_part
+    # if we have a assembled we need a main part
+    if self.assembly_definition_parts.detect(&:assembled).present? != self.main_part_id.present?
+      errors.add(:assembly_definition, "can not have assmebled parts without a main part")
+    end
+  end
+
   def selected_variants_out_of_stock
     Spree::AssemblyDefinitionVariant.joins(:assembly_definition_part, :variant).
       where("spree_variants.in_stock_cache='f'").
