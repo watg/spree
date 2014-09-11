@@ -154,6 +154,7 @@ module Spree
           base['variant']['in_sale']=v.in_sale
           base['variant']['in_stock']= v.in_stock_cache
           base['variant']['total_on_hand']= v.total_on_hand
+          base['variant']['suppliers']= v.suppliers
           if v.images.any?
             #base['variant']['image_url']= v.images.reorder(:position).first.attachment.url(:mini)
             # above replaced by below, as it was causing extra sql queries

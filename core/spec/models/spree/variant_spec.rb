@@ -81,6 +81,7 @@ describe Spree::Variant do
       attributes["part_price"].should == 0
       attributes["in_sale"].should == false
       attributes["total_on_hand"].should == variant_1.total_on_hand
+      attributes["suppliers"].should == variant_1.suppliers
 
       attributes = product.variants.options_tree_for(nil,'USD')[ov2.option_type.name][ov2.name]['variant']
       attributes.should_not be_nil
@@ -90,6 +91,7 @@ describe Spree::Variant do
       attributes["part_price"].should == 0
       attributes["in_sale"].should == false
       attributes["total_on_hand"].should == variant_2.total_on_hand
+      attributes["suppliers"].should == variant_2.suppliers
 
       #product.variant_options_tree_for(nil,'GBP').should == {
       #  "color"=>{
