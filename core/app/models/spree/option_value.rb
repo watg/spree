@@ -5,7 +5,7 @@ module Spree
     acts_as_list scope: :option_type
     has_and_belongs_to_many :variants, join_table: 'spree_option_values_variants', class_name: "Spree::Variant"
 
-    validates :name, :presentation, :sku_part, presence: true
+    validates :name, presence: true
     validates_uniqueness_of :name, :scope => [:option_type_id]
     validates_uniqueness_of :sku_part, :scope => [:option_type_id]
 
@@ -13,7 +13,7 @@ module Spree
 
     default_scope { order("#{quoted_table_name}.position") }
 
-    before_validation { update_presentation_and_sku_part }
+    before_create { update_presentation_and_sku_part }
 
     after_touch :touch_all_variants
 
@@ -59,10 +59,8 @@ module Spree
 
       # This is an optimistaion to deal with the nested_attributes which we have to deal with
       # we first check the in memory data structure, then followed by the DB
-      option_values_1 = option_type.option_values.select { |ov| ov.sku_part.to_s.match(/^#{string}/) } +
-      option_values_2  = Spree::OptionValue.where(option_type_id: option_type.id)
-        .where("sku_part like '#{string}%'")
-      option_values = option_values_1 + option_values_2
+      option_values = option_type.option_values.select { |ov| ov.sku_part.to_s.match(/^#{string}/) }
+      option_values += Spree::OptionValue.where(option_type_id: option_type.id).where("sku_part like '#{string}%'")
 
       numbers = option_values.uniq.map do |ov|
         if matches = ov.sku_part.to_s.match(/^#{string}(_(\d+))?$/)
