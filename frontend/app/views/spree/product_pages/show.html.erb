@@ -42,7 +42,6 @@
 	</div><!-- /row -->
 	<% end %>
 
-
 	<% if @product_page.made_by_the_gang_product.blank? and @product_page.made_by_the_gang_variants? %>
 		<%= render partial: 'old_variants', locals: { product: @product_page.made_by_the_gang_product, product_page_tab: @product_page.made_by_the_gang_tab } %>
 	<% elsif @product_page.made_by_the_gang_product.present? %>

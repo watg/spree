@@ -1,0 +1,24 @@
+<h6>Shipping to Spain</h6>
+<% if free_shipping? %>
+<p>Free shipping on all orders over <%= free_shipping_amount %>.</p>
+<% end %>
+<table>
+	<caption>Shipping to Spain</caption>
+	<tbody>
+		<tr>
+			<th>Delivery time</th>
+			<td>DHL within 2 working days of dispatch</td>
+		</tr>
+		<tr>
+			<th>Cost</th>
+			<td>€8.50</td>
+		</tr>
+		<% if free_shipping? %>
+		<tr>
+			<th>Spend over <%= free_shipping_amount %></th>
+			<td>Free</td>
+		</tr>
+		<% end %>
+	</tbody>
+</table>
+<%= render '/spree/product_pages/delivery/delivery_additional' %>
