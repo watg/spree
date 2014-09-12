@@ -164,7 +164,3 @@ module Spree
 
 
 end
-
-result =  Spree::PolyvorFeedJob.new.perform 
-d{ result }
-
