@@ -170,6 +170,9 @@
 				font-size: emCalc(16px);
 				text-transform: uppercase;
 				border-bottom: 1px solid #e0e0e0;
+				&.sale {
+					color: #ff0054;
+				}
 			}
 			img + h3 {
 				position: absolute;
@@ -188,6 +191,9 @@
 				text-transform: uppercase;
 				color: #fff;
 				width: 220px;
+				&.sale {
+					color: #ff0054;
+				}
 			}
 			ul {
 				display: block;
