@@ -61,7 +61,7 @@ WATG.signup = {
 	},
 	
 	getPromo: function() {
-		return '<p>Thanks for signing up.<br/>Enter code when you check out to get 15% off your order* :)<br/><strong>HELLO72X76</strong><br/><small>*Expires midnight 12th September</small></p>';
+		return '<p>Thanks for signing up.<br/>Enter code when you check out to get 15% off your order* :)<br/><strong>HELLO72X76</strong><br/><small>*Expires midnight 16th September</small></p>';
 	},
 	
 	showError: function() {
