@@ -24,6 +24,9 @@ module Spree
     scope :made_by_the_gang, -> { where(tab_type: MADE_BY_THE_GANG) }
     scope :knit_your_own, -> { where(tab_type: KNIT_YOUR_OWN) }
 
+    def presentation
+      self.tab_type.humanize
+    end
 
     def self.to_tab_type(tab)
       tab.gsub(/-/,'_') unless tab.blank?

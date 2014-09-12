@@ -5,6 +5,13 @@ development: &dev
     name: 'linkshare-atom.xml'
     host:  http://www.woolandthegang.com
     feed_url: http://localhost:3000/linkshare-atom.xml
+  polyvor:
+    storage_method: cache
+    s3_bucket: 
+    name: 'polyvor_feed.tsv'
+    host:  http://www.woolandthegang.com
+    feed_url: http://localhost:3000/polyvor.tsv
+ 
     
 test:
   <<: *dev
@@ -16,6 +23,12 @@ staging: &staging
     name: 'linkshare/atom.xml'
     host:  http://www.woolandthegang.com
     feed_url: http://s3.amazonaws.com/watg-dest-test/linkshare/atom.xml
+  polyvor:
+    storage_method: s3
+    s3_bucket: watg-dest-test
+    name: 'polyvor/feed.tsv'
+    host:  http://www.woolandthegang.com
+    feed_url: http://s3.amazonaws.com/watg-dest-test/polyvor/feed.tsv
 
 production:
   linkshare:
@@ -24,3 +37,9 @@ production:
     name: 'linkshare/atom.xml'
     host:  http://www.woolandthegang.com
     feed_url: http://feeds.woolandthegang.com/linkshare/atom.xml
+  polyvor:
+    storage_method: s3
+    s3_bucket: feeds.woolandthegang.com  ## items in that bucket have to be publicly accessible
+    name: 'polyvor/feed.tsv'
+    host:  http://www.woolandthegang.com
+    feed_url: http://feeds.woolandthegang.com/polyvor/feed.tsv
