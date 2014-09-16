@@ -7,6 +7,7 @@ module Spree
       let!(:order) { create(:order_with_line_items, line_items_count: number_of_line_items) }
       let(:stock_location) { create(:stock_location) }
       let(:default_splitters) { Rails.application.config.spree.stock_splitters }
+      let(:supplier) { create(:supplier) }
 
       subject { Packer.new(stock_location, order, default_splitters) }
 
@@ -32,19 +33,22 @@ module Spree
 
       context 'default_package' do
         it 'contains all the items' do
-          package = subject.default_package
+          package = subject.product_assembly_package
           package.contents.size.should eq number_of_line_items
           package.weight.should > 0
         end
 
         it 'variants are added as backordered without enough on_hand' do
-          rtn = [
-            [OpenStruct.new( supplier: nil, count: 2 )],
-            [OpenStruct.new( supplier: nil, count: 3 )],
-          ]
-          stock_location.should_receive(:fill_status).exactly(number_of_line_items).times.and_return(rtn)
+          # Note we return nil as fill_status should not return backordered in the
+          # future
+          stock_location.stock_items.map do |si|
+            si.backorderable = true
+            si.supplier = supplier
+            si.set_count_on_hand(1)
+          end
+          order.line_items.map { |li| li.quantity = 2 }
 
-          package = subject.default_package
+          package = subject.product_assembly_package
           package.on_hand.size.should eq number_of_line_items
           package.backordered.size.should eq number_of_line_items
         end
@@ -54,7 +58,7 @@ module Spree
           let(:packer) { Packer.new(stock_location, order) }
 
           it "builds an empty package" do
-            packer.default_package.contents.should be_empty
+            packer.product_assembly_package.contents.should be_empty
           end
         end
 
@@ -66,11 +70,11 @@ module Spree
 
           it "doesn't bother stock items status in stock location" do
             expect(subject.stock_location).not_to receive(:fill_status)
-            subject.default_package
+            subject.product_assembly_package
           end
 
           it "still creates package with proper quantity" do
-            expect(subject.default_package.quantity).to eql 30
+            expect(subject.product_assembly_package.quantity).to eql 30
           end
         end
       end
@@ -89,6 +93,7 @@ module Spree
 
         context "order has backordered and on hand items" do
           before do
+            stock_location.stock_items.update_all(supplier_id: supplier.id)
             stock_item = stock_location.stock_item(parts.first.variant)
             stock_item.adjust_count_on_hand(10)
           end
@@ -151,6 +156,54 @@ module Spree
             package.contents.each {|ci| ci.supplier.should eq supplier}
           end
         end
+      end
+
+      # Test Fix For: if an order has 2 line items which are kits and they have a common
+      # variants e.g.(  a blue zion lion ) but the stock count is SupplierA: 1, SupplierB: 1
+      # for the common part. Before the fix it would have decremented 2 from SupplierA to leave
+      # it as -1 due to the fact it did not take the whole order into account when determining
+      # the supplier stock.
+      context "Supplier and Assemblies" do
+        let!(:order) { create(:order) }
+        let!(:line_item_1) { create(:line_item, order: order ) }
+        let!(:line_item_2) { create(:line_item, order: order ) }
+
+        let!(:part_variant) { create(:base_variant) }
+
+        let!(:stock_location) { part_variant.stock_locations.first }
+
+        let!(:part_for_line_item_1) { create(:part, line_item: line_item_1, variant: part_variant) }
+        let!(:part_for_line_item_2) { create(:part, line_item: line_item_2, variant: part_variant) }
+
+        let!(:supplier_1) { create(:supplier) }
+        let!(:supplier_2) { create(:supplier) }
+
+        let!(:si_1) { create(:stock_item, variant: part_variant, supplier: supplier_1, stock_location: stock_location, backorderable: false) }
+        let!(:si_2) { create(:stock_item, variant: part_variant, supplier: supplier_2, stock_location: stock_location, backorderable: false) }
+
+        before do
+          si_1.set_count_on_hand(1)
+          si_2.set_count_on_hand(1)
+        end
+
+        it "removes stock from both suppliers when there is not enough stock from one" do
+
+          package = subject.product_assembly_package
+          expect(package.contents.size).to eq 2
+
+          package_1 = package.contents.detect { |p| p.line_item_part == part_for_line_item_1 }
+          expect(package_1.variant).to eq part_variant
+          expect(package_1.quantity).to eq 1
+          expect([supplier_1, supplier_2]).to include(package_1.supplier)
+
+          package_2 = package.contents.detect { |p| p.line_item_part == part_for_line_item_2 }
+          expect(package_2.variant).to eq part_variant
+          expect(package_2.quantity).to eq 1
+          expect([supplier_1, supplier_2]).to include(package_2.supplier)
+
+          expect(package_1.supplier).to_not eq package_2.supplier
+        end
+
       end
 
     end
