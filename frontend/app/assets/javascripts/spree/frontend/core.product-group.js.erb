@@ -18,6 +18,7 @@ $(document).ready(function() {
 	/* ----- New kit UI only ----- */
 	core.productGroup.hideOutOfStockVariants();
 	core.productGroup.readyAssemblyMenus();
+	core.productGroup.closeAssemblyMenus();
 	core.productGroup.readyAssemblyItemNames();
 	core.productGroup.setAssemblyListHeights();
 });
@@ -348,12 +349,20 @@ core.productGroup.readyAssemblyMenus = function() {
 	var row = $('.row-assembly');
 	if (row.length == 0) return false; // Die if not new kit UI
 
-	row.find('.product-variants').on('click', function() {
+	row.find('.product-variants').on('click', function(e) {
+		e.stopPropagation();
 		$(this).siblings().removeClass('revealed').find('.variant-options').hide();
 		$(this).find('.variant-options').toggle();
 		$(this).toggleClass('revealed');
 	});
 }
+
+core.productGroup.closeAssemblyMenus = function() {
+	$('.row-made-by-the-gang, .row-knit-your-own').on('click', function() {
+		$(this).find('.product-variants.revealed').click();
+	});
+}
+
 
 // Ensure item names are clickable
 core.productGroup.readyAssemblyItemNames = function() {
@@ -361,7 +370,7 @@ core.productGroup.readyAssemblyItemNames = function() {
 	if (row.length == 0) return false; // Die if not new kit UI
 	
 	row.find('.assembly-name').on('click', function(e) {
-	    $(this).prev().click();
+	    e.stopPropagation();
 		$(this).closest('.product-variants').click();
 	});
 }
