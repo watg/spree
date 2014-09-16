@@ -370,7 +370,8 @@ core.productGroup.readyAssemblyItemNames = function() {
 	if (row.length == 0) return false; // Die if not new kit UI
 	
 	row.find('.assembly-name').on('click', function(e) {
-	    e.stopPropagation();
+	  e.stopPropagation();
+	  $(this).prev().click();
 		$(this).closest('.product-variants').click();
 	});
 }
