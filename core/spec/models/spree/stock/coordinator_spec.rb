@@ -37,6 +37,7 @@ module Spree
 
         let(:bundle_variant) { line_item.variant }
         let(:common_product) { order.variants.last }
+        let(:supplier) { create(:supplier)}
 
         before do
           expect(bundle_variant).to_not eql common_product
@@ -45,7 +46,7 @@ module Spree
           create(:part, line_item: line_item, variant: common_product)
         end
 
-        before { StockItem.update_all 'count_on_hand = 10' }
+        before { StockItem.update_all count_on_hand: 10, supplier_id: supplier.id }
 
         context "bundle part requires more units than individual product" do
           before { order.contents.add_by_line_item(line_item, 5) }
