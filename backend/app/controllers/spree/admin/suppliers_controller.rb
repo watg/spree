@@ -1,7 +1,7 @@
 module Spree
   module Admin
     class SuppliersController < ResourceController
-      
+
       before_filter :set_defaults, :only => [:new]
 
       protected
@@ -9,10 +9,6 @@ module Spree
       def set_defaults
         @object.mid_code = Spree::Supplier.default_mid_code
         @object.country = Spree::Supplier.default_country
-      end
-
-      def find_resource
-        Supplier.find_by_permalink(params[:id])
       end
 
       def collection
@@ -26,6 +22,11 @@ module Spree
           page(params[:page]).
           per( 15 )
         @collection
+      end
+
+
+      def location_after_save
+        edit_admin_supplier_path(@supplier)
       end
 
     end

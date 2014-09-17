@@ -1,67 +1,99 @@
-<div class="label-block left six columns alpha">
+<div class="left ten columns alpha">
 
-  <%= f.field_container :firstname do %>
-    <%= f.label :firstname, Spree.t(:firstname) %>
-    <%= f.text_field :firstname, :class => 'fullwidth title' %>
-    <%= f.error_message_on :firstname %>
-  <% end %>
 
-  <%= f.field_container :lastname do %>
-    <%= f.label :lastname, Spree.t(:lastname) %>
-    <%= f.text_field :lastname, :class => 'fullwidth title' %>
-    <%= f.error_message_on :lastname %>
-  <% end %>
+  <div class="row">
+    <div class="left five columns alpha">
+      <%= f.field_container :firstname do %>
+        <%= f.label :firstname, Spree.t(:firstname) %>
+        <%= f.text_field :firstname, :class => 'fullwidth title' %>
+        <%= f.error_message_on :firstname %>
+      <% end %>
+    </div>
 
-  <%= f.field_container :nickname do %>
-    <%= f.label :nickname, Spree.t(:nickname) %>
-    <%= f.text_field :nickname, :class => 'fullwidth title' %>
-    <%= f.error_message_on :nickname %>
-  <% end %>
+    <div class="right five columns omega">
+      <%= f.field_container :lastname do %>
+        <%= f.label :lastname, Spree.t(:lastname) %>
+        <%= f.text_field :lastname, :class => 'fullwidth title' %>
+        <%= f.error_message_on :lastname %>
+      <% end %>
+    </div>
+  </div>
 
-  <%= f.field_container :is_company do %>
-    <%= f.label :is_company, Spree.t(:is_company) %>
-    <%= f.check_box :is_company %>
-  <% end %>
+  <div class="left five columns alpha">
+    <%= f.field_container :nickname do %>
+      <%= f.label :nickname, Spree.t(:nickname) %>
+      <%= f.text_field :nickname, :class => 'fullwidth title' %>
+      <%= f.error_message_on :nickname %>
+    <% end %>
+  </div>
 
-  <%= f.field_container :is_displayable do %>
-    <%= f.label :is_displayable, Spree.t(:is_displayable) %>
-    <%= f.check_box :is_displayable %>
-  <% end %>
+  <div class="right five columns omega">
+    <%= f.field_container :permalink do %>
+      <%= f.label :permalink, Spree.t(:permalink) %>
+      <%= f.text_field :permalink, :class => 'fullwidth title' %>
+      <%= f.error_message_on :permalink %>
+    <% end %>
+  </div>
+
+
+
+  <div class="row">
+    <div class="left five columns alpha">
+      <%= f.field_container :is_company do %>
+        <%= f.label :is_company, Spree.t(:is_company) %>
+        <%= f.check_box :is_company %>
+      <% end %>
+    </div>
+
+    <div class="right five columns omega">
+      <%= f.field_container :is_displayable do %>
+        <%= f.label :is_displayable, Spree.t(:is_displayable) %>
+        <%= f.check_box :is_displayable %>
+      <% end %>
+    </div>
+  </div>
 
   <%= f.field_container :company_name do %>
     <%= f.label :company_name, Spree.t(:company_name) %>
     <%= f.text_field :company_name, :class => 'fullwidth title' %>
     <%= f.error_message_on :company_name %>
   <% end %>
-  
-    <%= f.field_container :country_id do %>
-      <%= f.label :country_id, "Country of country" %> <span class="required">*</span><br />
-      <%= f.collection_select(:country_id, Spree::Country.all.sort_by(&:name), :id, :name, {},{ 
-        :class => 'select2 fullwidth'}) %>
-      <%= f.error_message_on :country_id %>
-    <% end %>
 
-  <%= f.field_container :mid_code do %>
-    <%= f.label :mid_code, Spree.t(:mid_code) %> 
-    <%= f.text_field :mid_code, :class => 'fullwidth title' %>
-    <%= f.error_message_on :mid_code %>
-  <% end %>
+
+  <div class="row">
+    <div class="left five columns alpha">
+      <%= f.field_container :country_id do %>
+        <%= f.label :country_id, "Country of origin *" %>
+        <%= f.collection_select(:country_id, Spree::Country.all.sort_by(&:name), :id, :name, {},{
+          :class => 'select2 fullwidth'}) %>
+        <%= f.error_message_on :country_id %>
+      <% end %>
+    </div>
+
+    <div class="right five columns omega">
+      <%= f.field_container :mid_code do %>
+        <%= f.label :mid_code, Spree.t(:mid_code) %>
+        <%= f.text_field :mid_code, :class => 'fullwidth title' %>
+        <%= f.error_message_on :mid_code %>
+      <% end %>
+    </div>
+  </div>
 
   <%= f.field_container :profile do %>
     <%= f.label :profile, Spree.t(:profile) %>
-    <%= f.text_area :profile, :class => 'fullwidth title' %>
+    <%= f.text_area :profile, :class => 'fullwidth title', rows: "8" %>
     <%= f.error_message_on :profile %>
   <% end %>
 </div>
 
-<div class="label-block right six columns omega">
+<div class="right six columns omega">
 
   <%= f.field_container :image do %>
-    <%= f.label :image, Spree.t(:image) %> <span class="required">*</span><br />
+    <%= f.label :image, "Image" %>
     <%= f.file_field :avatar, :class => 'fullwidth title' %>
     <%= f.error_message_on :image %>
   <% end %>
-
+  <br><br>
   <%= f.label Spree.t(:thumbnail) %><br>
   <%= link_to image_tag(@supplier.avatar.url(:avatar)) if @supplier.avatar? %>
 </div>
