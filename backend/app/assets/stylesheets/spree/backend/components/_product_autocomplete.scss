@@ -1,9 +1,9 @@
 .select2-result-label {
   .variant-autocomplete-item {
     .variant-details {
-      padding: 0 10px;
-      width: 75%;
-      float: left;
+      // padding: 0 10px;
+      // width: 75%;
+      // float: left;
     }
 
     .variant-image {
@@ -23,7 +23,7 @@
 
         &:last-child:after {
           content: '';
-        } 
+        }
       }
     }
   }

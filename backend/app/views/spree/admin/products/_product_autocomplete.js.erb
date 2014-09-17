@@ -4,7 +4,7 @@
       {{#if product.image }}
         <img src='{{product.image}}' />
       {{ else }}
-        <img src='<%= image_path("noimage/small.png") %>' />
+        <img src='<%= image_path(cdn_url("noimage/mini.png")) %>' />
       {{/if}}
     </figure>
 
