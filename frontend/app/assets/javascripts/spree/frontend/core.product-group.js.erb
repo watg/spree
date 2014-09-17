@@ -363,7 +363,6 @@ core.productGroup.closeAssemblyMenus = function() {
 	});
 }
 
-
 // Ensure item names are clickable
 core.productGroup.readyAssemblyItemNames = function() {
 	var row = $('.row-assembly');
@@ -492,7 +491,15 @@ core.productGroup.showVariantDetails = function(name, before) {
 
 	// Update URL
 	var path = core.getUrlPathAsArray();
-	History.replaceState(null, null, '/' + path[1] + '/' + path[2] + '/' + path[3] + '/' + path[4] + '/' + number);
+	
+	// If we have a query string, ensure we append it to the updated URL
+	var query = ''
+	if (window.location.search) {
+		query = window.location.search;
+	}
+	
+	// Do the update...
+	History.replaceState(null, null, '/' + path[1] + '/' + path[2] + '/' + path[3] + '/' + path[4] + '/' + number + query);
 
 	// Don't scroll when we're supplying an element to insert before
 	if (before == null) {
