@@ -10,6 +10,7 @@
 
 <%= render :partial => 'spree/shared/error_messages', :locals => { :target => @product_page } %>
 
+<%= render :partial => "spree/admin/products/product_autocomplete", :formats => :js %>
 <section class="product-type">
   <div class="displayed">
     <h5>Displayed</h5>

@@ -57,6 +57,9 @@ Spree::Core::Engine.add_routes do
           collection do
             post :update_positions
           end
+          member do
+            post :move_stock
+          end
         end
       end
 
