@@ -122,7 +122,8 @@ module Spree
           where('spree_orders.state'    => 'complete',
                 'spree_orders.payment_state'  => 'paid',
                 'spree_shipments.state' => 'ready',
-                'spree_orders.internal' => false).
+                'spree_orders.internal' => false,
+                'spree_product_types.is_digital' => false).
                 order('spree_orders.created_at DESC')
       end
 
