@@ -385,7 +385,12 @@ body.thank-you {
 	h1 {
 		text-align: center;
 	}
+	h2 {
+		span {
+			text-transform: none;
+		}
 	}
+}
 
 /* Host a knit workshop */
 .host-a-knit-workshop {
