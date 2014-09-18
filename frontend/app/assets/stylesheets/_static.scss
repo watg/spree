@@ -192,7 +192,7 @@
 	}
 	.utility-main h3 {
 		padding: 0.5em 0;
-		margin: 0;		
+		margin: 0;
 		font-size: 1.25em;
 		cursor: pointer;
 		border-top: 1px dotted #000;
@@ -242,7 +242,7 @@ body.thank-you {
 .autumn-winter-preview .row-hero {
 	background: image-url('watg-img/hero-autumn-winter-mobile.jpg') center bottom no-repeat #eee;
 	height: 540px;
-	
+
 	@media only screen and (min-width: 48em) {
 		background: image-url('watg-img/hero-autumn-winter.jpg') center bottom no-repeat #eee;
 		height: 460px;
@@ -284,6 +284,7 @@ body.thank-you {
 			font-family: "Gill Sans W01 Light";
 			font-size: 1.25em;
 		}
+
 		.text-center {
 			font-size: 0.75em;
 			a {
@@ -352,6 +353,14 @@ body.thank-you {
 		}
 		button {
 			float: right;
+		}
+	}
+	.terms {
+		h4 {
+			font-size: emCalc(15px);
+			text-transform: uppercase;
+			text-align: center;
+			font-family: $watg-font-secondary-light !important;
 		}
 	}
 }
@@ -564,8 +573,8 @@ body.thank-you {
 			.col-right {
 				width: 100%;
 			}
-		}		
-		
+		}
+
 		/* Just mobile, custom width */
 		@media only screen and (max-width: 320px) {
 			.col-left, .col-right {
@@ -587,11 +596,11 @@ body.thank-you {
 		.modal {
 			position: fixed !important;
 		}
-	}	
+	}
 }
 /* Olapic gallery page: FRD */
 .olapic-gallery.fashion-revolution-day {
-	
+
 }
 /* Olapic gallery page: HWTG */
 .olapic-gallery.hang-with-the-gang {
@@ -606,7 +615,7 @@ body.thank-you {
   .row-shipping-and-contact + .container > div.row {
     max-width: none !important;
   }
-  
+
   a:hover {
     text-decoration: none;
   }
@@ -626,7 +635,7 @@ body.thank-you {
       letter-spacing: 0.1em;
       line-height: 1em;
       margin-bottom: 20px;
-      
+
       @media only screen and (max-width: 48em) {
         margin-top: emCalc(140px);
          font-size: emCalc(48px);
@@ -688,7 +697,7 @@ body.thank-you {
 		position: relative;
 		max-width: 62.5em;
 	}
-	
+
 	.wrapper-our-story {
 		@media only screen and (max-width: 48em) {
 			.only-desktop {
@@ -789,7 +798,7 @@ body.thank-you {
 		.row-with-care,
 		.row-knitting,
 		.row-materials {
-			height: 600px;			
+			height: 600px;
 		}
 		.row-made-differently {
 			background: cdn-url('/our-story/01_Fashion_Made_Differently.jpg') center center no-repeat;
@@ -915,7 +924,7 @@ body.thank-you {
       line-height: 0.9em;
       margin-bottom: 20px;
     }
-    
+
     @media only screen and (max-width: 320px) {
       background: cdn-url('static/free-knitting-patterns/free-pattern-mobile-hero.jpg') center 0 no-repeat;
 
@@ -926,7 +935,7 @@ body.thank-you {
       }
     }
 	}
-	
+
 	.row-intro {
     div {
       text-align: center;
@@ -939,7 +948,7 @@ body.thank-you {
       .mobile-intro {
         display: none;
       }
-	  
+
       @media only screen and (max-width: 320px) {
         .mobile-intro {
           display: inline;
@@ -970,7 +979,7 @@ body.thank-you {
   }
 
   @media only screen and (max-width: 320px) {
-    
+
     .logo-images {
       h3 {
         padding: 20px;
@@ -1002,7 +1011,7 @@ body.thank-you {
           font-weight: normal;
         }
       }
-    
+
     h3 {
       margin-top: 40px;
     }
@@ -1019,7 +1028,7 @@ body.thank-you {
         h2 {
           font-size: emCalc(20px);
         }
- 
+
       }
     }
   }
@@ -1030,7 +1039,7 @@ body.thank-you {
 
   @media only screen and (max-width: 320px) {
     /** Carousel **/
-   
+
    .jcarousel-wrapper {
     padding-bottom: 20px;
    }
@@ -1079,7 +1088,7 @@ body.thank-you {
   }
 
  .sign-up-header {
-  	margin-bottom: 40px;  	
+  	margin-bottom: 40px;
   	h3 {
   		margin-top: 40px;
       span {
@@ -1091,7 +1100,7 @@ body.thank-you {
   .row-form {
     max-width: none !important;
   	background-color: #fafafa;
-  } 
+  }
 
   #referralForm {
   	fieldset {
@@ -1111,7 +1120,7 @@ body.thank-you {
       text-transform: none;
     }
   }
-  
+
 }
 
 /*Knit Your Selfie*/
@@ -1131,7 +1140,7 @@ body.thank-you {
     background: cdn-url('static/doityourselfie-hero.jpg') center 0 no-repeat;
     height: 249px;
     max-height: 249px;
-	}    
+	}
 
   @media only screen and (max-width: 320px) {
     .row-hero {
@@ -1207,8 +1216,8 @@ body.thank-you {
 
   h1 {
   	text-align: center;
-  }    
-  
+  }
+
   .inner-list {
     list-style-type: none;
   }
