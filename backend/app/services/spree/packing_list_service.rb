@@ -17,7 +17,7 @@ module Spree
         end
 
         grouped_inventory_units(line).each do |item|
-          invoice_services_data << format_grouped_inventory_unit(item)
+          invoice_services_data << format_grouped_inventory_unit(item, line)
         end
 
         line.line_item_personalisations.each do |p|
@@ -38,19 +38,34 @@ module Spree
       #inventory_units = line.inventory_units.select { |i| !i.line_item_part.assembled or (i.line_item_part.assembled && i.line_item_part.main_part) }
       #grouped = inventory_units.group_by do |iu|
       grouped = line.inventory_units.group_by do |iu|
-        [ Spree::Variant.unscoped.find_by_id(iu.variant_id), iu.supplier]
+        [ Spree::Variant.unscoped.find(iu.variant_id), iu.supplier]
       end
-      grouped.map do |k,v|
+
+      grouped_parts = grouped.map do |k,v|
         variant = k[0]
         supplier = k[1]
         is_part = ( variant == line.variant )? false : true
+        next if line.parts.find { |part| (part.variant_id == variant.id) && (part.parent_part_id.present?) }
+
         { variant: variant, supplier: supplier, quantity: v.count, is_part: is_part }
+      end.compact
+
+      container_parts = line.parts.select { |part| part.container? }.map do |part|
+        { variant: part.variant, supplier: nil, quantity: part.quantity, is_part: true }
       end
+
+      grouped_parts + container_parts
     end
 
     def format_kit_container(line)
+      if line.parts.assembled.any?
+        item = "CUSTOM - " + line.variant.product.name
+      else
+        item = "KIT - " + line.variant.product.name
+      end
+
       [
-        "KIT - #{line.variant.product.name}",
+        item,
         "#{line.variant.sku}",
         '',
         line.variant.option_values.empty? ? '' : line.variant.options_text,
@@ -59,13 +74,18 @@ module Spree
       ]
     end
 
-    def format_grouped_inventory_unit(item)
+    def format_grouped_inventory_unit(item, line)
       variant = item[:variant]
-      supplier = " \n [#{item[:supplier].permalink}]" unless item[:supplier].is_company?
+
+      supplier = " \n [#{item[:supplier].permalink}]" if item[:supplier] and !item[:supplier].is_company?
+      part = line.parts.find { |part| (part.variant_id == variant.id) }
+      supplier += "\n Customize No: <b>#{part.id}</b>" if part && part.main_part?
+
       quantity = item[:quantity]
       is_part = item[:is_part]
       item = is_part ? '' : variant.product.name
       content = is_part ? variant.product.name : ''
+
       [
         item,
         variant.sku + supplier.to_s,

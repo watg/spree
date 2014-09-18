@@ -127,7 +127,7 @@ describe Spree::Order do
     after { Delayed::Worker.delay_jobs = true }
 
     it "marks the order as internal and sends an email" do
-      expect(Spree::NotificationMailer).to receive(:send_notification).with(anything, ['test@woolandthegang.com'], 'Personalisation Order #' + subject.number.to_s).and_return double.as_null_object
+      expect(Spree::NotificationMailer).to receive(:send_notification).with(anything, ['test@woolandthegang.com'], 'Customisation Order #' + subject.number.to_s).and_return double.as_null_object
 
       expect {
         subject.finalize!

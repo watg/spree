@@ -439,11 +439,12 @@ module Spree
       if self.line_item_parts.assembled.any?
         self.update_column(:internal, true)
         order_url = Spree::Core::Engine.routes.url_helpers.edit_admin_order_url(self)
+        customisation_numbers = self.line_item_parts.where(main_part: true).map(&:id).join(", ")
         message = "Hello,\n
-          Order ##{self.number} contains a personalisation. It has been marked as internal.\n
-          Have a look at it here: #{order_url}.\n
+          Order <a href='#{order_url}'>##{self.number}</a> contains customisation(s) with number(s): <b>#{customisation_numbers}</b>.\n
+          It has been marked as internal.\n
           Thank you."
-        Spree::NotificationMailer.delay.send_notification(message, Rails.application.config.personalisation_email_list,'Personalisation Order #' + self.number.to_s)
+        Spree::NotificationMailer.delay.send_notification(message, Rails.application.config.personalisation_email_list,'Customisation Order #' + self.number.to_s)
       end
     end
 
