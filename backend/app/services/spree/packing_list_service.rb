@@ -79,7 +79,7 @@ module Spree
 
       supplier = " \n [#{item[:supplier].permalink}]" if item[:supplier] and !item[:supplier].is_company?
       part = line.parts.find { |part| (part.variant_id == variant.id) }
-      supplier += "\n Customize No: <b>#{part.id}</b>" if part && part.main_part?
+      supplier = supplier.to_s + "\n Customize No: <b>#{part.id}</b>" if part && part.main_part? && part.assembled?
 
       quantity = item[:quantity]
       is_part = item[:is_part]

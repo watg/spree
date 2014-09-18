@@ -131,6 +131,7 @@ describe Spree::PackingListService do
       let!(:container_part) { create(:line_item_part, line_item: line_item_1, quantity: 5, variant: variant, container: true, assembled: true) }
 
       before do
+        part1.assembled = true
         part1.main_part = true
         part1.save!
       end
