@@ -274,10 +274,12 @@ body.thank-you {
 .competition-shopping-spree-apr-2014,
 .competition-summer-look-jun-2014,
 .competition-summer-bag-jun-2014,
-.free-patterns {
+.free-patterns,
+.competition-bespoke-hat {
 	.row-referral {
 		/*min-height: 654px;*/
 		margin: -3em 0 3em;
+
 		h3 {
 			font-family: "Gill Sans W01 Light";
 			font-size: 1.25em;
@@ -369,6 +371,12 @@ body.thank-you {
 		}
 	}
 }
+
+.competition-bespoke-hat {
+	h1 {
+		text-align: center;
+	}
+	}
 
 /* Host a knit workshop */
 .host-a-knit-workshop {
@@ -1205,3 +1213,4 @@ body.thank-you {
     list-style-type: none;
   }
 }
+
