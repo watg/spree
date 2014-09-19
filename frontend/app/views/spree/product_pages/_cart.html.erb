@@ -59,13 +59,7 @@
 					<%= render "/spree/product_pages/delivery/delivery_default" %>
 			</div>
 
-      <ul class="no-bullet icons-social panel-social">
-        <% [:twitter, :facebook, :pinterest].each do |social| %>
-        <li>
-          <%= link_to("Share with #{social}", @product_page.send("#{social}_url", product_page_tab), target: '_blank', class: social) %>
-        </li>
-        <% end %>
-      </ul>
+      <%= render :partial => 'social_icons', :locals => {:variant => variant} %>
 
       <p class="promo-raf">Get your next order for free! <a href="/raf/invite">Find out more</a></p>
     </div>

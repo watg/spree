@@ -39,7 +39,7 @@
 	h5 {
 		font-size: emCalc(16px);
 	}
-	
+
 	/* Allow full widths */
 	.row-shipping-and-contact + .container > div.row {
 		max-width: none !important;
@@ -52,7 +52,7 @@
 		position: relative;
 		max-width: 62.5em;
 	}
-	
+
 	/* Reveal content */
 	.reveal-title {
 		margin: 1em 0;
@@ -112,6 +112,45 @@
 			}
 		}
 	}
+
+	ul.icons-social-variant {
+		font-size: 1px;
+		li {
+			display: inline;
+			padding-right: 5px;
+		}
+
+		/*get instagram up with the others*/
+		.ig-b-16 {
+			img {
+				margin-bottom: 19px;
+			}
+		}
+		/* Set an optional width for your button wrappers */
+	  span {
+		  display: inline-block;
+		  width: 110px;
+	  }
+
+		 /* Adjust the widths individually if you like */
+		.google {
+			width: 75px;
+		}
+
+	}
+	/* This gets Facebook to fall into place */
+	/*.icons-social-variant iframe,.social>span {
+		vertical-align: middle;
+		border: 1px solid red;
+	}*/
+
+
+
+
+
+
+
+
 	.panel-social {
 		margin: -1em 0 emCalc(15px);
 		padding: 0 0 emCalc(15px) 0;
@@ -394,12 +433,12 @@
 			margin: 0 auto;
 			width: 60px;
 			height: 60px;
-			display: block;	
+			display: block;
 		}
 		.pagination {
 			display: none;
 		}
-		
+
 		/* Variant menus start */
 		.menu-variants {
 			margin: 0 auto emCalc(30px);
@@ -435,7 +474,7 @@
 			}
 		}
 		/* Variant menus end */
-		
+
 		/* Variant details */
 		.details {
 			margin-bottom: emCalc(30px);
@@ -526,7 +565,7 @@
 			}
 		}
 		/* Variant details end */
-		
+
 		/* Variants start */
 		.variant {
 			margin-left: -0.25em; /* Negates inline-block whitespace bug */
@@ -669,7 +708,7 @@
 			border-bottom: 2px solid #f3f3f3;
 			background-color: #f9f9f9;
 			position: relative;
-			
+
 			/* Row arrow */
 			&:after, &:before {
 				bottom: 100%;
@@ -693,7 +732,7 @@
 				border-width: 20px;
 				margin-left: -20px;
 			}
-			
+
 			/* Overwrite Olapic styles */
 			/* --- Widget --- */
 			.olapic_widget_header {
@@ -786,7 +825,7 @@
 			}
 		}
 	}
-	
+
 	/* --- Overlay --- */
 	#olapic_viewer_overlay.olapic-viewer-overlay {
 		.columns {
@@ -827,7 +866,7 @@
 				&:before {
 					content: "";
 				}
-			}	
+			}
 		}
 		.featured-photo {
 			background-color: #f9f9f9;
@@ -1134,7 +1173,7 @@
 								}
 								li.no-thanks {
 									a, p {
-										color: #ff0054 !important;										
+										color: #ff0054 !important;
 									}
 								}
 								// Mobile li
