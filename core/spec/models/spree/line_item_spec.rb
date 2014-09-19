@@ -59,6 +59,7 @@ describe Spree::LineItem do
         optional:   true,
         price:      5,
         currency:   'GBP',
+        assembled:   nil,
         main_part:  true
       )
     ]}
@@ -73,12 +74,12 @@ describe Spree::LineItem do
       expect(part1.optional).to eq parts.first.optional
       expect(part1.price).to eq parts.first.price
       expect(part1.currency).to eq parts.first.currency
-      expect(part1.main_part).to be_false
-      expect(part1.assembled).to be_true
+      expect(part1.main_part).to eq false
+      expect(part1.assembled).to eq true
 
       part2 = line_item.parts.last
-      expect(part2.assembled).to be_false
-      expect(part2.main_part).to be_true
+      expect(part2.assembled).to eq false
+      expect(part2.main_part).to eq true
     end
 
     it "should deal with a nil price" do

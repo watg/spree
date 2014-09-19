@@ -95,9 +95,9 @@ module Spree
           variant_id: o.variant_id,
           optional: o.optional,
           currency: o.currency,
-          assembled: o.assembled,
+          assembled: !!o.assembled,
           container: o.container,
-          main_part: o.main_part,
+          main_part: !!o.main_part,
           parent_part_id: o.parent_part_id
         )
       end
