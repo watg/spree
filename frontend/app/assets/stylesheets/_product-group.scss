@@ -114,35 +114,47 @@
 	}
 
 	ul.icons-social-variant {
-		font-size: 1px;
-		li {
-			display: inline;
-			padding-right: 5px;
-		}
+    font-size: 1px;
+    li {
+      display: inline;
+      padding-right: 5px;
+    }
 
-		/*get instagram up with the others*/
-		.ig-b-16 {
-			img {
-				margin-bottom: 19px;
-			}
-		}
-		/* Set an optional width for your button wrappers */
-	  span {
-		  display: inline-block;
-		  width: 110px;
-	  }
+    .fb-like {
+      span {
+        /*width: 110px !important;*/
+        padding-bottom: 3px !important;
+      }
+    }
+    /*get instagram up with the others*/
+    .ig-b-16 {
+      img {
+        margin-bottom: 19px;
+      }
+    }
+    /* Set an optional width for your button wrappers */
+    span {
+      display: inline-block;
+      width: 110px;
+    }
 
-		 /* Adjust the widths individually if you like */
-		.google {
-			width: 75px;
-		}
+     /* Adjust the widths individually if you like */
+    .google {
+      width: 33px !important;
+    }
 
-	}
-	/* This gets Facebook to fall into place */
-	/*.icons-social-variant iframe,.social>span {
-		vertical-align: middle;
-		border: 1px solid red;
-	}*/
+  }
+  /* This gets Facebook to fall into place */
+  /*.icons-social-variant iframe,.social>span {
+    vertical-align: middle;
+    border: 1px solid red;
+  }*/
+  .icons-facebook-social {
+    li {
+      display: inline;
+    }
+  }
+
 
 
 
