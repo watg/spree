@@ -14,7 +14,7 @@ module Spree
         params[:q] ||= {}
         params[:q] = JSON.parse(params[:q]) if params[:q].kind_of? String
 
-        @collection = Spree::Order.to_be_packed_and_shipped.order("completed_at desc")
+        @collection = Spree::Order.to_be_packed_and_shipped.reorder("completed_at desc")
         # @search needs to be defined as this is passed to search_form_for
         @search = @collection.ransack(params[:q])
         @collection = @search.result.

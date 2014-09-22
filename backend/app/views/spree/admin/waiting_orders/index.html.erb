@@ -96,14 +96,15 @@
         <td class="align-center"><%= order.batch_print_id %></td>
         <td class="align-center">
           <%= link_to order.number, edit_admin_order_path(order) %>
-          <small><%= order.completed_at.to_datetime.to_s(:short) %></small>
+          <small><%= order.email %></small>
           <div class="field">
-            <small><%= order.email %></small>
+            <small><%= order.completed_at.to_datetime.to_s(:short) %></small>
           </div>
         </td>
         <td class="align-center">
           <% if order.batch_invoice_print_date.present? %>
             <%= link_to "Printed", admin_order_path(order, :type =>:packing_list, :format => 'pdf') %>
+
           <% else %>
             <%= link_to "Not Printed", admin_order_path(order, :type =>:packing_list, :format => 'pdf') %>
           <% end %>
@@ -111,6 +112,7 @@
         <td class="align-center">
           <% if order.batch_sticker_print_date.present? %>
             <%= link_to "Printed", admin_order_path(order, :type =>:sticker, :format => 'pdf') %>
+            <small><%= link_to "+", admin_print_job_path(order.image_sticker_print_job) %></small>
           <% else %>
             <%= link_to "Not Printed", admin_order_path(order, :type =>:sticker, :format => 'pdf') %>
           <% end %>
@@ -118,6 +120,7 @@
         <td class="align-center">
           <% if order.batch_invoice_print_date.present? %>
             <%= link_to "Printed", admin_order_path(order, :format => 'pdf') %>
+            <small><%= link_to "+", admin_print_job_path(order.invoice_print_job) %></small>
           <% else %>
             <%= link_to "Not Printed", admin_order_path(order, :format => 'pdf') %>
           <% end %>
