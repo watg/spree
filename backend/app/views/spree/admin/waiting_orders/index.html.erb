@@ -82,9 +82,9 @@
       <tr data-hook="admin_orders_index_headers">
         <th><%= Spree.t(:batch_id) %></th>
         <th><%= I18n.t(:number, :scope => 'activerecord.attributes.spree/order') %></th>
-        <th><%= I18n.t(:invoice, :scope => 'activerecord.attributes.spree/order') %></th>
-        <th><%= I18n.t(:sticker, :scope => 'activerecord.attributes.spree/order') %></th>
-        <th><%= I18n.t(:email, :scope => 'activerecord.attributes.spree/order') %></th>
+        <th>Packing</th>
+        <th>Sticker</th>
+        <th>Invoice</th>
         <th><%= I18n.t(:total, :scope => 'activerecord.attributes.spree/order') %></th>
         <th><%= Spree.t(:parcels) %></th>
         <th data-hook="admin_orders_index_header_actions" class="actions"></th>
@@ -97,10 +97,31 @@
         <td class="align-center">
           <%= link_to order.number, edit_admin_order_path(order) %>
           <small><%= order.completed_at.to_datetime.to_s(:short) %></small>
+          <div class="field">
+            <small><%= order.email %></small>
+          </div>
         </td>
-        <td class="align-center"><%= order.batch_invoice_print_date.present? ? "Printed" : "Not printed" %></td>
-        <td class="align-center"><%= order.batch_sticker_print_date.present? ? "Printed" : "Not printed" %></td>
-        <td><%= order.email %></td>
+        <td class="align-center">
+          <% if order.batch_invoice_print_date.present? %>
+            <%= link_to "Printed", admin_order_path(order, :type =>:packing_list, :format => 'pdf') %>
+          <% else %>
+            <%= link_to "Not Printed", admin_order_path(order, :type =>:packing_list, :format => 'pdf') %>
+          <% end %>
+        </td>
+        <td class="align-center">
+          <% if order.batch_sticker_print_date.present? %>
+            <%= link_to "Printed", admin_order_path(order, :type =>:sticker, :format => 'pdf') %>
+          <% else %>
+            <%= link_to "Not Printed", admin_order_path(order, :type =>:sticker, :format => 'pdf') %>
+          <% end %>
+        </td>
+        <td class="align-center">
+          <% if order.batch_invoice_print_date.present? %>
+            <%= link_to "Printed", admin_order_path(order, :format => 'pdf') %>
+          <% else %>
+            <%= link_to "Not Printed", admin_order_path(order, :format => 'pdf') %>
+          <% end %>
+        </td>
         <td class="align-center"><%= order.display_total.to_html %></td>
         <td class="align-center"><%= render :partial => 'boxes', :locals => {order: order, all_boxes: @all_boxes} %></td>
         <td class='actions align-center' data-hook="admin_orders_index_row_actions">
