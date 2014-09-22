@@ -412,20 +412,39 @@ describe Spree::Shipment do
       shipment.shipped_at.should_not be_nil
     end
 
-    it "should send a shipment email" do
-      old_delay_value = Delayed::Worker.delay_jobs
-      Delayed::Worker.delay_jobs = false
-      mail_message = double 'Mail::Message'
-      shipment_id = nil
-      Spree::ShipmentMailer.should_receive(:shipped_email) { |*args|
-        shipment_id = args[0]
-        mail_message
-      }
-      mail_message.should_receive :deliver
-      shipment.stub(:update_order_shipment_state)
-      shipment.ship!
-      shipment_id.should == shipment.id
-      Delayed::Worker.delay_jobs = old_delay_value
+    context "sends emails" do
+
+      before { Delayed::Worker.delay_jobs = false }
+
+      after { Delayed::Worker.delay_jobs = true }
+
+      it "should send a shipment email" do
+        mail_message = double 'Mail::Message'
+        shipment_id = nil
+        Spree::ShipmentMailer.should_receive(:shipped_email) { |*args|
+          shipment_id = args[0]
+          mail_message
+        }
+        mail_message.should_receive :deliver
+        shipment.stub(:send_survey_email)
+        shipment.stub(:update_order_shipment_state)
+        shipment.ship!
+        shipment_id.should == shipment.id
+      end
+
+      it "should an invitation email to do the survey" do
+        order.stub(:number).and_return("R123")
+        order.stub(:bill_address).and_return(build(:bill_address))
+        shipment.stub(:send_shipped_email)
+        shipment.stub(:update_order_shipment_state)
+
+        expect {
+          shipment.ship!
+        }.to change { ActionMailer::Base.deliveries.size }.by(1)
+
+        last_email = ActionMailer::Base.deliveries.last
+        expect(last_email.subject).should include('How did we do')
+      end
     end
 
     it "finalizes adjustments" do
@@ -573,4 +592,5 @@ describe Spree::Shipment do
       expect(state_change.next_state).to eq('ready')
     end
   end
+
 end
