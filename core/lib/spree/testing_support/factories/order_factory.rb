@@ -22,11 +22,6 @@ FactoryGirl.define do
       shipment_state 'ready'
       state 'complete'
 
-      ignore do
-        line_items_count 1
-        stock_location { create(:stock_location) }
-      end
-
       after(:create) do |order, evaluator|
         create(:payment, amount: order.total, order: order, state: 'completed')
         create(:shipment, order: order, state: 'ready')
@@ -34,16 +29,6 @@ FactoryGirl.define do
           shipment.inventory_units.each { |u| u.update_column('state', 'on_hand') }
         end
         order.update!
-        # order.line_items << create_list(:line_item, evaluator.line_items_count, order: order)
-      end
-
-      factory :invoice_printed_order do
-        sequence(:batch_print_id)
-        batch_invoice_print_date { Date.today }
-
-        factory :image_sticker_printed_order do
-          batch_sticker_print_date { Date.today }
-        end
       end
 
     end
