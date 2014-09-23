@@ -115,16 +115,16 @@ module Spree
         where(completed_at: nil)
       end
 
+      # only physical line item to be dispatched
       def to_be_packed_and_shipped
-        # only physical line item to be dispatched
-        includes(:payments, line_items: [variant: [product: [:product_type]]]).
-          includes(:shipments).
+        includes(line_items: [variant: [product: [:product_type]]]).
+          joins(:shipments).
           where('spree_orders.state'    => 'complete',
                 'spree_orders.payment_state'  => 'paid',
                 'spree_shipments.state' => 'ready',
                 'spree_orders.internal' => false,
                 'spree_product_types.is_digital' => false).
-                order('spree_orders.created_at DESC')
+                order('spree_orders.completed_at')
       end
 
       def unprinted_invoices

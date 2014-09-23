@@ -14,35 +14,15 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
       expect(assigns[:all_boxes]).to eq(:boxes)
     end
 
-    it "assigns the print batch size" do
+    it "assigns the print batch size, number of unprinted invoices and stickers" do
+      expect(Spree::Order).to receive(:unprinted_invoices).and_return(["order1"])
+      expect(Spree::Order).to receive(:unprinted_image_stickers).and_return(["order2", "order3"])
+
       spree_get :index
       expect(assigns[:batch_size]).to eq(Spree::BulkOrderPrintingService::BATCH_SIZE)
-    end
-
-    it "assigns the number of unprinted invoices" do
-      pending('cannot make factory work with stock_location')
-      create_list(:order_ready_to_ship, 2)
-      spree_get :index
-      expect(assigns[:unprinted_invoice_count]).to eq(2)
-    end
-
-    it "assigns the number of unprinted stickers" do
-      pending('cannot make factory work with stock_location')
-      create_list(:invoice_printed_order, 3)
-      spree_get :index
-      expect(assigns[:unprinted_image_count]).to eq(3)
-    end
-
-    context "with a q params" do
-      let(:orders) {
-        2.times.map { |i| create(:order_ready_to_ship, :batch_print_id => i) }
-      }
-
-      it "assigns a single order" do
-        pending('cannot make factory work with stock_location')
-        spree_get :index, q: {batch_id_eq: orders.last.batch_print_id}
-        expect(assigns[:collection]).to eq([orders.last])
-      end
+      expect(assigns[:unprinted_invoice_count]).to eq(1)
+      expect(assigns[:unprinted_image_count]).to eq(2)
+      expect(assigns[:collection]).to be_empty
     end
   end
 

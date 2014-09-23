@@ -16,32 +16,27 @@ describe Spree::Order do
     end
   end
 
-  describe ".unprinted_image_stickers" do
-    let!(:unprinted_stickers) { 2.times.map {FactoryGirl.create(:invoice_printed_order) } }
-    let!(:printed_stickers) { FactoryGirl.create(:image_sticker_printed_order) }
-    it "returns a list of order pending image sticker print" do
-      pending('cannot make factory work with stock_location')
-      expect(Spree::Order.unprinted_image_stickers).to match_array(unprinted_stickers)
-    end
-  end
-
-  describe ".unprinted_invoices" do
-    let!(:unprinted_invoices) { 2.times.map { FactoryGirl.create(:order_ready_to_ship) } }
-    let!(:printed_invoices) { FactoryGirl.create(:invoice_printed_order) }
+  describe "#unprinted_invoices and #unprinted_image_stickers" do
+    let!(:unprinted_invoices) { FactoryGirl.create(:completed_order_with_totals, payment_state: 'paid') }
+    let!(:printed_invoice) { FactoryGirl.create(:completed_order_with_totals, batch_invoice_print_date: Date.today, payment_state: 'paid') }
     let!(:unfinished_order) { FactoryGirl.create(:completed_order_with_pending_payment) }
 
+    before do
+      Spree::Shipment.update_all(state: 'ready')
+    end
+
     it "returns orders in shipment_state = ready with no invoice print date" do
-      pending('cannot make factory work with stock_location')
-      expect(Spree::Order.unprinted_invoices).to match_array(unprinted_invoices)
+      expect(Spree::Order.unprinted_invoices).to eq ([unprinted_invoices])
+      expect(Spree::Order.unprinted_image_stickers).to eq ([printed_invoice])
     end
   end
 
   describe ".last_batch_id" do
     it "returns the highest batch ID ever allocated" do
-      FactoryGirl.create(:invoice_printed_order,
+      FactoryGirl.create(:order,
         :batch_invoice_print_date => Date.yesterday,
         :batch_print_id => "17")
-      FactoryGirl.create(:invoice_printed_order,
+      FactoryGirl.create(:order,
         :batch_invoice_print_date => Date.yesterday,
         :batch_print_id => "9")
       expect(Spree::Order.last_batch_id).to eq(17)
@@ -52,10 +47,10 @@ describe Spree::Order do
     end
 
     it "doesn't return 0 just because a nil exists" do
-      FactoryGirl.create(:invoice_printed_order,
+      FactoryGirl.create(:order,
         :batch_invoice_print_date => Date.yesterday,
         :batch_print_id => "17")
-      FactoryGirl.create(:invoice_printed_order,
+      FactoryGirl.create(:order,
         :batch_invoice_print_date => Date.yesterday,
         :batch_print_id => nil)
       expect(Spree::Order.last_batch_id).to eq(17)
