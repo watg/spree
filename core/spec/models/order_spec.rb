@@ -16,14 +16,34 @@ describe Spree::Order do
     end
   end
 
-  describe "#unprinted_invoices and #unprinted_image_stickers" do
-    let!(:unprinted_invoices) { FactoryGirl.create(:completed_order_with_totals, payment_state: 'paid') }
-    let!(:printed_invoice) { FactoryGirl.create(:completed_order_with_totals, batch_invoice_print_date: Date.today, payment_state: 'paid') }
-    let!(:unfinished_order) { FactoryGirl.create(:completed_order_with_pending_payment) }
+  describe "#to_be_packed_and_shipped" do
+    let!(:order_with_one_digital_line_item) { create(:order_with_line_items, line_items_count: 2,
+                                        payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
+    let!(:order_with_digital_line_items_only) { create(:order_with_line_items, line_items_count: 1,
+                                        payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
 
     before do
-      Spree::Shipment.update_all(state: 'ready')
+      p1 = order_with_one_digital_line_item.line_items.first.product
+      p1.product_type.update_column(:is_digital, true)
+
+      p2 = order_with_digital_line_items_only.line_items.first.product
+      p2.product_type.update_column(:is_digital, true)
     end
+
+    it "disregards orders with digital products only" do
+      result = Spree::Order.to_be_packed_and_shipped
+      expect(result.count).to eq 1
+      expect(result.first).to eq order_with_one_digital_line_item
+    end
+  end
+
+  describe "#unprinted_invoices and #unprinted_image_stickers" do
+    let!(:unprinted_invoices) { create(:order_with_line_items, line_items_count: 1,
+                                        payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
+    let!(:printed_invoice) { create(:order_with_line_items, line_items_count: 1,
+                                    batch_invoice_print_date: Date.today, payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
+    let!(:unfinished_order) { create(:order_with_line_items, line_items_count: 1,
+                                    payment_state: 'balance_due', shipment_state: 'ready', state: 'complete') }
 
     it "returns orders in shipment_state = ready with no invoice print date" do
       expect(Spree::Order.unprinted_invoices).to eq ([unprinted_invoices])
