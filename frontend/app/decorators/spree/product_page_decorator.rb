@@ -146,7 +146,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
       "mini"
     elsif object.title.split.first.length == 8 || object.title.split.last.length == 8 || object.title.length >= 12
       "small"
-    elsif object.title.length >= 10
+    elsif object.title.length >= 5
       "medium"
     else
       "large"
