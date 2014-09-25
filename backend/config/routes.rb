@@ -171,6 +171,7 @@ Spree::Core::Engine.add_routes do
       resources :orders do
         member do
           post :internal
+          post :refresh
           post :gift_card_reissue
           post :resend
           get :open_adjustments

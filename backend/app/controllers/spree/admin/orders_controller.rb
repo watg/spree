@@ -54,9 +54,14 @@ module Spree
         redirect_to edit_admin_order_url(@order)
       end
 
-      def internal 
+      def internal
         @order.internal= !@order.internal?
         @order.save(validation: false)
+        redirect_to edit_admin_order_url(@order)
+      end
+
+      def refresh
+        @order.update!
         redirect_to edit_admin_order_url(@order)
       end
 
@@ -104,7 +109,7 @@ module Spree
 
       def cancel
         if @order.can_cancel?
-          @order.cancel! 
+          @order.cancel!
           flash[:success] = Spree.t(:order_canceled)
         else
           flash[:notice] = "Order cannot be canceled"
