@@ -64,23 +64,31 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
   end
 
   context "PDF generation" do
-    let(:list_of_orders) { [create(:order)] }
+    let(:list_of_orders) { double.as_null_object }
     let(:outcome) { OpenStruct.new(:valid? => true, :result => :pdf) }
-    before do
-      subject.stub(:load_orders_waiting).and_return( list_of_orders )
+
+    it "renders all invoices" do
+      allow(Spree::Order).to receive(:unprinted_invoices).and_return list_of_orders
+      expect_any_instance_of(Spree::BulkOrderPrintingService).to receive(:print_invoices).with(list_of_orders).and_return(outcome)
+
+      spree_put :invoices, format: :pdf
+      expect(response.body).to eq("pdf")
+      expect(response.headers["Content-Type"]).to eq("application/pdf")
+      expect(response.headers["Content-Disposition"]).to eq("inline; filename=\"invoices.pdf\"")
     end
 
-    [ :invoices, :image_stickers].each do |action|
-      it "renders all #{action}" do
-        expect(Spree::BulkOrderPrintingService).to receive(:run).with(pdf: action).and_return(outcome)
-        spree_get action, format: :pdf
-        expect(response.body).to eq("pdf")
-        expect(response.headers["Content-Type"]).to eq("application/pdf")
-        expect(response.headers["Content-Disposition"]).to eq("inline; filename=\"#{action}.pdf\"")
-      end
-    end
+    it "renders all image_stickers" do
+      allow(Spree::Order).to receive(:unprinted_image_stickers).and_return list_of_orders
+      expect_any_instance_of(Spree::BulkOrderPrintingService).to receive(:print_image_stickers).with(list_of_orders).and_return(outcome)
 
+      spree_put :image_stickers, format: :pdf
+      expect(response.body).to eq("pdf")
+      expect(response.headers["Content-Type"]).to eq("application/pdf")
+      expect(response.headers["Content-Disposition"]).to eq("inline; filename=\"image_stickers.pdf\"")
+    end
   end
+
+
   context "#create_and_allocate_consignment" do
     let(:outcome) { OpenStruct.new(:valid? => true, :result => :pdf) }
 

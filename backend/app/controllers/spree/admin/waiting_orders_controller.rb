@@ -2,6 +2,7 @@ module Spree
   module Admin
 
     class WaitingOrdersController < Spree::Admin::BaseController
+      before_filter :load_search_param, only: [:index, :invoices]
 
       def index
         @all_boxes = Spree::Parcel.find_boxes
@@ -9,18 +10,14 @@ module Spree
         @unprinted_invoice_count = Spree::Order.unprinted_invoices.count
         @unprinted_image_count = Spree::Order.unprinted_image_stickers.count
 
-        # return @collection if @collection.present?
-
-        params[:q] ||= {}
-        params[:q] = JSON.parse(params[:q]) if params[:q].kind_of? String
-
-        @collection = Spree::Order.to_be_packed_and_shipped
+        @orders = Spree::Order.to_be_packed_and_shipped
         # @search needs to be defined as this is passed to search_form_for
-        @search = @collection.ransack(params[:q])
-        @collection = @search.result.
-          page(params[:page]).
-          per( 15 )
-        @collection
+        @search = @orders.ransack(params[:q])
+        @collection = @search.result(distinct: true)
+
+        # subtract all orders, which are in the excluded select box
+        @collection = @collection - @orders.where("spree_products.marketing_type_id IN (?)", params[:ignored_marketing_type_ids])
+        @collection = Kaminari.paginate_array(@collection).page(params[:page]).per(15)
       end
 
       def update
@@ -34,12 +31,19 @@ module Spree
       end
 
       def invoices
-        outcome = Spree::BulkOrderPrintingService.run(pdf: :invoices)
+        unprinted_orders = Spree::Order.unprinted_invoices
+
+        # apply the ransack and exclude filters
+        orders = unprinted_orders.ransack(params[:q]).result(distinct: true)
+        orders = orders - unprinted_orders.where("spree_products.marketing_type_id IN (?)", params[:ignored_marketing_type_ids])
+
+        outcome = Spree::BulkOrderPrintingService.new.print_invoices(orders)
         handle_pdf(outcome, "invoices.pdf")
       end
 
       def image_stickers
-        outcome = Spree::BulkOrderPrintingService.run(pdf: :image_stickers)
+        orders = Spree::Order.unprinted_image_stickers
+        outcome = Spree::BulkOrderPrintingService.new.print_image_stickers(orders)
         handle_pdf(outcome, "image_stickers.pdf")
       end
 
@@ -49,8 +53,11 @@ module Spree
       end
 
       private
-      def load_orders_waiting
-        Spree::Order.to_be_packed_and_shipped
+
+      def load_search_param
+        params[:q] ||= {}
+        params[:q] = JSON.parse(params[:q]) if params[:q].kind_of? String
+        params[:ignored_marketing_type_ids] = JSON.parse(params[:ignored_marketing_type_ids]) if params[:ignored_marketing_type_ids].kind_of? String
       end
 
       def pdf_type

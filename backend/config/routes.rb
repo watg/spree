@@ -156,8 +156,8 @@ Spree::Core::Engine.add_routes do
 
       resources :waiting_orders do
         collection do
-          get :invoices
-          get :image_stickers
+          put :invoices
+          put :image_stickers
         end
         member do
           post :create_and_allocate_consignment

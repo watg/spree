@@ -4,12 +4,22 @@
 
 <% content_for :page_actions do %>
   <li>
-    <%= button_link_to "Print next #{[@batch_size, @unprinted_invoice_count].min} invoices", invoices_admin_waiting_orders_url(format: :pdf), :icon => 'icon-print', :id => 'invoices-pdf', :target => "_blank" %>
+
+    <%= form_tag invoices_admin_waiting_orders_url(format: :pdf), method: :put do |f| %>
+      <%= submit_tag "Print selected #{[@batch_size, @unprinted_invoice_count].min} invoices", :target => "_blank" %>
+      <%= hidden_field_tag "q", params[:q].to_json %>
+      <%= hidden_field_tag "ignored_marketing_type_ids", params[:ignored_marketing_type_ids].to_json %>
+    <% end %>
+
     <br/>
     <em><%= @unprinted_invoice_count %> unprinted</em>
   </li>
   <li>
-    <%= button_link_to "Print next #{[@batch_size, @unprinted_image_count].min} stickers", image_stickers_admin_waiting_orders_url(format: :pdf), :icon => 'icon-print', :id => 'image-stickers-pdf', :target => "_blank" %>
+
+    <%= form_tag image_stickers_admin_waiting_orders_url(format: :pdf), method: :put do |f| %>
+      <%= submit_tag "Print next #{[@batch_size, @unprinted_image_count].min} stickers", :target => "_blank" %>
+    <% end %>
+
     <br/>
     <em><%= @unprinted_image_count %> ready to print</em>
   </li>
@@ -25,7 +35,7 @@
 <% content_for :table_filter do %>
   <div>
     <%= search_form_for @search, url: admin_waiting_orders_path do |f| %>
-      <div>
+      <div class="row">
         <div class="alpha four columns">
           <div class="field">
             <%= f.label :batch_print_id_eq, "Batch" %>
@@ -53,9 +63,33 @@
             </label>
           </div>
         </div>
+        <div class="clearfix"></div>
+        <div class="alpha four columns">
+          <div class="field">
+            <%= f.label :line_items_product_name_cont, "Product Name" %>
+            <%= f.text_field :line_items_product_name_cont, :size => 15 %>
+          </div>
+        </div>
+        <div class="four columns">
+          <div class="field">
+            <%= f.label :line_items_variant_sku_cont, "SKU" %>
+            <%= f.text_field :line_items_variant_sku_cont, :size => 15 %>
+          </div>
+        </div>
+        <div class="four columns">
+          <div class="field">
+            <%= f.label :line_items_product_marketing_type_id_in, "Marketing Types" %>
+            <%= f.collection_select(:line_items_product_marketing_type_id_in, Spree::MarketingType.all, :id, :title, {include_blank: true},  { class: 'select2 fullwidth', multiple: true}) %>
+          </div>
+        </div>
+        <div class="omega four columns">
+          <div class="field">
+            <%= label_tag  'ignored_marketing_type_ids', "Marketing Types to Ignore" %>
+            <%= select_tag 'ignored_marketing_type_ids', options_from_collection_for_select(Spree::MarketingType.all, :id, :title, params['ignored_marketing_type_ids']), {class: 'select2 fullwidth', multiple: true} %>
+            <small><a href="#" id="exclude-unselected">Ignore all except selected</a></small>
+          </div>
+        </div>
       </div>
-
-      <div class="clear"></div>
 
       <div class="form-buttons actions filter-actions">
         <%= button Spree.t(:search), 'icon-search' %>
@@ -149,5 +183,26 @@ $(document).ready(function(){
   $('#'+$(this).data('order')).show();
     return false;
   });
+
+  excludeUnselected = function () {
+    $("#exclude-unselected").click(function(event){
+      event.preventDefault();
+      var target_list = $(this).parent().parent().find('.select2:first');
+      var source_list = $('#q_line_items_product_marketing_type_id_in:first');
+      var selected = [];
+
+      source_list.find("option:not(:selected)").each(function(index, el) {
+        selected[selected.length] = $(el).attr("value");
+      });
+      target_list.select2("val", selected);
+    });
+  };
+
+  excludeUnselected();
+
+
 })
+
+
+
 </script>
