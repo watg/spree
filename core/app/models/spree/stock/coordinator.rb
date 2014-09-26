@@ -34,8 +34,9 @@ module Spree
 
       private
       def prioritize_packages(packages)
-        prioritizer = Prioritizer.new(order, packages)
-        prioritizer.prioritized_packages
+        # prioritizer = Prioritizer.new(order, packages)
+        # prioritizer.prioritized_packages
+        AssemblyPrioritizer.new(order, packages).prioritized_packages
       end
 
       def estimate_packages(packages)
