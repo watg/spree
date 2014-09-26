@@ -1,6 +1,6 @@
 module Spree
   module Stock
-    # Responsible for keeping packages consistent with items in the order 
+    # Responsible for keeping packages consistent with items in the order
     #
     # It loops through the packages received and pick up only what the
     # order actually needs. Irrevelant packages items have their items quantity
@@ -17,7 +17,7 @@ module Spree
     # and prunes the others:
     #
     #   [#<Spree::Order:0xb378e098> - Stein 1 on_hand]
-    # 
+    #
     # In case packages don't have any on_hand items the first backordered is
     # kept and the others pruned before returning
     class AssemblyPrioritizer
@@ -41,7 +41,7 @@ module Spree
 
             if line_item.parts.any?
               line_item.parts.each do |part|
-                update_packages_quantity(part.variant, line_item, part_quantity_required(line_item, part))
+                update_packages_quantity(part.variant, line_item, part_quantity_required(line_item, part), part)
               end
             end
 
@@ -53,17 +53,17 @@ module Spree
           part.quantity * line_item.quantity
         end
 
-        def update_packages_quantity(variant, line_item, quantity)
+        def update_packages_quantity(variant, line_item, quantity, part = nil)
           package_adjuster = Adjuster.new(variant, quantity, :on_hand)
-          visit_packages(package_adjuster, line_item)
+          visit_packages(package_adjuster, line_item, part)
 
           package_adjuster.status = :backordered
-          visit_packages(package_adjuster, line_item)
+          visit_packages(package_adjuster, line_item, part)
         end
 
-        def visit_packages(package_adjuster, line_item)
+        def visit_packages(package_adjuster, line_item, part)
           packages.each do |package|
-            item = package.find_item package_adjuster.variant, package_adjuster.status, line_item
+            item = package.find_item package_adjuster.variant, package_adjuster.status, line_item, nil, part
             package_adjuster.adjust(item) if item
           end
         end
