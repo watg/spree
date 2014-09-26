@@ -2,7 +2,6 @@ module Spree
   module Admin
 
     class WaitingOrdersController < Spree::Admin::BaseController
-      before_filter :load_search_param, only: [:index, :invoices]
 
       def index
         @all_boxes = Spree::Parcel.find_boxes
@@ -12,6 +11,8 @@ module Spree
 
         @orders = Spree::Order.to_be_packed_and_shipped
         # @search needs to be defined as this is passed to search_form_for
+
+        params[:q] ||= {}
         @search = @orders.ransack(params[:q])
         @collection = @search.result(distinct: true)
 
@@ -54,12 +55,6 @@ module Spree
 
       private
 
-      def load_search_param
-        params[:q] ||= {}
-        params[:q] = JSON.parse(params[:q]) if params[:q].kind_of? String
-        params[:ignored_marketing_type_ids] = JSON.parse(params[:ignored_marketing_type_ids]) if params[:ignored_marketing_type_ids].kind_of? String
-      end
-
       def pdf_type
         params[:pdf_type]
       end
@@ -69,7 +64,7 @@ module Spree
           send_data outcome.result, disposition: :inline, filename: filename, type: "application/pdf"
         else
           flash[:error] = outcome.errors.full_messages.to_sentence
-          redirect_to admin_waiting_orders_url
+          redirect_to admin_waiting_orders_url(params: params.slice(:q, :ignored_marketing_type_ids))
         end
       end
 
@@ -77,7 +72,7 @@ module Spree
         if outcome.valid?
           respond_to do |format|
             format.html {
-              redirect_to admin_waiting_orders_url(q: params[:q])
+              redirect_to admin_waiting_orders_url(params: params.slice(:q, :ignored_marketing_type_ids))
             }
             format.json { render :json => {success: true}.to_json}
           end
@@ -85,7 +80,7 @@ module Spree
           respond_to do |format|
             format.html {
               flash[:error] = outcome.errors.full_messages.to_sentence
-              redirect_to admin_waiting_orders_url
+              redirect_to admin_waiting_orders_url(params: params.slice(:q, :ignored_marketing_type_ids))
             }
             format.json { render :json => {success: false}.to_json}
           end
@@ -98,14 +93,6 @@ module Spree
           box_id:    params[:box][:id],
           quantity:  params[:box][:quantity]
         }
-      end
-
-      def pagination_helper( params )
-        per_page = params[:per_page].to_i
-        per_page = per_page > 0 ? per_page : Spree::Config[:orders_per_page]
-        page = (params[:page].to_i <= 0) ? 1 : params[:page].to_i
-        curr_page = page || 1
-        [curr_page, per_page]
       end
 
     end

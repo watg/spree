@@ -5,10 +5,8 @@
 <% content_for :page_actions do %>
   <li>
 
-    <%= form_tag invoices_admin_waiting_orders_url(format: :pdf), method: :put do |f| %>
-      <%= submit_tag "Print selected #{[@batch_size, @unprinted_invoice_count].min} invoices", :target => "_blank" %>
-      <%= hidden_field_tag "q", params[:q].to_json %>
-      <%= hidden_field_tag "ignored_marketing_type_ids", params[:ignored_marketing_type_ids].to_json %>
+    <%= form_tag invoices_admin_waiting_orders_url(format: :pdf, params: params), method: :put do |f| %>
+      <%= submit_tag "Print selected #{[@batch_size, @unprinted_invoice_count, @collection.total_count].min} invoices", :target => "_blank" %>
     <% end %>
 
     <br/>
@@ -84,8 +82,8 @@
         </div>
         <div class="omega four columns">
           <div class="field">
-            <%= label_tag  'ignored_marketing_type_ids', "Marketing Types to Ignore" %>
-            <%= select_tag 'ignored_marketing_type_ids', options_from_collection_for_select(Spree::MarketingType.all, :id, :title, params['ignored_marketing_type_ids']), {class: 'select2 fullwidth', multiple: true} %>
+            <%= label_tag  'ignored_marketing_type_ids[]', "Marketing Types to Ignore" %>
+            <%= select_tag 'ignored_marketing_type_ids[]', options_from_collection_for_select(Spree::MarketingType.all, :id, :title, params['ignored_marketing_type_ids']), {class: 'select2 fullwidth', multiple: true} %>
             <small><a href="#" id="exclude-unselected">Ignore all except selected</a></small>
           </div>
         </div>
