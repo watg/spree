@@ -91,10 +91,10 @@ module Spree
       end
 
       def inspect
-        out = "#{order} - "
+        out = "#{order.number}\n\n"
         out << contents.map do |content_item|
-          "#{content_item.variant.name} #{content_item.quantity} #{content_item.state}"
-        end.join('/')
+          "#{content_item.quantity}  -  #{content_item.state}  -  #{content_item.variant.sku}"
+        end.join("\n")
         out
       end
 
