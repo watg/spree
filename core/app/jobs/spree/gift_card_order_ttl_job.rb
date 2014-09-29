@@ -8,7 +8,8 @@ module Spree
         if adjustment
           adjustment.amount = 0
           adjustment.label = "[VOID] NOT USED WITHIN ALLOWED TIME -- #{adjustment.label}"
-          adjustment.close!
+          adjustment.close! unless adjustment.closed?
+          adjustment.save!
         end
       end
     end
