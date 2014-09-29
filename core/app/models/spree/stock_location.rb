@@ -103,7 +103,6 @@ module Spree
     # +quantity+: integer - number of variants required
     # +supplier+: array - a preference list of suppliers and the desired quantity
     def fill_status(variant, quantity, suppliers=[])
-
       on_hand = []
       items = stock_items_on_hand(variant)
 
@@ -113,17 +112,7 @@ module Spree
       else
         on_hand = fill_with_on_hand(items, quantity)
       end
-
-      backordered = []
-
-      if item = stock_items_backorderable(variant).first
-        needed = quantity - on_hand.sum(&:count)
-        if needed > 0
-          backordered << FillStatusItem.new( item.supplier, needed  )
-        end
-      end
-
-      [on_hand, backordered]
+      on_hand
     end
 
     def first_on_hand(variant)

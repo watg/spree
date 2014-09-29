@@ -2,16 +2,15 @@
   <% order.parcels_grouped_by_box.each do |parcel| %>
     <li>
       <%= parcel.quantity %> - <%= parcel.box.sku %>
-      <%= button_to 'X', admin_waiting_order_path(order.id, 'box[id]' => parcel.box.id, 'box[quantity]' => parcel.quantity, 'q' => params[:q].to_json) , method: :delete, data: { confirm: "Are you sure to delete parcels?" } %>
+      <%= button_to 'X', admin_waiting_order_path(order.id, 'box[id]' => parcel.box.id, 'box[quantity]' => parcel.quantity, params: params) , method: :delete, data: { confirm: "Are you sure to delete parcels?" } %>
     </li>
   <% end %>
 </ul>
 
 <div id="order-<%=order.id%>" style="display:none;">
-  <%= form_tag admin_waiting_order_path(order.id), method: :put do |f| %>
-    <%= text_field_tag('box[quantity]', "1", style: "width: 50%", autocomplete: "off") %>
+  <%= form_tag admin_waiting_order_path(order.id, params: params.except('box')), method: :put do |f| %>
+    <%= number_field_tag('box[quantity]', "1", style: "width: 50%", autocomplete: "off") %>
     <%= submit_tag "Ok", style: "margin-left: 10px;" %>
     <%= select_tag('box[id]', options_from_collection_for_select(all_boxes, "id", "sku", 519), style: "margin: 10px 10px 10px 0") %>
-    <%= hidden_field_tag "q", params[:q].to_json %>
   <% end %>
 </div>

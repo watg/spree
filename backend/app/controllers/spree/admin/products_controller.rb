@@ -28,14 +28,18 @@ module Spree
       end
 
       def destroy
-        @product = Product.friendly.find(params[:id])
-        @product.destroy
+        if @product.variants_including_master.detect { |v| v.part? == true }
+          respond_to do |format|
+            format.js  { render text: "Product is part of assembly.", status: :bad_request }
+          end
+        else
+          @product.destroy
+          flash[:success] = Spree.t('notice_messages.product_deleted')
 
-        flash[:success] = Spree.t('notice_messages.product_deleted')
-
-        respond_with(@product) do |format|
-          format.html { redirect_to collection_url }
-          format.js  { render_js_for_destroy }
+          respond_with(@product) do |format|
+            format.html { redirect_to collection_url }
+            format.js  { render_js_for_destroy }
+          end
         end
       end
 

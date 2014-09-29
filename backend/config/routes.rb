@@ -57,6 +57,9 @@ Spree::Core::Engine.add_routes do
           collection do
             post :update_positions
           end
+          member do
+            post :move_stock
+          end
         end
       end
 
@@ -153,8 +156,8 @@ Spree::Core::Engine.add_routes do
 
       resources :waiting_orders do
         collection do
-          get :invoices
-          get :image_stickers
+          put :invoices
+          put :image_stickers
         end
         member do
           post :create_and_allocate_consignment
@@ -168,6 +171,7 @@ Spree::Core::Engine.add_routes do
       resources :orders do
         member do
           post :internal
+          post :refresh
           post :gift_card_reissue
           post :resend
           get :open_adjustments

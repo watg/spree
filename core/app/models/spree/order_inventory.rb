@@ -118,20 +118,25 @@ module Spree
 
     def add_to_shipment(shipment, quantity, line_item_part=nil)
 
+      quantity_needed = quantity
+
       if variant.should_track_inventory?
-        on_hand, backordered = shipment.stock_location.fill_status(variant, quantity)
+
+        on_hand = shipment.stock_location.fill_status(variant, quantity_needed)
 
         unstock = {}
         on_hand.map do |item|
           item.count.times { shipment.set_up_inventory('on_hand', variant, order, line_item, item.supplier, line_item_part) }
           unstock[item.supplier] ||= 0
           unstock[item.supplier] += item.count
+          quantity_needed -= item.count
         end
 
-        backordered.map do |item|
-          item.count.times { shipment.set_up_inventory('backordered', variant, order, line_item, item.supplier, line_item_part) }
-          unstock[item.supplier] ||= 0
-          unstock[item.supplier] += item.count
+        if quantity_needed > 0
+          if item = shipment.stock_location.stock_items_backorderable(variant).first
+            quantity_needed.times { shipment.set_up_inventory('backordered', variant, order, line_item, item.supplier, line_item_part) }
+            unstock[item.supplier] =  quantity_needed
+          end
         end
 
         if order.complete?
@@ -143,7 +148,7 @@ module Spree
       else
 
         item = shipment.stock_location.first_on_hand(variant)
-        quantity.times { shipment.set_up_inventory('on_hand', variant, order, line_item, item.supplier, line_item_part) }
+        quantity_needed.times { shipment.set_up_inventory('on_hand', variant, order, line_item, item.supplier, line_item_part) }
 
         # adding to this shipment, and removing from stock_location
         if order.complete?

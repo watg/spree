@@ -6,7 +6,7 @@ module Spree
         if params[:ids]
           @products = product_scope.where(:id => params[:ids].split(","))
         else
-          @products = product_scope.includes(variants: :images).ransack(params[:q]).result.uniq
+          @products = product_scope.includes(:master).ransack(params[:q]).result.uniq
         end
 
         @products = @products.distinct.page(params[:page]).per(params[:per_page])

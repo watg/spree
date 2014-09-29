@@ -51,11 +51,11 @@ body.homepage {
 
 .home-main .leader-0 {	
 	/* Small screen background */
-	background: #e5f6fd cdn-url("/homepage/2014-09-10/Homepage_TauZionLion_MOBILE_V1.jpg") top center no-repeat;
+	background: #fff cdn-url("/homepage/2014-09-17/Homepage_WildWool_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
-	a {
+	/*a {
 		position: absolute;
 		display: block;
 		line-height: 0;
@@ -69,32 +69,32 @@ body.homepage {
 		width: 160px;
 		height: 45px;
 		// Positioning
-		bottom: 26px;
+		bottom: 48px;
 		right: 80px;
-	}
+	}*/
 	/* Large screen background */
 	@media only screen and (min-width: 48em) {
-		background: #e5f6fd cdn-url("/homepage/2014-09-10/Homepage_TauZionLion_DESKTOP_V1.jpg") top center no-repeat;
+		background: #fff cdn-url("/homepage/2014-09-17/Homepage_WildWool_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
-		.link-kyo {
+		/*.link-kyo {
 			// Positioning
-			bottom: 110px;
+			bottom: 118px;
 			right: 76px;
-		}
+		}*/
 	}
 }
 
 .home-main .leader-1 {
 	/* Small screen background */
-	background: #efefef cdn-url("/homepage/2014-08-21/Homepage_BackToWool_MOBILE_V1.jpg") top center no-repeat;
+	background: #efefef cdn-url("/homepage/2014-09-17/Homepage_BackToWool_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
 	/* Large screen background */
 	@media only screen and (min-width: 48em) {
-  	background: #efefef cdn-url("/homepage/2014-08-21/Homepage_BackToWool_DESKTOP_V1.jpg") top center no-repeat;
+  	background: #efefef cdn-url("/homepage/2014-09-17/Homepage_BackToWool_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
@@ -204,16 +204,16 @@ body.homepage {
 	}*/
 }
 
-.home-main .leader-7 {	
-	border-bottom: 1px solid #000;
+.home-main .leader-7 {
 	/* Small screen background */
-	background: #fff cdn-url("/homepage/2014-08-21/Homepage_Story_MOBILE_V1.jpg") top center no-repeat;
+	border-bottom: 1px solid #000;
+	background: #fff cdn-url("/homepage/2014-09-17/Homepage_Story_MOBILE_V1_updated.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
 	/* Large screen background */
 	@media only screen and (min-width: 48em) {
-		background: #fff cdn-url("/homepage/2014-08-21/Homepage_Story_DESKTOP_V1.jpg") top center no-repeat;
+		background: #fff cdn-url("/homepage/2014-09-17/Homepage_Story_DESKTOP_V1_updated.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
@@ -224,22 +224,24 @@ body.homepage {
 
 /* Strapline area (text, black background) */
 .strap {
-	padding: 50px 0 30px;
+	padding: 30px 0;
 	text-align: center;
 	background-color: #000;
 	img {
 		margin-bottom: 30px;
 	}
 	p {
-		margin-bottom: 30px;
-		font-family: $watg-font;
-		font-size: emCalc(50px);
-		line-height: 1em;
+		font-family: $watg-font-secondary-light;
+		font-size: 1.875em;
+		line-height: 1.1em;
 		text-transform: uppercase;
 		color: #fff;
+		strong {
+			font-family: $watg-font-secondary;
+			font-weight: normal;
+		}
 	}
 	a {
-		/*font-family: 'Gill Sans W01 Book';*/
 		font-size: emCalc(20px);
 		color: #fff;
 	}

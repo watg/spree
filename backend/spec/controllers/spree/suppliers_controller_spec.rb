@@ -5,7 +5,7 @@ describe Spree::Admin::SuppliersController, type: :controller do
   stub_authorization!
 
   it 'can edit supplier' do
-    spree_get :edit, id: supplier.permalink
+    spree_get :edit, id: supplier.id
     expect(response).to be_success
     expect(assigns(:supplier)).to eq(supplier)
   end

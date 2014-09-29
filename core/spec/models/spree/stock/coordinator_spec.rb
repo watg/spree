@@ -3,7 +3,7 @@ require 'spec_helper'
 module Spree
   module Stock
     describe Coordinator do
-      let!(:order) { create(:order_with_line_items) }
+      let(:order) { create(:order_with_line_items, line_items_count: 1) }
 
       subject { Coordinator.new(order) }
 
@@ -22,7 +22,7 @@ module Spree
         end
 
         context "missing stock items in stock location" do
-          let!(:another_location) { create(:stock_location, propagate_all_variants: false) }
+          let!(:another_location) { order.reload; create(:stock_location, propagate_all_variants: false) }
 
           it "builds packages only for valid stock locations" do
             subject.build_packages.count.should == (StockLocation.count - 1)
@@ -33,10 +33,12 @@ module Spree
       # from spree product assembly
       context "order shares variant as individual and within bundle" do
         let(:line_item) { order.line_items.first }
+        let(:second_line_item) { create(:line_item, order: order) }
         let!(:parts) { (1..3).map { create(:part, line_item: line_item) } }
 
         let(:bundle_variant) { line_item.variant }
-        let(:common_product) { order.variants.last }
+        let(:common_product) { second_line_item.variant }
+        let(:supplier) { create(:supplier)}
 
         before do
           expect(bundle_variant).to_not eql common_product
@@ -45,7 +47,7 @@ module Spree
           create(:part, line_item: line_item, variant: common_product)
         end
 
-        before { StockItem.update_all 'count_on_hand = 10' }
+        before { StockItem.update_all count_on_hand: 10, supplier_id: supplier.id }
 
         context "bundle part requires more units than individual product" do
           before { order.contents.add_by_line_item(line_item, 5) }
@@ -55,7 +57,7 @@ module Spree
           it "calculates items quantity properly" do
             expect(bundle_item_quantity).to eq 6
             expect(line_item.parts.to_a.sum(&:quantity)).to eq 4
-            expect(order.line_items.to_a.sum(&:quantity)).to eq 10
+            expect(order.line_items.to_a.sum(&:quantity)).to eq 7
 
             line_items_without_parts = order.line_items.to_a.sum(&:quantity) - bundle_item_quantity
             expected_units_on_package = line_items_without_parts + (line_item.parts.to_a.sum(&:quantity) * bundle_item_quantity)

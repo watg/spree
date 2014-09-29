@@ -1,5 +1,5 @@
 module Spree
-  class Supplier < ActiveRecord::Base 
+  class Supplier < ActiveRecord::Base
 
     TAXONOMY = 'Gang Makers'
 
@@ -9,6 +9,8 @@ module Spree
     DEFAULT_COUNTRY_ISO = 'GB'
 
     validates_uniqueness_of :firstname, :scope => [:lastname, :company_name]
+    validates_uniqueness_of :permalink
+    validates_presence_of :permalink
 
     has_many :inventory_units, inverse_of: :supplier
     has_many :stock_items, inverse_of: :supplier
@@ -16,12 +18,12 @@ module Spree
     has_many :variants, -> { uniq }, through: :stock_items
 
     belongs_to :country, class_name: 'Spree::Country'
-    
+
     scope :displayable, -> { where(is_displayable: true) }
 
     after_initialize :init
 
-    make_permalink
+    before_validation :set_permalink
 
     has_attached_file :avatar,
       :styles        => { :avatar => "150x150>", :mini => "66x84>" },
@@ -31,7 +33,7 @@ module Spree
     process_in_background :avatar
 
     def self.default_country
-     Spree::Country.find_by_iso DEFAULT_COUNTRY_ISO 
+     Spree::Country.find_by_iso DEFAULT_COUNTRY_ISO
     end
 
     def self.default_mid_code
@@ -67,15 +69,14 @@ module Spree
       visible
     end
 
-    def permalink_prefix
-      [firstname, lastname, company_name].compact.join('-').to_url
+  private
+
+    def set_permalink
+      if permalink.blank?
+        self.permalink = [firstname, lastname, company_name].compact.join('-').to_url
+      end
     end
 
-    def to_param
-      permalink.present? ? permalink.to_s.to_url : permalink_prefix.to_url
-    end
-
-    private
 
     def init
       self.is_company ||= false
@@ -100,7 +101,7 @@ module Spree
       puts taxonomy
       unless taxonomy.root.children.find_by_name(nickname)
         taxon = Taxon.new(:name => nickname)
-        taxon.taxonomy_id = taxonomy.id 
+        taxon.taxonomy_id = taxonomy.id
         taxon.parent_id = taxonomy.root.id
         taxon.save
       end

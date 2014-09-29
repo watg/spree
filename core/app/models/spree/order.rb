@@ -115,16 +115,16 @@ module Spree
         where(completed_at: nil)
       end
 
+      # only physical line item to be dispatched
       def to_be_packed_and_shipped
-        # only physical line item to be dispatched
-        includes(:payments, line_items: [variant: [product: [:product_type]]]).
-          includes(:shipments).
-          where('spree_orders.state'    => 'complete',
-                'spree_orders.payment_state'  => 'paid',
-                'spree_shipments.state' => 'ready',
-                'spree_orders.internal' => false,
-                'spree_product_types.is_digital' => false).
-                order('spree_orders.created_at DESC')
+        non_digital_product_type_ids = Spree::ProductType.where(is_digital: false).pluck(:id)
+        select('spree_orders.*').includes(line_items: [variant: :product]).
+          where(state: 'complete',
+                payment_state: 'paid',
+                shipment_state: 'ready',
+                internal: false,
+                'spree_products.product_type_id' => non_digital_product_type_ids).
+                order('spree_orders.completed_at')
       end
 
       def unprinted_invoices
@@ -439,11 +439,12 @@ module Spree
       if self.line_item_parts.assembled.any?
         self.update_column(:internal, true)
         order_url = Spree::Core::Engine.routes.url_helpers.edit_admin_order_url(self)
+        customisation_numbers = self.line_item_parts.where(main_part: true).map(&:id).join(", ")
         message = "Hello,\n
-          Order ##{self.number} contains a personalisation. It has been marked as internal.\n
-          Have a look at it here: #{order_url}.\n
+          Order <a href='#{order_url}'>##{self.number}</a> contains customisation(s) with number(s): <b>#{customisation_numbers}</b>.\n
+          It has been marked as internal.\n
           Thank you."
-        Spree::NotificationMailer.delay.send_notification(message, Rails.application.config.personalisation_email_list,'Personalisation Order #' + self.number.to_s)
+        Spree::NotificationMailer.delay.send_notification(message, Rails.application.config.personalisation_email_list,'Customisation Order #' + self.number.to_s)
       end
     end
 

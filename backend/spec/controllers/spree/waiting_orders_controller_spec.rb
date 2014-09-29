@@ -14,35 +14,15 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
       expect(assigns[:all_boxes]).to eq(:boxes)
     end
 
-    it "assigns the print batch size" do
+    it "assigns the print batch size, number of unprinted invoices and stickers" do
+      expect(Spree::Order).to receive(:unprinted_invoices).and_return(["order1"])
+      expect(Spree::Order).to receive(:unprinted_image_stickers).and_return(["order2", "order3"])
+
       spree_get :index
       expect(assigns[:batch_size]).to eq(Spree::BulkOrderPrintingService::BATCH_SIZE)
-    end
-
-    it "assigns the number of unprinted invoices" do
-      pending('cannot make factory work with stock_location')
-      create_list(:order_ready_to_ship, 2)
-      spree_get :index
-      expect(assigns[:unprinted_invoice_count]).to eq(2)
-    end
-
-    it "assigns the number of unprinted stickers" do
-      pending('cannot make factory work with stock_location')
-      create_list(:invoice_printed_order, 3)
-      spree_get :index
-      expect(assigns[:unprinted_image_count]).to eq(3)
-    end
-
-    context "with a q params" do
-      let(:orders) {
-        2.times.map { |i| create(:order_ready_to_ship, :batch_print_id => i) }
-      }
-
-      it "assigns a single order" do
-        pending('cannot make factory work with stock_location')
-        spree_get :index, q: {batch_id_eq: orders.last.batch_print_id}
-        expect(assigns[:collection]).to eq([orders.last])
-      end
+      expect(assigns[:unprinted_invoice_count]).to eq(1)
+      expect(assigns[:unprinted_image_count]).to eq(2)
+      expect(assigns[:collection]).to be_empty
     end
   end
 
@@ -84,23 +64,31 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
   end
 
   context "PDF generation" do
-    let(:list_of_orders) { [create(:order)] }
+    let(:list_of_orders) { double.as_null_object }
     let(:outcome) { OpenStruct.new(:valid? => true, :result => :pdf) }
-    before do
-      subject.stub(:load_orders_waiting).and_return( list_of_orders )
+
+    it "renders all invoices" do
+      allow(Spree::Order).to receive(:unprinted_invoices).and_return list_of_orders
+      expect_any_instance_of(Spree::BulkOrderPrintingService).to receive(:print_invoices).with(list_of_orders).and_return(outcome)
+
+      spree_put :invoices, format: :pdf
+      expect(response.body).to eq("pdf")
+      expect(response.headers["Content-Type"]).to eq("application/pdf")
+      expect(response.headers["Content-Disposition"]).to eq("inline; filename=\"invoices.pdf\"")
     end
 
-    [ :invoices, :image_stickers].each do |action|
-      it "renders all #{action}" do
-        expect(Spree::BulkOrderPrintingService).to receive(:run).with(pdf: action).and_return(outcome)
-        spree_get action, format: :pdf
-        expect(response.body).to eq("pdf")
-        expect(response.headers["Content-Type"]).to eq("application/pdf")
-        expect(response.headers["Content-Disposition"]).to eq("inline; filename=\"#{action}.pdf\"")
-      end
-    end
+    it "renders all image_stickers" do
+      allow(Spree::Order).to receive(:unprinted_image_stickers).and_return list_of_orders
+      expect_any_instance_of(Spree::BulkOrderPrintingService).to receive(:print_image_stickers).with(list_of_orders).and_return(outcome)
 
+      spree_put :image_stickers, format: :pdf
+      expect(response.body).to eq("pdf")
+      expect(response.headers["Content-Type"]).to eq("application/pdf")
+      expect(response.headers["Content-Disposition"]).to eq("inline; filename=\"image_stickers.pdf\"")
+    end
   end
+
+
   context "#create_and_allocate_consignment" do
     let(:outcome) { OpenStruct.new(:valid? => true, :result => :pdf) }
 

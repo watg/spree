@@ -33,19 +33,22 @@ module Spree
         end
       end
 
-      # Please note this is being overridden by the decorator for assemblies
-      # 2 man weeks and counting probably been wasted by this misuse of decrators
       def destroy
-        @variant = Variant.find(params[:id])
-        if @variant.destroy
-          flash[:success] = Spree.t('notice_messages.variant_deleted')
+        if @variant.part? == true
+          respond_to do |format|
+            format.js  { render text: "Variant is part of assembly.", status: :bad_request }
+          end
         else
-          flash[:success] = Spree.t('notice_messages.variant_not_deleted')
-        end
+          if @variant.destroy
+            flash[:success] = Spree.t('notice_messages.variant_deleted')
+          else
+            flash[:success] = Spree.t('notice_messages.variant_not_deleted')
+          end
 
-        respond_with(@variant) do |format|
-          format.html { redirect_to admin_product_variants_url(params[:product_id]) }
-          format.js  { render_js_for_destroy }
+          respond_with(@variant) do |format|
+            format.html { redirect_to admin_product_variants_url(params[:product_id]) }
+            format.js  { render_js_for_destroy }
+          end
         end
       end
 

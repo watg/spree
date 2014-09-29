@@ -59,6 +59,7 @@ describe Spree::LineItem do
         optional:   true,
         price:      5,
         currency:   'GBP',
+        assembled:   nil,
         main_part:  true
       )
     ]}
@@ -73,12 +74,12 @@ describe Spree::LineItem do
       expect(part1.optional).to eq parts.first.optional
       expect(part1.price).to eq parts.first.price
       expect(part1.currency).to eq parts.first.currency
-      expect(part1.main_part).to be_false
-      expect(part1.assembled).to be_true
+      expect(part1.main_part).to eq false
+      expect(part1.assembled).to eq true
 
       part2 = line_item.parts.last
-      expect(part2.assembled).to be_false
-      expect(part2.main_part).to be_true
+      expect(part2.assembled).to eq false
+      expect(part2.main_part).to eq true
     end
 
     it "should deal with a nil price" do
@@ -545,6 +546,7 @@ describe Spree::LineItem do
   context "has inventory (completed order so items were already unstocked)" do
     let(:order) { Spree::Order.create }
     let(:variant) { create(:variant) }
+    let(:supplier) { create(:supplier) }
 
     context "line item with parts" do
       let(:container) { create(:variant) }
@@ -557,9 +559,9 @@ describe Spree::LineItem do
 
       before do
         create(:product_type_gift_card)
-        container.stock_items.update_all count_on_hand: 50, backorderable: false
-        part1.stock_items.update_all count_on_hand: 10, backorderable: false
-        part2.stock_items.update_all count_on_hand: 5, backorderable: false
+        container.stock_items.update_all count_on_hand: 50, backorderable: false, supplier_id: supplier.id
+        part1.stock_items.update_all count_on_hand: 10, backorderable: false, supplier_id: supplier.id
+        part2.stock_items.update_all count_on_hand: 5, backorderable: false, supplier_id: supplier.id
 
         order.contents.add(container, 5, nil, parts: parts)
         order.create_proposed_shipments
@@ -587,7 +589,7 @@ describe Spree::LineItem do
 
     context "nothing left on stock" do
       before do
-        variant.stock_items.update_all count_on_hand: 5, backorderable: false
+        variant.stock_items.update_all count_on_hand: 5, backorderable: false, supplier_id: supplier.id
         order.contents.add(variant, 5)
         order.create_proposed_shipments
         order.finalize!
@@ -614,7 +616,7 @@ describe Spree::LineItem do
 
     context "2 items left on stock" do
       before do
-        variant.stock_items.update_all count_on_hand: 7, backorderable: false
+        variant.stock_items.update_all count_on_hand: 7, backorderable: false, supplier_id: supplier.id
         order.contents.add(variant, 5)
         order.create_proposed_shipments
         order.finalize!

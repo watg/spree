@@ -46,7 +46,7 @@ describe Spree::StockCheckAlertJob do
         mock_object = double("mock_object")
         mock_object.should_receive(:deliver)
 
-        expect(Spree::NotificationMailer).to receive(:send_notification).with(message, "cade@woolandthegang.com", "Items out of stock").and_return(mock_object)
+        expect(Spree::NotificationMailer).to receive(:send_notification).with(message, ['test@woolandthegang.com'], "Items out of stock").and_return(mock_object)
         subject.perform
       end
     end

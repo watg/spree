@@ -31,10 +31,7 @@ module Spree
       context "inventory units line_item_part_id" do
 
         before do
-          rtn = [
-            [OpenStruct.new( supplier: nil, count: 3 )],
-            [OpenStruct.new( supplier: nil, count: 2 )],
-          ]
+          rtn = [OpenStruct.new( supplier: nil, count: 3 )]
           shipment.stock_location.should_receive(:fill_status).with(subject.variant, 5).and_return(rtn)
         end
 
@@ -53,10 +50,7 @@ module Spree
         end
 
         it 'sets inventory_units state as per stock location availability' do
-          rtn = [
-            [OpenStruct.new( supplier: nil, count: 3 )],
-            [OpenStruct.new( supplier: nil, count: 2 )],
-          ]
+          rtn = [OpenStruct.new( supplier: nil, count: 3 )]
           shipment.stock_location.should_receive(:fill_status).with(subject.variant, 5).and_return(rtn)
 
           subject.send(:add_to_shipment, shipment, 5).should == 5
@@ -77,16 +71,9 @@ module Spree
 
         it 'sets inventory_units state as per stock location availability' do
           rtn = [
-            [
               OpenStruct.new( supplier: nil, count: 1),
               OpenStruct.new( supplier: supplier_1, count: 3 ),
               OpenStruct.new( supplier: supplier_2, count: 4)
-            ],
-            [
-              OpenStruct.new( supplier: nil, count: 2),
-              OpenStruct.new( supplier: supplier_1, count: 2 ),
-              OpenStruct.new( supplier: supplier_2, count: 3)
-            ],
           ]
           shipment.stock_location.should_receive(:fill_status).with(subject.variant, 15).and_return(rtn)
 
@@ -103,9 +90,7 @@ module Spree
           units['on_hand'][nil].should == 1
           units['on_hand'][supplier_1].should == 3
           units['on_hand'][supplier_2].should == 4
-          units['backordered'][nil].should == 2
-          units['backordered'][supplier_1].should == 2
-          units['backordered'][supplier_2].should == 3
+          units['backordered'][nil].should == 7
         end
 
       end
@@ -409,8 +394,51 @@ module Spree
       end
     end
 
-    ## from Spree Product Assembly
+    context "Supplier and Assemblies" do
+      let!(:order) { create(:order) }
+      let!(:line_item_1) { create(:line_item, order: order ) }
+      let!(:line_item_2) { create(:line_item, order: order ) }
 
+      let!(:part_variant) { create(:base_variant) }
+
+      let!(:stock_location) { part_variant.stock_locations.first }
+
+      let!(:part_for_line_item_1) { create(:part, line_item: line_item_1, variant: part_variant) }
+      let!(:part_for_line_item_2) { create(:part, line_item: line_item_2, variant: part_variant) }
+
+      let!(:supplier_1) { create(:supplier) }
+      let!(:supplier_2) { create(:supplier) }
+
+      let!(:shipment) { create(:base_shipment, order: order, stock_location: stock_location) }
+      let!(:si_1) { create(:stock_item, variant: part_variant, supplier: supplier_1, stock_location: stock_location, backorderable: false) }
+      let!(:si_2) { create(:stock_item, variant: part_variant, supplier: supplier_2, stock_location: stock_location, backorderable: false) }
+
+      before do
+        si_1.set_count_on_hand(1)
+        si_2.set_count_on_hand(1)
+        order.update_column(:state, 'complete')
+        order.update_column(:completed_at, '2013-02-01')
+      end
+
+      it "removes stock from both suppliers when there is not enough stock from one" do
+        expect(line_item_1.inventory_units.size).to eq 0
+        expect(line_item_2.inventory_units.size).to eq 0
+        Spree::OrderInventory.new(order, line_item_1).verify
+        Spree::OrderInventory.new(order, line_item_2).verify
+        expect(line_item_1.reload.inventory_units.size).to eq 1
+        expect(line_item_2.reload.inventory_units.size).to eq 1
+
+        expect(line_item_1.inventory_units.first.supplier).to_not eq line_item_2.inventory_units.first.supplier
+        expect([supplier_1, supplier_2]).to include(line_item_1.inventory_units.first.supplier)
+        expect([supplier_1, supplier_2]).to include(line_item_2.inventory_units.first.supplier)
+
+        expect(si_1.reload.count_on_hand).to eq 0
+        expect(si_2.reload.count_on_hand).to eq 0
+      end
+
+    end
+
+    ## from Spree Product Assembly
     describe "Inventory units for assemblies" do
       let(:order) { create(:order_with_line_items, line_items_count: 1) }
       let(:line_item) { order.line_items.first }

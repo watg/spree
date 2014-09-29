@@ -18,6 +18,7 @@ $(document).ready(function() {
 	/* ----- New kit UI only ----- */
 	core.productGroup.hideOutOfStockVariants();
 	core.productGroup.readyAssemblyMenus();
+	core.productGroup.closeAssemblyMenus();
 	core.productGroup.readyAssemblyItemNames();
 	core.productGroup.setAssemblyListHeights();
 });
@@ -45,10 +46,10 @@ core.productGroup.getVariants = function() {
 // Run all the methods associated with variants
 core.productGroup.runVariantMethods = function() {
 	$('.loading-text').remove();
-	
+
 	// Kill existing event handlers before reassigning...
 	$('.row-made-by-the-gang').find('*').not('.zoomable').off();
-	
+
 	core.productGroup.readyVariantMenu();
 	core.productGroup.readyVariantMixing();
 	core.productGroup.readyVariantDetails();
@@ -76,13 +77,13 @@ core.productGroup.readySocialWidget = function() {
 	if (core.isTabletWidthOrLess() === false && $('.title h1').text().toLowerCase() != 'gift cards') {
 		var widget = $('.widget-social');
 		var container = $('.row-social:visible div:first-child');
-	
+
 		// Die if widget already in place
 		if (container.find('.widget-social').length > 0) return false;
-	
+
 		// Move widget
 		widget.appendTo(container).show();
-		
+
 		// Apply conditional backgrounds when widget carousel loaded
 		widget.on('DOMNodeInserted', '.olapic_carousel', function() {
 			var thumbs = $(this).find('li').length;
@@ -131,7 +132,7 @@ core.productGroup.readyTabs = function() {
 core.productGroup.readyHeroRow = function() {
 	var row_hero = $('.row-hero');
 	var row_next = row_hero.next('.row');
-	
+
 	row_hero.on('click', function(e) {
 		$.scrollTo(row_next, 500, {axis: 'y', easing: 'swing'});
 	});
@@ -195,9 +196,9 @@ core.productGroup.readyVariantDetailsClose = function() {
 	$('.close').on('click', function(e) {
 		e.preventDefault();
 		$(this).closest('li').slideUp(500);
-		
+
 		//$('.zoomContainer').remove(); // Kill zoom containers
-		
+
 		// Update URL
 		var path = core.getUrlPathAsArray();
 		History.replaceState(null, null, '/' + path[1] + '/' + path[2] + '/' + path[3] + '/' + path[4]);
@@ -237,7 +238,7 @@ core.productGroup.readyThumbnailImages = function() {
 
 core.productGroup.readyRevealContent = function(row) {
 	var title = row == 'made-by-the-gang' ? $('.row-made-by-the-gang .reveal-title') : $('.row-knit-your-own .reveal-title');
-	
+
 	title.on('click', function() {
 		$(this).next('.reveal-content').toggle();
 		$(this).toggleClass('revealed');
@@ -274,7 +275,7 @@ core.productGroup.showSelectedVariant = function() {
 // Only one variant? Then expose the details panel and hide the arrows/close button
 core.productGroup.checkForSingleVariant = function() {
 	var variant = $('.variant');
-	
+
 	if (variant.length == 1) {
 		variant.hide();
 		$('.arrow.prev').hide();
@@ -303,7 +304,7 @@ core.productGroup.showHeroImage = function() {
 		row.css('background-position', '0 ' + height_title + 'px');
 		// Pull image 60px left for mobile
 		if (core.isMobileWidthOrLess() === true) {
-			row.css('background-position', '-60px ' + height_title + 'px');	
+			row.css('background-position', '-60px ' + height_title + 'px');
 		}
 	}
 }
@@ -348,10 +349,17 @@ core.productGroup.readyAssemblyMenus = function() {
 	var row = $('.row-assembly');
 	if (row.length == 0) return false; // Die if not new kit UI
 
-	row.find('.product-variants').on('click', function() {
+	row.find('.product-variants').on('click', function(e) {
+		e.stopPropagation();
 		$(this).siblings().removeClass('revealed').find('.variant-options').hide();
 		$(this).find('.variant-options').toggle();
 		$(this).toggleClass('revealed');
+	});
+}
+
+core.productGroup.closeAssemblyMenus = function() {
+	$('.row-made-by-the-gang, .row-knit-your-own').on('click', function() {
+		$(this).find('.product-variants.revealed').click();
 	});
 }
 
@@ -359,10 +367,10 @@ core.productGroup.readyAssemblyMenus = function() {
 core.productGroup.readyAssemblyItemNames = function() {
 	var row = $('.row-assembly');
 	if (row.length == 0) return false; // Die if not new kit UI
-	
+
 	row.find('.assembly-name').on('click', function(e) {
-	    $(this).prev().click();
-		$(this).closest('.product-variants').click();
+	  e.stopPropagation();
+	  $(this).prev().click();
 	});
 }
 
@@ -370,7 +378,7 @@ core.productGroup.readyAssemblyItemNames = function() {
 core.productGroup.setAssemblyListHeights = function() {
 	var row = $('.row-assembly');
 	if (row.length == 0) return false; // Die if not new kit UI
-	
+
 	$.each($('.assembly-menus ol > li'), function(index, value) {
 		$('.assembly-images li').eq(index).css('height', $(this).outerHeight());
 	});
@@ -425,7 +433,7 @@ core.productGroup.switchContent = function(tab) {
 		$('.row-made-by-the-gang').removeClass('active');
 		$('.row-knit-your-own').addClass('active');
 		// Supporting content
-		$('.row-knit-your-own-supporting').addClass('active');	
+		$('.row-knit-your-own-supporting').addClass('active');
 		// Update URL
 		var path = core.getUrlPathAsArray();
 		History.replaceState(null, null, '/' + path[1] + '/' + path[2] + '/' + path[3] + '/' + 'knit-your-own');
@@ -476,13 +484,21 @@ core.productGroup.showVariantDetails = function(name, before) {
 	}
 
 	details.show();
-	
+
 	// Social widget
 	core.productGroup.readySocialWidget();
 
 	// Update URL
 	var path = core.getUrlPathAsArray();
-	History.replaceState(null, null, '/' + path[1] + '/' + path[2] + '/' + path[3] + '/' + path[4] + '/' + number);
+
+	// If we have a query string, ensure we append it to the updated URL
+	var query = ''
+	if (window.location.search) {
+		query = window.location.search;
+	}
+
+	// Do the update...
+	History.replaceState(null, null, '/' + path[1] + '/' + path[2] + '/' + path[3] + '/' + path[4] + '/' + number + query);
 
 	// Don't scroll when we're supplying an element to insert before
 	if (before == null) {
@@ -565,3 +581,30 @@ core.productGroup.handleZoomableImage = function(image) {
 		image.elevateZoom({ responsive: true, zoomType: 'inner', cursor: 'crosshair', zoomWindowFadeIn: 250, zoomWindowFadeOut: 250 });
 	}
 }
+
+// this is facebook's generated code, hint why it is so horrible
+core.productGroup.facebooklikes = function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.0";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk');
+
+// twitter generated code - for product shares
+core.productGroup.twitter = function(d,s,id){
+	var t,js,fjs=d.getElementsByTagName(s)[0];
+	if(d.getElementById(id)){return}js=d.createElement(s);
+	js.id=id;js.src="https://platform.twitter.com/widgets.js";
+	fjs.parentNode.insertBefore(js,fjs);
+	return window.twttr||(t={_e:[],ready:function(f){t._e.push(f)}})
+}(document,"script","twitter-wjs");
+
+// pinterest generated code
+core.productGroup.pinterest = function(d){
+  var f = d.getElementsByTagName('SCRIPT')[0], p = d.createElement('SCRIPT');
+  p.type = 'text/javascript';
+  p.async = true;
+  p.src = '//assets.pinterest.com/js/pinit.js';
+  f.parentNode.insertBefore(p, f);
+}(document);

@@ -9,18 +9,16 @@ module Spree
         @unprinted_invoice_count = Spree::Order.unprinted_invoices.count
         @unprinted_image_count = Spree::Order.unprinted_image_stickers.count
 
-        # return @collection if @collection.present?
+        @orders = Spree::Order.to_be_packed_and_shipped
+        # @search needs to be defined as this is passed to search_form_for
 
         params[:q] ||= {}
-        params[:q] = JSON.parse(params[:q]) if params[:q].kind_of? String
+        @search = @orders.ransack(params[:q])
+        @collection = @search.result(distinct: true)
 
-        @collection = Spree::Order.to_be_packed_and_shipped.order("completed_at desc")
-        # @search needs to be defined as this is passed to search_form_for
-        @search = @collection.ransack(params[:q])
-        @collection = @search.result.
-          page(params[:page]).
-          per( 15 )
-        @collection
+        # subtract all orders, which are in the excluded select box
+        @collection = @collection - @orders.where("spree_products.marketing_type_id IN (?)", params[:ignored_marketing_type_ids])
+        @collection = Kaminari.paginate_array(@collection).page(params[:page]).per(15)
       end
 
       def update
@@ -34,12 +32,19 @@ module Spree
       end
 
       def invoices
-        outcome = Spree::BulkOrderPrintingService.run(pdf: :invoices)
+        unprinted_orders = Spree::Order.unprinted_invoices
+
+        # apply the ransack and exclude filters
+        orders = unprinted_orders.ransack(params[:q]).result(distinct: true)
+        orders = orders - unprinted_orders.where("spree_products.marketing_type_id IN (?)", params[:ignored_marketing_type_ids])
+
+        outcome = Spree::BulkOrderPrintingService.new.print_invoices(orders)
         handle_pdf(outcome, "invoices.pdf")
       end
 
       def image_stickers
-        outcome = Spree::BulkOrderPrintingService.run(pdf: :image_stickers)
+        orders = Spree::Order.unprinted_image_stickers
+        outcome = Spree::BulkOrderPrintingService.new.print_image_stickers(orders)
         handle_pdf(outcome, "image_stickers.pdf")
       end
 
@@ -49,9 +54,6 @@ module Spree
       end
 
       private
-      def load_orders_waiting
-        Spree::Order.to_be_packed_and_shipped
-      end
 
       def pdf_type
         params[:pdf_type]
@@ -62,7 +64,7 @@ module Spree
           send_data outcome.result, disposition: :inline, filename: filename, type: "application/pdf"
         else
           flash[:error] = outcome.errors.full_messages.to_sentence
-          redirect_to admin_waiting_orders_url
+          redirect_to admin_waiting_orders_url(params: params.slice(:q, :ignored_marketing_type_ids))
         end
       end
 
@@ -70,7 +72,7 @@ module Spree
         if outcome.valid?
           respond_to do |format|
             format.html {
-              redirect_to admin_waiting_orders_url(q: params[:q])
+              redirect_to admin_waiting_orders_url(params: params.slice(:q, :ignored_marketing_type_ids))
             }
             format.json { render :json => {success: true}.to_json}
           end
@@ -78,7 +80,7 @@ module Spree
           respond_to do |format|
             format.html {
               flash[:error] = outcome.errors.full_messages.to_sentence
-              redirect_to admin_waiting_orders_url
+              redirect_to admin_waiting_orders_url(params: params.slice(:q, :ignored_marketing_type_ids))
             }
             format.json { render :json => {success: false}.to_json}
           end
@@ -91,14 +93,6 @@ module Spree
           box_id:    params[:box][:id],
           quantity:  params[:box][:quantity]
         }
-      end
-
-      def pagination_helper( params )
-        per_page = params[:per_page].to_i
-        per_page = per_page > 0 ? per_page : Spree::Config[:orders_per_page]
-        page = (params[:page].to_i <= 0) ? 1 : params[:page].to_i
-        curr_page = page || 1
-        [curr_page, per_page]
       end
 
     end

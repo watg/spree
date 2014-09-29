@@ -4,7 +4,7 @@ describe Spree::PackingListService do
 
   subject { Spree::PackingListService.run(order: order) }
 
-  let(:order) { create(:order) }
+  let(:order) { Spree::Order.new }
   let(:usa) { create(:country)}
   let(:variant) { create(:base_variant) }
   let(:supplier) { create(:supplier) }
@@ -80,8 +80,8 @@ describe Spree::PackingListService do
             variant.options_text,
             1,
             "|_|"
-          ]]
-        )
+          ]
+        ])
 
       end
 
@@ -94,7 +94,7 @@ describe Spree::PackingListService do
     let(:line_item_1) { create(:line_item, variant: variant, order: order, quantity: 2) }
     let(:variant_2) { create(:variant) }
     let(:supplier_2) { create(:supplier) }
-    let!(:part1) { create(:line_item_part, optional: false, line_item: line_item_1, quantity: 2, variant: variant_2, price: 8.0) }
+    let(:part1) { create(:line_item_part, optional: false, line_item: line_item_1, quantity: 2, variant: variant_2, price: 8.0) }
 
     before do
       line_item_1.quantity.times do
@@ -123,8 +123,49 @@ describe Spree::PackingListService do
           variant_2.options_text,
           4,
           "|_|"
-        ]]
-       )
+        ]
+      ])
+    end
+
+    context "with containers and assembled parts" do
+      let!(:container_part) { create(:line_item_part, line_item: line_item_1, quantity: 5, variant: variant, container: true, assembled: true) }
+
+      before do
+        part1.assembled = true
+        part1.main_part = true
+        part1.save!
+      end
+
+      it "includes any part containers and uses a CUSTOM prefix" do
+        result = subject.result
+        expect(result).to match_array([
+          Spree::PackingListService::HEADER,
+          [
+            "CUSTOM - #{variant.product.name}",
+            "#{variant.sku}",
+            "",
+            variant.options_text,
+            2,
+            "|_|"
+          ],
+          [
+            "",
+            "#{variant_2.sku} \n [#{supplier_2.permalink}]\n Customize No: <b>#{part1.id}</b>",
+            variant_2.product.name,
+            variant_2.options_text,
+            4,
+            "|_|"
+          ],
+          [
+            "",
+            variant.sku,
+            variant.product.name,
+            variant.options_text,
+            5,
+            "|_|"
+          ]
+        ])
+      end
     end
 
 
@@ -165,11 +206,32 @@ describe Spree::PackingListService do
             variant_2.options_text,
             1,
             "|_|"
-          ]]
-        )
+          ]
+        ])
+      end
+    end
+
+    context "Contains parts with parent part ID" do
+
+      before do
+        part1.parent_part_id = 21
+        part1.save!
       end
 
-
+      it "skips parts with parent part ID" do
+        result = subject.result
+        expect(result).to match_array([
+          Spree::PackingListService::HEADER,
+          [
+            "KIT - #{variant.product.name}",
+            "#{variant.sku}",
+            "",
+            variant.options_text,
+            2,
+            "|_|"
+          ]
+        ])
+      end
     end
 
   end

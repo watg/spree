@@ -193,7 +193,6 @@ core.randomiseBackgroundPosition = function() {
  $('.row-hero').css('background-position', x_positions[rand_num] + ' 0');
 }
 
-
 /* ----- Non-init methods ----- */
 
 // Test for tablet width or less

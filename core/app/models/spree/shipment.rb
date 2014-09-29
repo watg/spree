@@ -153,7 +153,7 @@ module Spree
     alias discounted_amount discounted_cost
 
     # Only one of either included_tax_total or additional_tax_total is set
-    # This method returns the total of the two. Saves having to check if 
+    # This method returns the total of the two. Saves having to check if
     # tax is included or additional.
     def tax_total
       included_tax_total + additional_tax_total
@@ -328,6 +328,9 @@ module Spree
         send_shipped_email
         touch :shipped_at
         update_order_shipment_state
+
+        # set job to send survey 10 days later
+        send_survey_email
       end
 
       def update_order_shipment_state
@@ -343,6 +346,15 @@ module Spree
       end
       handle_asynchronously :send_shipped_email, :run_at => Proc.new { Date.tomorrow.to_time }
 
+      def send_survey_email
+        EmailSurveyJob.new(self.order).delay(run_at: 10.days.from_now ).perform
+      end
+
+      EmailSurveyJob = Struct.new(:order) do
+        def perform
+          ShipmentMailer.survey_email(order).deliver
+        end
+      end
 
       def set_cost_zero_when_nil
         self.cost = 0 unless self.cost

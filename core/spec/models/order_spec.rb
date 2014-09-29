@@ -16,32 +16,47 @@ describe Spree::Order do
     end
   end
 
-  describe ".unprinted_image_stickers" do
-    let!(:unprinted_stickers) { 2.times.map {FactoryGirl.create(:invoice_printed_order) } }
-    let!(:printed_stickers) { FactoryGirl.create(:image_sticker_printed_order) }
-    it "returns a list of order pending image sticker print" do
-      pending('cannot make factory work with stock_location')
-      expect(Spree::Order.unprinted_image_stickers).to match_array(unprinted_stickers)
+  describe "#to_be_packed_and_shipped" do
+    let!(:order_with_one_digital_line_item) { create(:order_with_line_items, line_items_count: 2,
+                                        payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
+    let!(:order_with_digital_line_items_only) { create(:order_with_line_items, line_items_count: 1,
+                                        payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
+
+    before do
+      p1 = order_with_one_digital_line_item.line_items.first.product
+      p1.product_type.update_column(:is_digital, true)
+
+      p2 = order_with_digital_line_items_only.line_items.first.product
+      p2.product_type.update_column(:is_digital, true)
+    end
+
+    it "disregards orders with digital products only" do
+      result = Spree::Order.to_be_packed_and_shipped
+      expect(result.count).to eq 1
+      expect(result.first).to eq order_with_one_digital_line_item
     end
   end
 
-  describe ".unprinted_invoices" do
-    let!(:unprinted_invoices) { 2.times.map { FactoryGirl.create(:order_ready_to_ship) } }
-    let!(:printed_invoices) { FactoryGirl.create(:invoice_printed_order) }
-    let!(:unfinished_order) { FactoryGirl.create(:completed_order_with_pending_payment) }
+  describe "#unprinted_invoices and #unprinted_image_stickers" do
+    let!(:unprinted_invoices) { create(:order_with_line_items, line_items_count: 1,
+                                        payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
+    let!(:printed_invoice) { create(:order_with_line_items, line_items_count: 1,
+                                    batch_invoice_print_date: Date.today, payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
+    let!(:unfinished_order) { create(:order_with_line_items, line_items_count: 1,
+                                    payment_state: 'balance_due', shipment_state: 'ready', state: 'complete') }
 
     it "returns orders in shipment_state = ready with no invoice print date" do
-      pending('cannot make factory work with stock_location')
-      expect(Spree::Order.unprinted_invoices).to match_array(unprinted_invoices)
+      expect(Spree::Order.unprinted_invoices).to eq ([unprinted_invoices])
+      expect(Spree::Order.unprinted_image_stickers).to eq ([printed_invoice])
     end
   end
 
   describe ".last_batch_id" do
     it "returns the highest batch ID ever allocated" do
-      FactoryGirl.create(:invoice_printed_order,
+      FactoryGirl.create(:order,
         :batch_invoice_print_date => Date.yesterday,
         :batch_print_id => "17")
-      FactoryGirl.create(:invoice_printed_order,
+      FactoryGirl.create(:order,
         :batch_invoice_print_date => Date.yesterday,
         :batch_print_id => "9")
       expect(Spree::Order.last_batch_id).to eq(17)
@@ -52,10 +67,10 @@ describe Spree::Order do
     end
 
     it "doesn't return 0 just because a nil exists" do
-      FactoryGirl.create(:invoice_printed_order,
+      FactoryGirl.create(:order,
         :batch_invoice_print_date => Date.yesterday,
         :batch_print_id => "17")
-      FactoryGirl.create(:invoice_printed_order,
+      FactoryGirl.create(:order,
         :batch_invoice_print_date => Date.yesterday,
         :batch_print_id => nil)
       expect(Spree::Order.last_batch_id).to eq(17)
@@ -127,7 +142,7 @@ describe Spree::Order do
     after { Delayed::Worker.delay_jobs = true }
 
     it "marks the order as internal and sends an email" do
-      expect(Spree::NotificationMailer).to receive(:send_notification).with(anything, ['test@woolandthegang.com'], 'Personalisation Order #' + subject.number.to_s).and_return double.as_null_object
+      expect(Spree::NotificationMailer).to receive(:send_notification).with(anything, ['test@woolandthegang.com'], 'Customisation Order #' + subject.number.to_s).and_return double.as_null_object
 
       expect {
         subject.finalize!
