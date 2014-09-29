@@ -30,7 +30,7 @@ WATG.signup = {
 					if (e.response !== 'success') {
 						WATG.signup.showError();
 					} else {
-						message_cont.html(WATG.signup.getPromo);
+						//message_cont.html(WATG.signup.getPromo);
 						WATG.signup.setCookie();
 					}
 					WATG.signup.globals.responses.fadeIn();
