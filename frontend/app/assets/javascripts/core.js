@@ -9,10 +9,6 @@ $(document).ready(function() {
 	core.readyCarousels();
 	core.showCookieMessage();
 	core.readyAlpacaAttack();
-
-  if ($('body').hasClass('vote-for-your-favourite')) {
-    core.randomiseBackgroundPosition();
-  }
 });
 
 /* ----- Init methods ----- */
@@ -29,8 +25,8 @@ core.readyNavigation = function() {
 				core.showSubNavigation($(this));
 			}
 		});
-	} else { 
-		// ----- Desktop 
+	} else {
+		// ----- Desktop
 		$('.nav-primary li').on({
 			mouseover: function() {
 				core.showSubNavigation($(this));
@@ -62,7 +58,7 @@ core.readyNavigationMobile = function() {
 
 // Show sub primary navigation
 core.showSubNavigation = function(e) {
-	$('.nav-primary li a').removeClass('active') 
+	$('.nav-primary li a').removeClass('active')
 	// Needed for tablet
 
 	e.children('a').addClass('active');
@@ -85,14 +81,14 @@ core.showSubNavigationMobile = function(e) {
 // Hide sub primary navigation
 core.hideSubNavigation = function(e) {
 	e.children('a').removeClass('active');
-	
+
 	$('.nav-primary-sub').removeClass('expanded');
 };
 
 // Ready modal plugin
 core.readyModals = function() {
 	$('a[rel*=modal]').leanModal({top: 30, closeButton: '.modal-close'});
-	
+
 	// Prime additional 'close modal' CTA...
 	$('.modal .button').on('click', function(e) {
 		e.preventDefault();
@@ -103,7 +99,7 @@ core.readyModals = function() {
 // Reset modal events
 core.resetModals = function() {
 	$('a[rel*=modal]').off();
-	
+
 	$('.modal .button').off();
 };
 
@@ -125,7 +121,7 @@ core.showCookieMessage = function() {
 
 	if (!$.cookie(name)) {
 		var row = $('.row-cookie');
-		
+
 		row.fadeIn('slow');
 		row.find('a:first').on('click', function(e) {
 			e.preventDefault();
@@ -173,7 +169,7 @@ core.readyCarousels = function() {
           // Options go here
           target: '+=1'
       });
-  }  
+  }
 }
 
 // Attach event handler for alpaca attack
@@ -184,13 +180,6 @@ core.readyAlpacaAttack = function() {
 	core.resetAlpacaAttack();
     core.runAlpacaAttack();
   });
-}
-
-// Set a random background position (x-axis)
-core.randomiseBackgroundPosition = function() {
- var x_positions = ['-300px', '0', '300px'];
- var rand_num = Math.floor((Math.random() * x_positions.length));
- $('.row-hero').css('background-position', x_positions[rand_num] + ' 0');
 }
 
 /* ----- Non-init methods ----- */
@@ -222,7 +211,7 @@ core.runAlpacaAttack = function() {
 
   // lining up the army of alpacas
   var normalPosition = {
-    transform: 'none', 
+    transform: 'none',
     left: '-150px',
     top: 0,
     leftanimate: '+=150px',
@@ -274,8 +263,8 @@ core.runAlpacaAttack = function() {
   // sending the aplaca off to do its mission
   alpaca.css({
       'display': 'initial',
-      'transform': random_alpaca.transform,  
-      'left': random_alpaca.left, 
+      'transform': random_alpaca.transform,
+      'left': random_alpaca.left,
       'top': random_alpaca.top
     });
   alpaca.animate({
