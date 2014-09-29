@@ -778,7 +778,7 @@ module Spree
 
     def after_cancel
       shipments.each { |shipment| shipment.cancel! }
-      payments.completed.each { |payment| payment.credit! if payment.respond_to?(:credit!) }
+      payments.completed.each { |payment| payment.credit! if payment.payment_method.respond_to?(:credit) }
 
       send_cancel_email
       self.update_column(:payment_state, 'credit_owed') unless shipped?
