@@ -1240,25 +1240,24 @@ body.thank-you {
   }
 }
 
-
 /* Knit party cont...*/
 .knit-party {
 	.wrapper-knit-party {
-    .row-halves {
-      overflow: hidden;
-      .columns {
-        height: 600px;
-        @media only screen and (max-width: 520px) {
-          height: inherit;
-        }
-      }
-    }
+		.row-halves {
+			overflow: hidden;
+			.columns {
+				height: 600px;
+				@media only screen and (max-width: 520px) {
+					height: inherit;
+				}
+			}
+		}
 		/* Row specific */
 		.row-map {
 			background: cdn-url('/party/KnitParty_Hero_DESKTOP.jpg') center 0 no-repeat;
 			h1 {
 				margin-top: emCalc(85px);
-        /*padding-top: emCalc(30px);*/
+				/*padding-top: emCalc(30px);*/
 			}
 			@media only screen and (max-width: 520px) {
 				background: cdn-url('/party/KnitParty_Hero_MOBILE.jpg') center center no-repeat;
@@ -1268,24 +1267,24 @@ body.thank-you {
 			}
 		}
 		.description {
-      padding: 0;
-      margin: 0;
-      .smaller {
-        font-size: 0.9em;
-      }
-      h3 {
-        padding: 0;
-        margin: 0;
-      }
+			padding: 0;
+			margin: 0;
+			.smaller {
+				font-size: 0.9em;
+			}
+			h3 {
+				padding: 0;
+				margin: 0;
+			}
 			@media only screen and (max-width: 520px) {
 				padding: 0 0 20px 0;
 				margin: 0;
 			}
 		}
 		.button {
-      text-decoration: none;
-      margin: emCalc(20px);
-    }
+			text-decoration: none;
+			margin: emCalc(20px);
+		}
 		.column-why-host {
 			background: cdn-url('/party/How_Does_it_work_DESKTOP.jpg') center center no-repeat;
 			@media only screen and (max-width: 520px) {
@@ -1305,52 +1304,52 @@ body.thank-you {
 				background: cdn-url('/party/Why_Host_MOBILE.jpg') center center no-repeat;
 			}
 		}
-    .column-sum {
-      .illustration {
-        margin-top: 70px;
-      }
-      p {
-        font-family: $watg-font;
-        text-transform: uppercase;
-        line-height: 1em;
-        float: left;
-        width: 35%;
-        margin-left: 10%;
-      }
-      p:last-child {
-        float: right;
-        margin-left: 0;
-        margin-right: 10%;
-      }
-      @media only screen and (max-width: 520px) {
-        p {
-          padding-bottom: emCalc(40px);
-        }
-      }
-    }
+		.column-sum {
+			.illustration {
+				margin-top: 70px;
+			}
+			p {
+				font-family: $watg-font;
+				text-transform: uppercase;
+				line-height: 1em;
+				float: left;
+				width: 35%;
+				margin-left: 10%;
+			}
+			p:last-child {
+				float: right;
+				margin-left: 0;
+				margin-right: 10%;
+			}
+			@media only screen and (max-width: 520px) {
+				p {
+					padding-bottom: emCalc(40px);
+				}
+			}
+		}
 		.column-party-info {
-      background-color: #f9f9f9;
-      padding: emCalc(40px) 0 emCalc(60px) 0;
-      font-size: emCalc(20px);
-      @media only screen and (max-width: 520px) {
-        p {
-          padding: emCalc(40px) emCalc(20px) emCalc(40px);
-        }
-      }
+			background-color: #f9f9f9;
+			padding: emCalc(40px) 0 emCalc(60px) 0;
+			font-size: emCalc(20px);
+			@media only screen and (max-width: 520px) {
+				p {
+					padding: emCalc(40px) emCalc(20px) emCalc(40px);
+				}
+			}
 		}
 		.info-first {
 			padding: emCalc(85px);
-      @media only screen and (max-width: 520px) {
-        padding: emCalc(40px) emCalc(10px) emCalc(40px);
-      }
+			@media only screen and (max-width: 520px) {
+				padding: emCalc(40px) emCalc(10px) emCalc(40px);
+			}
 		}
 		.heading {
 			h2 {
 				padding-top:80px;
-        @media only screen and (max-width: 520px) {
-          padding: emCalc(30px);
-          line-height: 1.1em;
-        }
+				@media only screen and (max-width: 520px) {
+					padding: emCalc(30px);
+					line-height: 1.1em;
+				}
 			}
 		}
 		.row-cta {
@@ -1365,9 +1364,7 @@ body.thank-you {
 			text-align: center;
 		}
 	}
-}
-
-/*mail chimp form hackage*/
+	/*mail chimp form hackage*/
 	#mc_embed_signup #mce-success-response {
 		color: #5b06aa !important;
 	}
