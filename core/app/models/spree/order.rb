@@ -626,10 +626,13 @@ module Spree
       adjustments.shipping.delete_all
       shipments.destroy_all
 
+      new_shipments = []
       packages = Spree::Stock::Coordinator.new(self).packages
       packages.each do |package|
-        shipments << package.to_shipment
+        new_shipments << package.to_shipment
       end
+
+      self.shipments = new_shipments
 
       shipments
     end

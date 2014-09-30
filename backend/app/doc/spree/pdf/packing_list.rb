@@ -64,7 +64,7 @@ module Spree
       def customer_address(pdf, order, address_x, lineheight_y)
         pdf.move_down 65
         last_measured_y = pdf.cursor
-        
+
         pdf.text "#{order.shipping_address.firstname} #{order.shipping_address.lastname}", leading: 1
         pdf.text order.shipping_address.address1, leading: 1
         pdf.text (order.shipping_address.address2 || ''), leading: 1
@@ -83,7 +83,7 @@ module Spree
 
       def invoice_details(pdf, order, invoice_header_x)
 
-        invoice_header_data = [ 
+        invoice_header_data = [
           ["Order #", order.number ],
           ["Invoice Date", Time.now.strftime("%Y/%m/%d") ],
           ["Order Complete  Date", order.completed_at.strftime("%Y/%m/%d") ],
@@ -123,7 +123,7 @@ module Spree
       def invoice_terms(pdf)
         pdf.move_down 25
 
-        invoice_terms_data = [ 
+        invoice_terms_data = [
           ["Delivery Terms"],
           ["Goods shipped by Wool and the Gang"]
         ]
@@ -131,6 +131,11 @@ module Spree
         pdf.table(invoice_terms_data, :width => 275) do
           style(row(0..-1).columns(0..-1), :padding => [1, 0, 1, 0], :borders => [])
           style(row(0).columns(0), :font_style => :bold)
+        end
+
+        if order.shipments.count > 1
+          pdf.move_down 40
+          pdf.text "Warning! This order has more than 1 shipment.", size: 24
         end
 
         pdf
