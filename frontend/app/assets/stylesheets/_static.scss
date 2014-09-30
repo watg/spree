@@ -684,8 +684,9 @@ body.thank-you {
   }
 }
 
-/* Our story */
-.our-story {
+/* Our story/Yarn */
+.our-story,
+.yarn {
 	/* Full width */
 	.row-shipping-and-contact + .container > div.row {
 		max-width: none !important;
@@ -693,13 +694,14 @@ body.thank-you {
 	.row-shipping-and-contact + .container > div.row > .columns {
 		padding: 0;
 	}
-	.wrapper-our-story div.row {
+	.wrapper-our-story div.row,
+	.wrapper-yarn div.row {
 		margin: 0 auto;
 		position: relative;
 		max-width: 62.5em;
 	}
-
-	.wrapper-our-story {
+	.wrapper-our-story,
+	.wrapper-yarn {
 		@media only screen and (max-width: 48em) {
 			.only-desktop {
 				display: none;
@@ -892,6 +894,11 @@ body.thank-you {
 			}
 		}
 	}
+}
+
+/* Yarn */
+.yarn {
+	
 }
 
 /* Free patterns */
