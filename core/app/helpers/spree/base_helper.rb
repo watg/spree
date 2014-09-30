@@ -159,7 +159,7 @@ module Spree
     def link_to_tracking(shipment, options = {})
       return unless shipment.tracking
 
-      if shipment.tracking_url
+      if shipment.shipping_method && shipment.tracking_url
         link_to(shipment.tracking, shipment.tracking_url, options)
       else
         content_tag(:span, shipment.tracking)
