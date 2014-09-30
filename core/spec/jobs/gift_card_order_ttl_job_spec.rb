@@ -6,6 +6,7 @@ describe Spree::GiftCardOrderTTLJob do
   subject { Spree::GiftCardOrderTTLJob.new(order, gift_card) }
 
   before do
+    allow(gift_card).to receive(:compute_amount).with(order).and_return 10
     gift_card.create_adjustment('label', order, order, true)
   end
 
@@ -17,12 +18,22 @@ describe Spree::GiftCardOrderTTLJob do
     expect(gift_card.beneficiary_email).to be_nil
     expect(gift_card.beneficiary_order).to be_nil
   end
-  
-  it "lock order adjustment for that gift card" do
+
+  it "locks order adjustment for that gift card" do
+    adjustment = order.adjustments.gift_card.first
+    expect(adjustment.amount).to eq 10
+
     subject.perform
-    
-    order.reload
-    expect(order.adjustments.gift_card.first).to_not be_blank
-    expect(order.adjustments.gift_card.first.state).to eql('closed')
+    expect(adjustment.reload).to be_present
+    expect(adjustment.amount).to eq 0
+    expect(adjustment.amount).to eq 0
+    expect(adjustment.state).to eql('closed')
+
+    adjustment.update_column(:amount, 20)
+    expect(adjustment.reload.amount).to eq 20
+
+    subject.perform
+    expect(adjustment.reload.amount).to eq 0
+    expect(adjustment.state).to eq 'closed'
   end
 end

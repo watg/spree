@@ -134,6 +134,12 @@ describe Spree::Address do
       address.errors["phone"].should == ["can't be blank", "is invalid"]
     end
 
+    it "requires phone to be less than 20 chars" do
+      address.phone = "12345 12345 12345 12345 1"
+      address.valid?
+      address.errors["phone"].should == ["is too long (maximum is 20 characters)"]
+    end
+
     it "requires zipcode" do
       address.zipcode = ""
       address.valid?

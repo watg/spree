@@ -19,12 +19,12 @@ module Spree
     def phone_validate
       if phone.blank?
         errors.add :phone, :invalid
-        return 
+        return
       end
       n_digits = phone.scan(/[0-9]/).size
 
-      errors.add :phone, :too_long if n_digits > 15
-      
+      errors.add :phone, :too_long, count: 20 if n_digits > 20
+
       valid_chars = (phone =~ /^[-+()\/\s\d]+$/)
       errors.add :phone, :invalid unless (n_digits > 5 && valid_chars)
     end
@@ -82,7 +82,7 @@ module Spree
     def empty?
       attributes.except('id', 'created_at', 'updated_at', 'order_id', 'country_id').all? { |_, v| v.nil? }
     end
-    
+
     # Generates an ActiveMerchant compatible address hash
     def active_merchant_hash
       {

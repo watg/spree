@@ -21,6 +21,7 @@
 //= require lib/jquery.elevatezoom.min.js
 
 //= require core
+//= require core.static
 
 //= require spree/frontend/spree
 //= require spree/frontend/checkout
@@ -40,7 +41,7 @@
 //= require spree/frontend/spree_paypal_express
 
 // this is so we are backward compatible with the old product pages, we should delete it when we no longer need them
-//= require spree/frontend/old_product 
+//= require spree/frontend/old_product
 
 // Refer-a-friend module
 //= require spree/frontend/spree_raf
