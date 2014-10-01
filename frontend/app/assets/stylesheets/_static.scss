@@ -909,7 +909,7 @@ body.thank-you {
 
 /* Yarn */
 .yarn {
-	
+
 }
 
 /* Free patterns */
@@ -1364,6 +1364,13 @@ body.thank-you {
 		}
 		.submit-button {
 			text-align: center;
+		}
+	}
+	form {
+		text-transform: uppercase;
+		.dropdown
+		 {
+			padding-bottom: 27px !important;
 		}
 	}
 	/*mail chimp form hackage*/
