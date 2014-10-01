@@ -232,7 +232,8 @@ $(function() {
 		$('body').hasClass('competition-summer-look-jun-2014') ||
 		$('body').hasClass('competition-summer-bag-jun-2014') ||
 		$('body').hasClass('free-patterns') ||
-		$('body').hasClass('competition-bespoke-hat')) {
+		$('body').hasClass('competition-bespoke-hat') ||
+		$('body').hasClass('catbird-giveaway')) {
 		WATG.referral.init();
 	}
 
