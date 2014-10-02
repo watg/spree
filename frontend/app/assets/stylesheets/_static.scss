@@ -1288,15 +1288,15 @@ body.thank-you {
 			margin: emCalc(20px);
 		}
 		.column-why-host {
-			background: cdn-url('/party/How_Does_it_work_DESKTOP.jpg') center center no-repeat;
-			@media only screen and (max-width: 520px) {
-				background: cdn-url('/party/How_Does_it_work_MOBILE.jpg') center center no-repeat;
-			}
-		}
-		.column-free-goodies {
 			background: cdn-url('/party/Free_Goodies_DESKTOP.jpg') center center no-repeat;
 			@media only screen and (max-width: 520px) {
 				background: cdn-url('/party/Free_Goodies_MOBILE.jpg') center center no-repeat;
+			}
+		}
+		.column-free-goodies {
+			background: cdn-url('/party/snood-desktop.jpg') center center no-repeat;
+			@media only screen and (max-width: 520px) {
+				background: cdn-url('/party/snood-mobile.jpg') center center no-repeat;
 
 			}
 		}
