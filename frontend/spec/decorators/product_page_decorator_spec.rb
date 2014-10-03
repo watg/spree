@@ -71,6 +71,30 @@ describe Spree::ProductPageDecorator, type: :decorator do
 
   end
 
+  context "#title_size_class" do
+
+    it "assigns the correct size (mini) class for a title" do
+      subject.title = "Mini Wellington Hat"
+      expect(subject.title_size_class).to eq ("mini")
+    end
+
+    it "assigns the correct size (small) class for a title" do
+      subject.title = "Mini Zion Lion"
+      expect(subject.title_size_class).to eq ("small")
+    end
+
+    it "assigns the correct size (mini) class for a title" do
+      subject.title = "Minis Giles"
+      expect(subject.title_size_class).to eq ("medium")
+    end
+
+    it "assigns the correct size (mini) class for a title" do
+      subject.title = "Mini Hat"
+      expect(subject.title_size_class).to eq ("large")
+    end
+
+  end
+
   context "made_by_the_gang_tab" do
 
     it "returns tab " do

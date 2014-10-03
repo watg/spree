@@ -142,11 +142,12 @@ class Spree::ProductPageDecorator < Draper::Decorator
   end
 
   def title_size_class
-    if object.title.split.first.length > 8 || object.title.split.last.length > 8
+    word_lengths = object.title.split.map(&:length)
+    if word_lengths.detect { |word| word > 8 }
       "mini"
-    elsif object.title.split.first.length == 8 || object.title.split.last.length == 8 || object.title.length >= 12
+    elsif word_lengths.reduce(:+) >= 12
       "small"
-    elsif object.title.split.first.length >= 5 || object.title.length >= 10
+    elsif word_lengths.detect { |word| word  >= 5 } || word_lengths.reduce(:+) >= 10
       "medium"
     else
       "large"
