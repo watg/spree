@@ -30,7 +30,7 @@ WATG.signup = {
 					if (e.response !== 'success') {
 						WATG.signup.showError();
 					} else {
-						//message_cont.html(WATG.signup.getPromo);
+						message_cont.html(WATG.signup.getPromo);
 						WATG.signup.setCookie();
 					}
 					WATG.signup.globals.responses.fadeIn();
@@ -61,7 +61,7 @@ WATG.signup = {
 	},
 
 	getPromo: function() {
-		return '<p>Thanks for signing up.<br/>Enter code when you check out to get 15% off your order* :)<br/><strong>HELLO72X76</strong><br/><small>*Expires midnight 29th September</small></p>';
+		return '<p>Thanks for signing up.<br/>Enter code when you check out to get 10% off your order* :)<br/><strong>G9XrwE3056</strong><br/><small>*Expires midnight 6th October</small></p>';
 	},
 
 	showError: function() {
