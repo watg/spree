@@ -1335,6 +1335,9 @@ body.thank-you {
 			background-color: #f9f9f9;
 			padding: emCalc(40px) 0 emCalc(60px) 0;
 			font-size: emCalc(20px);
+			span {
+				font-size: emCalc(10px);
+			}
 			@media only screen and (max-width: 520px) {
 				p {
 					padding: emCalc(40px) emCalc(20px) emCalc(40px);
@@ -1353,6 +1356,9 @@ body.thank-you {
 				@media only screen and (max-width: 520px) {
 					padding: emCalc(30px);
 					line-height: 1.1em;
+				}
+				@media only screen and (max-width: 320px) {
+					padding: emCalc(10px);
 				}
 			}
 		}
