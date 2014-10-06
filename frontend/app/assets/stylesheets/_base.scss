@@ -329,6 +329,29 @@ table {
   background-color: #f4bfbf;
 }
 
+/* Cart errors */
+#errorExplanation {
+	padding: 1.25em;
+	background-color: #f4bfbf;
+	border: 0;
+	font-size: emCalc(16px);
+	text-align: center;
+	h2 {
+		font-size: 1em;
+		font-weight: bold;
+		font-family: inherit;
+		text-transform: inherit;
+	}
+	ul {
+		margin: 0;
+		color: #000;
+		font-weight: normal;
+		li {
+			list-style-type: none;
+		}
+	}
+}
+
 /* Sitewide modals */
 .modal {
 	padding: emCalc(10px) emCalc(30px) emCalc(20px);
