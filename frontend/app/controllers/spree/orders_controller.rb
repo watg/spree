@@ -41,7 +41,7 @@ module Spree
     # Shows the current incomplete order from the session
     def edit
       @order = current_order || Order.new
-
+      @order.insufficient_stock_lines
       # Remove any line_items which have been deleted
       @order.prune_line_items
       associate_user

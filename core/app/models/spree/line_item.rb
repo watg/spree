@@ -213,8 +213,8 @@ module Spree
     end
 
     def sufficient_stock?
-      result = Spree::Stock::Quantifier.can_supply_order?(self.order)
-      result[:errors].select {|err| err[:line_item_id] == self.id}.blank?
+      Spree::Stock::AvailabilityValidator.new.validate(self)
+      self.errors.blank?
     end
 
     def insufficient_stock?

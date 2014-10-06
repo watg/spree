@@ -35,86 +35,12 @@ module Spree
         total_on_hand >= required || backorderable?
       end
 
-      private
+    private
 
       # return variant when passed either variant object or variant id
       def resolve_variant_id(variant)
         variant = Spree::Variant.find_by_id(variant) unless variant.respond_to?(:should_track_inventory?)
         variant
-      end
-
-      class << self
-
-        def can_supply_order?(order, desired_line_item=nil)
-          line_item_to_record = lambda do |li|
-            [li].flatten.map do |line_item|
-              array  = []
-              array << {
-                line_item_id: line_item.id,
-                variant_id: line_item.variant_id,
-                quantity:   line_item.quantity
-              }
-
-              line_item.parts.each do |part|
-                next if part.container?
-                array << {
-                  line_item_id: line_item.id,
-                  variant_id:   part.variant_id,
-                  quantity:     part.quantity * line_item.quantity
-                }
-              end
-              array
-            end.flatten
-          end
-
-          data_set = order.line_items.includes(:line_item_parts).without(desired_line_item)
-          a = line_item_to_record[data_set]
-          b = ( desired_line_item ? line_item_to_record[desired_line_item] : [] )
-
-          flatten_list_of_items = (a+b)
-
-          variant_quantity_grouping = flatten_list_of_items.reduce({}) {|hsh, c|
-                             k = c[:variant_id]
-                             hsh[k] ||= 0; hsh[k] += c[:quantity]
-                             hsh}
-
-
-          variant_quantity_grouping_with_stock = eager_load_stock_items( variant_quantity_grouping )
-
-          errors = []
-          stock_check = variant_quantity_grouping_with_stock.map {|variant, quantity|
-            # We supply stock_items seperately as a way to optimize the initialize
-            in_stock = Spree::Stock::Quantifier.new(variant, variant.stock_items).can_supply?(quantity)
-            errors << add_error(variant, flatten_list_of_items) unless in_stock
-            in_stock}
-          result = stock_check.reduce(true) {|can_supply,c| can_supply && c}
-
-          {in_stock: result, errors: errors.flatten}
-        end
-
-        def eager_load_stock_items( variant_quantity_grouping )
-          # This code relies on us removing deleted variants in OrderController::edit after this is run in
-          # the context of adding an item via the cart, hence a user will add an item, a stock check will be
-          # completed ( igonring the deleted variant ) then the deleted variant will get pruned
-          variants_with_stock = Spree::Variant.includes(:stock_items =>[:stock_location]).
-            where( Spree::StockLocation.table_name =>{ :active => true} ).where( id: variant_quantity_grouping.keys )
-
-          variants_with_stock.inject({}) do |hash,v|
-            hash[v] = variant_quantity_grouping[v.id]
-            hash
-          end
-        end
-
-        def add_error(variant, list_of_existing_li)
-          li_with_out_of_stock_variants = list_of_existing_li.select {|e| e[:variant_id] == variant.id}
-          li_with_out_of_stock_variants << {} if li_with_out_of_stock_variants.empty?
-          li_with_out_of_stock_variants.map do |li|
-            {
-              line_item_id: li[:line_item_id],
-              msg: Spree.t(:out_of_stock, :scope => :order_populator, :item => %Q{#{variant.name} #{variant.options_text}}.inspect)
-            }
-          end
-        end
       end
 
     end

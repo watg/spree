@@ -16,11 +16,15 @@ describe Spree::Order do
     Spree::LegacyUser.stub(:current => mock_model(Spree::LegacyUser, :id => 123))
   end
 
-
   context "#prune_line_items" do
 
     let(:order_2)   { create(:order) }
     let!(:line_item1) { create(:line_item, :order => order_2, :quantity => 3 ) }
+
+    before do
+      order_2.line_items.reload
+    end
+
     it "does not delete any line_items which have active variants" do
       order_2.prune_line_items
       expect(order_2.line_items.size).to eq 1
@@ -46,9 +50,10 @@ describe Spree::Order do
   end
 
   context "#cost_price_total" do
-
     let!(:line_item1) { create(:line_item, :order => order, :quantity => 3 ) }
+
     it "returns total price of all line_items" do
+      order.line_items.reload
       expect(order.cost_price_total).to eq 30
     end
   end
@@ -56,7 +61,7 @@ describe Spree::Order do
   context "#internal?" do
     it "returns true when order is marked as such" do
       order = build(:order, internal: true)
-      expect(order.internal?).to be_true 
+      expect(order.internal?).to be_true
     end
 
     it "return false by default" do
@@ -106,7 +111,7 @@ describe Spree::Order do
       credit_card_payment_method = create(:credit_card_payment_method)
       attributes = {
         :payments_attributes => [
-          { 
+          {
             :payment_method_id => credit_card_payment_method.id,
             :source_attributes => {
               :name => "Ryan Bigg",
@@ -337,7 +342,7 @@ describe Spree::Order do
       end
 
       context "and order is approved" do
-        before do 
+        before do
           order.stub :approved? => true
         end
 
@@ -478,23 +483,24 @@ describe Spree::Order do
   end
 
   context "insufficient_stock_lines" do
-    let!(:line_item) { create(:line_item, order: order)}
+    let(:line_item) { Spree::LineItem.new(currency: order.currency) }
 
-    before { 
-      allow(Spree::Stock::Quantifier).
-      to receive(:can_supply_order?).
-      and_return({errors: [{line_item_id: line_item.id, msg: "out of stock"}]})
-    }
+    before do
+      line_item.errors[:quantity] << "Insufficient stock error"
+      order.line_items << line_item
+    end
 
-    it "should return line_item that has insufficient stock on hand" do
-      order.insufficient_stock_lines.size.should == 1
-      order.insufficient_stock_lines.include?(line_item).should be_true
+    it "should return line_items that have insufficient stock on hand" do
+      expect_any_instance_of(Spree::Stock::AvailabilityValidator).to receive(:validate_order).with(order)
+      out_of_stock_lines = order.insufficient_stock_lines
+      expect(out_of_stock_lines.size).to eq 1
+      expect(out_of_stock_lines).to include line_item
     end
   end
 
   context "empty!" do
     let(:order) { stub_model(Spree::Order, item_count: 2) }
-    
+
     before do
       order.stub(:line_items => line_items = [1, 2])
       order.stub(:adjustments => adjustments = [])
@@ -583,6 +589,7 @@ describe Spree::Order do
 
       specify do
         order_1.merge!(order_2)
+        order_1.line_items.reload
         order_1.line_items.count.should == 1
 
         line_item = order_1.line_items.first

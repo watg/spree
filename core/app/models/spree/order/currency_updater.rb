@@ -17,6 +17,7 @@ module Spree
         line_items.where('currency != ?', currency).each do |line_item|
           update_line_item_price!(line_item)
         end
+        line_items.reload
       end
 
       # Returns the price object from given item

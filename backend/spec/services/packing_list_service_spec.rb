@@ -8,7 +8,11 @@ describe Spree::PackingListService do
   let(:usa) { create(:country)}
   let(:variant) { create(:base_variant) }
   let(:supplier) { create(:supplier) }
-  let(:line_item_1) { create(:line_item, order: order, variant: variant) }
+  let(:line_item_1) { build(:line_item, order: order, variant: variant) }
+
+  before do
+    order.line_items << line_item_1
+  end
 
   it "returns a header" do
     result = subject.result
@@ -91,7 +95,7 @@ describe Spree::PackingListService do
 
   context "Assmebly" do
 
-    let(:line_item_1) { create(:line_item, variant: variant, order: order, quantity: 2) }
+    let(:line_item_1) { build(:line_item, variant: variant, order: order, quantity: 2) }
     let(:variant_2) { create(:variant) }
     let(:supplier_2) { create(:supplier) }
     let(:part1) { create(:line_item_part, optional: false, line_item: line_item_1, quantity: 2, variant: variant_2, price: 8.0) }
