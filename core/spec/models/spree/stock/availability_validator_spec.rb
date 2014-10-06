@@ -43,6 +43,20 @@ module Spree
           subject.validate(line_item).should eq true
         end
 
+        context "when variant is required by other line items" do
+          before do
+            order.line_items << Spree::LineItem.new(variant: variant, quantity: 10)
+            line_item.quantity = 0
+          end
+
+          it "should not add errors if the line item quantity required is eq to 0" do
+            Stock::Quantifier.any_instance.stub(can_supply?: false)
+
+            line_item.should_not_receive(:errors)
+            subject.validate(line_item).should eq true
+          end
+        end
+
         context "when inventory units exist" do
           before do
             Stock::Quantifier.any_instance.stub(can_supply?: false)

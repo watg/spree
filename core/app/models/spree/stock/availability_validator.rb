@@ -2,6 +2,8 @@ module Spree
   module Stock
     class AvailabilityValidator < ActiveModel::Validator
       def validate(line_item)
+        return true if line_item.quantity <= 0
+
         order = line_item.order
         item_builder = Spree::Stock::OrderItemBuilder.new(order)
 
