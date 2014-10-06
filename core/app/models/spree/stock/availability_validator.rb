@@ -3,16 +3,23 @@ module Spree
     class AvailabilityValidator < ActiveModel::Validator
       def validate(line_item)
         order = line_item.order
+        item_builder = Spree::Stock::OrderItemBuilder.new(order)
 
-        # {324=>2, 1405=>3, 321=>2, 323=>2, 322=>3}
-        grouped_units = order.inventory_units.group(:variant_id).count
-        required = group_variants(order, line_item)
+        # group the order's variants. Ex: {324=>3, 1405=>4, 321=>2, 323=>3, 322=>3}
+        grouped_variants = item_builder.group_variants
 
-        variants_to_check = required.each do |v, count|
-          required[v] = required[v].to_i - grouped_units[v].to_i
-        end.select {|v, count| count > 0}
+        # remove variant ids, which are not part of the line item of interest
+        variant_ids_of_interest = item_builder.variant_ids_for_line_item(line_item)
+        grouped_variants.slice!(*variant_ids_of_interest)
 
-        valid = variants_to_check.all? do |variant_id, quantity|
+        # remove variant ids, which have allocated inventory units. Ex {324=>2, 1405=>3, 321=>2}
+        grouped_units = order.inventory_units.where(pending: false).group(:variant_id).count
+
+        grouped_variants = grouped_variants.each do |variant_id, count|
+          grouped_variants[variant_id] = grouped_variants[variant_id].to_i - grouped_units[variant_id].to_i
+        end.select {|v_id, count| count > 0}
+
+        valid = grouped_variants.all? do |variant_id, quantity|
           variant = Spree::Variant.find(variant_id)
           Stock::Quantifier.new(variant).can_supply? quantity
         end
@@ -22,29 +29,49 @@ module Spree
           display_name = %Q{#{variant.name}}
           display_name += %Q{ (#{variant.options_text})} unless variant.options_text.blank?
           line_item.errors[:quantity] << Spree.t(:selected_quantity_not_available, :scope => :order_populator, :item => display_name.inspect)
+          false
+        else
+          true
         end
-        true
       end
 
-    private
 
-      def group_variants(order, line_item)
-        # uniq would break other tests, which depend on the order.line_items association
-        (order.line_items.without(line_item).to_a + [line_item]).inject({}) do |hash, line|
+      def validate_order(order)
+        ## Needs to be upgraded to the new syntax in rails 4.1
+        ## ActiveRecord::Associations::Preloader.new.preload(order, [line_items: :line_item_parts]).run
+        ActiveRecord::Associations::Preloader.new(order, [line_items: :line_item_parts]).run
 
-          unless line.parts.any?
-            hash[line.variant_id] ||= 0
-            hash[line.variant_id] += line.quantity
+        item_builder = Spree::Stock::OrderItemBuilder.new(order)
+
+        # group the order's variants. Ex: {324=>3, 1405=>4, 321=>2, 323=>3, 322=>3}
+        grouped_variants = item_builder.group_variants
+
+        # remove variant ids, which have allocated inventory units. Ex: {324=>2, 1405=>3, 321=>2}
+        grouped_units = order.inventory_units.where(pending: false).group(:variant_id).count
+
+        grouped_variants = grouped_variants.each do |variant_id, count|
+          grouped_variants[variant_id] = grouped_variants[variant_id].to_i - grouped_units[variant_id].to_i
+        end.select {|v_id, count| count > 0}
+
+        preloaded_variants = Spree::Variant.where(id: grouped_variants.keys).includes(:stock_items).joins(stock_items: :stock_location).merge(Spree::StockLocation.active).references(:stock_location).load
+
+        valids = grouped_variants.map do |variant_id, quantity|
+          variant = preloaded_variants.find { |variant| variant.id == variant_id }
+
+          if !Stock::Quantifier.new(variant, variant.stock_items).can_supply? quantity
+            display_name = %Q{#{variant.name}}
+            display_name += %Q{ (#{variant.options_text})} unless variant.options_text.blank?
+
+            out_of_stock_line_item = item_builder.find_by_variant_id(variant_id).last.line_item
+            out_of_stock_line_item.errors[:quantity] << Spree.t(:selected_quantity_not_available, :scope => :order_populator, :item => display_name.inspect)
+
+            false
+          else
+            true
           end
-
-          line.parts.each do |part|
-            next if part.container?
-            hash[part.variant_id] ||= 0
-            hash[part.variant_id] += part.quantity * line.quantity
-          end
-
-          hash
         end
+
+        valids.all?
       end
 
     end

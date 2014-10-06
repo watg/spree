@@ -6,10 +6,11 @@ module Spree
     let(:updater) { Spree::OrderUpdater.new(order) }
 
     context "order totals" do
-      before do 
+      before do
         2.times do
           create(:line_item, :order => order, price: 10)
         end
+        order.line_items.reload
       end
 
       it "updates payment totals" do

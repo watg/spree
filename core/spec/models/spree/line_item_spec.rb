@@ -375,10 +375,10 @@ describe Spree::LineItem do
       # Disabling this for now as there is a bug where the after_create is causing
       # changed? in line_item.update_inventory to not evaluate to true when
       # changes have been made
-      xit "should not trigger if changes are not made" do
-        Spree::OrderInventory.any_instance.should_not_receive(:verify)
-        line_item.save
-      end
+      # xit "should not trigger if changes are not made" do
+      #   Spree::OrderInventory.any_instance.should_not_receive(:verify)
+      #   line_item.save
+      # end
 
     end
 
@@ -532,13 +532,16 @@ describe Spree::LineItem do
   end
 
   describe ".sufficient_stock?" do
+    let(:line_item) { Spree::LineItem.new }
+
     it "variant out of stock across order" do
-      allow(Spree::Stock::Quantifier).to receive(:can_supply_order?).and_return({errors: [{line_item_id: line_item.id}]})
+      line_item.errors[:quantity] << "Insufficient stock error"
+      allow_any_instance_of(Spree::Stock::AvailabilityValidator).to receive(:validate)
       expect(line_item.sufficient_stock?).to be_false
     end
 
     it "variant in stock across order" do
-      allow(Spree::Stock::Quantifier).to receive(:can_supply_order?).and_return({errors: []})
+      allow_any_instance_of(Spree::Stock::AvailabilityValidator).to receive(:validate)
       expect(line_item.sufficient_stock?).to be_true
     end
   end

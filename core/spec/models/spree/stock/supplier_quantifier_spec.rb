@@ -19,6 +19,7 @@ module Spree
         let!(:si) { create(:stock_item, variant: variant, supplier: supplier, stock_location: stock_location, backorderable: false) }
 
         before do
+          order.line_items.reload
           variant.stock_items.where.not(id: si.id).delete_all
         end
 
@@ -141,6 +142,7 @@ module Spree
         let!(:si_2) { create(:stock_item, variant: part_variant, supplier: supplier_2, stock_location: stock_location, backorderable: false) }
 
         before do
+          order.line_items.reload
           part_variant.stock_items.where.not(id: [si_1.id, si_2.id]).delete_all
           si_1.set_count_on_hand(1)
           si_2.set_count_on_hand(1)

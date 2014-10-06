@@ -182,6 +182,7 @@ module Spree
         let!(:si_2) { create(:stock_item, variant: part_variant, supplier: supplier_2, stock_location: stock_location, backorderable: false) }
 
         before do
+          order.line_items.reload
           si_1.set_count_on_hand(1)
           si_2.set_count_on_hand(1)
         end
