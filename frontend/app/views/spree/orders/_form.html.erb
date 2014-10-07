@@ -1,4 +1,16 @@
-<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @order } %>
+<% if @order.errors.any? %>
+  <div id="errorExplanation" class="errorExplanation" data-hook>
+    <h2><%= Spree.t(:errors_prohibited_this_record_from_being_saved, :count => @order.errors.count) %></h2>
+      <ul>
+      <% @order.errors.messages.each do |attr, msg| %>
+        <% msg.each do |val| %>
+          <li><%= val %></li>
+        <% end %>
+      <% end %>
+      </ul>
+  </div>
+<% end %>
+
 <table id="cart-detail" class="order-item-listing" data-hook>
 	<thead>
 		<tr data-hook="cart_items_headers">
