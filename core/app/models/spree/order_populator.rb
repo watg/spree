@@ -286,7 +286,8 @@ module Spree
         }
 
         line_item = @order.contents.add(variant, quantity, currency, options)
-        unless line_item.valid?
+
+        if line_item.errors.any?
           errors.add(:base, line_item.errors.messages.values.join(" "))
           return false
         end
