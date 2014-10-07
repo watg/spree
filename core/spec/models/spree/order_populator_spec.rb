@@ -123,7 +123,7 @@ describe Spree::OrderPopulator do
 
       end
 
-      
+
       context "when the part has parts of its own (old kit in an assembly)" do
         let(:other_product)  { create(:base_product) }
         let(:other_variant)  { create(:base_variant, product: other_product) }
@@ -404,6 +404,7 @@ describe Spree::OrderPopulator do
       context "variant out of stock" do
         before do
           line_item = double("LineItem", valid?: false)
+          line_item.stub(:errors).and_return [double]
           line_item.stub_chain(:errors, messages: { quantity: ["error message"] })
           order.contents.stub(add: line_item)
         end
