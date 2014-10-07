@@ -1,5 +1,4 @@
 core.productGroup.readyVariantOptions = (entity) ->
-
   master_tree = entity.data('tree')
   option_type_order = entity.data('option-type-order')
   option_values = entity.data('option-values')
@@ -52,6 +51,7 @@ core.productGroup.readyVariantOptions = (entity) ->
     selected_value = $(this).data('value')
     selected_presentation = $(this).data('presentation')
     variant_details = toggle_option_values(entity, selected_type, selected_value, selected_presentation, option_type_order, master_tree)
+    update_supplier_details(entity, variant_details['id'])
     if variant_details
       set_stock_level(entity, variant_details['total_on_hand'])
       toggle_images(entity, variant_details['id'])
@@ -179,6 +179,24 @@ set_stock_level = (entity, total_on_hand) ->
 		entity.find('.stock-value').text(total_on_hand + ' left')
 	else
 		entity.find('.stock-level').hide()
+		
+update_supplier_details = (entity, variant_id) ->
+	variants = $('.variants')
+
+	# Visible
+	supplier_visible = entity.find('.suppliers')
+	supplier_visible_details = supplier_visible.next()
+	# Update
+	supplier_update = entity.find('.suppliers-update')
+	supplier_update_details = supplier_update.next()
+	# Target
+	supplier_target = variants.find("[data-variant='" + variant_id + "'] .suppliers")
+	supplier_target_details = supplier_target.next()
+	# Swap!
+	supplier_visible.hide().removeClass('revealed')
+	supplier_visible_details.hide();
+	supplier_update.html(supplier_target.html()).css('display', 'inherit').removeClass('revealed')
+	supplier_update_details.html(supplier_target_details.html()).hide()
 
 # Modify the images based on the selected variant
 toggle_images = (entity, variant_id) ->

@@ -984,6 +984,9 @@
 
 /* Taken from _interim.scss then edited */
 .product-group {
+	.suppliers-update {
+		display: none;
+	}
 	/* Thumbnails partial */
 	.thumbnails {
 		margin: 0 0 emCalc(15px);
