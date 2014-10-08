@@ -11,10 +11,12 @@
 </h5>
 <p class="reveal-content">
    <% displayable_suppliers.each_with_index do |supplier, i| %>
-     <strong><%= supplier.nickname.titlecase() %></strong>: <%=supplier.profile%>
-     <% if (i < displayable_suppliers.size - 1) %>
+     <% if (supplier.profile.size > 0) %>
+			<strong><%= supplier.nickname.titlecase() %></strong>: <%= supplier.profile %>
+     	<% if (i < displayable_suppliers.size - 1) %>
        <br/><br/>
-     <% end %>
+     	<% end %>
+		<% end %>
    <% end %>
 </p>
 
