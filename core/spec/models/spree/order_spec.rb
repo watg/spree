@@ -286,7 +286,7 @@ describe Spree::Order do
       Spree::Shipment.create(order: order)
       order.shipments.reload
 
-      order.stub(:paid? => true, :complete? => true)
+      order.stub(:paid? => true, :complete? => true, :physical_line_items => [double])
       order.finalize!
       order.reload # reload so we're sure the changes are persisted
       order.shipment_state.should == 'ready'

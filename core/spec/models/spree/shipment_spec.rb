@@ -205,7 +205,11 @@ describe Spree::Shipment do
     end
 
     context "when order is paid" do
-      before { order.stub paid?: true }
+      before do
+        order.stub paid?: true
+        order.stub physical_line_items: [double('Non-digital item')]
+      end
+
       it "should result in a 'ready' state" do
         shipment.should_receive(:update_columns).with(state: 'ready', updated_at: kind_of(Time))
         shipment.update!(order)
@@ -226,7 +230,10 @@ describe Spree::Shipment do
     end
 
     context "when order has a credit owed" do
-      before { order.stub payment_state: 'credit_owed', paid?: true }
+      before do
+        order.stub payment_state: 'credit_owed', paid?: true
+        order.stub physical_line_items: [double('Non-digital item')]
+      end
       it "should result in a 'ready' state" do
         shipment.state = 'pending'
         shipment.should_receive(:update_columns).with(state: 'ready', updated_at: kind_of(Time))
@@ -368,6 +375,7 @@ describe Spree::Shipment do
   context "#resume" do
     it 'will determine new state based on order' do
       shipment.order.stub(:update!)
+      shipment.stub(:check_for_only_digital_and_ship)
 
       shipment.state = 'canceled'
       shipment.should_receive(:determine_state).and_return(:ready)
@@ -581,16 +589,56 @@ describe Spree::Shipment do
     before do
       # Must be stubbed so transition can succeed
       order.stub :paid? => true
+      order.stub physical_line_items: [double('Non-digital item')]
     end
 
     it "are logged to the database" do
       shipment.state_changes.should be_empty
       expect(shipment.ready!).to be_true
-      shipment.state_changes.count.should == 1
+      expect(shipment.state_changes.count).to eq 1
       state_change = shipment.state_changes.first
       expect(state_change.previous_state).to eq('pending')
       expect(state_change.next_state).to eq('ready')
     end
   end
 
+  context "shipment contains only digital items will automatically ship" do
+    before do
+      order.stub :paid? => true
+      shipment.stub :after_ship
+      order.stub physical_line_items: []
+    end
+
+    it "ultising state machine call backs" do
+      shipment.state = "pending"
+      shipment.ready!
+      expect(shipment.state).to eq "shipped"
+    end
+
+    it "ignoring state machine callbacks (spreehack) with #update!" do
+      shipment.state = "pending"
+      shipment.update!(order)
+      expect(shipment.state).to eq "shipped"
+    end
+  end
+
+  context "shipment contains non digital items does not automatically ship" do
+    before do
+      order.stub physical_line_items: [double('Non-digital item')]
+      order.stub :paid? => true
+      shipment.stub :after_ship
+    end
+
+    it "ultising state machine call backs" do
+      shipment.state = "pending"
+      shipment.ready!
+      expect(shipment.state).to eq "ready"
+    end
+
+    it "ignoring state machine callbacks (spreehack) with #update!" do
+      shipment.state = "pending"
+      shipment.update!(order)
+      expect(shipment.state).to eq "ready"
+    end
+  end
 end
