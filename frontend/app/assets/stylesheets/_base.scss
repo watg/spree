@@ -324,9 +324,13 @@ table {
 }
 
 /* Sitewide error messaging */
-.error {
+.error,
+.flash.error {
   padding: 1.25em;
   background-color: #f4bfbf;
+	border: 0;
+	font-size: emCalc(16px);
+	text-align: center;
 }
 
 /* Cart errors */
