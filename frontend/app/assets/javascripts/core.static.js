@@ -12,7 +12,7 @@ $(document).ready(function() {
     core.Static.randomiseBackgroundPosition();
   };
 
-  if ($('body').hasClass('careers')) {
+	if ($('body').hasClass('careers')) {
 		core.Static.showJobFromHash();
 	};
 });
