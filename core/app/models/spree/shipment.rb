@@ -33,10 +33,10 @@ module Spree
     state_machine initial: :pending, use_transactions: false do
       event :ready do
         transition from: :pending, to: :ready, if: lambda { |shipment|
-          # Fix for #2040
           shipment.determine_state(shipment.order) == 'ready'
         }
       end
+      after_transition to: :ready, do: :check_for_only_digital_and_ship
 
       event :pend do
         transition from: :ready, to: :pending
@@ -228,6 +228,8 @@ module Spree
         updated_at: Time.now,
       )
       after_ship if new_state == 'shipped' and old_state != 'shipped'
+
+      check_for_only_digital_and_ship if new_state == 'ready' and old_state != 'ready'
     end
 
     # Determines the appropriate +state+ according to the following logic:
@@ -320,6 +322,12 @@ module Spree
       def validate_shipping_method
         unless shipping_method.nil?
           errors.add :shipping_method, Spree.t(:is_not_available_to_shipment_address) unless shipping_method.include?(address)
+        end
+      end
+
+      def check_for_only_digital_and_ship
+        if order.physical_line_items.empty?
+          self.ship!
         end
       end
 

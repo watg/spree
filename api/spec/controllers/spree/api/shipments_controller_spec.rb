@@ -31,7 +31,7 @@ describe Spree::Api::ShipmentsController do
 
     it 'can create a new shipment' do
       v = stock_location.stock_items.first.variant
-      assembly_selection = {1 => 23, 3 => 1034} 
+      assembly_selection = {1 => 23, 3 => 1034}
       params = {
         variant_id: v.to_param,
         order_id: order.number,
@@ -56,9 +56,9 @@ describe Spree::Api::ShipmentsController do
       response.status.should == 200
       json_response['stock_location_name'].should == stock_location.name
     end
-    
+
     it "can make a shipment ready" do
-      Spree::Order.any_instance.stub(:paid? => true, :complete? => true)
+      Spree::Order.any_instance.stub(:paid? => true, :complete? => true, :physical_line_items => [double])
       api_put :ready
       json_response.should have_attributes(attributes)
       json_response["state"].should == "ready"
@@ -117,7 +117,7 @@ describe Spree::Api::ShipmentsController do
 
     context "can transition a shipment from ready to ship" do
       before do
-        Spree::Order.any_instance.stub(:paid? => true, :complete? => true)
+        Spree::Order.any_instance.stub(:paid? => true, :complete? => true, :physical_line_items => [double])
         # For the shipment notification email
         Spree::Config[:mails_from] = "spree@example.com"
 
