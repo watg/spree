@@ -1,0 +1,10 @@
+<% variant_ids = @order.line_items.pluck(:variant_id) %>
+<% skus = Spree::Variant.where(id: variant_ids).pluck(:sku).join(",") %>
+
+<img width="1"
+ height="1"
+ src="http://www.polyvore.com/conversion/beacon.gif?adv=woolandthegang.com&
+ amt=<%=@order.total%>&
+ oid=<%=@order.number%>&
+ skus=<%=skus%>&
+ cur=<%=@order.currency%>">
