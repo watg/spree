@@ -8,16 +8,20 @@ $(document).ready(function() {
     core.Static.readyscrolltoInfo();
   };
 
-
   if ($('body').hasClass('vote-for-your-favourite')) {
     core.Static.randomiseBackgroundPosition();
   };
 
-
-
+  if ($('body').hasClass('careers')) {
+		core.Static.showJobFromHash();
+	};
 });
 
-// runs to form and info
+$(window).bind('load', function() {
+	
+});
+
+// Scroll to form and info
 core.Static.readyscrolltoForm = function() {
   document.getElementById("become-a-host").onclick = function(e) {
     e.preventDefault()
@@ -32,7 +36,6 @@ core.Static.readyscrolltoInfo = function() {
   }
 }
 
-
 // Set a random background position (x-axis)
 core.Static.randomiseBackgroundPosition = function() {
  var x_positions = ['-300px', '0', '300px'];
@@ -40,3 +43,14 @@ core.Static.randomiseBackgroundPosition = function() {
  $('.row-hero').css('background-position', x_positions[rand_num] + ' 0');
 }
 
+core.Static.showJobFromHash = function() {
+	var hash = window.location.hash.toString();
+	
+	if (hash.length > 0) {
+		var job_id = $(hash);
+		if (job_id) {
+			job_id.click();
+			window.location.href = hash;
+		}
+	}
+}

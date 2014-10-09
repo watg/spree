@@ -20,6 +20,7 @@
 //= require lib/jquery.jcarousel.min.js
 //= require lib/jquery.elevatezoom.min.js
 
+//= require common
 //= require core
 //= require core.static
 
@@ -35,7 +36,6 @@
 //= require spree/frontend/core.olapic-gallery
 //= require spree/frontend/variant_options
 
-//= require common
 //= require spree/frontend/product
 //= require spree/frontend/kit
 //= require spree/frontend/spree_paypal_express
