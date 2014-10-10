@@ -59,7 +59,7 @@ cause big cache issues %>
 			<ul>
 				<% product.optional_parts_for_display.each do |opart| %>
 				<li>
-					<%= check_box_tag "products[options][]", opart.id, false, 'data-price' => product.price_in_pence(opart, current_currency), 'data-currency' => current_currency, id: "products_options_#{opart.id}", class: "kit-option" %>
+          <%= check_box_tag "products[options][]", opart.id, false, 'data-price' => product.price_in_pence(opart, current_currency), 'data-quantity' => product.item_quantity(opart),  'data-currency' => current_currency, id: "products_options_#{opart.id}", class: "kit-option" %>
 					<label for="<%= ['products', 'options', opart.id].join('_') %>">
 						<span class="optional-part-label"><%= "#{product.item_quantity(opart)} X #{opart.label_or_product_name}" %></span>
 					</label>
