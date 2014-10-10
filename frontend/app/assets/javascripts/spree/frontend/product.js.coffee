@@ -148,7 +148,7 @@ sum_of_personalisation_prices = (entity) ->
 sum_of_optional_part_prices = (entity) ->
   sum = 0
   entity.find(".optional-parts ul input:checked").each ->
-    sum = sum + Number $(this).data('price')
+    sum = sum + ( Number $(this).data('price') * $(this).data('quantity') )
   sum
 
 set_prices = (entity, variant_id, normal_price, sale_price, in_sale) ->

@@ -83,7 +83,7 @@ core.productGroup.readyKitVariantOptions = (entity) ->
   sum_of_optional_part_prices = (entity) ->
     sum = 0
     entity.find(".product-variants.optional").each ->
-      sum = sum + Number $(this).data('adjustment')
+      sum = sum + ( Number $(this).data('adjustment') * $(this).data('quantity') )
     sum
 
 #######################################################################################################################
