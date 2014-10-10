@@ -110,7 +110,7 @@ sum_of_personalisation_prices = () ->
 sum_of_optional_part_prices = () ->
   sum = 0
   $("#optional-parts ul input:checked").each ->
-    sum = sum + Number $(this).data('price')
+    sum = sum + ( Number $(this).data('price') * $(this).data('quantity') )
   sum
 
 set_prices = (tree) ->
