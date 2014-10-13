@@ -30,7 +30,7 @@ WATG.signup = {
 					if (e.response !== 'success') {
 						WATG.signup.showError();
 					} else {
-						message_cont.html(WATG.signup.getPromo);
+						// message_cont.html(WATG.signup.getPromo);
 						WATG.signup.setCookie();
 					}
 					WATG.signup.globals.responses.fadeIn();
@@ -62,6 +62,7 @@ WATG.signup = {
 
 	getPromo: function() {
 		return '<p>Thanks for signing up.<br/>Enter code when you check out to get 10% off your order* :)<br/><strong>G9XrwE3056</strong><br/><small>*Expires midnight 15th October</small></p>';
+		// sitewide promotion has moved to modal signup - check core.js!
 	},
 
 	showError: function() {
@@ -243,7 +244,6 @@ $(function() {
 // On document fully loaded...
 $(window).bind('load', function() {
 	// Signup starts
-	if ($('body').hasClass('no-sitewide-promo')) return false; // Die if sitewide promo not required
 
 	WATG.signup.globals.signupForms = $('.signup-form');
 	WATG.signup.globals.container = $('#signupPromo');

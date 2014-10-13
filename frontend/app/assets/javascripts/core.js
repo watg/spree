@@ -11,6 +11,12 @@ $(document).ready(function() {
 	core.readyAlpacaAttack();
 });
 
+// On document fully loaded...
+$(window).bind('load', function() {
+  if ($('body').hasClass('no-sitewide-promo')) return false; // Die if sitewide promo not required
+  setTimeout(function() { core.signupCheck() }, 4000);
+});
+
 /* ----- Init methods ----- */
 
 // Ready primary navigation
@@ -182,6 +188,15 @@ core.readyAlpacaAttack = function() {
   });
 }
 
+core.signupCheck = function() {
+  var cookie = core.signupGetCookie();
+  if (!cookie) {
+    core.signupUser();
+    $('.link-modal-signup').click();
+    core.signupSetCookie();
+  }
+}
+
 /* ----- Non-init methods ----- */
 
 // Test for tablet width or less
@@ -286,5 +301,62 @@ core.resetAlpacaAttack = function() {
 		'top': 0,
 		'left': 0
 	});
+}
+
+core.signupUser = function() {
+  var modal = $('#modal-signup');
+  var form = modal.find('form');
+  var heading_primary = modal.find('h3');
+  var heading_secondary = modal.find('h4');
+
+  form.on('submit', function(e) {
+    e.preventDefault();
+    // Die if no value
+    if (!form.find('input[name="signupEmail"]').val()) return false;
+    form.fadeOut('slow');
+    heading_primary.fadeOut('slow');
+    heading_secondary.fadeOut('slow');
+    $.ajax({
+      type: 'POST',
+      url: form.attr('action'),
+      data: form.serialize(),
+      dataType: 'json',
+      success: function(e) {
+        if (e.response !== 'success') {
+          heading_primary.text('Oops, sorry!');
+          heading_secondary.text("Something's gone wrong, please try again:");
+          form.fadeIn('slow')
+        } else {
+          heading_primary.text("Yippee!");
+          heading_secondary.html(core.signupGetPromoText);
+          $('<small>' + core.signupGetPromoDisclaimer() + '</small>').insertAfter(form);
+          $('<p class="promo-code">' + core.signupGetPromoCode() + '</p>').insertAfter(form);
+          core.signupSetCookie();
+        }
+        heading_primary.fadeIn('slow');
+        heading_secondary.fadeIn('slow');
+      }
+    })
+  })
+}
+
+core.signupSetCookie = function() {
+  $.cookie('signupPopKilled', 'true', {expires: 365, path: '/'});
+}
+
+core.signupGetCookie = function() {
+  return $.cookie('signupPopKilled');
+}
+
+core.signupGetPromoCode = function() {
+  return 'G9XrwE3056';
+}
+
+core.signupGetPromoText = function() {
+  return 'Get 10% off your items<br/>Enter code when you check out:';
+}
+
+core.signupGetPromoDisclaimer = function() {
+  return 'Available for a limited time only';
 }
 

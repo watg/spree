@@ -7,10 +7,10 @@
 	<meta name="p:domain_verify" content="d55a740b763bcb14c5af217ac8eb2b21" />
 	<title><%= content_for?(:title) ? yield(:title) : title || "Wool And The Gang" %></title>
 	<%= content_for?(:meta) ? yield(:meta) : meta_data_tags.html_safe %>
-	
+
 	<%= stylesheet_link_tag    "application" %>
 	<%= javascript_include_tag "application" %>
-	
+
 	<%= csrf_meta_tags %>
 	<%= render "spree/shared/routes" %>
 	<%= yield :head %>
@@ -19,28 +19,26 @@
 <body id="<%= @body_id || 'default' %>" class="shop <%= body_class %>" data-hook="body">
 
 	<%= render :partial => 'spree/shared/header' %>
-	
+
 	<%= render "spree/shared/menu" %>
-	
+
 	<%= render "spree/shared/shipping_and_contact" %>
 
 	<div class="container">
-		<%= render 'spree/shared/signup' %>
-
 		<div class="row">
 			<div class="large-12 columns">
 				<%= flash_messages %>
 				<%= yield %>
 			</div>
 		</div>
-		
+
 		<%= render "spree/shared/footer" %>
 	</div>
-	
+
 	<script>
           Spree.api_key = <%= raw(try_spree_current_user.try(:spree_api_key).to_s.inspect) %>;
 	</script>
-	
+
   <% if production_or_staging? %>
 	  <script type="text/javascript" src="//assets.pinterest.com/js/pinit.js"></script>
   <% end %>
@@ -51,6 +49,6 @@
  	<%= render :partial => 'spree/shared/google_analytics' %>
  	<%= render :partial => 'spree/shared/google_adword_tag' %>
 	<%= render :partial => 'spree/shared/crazy_egg_analytics' %>
-	
+
 </body>
 </html>

@@ -48,6 +48,15 @@ ol.zero-out,
 	padding: 0;
 }
 
+/*helper classes*/
+.hide {
+	display: none;
+}
+
+.show {
+	display: initial;
+}
+
 /* allow an image to be "full bleed" (i.e. go OVER 100% width if necessary) */
 img.full-bleed {
 	width: 100%;
@@ -267,7 +276,6 @@ table {
 		}
 	}
 }
-
 /* Shipping and contact messages */
 .row-shipping-and-contact {
 	padding: emCalc(20px) 0;
@@ -358,6 +366,7 @@ table {
 
 /* Sitewide modals */
 .modal {
+	top: 30px !important;
 	padding: emCalc(10px) emCalc(30px) emCalc(20px);
 	width: 600px;
 	background-color: #fff;
@@ -369,7 +378,7 @@ table {
 		top: 30px;
 		right: 30px;
 		height: 30px;
-		width: 30px;		
+		width: 30px;
 		background: image-url('sitewide/modal-close.png') center center no-repeat;
 	}
 	h3 {
@@ -438,7 +447,7 @@ table {
 		.button {
 			margin-top: emCalc(10px);
 			text-decoration: none;
-		}	
+		}
 	}
 	iframe {
 		margin: 0;
@@ -455,23 +464,63 @@ table {
 		position: absolute !important;
 		width: 300px !important;
 		h3 {
-			font-size: emCalc(50px);	
+			font-size: emCalc(50px);
 		}
 	}
 }
+
 // Contact modal
 #modal-contact {
 	width: 760px;
 }
 #lean_overlay {
-    position: fixed;
-    z-index: 100;
-    top: 0px;
-    left: 0px;
-    height: 100%;
-    width: 100%;
-    background-color: #000;
-    display: none;
+  position: fixed;
+  z-index: 100;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+  background-color: #000;
+  display: none;
+}
+
+// Signup modal
+#modal-signup {
+	min-height: 310px;
+	p.promo-code {
+		margin: -28.75px 0 0;
+		font-family: $watg-font-secondary;
+		color: #ff0054;
+		font-size: emCalc(60px);
+		text-align: center;
+	}
+	small {
+		margin-bottom: 1em;
+		display: block;
+		font-size: inherit;
+		text-align: center;
+	}
+	form {
+		fieldset {
+			padding: 0;
+			border: 0;
+			text-align: center;
+			input {
+				margin-bottom: emCalc(30px);
+				text-transform: uppercase;
+			}
+		}
+	}
+}
+
+// Mobile #modal-signup
+@media only screen and (max-width: 48em) {
+	#modal-signup {
+		p.promo-code {
+			margin-top: inherit;
+			font-size: emCalc(30px);
+		}
+	}
 }
 /* Alpaca */
 .alpaca-attack {
