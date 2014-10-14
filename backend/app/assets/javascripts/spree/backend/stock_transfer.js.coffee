@@ -1,9 +1,16 @@
 $ ->
+  receiving_stock = ->
+    $( "#transfer_receive_stock:checked" ).length > 0
+
   # Base Model for transfer line items
   class TransferVariant
     constructor: (@variant) ->
       @id = @variant.id
-      @name = "#{@variant.name} - #{@variant.sku}"
+      @name = "#{@variant.name}<br><small>#{@variant.sku}</small>"
+      @count_on_hand = @variant.count_on_hand
+      @supplier_id = @variant.supplier_id
+      @supplier_name = @variant.supplier_name
+      @supplier_permalink = @variant.supplier_permalink
       @quantity = 0
 
     add: (quantity) ->
@@ -77,11 +84,8 @@ $ ->
     constructor: ->
       $('#transfer_source_location_id').change => @refresh_variants()
 
-    receiving_stock: ->
-      $( "#transfer_receive_stock:checked" ).length > 0
-
     refresh_variants: ->
-      if @receiving_stock()
+      if receiving_stock()
         @_search_transfer_variants()
       else
         @_search_transfer_stock_items()
@@ -95,11 +99,14 @@ $ ->
         'variant_product_name_or_variant_sku_cont')
 
     format_variant_result: (result) ->
-      "#{result.name} - #{result.sku}"
+      if receiving_stock()
+        "#{result.name} - #{result.sku} - #{result.options_text || ''}"
+      else
+        "#{result.name} - #{result.sku} - #{result.supplier_name || ''} (#{result.count_on_hand})"
 
     build_select: (url, query) ->
       $('#transfer_variant').select2
-        minimumInputLength: 3
+        minimumInputLength: 2
         ajax:
           url: url
           datatype: "json"
@@ -110,19 +117,29 @@ $ ->
 
           results: (data, page) ->
             result = data["variants"] || data["stock_items"]
+
             # Format stock items as variants
             if data["stock_items"]?
-              result = _(result).map (variant) ->
-                variant.variant
+              result = _(result).map (stock_item) ->
+                return {} unless stock_item.variant
+                variant = stock_item.variant
+                variant.count_on_hand = stock_item.count_on_hand
+
+                if stock_item.supplier
+                  variant.supplier_id = stock_item.supplier.id
+                  variant.supplier_name = stock_item.supplier.firstname + " " + stock_item.supplier.lastname
+                  variant.supplier_permalink = stock_item.supplier.permalink
+                variant
+
             window.variants = result
             results: result
 
         formatResult: @format_variant_result
         formatSelection: (variant) ->
-          if !!variant.options_text
-            variant.name + " (#{variant.options_text})" + " - #{variant.sku}"
+          if receiving_stock()
+            variant.name + " - #{variant.sku}" + " - #{variant.options_text || ''}"
           else
-            variant.name + " - #{variant.sku}"
+            variant.name + " - #{variant.sku}" + " - #{variant.supplier_name || ''} (#{variant.count_on_hand})"
 
 
   # Add/Remove variant line items
@@ -158,7 +175,7 @@ $ ->
       @render()
 
     find_or_add: (variant) ->
-      if existing = _.find(@variants, (v) -> v.id == variant.id)
+      if existing = _.find(@variants, (v) -> (v.id == variant.id) && (v.supplier_id == variant.supplier_id))
         return existing
       else
         variant = new TransferVariant($.extend({}, variant))
@@ -185,8 +202,9 @@ $ ->
         $('#transfer-variants-table').show()
         $('.no-objects-found').hide()
 
-        rendered = @template { variants: @variants }
+        rendered = @template { variants: @variants, receiving_stock: receiving_stock() }
         $('#transfer_variants_tbody').html(rendered)
+        $('#transfer_variants_tbody .select2').select2();
 
   # Main
   if $('#transfer_source_location_id').length > 0
