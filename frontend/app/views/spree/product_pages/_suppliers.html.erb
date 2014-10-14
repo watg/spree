@@ -1,12 +1,13 @@
 <h5 class="reveal-title suppliers">
   <% displayable_suppliers = variant.suppliers.displayable %>
-	<% if (displayable_suppliers.size > 1) %>
-		<%= cdn_image_tag("static/made-by-the-gang.png", alt: "", width: "40", height: "40") %>
-	<% else %>
-	  <% displayable_suppliers.each do |supplier| %>
-	    <%= image_tag(supplier.avatar.url(:avatar), alt: "", width: "40", height: "40") %>
-	  <% end %>
-	<% end %>
+	<%# if (displayable_suppliers.size > 1) %>
+		<%#= cdn_image_tag("static/made-by-the-gang.png", alt: "", width: "40", height: "40") %>
+	<%# else %>
+	  <%# displayable_suppliers.each do |supplier| %>
+	    <%#= image_tag(supplier.avatar.url(:avatar), alt: "", width: "40", height: "40") %>
+	  <%# end %>
+	<%# end %>
+	<%= cdn_image_tag("static/made-by-the-gang.png", alt: "", width: "40", height: "40") %>
   #madeunique <span>by <%= displayable_suppliers.map(&:nickname).to_sentence %></span>
 </h5>
 <p class="reveal-content">
@@ -19,6 +20,3 @@
 		<% end %>
    <% end %>
 </p>
-
-<h5 class="reveal-title suppliers-update"></h5>
-<p class="reveal-content"></p>

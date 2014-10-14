@@ -51,7 +51,7 @@ core.productGroup.readyVariantOptions = (entity) ->
     selected_value = $(this).data('value')
     selected_presentation = $(this).data('presentation')
     variant_details = toggle_option_values(entity, selected_type, selected_value, selected_presentation, option_type_order, master_tree)
-    update_supplier_details(entity, variant_details['id'])
+    update_supplier_details(entity, variant_details['suppliers'])
     if variant_details
       set_stock_level(entity, variant_details['total_on_hand'])
       toggle_images(entity, variant_details['id'])
@@ -180,23 +180,31 @@ set_stock_level = (entity, total_on_hand) ->
 	else
 		entity.find('.stock-level').hide()
 		
-update_supplier_details = (entity, variant_id) ->
-	variants = $('.variants')
-
-	# Visible
-	supplier_visible = entity.find('.suppliers')
-	supplier_visible_details = supplier_visible.next()
-	# Update
-	supplier_update = entity.find('.suppliers-update')
-	supplier_update_details = supplier_update.next()
-	# Target
-	supplier_target = variants.find("[data-variant='" + variant_id + "'] .suppliers")
-	supplier_target_details = supplier_target.next()
-	# Swap!
-	supplier_visible.hide().removeClass('revealed')
-	supplier_visible_details.hide();
-	supplier_update.html(supplier_target.html()).css('display', 'inherit').removeClass('revealed')
-	supplier_update_details.html(supplier_target_details.html()).hide()
+update_supplier_details = (entity, suppliers) ->
+	names = []
+	profiles = []
+		
+	# Loop through suppliers
+	for index, supplier of suppliers
+		for index, items of supplier
+				names.push(core.stringToTitleCase(items.nickname))
+				if items.profile != ''
+					profiles.push('<strong>' + core.stringToTitleCase(items.nickname) + '</strong>: ' + items.profile)
+	
+	# Prep names for output...
+	if names.length > 1
+		names = names.slice(0, names.length - 1).join(', ') + " and " + names.slice(-1)
+	names = ' #madeunique <span>by ' + names + '</span>'
+	
+	# Prep profiles for output...
+	if profiles.length > 1
+		profiles = profiles.join('<br/><br/>')
+	
+	# Update heading and reveal panel
+	heading = entity.find('.suppliers')
+	img = heading.find('img')
+	heading.empty().append(img).append(names);
+	heading.next().html(profiles)
 
 # Modify the images based on the selected variant
 toggle_images = (entity, variant_id) ->
