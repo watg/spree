@@ -13,7 +13,10 @@
 
 <% else %>
 
-  <% variant = product.variants_for(target).first.decorate(context: context) %>
+  <% variant = product.variants_for(target).first %>
+  <% variant = product.master if variant.nil? %>
+  <% variant = variant.decorate(context: context) %>
+
   <div class="displayable-entity row <%= active_class %>"
   data-option-values="<%= variant.option_types_and_values.to_json %>"
   data-tree="<%= product.memoized_variant_options_tree.to_json  %>"
