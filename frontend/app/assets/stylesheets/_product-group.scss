@@ -985,8 +985,10 @@
 
 /* Taken from _interim.scss then edited */
 .product-group {
-	.suppliers-update {
-		display: none;
+	.suppliers + p {
+		strong {
+			text-transform: capitalize;
+		}
 	}
 	/* Thumbnails partial */
 	.thumbnails {

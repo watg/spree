@@ -187,9 +187,9 @@ update_supplier_details = (entity, suppliers) ->
 	# Loop through suppliers
 	for index, supplier of suppliers
 		for index, items of supplier
-				names.push(core.stringToTitleCase(items.nickname))
+				names.push(items.nickname)
 				if items.profile != ''
-					profiles.push('<strong>' + core.stringToTitleCase(items.nickname) + '</strong>: ' + items.profile)
+					profiles.push('<strong>' + items.nickname + '</strong>: ' + items.profile)
 	
 	# Prep names for output...
 	if names.length > 1
