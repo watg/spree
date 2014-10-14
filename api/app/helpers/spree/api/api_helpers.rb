@@ -26,6 +26,7 @@ module Spree
         :creditcard_attributes,
         :user_attributes,
         :property_attributes,
+        :supplier_attributes,
         :stock_location_attributes,
         :stock_movement_attributes,
         :stock_item_attributes,
@@ -151,8 +152,9 @@ module Spree
         :variant_id
       ]
 
-		
-	  @@product_group_attributes = [:id, :name]
+      @@supplier_attributes = [ :id, :permalink, :firstname, :lastname ]
+
+	    @@product_group_attributes = [:id, :name]
 
       @@product_page_attributes = [:id, :name]
 
