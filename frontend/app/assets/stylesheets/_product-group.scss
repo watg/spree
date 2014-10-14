@@ -985,6 +985,17 @@
 
 /* Taken from _interim.scss then edited */
 .product-group {
+	.suppliers {
+		padding-right: emCalc(20px);
+		span {
+			font-family: $watg-font-light;
+			display: block;
+		}
+		img {
+			margin: 0 emCalc(10px) emCalc(10px) 0;
+			float: left;
+		}
+	}
 	.suppliers + p {
 		strong {
 			text-transform: capitalize;
