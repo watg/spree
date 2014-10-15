@@ -27,7 +27,7 @@
           <td>
             <div class="item-image" data-hook="cart_item_image">
               <% if item.variant.images_for(item.target).length == 0 %>
-                <%= link_to small_image(item.variant.product), path_to_variant(item, item.variant) %>
+                <%= link_to listing_image(item.variant.product), path_to_variant(item, item.variant) %>
               <% else %>
                 <%= link_to image_tag(item.variant.images_for(item.target).first.attachment.url(:listing)), path_to_variant(item, item.variant) %>
               <% end %>
