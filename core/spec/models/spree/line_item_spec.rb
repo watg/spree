@@ -41,142 +41,6 @@ describe Spree::LineItem do
     end
   end
 
-  context '#add_parts' do
-
-    let(:parts) {[
-      OpenStruct.new(
-        variant_id: 20,
-        quantity:   2,
-        optional:   true,
-        price:      5,
-        currency:   'GBP',
-        assembled:  true,
-        main_part:  false
-      ),
-      OpenStruct.new(
-        variant_id: 21,
-        quantity:   1,
-        optional:   true,
-        price:      5,
-        currency:   'GBP',
-        assembled:   nil,
-        main_part:  true
-      )
-    ]}
-
-    it "should allow a part to be added" do
-      line_item.add_parts(parts)
-      expect(line_item.parts.size).to eq 2
-
-      part1 = line_item.parts.first
-      expect(part1.variant_id).to eq 20
-      expect(part1.quantity).to eq parts.first.quantity
-      expect(part1.optional).to eq parts.first.optional
-      expect(part1.price).to eq parts.first.price
-      expect(part1.currency).to eq parts.first.currency
-      expect(part1.main_part).to eq false
-      expect(part1.assembled).to eq true
-
-      part2 = line_item.parts.last
-      expect(part2.assembled).to eq false
-      expect(part2.main_part).to eq true
-    end
-
-    it "should deal with a nil price" do
-      parts.first.price = nil
-      line_item.add_parts(parts)
-      expect(line_item.parts.size).to eq 2
-      expect(line_item.parts.first.price).to eq BigDecimal.new(0)
-    end
-
-    context "when some of the parts are containers" do
-      let(:container) {
-        OpenStruct.new(
-          id: 0,
-          variant_id: "5",
-          quantity:   2,
-          optional:   true,
-          price:      5,
-          container:  true,
-          currency:   'GBP'
-        )
-      }
-      let(:contained_part1) {
-        OpenStruct.new(
-          variant_id: "6",
-          quantity:   2,
-          optional:   true,
-          price:      5,
-          currency:   'GBP',
-          parent_part_id: 0
-        )
-      }
-      let(:contained_part2) {
-        OpenStruct.new(
-          variant_id: "7",
-          quantity:   2,
-          optional:   true,
-          price:      5,
-          currency:   'GBP',
-          parent_part_id: 0
-        )
-      }
-      before do
-        parts << container
-        parts << contained_part1
-        parts << contained_part2
-      end
-
-      it "should properly assign parent part ids to containers children" do
-        line_item.add_parts(parts)
-        parts = line_item.parts.reload
-
-        expect(parts.size).to eq 5
-        expect(parts.where(parent_part_id: 0).size).to eq 0
-        expect(parts.containers.size).to eq 1
-
-        container = line_item.parts.containers.first
-        expect(container.id).not_to eq 0
-        expect(container.children.size).to eq 2
-        expect(container.children.map(&:variant_id)).to match_array [6, 7]
-      end
-    end
-
-  end
-
-  context '#add_personalisations' do
-
-
-    let(:personalisations) {[
-      OpenStruct.new(
-        personalisation_id: 1,
-        amount: 1,
-        data: { 'colour' => 1, 'initials' => 'XX'},
-      ),
-      OpenStruct.new(
-        personalisation_id: 1,
-        amount: 2,
-        data: { 'colour' => 1, 'initials' => 'WW'},
-      ),
-    ]}
-
-    it "should allow a personalisation to be added" do
-      line_item.add_personalisations(personalisations)
-      expect(line_item.personalisations.size).to eq 2
-      expect(line_item.personalisations.first.personalisation_id).to eq personalisations.first.personalisation_id
-      expect(line_item.personalisations.first.amount).to eq personalisations.first.amount
-      expect(line_item.personalisations.first.data).to eq personalisations.first.data
-    end
-
-    it "should deal with a nil amount" do
-      personalisations.first.amount = nil
-      line_item.add_personalisations(personalisations)
-      expect(line_item.personalisations.size).to eq 2
-      expect(line_item.personalisations.first.amount).to eq BigDecimal.new(0)
-    end
-
-  end
-
   context '#cost_price' do
     let(:variant10) { create(:variant, cost_price: 10) }
     let(:variant7)  { create(:variant, cost_price: 7) }
@@ -556,8 +420,8 @@ describe Spree::LineItem do
       let(:part1) { create(:variant) }
       let(:part2) { create(:variant) }
       let(:parts) { [
-       OpenStruct.new(variant_id: part1.id, optional: false, quantity: 2, price: 1),
-       OpenStruct.new(variant_id: part2.id, optional: true, quantity: 1, price: 1),
+       Spree::LineItemPart.new(variant_id: part1.id, optional: false, quantity: 2, price: 1),
+       Spree::LineItemPart.new(variant_id: part2.id, optional: true, quantity: 1, price: 1),
       ] }
 
       before do
@@ -566,7 +430,7 @@ describe Spree::LineItem do
         part1.stock_items.update_all count_on_hand: 10, backorderable: false, supplier_id: supplier.id
         part2.stock_items.update_all count_on_hand: 5, backorderable: false, supplier_id: supplier.id
 
-        order.contents.add(container, 5, nil, parts: parts)
+        order.contents.add(container, 5, parts: parts)
         order.create_proposed_shipments
         order.finalize!
       end
@@ -593,7 +457,7 @@ describe Spree::LineItem do
     context "nothing left on stock" do
       before do
         variant.stock_items.update_all count_on_hand: 5, backorderable: false, supplier_id: supplier.id
-        order.contents.add(variant, 5)
+        order.contents.add(variant, 5, {})
         order.create_proposed_shipments
         order.finalize!
       end

@@ -118,8 +118,11 @@ module Spree
       end
 
       def resume
-        @order.resume!
-        flash[:success] = Spree.t(:order_resumed)
+        if @order.resume
+          flash[:success] = Spree.t(:order_resumed)
+        else
+          flash[:error] =  @order.errors.full_messages.join(', ')
+        end
         redirect_to :back
       end
 

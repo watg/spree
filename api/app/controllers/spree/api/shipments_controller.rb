@@ -9,11 +9,9 @@ module Spree
         authorize! :create, Shipment
         quantity = params[:quantity].to_i
         @shipment = @order.shipments.create(stock_location_id: params[:stock_location_id])
-        @order.contents.add(variant, quantity, nil, shipment: @shipment, parts: options_with_qty)
-
+        @order.contents.add(variant, quantity, options)
         @shipment.refresh_rates
         @shipment.save!
-
         respond_with(@shipment.reload, default_template: :show)
       end
 
@@ -54,35 +52,63 @@ module Spree
         respond_with(@shipment, default_template: :show)
       end
 
+
       def add
         quantity = params[:quantity].to_i
-        @order.contents.add(variant, quantity, @order.currency, shipment: @shipment, parts: options_with_qty)
-        respond_with(@shipment, default_template: :show)
+        returned_line_item = @order.contents.add(variant, quantity, options)
+        if returned_line_item.errors.any?
+          invalid_resource!(returned_line_item)
+        else
+          respond_with(@shipment, default_template: :show)
+        end
       end
 
       def add_by_line_item
         quantity = params[:quantity].to_i
-        @order.contents.add_by_line_item(line_item, quantity, @shipment)
-        respond_with(@shipment, default_template: :show)
+        returned_line_item = @order.contents.add_by_line_item(line_item, quantity, @shipment)
+        if returned_line_item.errors.any?
+          invalid_resource!(returned_line_item)
+        else
+          respond_with(@shipment, default_template: :show)
+        end
       end
 
       def remove
         quantity = params[:quantity].to_i
-        @order.contents.remove(variant, quantity, @shipment)
-        @shipment.reload if @shipment.persisted?
-        respond_with(@shipment, default_template: :show)
+        returned_line_item = @order.contents.remove(variant, quantity, options)
+        if returned_line_item.errors.any?
+          invalid_resource!(returned_line_item)
+        else
+          @shipment.reload if @shipment.persisted?
+          respond_with(@shipment, default_template: :show)
+        end
       end
 
       def remove_by_line_item
         quantity = params[:quantity].to_i
-        @order.contents.remove_by_line_item(line_item, quantity, @shipment)
-        @shipment.reload if @shipment.persisted?
-        respond_with(@shipment, default_template: :show)
+        returned_line_item = @order.contents.remove_by_line_item(line_item, quantity, @shipment)
+        if returned_line_item.errors.any?
+          invalid_resource!(returned_line_item)
+        else
+          @shipment.reload if @shipment.persisted?
+          respond_with(@shipment, default_template: :show)
+        end
       end
 
       private
-      def options_with_qty
-        Spree::OrderPopulator.parse_options(variant, params[:selected_variants] || {}, @order.currency)
+
+      def options
+        # Below is a hack to deal with old kits as well as new
+        parts = []
+        if selected_variants = params.delete(:selected_variants)
+          parts = options_parser.dynamic_kit_parts(variant, selected_variants)
+        else
+          parts = options_parser.static_kit_required_parts(variant)
+        end
+        {
+          shipment: @shipment,
+          parts: parts
+        }
       end
 
       def variant
@@ -91,6 +117,10 @@ module Spree
 
       def line_item
         @line_item ||= Spree::LineItem.find(params[:line_item_id])
+      end
+
+      def options_parser
+        @options_parser ||= Spree::LineItemOptionsParser.new(@order.currency)
       end
 
       def find_order

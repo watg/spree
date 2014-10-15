@@ -62,17 +62,8 @@ module Spree
       move(variant, quantity, originator, supplier)
     end
 
-    def restock_backordered(variant, quantity, supplier = nil)
-      item = stock_item_or_create(variant)
-      item.update_columns(
-        count_on_hand: item.count_on_hand + quantity,
-        updated_at: Time.now
-      )
-    end
-
     def unstock(variant, quantity, originator = nil, supplier = nil)
       movement = move(variant, -quantity, originator, supplier)
-      movement.stock_item.update_columns(last_unstocked_at: Time.now)
     end
 
     def move(variant, quantity, originator = nil, supplier = nil)
@@ -80,66 +71,30 @@ module Spree
       item.stock_movements.create!(quantity: quantity, originator: originator)
     end
 
-    def stock_items_on_hand(variant)
-      stock_items.where(variant_id: variant).order(:last_unstocked_at)
-    end
+    def fill_status(variant, quantity)
+      if items = available_stock_items(variant)
 
-    def stock_items_backorderable(variant)
-      stock_items.where(variant_id: variant, backorderable: true ).order(:id)
-    end
+        count_on_hand_value = items.to_a.sum(&:count_on_hand)#(variant)
+        if count_on_hand_value >= quantity
+          on_hand = quantity
+          backordered = 0
+        else
+          on_hand = count_on_hand_value
+          on_hand = 0 if on_hand < 0
+          backordered = items.detect { |i| i.backorderable? } ? (quantity - on_hand) : 0
+        end
 
-    FillStatusItem = Struct.new(:supplier, :count)
-
-    # Round = RObin fall back
-
-    # This takes an optional list of suppliers which will try and
-    # satisfy the fill status with supplier stock in that order
-    # If the list is not supplied it will choose first list all the suppliers
-    # that can fully satisfy the order, then take the one that had the last sale
-    # variant: Spree::Variant
-    # quantity: integer
-    # Params:
-    # +variant+: object - Spree::Variant object
-    # +quantity+: integer - number of variants required
-    # +supplier+: array - a preference list of suppliers and the desired quantity
-    def fill_status(variant, quantity, suppliers=[])
-      on_hand = []
-      items = stock_items_on_hand(variant)
-
-      # See if we can satisfy the requst with 1 supplier
-      if item = items.detect { |item| item.count_on_hand >= quantity }
-        on_hand = [ FillStatusItem.new( item.supplier, quantity ) ]
+        [on_hand, backordered]
       else
-        on_hand = fill_with_on_hand(items, quantity)
+        [0, 0]
       end
-      on_hand
     end
 
-    def first_on_hand(variant)
-      items = stock_items_on_hand(variant)
-      items.first
+    def available_stock_items(variant)
+      stock_items.where(variant_id: variant).available
     end
 
     private
-
-    def fill_with_on_hand(items, quantity)
-      # Only exit the loop once we have either satisified the qauntity
-      # we need or we have checked all our stock items for this variant
-      on_hand = []
-      while ( count = on_hand.sum(&:count) ) < quantity and items.any?
-        item = items.pop
-        needed = quantity - count
-        if item.count_on_hand > 0
-          if item.count_on_hand >= needed
-            on_hand << FillStatusItem.new( item.supplier, needed )
-          else
-            on_hand << FillStatusItem.new( item.supplier, item.count_on_hand )
-          end
-        end
-      end
-      on_hand
-    end
-
 
     def create_stock_items
       Variant.find_each { |variant| self.propagate_variant(variant) }

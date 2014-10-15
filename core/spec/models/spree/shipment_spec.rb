@@ -106,6 +106,7 @@ describe Spree::Shipment do
 
     it "returns variant expected" do
       expect(shipment.manifest.first.variant).to eq variant
+      expect(shipment.manifest.first.inventory_units).to eq shipment.inventory_units
     end
 
     context "variant was removed" do
@@ -170,7 +171,7 @@ describe Spree::Shipment do
         end
 
         it 'should use symbols for states when adding contents to package' do
-          shipment.stub_chain(:inventory_units, includes: inventory_units)
+          shipment.stub(:inventory_units) { inventory_units }
           package = shipment.to_package
           package.on_hand.count.should eq 1
           package.backordered.count.should eq 1
@@ -337,9 +338,11 @@ describe Spree::Shipment do
 
     it 'restocks the items' do
       supplier = double
-      shipment.stub_chain(inventory_units: [mock_model(Spree::InventoryUnit, state: "on_hand", line_item: line_item, variant: variant, supplier: supplier)])
-      shipment.stock_location = mock_model(Spree::StockLocation)
-      shipment.stock_location.should_receive(:restock).with(variant, 1, shipment, supplier)
+      inventory_units = [mock_model(Spree::InventoryUnit, state: "on_hand", line_item: line_item, variant: variant, supplier: supplier)]
+      allow(shipment).to receive(:inventory_units).and_return inventory_units
+      shipment_stock_adjuster = double('shipment_stock_adjuster')
+      expect(shipment_stock_adjuster).to receive(:restock).with(variant, inventory_units)
+      expect(Spree::ShipmentStockAdjuster).to receive(:new).with(shipment).and_return(shipment_stock_adjuster)
       shipment.after_cancel
     end
 
@@ -386,9 +389,13 @@ describe Spree::Shipment do
 
     it 'unstocks them items' do
       supplier = double
-      shipment.stub_chain(inventory_units: [mock_model(Spree::InventoryUnit, line_item: line_item, variant: variant, supplier: supplier)])
-      shipment.stock_location = mock_model(Spree::StockLocation)
-      shipment.stock_location.should_receive(:unstock).with(variant, 1, shipment, supplier)
+      inventory_units = [mock_model(Spree::InventoryUnit, line_item: line_item, variant: variant, supplier: supplier)]
+
+      allow(shipment).to receive(:inventory_units).and_return inventory_units
+
+      shipment_stock_adjuster = double('shipment_stock_adjuster')
+      expect(shipment_stock_adjuster).to receive(:unstock).with(variant, inventory_units)
+      expect(Spree::ShipmentStockAdjuster).to receive(:new).with(shipment).and_return(shipment_stock_adjuster)
       shipment.after_resume
     end
 
@@ -451,7 +458,7 @@ describe Spree::Shipment do
         }.to change { ActionMailer::Base.deliveries.size }.by(1)
 
         last_email = ActionMailer::Base.deliveries.last
-        expect(last_email.subject).should include('How did we do')
+        expect(last_email.subject).to include('How did we do')
       end
     end
 

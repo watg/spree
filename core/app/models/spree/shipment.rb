@@ -179,23 +179,20 @@ module Spree
       !shipped?
     end
 
-    ManifestItem = Struct.new(:line_item, :variant, :supplier, :quantity, :states)
+    ManifestItem = Struct.new(:line_item, :variant, :quantity, :states, :inventory_units)
 
     def manifest
       # Grouping by the ID means that we don't have to call out to the association accessor
       # This makes the grouping by faster because it results in less SQL cache hits.
       inventory_units.group_by(&:variant_id).map do |variant_id, units|
         units.group_by(&:line_item_id).map do |line_item_id, units|
-          units.group_by(&:supplier_id).map do |supplier_id, units|
+          states = {}
+          state_units = units
+          units.group_by(&:state).each { |state, iu| states[state] = iu.count }
 
-            states = {}
-            units.group_by(&:state).each { |state, iu| states[state] = iu.count }
-
-            line_item = units.first.line_item
-            variant = units.first.variant
-            supplier = units.first.supplier
-            ManifestItem.new(line_item, variant, supplier, units.length, states)
-          end
+          line_item = units.first.line_item
+          variant = units.first.variant
+          ManifestItem.new(line_item, variant, units.length, states, units)
         end
       end.flatten
     end
@@ -266,13 +263,9 @@ module Spree
     end
 
     def to_package
-      package = Stock::Package.new(stock_location, order)
-      grouped_inventory_units = inventory_units.includes(:line_item).group_by do |iu|
-        [iu.line_item, iu.state_name]
-      end
-
-      grouped_inventory_units.each do |(line_item, state_name), inventory_units|
-        package.add line_item, inventory_units.count, state_name
+      package = Stock::Package.new(stock_location)
+      inventory_units.group_by(&:state).each do |state, state_inventory_units|
+        package.add_multiple state_inventory_units, state.to_sym
       end
       package
     end
@@ -302,17 +295,11 @@ module Spree
     private
 
       def manifest_unstock(item)
-        stock_location.unstock item.variant, item.quantity, self, item.supplier
+        ShipmentStockAdjuster.new(self).unstock(item.variant, item.inventory_units)
       end
 
       def manifest_restock(item)
-        if item.states["on_hand"].to_i > 0
-          stock_location.restock item.variant, item.states["on_hand"], self, item.supplier
-        end
-
-        if item.states["backordered"].to_i > 0
-          stock_location.restock_backordered item.variant, item.states["backordered"], item.supplier
-        end
+        ShipmentStockAdjuster.new(self).restock(item.variant, item.inventory_units)
       end
 
       def description_for_shipping_charge

@@ -1,0 +1,57 @@
+require 'spec_helper'
+
+module Spree
+  module Stock
+    describe InventoryUnitBuilder do
+      let(:line_item_1) { build(:line_item) }
+      let(:line_item_2) { build(:line_item, quantity: 2) }
+      let(:order) { build(:order, line_items: [line_item_1, line_item_2]) }
+
+      subject { InventoryUnitBuilder.new(order) }
+
+      describe "#units" do
+        it "returns an inventory unit for each quantity for the order's line items" do
+          units = subject.units
+          expect(units.count).to eq 3
+          expect(units.first.line_item).to eq line_item_1
+          expect(units.first.variant).to eq line_item_1.variant
+
+          expect(units[1].line_item).to eq line_item_2
+          expect(units[1].variant).to eq line_item_2.variant
+
+          expect(units[2].line_item).to eq line_item_2
+          expect(units[2].variant).to eq line_item_2.variant
+        end
+
+        it "builds the inventory units as pending" do
+          expect(subject.units.map(&:pending).uniq).to eq [true]
+        end
+
+
+        context "with parts" do
+
+          let(:variant) { create(:variant) }
+          let!(:part1) { create(:part, variant: variant, quantity: 2, line_item: line_item_2) }
+          let!(:part2) { create(:part, variant: variant, quantity: 1, line_item: line_item_2) }
+
+          it "returns an inventory unit for each quantity for the order's line items" do
+            units = subject.units
+            # line_item_1.quantity + line_item_2.quantity x ( part1.quantity + part2.quantity )
+            #( 1 + 2 x ( 2 + 1 ) )
+            expect(units.count).to eq 7
+            expect(units.first.line_item).to eq line_item_1
+            expect(units.first.variant).to eq line_item_1.variant
+
+            expect(units.select { |u| u.line_item == line_item_2 }.size).to eq 6
+            expect(units.select { |u| u.variant == variant }.size).to eq 6
+            expect(units.select { |u| u.line_item_part == part1 }.size).to eq 4
+            expect(units.select { |u| u.line_item_part == part2 }.size).to eq 2
+
+          end
+
+        end
+      end
+
+    end
+  end
+end

@@ -18,20 +18,36 @@ module Spree
 
     context "#add_to_shipment" do
       let(:shipment) { order.shipments.first }
+      let!(:variant) { subject.variant }
+      let(:inventory_unit) { mock_model(Spree::InventoryUnit)}
 
-      context "order is not completed" do
-        before { order.stub complete?: false }
+      context "order can not be shipped" do
+        before { order.stub can_ship?: false }
 
         it "doesn't unstock items" do
-          shipment.stock_location.should_not_receive(:unstock)
+          expect_any_instance_of(Spree::ShipmentStockAdjuster).to_not receive(:unstock)
           subject.send(:add_to_shipment, shipment, 5).should == 5
+        end
+      end
+
+      context "order can be shipped" do
+        before do 
+          order.stub can_ship?: true 
+          allow(shipment).to receive(:set_up_inventory).and_return(inventory_unit)
+          shipment.stub(:set_up_inventory).and_return(inventory_unit)
+        end
+
+        it "unstocks items" do
+          shipment.stock_location.should_receive(:fill_status).with(subject.variant, 2).and_return([2,0])
+          expect_any_instance_of(Spree::ShipmentStockAdjuster).to receive(:unstock).with(variant, [inventory_unit, inventory_unit])
+          subject.send(:add_to_shipment, shipment, 2).should == 2
         end
       end
 
       context "inventory units line_item_part_id" do
 
         before do
-          rtn = [OpenStruct.new( supplier: nil, count: 3 )]
+          rtn = [3,0]
           shipment.stock_location.should_receive(:fill_status).with(subject.variant, 5).and_return(rtn)
         end
 
@@ -50,7 +66,7 @@ module Spree
         end
 
         it 'sets inventory_units state as per stock location availability' do
-          rtn = [OpenStruct.new( supplier: nil, count: 3 )]
+          rtn = [3, 2]
           shipment.stock_location.should_receive(:fill_status).with(subject.variant, 5).and_return(rtn)
 
           subject.send(:add_to_shipment, shipment, 5).should == 5
@@ -59,40 +75,6 @@ module Spree
           units['backordered'].size.should == 2
           units['on_hand'].size.should == 3
         end
-      end
-
-      context "inventory units state with suppliers" do
-        let(:supplier_1) { create :supplier }
-        let(:supplier_2) { create :supplier }
-
-        before do
-          shipment.inventory_units.destroy_all
-        end
-
-        it 'sets inventory_units state as per stock location availability' do
-          rtn = [
-              OpenStruct.new( supplier: nil, count: 1),
-              OpenStruct.new( supplier: supplier_1, count: 3 ),
-              OpenStruct.new( supplier: supplier_2, count: 4)
-          ]
-          shipment.stock_location.should_receive(:fill_status).with(subject.variant, 15).and_return(rtn)
-
-          subject.send(:add_to_shipment, shipment, 15).should == 15
-
-          # A helper to group the units so we can easily test the quantities
-          units = shipment.inventory_units_for(subject.variant).inject({}) do |h,unit|
-            h[unit.state] ||= {}
-            h[unit.state][unit.supplier] ||= 0
-            h[unit.state][unit.supplier] += 1
-            h
-          end
-
-          units['on_hand'][nil].should == 1
-          units['on_hand'][supplier_1].should == 3
-          units['on_hand'][supplier_2].should == 4
-          units['backordered'][nil].should == 7
-        end
-
       end
 
       context "store doesnt track inventory" do
@@ -104,7 +86,7 @@ module Spree
           variant.stock_items.destroy_all
 
           # The before_save callback in LineItem would verify inventory
-          line_item = order.contents.add variant, 1, nil, shipment: shipment
+          line_item = order.contents.add( variant, 1, shipment: shipment )
 
           units = shipment.inventory_units_for(line_item.variant)
           expect(units.count).to eq 1
@@ -114,22 +96,18 @@ module Spree
 
       context "variant doesnt track inventory" do
         let(:variant) { create(:variant) }
-        let(:supplier) { create(:supplier) }
 
         before do
-          shipment.stock_location.stock_items.map { |si| si.supplier = supplier }
           variant.track_inventory = false
-          variant.stock_items.map { |si| si.supplier = supplier; si.save }
         end
 
         it "creates only on hand inventory units" do
-          line_item = order.contents.add variant, 1
+          line_item = order.contents.add( variant, 1, {} )
           subject.verify(shipment)
 
           units = shipment.inventory_units_for(line_item.variant)
           expect(units.count).to eq 1
           expect(units.first).to be_on_hand
-          expect(units.first.supplier).to eq supplier
         end
       end
 
@@ -140,79 +118,6 @@ module Spree
         movement = stock_item.stock_movements.last
         # movement.originator.should == shipment
         movement.quantity.should == -5
-      end
-
-      context "line_item_parts" do
-
-
-      end
-
-      context "suppliers" do
-
-        let(:stock_item) { shipment.stock_location.stock_item(subject.variant) }
-        let(:supplier_1) { create :supplier }
-        let(:supplier_2) { create :supplier }
-        let(:si1) {
-          shipment.stock_location.stock_items.create( variant: subject.variant, supplier: supplier_1)
-        }
-        let(:si2) {
-          shipment.stock_location.stock_items.create( variant: subject.variant, supplier: supplier_2)
-        }
-
-        before do
-          si1.set_count_on_hand(3)
-          si2.set_count_on_hand(2)
-        end
-
-        it 'should create stock_movements' do
-          # We want to make sure that the right stock is decremented
-          original_stock_item_count = stock_item.count_on_hand
-
-          stock_items = shipment.stock_location.stock_items.where(variant: subject.variant)
-
-          subject.send(:add_to_shipment, shipment, 5).should == 5
-
-          stock_items = shipment.stock_location.stock_items.where(variant: subject.variant)
-          expect(stock_item.reload.count_on_hand).to eq original_stock_item_count
-          expect(si1.reload.count_on_hand).to eq 0
-          expect(si2.reload.count_on_hand).to eq 0
-
-          # check the stock movements
-          movement = si1.stock_movements.last
-          movement.originator.should == shipment
-          movement.quantity.should == -3
-
-          movement = si2.stock_movements.last
-          movement.originator.should == shipment
-          movement.quantity.should == -2
-        end
-
-        it 'should create stock_movements when some are backordered' do
-
-          # We want to make sure that the right stock is decremented
-          original_stock_item_count = stock_item.count_on_hand
-
-          stock_items = shipment.stock_location.stock_items.where(variant: subject.variant)
-
-          subject.send(:add_to_shipment, shipment, 7).should == 7
-
-          stock_items = shipment.stock_location.stock_items.where(variant: subject.variant)
-          expect(stock_item.reload.count_on_hand).to eq original_stock_item_count - 2
-          expect(si1.reload.count_on_hand).to eq 0
-          expect(si2.reload.count_on_hand).to eq 0
-
-          # check the stock movements
-          movement = stock_item.stock_movements.last
-          movement.quantity.should == -2
-
-          movement = si1.stock_movements.last
-          movement.quantity.should == -3
-
-          movement = si2.stock_movements.last
-          movement.quantity.should == -2
-        end
-
-
       end
 
     end
@@ -277,20 +182,25 @@ module Spree
         let(:shipment) { order.shipments.first }
         let(:variant) { subject.variant }
 
-        context "order is not completed" do
-          before { order.stub complete?: false }
+        context "order can not be shippped" do
+          before { order.stub can_ship?: false }
 
           it "doesn't restock items" do
-            shipment.stock_location.should_not_receive(:restock)
+            expect_any_instance_of(Spree::ShipmentStockAdjuster).to_not receive(:restock)
             subject.send(:remove_from_shipment, shipment, 1).should == 1
           end
         end
 
-        context "order is complete" do
-          before { order.stub complete?: true }
+        context "order can be shipped" do
+          let!(:mock_inventory_unit) { mock_model(Spree::InventoryUnit)}
+
+          before do 
+            order.stub can_ship?: true 
+            allow(shipment).to receive(:inventory_units_for_item).and_return( [ mock_inventory_unit ] )
+          end
 
           it "doesn't restock items" do
-            shipment.stock_location.should_receive(:restock)
+            expect_any_instance_of(Spree::ShipmentStockAdjuster).to receive(:restock).with(variant, [ mock_inventory_unit])
             subject.send(:remove_from_shipment, shipment, 1).should == 1
           end
         end
@@ -300,17 +210,21 @@ module Spree
 
           stock_item = shipment.stock_location.stock_item(variant)
           movement = stock_item.stock_movements.last
-          # movement.originator.should == shipment
+          movement.originator.should == shipment
           movement.quantity.should == 1
         end
 
         it 'should destroy backordered units first' do
+
+          backordered_1 = mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'backordered', :supplier => nil)
+          backordered_2 = mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'backordered', :supplier => nil)
           shipment.stub(inventory_units_for_item: [
-            mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'backordered', :supplier => nil),
+            backordered_1,
             mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'on_hand', :supplier => nil),
-            mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'backordered', :supplier => nil)
+            backordered_2,
           ])
 
+          expect_any_instance_of(Spree::ShipmentStockAdjuster).to receive(:restock).with(variant, [backordered_1, backordered_2])
           shipment.inventory_units_for_item[0].should_receive(:destroy)
           shipment.inventory_units_for_item[1].should_not_receive(:destroy)
           shipment.inventory_units_for_item[2].should_receive(:destroy)
@@ -319,11 +233,13 @@ module Spree
         end
 
         it 'should destroy unshipped units first' do
+          on_hand = mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'on_hand', :supplier => nil)
           shipment.stub(inventory_units_for_item: [
             mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'shipped', :supplier => nil),
-            mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'on_hand', :supplier => nil)
+            on_hand
           ])
 
+          expect_any_instance_of(Spree::ShipmentStockAdjuster).to receive(:restock).with(variant, [on_hand])
           shipment.inventory_units_for_item[0].should_not_receive(:destroy)
           shipment.inventory_units_for_item[1].should_receive(:destroy)
 
@@ -331,41 +247,18 @@ module Spree
         end
 
         it 'only attempts to destroy as many units as are eligible, and return amount destroyed' do
+          on_hand = mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'on_hand', :supplier => nil)
+
           shipment.stub(inventory_units_for_item: [
             mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'shipped', :supplier => nil),
-            mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'on_hand', :supplier => nil)
+            on_hand
           ])
 
+          expect_any_instance_of(Spree::ShipmentStockAdjuster).to receive(:restock).with(variant, [on_hand])
           shipment.inventory_units_for_item[0].should_not_receive(:destroy)
           shipment.inventory_units_for_item[1].should_receive(:destroy)
 
           subject.send(:remove_from_shipment, shipment, 1).should == 1
-        end
-
-        context "inventory units state with suppliers" do
-          let(:supplier_1) { create :supplier }
-          let(:supplier_2) { create :supplier }
-          before do
-            shipment.inventory_units.destroy_all
-            FillStatusItem = Struct.new(:supplier, :count)
-            # order.stub complete?: true
-          end
-
-          it 'restocks items back to the correct supplier' do
-            shipment.stock_location.should_receive(:restock).with(variant, 1, shipment, nil )
-            shipment.stock_location.should_receive(:restock).with(variant, 3, shipment, supplier_1 )
-            shipment.stock_location.should_receive(:restock).with(variant, 1, shipment, supplier_2 )
-
-            shipment.stub(inventory_units_for_item: [
-              mock_model(Spree::InventoryUnit, :variant_id => variant.id, supplier: nil, :state => 'on_hand'),
-              mock_model(Spree::InventoryUnit, :variant_id => variant.id, supplier: supplier_1, :state => 'backordered'),
-              mock_model(Spree::InventoryUnit, :variant_id => variant.id, supplier: supplier_1, :state => 'on_hand'),
-              mock_model(Spree::InventoryUnit, :variant_id => variant.id, supplier: supplier_1, :state => 'backordered'),
-              mock_model(Spree::InventoryUnit, :variant_id => variant.id, supplier: supplier_2, :state => 'on_hand'),
-            ])
-
-            subject.send(:remove_from_shipment, shipment, 5).should == 5
-          end
         end
 
         it 'should destroy self if not inventory units remain' do
@@ -394,7 +287,7 @@ module Spree
       end
     end
 
-    context "Supplier and Assemblies" do
+    context "Assemblies" do
       let!(:order) { create(:order) }
       let!(:line_item_1) { create(:line_item, order: order ) }
       let!(:line_item_2) { create(:line_item, order: order ) }
@@ -529,14 +422,14 @@ module Spree
 
       let(:bundle) { create(:product) }
       let(:line_item_parts) {[
-        OpenStruct.new(
+        Spree::LineItemPart.new(
                        variant_id: guitar.id,
                        quantity:   1,
                        optional:   true,
                        price:      5,
                        currency:   'GBP'
                       ),
-        OpenStruct.new(
+        Spree::LineItemPart.new(
                        variant_id: bass.id,
                        quantity:   1,
                        optional:   true,
@@ -545,8 +438,8 @@ module Spree
                       )
       ]}
 
-      let!(:bundle_item) { contents.add(bundle.master, 5, nil, parts: line_item_parts) }
-      let!(:guitar_item) { contents.add(guitar, 3) }
+      let!(:bundle_item) { contents.add(bundle.master, 5, parts: line_item_parts) }
+      let!(:guitar_item) { contents.add(guitar, 3, {}) }
 
       let!(:shipment) { order.create_proposed_shipments.first }
 

@@ -1,10 +1,17 @@
 module Spree
   module Stock
     class Coordinator
-      attr_reader :order
+      attr_reader :order, :inventory_units
 
       def initialize(order)
         @order = order
+        @inventory_units = inventory_units || InventoryUnitBuilder.new(order).units
+      end
+
+      def shipments
+        packages.map do |package|
+          package.to_shipment.tap { |s| s.address = order.ship_address }
+        end
       end
 
       def packages
@@ -25,8 +32,9 @@ module Spree
       # Returns an array of Package instances
       def build_packages(packages = Array.new)
         StockLocation.active.each do |stock_location|
-          next unless has_any_stock_items?(stock_location, order)
-          packer = build_packer(stock_location, order)
+          next unless stock_location.stock_items.where(:variant_id => inventory_units.map(&:variant_id)).exists?
+
+          packer = build_packer(stock_location, inventory_units)
           packages += packer.packages
         end
         packages
@@ -34,9 +42,7 @@ module Spree
 
       private
       def prioritize_packages(packages)
-        # prioritizer = Prioritizer.new(order, packages)
-        # prioritizer.prioritized_packages
-        AssemblyPrioritizer.new(order, packages).prioritized_packages
+        Prioritizer.new(inventory_units, packages).prioritized_packages
       end
 
       def estimate_packages(packages)
@@ -47,26 +53,14 @@ module Spree
         packages
       end
 
-      def build_packer(stock_location, order)
-        Packer.new(stock_location, order, splitters(stock_location))
+      def build_packer(stock_location, inventory_units)
+        Packer.new(stock_location, inventory_units, splitters(stock_location))
       end
 
       def splitters(stock_location)
         # extension point to return custom splitters for a location
         # Note this could have been overriden in initializer/spree.rb
         Rails.application.config.spree.stock_splitters
-      end
-
-      # TODO: Adjust the part bit to look for `all` instead of `any`.
-      # Stock location should return true if we can satisfy a complete assembly.
-      def has_any_stock_items?(stock_location, order)
-        order.line_items.detect do |line|
-          if line.parts.any?
-            stock_location.stock_items.where(:variant_id => line.parts.pluck(:variant_id)).exists?
-          else
-            stock_location.stock_items.where(:variant_id => line.variant_id).exists?
-          end
-        end
       end
 
     end

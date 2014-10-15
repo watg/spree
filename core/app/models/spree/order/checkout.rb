@@ -65,6 +65,18 @@ module Spree
                 transition :to => :resumed, :from => :canceled, :if => :canceled?
               end
 
+              state :resumed do
+                validate do |order|
+                  if order.insufficient_stock_lines.any?
+                    order.line_items.each do |line|
+                      line.errors.full_messages.each do |msg|
+                        self.errors.add(:base, msg)
+                      end
+                    end
+                  end
+                end
+              end
+
               event :authorize_return do
                 transition :to => :awaiting_return
               end

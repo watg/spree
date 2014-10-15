@@ -38,7 +38,6 @@ describe Spree::Api::ShipmentsController do
         stock_location_id: stock_location.to_param,
         selected_variants: assembly_selection
       }
-      expect(Spree::OrderPopulator).to receive(:parse_options).with(v, assembly_selection, order.currency)
 
       api_post :create, params
       response.status.should == 200
@@ -78,11 +77,61 @@ describe Spree::Api::ShipmentsController do
 
       it 'adds a variant to a shipment' do
         assembly_selection = {23 => 987 , 4 => 232}
-        expect(Spree::OrderPopulator).to receive(:parse_options).with(variant, assembly_selection, order.currency)
 
         api_put :add, { variant_id: variant.to_param, quantity: 2, selected_variants: assembly_selection }
         response.status.should == 200
         json_response['manifest'].detect { |h| h['variant']['id'] == variant.id }["quantity"].should == 2
+      end
+
+
+      context "dynamic kits" do
+
+        let(:variant) { create(:variant, price: 60.00) }
+        let(:product) { variant.product }
+        let!(:variant_assembly) { create(:variant) }
+        let!(:assembly_definition) { create(:assembly_definition, variant: variant_assembly) }
+        let!(:variant_part)  { create(:base_variant, product: product) }
+        let!(:price) { create(:price, variant: variant_part, price: 2.99, sale: false, is_kit: true, currency: 'USD') }
+        let!(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: product, count: 2, assembled: true) }
+        let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
+
+        it 'can add and remove quantity' do
+          assembly_selection = {adp.id.to_s => variant_part.id}
+          api_put :add, { variant_id: variant_assembly.to_param, quantity: 2, selected_variants: assembly_selection }
+          json_response['manifest'].detect { |h| h['variant']['id'] == variant_part.id }["quantity"].should == 4 # line_item quantity: 2 x 2
+          response.status.should == 200
+
+          api_put :remove, { variant_id: variant_assembly.to_param, quantity: 1, selected_variants: assembly_selection }
+          json_response['manifest'].detect { |h| h['variant']['id'] == variant_part.id }["quantity"].should == 2 # line_item quantity: 2 x 2
+          response.status.should == 200
+        end
+
+      end
+
+      context "static kits" do
+
+        let(:variant) { create(:variant, price: 60.00) }
+        let(:product) { variant.product }
+        let!(:required_part1) { create(:variant) }
+        let!(:price) { create(:price, variant: required_part1, currency: 'USD') }
+        #let(:part1) { create(:variant) }
+
+        before do
+          # TODO: make old kits work with options
+        #  product.add_part(part1, 1, true)
+          product.add_part(required_part1, 2, false)
+        end
+
+        it 'can add and remove quantity' do
+          api_put :add, { variant_id: variant.to_param, quantity: 2 }
+          json_response['manifest'].detect { |h| h['variant']['id'] == required_part1.id }["quantity"].should == 4 # line_item quantity: 2 x 2
+          response.status.should == 200
+
+          api_put :remove, { variant_id: variant.to_param, quantity: 1 }
+          json_response['manifest'].detect { |h| h['variant']['id'] == required_part1.id }["quantity"].should == 2 # line_item quantity: 2 x 2
+          response.status.should == 200
+        end
+
       end
 
       it 'removes a variant from a shipment' do
@@ -97,18 +146,52 @@ describe Spree::Api::ShipmentsController do
         let(:order) { create :completed_order_with_totals }
         let(:line_item) { order.line_items.first }
 
-        before { line_item.update_attributes(quantity: 2) }
+        context "normal" do
 
-        it 'adds a line_item to a shipment' do
-          api_put :add_by_line_item, { line_item_id: line_item.id, quantity: 2  }
-          response.status.should == 200
-          json_response['manifest'].detect { |h| h['variant']['id'] == line_item.variant.id }["quantity"].should == 4
+          before do 
+            line_item.update_attributes(quantity: 2)
+          end
+
+          it 'adds a line_item to a shipment' do
+            api_put :add_by_line_item, { line_item_id: line_item.id, quantity: 2  }
+            response.status.should == 200
+            json_response['manifest'].detect { |h| h['variant']['id'] == line_item.variant.id }["quantity"].should == 4
+          end
+
+          it 'removes a line_item to a shipment' do
+            api_put :remove_by_line_item, { line_item_id: line_item.id, quantity: 1  }
+            response.status.should == 200
+            json_response['manifest'].detect { |h| h['variant']['id'] == line_item.variant.id }["quantity"].should == 1
+          end
+
         end
 
-        it 'removes a line_item to a shipment' do
-          api_put :remove_by_line_item, { line_item_id: line_item.id, quantity: 1  }
-          response.status.should == 200
-          json_response['manifest'].detect { |h| h['variant']['id'] == line_item.variant.id }["quantity"].should == 1
+        context "kit" do
+
+          let(:variant_part) { create(:base_variant) }
+
+          before do 
+            line_item.update_column(:quantity,  2)
+            Spree::InventoryUnit.delete_all
+            create(:line_item_part, optional: false, line_item: line_item, variant: variant_part, quantity: 3)
+            create(:line_item_part, optional: true, line_item: line_item, variant: variant_part, quantity: 1)
+            line_item.save
+          end
+
+          it 'adds a line_item to a shipment' do
+            api_put :add_by_line_item, { line_item_id: line_item.id, quantity: 2  }
+            response.status.should == 200
+            json_response['manifest'].detect { |h| h['variant']['id'] == line_item.variant.id }.should be_nil
+            json_response['manifest'].detect { |h| h['variant']['id'] == variant_part.id }["quantity"].should == 16
+          end
+
+          it 'removes a line_item to a shipment' do
+            api_put :remove_by_line_item, { line_item_id: line_item.id, quantity: 1  }
+            response.status.should == 200
+            json_response['manifest'].detect { |h| h['variant']['id'] == line_item.variant.id }.should be_nil
+            json_response['manifest'].detect { |h| h['variant']['id'] == variant_part.id }["quantity"].should == 4
+          end
+
         end
 
       end
