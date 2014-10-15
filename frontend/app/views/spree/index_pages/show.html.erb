@@ -18,7 +18,7 @@
 
   <div class="row-products">
     <div class="row row-product">
-		<%= paginate @items %>
+		<%= paginate @items, theme: "frontend_override" %>
 		<p class="loading-text">Loading <%= @index_page.title %>, just a tick&hellip;</p>
         <%= render partial: "index_page_item", collection: @items, as: :index_page_item %>
     </div>

@@ -31,7 +31,7 @@
 	</div>
 
 	<div class="row">
-		<%= paginate @variants %>
+		<%= paginate @variants, :theme => "frontend_override" %>
 		<ul class="variants no-bullet">
 			<li class="loading-text">Loading <%= @product_page.made_unique_title %>, just a tick&hellip;</li>
 			<%= render partial: 'variant', :collection => @variants, :as => :variant, :locals => {product_page: @product_page, product_page_tab: @product_page.made_by_the_gang_tab} %>
