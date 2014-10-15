@@ -625,15 +625,7 @@ module Spree
       adjustments.shipping.delete_all
       shipments.destroy_all
 
-      new_shipments = []
-      packages = Spree::Stock::Coordinator.new(self).packages
-      packages.each do |package|
-        new_shipments << package.to_shipment
-      end
-
-      self.shipments = new_shipments
-
-      shipments
+      self.shipments = Spree::Stock::Coordinator.new(self).shipments
     end
 
     def apply_free_shipping_promotions
@@ -730,11 +722,6 @@ module Spree
         end
       end
       self.ensure_updated_shipments
-    end
-
-    def find_existing_line_item(variant, parts, personalisations, target_id)
-      uuid = Spree::VariantUuid.fetch(variant, parts, personalisations).number
-      self.line_items.find_by(variant_id: variant.id, item_uuid: uuid, target_id: target_id)
     end
 
     def prune_line_items

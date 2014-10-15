@@ -72,53 +72,11 @@ module Spree
       end
     end
 
-    def add_personalisations(collection)
-      objects = collection.map do |o|
-        Spree::LineItemPersonalisation.new(
-          line_item: self,
-          personalisation_id: o.personalisation_id,
-          amount: o.amount || BigDecimal.new(0),
-          data: o.data
-        )
-      end
-      self.line_item_personalisations = objects
-    end
-
-    def add_parts(collection)
-      objects = collection.map do |o|
-        Spree::LineItemPart.new(
-          id: o.id,
-          line_item: self,
-          quantity: o.quantity,
-          price: o.price || BigDecimal.new(0),
-          assembly_definition_part_id: o.assembly_definition_part_id,
-          variant_id: o.variant_id,
-          optional: o.optional,
-          currency: o.currency,
-          assembled: !!o.assembled,
-          container: o.container,
-          main_part: !!o.main_part,
-          parent_part_id: o.parent_part_id
-        )
-      end
-
-      # associate child parts with their parent container
-      objects.select{ |o| o.parent_part_id.present? }.each do |child|
-        child.parent_part = objects.find { |o| o.id == child.parent_part_id }
-      end
-      # delete the container index ids and allow active record to set the auto-generated ones
-      objects.select{ |o| o.id.present? }.each do |container|
-        container.id = nil
-      end
-
-      self.line_item_parts = objects
-    end
-
     def copy_price
       if variant
         self.price = variant.price if price.nil?
         self.cost_price = variant.cost_price if cost_price.nil?
-        self.currency = variant.currency if currency.nil?
+        self.currency = order.currency if currency.nil?
       end
     end
 
@@ -290,7 +248,7 @@ module Spree
 
     def ensure_proper_currency
       unless currency == order.currency
-        errors.add(:currency, t(:must_match_order_currency))
+        errors.add(:currency, :must_match_order_currency)
       end
     end
 

@@ -48,7 +48,7 @@ describe Spree::Admin::VariantDecorator do
       order.cancel!
       expect(variant.number_of_shipment_pending).to eq 0 
       order.resume!
-      expect(variant.number_of_shipment_pending).to eq 1 
+      expect(variant.number_of_shipment_pending).to eq 1
     end
 
     context "supplier" do

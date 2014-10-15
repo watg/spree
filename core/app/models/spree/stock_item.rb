@@ -18,6 +18,7 @@ module Spree
     after_save :check_variant_stock
     after_touch { variant.touch }
 
+    scope :available, -> { where("count_on_hand > 0 or backorderable = true") }
 
     def backordered_inventory_units
       Spree::InventoryUnit.backordered_for_stock_item(self)
@@ -31,7 +32,6 @@ module Spree
       self.with_lock do
         self.count_on_hand = self.count_on_hand + value
         process_backorders(count_on_hand - count_on_hand_was)
-
         self.save!
       end
     end

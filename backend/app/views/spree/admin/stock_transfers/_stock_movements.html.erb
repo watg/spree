@@ -17,7 +17,15 @@
   <tbody id="bulk_variants_tbody">
     <% stock_movements.each do |movement| %>
     <tr>
-      <td><%= movement.stock_item.variant.name %></td>
+      <td>
+        <strong>
+          <%= link_to movement.stock_item.variant.name, edit_admin_product_variant_path(movement.stock_item.variant.product, movement.stock_item.variant) %>
+        </strong>
+        <br>
+        <small>
+          <%= movement.stock_item.supplier.fullname + " (" +movement.stock_item.supplier.permalink + ")" %>
+        </small>
+      </td>
       <td class='align-center'><%= movement.stock_item.variant.sku %></td>
       <td class='align-center'><%= movement.quantity %></td>
       <td class='align-center'><%= movement.stock_item.count_on_hand %></td>

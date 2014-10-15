@@ -1,114 +1,125 @@
-# AssemblyPrioritizer used instead of Prioritizer.
-# Look for assembly_prioritizer_spec.rb
-# require 'spec_helper'
+require 'spec_helper'
 
-# module Spree
-#   module Stock
-#     describe Prioritizer do
-#       let(:order) { create(:order_with_line_items, line_items_count: 2) }
-#       let(:stock_location) { build(:stock_location) }
+module Spree
+  module Stock
+    describe Prioritizer do
+      let(:order) { mock_model(Order) }
+      let(:stock_location) { build(:stock_location) }
+      let(:variant) { build(:variant) }
 
-#       let(:line_item1) { order.line_items[0] }
-#       let(:line_item2) { order.line_items[1] }
+      def inventory_units
+        @inventory_units ||= []
+      end
 
-#       def pack
-#         package = Package.new(order, stock_location)
-#         yield(package) if block_given?
-#         package
-#       end
+      def build_inventory_unit
+        mock_model(InventoryUnit, variant: variant).tap do |unit|
+          inventory_units << unit
+        end
+      end
 
-#       it 'keeps a single package' do
-#         package1 = pack do |package|
-#           package.add line_item1, 1, :on_hand
-#           package.add line_item2, 1, :on_hand
-#         end
+      def pack
+        package = Package.new(order)
+        yield(package) if block_given?
+        package
+      end
 
-#         packages = [package1]
-#         prioritizer = Prioritizer.new(order, packages)
-#         packages = prioritizer.prioritized_packages
-#         packages.size.should eq 1
-#       end
+      it 'keeps a single package' do
+        package1 = pack do |package|
+          package.add build_inventory_unit
+          package.add build_inventory_unit
+        end
 
-#       it 'removes duplicate packages' do
-#         package1 = pack do |package|
-#           package.add line_item1, 1, :on_hand
-#           package.add line_item2, 1, :on_hand
-#         end
-#         package2 = pack do |package|
-#           package.add line_item1, 1, :on_hand
-#           package.add line_item2, 1, :on_hand
-#         end
+        packages = [package1]
+        prioritizer = Prioritizer.new(inventory_units, packages)
+        packages = prioritizer.prioritized_packages
+        packages.size.should eq 1
+      end
 
-#         packages = [package1, package2]
-#         prioritizer = Prioritizer.new(order, packages)
-#         packages = prioritizer.prioritized_packages
-#         packages.size.should eq 1
-#       end
+      it 'removes duplicate packages' do
+        package1 = pack do |package|
+          package.add build_inventory_unit
+          package.add build_inventory_unit
+        end
 
-#       it 'split over 2 packages' do
-#         package1 = pack do |package|
-#           package.add line_item1, 1, :on_hand
-#         end
-#         package2 = pack do |package|
-#           package.add line_item2, 1, :on_hand
-#         end
+        package2 = pack do |package|
+          package.add inventory_units.first
+          package.add inventory_units.last
+        end
 
-#         packages = [package1, package2]
-#         prioritizer = Prioritizer.new(order, packages)
-#         packages = prioritizer.prioritized_packages
-#         packages.size.should eq 2
-#       end
+        packages = [package1, package2]
+        prioritizer = Prioritizer.new(inventory_units, packages)
+        packages = prioritizer.prioritized_packages
+        packages.size.should eq 1
+      end
 
-#       it '1st has some, 2nd has remaining' do
-#         order.line_items[0].stub(:quantity => 5)
-#         package1 = pack do |package|
-#           package.add line_item1, 2, :on_hand
-#         end
-#         package2 = pack do |package|
-#           package.add line_item1, 5, :on_hand
-#         end
+      it 'split over 2 packages' do
+        package1 = pack do |package|
+          package.add build_inventory_unit
+        end
+        package2 = pack do |package|
+          package.add build_inventory_unit
+        end
 
-#         packages = [package1, package2]
-#         prioritizer = Prioritizer.new(order, packages)
-#         packages = prioritizer.prioritized_packages
-#         packages.count.should eq 2
-#         packages[0].quantity.should eq 2
-#         packages[1].quantity.should eq 3
-#       end
+        packages = [package1, package2]
+        prioritizer = Prioritizer.new(inventory_units, packages)
+        packages = prioritizer.prioritized_packages
+        packages.size.should eq 2
+      end
 
-#       it '1st has backorder, 2nd has some' do
-#         order.line_items[0].stub(:quantity => 5)
-#         package1 = pack do |package|
-#           package.add line_item1, 5, :backordered
-#         end
-#         package2 = pack do |package|
-#           package.add line_item1, 2, :on_hand
-#         end
+      it '1st has some, 2nd has remaining' do
+        5.times { build_inventory_unit }
 
-#         packages = [package1, package2]
-#         prioritizer = Prioritizer.new(order, packages)
-#         packages = prioritizer.prioritized_packages
+        package1 = pack do |package|
+          2.times { |i| package.add inventory_units[i] }
+        end
+        package2 = pack do |package|
+          5.times { |i| package.add inventory_units[i] }
+        end
 
-#         packages[0].quantity(:backordered).should eq 3
-#         packages[1].quantity(:on_hand).should eq 2
-#       end
+        packages = [package1, package2]
+        prioritizer = Prioritizer.new(inventory_units, packages)
+        packages = prioritizer.prioritized_packages
+        packages.count.should eq 2
+        packages[0].quantity.should eq 2
+        packages[1].quantity.should eq 3
+      end
 
-#       it '1st has backorder, 2nd has all' do
-#         order.line_items[0].stub(:quantity => 5)
-#         package1 = pack do |package|
-#           package.add line_item1, 3, :backordered
-#           package.add line_item2, 1, :on_hand
-#         end
-#         package2 = pack do |package|
-#           package.add line_item1, 5, :on_hand
-#         end
+      it '1st has backorder, 2nd has some' do
+        5.times { build_inventory_unit }
 
-#         packages = [package1, package2]
-#         prioritizer = Prioritizer.new(order, packages)
-#         packages = prioritizer.prioritized_packages
-#         packages[0].quantity(:backordered).should eq 0
-#         packages[1].quantity(:on_hand).should eq 5
-#       end
-#     end
-#   end
-# end
+        package1 = pack do |package|
+          5.times { |i| package.add inventory_units[i], :backordered }
+        end
+        package2 = pack do |package|
+          2.times { |i| package.add inventory_units[i] }
+        end
+
+        packages = [package1, package2]
+        prioritizer = Prioritizer.new(inventory_units, packages)
+        packages = prioritizer.prioritized_packages
+
+        packages[0].quantity(:backordered).should eq 3
+        packages[1].quantity(:on_hand).should eq 2
+      end
+
+      it '1st has backorder, 2nd has all' do
+        5.times { build_inventory_unit }
+
+        package1 = pack do |package|
+          3.times { |i| package.add inventory_units[i], :backordered }
+        end
+        package2 = pack do |package|
+          5.times { |i| package.add inventory_units[i] }
+        end
+
+        packages = [package1, package2]
+        prioritizer = Prioritizer.new(inventory_units, packages)
+        packages = prioritizer.prioritized_packages
+        packages[0].should eq package2
+        packages[1].should be_nil
+        packages[0].quantity(:backordered).should eq 0
+        packages[0].quantity(:on_hand).should eq 5
+      end
+    end
+  end
+end

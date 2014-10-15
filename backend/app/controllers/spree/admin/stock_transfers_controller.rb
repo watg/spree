@@ -17,18 +17,25 @@ module Spree
       end
 
       def new
+        @suppliers = Supplier.order(:firstname, :lastname)
       end
 
+
       def create
-        variants = Hash.new(0)
+        stock_transfer_items = []
+
         params[:variant].each_with_index do |variant_id, i|
-          variants[variant_id] += params[:quantity][i].to_i
+          variant = Spree::Variant.find variant_id
+          supplier = Spree::Supplier.where(id: params[:supplier][i]).first
+          quantity = params[:quantity][i].to_i
+
+          stock_transfer_items << Spree::StockTransfer::TransferItem.new(variant, quantity, supplier)
         end
 
         stock_transfer = StockTransfer.create(:reference => params[:reference])
         stock_transfer.transfer(source_location,
                                 destination_location,
-                                variants)
+                                stock_transfer_items)
 
         flash[:success] = Spree.t(:stock_successfully_transferred)
         redirect_to admin_stock_transfer_path(stock_transfer)

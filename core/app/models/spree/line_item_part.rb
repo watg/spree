@@ -36,4 +36,20 @@ class Spree::LineItemPart < ActiveRecord::Base
   def children
     Spree::LineItemPart.where(parent_part: self)
   end
+
+  def main_part=(value)
+    value ||= false
+    write_attribute(:main_part, value)
+  end
+
+  def assembled=(value)
+    value ||= false
+    write_attribute(:assembled, value)
+  end
+
+  def container=(value)
+    value ||= false
+    write_attribute(:container, value)
+  end
+
 end

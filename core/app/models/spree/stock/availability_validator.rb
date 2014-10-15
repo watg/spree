@@ -5,6 +5,7 @@ module Spree
         return true if line_item.quantity <= 0
 
         order = line_item.order
+
         item_builder = Spree::Stock::OrderItemBuilder.new(order)
 
         # group the order's variants. Ex: {324=>3, 1405=>4, 321=>2, 323=>3, 322=>3}

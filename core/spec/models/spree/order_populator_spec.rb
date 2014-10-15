@@ -2,388 +2,155 @@ require 'spec_helper'
 
 describe Spree::OrderPopulator do
 
-  let(:order) { double('Order') }
+  let(:order) { mock_model(Spree::Order, currency: 'USD') }
   subject { Spree::OrderPopulator.new(order, "USD") }
 
   let(:variant) { create(:variant, price: 60.00) }
   let(:product) { variant.product }
   let(:target_id) { 45 }
 
-  context "#parse_options" do
-
-    context "new kit" do
-
-      let!(:variant_assembly) { create(:variant) }
-      let!(:assembly_definition) { create(:assembly_definition, variant: variant_assembly) }
-      let!(:variant_part)  { create(:base_variant, product: product) }
-      let!(:price) { create(:price, variant: variant_part, price: 2.99, sale: false, is_kit: true, currency: 'USD') }
-      let!(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: product, count: 2, assembled: true) }
-      let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
-
-
-      let(:expected_parts) { [
-        OpenStruct.new(
-          assembly_definition_part_id: adp.id,
-          variant_id: variant_part.id,
-          quantity: adp.count,
-          optional: adp.optional,
-          price: price.amount,
-          currency: "USD",
-          assembled: true,
-          container: false,
-          main_part: false
-        ) ] }
-
-      it "can parse parts from the options" do
-        parts = subject.class.parse_options(variant_assembly, {adp.id.to_s => variant_part.id.to_s}, 'USD')
-        expect(parts).to match_array expected_parts
-      end
-
-      # for required part and not
-      context "Setting the main part" do
-        #let!(:assembly_definition) { create(:assembly_definition, variant: variant_assembly, main_part: adp) }
-        let(:expected_parts) { [
-          OpenStruct.new(
-            assembly_definition_part_id: adp.id,
-            variant_id: variant_part.id,
-            quantity: 2,
-            optional: adp.optional,
-            price: price.amount,
-            currency: "USD",
-            assembled: true,
-            container: false,
-            main_part: true
-          )
-        ] }
-
-        before do
-          adp.assembled = true
-          adp.optional = true
-          adp.save
-          assembly_definition.reload
-          assembly_definition.main_part = adp
-          assembly_definition.save
-        end
-#
-        context "non required part" do
-          it "creates the correct params" do
-            parts = subject.class.parse_options(variant_assembly, {adp.id.to_s => variant_part.id.to_s}, 'USD')
-            expect(parts).to match_array expected_parts
-          end
-        end
-
-        context "required part" do
-
-          before do
-            adp.optional = false
-            adp.save
-          end
-
-          it "creates the correct params" do
-            parts = subject.class.parse_options(variant_assembly, {adp.id.to_s => variant_part.id.to_s}, 'USD')
-            expect(parts).to match_array expected_parts
-          end
-
-        end
-      end
-
-      context "#attempt_cart_add" do
-        it "adds error on order when some assembly definition parts are missing" do
-          subject.send(:attempt_cart_add, variant_assembly.id, 1, [], [], nil, nil, nil)
-          expect(subject.errors[:base]).to include "Some required parts are missing"
-        end
-      end
-
-      context "valid params" do
-
-        let(:bogus_variant_assembly) { create(:variant) }
-        let(:bogus_assembly_definition) { create(:assembly_definition, variant: bogus_variant_assembly) }
-        let(:bogus_product_part)  { create(:base_product) }
-        let(:bogus_variant_part)  { create(:base_variant, product: bogus_product_part) }
-        let(:bogus_adp) { create(:assembly_definition_part, assembly_definition: bogus_assembly_definition, product: bogus_product_part) }
-        let(:bogus_adv) { create(:assembly_definition_variant, assembly_definition_part: bogus_adp, variant: bogus_variant_part) }
-
-        it "assembly variant must be valid" do
-          parts = subject.class.parse_options( create(:variant), {adp.id.to_s => variant_part.id.to_s}, 'USD')
-          expect(parts).to match_array []
-        end
-
-        it "parts must be valid" do
-          parts = subject.class.parse_options( variant_assembly, {bogus_adp.id.to_s => bogus_variant_part.id.to_s}, 'USD')
-          expect(parts).to match_array []
-        end
-
-        # create a variant based off the correct part, but do not create a assembly_definition_variant, hence it should not be allowed
-        let(:another_bogus_variant_part)  { create(:base_variant, product: product) }
-
-        it "selected variant must be valid" do
-          parts = subject.class.parse_options(variant_assembly, {adp.id.to_s => another_bogus_variant_part.id.to_s}, 'USD')
-          expect(parts).to match_array []
-        end
-
-      end
-
-
-      context "when the part has parts of its own (old kit in an assembly)" do
-        let(:other_product)  { create(:base_product) }
-        let(:other_variant)  { create(:base_variant, product: other_product) }
-        let(:other_part) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: other_product, count: 1) }
-        let!(:other_part_variant) { create(:assembly_definition_variant, assembly_definition_part: other_part, variant: other_variant) }
-
-        # Overide the price to 0 as this is now a container
-
-        let(:part_attached_to_product) { create(:base_variant) }
-        let(:part_attached_to_variant) { create(:base_variant) }
-        let!(:part_product_price) { create(:price, variant: part_attached_to_product, price: 1.99, sale: false, is_kit: true, currency: 'USD') }
-        let!(:part_variant_price) { create(:price, variant: part_attached_to_variant, price: 3.99, sale: false, is_kit: true, currency: 'USD') }
-
-        before do
-          assembly_definition.main_part = other_part
-          variant_part.prices.map { |p| p.amount = 0 }
-          variant_part.product.add_part(part_attached_to_product, 3, false)
-          variant_part.add_part(part_attached_to_variant, 4, false)
-        end
-
-        let(:expected_parts) { [
-          OpenStruct.new(
-            assembly_definition_part_id: adp.id,
-            variant_id: part_attached_to_product.id,
-            quantity: 6,
-            optional: adp.optional,
-            price: part_product_price.amount,
-            currency: "USD",
-            assembled: true,
-            parent_part_id: 0, # the id refers to the parent container index
-            container: false,
-            main_part: false
-          ),
-          OpenStruct.new(
-            assembly_definition_part_id: adp.id,
-            variant_id: part_attached_to_variant.id,
-            quantity: 8,
-            optional: adp.optional,
-            price: part_variant_price.amount,
-            currency: "USD",
-            assembled: true,
-            parent_part_id: 0, # the id refers to the parent container index
-            container: false,
-            main_part: false
-          ),
-          OpenStruct.new(
-            assembly_definition_part_id: adp.id,
-            variant_id: variant_part.id,
-            quantity: 2,
-            optional: adp.optional,
-            price: price.amount,
-            currency: "USD",
-            assembled: true,
-            container: true,
-            id: 0, # the id here refers to the container index
-            main_part: false
-          ),
-          OpenStruct.new(
-            assembly_definition_part_id: other_part.id,
-            variant_id: other_variant.id,
-            quantity: 1,
-            optional: false,
-            price: nil,
-            currency: "USD",
-            assembled: false,
-            container: false,
-            main_part: false
-          )
-        ] }
-
-        it "adds the container and its parts to the parts table and flags the container" do
-          parts = subject.class.parse_options(variant_assembly, {adp.id.to_s => variant_part.id.to_s, other_part.id.to_s => other_variant.id.to_s}, 'USD')
-          expect(parts).to match_array expected_parts
-        end
-      end
-
-    end
-
-    context "old kit" do
-
-      let(:required_part1) { create(:variant) }
-      let(:part1) { create(:variant) }
-      let(:expected_parts) { [
-        OpenStruct.new(
-          assembly_definition_part_id: nil,
-          variant_id: required_part1.id,
-          quantity: 2,
-          optional: false,
-          price: nil,
-          currency: "USD",
-          container: false,
-          main_part: false
-        ),
-        OpenStruct.new(
-          assembly_definition_part_id: nil,
-          variant_id: part1.id,
-          quantity: 1,
-          optional: true,
-          price: nil,
-          currency: "USD",
-          container: false,
-          main_part: false
-        ),
-      ] }
-
-      before do
-        product.add_part(part1, 1, true)
-        product.add_part(required_part1, 2, false)
-      end
-
-      it "can parse part from the options for old style kit" do
-        parts = subject.class.parse_options(variant, [part1], 'USD')
-        expect(parts).to match_array expected_parts
-      end
-    end
-
-  end
+  #context "#attempt_cart_add" do
+  #end
+  #
 
 
   context "#populate" do
 
     before do
       allow(order).to receive(:line_items).and_return([])
-      order.should_receive(:contents).at_least(:once).and_return(Spree::OrderContents.new(self))
+      order.should_receive(:contents).at_least(:once).and_return(Spree::OrderContents.new(order))
     end
 
+    context "with variants parameters" do
+
+      let!(:options) { {
+        target_id: target_id,
+        product_page_tab_id: 2,
+        product_page_id: 1,
+        parts: []
+      }}
+
+      it "can take a list of products and add them to the order" do
+        expect(order.contents).to receive(:add).with(variant, 2, options).and_return double.as_null_object
+        subject.populate(:variants => { variant.id => 2 }, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
+      end
+
+      context "with parts" do
+
+        let!(:lip1) { mock_model(Spree::LineItemPart) }
+        let!(:lip2) { mock_model(Spree::LineItemPart) }
+
+        let!(:adp1) { mock_model(Spree::AssemblyDefinitionPart) }
+        let!(:adp2) { mock_model(Spree::AssemblyDefinitionPart) }
+        let!(:adv1) { mock_model(Spree::AssemblyDefinitionVariant) }
+        let!(:adv2) { mock_model(Spree::AssemblyDefinitionVariant) }
+
+        before do
+          options[:parts] = match_array [lip1, lip2]
+          allow(subject.options_parser).to receive(:missing_required_parts).and_return([])
+        end
+
+        it "calls order contents correctly" do
+          expect(order.contents).to receive(:add).with(variant, 2, options).and_return double.as_null_object
+          part_params = {adp1.id => adv1.id, adp2.id => adv2.id}
+          expect(subject.options_parser).to receive(:dynamic_kit_parts).with(variant, part_params).and_return [lip1, lip2]
+          subject.populate(:variants => { variant.id => 2 }, :parts => part_params, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
+        end
+
+
+        context "missing_required_parts" do
+          let(:part) { mock_model(Spree::AssemblyDefinitionPart)}
+
+          before do
+            allow(subject.options_parser).to receive(:missing_required_parts).and_return([part])
+          end
+
+          it "adds error on order when some assembly definition parts are missing" do
+            expect(order.contents).to_not receive(:add)
+            part_params = {adp1.id => adv1.id, adp2.id => adv2.id}
+            subject.populate(:variants => { variant.id => 2 }, :parts => part_params, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
+            expect(subject.errors.full_messages.join("")).to eq 'Some required parts are missing'
+          end
+        end
+      end
+
+    end
 
     context "with products parameters" do
+
+      let!(:options) { {
+        personalisations: [],
+        target_id: target_id,
+        product_page_tab_id: 2,
+        product_page_id: 1,
+        parts: []
+      }}
+
       it "can take a list of products and add them to the order" do
-        options = {
-          shipment: nil,
-          personalisations: [],
-          target_id: target_id,
-          product_page_tab_id: nil,
-          product_page_id: nil,
-          parts: []
-        }
-        expect(order.contents).to receive(:add).with(variant, 1, subject.currency, options).and_return double.as_null_object
-        subject.populate(:products => { product.id => variant.id }, :quantity => 1, :target_id => 45)
+        expect(order.contents).to receive(:add).with(variant, 1, options).and_return double.as_null_object
+        subject.populate(:products => { product.id => variant.id }, :quantity => 1, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
       end
 
-      context "can take a list of products and options" do
-        let(:selected_variant) { create(:variant) }
-        let(:part_id) { "23" }
-        let(:option_part) {
-          OpenStruct.new(
-            assembly_definition_part_id: part_id,
-            variant_id: selected_variant.id,
-            quantity: 1,
-            optional: false,
-            price: 12,
-            currency: "USD")
-        }
+      context "with required_parts" do
 
-        it "of assembly definition type" do
-          variant.assembly_definition = Spree::AssemblyDefinition.new
-          allow(Spree::OrderPopulator).to receive(:parse_options).with(variant, { part_id => selected_variant.id }, 'USD').and_return([option_part])
+        let!(:lip1) { mock_model(Spree::LineItemPart) }
+        let!(:lip2) { mock_model(Spree::LineItemPart) }
 
-          options = {
-            shipment: nil,
-            personalisations: [],
-            target_id: target_id,
-            product_page_tab_id: nil,
-            product_page_id: nil,
-            parts: [option_part]
-          }
-          expect(order.contents).to receive(:add).with(variant, 1, subject.currency, options).and_return double.as_null_object
-          subject.populate(:products => { product.id => variant.id, :options => { part_id => selected_variant.id } }, :quantity => 1, :target_id => 45)
+        before do
+          options[:parts] = match_array [lip1, lip2]
         end
 
-        it "of simple type" do
-          required_part1 = create(:variant)
-          required_part2 = create(:variant)
-          part1 = create(:variant)
-          part2 = create(:variant)
-          product.add_part(part1, 1, true)
-          product.add_part(part2, 2, true)
-          product.add_part(required_part1, 2, false)
-          product.add_part(required_part2, 1, false)
-
-          expected_parts = [
-            OpenStruct.new(
-              assembly_definition_part_id: nil,
-              variant_id: required_part1.id,
-              quantity: 2,
-              optional: false,
-              price: nil,
-              currency: "USD",
-              container: false,
-              main_part: false
-            ),
-            OpenStruct.new(
-              assembly_definition_part_id: nil,
-              variant_id: required_part2.id,
-              quantity: 1,
-              optional: false,
-              price: nil,
-              currency: "USD",
-              container: false,
-              main_part: false
-            ),
-            OpenStruct.new(
-              assembly_definition_part_id: nil,
-              variant_id: part1.id,
-              quantity: 1,
-              optional: true,
-              price: nil,
-              currency: "USD",
-              container: false,
-              main_part: false
-            ),
-            OpenStruct.new(
-              assembly_definition_part_id: nil,
-              variant_id: part2.id,
-              quantity: 2,
-              optional: true,
-              price: nil,
-              currency: "USD",
-              container: false,
-              main_part: false
-            )
-          ]
-
-          options = {
-            shipment: nil,
-            personalisations: [],
-            target_id: target_id,
-            product_page_tab_id: nil,
-            product_page_id: nil,
-            parts: match_array(expected_parts)
-          }
-
-          expect(order.contents).to receive(:add).with(variant, 1, subject.currency, options).and_return double.as_null_object
-          outcome = subject.populate(:products => { product.id => variant.id, :options => [part1.id, part2.id] }, :quantity => 1, :target_id => 45)
-          expect(outcome).to be_true
+        it "calls order contents correctly" do
+          expect(order.contents).to receive(:add).with(variant, 1, options).and_return double.as_null_object
+          expect(subject.options_parser).to receive(:static_kit_required_parts).with(variant).and_return [lip1, lip2]
+          expect(subject.options_parser).to receive(:static_kit_optional_parts).with(variant,[]).and_return []
+          subject.populate(:products => { product.id => variant.id, :options => [] }, :quantity => 1, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
         end
+
       end
 
+      context "with optional_parts" do
 
-      context "can take a list of products and personalisations" do
+        let!(:lip1) { mock_model(Spree::LineItemPart) }
+        let!(:lip2) { mock_model(Spree::LineItemPart) }
+
+        let!(:variant1) { mock_model(Spree::Variant) }
+        let!(:variant2) { mock_model(Spree::Variant) }
+
+        before do
+          options[:parts] = match_array [lip1, lip2]
+        end
+
+        it "calls order contents correctly" do
+          expect(order.contents).to receive(:add).with(variant, 1, options).and_return double.as_null_object
+          expect(subject.options_parser).to receive(:static_kit_required_parts).with(variant).and_return []
+          expect(subject.options_parser).to receive(:static_kit_optional_parts).with(variant,[variant1.id, variant2.id]).and_return [lip1, lip2]
+          subject.populate(:products => { product.id => variant.id, :options => [variant1.id, variant2.id] }, :quantity => 1, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
+        end
+
+      end
+
+      context "with personalisations" do
+
+        let!(:personalisation) { mock_model(Spree::LineItemPersonalisation) }
         let(:monogram) { create(:personalisation_monogram, product: product) }
-        let(:personalisation_params) {[
-          OpenStruct.new(
-                         personalisation_id: monogram.id,
-                         amount: "10.0",
-                         data: { 'colour' => monogram.colours.first.id, 'initials' => 'XXX'},
-                        )
-        ]}
 
-        it "of simple type" do
-          options = {
-            shipment: nil,
-            personalisations: personalisation_params,
-            target_id: target_id,
-            product_page_tab_id: nil,
-            product_page_id: nil,
-            parts: []
+        before do
+          options[:personalisations] = match_array [personalisation]
+        end
+
+        it "calls order contents correctly" do
+          expected_params = {
+            :enabled_pp_ids=>[monogram.id], 
+            :pp_ids=>{
+              monogram.id=>{
+                "colour"=>monogram.colours.first.id,
+                "initials"=>"XXX"
+              }
+            }
           }
-
-          expect(order.contents).to receive(:add).with(variant, 1, subject.currency, options).and_return double.as_null_object
+          expect(subject.options_parser).to receive(:personalisations).with(expected_params).and_return [personalisation]
+          expect(order.contents).to receive(:add).with(variant, 1, options).and_return double.as_null_object
 
           subject.populate(:products => {
             product.id => variant.id,
@@ -391,14 +158,12 @@ describe Spree::OrderPopulator do
             pp_ids: { monogram.id => {
               "colour" => monogram.colours.first.id,
               "initials" => "XXX"}}
-          }, :quantity => 1, :target_id => 45)
+          }, 
+          :product_page_tab_id=>2, 
+          :product_page_id=>1,
+          :quantity => 1, :target_id => 45)
         end
-      end
 
-
-      it "does not add any products if a quantity is set to 0" do
-        expect(order.contents).to_not receive(:add)
-        subject.populate(:products => { product.id => variant.id }, :quantity => 0)
       end
 
       context "variant out of stock" do
@@ -416,49 +181,40 @@ describe Spree::OrderPopulator do
         end
       end
 
-      # Regression test for #2695
-      it "restricts quantities to reasonable sizes (less than 2.1 billion, seriously)" do
-        expect(order.contents).to_not receive(:add)
-        subject.populate(:products => { product.id => variant.id }, :quantity => 2_147_483_648)
-        subject.should_not be_valid
-        output = "Please enter a reasonable quantity."
-        subject.errors.full_messages.join("").should == output
+      context "products params" do
+        # Regression test for #2695
+        it "restricts quantities to reasonable sizes (less than 2.1 billion, seriously)" do
+          expect(order.contents).to_not receive(:add)
+          subject.populate(:products => { product.id => variant.id }, :quantity => 2_147_483_648)
+          subject.should_not be_valid
+          output = "Please enter a reasonable quantity."
+          subject.errors.full_messages.join("").should == output
+        end
+
+        it "does not add any products if a quantity is set to 0" do
+          expect(order.contents).to_not receive(:add)
+          subject.populate(:products => { product.id => variant.id }, :quantity => 0)
+        end
+
+
       end
-    end
 
-    context "with variant parameters" do
-      it "can take a list of variants with quantites and add them to the order" do
-        options = {
-          shipment: nil,
-          personalisations: [],
-          target_id: nil,
-          product_page_tab_id: nil,
-          product_page_id: nil,
-          parts: []
-        }
+      context "variants params" do
+        it "restricts quantities to reasonable sizes (less than 2.1 billion, seriously)" do
+          expect(order.contents).to_not receive(:add)
+          subject.populate(:variants => {variant.id => 2_147_483_648 } )
+          subject.should_not be_valid
+          output = "Please enter a reasonable quantity."
+          subject.errors.full_messages.join("").should == output
+        end
 
-        expect(order.contents).to receive(:add).with(variant, 5, subject.currency, options).and_return double.as_null_object
-        subject.populate(:variants => { variant.id => 5 })
+        it "does not add any products if a quantity is set to 0" do
+          expect(order.contents).to_not receive(:add)
+          subject.populate(:variants => {variant.id => 0 } )
+        end
       end
+
     end
-
-    context "with product_page and tab parameters" do
-      it "can take a list of variants with quantites and add them to the order" do
-        options = {
-          shipment: nil,
-          personalisations: [],
-          target_id: nil,
-          product_page_tab_id: 2,
-          product_page_id: 1,
-          parts: []
-        }
-
-        expect(order.contents).to receive(:add).with(variant, 5, subject.currency, options).and_return double.as_null_object
-        subject.populate(:variants => { variant.id => 5} , :product_page_id => 1, :product_page_tab_id => 2 )
-      end
-    end
-
-
 
   end
 end

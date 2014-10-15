@@ -19,19 +19,16 @@ module Spree
     def verify(shipment = nil)
       if order.completed? || shipment.present?
 
-        inventory_units = @line_item.inventory_units
-
         if line_item.parts.any?
-          process_line_item_parts(@line_item, inventory_units, shipment)
+          process_line_item_parts(@line_item, shipment)
         else
-          process_line_item(@line_item, inventory_units, shipment)
+          process_line_item(@line_item, shipment)
         end
 
       end
     end
 
-
-    def process_line_item_parts(line_item, inventory_units, shipment)
+    def process_line_item_parts(line_item, shipment)
       parts = line_item.parts.stock_tracking
 
       old_quantity = (inventory_units.size == 0) ? 0 : inventory_units.size / parts.sum(:quantity)
@@ -65,7 +62,7 @@ module Spree
       end
     end
 
-    def process_line_item(line_item, inventory_units, shipment)
+    def process_line_item(line_item, shipment)
 
       quantity_change = line_item.quantity - inventory_units.size
 
@@ -83,7 +80,6 @@ module Spree
       end
 
     end
-
 
     def inventory_units
       line_item.inventory_units
@@ -118,42 +114,28 @@ module Spree
 
     def add_to_shipment(shipment, quantity, line_item_part=nil)
 
-      quantity_needed = quantity
-
+      inventory = []
       if variant.should_track_inventory?
 
-        on_hand = shipment.stock_location.fill_status(variant, quantity_needed)
+        on_hand, backordered = shipment.stock_location.fill_status(variant, quantity)
 
-        unstock = {}
-        on_hand.map do |item|
-          item.count.times { shipment.set_up_inventory('on_hand', variant, order, line_item, item.supplier, line_item_part) }
-          unstock[item.supplier] ||= 0
-          unstock[item.supplier] += item.count
-          quantity_needed -= item.count
+        on_hand.times do
+          inventory << shipment.set_up_inventory('on_hand', variant, order, line_item) 
         end
 
-        if quantity_needed > 0
-          if item = shipment.stock_location.stock_items_backorderable(variant).first
-            quantity_needed.times { shipment.set_up_inventory('backordered', variant, order, line_item, item.supplier, line_item_part) }
-            unstock[item.supplier] =  quantity_needed
-          end
-        end
-
-        if order.complete?
-          unstock.each do |supplier,count|
-            shipment.stock_location.unstock(variant, count, shipment, supplier)
-          end
+        backordered.times do
+          inventory << shipment.set_up_inventory('backordered', variant, order, line_item)
         end
 
       else
+        quantity.times do
+          inventory << shipment.set_up_inventory('on_hand', variant, order, line_item) 
+        end 
+      end
 
-        item = shipment.stock_location.first_on_hand(variant)
-        quantity_needed.times { shipment.set_up_inventory('on_hand', variant, order, line_item, item.supplier, line_item_part) }
-
-        # adding to this shipment, and removing from stock_location
-        if order.complete?
-          shipment.stock_location.unstock(variant, quantity, shipment, item.supplier)
-        end
+      # adding to this shipment, and removing from stock_location
+      if order.can_ship?
+        ShipmentStockAdjuster.new(shipment).unstock(variant, inventory)
       end
 
       quantity
@@ -166,28 +148,23 @@ module Spree
         variant_unit.state == 'shipped'
       end.sort_by(&:state)
 
-      removed_quantity = 0
+      remove_units = []
 
-      removed = {}
-
-      shipment_units.each do |inventory_unit|
-        break if removed_quantity == quantity
-        inventory_unit.destroy
-        removed_quantity += 1
-
-        # please note supplier will be nil, if none has been setup
-        removed[inventory_unit.supplier] ||= 0
-        removed[inventory_unit.supplier] += 1
+      shipment_units.each do |unit|
+        break if remove_units.count == quantity
+        remove_units << unit
       end
-
-      shipment.destroy if shipment.inventory_units.count == 0
 
       # removing this from shipment, and adding to stock_location
-      if order.complete?
-        removed.map do |supplier, quantity|
-          shipment.stock_location.restock variant, quantity, shipment, supplier
-        end
+      if order.can_ship?
+        ShipmentStockAdjuster.new(shipment).restock(variant, remove_units)
       end
+
+      removed_quantity = remove_units.count
+
+      remove_units.map(&:destroy)
+
+      shipment.destroy if shipment.inventory_units.count == 0
 
       removed_quantity
     end

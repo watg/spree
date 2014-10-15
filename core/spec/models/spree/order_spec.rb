@@ -955,4 +955,32 @@ describe Spree::Order do
       order.apply_free_shipping_promotions
     end
   end
+
+  describe "#create_proposed_shipments" do
+    it "assigns the coordinator returned shipments to its shipments" do
+      shipment = build(:shipment)
+      Spree::Stock::Coordinator.any_instance.stub(:shipments).and_return([shipment])
+      subject.create_proposed_shipments
+      expect(subject.shipments).to eq [shipment]
+    end
+  end
+
+  describe "#after_resume" do
+    let(:order) { Spree::Order.new(state: 'canceled') }
+    let(:line_item) { Spree::LineItem.new(currency: order.currency) }
+
+    it "should not allow resume if stock is not enough" do
+      line_item.errors[:quantity] << "Insufficient stock error"
+      order.line_items << line_item
+
+      order.resume
+      expect(order.state).to eq 'canceled'
+    end
+
+    it "should allow resume if stock is enough" do
+      order.resume!
+      expect(order.state).to eq 'resumed'
+    end
+  end
+
 end
