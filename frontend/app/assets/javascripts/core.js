@@ -308,6 +308,7 @@ core.signupUser = function() {
   var form = modal.find('form');
   var heading_primary = modal.find('h3');
   var heading_secondary = modal.find('h4');
+  var disclaimer = modal.find($('.disclaimer'));
 
   form.on('submit', function(e) {
     e.preventDefault();
@@ -316,6 +317,7 @@ core.signupUser = function() {
     form.fadeOut('slow');
     heading_primary.fadeOut('slow');
     heading_secondary.fadeOut('slow');
+    disclaimer.fadeOut('slow');
     $.ajax({
       type: 'POST',
       url: form.attr('action'),
@@ -329,10 +331,11 @@ core.signupUser = function() {
         } else {
           heading_primary.text("Yippee!");
           heading_secondary.html(core.signupGetPromoText);
-          $('<small>' + core.signupGetPromoDisclaimer() + '</small>').insertAfter(form);
+          // $('<small>' + core.signupGetPromoDisclaimer() + '</small>').insertAfter(form);
           $('<p class="promo-code">' + core.signupGetPromoCode() + '</p>').insertAfter(form);
           core.signupSetCookie();
         }
+        disclaimer.fadeIn('slow');
         heading_primary.fadeIn('slow');
         heading_secondary.fadeIn('slow');
       }
@@ -353,9 +356,10 @@ core.signupGetPromoCode = function() {
 }
 
 core.signupGetPromoText = function() {
-  return 'Get 10% off your items<br/>Enter code when you check out:';
+  return '<strong>Get 10% off</strong> your items,<br/>Enter code when you check out:';
 }
 
+// optional, depending where veronica wants the disclaimer
 core.signupGetPromoDisclaimer = function() {
-  return 'Available for a limited time only';
+  return 'Available only until October 20th';
 }

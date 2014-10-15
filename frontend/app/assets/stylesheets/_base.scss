@@ -491,7 +491,7 @@ table {
 		margin: -28.75px 0 0;
 		font-family: $watg-font-secondary;
 		font-weight: bold;
-		color: #ff0054;
+		color: #8224e3;
 		font-size: emCalc(60px);
 		text-align: center;
 	}
@@ -500,6 +500,9 @@ table {
 		display: block;
 		font-size: inherit;
 		text-align: center;
+	}
+	strong {
+		font-weight: bold;
 	}
 	form {
 		fieldset {
