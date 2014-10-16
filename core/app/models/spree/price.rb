@@ -5,9 +5,13 @@ module Spree
     belongs_to :variant, class_name: 'Spree::Variant', inverse_of: :prices, touch: true
     CURRENCY_SYMBOL = {'USD' => '$', 'GBP' => '£', 'EUR' => '€'}
     TYPES = [:normal,:normal_sale,:part,:part_sale]
-    
+
     validate :check_price
     validates :amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: false
+
+    def self.default_price
+      self.new(amount: 0, currency: Spree::Config[:currency])
+    end
 
     def display_amount
       money
@@ -19,11 +23,11 @@ module Spree
     end
 
     def price
-      amount || 0
+      amount
     end
 
     def in_subunit
-      ( price * 100 ).to_i
+      ( (price || 0) * 100 ).to_i
     end
 
     def currency_symbol
