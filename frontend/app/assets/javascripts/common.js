@@ -235,7 +235,8 @@ $(function() {
 		$('body').hasClass('free-patterns') ||
 		$('body').hasClass('competition-bespoke-hat') ||
 		$('body').hasClass('catbird-giveaway') ||
-		$('body').hasClass('wool-week-competition')) {
+		$('body').hasClass('wool-week-competition') ||
+		$('body').hasClass('mollie-makes-pattern')) {
 		WATG.referral.init();
 	}
 
