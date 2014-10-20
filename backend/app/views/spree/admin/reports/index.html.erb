@@ -36,8 +36,8 @@
       <% if report.filename %>
         <%= link_to report.filename, download_admin_reports_path(report.filename.split('.').first, report.id) %>
         <% span = report.filename.split('.')[1].split('_') %>
-        <% start_date = Date.parse(span[0]).to_formatted_s(:long) %>
-        <% end_date = Date.parse(span[1]).to_formatted_s(:long) %>
+        <% start_date = Date.parse(span[0]).to_formatted_s(:long) if span[0] %>
+        <% end_date = Date.parse(span[1]).to_formatted_s(:long) if span[1] %>
       <% else %>
         Error in generating the report.
       <% end %>
