@@ -361,5 +361,5 @@ core.signupGetPromoText = function() {
 
 // optional, depending where veronica wants the disclaimer
 core.signupGetPromoDisclaimer = function() {
-  return 'Available only until October 20th';
+  return 'Available only until October 21st';
 }
