@@ -80,7 +80,7 @@ module Spree
     end
 
     def item_and_promo_total(calculable)
-      calculable.item_total + calculable.promo_total
+      calculable.item_total + (calculable.promo_total * -1)
     end
 
     def reactivate
@@ -106,7 +106,7 @@ module Spree
 
     def creation_setup
       self.expiry_date = 1.year.from_now        if self.expiry_date.blank?
-      self.buyer_email = self.buyer_order.email if self.buyer_email.blank? 
+      self.buyer_email = self.buyer_order.email if self.buyer_email.blank?
       self.state = STATES.first                 if self.state.blank?
     end
 

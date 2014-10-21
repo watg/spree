@@ -4,7 +4,7 @@ FactoryGirl.define do
     value 50
 
     before(:create) do |card|
-      o = create(:order_with_line_items)
+      o = create(:order_with_line_items, line_items_count: 1)
       card.buyer_order_line_item = o.line_items.first
       card.buyer_email = o.email
       card.buyer_order = o
