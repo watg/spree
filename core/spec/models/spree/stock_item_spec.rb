@@ -191,30 +191,32 @@ describe Spree::StockItem do
       end
     end
 
-    context ""
+    context "binary_inventory_cache is set to true" do
+      before { Spree::Config.binary_inventory_cache = true }
+      context "in_stock? changes" do
+        it "touches its variant" do
+          expect do
+            subject.adjust_count_on_hand(subject.count_on_hand * -1)
+          end.to change { subject.variant.reload.updated_at }
+        end
+      end
 
+      context "in_stock? does not change" do
+        it "does not touch its variant" do
+          expect do
+            subject.adjust_count_on_hand((subject.count_on_hand * -1) + 1)
+          end.not_to change { subject.variant.reload.updated_at }
+        end
+      end
 
-# Does not work with our version of stock cache / touching
-
-#    context "binary_inventory_cache is set to true" do
-#      before { Spree::Config.binary_inventory_cache = true }
-#      context "in_stock? changes" do
-#        it "touches its variant" do
-#          expect do
-#            subject.adjust_count_on_hand(subject.count_on_hand * -1)
-#          end.to change { subject.variant.reload.updated_at }
-#        end
-#      end
-#
-#      context "in_stock? does not change" do
-#        it "does not touch its variant" do
-#            d { subject.count_on_hand }
-#          expect do
-#            subject.adjust_count_on_hand((subject.count_on_hand * -1) + 1)
-#          end.not_to change { subject.variant.reload.updated_at }
-#        end
-#      end
-#    end
+      context "when a new stock location is added" do
+        it "touches its variant" do
+          expect do
+            create(:stock_location)
+          end.to change { subject.variant.reload.updated_at }
+        end
+      end
+    end
   end
 
   describe "#after_touch" do

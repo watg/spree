@@ -12,10 +12,9 @@ module Spree
     validates_uniqueness_of :variant_id, scope: [:stock_location_id, :deleted_at, :supplier_id]
 
     delegate :weight, :should_track_inventory?, to: :variant
-    
+
     # Removed for the time being as we already have a check for variant stock job
-    #after_save :conditional_variant_touch
-    after_save :check_variant_stock
+    after_save :conditional_variant_touch
     after_touch { variant.touch }
 
     scope :available, -> { where("count_on_hand > 0 or backorderable = true") }
@@ -53,29 +52,34 @@ module Spree
     end
 
     private
-      def check_variant_stock
-        ::Delayed::Job.enqueue Spree::StockCheckJob.new(self.variant), queue: 'stock_check', priority: 10
-      end
+    def count_on_hand=(value)
+      write_attribute(:count_on_hand, value)
+    end
 
-      def count_on_hand=(value)
-        write_attribute(:count_on_hand, value)
-      end
-
-      # Process backorders based on amount of stock received
-      # If stock was -20 and is now -15 (increase of 5 units), then we should process 5 inventory orders.
-      # If stock was -20 but then was -25 (decrease of 5 units), do nothing.
-      def process_backorders(number)
-        if number > 0
-          backordered_inventory_units.first(number).each do |unit|
-            unit.fill_backorder
-          end
+    # Process backorders based on amount of stock received
+    # If stock was -20 and is now -15 (increase of 5 units), then we should process 5 inventory orders.
+    # If stock was -20 but then was -25 (decrease of 5 units), do nothing.
+    def process_backorders(number)
+      if number > 0
+        backordered_inventory_units.first(number).each do |unit|
+          unit.fill_backorder
         end
       end
+    end
 
-      #def conditional_variant_touch
-      #  if !Spree::Config.binary_inventory_cache || (count_on_hand_changed? && count_on_hand_change.any?(&:zero?))
-      #    variant.touch
-      #  end
-      #end
+    def conditional_variant_touch
+      # the variant_id changes from nil when a new stock location is added
+      stock_changed = (count_on_hand_changed? && count_on_hand_change.any?(&:zero?)) || variant_id_changed?
+
+      if !Spree::Config.binary_inventory_cache || stock_changed
+        check_variant_stock
+        variant.touch
+      end
+    end
+
+    def check_variant_stock
+      ::Delayed::Job.enqueue Spree::StockCheckJob.new(variant), queue: 'stock_check', priority: 10
+    end
+
   end
 end
