@@ -123,6 +123,7 @@ describe Spree::ShipmentStockAdjuster do
     let(:units) { [] }
 
     before do
+      allow(variant).to receive(:touch)
       stock_item.update_column(:count_on_hand, 2)
       units << Spree::InventoryUnit.create(order: order, pending: true, supplier_id: nil)
       units << Spree::InventoryUnit.create(order: order, pending: true, supplier_id: nil)
