@@ -14,6 +14,8 @@ module Spree
 
     after_touch :touch_all_products
 
+    COLOUR = 'color'
+
     def touch_all_products
       products.find_each do |p|
         p.delay.touch
@@ -23,7 +25,16 @@ module Spree
     def url_safe_name
       name.downcase.parameterize
     end
-    
+
+    def is_color?
+      name == COLOUR
+    end
+
+    def is_size?
+
+    end
+
+
     private
 
     def update_presentation_and_sku_part

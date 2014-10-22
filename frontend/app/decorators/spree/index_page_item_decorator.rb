@@ -37,7 +37,7 @@ class Spree::IndexPageItemDecorator < Draper::Decorator
   end
 
   def made_by_the_gang_link?
-    memoized_product_page.present? && 
+    memoized_product_page.present? &&
       ( memoized_product_page.displayed_variants_in_stock.any? || memoized_product_page.made_by_the_gang.product )
   end
 
