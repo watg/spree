@@ -49,16 +49,10 @@ describe Spree::StockItem do
 
     context "check_variant_stock" do
 
-      it "calls check_variant_stock in an after save" do
-        expect(subject).to receive(:check_variant_stock)
-        subject.save
-      end
-
       it "creates a job after save" do
-        mock_object = double('stock_check_job', perform: true)
-        expect(Spree::StockCheckJob).to receive(:new).with(subject.variant).and_return(mock_object)
-        expect(::Delayed::Job).to receive(:enqueue).with(mock_object, queue: 'stock_check', priority: 10)
-        subject.send(:check_variant_stock)
+        expect(subject).to receive(:check_variant_stock)
+        expect(subject).to receive(:delay).with(queue: 'stock_check', priority: 10).and_return(subject)
+        subject.send(:conditional_variant_touch)
       end
     end
 
