@@ -69,7 +69,7 @@
                   <tr id="stock-item-<%= item.id %>" class="<%= cycle('odd', 'even', :name => 'stock_locations')%>">
                     <td><%= item.stock_location.name %></td>
                     <td><%= item.supplier.name if item.supplier %></td>
-                    <td><%= variant.number_of_shipment_pending(item.supplier) %></td>
+                    <td><%= variant.number_of_shipment_pending(item) %></td>
                     <td class="align-center"><%= item.count_on_hand %></td>
                     <td class="align-center">
                       <%= form_tag admin_stock_item_path(item), method: :put, class: 'toggle_stock_item_backorderable' do %>
