@@ -35,20 +35,20 @@ describe Spree::Admin::VariantDecorator do
     end
 
     it "takes into account pending false" do
-      expect(variant.number_of_shipment_pending).to eq 1 
+      expect(variant.number_of_shipment_pending(stock_item)).to eq 1 
     end
 
     it "takes into account pending true" do
       unit.pending = true
       unit.save
-      expect(variant.number_of_shipment_pending).to eq 0 
+      expect(variant.number_of_shipment_pending(stock_item)).to eq 0 
     end
 
     it "is influenced by order states" do
       order.cancel!
-      expect(variant.number_of_shipment_pending).to eq 0 
+      expect(variant.number_of_shipment_pending(stock_item)).to eq 0 
       order.resume!
-      expect(variant.number_of_shipment_pending).to eq 1
+      expect(variant.number_of_shipment_pending(stock_item)).to eq 1
     end
 
     context "supplier" do
@@ -60,15 +60,29 @@ describe Spree::Admin::VariantDecorator do
       end
 
       it "take no supplier" do
-        expect(variant.number_of_shipment_pending).to eq 0
+        stock_item.supplier = nil
+        expect(variant.number_of_shipment_pending(stock_item)).to eq 0
       end
 
       it "takes into account a supplier" do
-        expect(variant.number_of_shipment_pending(supplier)).to eq 1
+        stock_item.supplier = supplier
+        expect(variant.number_of_shipment_pending(stock_item)).to eq 1
       end
 
     end
 
+    context "stock_location" do
+      let(:another_stock_location) { create(:stock_location) }
+
+      before do
+        stock_item.stock_location = another_stock_location
+      end
+
+      it "takes  account a stock_locations" do
+        expect(variant.number_of_shipment_pending(stock_item)).to eq 0
+      end
+
+    end
 
   end
 
