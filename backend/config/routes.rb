@@ -109,6 +109,9 @@ Spree::Core::Engine.add_routes do
           get :create_assembly_definition
         end
         resources :variants do
+          member do
+            post :create_sku
+          end
           collection do
             post :update_positions
           end
