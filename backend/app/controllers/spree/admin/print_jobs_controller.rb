@@ -10,7 +10,14 @@ module Spree
       def show
         print_job = Spree::PrintJob.find(params[:id])
         filename = "#{print_job.job_type}.pdf"
-        send_data(print_job.pdf, disposition: :inline, filename: filename, type: "application/pdf")
+
+        pdf_document = print_job.pdf
+        if print_job.errors.any?
+          flash[:error] = print_job.errors.full_messages.to_sentence
+          redirect_to admin_print_jobs_url
+        else
+          send_data(pdf_document, disposition: :inline, filename: filename, type: "application/pdf")
+        end
       end
 
       private

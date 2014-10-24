@@ -29,7 +29,7 @@ describe Spree::ShippingManifestService::UniqueProducts do
 
     it "retuns errors" do
       expect(subject.valid?).to be_false
-      expect(subject.errors.full_messages.to_sentence).to eq "Missing supplier for product: #{variant.product.name}"
+      expect(subject.errors.full_messages.to_sentence).to eq "Missing supplier for product: #{variant.product.name} (ID: #{variant.product.id}) for order ##{order.number}"
     end
 
   end
@@ -216,7 +216,7 @@ describe Spree::ShippingManifestService::UniqueProducts do
         expect(unique_products.count).to eq 2
         up1 = unique_products.detect { |x| x[:product] ==  variant_2.product }
         up2 = unique_products.detect { |x| x[:product] ==  part2.product }
-        
+
         expect(up1[:mid_code]).to eq supplier_2.mid_code
         expect(up1[:quantity]).to eq 4
         expect(up1[:total_price].to_f).to eq 25.00

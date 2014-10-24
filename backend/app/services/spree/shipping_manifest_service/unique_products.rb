@@ -98,7 +98,7 @@ module Spree
 
         supplier = order_product[:supplier]
         unless supplier
-          errors.add(:missing_supplier, "for product: #{product.name}")
+          errors.add(:missing_supplier, "for product: #{product.name} (ID: #{product.id}) for order ##{order.number}")
           return
         end
 
