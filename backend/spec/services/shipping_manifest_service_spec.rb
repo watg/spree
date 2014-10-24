@@ -34,7 +34,7 @@ describe Spree::ShippingManifestService do
 
     it "retuns errors" do
       expect(subject.valid?).to be_false
-      expect(subject.errors.full_messages.to_sentence).to eq "Missing supplier for product: #{variant.product.name}"
+      expect(subject.errors.full_messages.to_sentence).to eq "Missing supplier for product: #{variant.product.name} (ID: #{variant.product.id}) for order ##{order.number}"
     end
 
   end

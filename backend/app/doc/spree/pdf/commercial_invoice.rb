@@ -23,7 +23,7 @@ module Spree
           order_total = shipping_manifest.result[:order_total]
           @order_display_total = Spree::Money.new(order_total, { currency: @currency })
         else
-          @errors += shipping_manifest.errors
+          @errors += shipping_manifest.errors.to_a
           return
         end
       end
@@ -81,7 +81,7 @@ module Spree
       def customer_address(address_x, lineheight_y)
         pdf.move_down 50
         last_measured_y = pdf.cursor
-        
+
         pdf.text "#{order.shipping_address.firstname} #{order.shipping_address.lastname}", leading: 1
         pdf.text order.shipping_address.address1, leading: 1
         pdf.text (order.shipping_address.address2 || ''), leading: 1
@@ -99,7 +99,7 @@ module Spree
       end
 
       def top_summary(invoice_header_x)
-        invoice_header_data = [ 
+        invoice_header_data = [
           ["Invoice #", order.number ],
           ["Invoice Date", Time.now.strftime("%Y/%m/%d") ],
           ["Order Complete  Date", order.completed_at.strftime("%Y/%m/%d") ],
@@ -191,7 +191,7 @@ module Spree
       def product_description_cell(product, group, country)
         "<b>" + product.name + "</b>" +
         "\n" + group.garment +
-        "\n" + [group.fabric, country.try(:name)].join(" - ") + 
+        "\n" + [group.fabric, country.try(:name)].join(" - ") +
         "\n" + group.contents
       end
 

@@ -82,7 +82,8 @@ module Spree
         type = (params[:type] or :invoice).to_sym
         object = get_pdf(@order, type)
         if object.errors.any?
-
+          flash[:error] = object.errors.to_sentence
+          redirect_to :back
         else
           pdf = object.to_pdf
           respond_to do |format|
