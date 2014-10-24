@@ -46,16 +46,34 @@ describe Spree::Variant do
   end
 
   context "create_sku" do
-    let(:variant) { build(:base_variant, sku: nil) }
+    let(:variant) { build(:base_variant, sku: 'asdasd') }
 
     it "builds the correct sku" do
-      expect(variant.sku).to be_nil
-      variant.save
+      variant.create_sku
       expect(variant.sku).to match "ABC-COL-HO_PI"
     end
 
   end
 
+  context "create_sku_if_not_present" do
+    let(:variant) { build(:base_variant, sku: nil) }
+
+    it "calls create_sku on a save" do
+      expect(variant.sku).to be_nil
+      variant.create_sku
+      expect(variant.sku).to match "ABC-COL-HO_PI"
+    end
+
+    context "sku is present" do
+      let(:variant) { build(:base_variant, sku: 'I am present') }
+
+      it "does not call create_sku on a save" do
+        expect(variant).to_not receive(:create_sku)
+        variant.save
+      end
+    end
+    
+  end
 
   context "physical" do
     subject { Spree::Variant.physical }

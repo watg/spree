@@ -108,8 +108,8 @@ module Spree
           # If a target does not exist then we can safely just move the variant to it's new
           # product
           source_variant.product = product
+          source_variant.create_sku
           source_variant.save
-
 
           # Finally delete this from the product page variants as
           # we no longer need it

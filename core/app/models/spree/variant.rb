@@ -58,7 +58,7 @@ module Spree
     before_validation :generate_variant_number, on: :create
 
     after_save :save_default_price
-    before_create :create_sku
+    before_create :create_sku_if_not_present
     after_create :create_stock_items
     after_create :set_position
     after_create { delay(:priority => 20).add_to_all_assembly_definitions }
@@ -448,6 +448,11 @@ module Spree
       prices.select{ |price| (price.sale == false) && (price.is_kit == true) }
     end
 
+    def create_sku
+      sku_parts = [ product.master.sku ] + self.option_values.map { |ov| [ ov.option_type.sku_part, ov.sku_part ] }
+      self.sku = sku_parts.flatten.join('-')
+    end
+
     private
 
     def touch_assembly_products
@@ -512,10 +517,9 @@ module Spree
       end
     end
 
-    def create_sku
+    def create_sku_if_not_present
       unless self.sku.present?
-        sku_parts = [ product.master.sku ] + self.option_values.map { |ov| [ ov.option_type.sku_part, ov.sku_part ] }
-        self.sku = sku_parts.flatten.join('-')
+        create_sku
       end
     end
 

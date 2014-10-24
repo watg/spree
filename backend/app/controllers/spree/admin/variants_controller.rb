@@ -52,7 +52,13 @@ module Spree
         end
       end
 
-     protected
+      def create_sku
+        @variant.create_sku
+        @variant.save
+        redirect_to edit_admin_product_variant_url(@variant.product.slug, @variant.id)
+      end
+
+      protected
 
       def new_before
         @variant.attributes = @product.master.attributes.except('id', 'created_at', 'deleted_at', 'updated_at', 'is_master')
@@ -102,7 +108,7 @@ module Spree
         @collection
       end
 
-    private
+      private
 
       def load_data
         @tax_categories = TaxCategory.order(:name)
