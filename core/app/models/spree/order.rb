@@ -275,6 +275,10 @@ module Spree
       shipments.any?(&:backordered?)
     end
 
+    def awaiting_feed?
+      shipments.any?(&:awaiting_feed?)
+    end
+
     # Returns the relevant zone (if any) to be used for taxation purposes.
     # Uses default tax zone unless there is a specific match
     def tax_zone
@@ -313,7 +317,7 @@ module Spree
 
     def allow_cancel?
       return false unless completed? and state != 'canceled'
-      shipment_state.nil? || %w{ready backorder pending}.include?(shipment_state)
+      shipment_state.nil? || %w{ready backorder awaiting_feed pending}.include?(shipment_state)
     end
     def can_cancel?
       allow_cancel?

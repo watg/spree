@@ -11,7 +11,7 @@ module Spree
           @stock_items = stock_items
         else
           @variant = resolve_variant_id(variant)
-          @stock_items = Spree::StockItem.joins(:stock_location).where(:variant => @variant, Spree::StockLocation.table_name =>{ :active => true})
+          @stock_items = Spree::StockItem.joins(:stock_location).where(:variant => @variant).merge(StockLocation.available)
         end
       end
 
@@ -21,7 +21,8 @@ module Spree
           # stock_items.sum(:count_on_hand)
           # But it requires an extra lookup even though the stock_items are eager loaded hence
           # we do the sum in ruby rather than sql
-          stock_items.to_a.sum(&:count_on_hand)
+          stock_items.to_a.sum(&:count_on_hand) -
+            Spree::InventoryUnit.total_awaiting_feed_for(@variant)
         else
           Float::INFINITY
         end

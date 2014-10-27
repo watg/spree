@@ -8,7 +8,9 @@ module Spree
     belongs_to :line_item_part, class_name: "Spree::LineItemPart", inverse_of: :inventory_units
     belongs_to :supplier, class_name: "Spree::Supplier", inverse_of: :inventory_units
 
+    scope :non_pending, -> { where pending: false }
     scope :backordered, -> { where state: 'backordered' }
+    scope :awaiting_feed, -> { where state: 'awaiting_feed' }
     scope :shipped, -> { where state: 'shipped' }
     scope :backordered_per_variant, ->(stock_item) do
       includes(:shipment, :order)
@@ -24,6 +26,11 @@ module Spree
         transition to: :on_hand, from: :backordered
       end
       after_transition on: :fill_backorder, do: :update_order
+
+      event :fill_awaiting_feed do
+        transition to: :on_hand, from: :awaiting_feed
+      end
+      after_transition on: :fill_awaiting_feed, do: :update_order
 
       event :ship do
         transition to: :shipped, if: :allow_ship?
@@ -44,6 +51,19 @@ module Spree
       backordered_per_variant(stock_item).select do |unit|
         unit.shipment.stock_location == stock_item.stock_location
       end
+    end
+
+    def self.waiting_for_stock_item(stock_item)
+      where(state: ['backordered', 'awaiting_feed'], variant_id: stock_item.variant_id)
+        .includes(:shipment, :order)
+        .where("spree_shipments.state != 'canceled'").references(:shipment)
+        .where("spree_shipments.stock_location_id = ?", stock_item.stock_location_id)
+        .where('spree_orders.completed_at is not null')
+        .order("spree_orders.completed_at ASC")
+    end
+
+    def self.total_awaiting_feed_for(variant)
+      awaiting_feed.non_pending.where(variant: variant).count
     end
 
     def self.finalize_units!(inventory_units)

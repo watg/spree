@@ -42,12 +42,13 @@ module Spree
 
         it 'variants are added as backordered without enough on_hand' do
           stock_location.should_receive(:fill_status).exactly(5).times.and_return(
-            *(Array.new(3, [1,0]) + Array.new(2, [0,1]))
+            *(Array.new(2, [1,0,0]) + Array.new(2, [0,1,0]) + Array.new(1, [0,0,1]))
           )
 
           package = subject.product_assembly_package
-          package.on_hand.size.should eq 3
+          package.on_hand.size.should eq 2
           package.backordered.size.should eq 2
+          package.awaiting_feed.size.should eq 1
         end
 
         context "location doesn't have order items in stock" do

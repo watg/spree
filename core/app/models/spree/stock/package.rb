@@ -36,6 +36,10 @@ module Spree
         contents.select(&:backordered?)
       end
 
+      def awaiting_feed
+        contents.select(&:awaiting_feed?)
+      end
+
 
        def find_item(inventory_unit, state = nil)
         contents.detect do |item|

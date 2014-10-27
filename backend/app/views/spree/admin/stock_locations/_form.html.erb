@@ -87,6 +87,15 @@
       </div>
     </div>
   </div>
+
+  <div class="row">
+    <div class="alpha twelve columns">
+      <div class="field ">
+        <%= f.label :feed_into_id, Spree.t(:feed_into) %>
+        <span id="feed_into"><%= f.collection_select :feed_into_id, @existing_active_locations, :id, :name, {:include_blank => true}, {:class => 'select2 fullwidth'} %></span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <% content_for :head do %>

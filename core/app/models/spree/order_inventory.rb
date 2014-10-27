@@ -117,20 +117,24 @@ module Spree
       inventory = []
       if variant.should_track_inventory?
 
-        on_hand, backordered = shipment.stock_location.fill_status(variant, quantity)
+        on_hand, backordered, awaiting_feed = shipment.stock_location.fill_status(variant, quantity)
 
         on_hand.times do
-          inventory << shipment.set_up_inventory('on_hand', variant, order, line_item) 
+          inventory << shipment.set_up_inventory('on_hand', variant, order, line_item)
         end
 
         backordered.times do
           inventory << shipment.set_up_inventory('backordered', variant, order, line_item)
         end
 
+        awaiting_feed.times do
+          inventory << shipment.set_up_inventory('awaiting_feed', variant, order, line_item)
+        end
+
       else
         quantity.times do
-          inventory << shipment.set_up_inventory('on_hand', variant, order, line_item) 
-        end 
+          inventory << shipment.set_up_inventory('on_hand', variant, order, line_item)
+        end
       end
 
       # adding to this shipment, and removing from stock_location

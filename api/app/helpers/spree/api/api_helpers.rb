@@ -149,7 +149,7 @@ module Spree
 
       @@stock_item_attributes = [
         :id, :count_on_hand, :backorderable, :lock_version, :stock_location_id,
-        :variant_id
+        :variant_id, :waiting_inventory_unit_count
       ]
 
       @@supplier_attributes = [ :id, :permalink, :firstname, :lastname ]

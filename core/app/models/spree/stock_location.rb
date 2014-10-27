@@ -7,11 +7,23 @@ module Spree
     belongs_to :state, class_name: 'Spree::State'
     belongs_to :country, class_name: 'Spree::Country'
 
+    belongs_to :feed_into, class_name: 'Spree::StockLocation'
+    has_many :feeders, foreign_key: "feed_into_id", class_name: 'Spree::StockLocation'
+
     validates_presence_of :name
 
+    validates_absence_of :feed_into, if: :active?, message: "must be blank for active locations"
+    validate :only_feed_into_active_locations
+
     scope :active, -> { where(active: true) }
+    scope :available, -> { where("active = ? OR feed_into_id IS NOT NULL", true) }
 
     after_create :create_stock_items, :if => "self.propagate_all_variants?"
+
+    def self.valid_feed_into_locations_for(location)
+      active.where.not(id: location.id)
+    end
+
 
     # Wrapper for creating a new stock item respecting the backorderable config
     def propagate_variant(variant, supplier=nil)
@@ -78,15 +90,26 @@ module Spree
         if count_on_hand_value >= quantity
           on_hand = quantity
           backordered = 0
+          awaiting_feed = 0
         else
           on_hand = count_on_hand_value
           on_hand = 0 if on_hand < 0
-          backordered = items.detect { |i| i.backorderable? } ? (quantity - on_hand) : 0
+          amount_required = quantity - on_hand
+
+          feeder_count_on_hand_value = feeder_items(variant).sum(&:count_on_hand)
+          awaiting_feed = [feeder_count_on_hand_value, amount_required].min
+          amount_required = quantity - on_hand - awaiting_feed
+
+          backordered = if items.detect(&:backorderable?) || feeder_items(variant).detect(&:backorderable?)
+                          amount_required
+                        else
+                          0
+                        end
         end
 
-        [on_hand, backordered]
+        [on_hand, backordered, awaiting_feed]
       else
-        [0, 0]
+        [0, 0, 0]
       end
     end
 
@@ -96,9 +119,23 @@ module Spree
 
     private
 
+    def feeder_items(variant)
+      # There is an n+1 query issue here - for every variant that isn't on hand
+      # in the active location we call available_stock_items for each feeder,
+      # which in turn loads stock items. It would be better to load all stock
+      # items for all feeders in one query, but given the small number of feeder
+      # stores this seems unnecessary at the moment.
+      @feeder_items ||= feeders.map { |f| f.available_stock_items(variant) }.flatten
+    end
+
     def create_stock_items
       Variant.find_each { |variant| self.propagate_variant(variant) }
     end
 
+    def only_feed_into_active_locations
+      unless feed_into.nil? || feed_into.active?
+        errors.add(:feed_into, "can only feed into active locations")
+      end
+    end
   end
 end
