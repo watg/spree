@@ -32,8 +32,6 @@ module Spree
     has_many :product_properties, dependent: :destroy, inverse_of: :product
     has_many :properties, through: :product_properties
 
-    has_many :displayable_variants
-
     has_many :classifications, dependent: :delete_all, inverse_of: :product
     has_many :taxons, through: :classifications
     has_and_belongs_to_many :promotion_rules, join_table: :spree_products_promotion_rules
@@ -283,10 +281,6 @@ module Spree
     def categorise_variants_from_option(opt_type)
       return {} unless option_types.include?(opt_type)
       variants.active.group_by { |v| v.option_values.detect { |o| o.option_type == opt_type} }
-    end
-
-    def name_and_type
-      # no longer used, delete me when you delete the displayable_variants
     end
 
     def self.saleable?

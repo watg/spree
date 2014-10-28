@@ -2,11 +2,11 @@ require 'spec_helper'
 
 describe Spree::PinterestService do
 
-  context 'returns a correct OpenStruct response' do 
+  context 'returns a correct OpenStruct response' do
     let!(:product_page_tab) { create(:product_page_tab) }
     let(:target) { create(:target, name: 'female' ) }
     let(:product_page) { product_page_tab.product_page }
-    let(:product) {create(:product_with_variants_displayable)}
+    let(:product) {create(:product_with_variants, number_of_variants: 1)}
     let(:variant) { product.variants.first }
     let(:variant_slug) { variant.option_values.first.name }
     let(:variant_target) { create(:variant_target, variant: variant, target: target ) }
@@ -57,7 +57,7 @@ describe Spree::PinterestService do
           url2 = url.gsub(variant.number.to_s,variant.id.to_s)
           outcome = Spree::PinterestService.run({url: url2})
           outcome.success?.should == true
-          outcome.result.product_id.should == variant.number 
+          outcome.result.product_id.should == variant.number
         end
 
       end
@@ -66,7 +66,7 @@ describe Spree::PinterestService do
         outcome = Spree::PinterestService.run({url: url})
 
         outcome.success?.should == true
-        outcome.result.product_id.should == variant.number 
+        outcome.result.product_id.should == variant.number
         outcome.result.title.should == product.name.to_s + " #madeunique by The Gang"
         outcome.result.gender.should == "female"
 

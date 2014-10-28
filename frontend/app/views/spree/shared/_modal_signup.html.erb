@@ -1,3 +1,4 @@
+<% date = Date.today.next_week %>
 <a class="link-modal-signup hide" href="#modal-signup" name="modal-signup" rel="modal">Sign up to our mailing list!</a>
 
 <h3>Hello!</h3>
@@ -13,4 +14,4 @@
   </fieldset>
 </form>
 
-<p><small class="disclaimer">Available only until October 20th</small></p>
+<p><small class="disclaimer">Available only until midnight <%= date.day.ordinalize %> <%= date.strftime('%B') %></small></p>

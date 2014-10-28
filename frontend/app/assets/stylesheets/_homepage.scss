@@ -51,11 +51,11 @@ body.homepage {
 
 .home-main .leader-0 {
 	/* Small screen background */
-	background: #000 cdn-url("/homepage/2014-10-22/Homepage_SALE_MOBILE_V1.jpg") top center no-repeat;
+	background: #000 cdn-url("/homepage/2014-10-24/Homepage_TEXTURE_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
-	/*a {
+	a {
 		position: absolute;
 		display: block;
 		line-height: 0;
@@ -69,34 +69,34 @@ body.homepage {
 		width: 160px;
 		height: 45px;
 		// Positioning
-		bottom: 48px;
+		bottom: 39px;
 		right: 80px;
-	}*/
+	}
 	/* Large screen background */
 	@media only screen and (min-width: 48em) {
-		background: #000 cdn-url("/homepage/2014-10-22/Homepage_SALE_DESKTOP_V1.jpg") top center no-repeat;
+		background: #000 cdn-url("/homepage/2014-10-24/Homepage_TEXTURE_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
-		/*.link-kyo {
+		.link-kyo {
 			// Positioning
-			bottom: 118px;
+			bottom: 208px;
 			right: 76px;
-		}*/
+		}
 	}
 }
 
 .home-main .leader-1 {
 	/* Small screen background */
-	background: #fff cdn-url("/homepage/2014-10-04/Homepage_Mini_Gang_MOBILE_V1.jpg") top center no-repeat;
-	//background: #efefef cdn-url("/homepage/2014-09-17/Homepage_WildWool_MOBILE_V1.jpg") top center no-repeat;
+	background: #fff cdn-url("/homepage/2014-10-22/Homepage_SALE_MOBILE_V1.jpg") top center no-repeat;
+	//background: #efefef cdn-url("/homepage/2014-10-22/Homepage_SALE_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
 	/* Large screen background */
 	@media only screen and (min-width: 48em) {
-		background: #fff cdn-url("/homepage/2014-10-04/Homepage_Mini_Gang_DSKTOP_V1.jpg") top center no-repeat;
-  	//background: #efefef cdn-url("/homepage/2014-09-17/Homepage_WildWool_DESKTOP_V1.jpg") top center no-repeat;
+		background: #fff cdn-url("/homepage/2014-10-22/Homepage_SALE_DESKTOP_V1.jpg") top center no-repeat;
+  	//background: #efefef cdn-url("/homepage/2014-10-22/Homepage_SALE_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}

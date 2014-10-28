@@ -13,7 +13,7 @@
 
 <% else %>
 
-  <% variant = product.variants_for(target).first %>
+  <% variant = product.variants_for(target).in_stock.first %>
   <% variant = product.master if variant.nil? %>
   <% variant = variant.decorate(context: context) %>
 
