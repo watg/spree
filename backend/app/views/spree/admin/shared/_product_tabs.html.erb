@@ -25,10 +25,6 @@
         <%= link_to_with_icon 'icon-picture', "Variant Images", admin_variant_images_url(@product.variants.first) if @product.variants.any? %>
       <% end %>
 
-      <!-- <li<%# ' class="active"' if current == 'Displayable Variants' %>>
-        <%# link_to_with_icon 'icon-th-large', Spree.t(:displayable_variants), admin_displayable_variants_url(product_id: @product.id) %>
-      </li>
- -->
       <li<%== ' class="active"' if current == 'Product Properties' %>>
         <%= link_to_with_icon 'icon-tasks', Spree.t(:product_properties), admin_product_product_properties_url(@product) %>
       </li>

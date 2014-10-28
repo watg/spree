@@ -27,7 +27,7 @@ context
     let(:tab) { create(:product_page_tab) }
     let(:target) { create(:target, name: 'female' ) }
     let(:product_page) { tab.product_page }
-    let(:product) {create(:product_with_variants_displayable)}
+    let(:product) {create(:product_with_variants, number_of_variants: 1)}
     let(:variant) { product.variants.first }
 
     it 'creates a a correctly formatted file' do
