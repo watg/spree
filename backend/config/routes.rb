@@ -72,7 +72,6 @@ Spree::Core::Engine.add_routes do
         resources :promotion_actions
       end
 
-      resources :displayable_variants
       resources :targets
 
       resources :zones

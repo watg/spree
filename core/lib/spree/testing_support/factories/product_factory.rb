@@ -99,8 +99,8 @@ FactoryGirl.define do
       end
     end
 
-    factory :product_with_stock do      
-      after :create do |object, evaluator| 
+    factory :product_with_stock do
+      after :create do |object, evaluator|
         object.master.in_stock_cache = true
         object.stock_items.each { |si| si.adjust_count_on_hand(10) }
       end
@@ -142,20 +142,7 @@ FactoryGirl.define do
         end
       end
 
-      factory :product_with_variants_displayable do
-        ignore do
-          displayable 2
-        end
-
-        after :create do |p, evaluator|
-          p.taxons << FactoryGirl.build(:taxon)
-          p.variants.first(evaluator.displayable).each do |v|
-            Spree::DisplayableVariant.create(product_id: p.id, variant_id: v.id, taxon_id: p.taxons.first.id )
-          end
-          p.save
-        end
-      end
     end
-    
+
   end
 end
