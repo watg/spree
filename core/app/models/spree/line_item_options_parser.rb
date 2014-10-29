@@ -22,7 +22,7 @@ module Spree
             variant_id: o.id,
             quantity:   part_quantity(variant,o),
             optional:   true,
-            price:      o.price_part_in(currency).amount || o.price_normal_in(currency).amount,
+            price:      part_price_amount(o),
             currency:   currency,
           )
         end
@@ -36,7 +36,7 @@ module Spree
           variant_id:                  r.id,
           quantity:                    r.count_part,
           optional:                    false,
-          price:                       r.price_part_in(currency).amount || r.price_normal_in(currency).amount,
+          price:                       part_price_amount(r),
           currency:                    currency
         )
       end
@@ -61,7 +61,7 @@ module Spree
                 variant_id:                  selected_part_variant.id,
                 quantity:                    assembly_definition_part.count,
                 optional:                    assembly_definition_part.optional,
-                price:                       selected_part_variant.price_part_in(currency).amount,
+                price:                       part_price_amount(selected_part_variant),
                 currency:                    currency,
                 assembled:                   assembly_definition_part.assembled,
                 container:                   true,
@@ -76,7 +76,7 @@ module Spree
                   variant_id:                  sub_part.id,
                   quantity:                    sub_part.count_part * assembly_definition_part.count,
                   optional:                    false,
-                  price:                       sub_part.price_part_in(currency).amount,
+                  price:                       part_price_amount(sub_part),
                   currency:                    currency,
                   assembled:                   assembly_definition_part.assembled,
                   parent_part:                 parent,
@@ -90,7 +90,7 @@ module Spree
                 variant_id:                  selected_part_variant.id,
                 quantity:                    assembly_definition_part.count,
                 optional:                    assembly_definition_part.optional,
-                price:                       selected_part_variant.price_part_in(currency).amount,
+                price:                       part_price_amount(selected_part_variant),
                 currency:                    currency,
                 assembled:                   assembly_definition_part.assembled,
                 main_part:                   (assembly_definition_part.id == main_part_id)
@@ -109,6 +109,14 @@ module Spree
     end
 
     private
+
+    def part_price_amount(part)
+      price = part.price_part_in(currency).amount
+      price ||= part.product.master.price_part_in(currency).amount
+      price ||= part.price_normal_in(currency).amount
+      price ||= part.product.master.price_normal_in(currency).amount
+      price
+    end
 
     def valid_part( variant, part_id )
       variant.assembly_definition.parts.detect{|p| p.id == part_id}

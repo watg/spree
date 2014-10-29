@@ -281,6 +281,72 @@ describe Spree::LineItemOptionsParser do
 
     end
 
+    context "#part_price_amount" do
+      let(:price) { mock_model(Spree::Price, amount: 1)}
+      let(:nil_price) { mock_model(Spree::Price, amount: nil)}
+
+
+      context "variant price_part_in available" do
+
+        before do
+          allow(variant).to receive(:price_part_in).with('USD').and_return(price)
+        end
+
+
+        it "returns a price" do
+          expect(subject.send(:part_price_amount, variant)).to eq price.amount
+        end
+      end
+
+
+      context "variant price_part_in not available but master price_part_in is" do
+
+        before do
+          allow(variant).to receive(:price_part_in).with('USD').and_return(nil_price)
+          allow(product.master).to receive(:price_part_in).with('USD').and_return(price)
+        end
+
+
+        it "returns a price" do
+          expect(subject.send(:part_price_amount, variant)).to eq price.amount
+        end
+      end
+
+      context "variant master price_part_in not available but price_normal_in is" do
+
+        before do
+          allow(variant).to receive(:price_part_in).with('USD').and_return(nil_price)
+          allow(product.master).to receive(:price_part_in).with('USD').and_return(nil_price)
+          allow(variant).to receive(:price_normal_in).with('USD').and_return(price)
+          #allow(product.master).to receive(price_normal_in).with('USD').and_return(nil_price)
+        end
+
+
+        it "returns a price" do
+          expect(subject.send(:part_price_amount, variant)).to eq price.amount
+        end
+      end
+
+      context "variant price_normal_in not available but master price_normal_in is" do
+
+        before do
+          allow(variant).to receive(:price_part_in).with('USD').and_return(nil_price)
+          allow(product.master).to receive(:price_part_in).with('USD').and_return(nil_price)
+          allow(variant).to receive(:price_normal_in).with('USD').and_return(nil_price)
+          allow(product.master).to receive(:price_normal_in).with('USD').and_return(price)
+        end
+
+        it "returns a price" do
+          expect(subject.send(:part_price_amount, variant)).to eq price.amount
+        end
+      end
+
+
+ 
+
+
+    end
+
   end
 
 end
