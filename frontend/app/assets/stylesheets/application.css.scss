@@ -10,7 +10,7 @@
  *
  *= require_self
  */
- 
+
 // General mixins
 @import "_mixins";
 
@@ -89,3 +89,6 @@
 
 // Refer-a-friend module
 @import "spree/frontend/spree_raf";
+
+// party module
+@import "spree/frontend/spree_party";
