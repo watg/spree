@@ -194,7 +194,7 @@ describe Spree::LineItemOptionsParser do
             variant_id: other_variant.id,
             quantity: 1,
             optional: false,
-            price: nil,
+            price: other_variant.product.master.price,
             currency: "USD",
             assembled: false,
             container: false,
