@@ -6,6 +6,7 @@ module Spree
 
     string  :direct_upload_url
     model :image, class: 'Spree::Image'
+    transaction false
 
     integer :attachment_file_size, default: nil
     string :attachment_file_name, default: nil
