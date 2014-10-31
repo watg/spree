@@ -16,7 +16,7 @@ describe Spree::StockCheckJob do
       end
 
       it "updates just the variant" do
-        expect(stock_item.variant).to receive(:update_attributes).with(in_stock_cache: true)
+        expect(stock_item.variant).to receive(:update_column).with(:in_stock_cache, true)
         subject.perform
       end
     end

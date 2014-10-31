@@ -49,16 +49,10 @@ describe Spree::StockItem do
 
     context "check_variant_stock" do
 
-      it "calls check_variant_stock in an after save" do
-        expect(subject).to receive(:check_variant_stock)
-        subject.save
-      end
-
       it "creates a job after save" do
-        mock_object = double('stock_check_job', perform: true)
-        expect(Spree::StockCheckJob).to receive(:new).with(subject.variant).and_return(mock_object)
-        expect(::Delayed::Job).to receive(:enqueue).with(mock_object, queue: 'stock_check', priority: 10)
-        subject.send(:check_variant_stock)
+        expect(subject).to receive(:check_variant_stock)
+        expect(subject).to receive(:delay).with(queue: 'stock_check', priority: 10).and_return(subject)
+        subject.send(:conditional_variant_touch)
       end
     end
 
@@ -191,30 +185,32 @@ describe Spree::StockItem do
       end
     end
 
-    context ""
+    context "binary_inventory_cache is set to true" do
+      before { Spree::Config.binary_inventory_cache = true }
+      context "in_stock? changes" do
+        it "touches its variant" do
+          expect do
+            subject.adjust_count_on_hand(subject.count_on_hand * -1)
+          end.to change { subject.variant.reload.updated_at }
+        end
+      end
 
+      context "in_stock? does not change" do
+        it "does not touch its variant" do
+          expect do
+            subject.adjust_count_on_hand((subject.count_on_hand * -1) + 1)
+          end.not_to change { subject.variant.reload.updated_at }
+        end
+      end
 
-# Does not work with our version of stock cache / touching
-
-#    context "binary_inventory_cache is set to true" do
-#      before { Spree::Config.binary_inventory_cache = true }
-#      context "in_stock? changes" do
-#        it "touches its variant" do
-#          expect do
-#            subject.adjust_count_on_hand(subject.count_on_hand * -1)
-#          end.to change { subject.variant.reload.updated_at }
-#        end
-#      end
-#
-#      context "in_stock? does not change" do
-#        it "does not touch its variant" do
-#            d { subject.count_on_hand }
-#          expect do
-#            subject.adjust_count_on_hand((subject.count_on_hand * -1) + 1)
-#          end.not_to change { subject.variant.reload.updated_at }
-#        end
-#      end
-#    end
+      context "when a new stock location is added" do
+        it "touches its variant" do
+          expect do
+            create(:stock_location)
+          end.to change { subject.variant.reload.updated_at }
+        end
+      end
+    end
   end
 
   describe "#after_touch" do

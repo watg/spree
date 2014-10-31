@@ -20,7 +20,7 @@ module Spree
     def check_stock(variant)
       variant_in_stock = Spree::Stock::Quantifier.new(variant).can_supply?(1)
       if variant.in_stock_cache != variant_in_stock
-        variant.update_attributes(in_stock_cache: variant_in_stock)
+        variant.update_column(:in_stock_cache, variant_in_stock)
       end
       variant_in_stock
     end
