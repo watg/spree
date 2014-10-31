@@ -337,11 +337,12 @@ module Spree
     end
 
     def total_on_hand
-      if self.variants_including_master.any? { |v| !v.should_track_inventory? }
-        Float::INFINITY
-      else
-        self.stock_items.sum(&:count_on_hand)
-      end
+      raise "DEPRECATED: this method does not take account of active stock locations. Use Variant or Quantifier total_on_hand instead."
+      # if self.variants_including_master.any? { |v| !v.should_track_inventory? }
+      #   Float::INFINITY
+      # else
+      #   self.stock_items.sum(&:count_on_hand)
+      # end
     end
 
     # Master variant may be deleted (i.e. when the product is deleted)

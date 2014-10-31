@@ -572,24 +572,6 @@ describe Spree::Product do
     end
   end
 
-  describe '#total_on_hand' do
-    it 'should be infinite if track_inventory_levels is false' do
-      Spree::Config[:track_inventory_levels] = false
-      build(:product, :variants_including_master => [build(:master_variant)]).total_on_hand.should eql(Float::INFINITY)
-    end
-
-    it 'should be infinite if variant is on demand' do
-      Spree::Config[:track_inventory_levels] = true
-      build(:product, :variants_including_master => [build(:on_demand_master_variant)]).total_on_hand.should eql(Float::INFINITY)
-    end
-
-    it 'should return sum of stock items count_on_hand' do
-      product = build(:product)
-      product.stub stock_items: [double(Spree::StockItem, count_on_hand: 5)]
-      product.total_on_hand.should eql(5)
-    end
-  end
-
   describe "slugs" do
     it "normalizes slug on update" do
       product = stub_model Spree::Product
