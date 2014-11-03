@@ -46,7 +46,9 @@ module Spree
     private
 
     def available_items(variant)
-      @_available_items ||= stock_location.available_stock_items(variant).order(:last_unstocked_at)
+      @available_items ||= {}
+      @available_items[variant] ||= stock_location.available_stock_items(variant).order(:last_unstocked_at)
+      @available_items[variant]
     end
 
     def unstock_stock_item(stock_item, units)
