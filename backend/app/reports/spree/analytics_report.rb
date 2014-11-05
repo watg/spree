@@ -20,6 +20,8 @@ module Spree
       pat: ['pattern'],
     }
 
+    attr_accessor :marketing_types
+
     def initialize(marketing_types)
       @marketing_types = marketing_types || []
     end
@@ -36,8 +38,8 @@ module Spree
         obj = self.new(marketing_types)
         filename = File.join(Rails.root, 'tmp', "ltv_#{key.to_s}_#{Date.today.to_s}.csv")
         CSV.open(filename, "wb") do |csv|
-          csv << obj.header
-          obj.retrieve_data do |data|
+          csv << obj.header_for_life_time_value
+          obj.formatted_data_for_life_time_value do |data|
             csv << data
           end
         end
@@ -51,8 +53,8 @@ module Spree
         obj = self.new(marketing_types)
         filename = File.join(Rails.root, 'tmp', "rc_#{key.to_s}_#{Date.today.to_s}.csv")
         CSV.open(filename, "wb") do |csv|
-          csv << obj.header_returning_for_customers
-          obj.retrieve_data_returning_for_customers do |data|
+          csv << obj.header_for_returning_customers
+          obj.formatted_data_for_returning_customers do |data|
             csv << data
           end
         end
@@ -65,14 +67,7 @@ module Spree
       ActiveRecord::Base.connection.execute(email_marketing_types_view_sql)
     end
 
-    
-    private
-
-    def filename_uuid
-      "#{@from.to_s(:number)}_#{@to.to_s(:number)}"
-    end
-
-    def header
+    def header_for_life_time_value
       %w(
         first_purchase_date
         purchase_date
@@ -82,34 +77,46 @@ module Spree
       )
     end
 
-    def header_returning_for_customers
+    def header_for_returning_customers
       %w(
         first_purchase_date
         quantity
       )
     end
 
+    def formatted_data_for_life_time_value
+      data = fetch_data_for_life_time_value
+      format_data_for_life_time_value( normalise_data_for_life_time_value(data) ).each do |d|
+        yield d
+      end
+    end
+
+    def formatted_data_for_returning_customers
+      data = fetch_data_for_returning_customers
+      format_data_for_returning_customers(data).each do |d|
+        yield d
+      end
+    end
+
+    private
+
+    def filename_uuid
+      "#{@from.to_s(:number)}_#{@to.to_s(:number)}"
+    end
+
     def self.groups
       GROUPS.merge(all: GROUPS.values.flatten.uniq)
     end
 
-    def retrieve_data
-      sql = life_time_value_sql(@marketing_types)
-      data = ActiveRecord::Base.connection.execute(sql).to_a
-      format_data( normalise_data(data) ).each do |d|
-        yield d
-      end
+    def fetch_data_for_life_time_value
+      ActiveRecord::Base.connection.execute(life_time_value_sql).to_a
     end
 
-    def retrieve_data_returning_for_customers
-      sql = returning_customers_sql(@marketing_types)
-      data = ActiveRecord::Base.connection.execute(sql).to_a
-      format_data_returning_for_customers(data).each do |d|
-        yield d
-      end
+    def fetch_data_for_returning_customers
+      ActiveRecord::Base.connection.execute(returning_customers_sql).to_a
     end
 
-    def normalise_data(data)
+    def normalise_data_for_life_time_value(data)
       # Normalise the amounts to GBP
       hash = data.inject({}) do |hash,r|
         key = [ r["first_purchase_date"], r["purchase_date"] ]
@@ -122,32 +129,31 @@ module Spree
       end
     end
 
-    def format_data(hash)
+    def format_data_for_life_time_value(hash)
       # Format it into one nice big array
       hash.map do |dates,prices|
         dates += prices.values
       end
     end
 
-    def format_data_returning_for_customers(data)
+    def format_data_for_returning_customers(data)
       data.map do |record|
         [record['first_purchase_date'],record['count']]
       end
     end
 
-
-    def returning_customers_sql(marketing_types)
+    def returning_customers_sql
       "SELECT
   DATE_TRUNC('month', marketing_types.completed_at) first_purchase_date, count(*)
 from
-  (#{ email_marketing_types_sql(marketing_types) }) as marketing_types
+  (#{ email_marketing_types_sql }) as marketing_types
 LEFT OUTER JOIN
   second_orders_view ON marketing_types.email=second_orders_view.email
 GROUP BY first_purchase_date
 ORDER BY first_purchase_date"
     end
 
-    def life_time_value_sql(marketing_types)
+    def life_time_value_sql
       "SELECT
   DATE_TRUNC('month', t1.completed_at) first_purchase_date,
   t2.date purchase_date,
@@ -155,7 +161,7 @@ ORDER BY first_purchase_date"
   SUM(t2.payment_total) total_spend,
   SUM(t2.purchases) total_purchases
 from
-  (#{ email_marketing_types_sql(marketing_types) }) as t1
+  (#{ email_marketing_types_sql }) as t1
 LEFT OUTER JOIN
   (
     SELECT
@@ -173,7 +179,7 @@ GROUP BY first_purchase_date, purchase_date, currency
 ORDER BY first_purchase_date, purchase_date, currency "
     end
 
-    def email_marketing_types_sql(marketing_types)
+    def email_marketing_types_sql
 
       marketing_type_ids = marketing_types.map(&:id)
       marketing_type_ids_string = marketing_type_ids.join(',').to_s
