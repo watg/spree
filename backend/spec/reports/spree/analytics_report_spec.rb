@@ -41,18 +41,23 @@ describe Spree::AnalyticsReport do
 
   subject { Spree::AnalyticsReport.new([gang_marketing_type, peru_marketing_type]) }
 
+  before :all do
+    Spree::AnalyticsReport.create_views
+  end
+
   before do
     order_peru_and_gang_and_kit.update_column(:completed_at, '2014-01-01')
     order_peru_and_gang.update_column(:completed_at, '2014-01-01')
     order_peru_only.update_column(:completed_at, '2014-01-01')
     order_gang_only.update_column(:completed_at, '2014-01-01')
     order_kit_only.update_column(:completed_at, '2014-01-01')
-    Spree::AnalyticsReport.create_views
+    Spree::AnalyticsReport.refresh_views
   end
 
   describe "email_marketing_types_sql" do
     it "returns the correct emails for a given marketing types" do
-      sql = subject.send(:email_marketing_types_sql, [gang_marketing_type, peru_marketing_type])
+      subject.marketing_types = [gang_marketing_type, peru_marketing_type]
+      sql = subject.send(:email_marketing_types_sql)
       records = ActiveRecord::Base.connection.execute(sql).to_a
       expect(records.size).to eq 3
       expect(records.map { |r| r['email']}).to match_array [ peru_gang.email, peru.email, gang.email ]
@@ -70,7 +75,8 @@ describe Spree::AnalyticsReport do
       end
 
       it "returns the correct emails for a given marketing types" do
-        sql = subject.send(:email_marketing_types_sql, [gang_marketing_type, peru_marketing_type])
+        subject.marketing_types = [gang_marketing_type, peru_marketing_type]
+        sql = subject.send(:email_marketing_types_sql)
         records = ActiveRecord::Base.connection.execute(sql).to_a
 
         expect(records.size).to eq 3
@@ -80,19 +86,38 @@ describe Spree::AnalyticsReport do
 
     describe "life_time_value_sql" do
 
+      it "returns the correct emails for a given marketing types" do
+        subject.marketing_types = [gang_marketing_type, peru_marketing_type]
+        data = subject.send(:fetch_data_for_life_time_value)
+        expect(data.size).to eq 1
+        expected = [{"first_purchase_date"=>"2014-01-01 00:00:00", "count"=>"3"}]
+        expected = [{
+          "currency" => "USD",
+          "first_purchase_date" => "2014-01-01 00:00:00",
+          "purchase_date" => "2014-01-01 00:00:00",
+          "total_purchases" => "3",
+          "total_spend" => "0.00"
+        }]
+        expect(data).to eq expected
+      end
+
+
       context "Multiple orders from multiple users" do
 
         before do
           2.times do
             create_first_order
           end
+          Spree::AnalyticsReport.refresh_views
         end
 
         it "returns the correct emails for a given marketing types" do
-          sql = subject.send(:life_time_value_sql, [gang_marketing_type, peru_marketing_type])
-          records = ActiveRecord::Base.connection.execute(sql).to_a
-          expect(records.size).to eq 5
-          expected = {
+          subject.marketing_types = [gang_marketing_type, peru_marketing_type]
+          data = subject.send(:fetch_data_for_life_time_value)
+          expect(data.size).to eq 5
+
+          # The first one is from the setup, the next 4 entries are from the create_first_order
+          expected = [{
             "currency" => "USD",
             "first_purchase_date" => "2014-01-01 00:00:00",
             "purchase_date" => "2014-01-01 00:00:00",
@@ -126,14 +151,72 @@ describe Spree::AnalyticsReport do
             "purchase_date" => "2014-04-01 00:00:00",
             "total_purchases" => "2",
             "total_spend" => "100.00"
-          }
+          }]
 
-          expect(records).to eq expected
+          expect(data).to eq expected
         end
 
       end
 
     end
+
+    describe "returning_customers_sql" do
+
+      it "returns the correct emails for a given marketing types" do
+        subject.marketing_types = [gang_marketing_type, peru_marketing_type]
+        data = subject.send(:fetch_data_for_returning_customers)
+        expect(data.size).to eq 1
+        expected = [
+          {"first_order_date"=>"2014-01-01 00:00:00", "first_order_count"=>"3", "second_order_count" => "0"},
+        ]
+        expect(data).to eq expected
+
+      end
+
+      context "Multiple orders from multiple users" do
+
+        before do
+          2.times do
+            create_first_order
+          end
+          Spree::AnalyticsReport.refresh_views
+        end
+
+        it "returns the correct emails for a given marketing types" do
+          subject.marketing_types = [gang_marketing_type, peru_marketing_type]
+          data = subject.send(:fetch_data_for_returning_customers)
+          expect(data.size).to eq 2
+          expected = [
+            {"first_order_date"=>"2014-01-01 00:00:00", "first_order_count"=>"3", "second_order_count" => "0"},
+            {"first_order_date"=>"2014-02-01 00:00:00", "first_order_count"=>"2", "second_order_count" => "2"}
+          ]
+          expect(data).to eq expected
+        end
+
+      end
+
+    end
+
+    describe "formatted_data_for_returning_customers" do
+
+      let(:data) do [
+        {"first_order_date"=>"2014-01-01 00:00:00", "first_order_count"=>"3", "second_order_count" => "1"},
+        {"first_order_date"=>"2014-02-01 00:00:00", "first_order_count"=>"2", "second_order_count" => "2"}
+      ]
+      end
+
+      it "retrieves formated data" do
+        allow(subject).to receive(:fetch_data_for_returning_customers).and_return data
+        data = []
+        subject.send(:formatted_data_for_returning_customers) do |r|
+          data << r
+        end
+        expect(data.size).to eq 2
+        expect(data).to eq [["2014-01-01 00:00:00", "3", "1"], ["2014-02-01 00:00:00", "2", "2"]]
+      end
+
+    end
+
 
     describe "retrieve_data" do
 
@@ -143,11 +226,12 @@ describe Spree::AnalyticsReport do
           2.times do
             create_first_order
           end
+          Spree::AnalyticsReport.refresh_views
         end
 
         it "returns the correct emails for a given marketing types" do
           data = []
-          subject.retrieve_data do |r|
+          subject.send(:formatted_data_for_life_time_value) do |r|
             data << r
           end
           expect(data.size).to eq 4
@@ -184,8 +268,6 @@ describe Spree::AnalyticsReport do
       end
 
     end
-
- 
   end
 
 
