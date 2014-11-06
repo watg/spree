@@ -41,13 +41,17 @@ describe Spree::AnalyticsReport do
 
   subject { Spree::AnalyticsReport.new([gang_marketing_type, peru_marketing_type]) }
 
+  before :all do
+    Spree::AnalyticsReport.create_views
+  end
+
   before do
     order_peru_and_gang_and_kit.update_column(:completed_at, '2014-01-01')
     order_peru_and_gang.update_column(:completed_at, '2014-01-01')
     order_peru_only.update_column(:completed_at, '2014-01-01')
     order_gang_only.update_column(:completed_at, '2014-01-01')
     order_kit_only.update_column(:completed_at, '2014-01-01')
-    Spree::AnalyticsReport.create_views
+    Spree::AnalyticsReport.refresh_views
   end
 
   describe "email_marketing_types_sql" do
@@ -104,6 +108,7 @@ describe Spree::AnalyticsReport do
           2.times do
             create_first_order
           end
+          Spree::AnalyticsReport.refresh_views
         end
 
         it "returns the correct emails for a given marketing types" do
@@ -174,6 +179,7 @@ describe Spree::AnalyticsReport do
           2.times do
             create_first_order
           end
+          Spree::AnalyticsReport.refresh_views
         end
 
         it "returns the correct emails for a given marketing types" do
@@ -220,6 +226,7 @@ describe Spree::AnalyticsReport do
           2.times do
             create_first_order
           end
+          Spree::AnalyticsReport.refresh_views
         end
 
         it "returns the correct emails for a given marketing types" do

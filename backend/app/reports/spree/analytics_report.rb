@@ -62,10 +62,19 @@ module Spree
       end
     end
 
+    # If there is a problem creating them, then refresh them
     def self.create_views
-      ActiveRecord::Base.connection.execute(first_orders_view_sql)
-      ActiveRecord::Base.connection.execute(second_orders_view_sql)
-      ActiveRecord::Base.connection.execute(email_marketing_types_view_sql)
+      begin
+        ActiveRecord::Base.connection.execute(first_orders_view_sql)
+        ActiveRecord::Base.connection.execute(second_orders_view_sql)
+        ActiveRecord::Base.connection.execute(email_marketing_types_view_sql)
+      rescue => e
+        if e.to_s.match 'PG::DuplicateTable: ERROR'
+          puts "views already exist try refreshing the views"
+        else
+          raise e
+        end
+      end
     end
 
     def self.refresh_views
