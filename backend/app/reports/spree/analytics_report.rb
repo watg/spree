@@ -27,6 +27,7 @@ module Spree
     end
 
     def self.run_all
+      refresh_views
       life_time_value
       returning_customers
     end
@@ -67,6 +68,12 @@ module Spree
       ActiveRecord::Base.connection.execute(email_marketing_types_view_sql)
     end
 
+    def self.refresh_views
+      ActiveRecord::Base.connection.execute('REFRESH MATERIALIZED VIEW first_orders_view')
+      ActiveRecord::Base.connection.execute('REFRESH MATERIALIZED VIEW second_orders_view')
+      ActiveRecord::Base.connection.execute('REFRESH MATERIALIZED VIEW email_marketing_types_view')
+    end
+
     def header_for_life_time_value
       %w(
         first_purchase_date
@@ -79,8 +86,9 @@ module Spree
 
     def header_for_returning_customers
       %w(
-        first_purchase_date
-        quantity
+        first_order_date
+        first_order_count
+        second_order_count
       )
     end
 
@@ -105,7 +113,7 @@ module Spree
     end
 
     def self.groups
-      GROUPS.merge(all: GROUPS.values.flatten.uniq)
+      GROUPS.merge(all: Spree::MarketingType.all.map(&:name).uniq )
     end
 
     def fetch_data_for_life_time_value
@@ -138,19 +146,21 @@ module Spree
 
     def format_data_for_returning_customers(data)
       data.map do |record|
-        [record['first_purchase_date'],record['count']]
+        [record['first_order_date'],record['first_order_count'],record['second_order_count']]
       end
     end
 
     def returning_customers_sql
       "SELECT
-  DATE_TRUNC('month', marketing_types.completed_at) first_purchase_date, count(*)
+  DATE_TRUNC('month', marketing_types.completed_at) first_order_date,
+  COUNT(marketing_types.completed_at)::int first_order_count,
+  COUNT(second_orders_view.completed_at)::int second_order_count
 from
   (#{ email_marketing_types_sql }) as marketing_types
 LEFT OUTER JOIN
   second_orders_view ON marketing_types.email=second_orders_view.email
-GROUP BY first_purchase_date
-ORDER BY first_purchase_date"
+GROUP BY first_order_date
+ORDER BY first_order_date"
     end
 
     def life_time_value_sql
@@ -213,7 +223,7 @@ ORDER BY first_purchase_date, purchase_date, currency "
     end
 
     def self.email_marketing_types_view_sql
-      "CREATE OR REPLACE VIEW email_marketing_types_view as
+      "CREATE MATERIALIZED VIEW email_marketing_types_view as
 SELECT p.marketing_type_id marketing_type_id, o.email email, MIN(completed_at) completed_at
 FROM spree_line_items li
 INNER JOIN first_orders_view o on li.order_id=o.id
@@ -225,7 +235,7 @@ GROUP BY marketing_type_id, email"
     end
 
     def self.first_orders_view_sql
-      "CREATE OR REPLACE VIEW first_orders_view as
+      "CREATE MATERIALIZED VIEW first_orders_view as
   SELECT o1.*
   FROM spree_orders o1
   INNER JOIN (
@@ -238,7 +248,7 @@ GROUP BY marketing_type_id, email"
     end
 
     def self.second_orders_view_sql
-      "CREATE OR REPLACE VIEW second_orders_view as
+      "CREATE MATERIALIZED VIEW second_orders_view as
   SELECT o1.*
   FROM spree_orders o1
   INNER JOIN (

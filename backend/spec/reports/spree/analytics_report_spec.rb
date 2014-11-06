@@ -161,8 +161,11 @@ describe Spree::AnalyticsReport do
         subject.marketing_types = [gang_marketing_type, peru_marketing_type]
         data = subject.send(:fetch_data_for_returning_customers)
         expect(data.size).to eq 1
-        expected = [{"first_purchase_date"=>"2014-01-01 00:00:00", "count"=>"3"}]
+        expected = [
+          {"first_order_date"=>"2014-01-01 00:00:00", "first_order_count"=>"3", "second_order_count" => "0"},
+        ]
         expect(data).to eq expected
+
       end
 
       context "Multiple orders from multiple users" do
@@ -178,8 +181,8 @@ describe Spree::AnalyticsReport do
           data = subject.send(:fetch_data_for_returning_customers)
           expect(data.size).to eq 2
           expected = [
-            {"first_purchase_date"=>"2014-01-01 00:00:00", "count"=>"3"},
-            {"first_purchase_date"=>"2014-02-01 00:00:00", "count"=>"2"},
+            {"first_order_date"=>"2014-01-01 00:00:00", "first_order_count"=>"3", "second_order_count" => "0"},
+            {"first_order_date"=>"2014-02-01 00:00:00", "first_order_count"=>"2", "second_order_count" => "2"}
           ]
           expect(data).to eq expected
         end
@@ -191,8 +194,8 @@ describe Spree::AnalyticsReport do
     describe "formatted_data_for_returning_customers" do
 
       let(:data) do [
-        {"first_purchase_date"=>"2014-01-01 00:00:00", "count"=>"3"},
-        {"first_purchase_date"=>"2014-02-01 00:00:00", "count"=>"2"}
+        {"first_order_date"=>"2014-01-01 00:00:00", "first_order_count"=>"3", "second_order_count" => "1"},
+        {"first_order_date"=>"2014-02-01 00:00:00", "first_order_count"=>"2", "second_order_count" => "2"}
       ]
       end
 
@@ -203,7 +206,7 @@ describe Spree::AnalyticsReport do
           data << r
         end
         expect(data.size).to eq 2
-        expect(data).to eq [["2014-01-01 00:00:00", "3"], ["2014-02-01 00:00:00", "2"]]
+        expect(data).to eq [["2014-01-01 00:00:00", "3", "1"], ["2014-02-01 00:00:00", "2", "2"]]
       end
 
     end
