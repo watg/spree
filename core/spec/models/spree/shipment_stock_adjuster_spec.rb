@@ -32,7 +32,6 @@ describe Spree::ShipmentStockAdjuster do
 
   end
 
-
   context "unstock" do
     let(:stock_items) {  2.times.map { mock_model(Spree::StockItem, count_on_hand: 2, backorderable?: true) }  }
 
@@ -42,6 +41,7 @@ describe Spree::ShipmentStockAdjuster do
       subject.unstock(variant, inventory_units)
     end
 
+    
     before do
       subject.stub(:available_items).and_return(stock_items)
     end
@@ -108,12 +108,27 @@ describe Spree::ShipmentStockAdjuster do
 
   context "available_items" do
 
-    it "returns ordered stock_items" do
-      ordered_stock_items = double(:ordered_stock_items)
-      stock_items = double(:stock_items)
-      expect(stock_items).to receive(:order).with(:last_unstocked_at).and_return(ordered_stock_items)
-      expect(stock_location).to receive(:available_stock_items).with(variant).and_return(stock_items)
-      expect(subject.send(:available_items, variant)).to eq ordered_stock_items
+    let!(:stock_location) { create(:base_stock_location) }
+    let(:variant) { create(:base_variant) }
+    let(:stock_item_1) { create(:stock_item, stock_location: stock_location, count_on_hand: 2, backorderable: true, variant: variant, last_unstocked_at: '2012-01-01') } 
+    let(:stock_item_2) { create(:stock_item, stock_location: stock_location, count_on_hand: 2, backorderable: true, variant: variant, last_unstocked_at: '2012-02-01') }
+
+
+    it "returns stock in time order of last_updated_at" do
+      expect(subject.send(:available_items, variant)).to eq [ stock_item_1, stock_item_2 ]
+    end
+
+    context "last_unstocked_at is nil " do
+
+      before do
+        stock_item_2.last_unstocked_at = nil
+        stock_item_2.save
+      end
+
+      it "returns puts nils first for last_updated_at" do
+        expect(subject.send(:available_items, variant)).to eq [ stock_item_2, stock_item_1 ]
+      end
+
     end
 
   end
@@ -144,8 +159,6 @@ describe Spree::ShipmentStockAdjuster do
       # Updates the stock_item last_unstocked_at time
       expect(stock_item.last_unstocked_at).to be_within(1.second).of(Time.now)
     end
-
-
   end
 
 end
