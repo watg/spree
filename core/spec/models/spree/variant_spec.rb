@@ -506,7 +506,8 @@ describe Spree::Variant do
 
       context 'when stock_items in stock' do
         before do
-          variant.stock_items.first.update_column(:count_on_hand, 10)
+          #variant.stock_items.first.update_column(:count_on_hand, 10)
+          variant.update_column(:in_stock_cache, true)
         end
 
         it 'returns true if stock_items in stock' do
