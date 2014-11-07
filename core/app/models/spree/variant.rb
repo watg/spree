@@ -400,7 +400,8 @@ module Spree
 
     def in_stock?
       Rails.cache.fetch(in_stock_cache_key) do
-        total_on_hand > 0
+        #total_on_hand > 0
+        self.in_stock_cache
       end
     end
 

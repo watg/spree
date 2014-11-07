@@ -13,7 +13,6 @@ module Spree
 
     delegate :weight, :should_track_inventory?, to: :variant
 
-    # Removed for the time being as we already have a check for variant stock job
     after_save :conditional_variant_touch
     after_touch { variant.touch }
 
@@ -51,11 +50,6 @@ module Spree
       self.in_stock? || self.backorderable?
     end
 
-    def check_variant_stock
-      Spree::StockCheckJob.new(variant)
-      variant.touch
-    end
-
     private
     def count_on_hand=(value)
       write_attribute(:count_on_hand, value)
@@ -77,7 +71,7 @@ module Spree
       stock_changed = (count_on_hand_changed? && count_on_hand_change.any?(&:zero?)) || variant_id_changed?
 
       if !Spree::Config.binary_inventory_cache || stock_changed
-        self.delay(queue: 'stock_check', priority: 10).check_variant_stock
+        ::Delayed::Job.enqueue Spree::StockCheckJob.new(variant), queue: 'stock_check', priority: 10
       end
     end
 

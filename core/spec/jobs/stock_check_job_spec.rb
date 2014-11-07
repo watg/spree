@@ -19,6 +19,12 @@ describe Spree::StockCheckJob do
         expect(stock_item.variant).to receive(:update_column).with(:in_stock_cache, true)
         subject.perform
       end
+
+      it "touches the variant" do
+        expect(stock_item.variant).to receive(:touch)
+        subject.perform
+      end
+
     end
 
     context "on variant part of a kit" do

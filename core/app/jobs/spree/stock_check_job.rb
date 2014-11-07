@@ -1,7 +1,6 @@
 module Spree
   StockCheckJob = Struct.new(:variant) do
     def perform
-
       variant_in_stock = check_stock(variant)
 
       # for old kits
@@ -21,6 +20,7 @@ module Spree
       variant_in_stock = Spree::Stock::Quantifier.new(variant).can_supply?(1)
       if variant.in_stock_cache != variant_in_stock
         variant.update_column(:in_stock_cache, variant_in_stock)
+        variant.touch
       end
       variant_in_stock
     end
