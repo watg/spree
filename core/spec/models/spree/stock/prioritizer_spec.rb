@@ -120,6 +120,46 @@ module Spree
         packages[0].quantity(:backordered).should eq 0
         packages[0].quantity(:on_hand).should eq 5
       end
+
+      it 'removes backordered and awaiting_feed items, if all are on_hand in second package' do
+        5.times { build_inventory_unit }
+
+        package1 = pack do |package|
+          1.times { |i| package.add inventory_units[i], :backordered }
+          2.times { |i| package.add inventory_units[i], :awaiting_feed }
+        end
+        package2 = pack do |package|
+          5.times { |i| package.add inventory_units[i] }
+        end
+
+        packages = [package1, package2]
+        prioritizer = Prioritizer.new(inventory_units, packages)
+        packages = prioritizer.prioritized_packages
+        packages[0].should eq package2
+        packages[1].should be_nil
+        packages[0].quantity(:backordered).should eq 0
+        packages[0].quantity(:awaiting_feed).should eq 0
+        packages[0].quantity(:on_hand).should eq 5
+      end
+
+      it 'removes duplicate awaiting_feed items' do
+        5.times { build_inventory_unit }
+
+        package1 = pack do |package|
+          2.times { |i| package.add inventory_units[i], :awaiting_feed }
+        end
+        package2 = pack do |package|
+          5.times { |i| package.add inventory_units[i], :awaiting_feed }
+        end
+
+        packages = [package1, package2]
+        prioritizer = Prioritizer.new(inventory_units, packages)
+        packages = prioritizer.prioritized_packages
+        packages[0].should eq(package1)
+        packages[1].should eq(package2)
+        packages[0].quantity(:awaiting_feed).should eq 2
+        packages[1].quantity(:awaiting_feed).should eq 3
+      end
     end
   end
 end

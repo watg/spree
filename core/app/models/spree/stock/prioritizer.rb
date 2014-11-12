@@ -23,6 +23,9 @@ module Spree
 
           visit_packages(adjuster)
 
+          adjuster.status = :awaiting_feed
+          visit_packages(adjuster)
+
           adjuster.status = :backordered
           visit_packages(adjuster)
         end
