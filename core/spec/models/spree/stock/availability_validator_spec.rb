@@ -3,8 +3,8 @@ require 'spec_helper'
 module Spree
   module Stock
     describe AvailabilityValidator do
-      let(:variant) { create(:variant, id: 10) }
-      let(:extra_variant) { create(:variant, id: 11) }
+      let(:variant) { create(:variant) }
+      let(:extra_variant) { create(:variant) }
 
       let(:order) { Spree::Order.new(id: 21) }
       let(:line_item) { Spree::LineItem.new(variant: variant, quantity: 2) }
@@ -94,6 +94,28 @@ module Spree
         end
       end
 
+
+      context "with feeder and inactive locations" do
+        let!(:inactive_location) { create(:stock_location, active: false) }
+        let!(:active_location) { variant.stock_items.first.stock_location }
+        let!(:feeder_location) { create(:stock_location, active: false, feed_into: active_location) }
+
+        let(:available_stock_locations) { [active_location, feeder_location] }
+
+        let(:stock_items) {
+          variant.stock_items.select do |si|
+            available_stock_locations.include?(si.stock_location)
+          end
+        }
+
+        it "only passes stock items from feeder and active locations into the Quantifier" do
+          expect(Stock::Quantifier).to receive(:new) do |call_variant, call_items|
+            expect(call_variant).to eq(variant)
+            expect(call_items.map(&:id)).to match_array(stock_items.map(&:id))
+          end.and_call_original
+          subject.validate_order(order)
+        end
+      end
 
     end
   end

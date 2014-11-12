@@ -8,13 +8,21 @@ describe Spree::ShipmentStockAdjuster do
   let(:variant) { mock_model(Spree::Variant) }
   let(:order) { Spree::Order.new }
 
-  let(:inventory_units) { 3.times.map { mock_model(Spree::InventoryUnit, line_item: nil, supplier: supplier, variant: variant, state: 'on_hand') } }
+  let(:inventory_units) { build_list(:inventory_unit, 3, line_item: nil, supplier: supplier, variant: variant, state: 'on_hand') }
   subject { described_class.new(shipment)  }
 
   context "restock" do
 
-    it "restocks all the inventory_units" do
+    it "restocks all the on_hand and backordered inventory_units" do
+      inventory_units.last.state = 'backordered'
       expect(stock_location).to receive(:restock).with(variant, 3, shipment, supplier)
+      inventory_units.stub(:update_all)
+      subject.restock(variant, inventory_units)
+    end
+
+    it "does not restock the awaiting_feed inventory_units" do
+      inventory_units.last.state = 'awaiting_feed'
+      expect(stock_location).to receive(:restock).with(variant, 2, shipment, supplier)
       inventory_units.stub(:update_all)
       subject.restock(variant, inventory_units)
     end
@@ -22,12 +30,13 @@ describe Spree::ShipmentStockAdjuster do
     it "sets inventory_units` supplier to nil and their pending state to true" do
       units = []
       units << Spree::InventoryUnit.create(order: order, pending: false, supplier_id: 1)
-      units << Spree::InventoryUnit.create(order: order, pending: false, supplier_id: 2)
+      units << Spree::InventoryUnit.create(order: order, state: 'backordered', pending: false, supplier_id: 2)
+      units << Spree::InventoryUnit.create(order: order, state: 'awaiting_feed', pending: false, supplier_id: 3)
       stock_location.stub(:restock)
 
       subject.restock(variant, units)
-      expect(order.inventory_units.pluck(:supplier_id)).to eq [nil, nil]
-      expect(order.inventory_units.pluck(:pending)).to eq [true, true]
+      expect(order.inventory_units.pluck(:supplier_id)).to eq [nil, nil, nil]
+      expect(order.inventory_units.pluck(:pending)).to eq [true, true, true]
     end
 
   end
@@ -102,6 +111,18 @@ describe Spree::ShipmentStockAdjuster do
         subject.unstock(variant, inventory_units)
       end
 
+    end
+
+    context "awaiting_feed" do
+      it "does not unstock items awaiting_feed" do
+        inventory_units[0].state = "on_hand"
+        inventory_units[1].state = "backorderable"
+        inventory_units[2].state = "awaiting_feed"
+
+        expect(subject).to receive(:unstock_stock_item).with(stock_items[0], inventory_units.slice(0,1)).once
+        expect(subject).to receive(:unstock_stock_item).with(stock_items[0], inventory_units.slice(1,1)).once
+        subject.unstock(variant, inventory_units)
+      end
     end
 
   end

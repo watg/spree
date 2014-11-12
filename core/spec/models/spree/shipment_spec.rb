@@ -43,6 +43,14 @@ describe Spree::Shipment do
     shipment.should be_backordered
   end
 
+  it 'is awaiting_feed if one if its inventory_units is awaiting_feed' do
+    shipment.stub(inventory_units: [
+      mock_model(Spree::InventoryUnit, awaiting_feed?: false),
+      mock_model(Spree::InventoryUnit, awaiting_feed?: true)
+    ])
+    shipment.should be_awaiting_feed
+  end
+
   context "display_amount" do
     it "retuns a Spree::Money" do
       shipment.stub(:cost) { 21.22 }

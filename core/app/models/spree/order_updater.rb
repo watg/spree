@@ -5,7 +5,7 @@ module Spree
 
     class << self
       def shipment_states
-        %w{shipped partial ready backorder pending}
+        %w{shipped partial ready backorder awaiting_feed pending}
       end
 
       def payment_states
@@ -122,6 +122,8 @@ module Spree
     def update_shipment_state
       if order.backordered?
         order.shipment_state = 'backorder'
+      elsif order.awaiting_feed?
+        order.shipment_state = 'awaiting_feed'
       else
         # get all the shipment states for this order
         shipment_states = shipments.states

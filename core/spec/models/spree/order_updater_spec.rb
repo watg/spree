@@ -49,6 +49,7 @@ module Spree
     context "updating shipment state" do
       before do
         order.stub :backordered? => false
+        order.stub :awaiting_feed? => false
         order.stub_chain(:shipments, :shipped, :count).and_return(0)
         order.stub_chain(:shipments, :ready, :count).and_return(0)
         order.stub_chain(:shipments, :pending, :count).and_return(0)
@@ -59,6 +60,13 @@ module Spree
         updater.update_shipment_state
 
         order.shipment_state.should == 'backorder'
+      end
+
+      it "is awaiting_feed" do
+        order.stub :awaiting_feed? => true
+        updater.update_shipment_state
+
+        order.shipment_state.should == 'awaiting_feed'
       end
 
       it "is nil" do

@@ -23,8 +23,18 @@ module Spree
 
 
       context 'with a single stock location/item' do
-        it 'total_on_hand should match stock_item' do
-          subject.total_on_hand.should ==  stock_item.count_on_hand
+        describe "total_on_hand" do
+          let(:variant) { stock_item.variant }
+
+          it 'matches stock_item' do
+            subject.total_on_hand.should ==  stock_item.count_on_hand
+          end
+
+          it 'deducts awaiting_feed inventory units' do
+            create_list(:inventory_unit, 2, state: "awaiting_feed", variant: variant, pending: false)
+            create_list(:inventory_unit, 2, state: "awaiting_feed", variant: variant, pending: true)
+            expect(subject.total_on_hand).to eq(stock_item.count_on_hand - 2)
+          end
         end
 
         context 'when track_inventory_levels is false' do
@@ -67,14 +77,16 @@ module Spree
       context 'with multiple stock locations/items' do
         let!(:stock_location_2) { create :stock_location }
         let!(:stock_location_3) { create :stock_location, active: false }
+        let!(:stock_location_4) { create :stock_location, feed_into: stock_location_2, active: false }
 
         before do
           stock_location_2.stock_items.where(variant_id: stock_item.variant).update_all(count_on_hand: 5, backorderable: false)
           stock_location_3.stock_items.where(variant_id: stock_item.variant).update_all(count_on_hand: 5, backorderable: false)
+          stock_location_4.stock_items.where(variant_id: stock_item.variant).update_all(count_on_hand: 5, backorderable: false)
         end
 
         it 'total_on_hand should total all active stock_items' do
-          subject.total_on_hand.should == 15
+          subject.total_on_hand.should == 20
         end
 
         context 'when any stock item allows backordering' do
@@ -91,7 +103,8 @@ module Spree
           it 'can_supply? upto total_on_hand' do
             subject.can_supply?(1).should be_true
             subject.can_supply?(15).should be_true
-            subject.can_supply?(16).should be_false
+            subject.can_supply?(20).should be_true
+            subject.can_supply?(21).should be_false
           end
         end
 

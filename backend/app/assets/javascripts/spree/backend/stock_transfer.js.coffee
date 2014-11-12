@@ -102,7 +102,10 @@ $ ->
       if receiving_stock()
         "#{result.name} - #{result.sku} - #{result.options_text || ''}"
       else
-        "#{result.name} - #{result.sku} - #{result.supplier_name || ''} (#{result.count_on_hand})"
+        format = "#{result.name} - #{result.sku} - #{result.supplier_name || ''} (#{result.count_on_hand})"
+        if result.waiting_inventory_unit_count > 0
+          format += " (#{result.waiting_inventory_unit_count} needed for orders)"
+        format
 
     build_select: (url, query) ->
       $('#transfer_variant').select2
@@ -124,6 +127,7 @@ $ ->
                 return {} unless stock_item.variant
                 variant = stock_item.variant
                 variant.count_on_hand = stock_item.count_on_hand
+                variant.waiting_inventory_unit_count = stock_item.waiting_inventory_unit_count
 
                 if stock_item.supplier
                   variant.supplier_id = stock_item.supplier.id

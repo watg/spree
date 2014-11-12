@@ -28,6 +28,10 @@ module Spree
         state.to_s == "backordered"
       end
 
+      def awaiting_feed?
+        state.to_s == "awaiting_feed"
+      end
+
       def price
         variant.price
       end

@@ -56,7 +56,10 @@ module Spree
           grouped_variants[variant_id] = grouped_variants[variant_id].to_i - grouped_units[variant_id].to_i
         end.select {|v_id, count| count > 0}
 
-        preloaded_variants = Spree::Variant.where(id: grouped_variants.keys).includes(:stock_items).joins(stock_items: :stock_location).merge(Spree::StockLocation.active).references(:stock_location).load
+        preloaded_variants = Spree::Variant.where(id: grouped_variants.keys).
+          includes(:stock_items).joins(stock_items: :stock_location).
+          merge(Spree::StockLocation.available).
+          references(:stock_location).load
 
         valids = grouped_variants.map do |variant_id, quantity|
           variant = preloaded_variants.find { |variant| variant.id == variant_id }

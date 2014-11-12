@@ -413,6 +413,10 @@ module Spree
       Spree::Stock::Quantifier.new(self).total_on_hand
     end
 
+    def total_awaiting_feed
+      Spree::InventoryUnit.total_awaiting_feed_for(self)
+    end
+
     def product_price_in(currency)
       self.product.master.normal_prices.select{ |price| price.currency == currency }.first
     end
