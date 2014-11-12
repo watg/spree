@@ -5,8 +5,6 @@ module Spree
     # old api
     # http://0.0.0.0:3000/shop/api/pinterest/?url=http://0.0.0.0:3000/shop/products/florence-sweater-1/ivory-white
 
-
-
     required do
       string :url
     end
@@ -23,7 +21,6 @@ module Spree
         add_error(:url, :could_not_parse_url, "Could not parse url")
       end
     end
-
 
     def old_api(product_slug, variant_option_values)
       return if has_errors?
@@ -58,8 +55,9 @@ module Spree
       })
     end
 
-    def new_api(product_page_slug, product_page_tab, variant_id)
+    def new_api(product_page_slug, product_page_tab=nil, variant_id=nil)
       return if has_errors?
+
 
       product_page = load_product_page(product_page_slug) if product_page_slug
       if !product_page
@@ -67,7 +65,12 @@ module Spree
         return
       end
 
-      variant = load_variant(variant_id) if variant_id
+      product_page_tab ||=  Spree::ProductPageTab::MADE_BY_THE_GANG
+      product_page_tab.gsub!('-','_')
+
+      variant = nil
+      variant = find_variant(variant_id, product_page_tab, product_page)
+
       if !variant
         add_error(:url, :could_not_find_variant, "Could not find product page")
         return
@@ -92,6 +95,25 @@ module Spree
     end
 
     private
+
+    def find_variant(variant_id, product_page_tab, product_page)
+      variant = nil
+      if variant_id
+        variant = load_variant(variant_id)
+      else
+
+        if tabs = product_page.tabs.where(tab_type: product_page_tab)
+          if products = tabs.map(&:product).flatten.compact
+            if variants = products.map(&:variants).flatten.compact
+              variant = variants.first
+            end
+          end
+        end
+        variant ||= product_page.variants.first
+
+      end
+      variant
+    end
 
     def gender(target)
       return 'unisex' unless target
