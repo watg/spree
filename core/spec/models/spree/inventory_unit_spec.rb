@@ -58,6 +58,23 @@ describe Spree::InventoryUnit do
       Spree::InventoryUnit.backordered_for_stock_item(stock_item).should_not include(other_variant_unit)
     end
 
+    describe "#waiting_inventory_units_for" do
+      let(:earlier_order) do
+        order = create(:order)
+        order.update_attributes(state: 'complete', completed_at: 2.weeks.ago)
+        order
+      end
+      let(:variant) { stock_item.variant }
+      let!(:unit_awaiting_feed) { create(:inventory_unit, shipment: shipment, state: 'awaiting_feed', variant: variant, order: earlier_order) }
+      let!(:unit_on_hand) { create(:inventory_unit, shipment: shipment, state: 'on_hand', variant: variant, order: order) }
+      let!(:other_on_hand) { create(:inventory_unit, shipment: shipment, state: 'backordered', order: order) }
+
+      it "returns inventory units backordered and awaiting feed" do
+        expect(Spree::InventoryUnit.waiting_for_stock_item(stock_item).to_a).
+          to eq([unit_awaiting_feed, unit])
+      end
+    end
+
     context "other shipments" do
       let(:other_order) do
         order = create(:order)

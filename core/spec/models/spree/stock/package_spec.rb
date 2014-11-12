@@ -21,17 +21,21 @@ module Spree
       it 'filters by on_hand and backordered' do
         4.times { subject.add build_inventory_unit }
         3.times { subject.add build_inventory_unit, :backordered }
+        2.times { subject.add build_inventory_unit, :awaiting_feed }
         subject.on_hand.count.should eq 4
         subject.backordered.count.should eq 3
+        subject.awaiting_feed.count.should eq 2
       end
 
       it 'calculates the quantity by state' do
         4.times { subject.add build_inventory_unit }
         3.times { subject.add build_inventory_unit, :backordered }
+        2.times { subject.add build_inventory_unit, :awaiting_feed }
 
-        subject.quantity.should eq 7
+        subject.quantity.should eq 9
         subject.quantity(:on_hand).should eq 4
         subject.quantity(:backordered).should eq 3
+        subject.quantity(:awaiting_feed).should eq 2
       end
 
       it 'returns nil for content item not found' do
@@ -77,22 +81,27 @@ module Spree
       it "can convert to a shipment" do
         2.times { subject.add build_inventory_unit }
         subject.add build_inventory_unit, :backordered
+        subject.add build_inventory_unit, :awaiting_feed
 
         shipping_method = build(:shipping_method)
         subject.shipping_rates = [ Spree::ShippingRate.new(shipping_method: shipping_method, cost: 10.00, selected: true) ]
 
         shipment = subject.to_shipment
         expect(shipment.stock_location).to eq subject.stock_location
-        expect(shipment.inventory_units.size).to eq 3
+        expect(shipment.inventory_units.size).to eq 4
 
         first_unit = shipment.inventory_units.first
         expect(first_unit.variant).to eq variant
         expect(first_unit.state).to eq 'on_hand'
         expect(first_unit).to be_pending
 
-        last_unit = shipment.inventory_units.last
+        last_unit = shipment.inventory_units[-2]
         expect(last_unit.variant).to eq variant
         expect(last_unit.state).to eq 'backordered'
+
+        last_unit = shipment.inventory_units.last
+        expect(last_unit.variant).to eq variant
+        expect(last_unit.state).to eq 'awaiting_feed'
 
         expect(shipment.shipping_method).to eq shipping_method
       end

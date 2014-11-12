@@ -18,8 +18,12 @@ module Spree
 
     scope :available, -> { where("count_on_hand > 0 or backorderable = true") }
 
-    def backordered_inventory_units
-      Spree::InventoryUnit.backordered_for_stock_item(self)
+    def waiting_inventory_units
+      Spree::InventoryUnit.waiting_for_stock_item(self)
+    end
+
+    def waiting_inventory_unit_count
+      variant.total_awaiting_feed
     end
 
     def variant_name
@@ -29,14 +33,15 @@ module Spree
     def adjust_count_on_hand(value)
       self.with_lock do
         self.count_on_hand = self.count_on_hand + value
-        process_backorders(count_on_hand - count_on_hand_was)
+        awaiting_feed = process_waiting(count_on_hand - count_on_hand_was)
+        self.count_on_hand = self.count_on_hand - awaiting_feed
         self.save!
       end
     end
 
     def set_count_on_hand(value)
       self.count_on_hand = value
-      process_backorders(count_on_hand - count_on_hand_was)
+      process_waiting(count_on_hand - count_on_hand_was)
 
       self.save!
     end
@@ -58,12 +63,21 @@ module Spree
     # Process backorders based on amount of stock received
     # If stock was -20 and is now -15 (increase of 5 units), then we should process 5 inventory orders.
     # If stock was -20 but then was -25 (decrease of 5 units), do nothing.
-    def process_backorders(number)
+    def process_waiting(number)
+      awaiting_feed = 0
+
       if number > 0
-        backordered_inventory_units.first(number).each do |unit|
-          unit.fill_backorder
+        waiting_inventory_units.first(number).each do |unit|
+          if unit.backordered?
+            unit.fill_backorder
+          elsif unit.awaiting_feed?
+            unit.fill_awaiting_feed
+            awaiting_feed += 1
+          end
         end
       end
+
+      awaiting_feed
     end
 
     def conditional_variant_touch

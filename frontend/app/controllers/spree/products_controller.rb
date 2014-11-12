@@ -1,12 +1,9 @@
 module Spree
   class ProductsController < Spree::StoreController
     before_filter :load_product, :only => :show
- 
-		# Commented out until we get a response from pinterest about 
-		# how they will deal with redirects
-    before_filter :redirect_to_product_pages, :only => :show
+
     before_filter :load_selected_variant, :only => :show
-    
+
     rescue_from ActiveRecord::RecordNotFound, :with => :render_404
     helper 'spree/taxons'
 
@@ -27,30 +24,24 @@ module Spree
     end
 
     private
-		  def redirect_to_product_pages
-		    if Flip.product_pages?
-		      outcome = Spree::ProductPageRedirectionService.run(product: @product, variant: @selected_variant)
-		      redirect_to outcome.result[:url], status: outcome.result[:http_code]
-				end
-			end
 
-		  def load_selected_variant
-		    if params[:option_values].blank?
-		      @selected_variant = @product.first_variant_or_master
-		    else
-		      selected_option_values = params[:option_values].split('/') rescue []
-		      @selected_variant = Spree::Variant.options_by_product(@product, selected_option_values)
-		      @selected_variant ||= @product.first_variant_or_master
-		    end
+      def load_selected_variant
+        if params[:option_values].blank?
+          @selected_variant = @product.first_variant_or_master
+        else
+          selected_option_values = params[:option_values].split('/') rescue []
+          @selected_variant = Spree::Variant.options_by_product(@product, selected_option_values)
+          @selected_variant ||= @product.first_variant_or_master
+        end
 
-		    if !params[:option_values].blank? && (@selected_variant.blank? || @selected_variant.is_master)
-		      flash[:error] = Spree.t(:unknown_selected_variant) + "  " + selected_option_values.join(', ')
-		      redirect_to product_url(@product)
-		    end
-		  end
+        if !params[:option_values].blank? && (@selected_variant.blank? || @selected_variant.is_master)
+          flash[:error] = Spree.t(:unknown_selected_variant) + "  " + selected_option_values.join(', ')
+          redirect_to product_url(@product)
+        end
+      end
 
-      
-			def accurate_title
+
+      def accurate_title
         @product ? @product.name : super
       end
 

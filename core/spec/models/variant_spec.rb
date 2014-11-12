@@ -49,6 +49,15 @@ describe Spree::Variant do
     end
   end
 
+  describe "total_awaiting_feed" do
+    it "uses the value from inventory unit" do
+      variant = build(:variant)
+      allow(Spree::InventoryUnit).to receive(:total_awaiting_feed_for).
+        with(variant).and_return(3)
+      expect(variant.total_awaiting_feed).to eq(3)
+    end
+  end
+
   describe "#images_for" do
     let(:variant) { create(:variant) }
     let!(:variant_images) { create_list(:image, 1, viewable: variant, position: 2) }

@@ -8,7 +8,8 @@ module Spree
     end
 
     def restock(variant, inventory_units)
-      inventory_units.group_by(&:supplier).each do |supplier, supplier_units|
+      restockable_inventory_units = inventory_units.reject(&:awaiting_feed?)
+      restockable_inventory_units.group_by(&:supplier).each do |supplier, supplier_units|
         stock_location.restock(variant, supplier_units.count, shipment, supplier)
       end
       Spree::InventoryUnit.where(id: inventory_units.map(&:id)).update_all(supplier_id: nil, pending: true)
@@ -17,7 +18,7 @@ module Spree
     def unstock(variant, inventory_units)
       on_hand_stock_items = available_items(variant).select { |ai| ai.count_on_hand > 0 }
 
-      on_hand, backordered = inventory_units.partition { |iu| iu.state == 'on_hand' }
+      on_hand, backordered = inventory_units.reject(&:awaiting_feed?).partition { |iu| iu.state == 'on_hand' }
 
       # Deal with the on_hand items
       on_hand_stock_items.each do |stock_item|

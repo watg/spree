@@ -217,12 +217,12 @@ module Spree
 
       it 'all on_hand with no backordered' do
         items = subject.fill_status(variant, 5)
-        items.should eq [5, 0]
+        items.should eq [5, 0, 0]
       end
 
       it 'some on_hand with some backordered' do
         items = subject.fill_status(variant, 20)
-        items.should eq [10, 10]
+        items.should eq [10, 10, 0]
       end
 
       it 'zero on_hand with all backordered' do
@@ -232,9 +232,29 @@ module Spree
 
         subject.should_receive(:available_stock_items).with(variant).and_return([zero_stock_item])
 
-        on_hand, backordered = subject.fill_status(variant, 20)
+        on_hand, backordered, awaiting_feed = subject.fill_status(variant, 20)
         on_hand.should eq 0
         backordered.should eq 20
+        awaiting_feed.should eq 0
+      end
+
+      context "when partial stock is in a feeder location" do
+        let(:feeder_location) { create(:stock_location_with_items, active: false, feed_into: subject) }
+        let!(:feeder_stock_item) { feeder_location.stock_items.first }
+
+        before do
+          stock_item.send(:count_on_hand=, 5)
+          stock_item.save!
+          feeder_stock_item.send(:count_on_hand=, 5)
+          feeder_stock_item.save!
+        end
+
+        it "backorders enough stock" do
+          on_hand, backordered, awaiting_feed = subject.fill_status(variant, 20)
+          on_hand.should eq 5
+          backordered.should eq 10
+          awaiting_feed.should eq 5
+        end
       end
 
       context 'when backordering is not allowed' do
@@ -246,25 +266,72 @@ module Spree
         it 'all on_hand' do
           @stock_item.stub(count_on_hand: 10)
 
-          on_hand, backordered = subject.fill_status(variant, 5)
+          on_hand, backordered, awaiting_feed = subject.fill_status(variant, 5)
           on_hand.should eq 5
           backordered.should eq 0
+          awaiting_feed.should eq 0
         end
 
         it 'some on_hand' do
           @stock_item.stub(count_on_hand: 10)
 
-          on_hand, backordered = subject.fill_status(variant, 20)
+          on_hand, backordered, awaiting_feed = subject.fill_status(variant, 20)
           on_hand.should eq 10
           backordered.should eq 0
+          awaiting_feed.should eq 0
         end
 
         it 'zero on_hand' do
           @stock_item.stub(count_on_hand: 0)
 
-          on_hand, backordered = subject.fill_status(variant, 20)
+          on_hand, backordered, awaiting_feed = subject.fill_status(variant, 20)
           on_hand.should eq 0
           backordered.should eq 0
+          awaiting_feed.should eq 0
+        end
+      end
+
+      context "when backordering is not allowed and stock is available from a feeder location" do
+        let(:feeder_location) { create(:stock_location_with_items, active: false, feed_into: subject) }
+        let!(:feeder_stock_item) { feeder_location.stock_items.first }
+
+        before do
+          stock_item.backorderable = false
+          stock_item.send(:count_on_hand=, 5)
+          stock_item.save!
+        end
+
+        it "backorders all stock from the feeder if possible" do
+          feeder_stock_item.send(:count_on_hand=, 30)
+          feeder_stock_item.backorderable = false
+          feeder_stock_item.save!
+
+          on_hand, backordered, awaiting_feed = subject.fill_status(variant, 20)
+          on_hand.should eq 5
+          backordered.should eq 0
+          awaiting_feed.should eq 15
+        end
+
+        it "backorders partial stock from the feeder" do
+          feeder_stock_item.send(:count_on_hand=, 5)
+          feeder_stock_item.backorderable = false
+          feeder_stock_item.save!
+
+          on_hand, backordered, awaiting_feed = subject.fill_status(variant, 20)
+          on_hand.should eq 5
+          backordered.should eq 0
+          awaiting_feed.should eq 5
+        end
+
+        it "backorders all if feeder stock is backorderable" do
+          feeder_stock_item.send(:count_on_hand=, 0)
+          feeder_stock_item.backorderable = true
+          feeder_stock_item.save!
+
+          on_hand, backordered, awaiting_feed = subject.fill_status(variant, 20)
+          on_hand.should eq 5
+          backordered.should eq 15
+          awaiting_feed.should eq 0
         end
       end
 
@@ -299,9 +366,55 @@ module Spree
           subject
           variant.stock_items.destroy_all
           items = subject.fill_status(variant, 1)
-          items.should eq [0, 0]
+          items.should eq [0, 0, 0]
         end
       end
+    end
+  end
+
+  describe "feeder" do
+    let(:london) { build(:stock_location, active: true) }
+    subject(:stock_location) { build(:stock_location, active: false) }
+
+    it "only be set on inactive locations" do
+      stock_location.active = true
+      stock_location.feed_into = london
+      expect(stock_location).not_to be_valid
+
+      stock_location.active = false
+      expect(stock_location).to be_valid
+    end
+
+    it "can only feed into active locations" do
+      london.active = false
+      stock_location.feed_into = london
+      expect(stock_location).not_to be_valid
+
+      london.active = true
+      expect(stock_location).to be_valid
+    end
+  end
+
+  describe "available" do
+    let(:inactive_locations) { create_list(:stock_location, 2, active: false) }
+    let(:active_locations) { create_list(:stock_location, 2, active: true) }
+    let(:feeder_locations) { create_list(:stock_location, 2, feed_into: active_locations.first, active: false) }
+    let(:available_locations) { active_locations + feeder_locations }
+
+    it "returns active and feeder locations" do
+      expect(StockLocation.available).to eq(available_locations)
+    end
+  end
+
+
+  describe ".valid_feed_into_locations_for" do
+    let!(:inactive_locations) { create_list(:stock_location, 2, active: false) }
+    let!(:active_locations) { create_list(:stock_location, 2, active: true) }
+    let!(:feeder_locations) { create_list(:stock_location, 2, active: false, feed_into: active_locations.first) }
+
+    it "returns active locations excluding the current location" do
+      current_location = create(:stock_location, active: true)
+      expect(StockLocation.valid_feed_into_locations_for(current_location)).to eq(active_locations)
     end
   end
 end

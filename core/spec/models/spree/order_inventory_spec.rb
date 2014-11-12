@@ -31,14 +31,14 @@ module Spree
       end
 
       context "order can be shipped" do
-        before do 
-          order.stub can_ship?: true 
+        before do
+          order.stub can_ship?: true
           allow(shipment).to receive(:set_up_inventory).and_return(inventory_unit)
           shipment.stub(:set_up_inventory).and_return(inventory_unit)
         end
 
         it "unstocks items" do
-          shipment.stock_location.should_receive(:fill_status).with(subject.variant, 2).and_return([2,0])
+          shipment.stock_location.should_receive(:fill_status).with(subject.variant, 2).and_return([2,0, 0])
           expect_any_instance_of(Spree::ShipmentStockAdjuster).to receive(:unstock).with(variant, [inventory_unit, inventory_unit])
           subject.send(:add_to_shipment, shipment, 2).should == 2
         end
@@ -47,7 +47,7 @@ module Spree
       context "inventory units line_item_part_id" do
 
         before do
-          rtn = [3,0]
+          rtn = [3,0,0]
           shipment.stock_location.should_receive(:fill_status).with(subject.variant, 5).and_return(rtn)
         end
 
@@ -66,14 +66,15 @@ module Spree
         end
 
         it 'sets inventory_units state as per stock location availability' do
-          rtn = [3, 2]
-          shipment.stock_location.should_receive(:fill_status).with(subject.variant, 5).and_return(rtn)
+          rtn = [3, 2, 1]
+          shipment.stock_location.should_receive(:fill_status).with(subject.variant, 6).and_return(rtn)
 
-          subject.send(:add_to_shipment, shipment, 5).should == 5
+          expect(subject.send(:add_to_shipment, shipment, 6)).to eq(6)
 
           units = shipment.inventory_units_for(subject.variant).group_by(&:state)
-          units['backordered'].size.should == 2
-          units['on_hand'].size.should == 3
+          expect(units['backordered'].size).to eq(2)
+          expect(units['on_hand'].size).to eq(3)
+          expect(units['awaiting_feed'].size).to eq(1)
         end
       end
 
@@ -194,8 +195,8 @@ module Spree
         context "order can be shipped" do
           let!(:mock_inventory_unit) { mock_model(Spree::InventoryUnit)}
 
-          before do 
-            order.stub can_ship?: true 
+          before do
+            order.stub can_ship?: true
             allow(shipment).to receive(:inventory_units_for_item).and_return( [ mock_inventory_unit ] )
           end
 

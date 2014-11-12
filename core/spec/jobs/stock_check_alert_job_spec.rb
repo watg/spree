@@ -63,6 +63,39 @@ describe Spree::StockCheckAlertJob do
 
     end
 
+    context "when there is stock in feeder stores" do
+      let(:active_location) { create(:stock_location, active: true) }
+      let(:feeder) { create(:stock_location, active: false, feed_into: active_location) }
+      let!(:alternative_stock) { create(:stock_item, stock_location: feeder, count_on_hand: 1, variant: variant)}
+
+      before do
+        stock_item.update_columns(updated_at: 1.days.ago, backorderable: false, count_on_hand: 0)
+      end
+
+      it "does not send a notification" do
+        expect(Spree::NotificationMailer).not_to receive(:send_notification)
+        subject.perform
+      end
+    end
+
+    context "when there is stock in inactive, non-feeder stores" do
+      let(:active_location) { create(:stock_location, active: true) }
+      let(:inactive_location) { create(:stock_location, active: false) }
+      let(:alternative_stock) { create(:stock_item, stock_location: inactive_location, count_on_hand: 1, variant: variant)}
+
+      before do
+        stock_item.update_columns(updated_at: 1.days.ago, backorderable: false, count_on_hand: 0)
+      end
+
+      it "sends a notification" do
+        mock_object = double("mock_object")
+        mock_object.should_receive(:deliver)
+
+        expect(Spree::NotificationMailer).to receive(:send_notification).and_return(mock_object)
+        subject.perform
+      end
+    end
+
   end
 
 end

@@ -444,6 +444,12 @@ describe Spree::Order do
     order.should be_backordered
   end
 
+  it 'is awaiting_feed if one of the shipments is awaiting_feed' do
+    order.stub(:shipments => [mock_model(Spree::Shipment, :awaiting_feed? => false),
+                              mock_model(Spree::Shipment, :awaiting_feed? => true)])
+    order.should be_awaiting_feed
+  end
+
   context "#allow_checkout?" do
     it "should be true if there are line_items in the order" do
       order.stub_chain(:line_items, :count => 1)

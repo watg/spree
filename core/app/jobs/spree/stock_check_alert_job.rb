@@ -20,7 +20,7 @@ module Spree
     def generate_data
       data = []
       Spree::Variant.includes(:product, stock_items: [:stock_location]).
-        where(Spree::StockLocation.table_name =>{ :active => true} ).
+        merge(Spree::StockLocation.available).
         where(Spree::StockItem.table_name =>{ :updated_at => 1.day.ago .. Time.now} ).
         find_each do |v|
           # we do not want to include master variant if its product has normal variants

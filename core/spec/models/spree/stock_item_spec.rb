@@ -57,12 +57,12 @@ describe Spree::StockItem do
       end
     end
 
-    context "item out of stock (by two items)" do
-      let(:inventory_unit) { double('InventoryUnit') }
-      let(:inventory_unit_2) { double('InventoryUnit2') }
+    context "item out of stock" do
+      let(:inventory_unit) { double('InventoryUnit', fill_backorder: true, backordered?: true) }
+      let(:inventory_unit_2) { double('InventoryUnit2', fill_backorder: true, backordered?: true) }
 
       before do
-        subject.stub(:backordered_inventory_units => [inventory_unit, inventory_unit_2])
+        subject.stub(:waiting_inventory_units => [inventory_unit, inventory_unit_2])
         subject.update_column(:count_on_hand, -2)
       end
 
@@ -83,7 +83,12 @@ describe Spree::StockItem do
       end
 
       context "adds new items" do
-        before { subject.stub(:backordered_inventory_units => [inventory_unit, inventory_unit_2]) }
+        let(:backordered_inventory_units) { [inventory_unit, inventory_unit_2] }
+        let(:waiting_inventory_units) { backordered_inventory_units }
+
+        before do
+          subject.stub(:waiting_inventory_units => waiting_inventory_units)
+        end
 
         it "fills existing backorders" do
           inventory_unit.should_receive(:fill_backorder)
@@ -91,6 +96,24 @@ describe Spree::StockItem do
 
           subject.adjust_count_on_hand(3)
           subject.count_on_hand.should == 1
+        end
+
+        context "with inventory units awaiting fill" do
+          let(:inventory_unit_3) { double('InventoryUnit3', fill_awaiting_feed: true, backordered?: false, awaiting_feed?: true) }
+          let(:waiting_inventory_units) { backordered_inventory_units + [inventory_unit_3] }
+
+          it "fills those inventory units" do
+            expect(inventory_unit).to receive(:fill_backorder)
+            expect(inventory_unit_2).to receive(:fill_backorder)
+            expect(inventory_unit_3).to receive(:fill_awaiting_feed)
+
+            subject.adjust_count_on_hand(3)
+          end
+
+          it "sets the correct count on hand" do
+            subject.adjust_count_on_hand(3)
+            expect(subject.count_on_hand).to eq(0)
+          end
         end
       end
     end
@@ -111,17 +134,17 @@ describe Spree::StockItem do
     end
 
     context "item out of stock (by two items)" do
-      let(:inventory_unit) { double('InventoryUnit') }
-      let(:inventory_unit_2) { double('InventoryUnit2') }
+      let(:inventory_unit) { double('InventoryUnit', backordered?: true) }
+      let(:inventory_unit_2) { double('InventoryUnit2', backordered?: true) }
 
       before { subject.set_count_on_hand(-2) }
 
       it "doesn't process backorders" do
-        subject.should_not_receive(:backordered_inventory_units)
+        subject.should_not_receive(:waiting_inventory_units)
       end
 
       context "adds new items" do
-        before { subject.stub(:backordered_inventory_units => [inventory_unit, inventory_unit_2]) }
+        before { subject.stub(:waiting_inventory_units => [inventory_unit, inventory_unit_2]) }
 
         it "fills existing backorders" do
           inventory_unit.should_receive(:fill_backorder)

@@ -80,6 +80,10 @@ module Spree
       inventory_units.any? { |inventory_unit| inventory_unit.backordered? }
     end
 
+    def awaiting_feed?
+      inventory_units.any? { |inventory_unit| inventory_unit.awaiting_feed? }
+    end
+
     def ready_or_pending?
       self.ready? || self.pending?
     end
@@ -184,10 +188,9 @@ module Spree
     def manifest
       # Grouping by the ID means that we don't have to call out to the association accessor
       # This makes the grouping by faster because it results in less SQL cache hits.
-      inventory_units.group_by(&:variant_id).map do |variant_id, units|
-        units.group_by(&:line_item_id).map do |line_item_id, units|
+      inventory_units.group_by(&:variant_id).map do |variant_id, all_units|
+        all_units.group_by(&:line_item_id).map do |line_item_id, units|
           states = {}
-          state_units = units
           units.group_by(&:state).each { |state, iu| states[state] = iu.count }
 
           line_item = units.first.line_item
@@ -237,7 +240,8 @@ module Spree
     def determine_state(order)
       return 'canceled' if order.canceled?
       return 'pending' unless order.can_ship?
-      return 'pending' if inventory_units.any? &:backordered?
+      return 'pending' if inventory_units.any?(&:backordered?)
+      return 'awaiting_feed' if inventory_units.any?(&:awaiting_feed?)
       return 'shipped' if state == 'shipped'
       order.paid? ? 'ready' : 'pending'
     end
@@ -319,7 +323,7 @@ module Spree
       end
 
       def after_ship
-        inventory_units.each &:ship!
+        inventory_units.each(&:ship!)
         send_shipped_email
         touch :shipped_at
         update_order_shipment_state

@@ -26,9 +26,10 @@ module Spree
           if variant.should_track_inventory?
             next unless stock_location.stock_item(variant)
 
-            on_hand, backordered = stock_location.fill_status(variant, units.count)
+            on_hand, backordered, awaiting_feed = stock_location.fill_status(variant, units.count)
             package.add_multiple units.slice!(0, on_hand), :on_hand if on_hand > 0
             package.add_multiple units.slice!(0, backordered), :backordered if backordered > 0
+            package.add_multiple units.slice!(0, awaiting_feed), :awaiting_feed if awaiting_feed > 0
           else
             package.add_multiple units
           end

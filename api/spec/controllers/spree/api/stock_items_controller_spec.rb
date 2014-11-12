@@ -7,7 +7,7 @@ module Spree
     let!(:stock_location) { create(:stock_location_with_items) }
     let!(:stock_item) { stock_location.stock_items.order(:id).first }
     let!(:attributes) { [:id, :count_on_hand, :backorderable,
-                         :stock_location_id, :variant_id] }
+                         :stock_location_id, :waiting_inventory_unit_count, :variant_id] }
 
     before do
       stub_authentication!
@@ -81,6 +81,14 @@ module Spree
         api_get :show, stock_location_id: stock_location.to_param, id: stock_item.to_param
         json_response.should have_attributes(attributes)
         json_response['count_on_hand'].should eq stock_item.count_on_hand
+      end
+
+      it "returns the count of waiting inventory units with the stock item" do
+        expect(Spree::InventoryUnit).to receive(:total_awaiting_feed_for).
+          with(stock_item.variant).and_return(3)
+
+        api_get :show, stock_location_id: stock_location.to_param, id: stock_item.to_param
+        expect(json_response['waiting_inventory_unit_count']).to eq(3)
       end
 
       it 'can create a new stock item' do
