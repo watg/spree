@@ -16,7 +16,6 @@
 # The master variant can have inventory units, but not option values.
 # All other variants have option values and may have inventory units.
 # Sum of on_hand each variant's inventory level determine "on_hand" level for the product.
-#
 
 module Spree
   class Product < ActiveRecord::Base
@@ -424,8 +423,6 @@ module Spree
     # there's a weird quirk with the delegate stuff that does not automatically save the delegate object
     # when saving so we force a save using a hook.
     def save_master
-      # d { master }
-      # master.save if master && (master.changed? || master.new_record? || (master.default_price && (master.default_price.changed? || master.default_price.new_record?)))
       if master && (master.changed? || master.new_record? || (master.default_price && (master.default_price.changed? || master.default_price.new_record?)))
         master.save
         master.errors.each do |attr, message|
