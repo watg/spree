@@ -108,7 +108,7 @@ describe Spree::Product do
         end
 
         it "saves the master" do
-          product.master.should_receive(:save)
+          product.master.should_receive(:save!)
           product.save
         end
       end
@@ -120,7 +120,7 @@ describe Spree::Product do
         end
 
         it "saves the master" do
-          product.master.should_receive(:save)
+          product.master.should_receive(:save!)
           product.save
         end
 
@@ -135,13 +135,13 @@ describe Spree::Product do
       context "when master default price changed" do
         before do
           master = product.master
-          master.default_price = create(:price, :variant => master)
+          master.default_price = build(:price, :variant => master)
           master.save!
           product.master.default_price.price = 12
         end
 
         it "saves the master" do
-          product.master.should_receive(:save)
+          product.master.should_receive(:save!)
           product.save
         end
 
@@ -186,13 +186,13 @@ describe Spree::Product do
     context "#price" do
       # Regression test for #1173
       it 'strips non-price characters' do
-        product.price = "$10"
-        product.price.should == 10.0
+        product.price_normal_in('USD').price = "$10"
+        product.price_normal_in('USD').amount.should == 10.0
       end
     end
 
     context "#display_price" do
-      before { product.price = 10.55 }
+      before { product.price_normal_in('USD').amount = 10.55 }
       before { product.save }
 
       context "with display_currency set to true" do
@@ -219,7 +219,7 @@ describe Spree::Product do
         end
 
         it "displays the currency in yen" do
-          product.display_price.to_s.should == "¥11"
+          product.display_price.to_s.should == "¥0"
         end
       end
     end
@@ -362,7 +362,7 @@ describe Spree::Product do
 
   context '#create' do
     let!(:prototype) { create(:prototype) }
-    let!(:product) { build(:base_product, name: "Foo", price: 1.99) }
+    let!(:product) { build(:base_product, name: "Foo") }
 
     before { product.prototype_id = prototype.id }
 

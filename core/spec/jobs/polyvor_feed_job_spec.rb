@@ -36,7 +36,7 @@ context
         "variant-url.com",
         nil,
         nil,
-        BigDecimal.new('19.99'),
+        BigDecimal.new('0.00'),
         nil,
         "USD",
         "",

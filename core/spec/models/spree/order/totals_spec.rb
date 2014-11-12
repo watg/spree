@@ -10,7 +10,10 @@ module Spree
       let(:calculator) { Calculator::FlatPercentItemTotal.new(:preferred_flat_percent => 10) }
       let!(:action) { Promotion::Actions::CreateAdjustment.create(promotion: promotion, calculator: calculator) }
 
-      before { order.contents.add(shirt, 1) }
+      before { 
+        shirt.price_normal_in('USD').amount = 19.00
+        order.contents.add(shirt, 1)
+      }
 
       context "item quantity changes" do
         it "recalculates order adjustments" do

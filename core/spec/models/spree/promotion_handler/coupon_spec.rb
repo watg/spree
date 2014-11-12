@@ -99,14 +99,15 @@ module Spree
 
           context "coexists with a non coupon code promo" do
             let!(:order) { Order.create }
+            let(:variant) { create(:variant) }
 
             before do
               order.stub :coupon_code => "10off"
               calculator = Calculator::FlatRate.new(preferred_amount: [{type: :integer, name: "USD", value: 10}])
               general_promo = Promotion.create name: "General Promo"
               general_action = Promotion::Actions::CreateItemAdjustments.create(promotion: general_promo, calculator: calculator)
-
-              order.contents.add create(:variant)
+              variant.price_normal_in('USD').amount = 19.99
+              order.contents.add variant
             end
 
             # regression spec for #4515
@@ -205,7 +206,8 @@ module Spree
           context "and the product price is less than promo discount" do
             before(:each) do
               3.times do |i|
-                taxable = create(:product, :tax_category => @category, :price => 9.0)
+                taxable = create(:product, :tax_category => @category)
+                taxable.master.price_normal_in('USD').amount = 9.0
                 @order.contents.add(taxable.master, 1)
               end
             end
@@ -223,7 +225,8 @@ module Spree
           context "and the product price is greater than promo discount" do
             before(:each) do
               3.times do |i|
-                taxable = create(:product, :tax_category => @category, :price => 11.0)
+                taxable = create(:product, :tax_category => @category)
+                taxable.master.price_normal_in('USD').amount = 11.0
                 @order.contents.add(taxable.master, 2)
               end
             end
@@ -248,7 +251,8 @@ module Spree
               @order.unstub :coupon_code
               @order.stub :coupon_code => "20off"
               3.times do |i|
-                taxable = create(:product, :tax_category => @category, :price => 10.0)
+                taxable = create(:product, :tax_category => @category)
+                taxable.master.price_normal_in('USD').amount = 10.0
                 @order.contents.add(taxable.master, 2)
               end
             end

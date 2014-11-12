@@ -9,8 +9,12 @@ module Spree
     validate :check_price
     validates :amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: false
 
+    # Prevent duplicate prices from happening in the system, there is also a uniq
+    # index on the database table to ensure there are no race conditions
+    validates_uniqueness_of :variant_id, :scope => [ :currency, :sale, :is_kit, :deleted_at ]
+
     def self.default_price
-      self.new(amount: 0, currency: Spree::Config[:currency])
+      self.new(amount: 0, currency: Spree::Config[:currency], sale: false, is_kit: false)
     end
 
     def display_amount

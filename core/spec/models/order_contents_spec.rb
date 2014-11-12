@@ -6,9 +6,10 @@ describe Spree::OrderContents do
   let(:subject) { Spree::OrderContents.new(order) }
   let(:currency){ 'USD' }
 
-  let!(:price) { create(:price, is_kit: true, amount: 5) }
+  let!(:price) { build(:price, is_kit: true, amount: 5) }
 
   before do
+    variant.price_normal_in('USD').amount = 19.99
     Spree::Variant.any_instance.stub(:price_part_in => price)
   end
 
@@ -339,7 +340,8 @@ describe Spree::OrderContents do
 
 
       it "should set the line item price to include the optional parts' prices" do
-        variant = create(:variant, price: 60.00)
+        variant = create(:variant)
+        variant.price_normal_in('USD').amount = 60.00
 
         parts = [
           Spree::LineItemPart.new(

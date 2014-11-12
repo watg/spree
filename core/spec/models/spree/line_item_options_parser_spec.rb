@@ -4,8 +4,8 @@ describe Spree::LineItemOptionsParser do
 
   subject { described_class.new("USD") }
 
-  let(:variant) { create(:variant, price: 60.00) }
-  let(:product) { variant.product }
+  let!(:variant) { create(:variant) }
+  let!(:product) { variant.product }
   let(:target_id) { 45 }
 
   context "#personalisations" do
@@ -194,7 +194,7 @@ describe Spree::LineItemOptionsParser do
             variant_id: other_variant.id,
             quantity: 1,
             optional: false,
-            price: other_variant.product.master.price,
+            price: BigDecimal.new('0.00'),
             currency: "USD",
             assembled: false,
             container: false,
@@ -224,7 +224,6 @@ describe Spree::LineItemOptionsParser do
             container: false,
             main_part: false)
 
-          # A new dynamic part
           parts = subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => variant_part.id.to_s, other_part.id.to_s => other_variant.id.to_s})
           expect(parts.map(&:attributes)).to match_array [lip1,lip2,lip3,lip4].map(&:attributes)
         end
@@ -243,7 +242,7 @@ describe Spree::LineItemOptionsParser do
           variant_id: required_part1.id,
           quantity: 2,
           optional: false,
-          price: BigDecimal.new('19.99'),
+          price: BigDecimal.new('0.00'),
           currency: "USD",
           container: false,
           main_part: false
@@ -255,7 +254,7 @@ describe Spree::LineItemOptionsParser do
           variant_id: part1.id,
           quantity: 1,
           optional: true,
-          price: BigDecimal.new('19.99'),
+          price: BigDecimal.new('0.00'),
           currency: "USD",
           container: false,
           main_part: false
@@ -277,14 +276,11 @@ describe Spree::LineItemOptionsParser do
         expect(parts.map(&:attributes)).to match_array expected_optional_parts.map(&:attributes)
       end
 
-
-
     end
 
     context "#part_price_amount" do
       let(:price) { mock_model(Spree::Price, amount: 1)}
       let(:nil_price) { mock_model(Spree::Price, amount: nil)}
-
 
       context "variant price_part_in available" do
 
@@ -292,12 +288,10 @@ describe Spree::LineItemOptionsParser do
           allow(variant).to receive(:price_part_in).with('USD').and_return(price)
         end
 
-
         it "returns a price" do
           expect(subject.send(:part_price_amount, variant)).to eq price.amount
         end
       end
-
 
       context "variant price_part_in not available but master price_part_in is" do
 

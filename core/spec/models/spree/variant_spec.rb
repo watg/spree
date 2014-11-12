@@ -85,9 +85,18 @@ describe Spree::Variant do
     let(:product) { create(:product_with_variants) }
     let(:variant_in_sale) { create(:variant_in_sale) }
 
+    before do
+      product.variants.each  do |v|
+        price = v.price_normal_in('USD') 
+        price.amount = 19.99
+        price.save
+      end
+    end
+
     it "should build a tree based on it's variants" do
       variant_1 = product.variants[0]
       variant_2 = product.variants[1]
+
       ov1 = variant_1.option_values.first
       ov2 = variant_2.option_values.first
 
@@ -392,7 +401,7 @@ describe Spree::Variant do
 
   context "#display_amount" do
     it "returns a Spree::Money" do
-      variant.display_amount.to_s.should == "$19.99"
+      variant.display_amount.to_s.should == "$0.00"
     end
   end
 
@@ -408,8 +417,8 @@ describe Spree::Variant do
 
   describe '.price_normal_in' do
     before do
-      variant.prices << create(:price, :variant => variant, :currency => "EUR", :amount => 33.33)
-      variant.prices << create(:price, :variant => variant, :currency => "USD", :amount => 19.99)
+      variant.price_normal_in('EUR').amount = 33.33
+      variant.price_normal_in('USD').amount = 19.99
     end
     subject { variant.price_normal_in(currency).display_amount }
 
@@ -440,8 +449,8 @@ describe Spree::Variant do
 
   describe '.amount_in' do
     before do
-      variant.prices << create(:price, :variant => variant, :currency => "EUR", :amount => 33.33)
-      variant.prices << create(:price, :variant => variant, :currency => "USD", :amount => 19.99)
+      variant.price_normal_in('EUR').amount = 33.33
+      variant.price_normal_in('USD').amount = 19.99
     end
 
     subject { variant.amount_in(currency) }
@@ -632,9 +641,9 @@ describe Spree::Variant do
 
   describe "deleted_at scope" do
     before { variant.destroy && variant.reload }
-    it "should have a price if deleted" do
-      variant.price = 10
-      expect(variant.price).to eq(10)
+    it "should have prices if deleted" do
+      variant.price_normal_in('USD').amount = 10
+      expect(variant.price_normal_in('USD').amount.to_i).to eq(10)
     end
   end
 

@@ -2,9 +2,8 @@ FactoryGirl.define do
   sequence(:random_float) { BigDecimal.new("#{rand(200)}.#{rand(99)}") }
 
   factory :base_variant, class: Spree::Variant do
-		price 19.99
 		cost_price 10
-		
+
 		# upgraded
     # cost_price 17.00
     sku    { SecureRandom.hex }
@@ -14,7 +13,6 @@ FactoryGirl.define do
     depth  { generate(:random_float) }
     is_master 0
     track_inventory true
-
 
     product { |p| p.association(:base_product) }
     option_values { [create(:option_value)] }
@@ -30,6 +28,14 @@ FactoryGirl.define do
 
       ignore do
         target nil
+        amount nil
+        currency 'USD'
+      end
+
+      after(:build) do |i,evaluator|
+        if evaluator.amount
+          i.price_normal_in(evaluator.currency).amount = evaluator.amount
+        end
       end
 
       after :create do |i,evaluator|
@@ -40,9 +46,9 @@ FactoryGirl.define do
 
       factory :variant_in_sale do
         in_sale true
-        
-        after :create do |v|
-          v.prices << FactoryGirl.create(:price, variant_id: v.id, amount: 6, sale: true)
+        before :create do |v|
+          v.price_normal_in('USD').amount = 19.99
+          v.price_normal_sale_in('USD').amount = 6
         end
       end
 

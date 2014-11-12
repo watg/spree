@@ -5,13 +5,9 @@ describe Spree::OrderPopulator do
   let(:order) { mock_model(Spree::Order, currency: 'USD') }
   subject { Spree::OrderPopulator.new(order, "USD") }
 
-  let(:variant) { create(:variant, price: 60.00) }
+  let(:variant) { create(:variant, amount: 60.00) }
   let(:product) { variant.product }
   let(:target_id) { 45 }
-
-  #context "#attempt_cart_add" do
-  #end
-  #
 
 
   context "#populate" do

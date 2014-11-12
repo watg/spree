@@ -170,7 +170,7 @@ module Spree
       }
 
       expect(response.status).to eq 201
-      expect(Order.last.line_items.first.price.to_f).to eq(variant.price)
+      expect(Order.last.line_items.first.price.to_f).to eq(variant.price_normal_in('USD').amount.to_f)
     end
 
     context "admin user imports order" do
@@ -206,7 +206,7 @@ module Spree
 
     context "working with an order" do
 
-      let(:variant) { create(:variant) }
+      let(:variant) { create(:variant, amount: 19.99) }
       let!(:line_item) { order.contents.add(variant, 1) }
       let!(:payment_method) { create(:check_payment_method) }
 
@@ -256,7 +256,7 @@ module Spree
       end
 
       it "adds an extra line item" do
-        variant2 = create(:variant)
+        variant2 = create(:variant, amount: 19.99)
         api_put :update, :id => order.to_param, :order => {
           :line_items => {
             0 => { :id => line_item.id, :quantity => 10 },
@@ -281,7 +281,7 @@ module Spree
         response.status.should == 200
         json_response['line_items'].count.should == 1
         expect(json_response['line_items'].first['price'].to_f).to_not eq(0)
-        expect(json_response['line_items'].first['price'].to_f).to eq(line_item.variant.price)
+        expect(json_response['line_items'].first['price'].to_f).to eq(line_item.variant.price_normal_in('USD').amount.to_f)
       end
 
       it "can add billing address" do
@@ -432,7 +432,7 @@ module Spree
             shipment["stock_location_name"].should_not be_blank
             manifest_item = shipment["manifest"][0]
             manifest_item["quantity"].should == 1
-            manifest_item["variant"].should have_attributes([:id, :name, :sku, :price])
+            manifest_item["variant"].should have_attributes([:id, :name, :sku])
           end
         end
       end

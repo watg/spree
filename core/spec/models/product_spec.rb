@@ -63,14 +63,32 @@ describe Spree::Product do
 
   context "#lowest_priced_variant in stock" do
     let(:r2w) { create(:base_product) }
-    let!(:variant1) {
-      v = create(:variant, price: 18.00, currency: "USD", product: r2w, sku: 'part1', in_stock_cache: true)
-      create(:price, amount: 14.00, currency: "USD", sale: true, variant: v)
-      v }
-    let!(:variant2) {
-      v = create(:variant, price: 17.99, currency: "USD", product: r2w, sku: 'part2', in_stock_cache: true)
-      create(:price, amount: 16.99, currency: "USD", sale: true, variant: v)
-      v }
+
+    let!(:variant1) do
+      create(:variant, product: r2w, sku: 'part1', in_stock_cache: true)
+    end
+
+    let!(:variant2) do
+      create(:variant, product: r2w, sku: 'part2', in_stock_cache: true)
+    end
+
+    before do
+      p = variant1.price_normal_in('USD')
+      p.amount = 18.00
+      p.save
+
+      p = variant1.price_normal_sale_in('USD')
+      p.amount = 14.00
+      p.save
+
+      p = variant2.price_normal_in('USD')
+      p.amount = 17.99
+      p.save
+
+      p = variant2.price_normal_sale_in('USD')
+      p.amount = 16.99
+      p.save
+    end
 
     context "no variant in sale" do
 
@@ -78,7 +96,7 @@ describe Spree::Product do
         expect(r2w.lowest_priced_variant("USD", in_sale: true)).to be_nil
       end
 
-      it "returns lowest nornal price" do
+      it "returns lowest normal price" do
         expect(r2w.lowest_priced_variant("USD")).to eq(variant2)
       end
 
@@ -98,23 +116,23 @@ describe Spree::Product do
     end
 
     it "scoped by currency" do
-      variant3 = create(:variant, price: 120.00, currency: "GBP", product: r2w, in_stock_cache: true)
-      variant4 = create(:variant, price: 30.00, currency: "GBP", product: r2w, in_stock_cache: true)
+      variant3 = create(:variant, amount: 120.00, currency: "GBP", product: r2w, in_stock_cache: true)
+      variant4 = create(:variant, amount: 30.00, currency: "GBP", product: r2w, in_stock_cache: true)
       expect(r2w.lowest_priced_variant("GBP")).to eq(variant4)
     end
 
     it "with some variants out of stock" do
-      variant3 = create(:variant, price: 1.00, currency: "USD", product: r2w)
-      variant4 = create(:variant, price: 15.00, currency: "USD", product: r2w)
+      variant3 = create(:variant, amount: 1.00, currency: "USD", product: r2w)
+      variant4 = create(:variant, amount: 15.00, currency: "USD", product: r2w)
       expect(r2w.lowest_priced_variant("USD")).to eq(variant2)
     end
 
     it "for kit products with some variants out of stock" do
       kit = create(:base_product, product_type: create(:product_type_kit))
 
-      kit_variant1 = create(:variant, price: 14.00, currency: "USD", product: kit, sku: 'v1', in_stock_cache: false)
-      kit_variant2 = create(:variant, price: 14.01, currency: "USD", product: kit, sku: 'v2', in_stock_cache: true)
-      kit_variant3 = create(:variant, price: 15.00, currency: "USD", product: kit, sku: 'v3', in_stock_cache: true)
+      kit_variant1 = create(:variant, amount: 14.00, currency: "USD", product: kit, sku: 'v1', in_stock_cache: false)
+      kit_variant2 = create(:variant, amount: 14.01, currency: "USD", product: kit, sku: 'v2', in_stock_cache: true)
+      kit_variant3 = create(:variant, amount: 15.00, currency: "USD", product: kit, sku: 'v3', in_stock_cache: true)
 
       expect(kit.lowest_priced_variant("USD")).to eq(kit_variant2)
     end

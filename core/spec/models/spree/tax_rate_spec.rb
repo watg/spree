@@ -285,7 +285,10 @@ describe Spree::TaxRate do
       )
       @order       = Spree::Order.create!
       @taxable     = create(:product, :tax_category => @category)
+      @taxable.price_normal_in('USD').amount = 19.99
+
       @nontaxable  = create(:product, :tax_category => @category2)
+      @nontaxable.price_normal_in('USD').amount = 19.99
     end
 
     context "not taxable line item " do
