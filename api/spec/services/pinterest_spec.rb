@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Spree::PinterestService do
 
   context 'returns a correct OpenStruct response' do
-    let!(:product_page_tab) { create(:product_page_tab) }
+    let!(:product_page_tab) { create(:product_page_tab, product: product) }
     let(:target) { create(:target, name: 'female' ) }
     let(:product_page) { product_page_tab.product_page }
     let(:product) {create(:product_with_variants, number_of_variants: 1)}
@@ -24,6 +24,30 @@ describe Spree::PinterestService do
 
       let(:url) { variant.decorate( context ).url_encoded_product_page_url(product_page.decorate( context )) }
       let(:kit_url) { variant.decorate( kit_context ).url_encoded_product_page_url(product_page.decorate( kit_context ), product_page.knit_your_own) }
+
+      context "variant missing from url" do
+
+        let(:url) { "http://www.example.com/shop/items/#{product_page.permalink}/made-by-the-gang" }
+
+        it "returns the first variant" do
+          outcome = Spree::PinterestService.run({url: url})
+          outcome.success?.should == true
+          outcome.result.product_id.should == variant.number
+        end
+
+      end
+
+      context "tab missing from url" do
+
+        let(:url) { "http://www.example.com/shop/items/#{product_page.permalink}" }
+
+        it "returns the first variant" do
+          outcome = Spree::PinterestService.run({url: url})
+          outcome.success?.should == true
+          outcome.result.product_id.should == variant.number
+        end
+
+      end
 
       context 'images' do
 
