@@ -80,6 +80,42 @@ module Spree
       awaiting_feed
     end
 
+    # There is a potential race condition here that could be triggered if you
+    # change the way this method works. At present stock transfers involve two
+    # adjustments to count on hand - one for the location you're moving it out
+    # of and one for the location you're moving it into. However both
+    # adjustments potentially create jobs to invalidate the cache. Thus it is
+    # theoretically possible that the job to invalidate the cache will run when
+    # the stock is 'in transit'.
+    #
+    # Normally this won't be too bad as the second update will also trigger the
+    # cache invalidation so the value will only be wrong very briefly. However
+    # if stock is being moved from a feeder store into an active store there is
+    # the potential that the invalidation won't be triggered because the stock
+    # moved into it will be allocated to waiting orders, and the count_on_hand
+    # won't change.
+    #
+    # This will never be a problem if only the boolean 'in_stock?' is being
+    # cached. The answer to this question won't be wrong when stock is
+    # 'in transit'. However if we start caching the count on hand then there is
+    # a risk that the cache will get invalidated as the value goes negative
+    # (stock has left the feeder location and not appeared in the active, but we
+    # still have inventory units waiting for it) and then not get corrected when
+    # the stock arrives in the active location (as the count_on_hand won't
+    # change, although the inventory units' state will change).
+    #
+    # It is tempting to think that we could fix this by wrapping transfers in a
+    # database transaction. This would be the case so long as we're using
+    # DelayedJob (or some other database backed queue). If we were using a non-
+    # database queue then there is the potential that the job would trigger
+    # before the transaction finishes, and thus recalulate before the values
+    # have been updated.
+    #
+    # The 'correct' solution to all of this would probably be to create an
+    # abstraction for adjusting stock, make sure the rest of the code always
+    # goes via this abstraction and then make the abstraction responsible for
+    # creating the cache invalidation job once it knows all the updates have
+    # finished.
     def conditional_variant_touch
       # the variant_id changes from nil when a new stock location is added
       stock_changed = (count_on_hand_changed? && count_on_hand_change.any?(&:zero?)) || variant_id_changed?
