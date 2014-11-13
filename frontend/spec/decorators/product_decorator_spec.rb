@@ -7,6 +7,14 @@ describe Spree::ProductDecorator do
 
   subject { product.decorate( context: { target: target, current_currency: currency } ) }
 
+  context "price" do
+
+    it "returns the price_normal_in for a product" do
+      subject.price.should eq(product.price_normal_in('USD'))
+    end
+
+  end
+
   context "images" do
     let(:images) { create_list(:image, 2) }
 
