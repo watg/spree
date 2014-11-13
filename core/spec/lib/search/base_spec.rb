@@ -6,8 +6,8 @@ describe Spree::Core::Search::Base do
     include Spree::Core::ProductFilters
     Spree::Product.delete_all # FIXME product leaks
 
-    @product1 = create(:product, :name => "RoR Mug", :price => 9.00)
-    @product2 = create(:product, :name => "RoR Shirt", :price => 11.00)
+    @product1 = create(:product, :name => "RoR Mug", :amount => 9.00)
+    @product2 = create(:product, :name => "RoR Shirt", :amount => 11.00)
   end
 
   it "returns all products by default" do
@@ -17,7 +17,7 @@ describe Spree::Core::Search::Base do
   end
 
   it "switches to next page according to the page parameter" do
-    @product3 = create(:product, :name => "RoR Pants", :price => 14.00)
+    @product3 = create(:product, :name => "RoR Pants", :amount => 14.00)
 
     params = { :per_page => "2" }
     searcher = Spree::Core::Search::Base.new(params)

@@ -259,6 +259,7 @@ describe Spree::LineItem do
     let(:variant) { create(:variant) }
 
     before do
+      variant.price_normal_in('USD').amount = 19.99
       create(:tax_rate, :zone => order.tax_zone, :tax_category => variant.tax_category)
     end
 
@@ -304,11 +305,12 @@ describe Spree::LineItem do
       line_item.currency = nil
       line_item.copy_price
       variant = line_item.variant
-      line_item.price.should == variant.price
+      line_item.price.should == variant.price_normal_in(order.currency).amount
       line_item.cost_price.should == variant.cost_price
       line_item.currency.should == variant.currency
     end
   end
+  # TODO, if it is in the sale, we should change the price to reflect that
 
   # Test for #3481
   context '#copy_tax_category' do

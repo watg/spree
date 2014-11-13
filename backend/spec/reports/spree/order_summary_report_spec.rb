@@ -10,14 +10,17 @@ describe Spree::OrderSummaryReport do
   let!(:marketing_type_2) { create(:marketing_type, name: 'foo')}
   let!(:marketing_type_3) { create(:marketing_type, name: 'part')}
 
-  let(:product1) { create(:product, marketing_type: marketing_type_1)}
-  let(:product2) { create(:product, marketing_type: marketing_type_1)}
-  let(:product3) { create(:product, marketing_type: marketing_type_2)}
-  let(:part)     { create(:product, marketing_type: marketing_type_3)}
+  let!(:product1) { create(:product, marketing_type: marketing_type_1)}
+  let!(:product2) { create(:product, marketing_type: marketing_type_1)}
+  let!(:product3) { create(:product, marketing_type: marketing_type_2)}
+  let!(:part)     { create(:product, marketing_type: marketing_type_3)}
   let(:line_item) { order.line_items.first}
 
   context "#marketing types" do
     before do
+      product1.master.price_normal_in('USD').amount = 19.99
+      product2.master.price_normal_in('USD').amount = 19.99
+      product3.master.price_normal_in('USD').amount = 19.99
       order.contents.add(product1.master, 1)
       order.contents.add(product2.master, 1)
       order.contents.add(product3.master, 2)

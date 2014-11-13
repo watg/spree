@@ -9,7 +9,7 @@ describe Spree::IssueGiftCardService do
                            buyer_email: order.email,
                            buyer_order: order,
                            currency: order.currency,
-                           value: item_with_gift_card.variant.price.to_f) }
+                           value: item_with_gift_card.variant.price_normal_in('USD').amount.to_f) }
   
   it "skips processsing when line_item does have gift card" do
     outcome = subject.run(order: order, line_item: item, position: 0)
@@ -27,7 +27,7 @@ describe Spree::IssueGiftCardService do
              buyer_email: order.email,
              buyer_order: order,
              currency:    order.currency,
-             value:       item_with_gift_card.variant.price.to_f
+             value:       item_with_gift_card.variant.price_normal_in('USD').amount.to_f
              ).
         and_return(gift_card)
     end
@@ -41,7 +41,7 @@ describe Spree::IssueGiftCardService do
              buyer_email: order.email,
              buyer_order: order,
              currency:    order.currency,
-             value:       item_with_gift_card.variant.price.to_f
+             value:       item_with_gift_card.variant.price_normal_in('USD').amount.to_f
              ).
         and_return(gift_card)
 

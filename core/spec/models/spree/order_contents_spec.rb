@@ -5,6 +5,7 @@ describe Spree::OrderContents do
   let(:variant) { create(:variant) }
 
   subject { described_class.new(order) }
+  before { variant.price_normal_in('USD').amount = 19.99 }
 
   context "#add" do
     context 'given quantity is not explicitly provided' do
@@ -44,7 +45,7 @@ describe Spree::OrderContents do
 
       shared_context "discount changes order total" do
         before { subject.add(variant, 1) }
-        it { expect(subject.order.total).not_to eq variant.price }
+        it { expect(subject.order.total).not_to eq variant.price_normal_in('USD').amount }
       end
 
       context "one active order promotion" do

@@ -7,7 +7,7 @@ module Spree
 
     let!(:product) { create(:product) }
     let!(:inactive_product) { create(:product, :available_on => Time.now.tomorrow, :name => "inactive") }
-    let(:base_attributes) { [:id, :name, :description, :price, :display_price, :available_on, :slug, :meta_description, :meta_keywords, :shipping_category_id, :taxon_ids] }
+    let(:base_attributes) { [:id, :name, :description, :display_price, :available_on, :slug, :meta_description, :meta_keywords, :shipping_category_id, :taxon_ids] }
     let(:show_attributes) { base_attributes.dup.push(:has_variants) }
     let(:new_attributes) { base_attributes }
 
@@ -19,7 +19,6 @@ module Spree
 		    product_group_id: product.product_group.id,
         product_type_id: product_type.id,
         marketing_type_id: marketing_type.id,
-        price: 19.99,
         shipping_category_id: create(:shipping_category).id }
     end
     let(:attributes_for_variant) do
@@ -154,7 +153,6 @@ module Spree
         json_response.should have_attributes(show_attributes)
         json_response['variants'].first.should have_attributes([:name,
                                                               :is_master,
-                                                              :price,
                                                               :images,
                                                               :in_stock])
 
@@ -249,7 +247,6 @@ module Spree
 
         it "can create a new product" do
           api_post :create, :product => { :name => "The Other Product",
-                                          :price => 19.99,
                                           :product_group_id => product.product_group.id,
                                           :shipping_category_id => create(:shipping_category).id,
                                           :product_type_id => product_type.id,
@@ -376,7 +373,7 @@ module Spree
 
         it "can update an existing variant on a product" do
           variant_hash = {
-            :sku => '123', :price => 19.99, :options => [{:name => "size", :value => "small"}]
+            :sku => '123', :options => [{:name => "size", :value => "small"}]
           }
           variant_id = product.variants.create!({ product: product }.merge(variant_hash)).id
 

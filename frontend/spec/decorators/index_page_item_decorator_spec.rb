@@ -109,10 +109,11 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
 
     context "with a kit product on the product page" do
       let(:kit) { create(:product, product_type: create(:product_type_kit)) }
-      let!(:variant) { create(:variant, product: kit, price: 9.99, in_sale: true, in_stock_cache: true) }
+      let!(:variant) { create(:variant, product: kit, in_sale: true, in_stock_cache: true) }
       let(:tab) { product_page.knit_your_own }
 
       before :each do
+        variant.price_normal_sale_in('USD').amount = 9.99
         product_page.product_groups << kit.product_group
         tab.product = kit
         tab.save!
@@ -170,18 +171,36 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
     let(:tab) { subject.product_page.knit_your_own }
 
     before :each do
-      create(:price, variant: kit_variant, price: 2.99, sale: true)
-      create(:price, variant: kit_variant2, price: 2.00, sale: true)
+      p = kit_variant.price_normal_in('USD')
+      p.amount = 19.99
+      p.save
+
+      p = kit_variant2.price_normal_in('USD')
+      p.amount = 19.99
+      p.save
+
+      p = kit_variant.price_normal_sale_in('USD')
+      p.amount = 2.99
+      p.save
+
+      p = kit_variant2.price_normal_sale_in('USD')
+      p.amount = 2.00
+      p.save
+
       tab.product = kit
       tab.save!
     end
 
     context "Dyanmic Kit" do
 
-      let(:dynamic_kit) { create(:base_product, price: 5.00, name: 'dynamic kit') }
+      let(:dynamic_kit) { create(:base_product, name: 'dynamic kit') }
       let!(:assembly_definition) { create(:assembly_definition, variant: dynamic_kit.master) }
 
       before do
+        p = dynamic_kit.price_normal_in('USD')
+        p.amount = 5.00
+        p.save
+
         tab.product = dynamic_kit.reload
         dynamic_kit.master.update_column(:in_stock_cache, true)
         tab.save!

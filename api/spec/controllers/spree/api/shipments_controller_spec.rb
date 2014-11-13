@@ -86,7 +86,7 @@ describe Spree::Api::ShipmentsController do
 
       context "dynamic kits" do
 
-        let(:variant) { create(:variant, price: 60.00) }
+        let(:variant) { create(:variant, amount: 60.00) }
         let(:product) { variant.product }
         let!(:variant_assembly) { create(:variant) }
         let!(:assembly_definition) { create(:assembly_definition, variant: variant_assembly) }
@@ -110,10 +110,9 @@ describe Spree::Api::ShipmentsController do
 
       context "static kits" do
 
-        let(:variant) { create(:variant, price: 60.00) }
+        let(:variant) { create(:variant, amount: 60.00) }
         let(:product) { variant.product }
         let!(:required_part1) { create(:variant) }
-        let!(:price) { create(:price, variant: required_part1, currency: 'USD') }
         #let(:part1) { create(:variant) }
 
         before do

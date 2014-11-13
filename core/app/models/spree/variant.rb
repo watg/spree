@@ -31,7 +31,7 @@ module Spree
       class_name: 'Spree::Price',
       dependent: :destroy
 
-    delegate_belongs_to :default_price, :display_price, :display_amount, :price, :price=, :currency
+    delegate_belongs_to :default_price, :display_price, :display_amount, :currency
 
     delegate_belongs_to :product, :assembly_definitions
 
@@ -41,7 +41,6 @@ module Spree
       inverse_of: :variant
 
     validate :check_price
-    # validates :price, numericality: { greater_than_or_equal_to: 0 }
 
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
     validates :weight, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
@@ -266,19 +265,19 @@ module Spree
 
     # --- new price getters --------
     def price_normal_in(currency_code)
-      find_normal_price(currency_code, :regular) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: false, sale: false)
+      find_normal_price(currency_code, :regular) || self.prices.new(currency: currency_code, is_kit: false, sale: false)
     end
 
     def price_normal_sale_in(currency_code)
-      find_normal_price(currency_code, :sale) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: false, sale: true)
+      find_normal_price(currency_code, :sale) || self.prices.new(currency: currency_code, is_kit: false, sale: true)
     end
 
     def price_part_in(currency_code)
-      find_part_price(currency_code, :regular) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: true, sale: false)
+      find_part_price(currency_code, :regular) || self.prices.new(currency: currency_code, is_kit: true, sale: false)
     end
 
     def price_part_sale_in(currency_code)
-      find_part_price(currency_code, :sale) || Spree::Price.new(variant_id: self.id, currency: currency_code, is_kit: true, sale: true)
+      find_part_price(currency_code, :sale) || self.prices.new(currency: currency_code, is_kit: true, sale: true)
     end
     # ------------------------------
 
@@ -449,6 +448,10 @@ module Spree
       self.sku = sku_parts.flatten.join('-')
     end
 
+    def duplicator
+      @_duplicator ||= VariantDuplicator.new(self)
+    end
+
     private
 
     def touch_assembly_products
@@ -481,14 +484,14 @@ module Spree
 
     # Ensures a new variant takes the product master price when price is not supplied
     def check_price
-      if price.nil? && prices.empty? && Spree::Config[:require_master_price]
+      if prices.empty? && Spree::Config[:require_master_price]
         raise 'No master variant found to infer price' unless (product && product.master)
         # raise 'Must supply price for variant or master.price for product.' if self == product.master
         if self == product.master
           # the assignment to price delegates to master_price, which in turn builds a price object
           self.prices = [Spree::Price.default_price]
         else
-          self.prices = product.master.prices.map { |price| price.dup }
+          self.prices = product.master.duplicator.duplicate_prices
         end
       end
       if currency.nil?
@@ -503,7 +506,6 @@ module Spree
     def set_cost_currency
       self.cost_currency = Spree::Config[:currency] if cost_currency.nil? || cost_currency.empty?
     end
-
 
     def create_stock_items
       StockLocation.all.each do |stock_location|

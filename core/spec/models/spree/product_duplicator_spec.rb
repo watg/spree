@@ -11,7 +11,6 @@ module Spree
       expect{duplicator.duplicate}.to change{Spree::Product.count}.by(1)
     end
 
-
     context "images" do
 
       let(:image) { File.open(File.expand_path('../../../fixtures/thinking-cat.jpg', __FILE__)) }
@@ -111,8 +110,8 @@ module Spree
     end
 
     context "prices" do
-      let(:price) { create(:price, is_kit: true, amount: 5) }
       let(:variant1) { create(:variant, product: product) }
+      let(:price) { build(:price, is_kit: true, amount: 5) }
 
       it "duplicates master prices" do
         product.master.prices << price

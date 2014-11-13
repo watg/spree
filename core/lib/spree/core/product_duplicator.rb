@@ -24,6 +24,10 @@ module Spree
 
     protected
 
+    def variant_duplicator(variant)
+      Spree::VariantDuplicator.new(variant)
+    end
+
     def duplicate_product
       product.dup.tap do |new_product|
         new_product.name = "COPY OF #{product.name}"
@@ -33,7 +37,9 @@ module Spree
         new_product.updated_at = nil
         new_product.product_properties = reset_properties
         new_product.master = duplicate_master
-        new_product.variants = product.variants.map { |variant| duplicate_variant variant }
+        new_product.variants = product.variants.map do |variant|
+        duplicate_variant variant
+        end
       end
     end
 
@@ -43,7 +49,7 @@ module Spree
         new_master.sku = "COPY OF #{master.sku}"
         new_master.deleted_at = nil
         new_master.images = master.images.map { |image| duplicate_image image } if @include_images
-        new_master.prices = master.prices.map { |price| duplicate_price price }
+        new_master.prices = duplicate_prices(master)
         new_master.generate_variant_number(force: true)
         new_master.currency = master.currency
       end
@@ -54,7 +60,7 @@ module Spree
       new_variant.sku = "COPY OF #{new_variant.sku}"
       new_variant.deleted_at = nil
       new_variant.option_values = variant.option_values.map { |option_value| option_value}
-      new_variant.prices = variant.prices.map { |price| duplicate_price price }
+      new_variant.prices = duplicate_prices(variant)
       new_variant.generate_variant_number(force: true)
       new_variant.permalink = nil
       new_variant
@@ -66,9 +72,8 @@ module Spree
       new_image
     end
 
-    def duplicate_price(price)
-      new_price = price.dup
-      new_price
+    def duplicate_prices(variant)
+      variant_duplicator(variant).duplicate_prices
     end
 
     def reset_properties

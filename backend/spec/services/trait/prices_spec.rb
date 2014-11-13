@@ -3,15 +3,15 @@ require 'spec_helper'
 
 describe Spree::ServiceTrait::Prices do
   let(:prices) { [
-    create(:price, :currency => 'GBP', :amount => 12), 
-    create(:price, :currency => 'USD', :amount => 13),  
-    create(:price, :currency => 'EUR', :amount => 14),
-    create(:price, :currency => 'GBP', :amount => 2, :sale => true), 
-    create(:price, :currency => 'USD', :amount => 3, :sale => true),  
-    create(:price, :currency => 'EUR', :amount => 4, :sale => true),
-    create(:price, :currency => 'GBP', :amount => 1, :is_kit => true), 
-    create(:price, :currency => 'USD', :amount => 1, :is_kit => true),
-    create(:price, :currency => 'EUR', :amount => 1, :is_kit => true),
+    build(:price, :currency => 'GBP', :amount => 12),
+    build(:price, :currency => 'USD', :amount => 13),
+    build(:price, :currency => 'EUR', :amount => 14),
+    build(:price, :currency => 'GBP', :amount => 2, :sale => true), 
+    build(:price, :currency => 'USD', :amount => 3, :sale => true),  
+    build(:price, :currency => 'EUR', :amount => 4, :sale => true),
+    build(:price, :currency => 'GBP', :amount => 1, :is_kit => true), 
+    build(:price, :currency => 'USD', :amount => 1, :is_kit => true),
+    build(:price, :currency => 'EUR', :amount => 1, :is_kit => true),
   ] }
   let(:product) { FactoryGirl.create(:product) }
   let(:variant) { FactoryGirl.create(:base_variant, product_id: product.id, prices: prices) }
@@ -21,7 +21,6 @@ describe Spree::ServiceTrait::Prices do
     :normal_sale=>{"GBP"=>"£111.00", "USD"=>"$12.00", "EUR"=>"€0.00"}, 
     :part=>{"GBP"=>"£22.00", "USD"=>"$0.00", "EUR"=>"€0.00"}
   } }
-
 
   let(:dummy_class) {  OpenStruct.new.extend(Spree::ServiceTrait::Prices) }
 

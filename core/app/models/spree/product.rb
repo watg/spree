@@ -86,7 +86,7 @@ module Spree
 
     has_many :stock_items, through: :variants_including_master
 
-    delegate_belongs_to :master, :sku, :price, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :price_normal_in, :amount_in
+    delegate_belongs_to :master, :sku, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :price_normal_in, :amount_in
 
     delegate_belongs_to :master, :cost_price
 
@@ -424,10 +424,12 @@ module Spree
     # when saving so we force a save using a hook.
     def save_master
       if master && (master.changed? || master.new_record? || (master.default_price && (master.default_price.changed? || master.default_price.new_record?)))
-        master.save
-        master.errors.each do |attr, message|
-          master.product.errors.add(attr, message)
-        end
+        master.save!
+        # Save with a bang as I want to know when this fails, and not have wishy washy errors 
+        # that I have to hunt down for on certain models
+        #master.errors.each do |attr, message|
+        #  master.product.errors.add(attr, message)
+        #end
       end
     end
 

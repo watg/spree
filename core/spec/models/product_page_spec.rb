@@ -96,15 +96,15 @@ describe Spree::ProductPage do
   describe "variant prices" do
     describe "made by the gang" do
 
-      let(:product1) { create(:product_with_prices, usd_price: 29.99, gbp_price: 8.00) }
-      let(:product2) { create(:product_with_prices, usd_price: 30.00, gbp_price: 7.00) }
-      let(:product3) { create(:product_with_stock_and_prices, usd_price: 33.00, gbp_price: 7.50) }
-      let(:product4) { create(:product_with_stock_and_prices, usd_price: 33.01, gbp_price: 7.49) }
-      let(:product5) { create(:product_with_stock_and_prices, usd_price: 33.01, gbp_price: 7.49) }
+      let!(:product1) { create(:product_with_prices, usd_price: 29.99, gbp_price: 8.00) }
+      let!(:product2) { create(:product_with_prices, usd_price: 30.00, gbp_price: 7.00) }
+      let!(:product3) { create(:product_with_stock_and_prices, usd_price: 33.00, gbp_price: 7.50) }
+      let!(:product4) { create(:product_with_stock_and_prices, usd_price: 33.01, gbp_price: 7.49) }
+      let!(:product5) { create(:product_with_stock_and_prices, usd_price: 33.01, gbp_price: 7.49) }
 
       before do
-        sale_price1 = create(:price, sale: true, amount: 1.00, currency: 'GBP', variant: product4.master )
-        sale_price2 = create(:price, sale: true, amount: 2.00, currency: 'GBP', variant: product5.master )
+        product4.master.price_normal_sale_in('GBP').amount = 1.00
+        product5.master.price_normal_sale_in('GBP').amount = 2.00
         product5.master.update_attributes(in_sale: true)
 
         [product1,product2,product3,product4,product5].each do |product|
@@ -145,10 +145,17 @@ describe Spree::ProductPage do
         tab.product = product
         tab.save!
 
-        variant1 = create(:variant, price: 17.99, currency: "USD", product: product, in_stock_cache: true)
-        variant2 = create(:variant, price: 1.99, currency: "USD", product: product, in_stock_cache: false)
-        variant3 = create(:variant, price: 18.99, currency: "USD", product: product, in_stock_cache: true)
-        variant4 = create(:variant, price: 16.99, currency: "GBP", product: product, in_stock_cache: true)
+        variant1 = create(:variant, product: product, in_stock_cache: true)
+        variant1.price_normal_in('USD').amount = 17.99
+
+        variant2 = create(:variant, product: product, in_stock_cache: false)
+        variant2.price_normal_in('USD').amount = 1.99
+
+        variant3 = create(:variant, product: product, in_stock_cache: true)
+        variant3.price_normal_in('USD').amount = 18.99
+
+        variant4 = create(:variant, product: product, in_stock_cache: true)
+        variant4.price_normal_in('GBP').amount = 16.99
 
         expect(subject.lowest_normal_price("USD", :knit_your_own ).variant).to eq variant1
       end

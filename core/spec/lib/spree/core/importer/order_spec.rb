@@ -14,7 +14,7 @@ module Spree
 
       let(:product) { product = create(:base_product, :name => 'Test',
                                              :sku => 'TEST-1',
-                                             :price => 33.22)
+                                             :amount => 33.22)
                       product.shipping_category = create(:shipping_category)
                       product.save
                       product }
