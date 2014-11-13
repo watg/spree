@@ -75,8 +75,12 @@ class Spree::ProductDecorator < Draper::Decorator
   
   def price_in_pence(obj,currency)
     method = (obj.is_master ? :price_in : :kit_price_in)
-    price = obj.send(method, currency).price 
-    ( price * 100 * item_quantity(obj) ).to_i
+    _price = obj.send(method, currency).price
+    ( _price * 100 * item_quantity(obj) ).to_i
+  end
+
+  def price
+    object.price_normal_in(currency)
   end
 
   
