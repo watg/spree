@@ -35,6 +35,22 @@ describe Spree::Order do
       expect(result.count).to eq 1
       expect(result.first).to eq order_with_one_digital_line_item
     end
+
+    context "delete varaint" do
+
+      before do
+        order_with_one_digital_line_item.line_items.each do |li| 
+          li.variant.update_column(:deleted_at, Time.now)
+        end
+      end
+
+      it "includes deleted variants" do
+        result = Spree::Order.to_be_packed_and_shipped
+        expect(result.count).to eq 1
+        expect(result.first).to eq order_with_one_digital_line_item
+      end
+    end
+
   end
 
   describe "#unprinted_invoices and #unprinted_image_stickers" do
