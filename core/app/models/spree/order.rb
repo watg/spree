@@ -115,20 +115,16 @@ module Spree
         where(completed_at: nil)
       end
 
+      # only physical line item to be dispatched
       def to_be_packed_and_shipped
         non_digital_product_type_ids = Spree::ProductType.where(is_digital: false).pluck(:id)
-        select('spree_orders.*').
-          joins(:line_items, 'inner join spree_variants on spree_variants.id = spree_line_items.variant_id inner join spree_products on spree_products.id = spree_variants.product_id' ).
-          # Remove the above once they fix with_deleted for the includes scope in
-          # active record ( this will probably be version 5 )
-          includes(line_items: [variant: :product]).
-          # and also drop the uniq at the end as it will not be needed with an includes ( this is done automatically )
+        select('spree_orders.*').includes(line_items: [variant: :product]).
           where(state: 'complete',
                 payment_state: 'paid',
                 shipment_state: 'ready',
                 internal: false,
                 'spree_products.product_type_id' => non_digital_product_type_ids).
-                order('spree_orders.completed_at').uniq
+                order('spree_orders.completed_at')
       end
 
       def unprinted_invoices
