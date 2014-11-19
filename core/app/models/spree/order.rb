@@ -118,14 +118,7 @@ module Spree
       # only physical line item to be dispatched
       def to_be_packed_and_shipped
         non_digital_product_type_ids = Spree::ProductType.where(is_digital: false).pluck(:id)
-        select('spree_orders.*').
-          joins(:line_items).
-          joins('left outer join spree_variants on spree_variants.id = spree_line_items.variant_id').
-          joins('left outer join spree_products on spree_products.id = spree_variants.product_id' ).
-          # Remove the above once they fix with_deleted for the includes scope in
-          # active record ( this will probably be version 5 )
-          # includes(line_items: [variant: :product]).
-          # and also drop the uniq at the end as it will not be needed with an includes ( this is done automatically )
+        select('spree_orders.*').includes(line_items: [variant: :product]).
           where(state: 'complete',
                 payment_state: 'paid',
                 shipment_state: 'ready',
@@ -465,30 +458,21 @@ module Spree
 
     def gift_card_line_items
       self.line_items.
-        joins('left outer join spree_variants on spree_variants.id = spree_line_items.variant_id').
-        joins('left outer join spree_products on spree_products.id = spree_variants.product_id' ).
-        joins('left outer join spree_product_types on spree_product_types.id = spree_products.product_type_id' ).
-        # Remove the above once they fix with_deleted for the includes scope in
-        # active record ( this will probably be version 5 )
-        # includes(:variant, product: [:product_type]).
-        # also reinstate the references and drop the uniq
+        includes(:variant, product: [:product_type]).
+        # TODO: It would be great if this was more generic e.g. digital rather than
+        # gift_card, that way we can have a generic delviery behaviour with type
+        # deciding at the very end what is to be delivered
         where("spree_product_types.name" => Spree::ProductType::GIFT_CARD).
-        reorder('spree_line_items.created_at ASC').uniq
-        #references(:variant, :product)
+        reorder('spree_line_items.created_at ASC').
+        references(:variant, :product)
     end
 
     def physical_line_items
       self.line_items.
-        joins('left outer join spree_variants on spree_variants.id = spree_line_items.variant_id').
-        joins('left outer join spree_products on spree_products.id = spree_variants.product_id' ).
-        joins('left outer join spree_product_types on spree_product_types.id = spree_products.product_type_id' ).
-        # Remove the above once they fix with_deleted for the includes scope in
-        # active record ( this will probably be version 5 )
-        # includes(:variant, product: [:product_type]).
-        # also reinstate the references and drop the uniq
+        includes(:variant, product: [:product_type]).
         where("spree_product_types.is_digital" => false).
-        reorder('spree_line_items.created_at ASC').uniq
-        #references(:variant, :product)
+        reorder('spree_line_items.created_at ASC').
+        references(:variant, :product)
     end
 
     def line_items_without_gift_cards
