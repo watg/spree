@@ -19,6 +19,7 @@
 //= require lib/jquery.typeahead.min.js
 //= require lib/jquery.jcarousel.min.js
 //= require lib/jquery.elevatezoom.min.js
+//= require lib/flipclock.min.js
 
 //= require common
 //= require core
