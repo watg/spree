@@ -115,6 +115,10 @@ module Spree
         where(completed_at: nil)
       end
 
+      def not_cancelled
+        where.not(state: :canceled)
+      end
+
       # only physical line item to be dispatched
       def to_be_packed_and_shipped
         non_digital_product_type_ids = Spree::ProductType.where(is_digital: false).pluck(:id)
