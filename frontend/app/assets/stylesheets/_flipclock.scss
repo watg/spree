@@ -332,6 +332,10 @@
     font-size: 26px;
   }
 
+  .flip-clock-wrapper ul li a div.up:after {
+    top:26px;
+  }
+
   .flip-clock-wrapper ul li a div.up div.inn {
     top: 10px;
   }
