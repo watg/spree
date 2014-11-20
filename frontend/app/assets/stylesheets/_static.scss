@@ -279,7 +279,8 @@ body.thank-you {
 .catbird-giveaway,
 .wool-week-competition,
 .mollie-makes-pattern,
-.free-mouse-pattern {
+.free-mouse-pattern,
+.free-christmas-pattern {
 	.row-referral {
 		/*min-height: 654px;*/
 		margin: -3em 0 3em;
@@ -927,7 +928,8 @@ body.thank-you {
 }
 
 /* Free patterns */
-.free-patterns {
+.free-patterns,
+.free-christmas-patterns {
 	 text-align: center;
 
 	.row-shipping-and-contact + .container > div.row {
@@ -1155,6 +1157,91 @@ body.thank-you {
   }
 
 }
+
+/*tweaks specific for free christmas patterns*/
+
+.free-christmas-patterns {
+	/*clear excessive padding from free-patterns to start again*/
+	h2, h3 {
+		padding: 0 !important;
+		margin: 0 !important;
+	}
+	
+	.wrapper-free-patterns {
+		h1 {
+			color: #820f3a;
+			margin-top: 460px;	
+			margin-bottom: 60px;
+			img {
+				height: auto;
+				margin-bottom: 5px;
+			}
+		}
+		.row-intro, .jcarosel-wrapper {
+			padding-bottom: emCalc(60px);
+		}
+		.padding-bottom-desktop {
+			padding-bottom: emCalc(40px);
+		}
+		.pattern-title {
+			padding-bottom: emCalc(30px);
+		}
+		.jcarousel {
+			h4 {
+				font-size: emCalc(16px);
+				text-transform: uppercase;
+				font-family: $watg-font-secondary-light;
+			}
+			h5 {
+				font-size: emCalc(16px);
+				text-transform: uppercase;
+				font-family: $watg-font;
+			}
+			.jcarousel-list {
+				margin-bottom: 0;
+				padding-bottom: emCalc(60px);
+			}
+		}
+		.sign-up-header {
+			padding: emCalc(60px) 0 emCalc(30px);
+			margin: 0;
+		}
+		.row-referral {
+			.input-heading {
+				padding-bottom: emCalc(15px);
+				text-align: left;
+			}
+		}
+		@media only screen and (max-width: 28.75em) {
+			h1 {
+				margin: 60px 0;
+				color: initial;
+				img {
+					width: 30px;
+				}
+			}
+			.row-intro, .jcarosel-wrapper {
+				padding-bottom: emCalc(25px);
+			}
+			.pattern-title {
+				padding-bottom: emCalc(15px);
+			}
+			.sign-up-header {
+				padding: emCalc(30px) 0 emCalc(30px);
+				margin: 0;
+			}
+			.row-referral {
+				.input-heading {
+					padding-bottom: emCalc(15px);				
+				}
+			}
+			.padding-bottom-desktop {
+				padding-bottom: 0;
+			}
+		}		
+  }
+}
+
 
 /*Knit Your Selfie*/
 .knit-your-selfie {
