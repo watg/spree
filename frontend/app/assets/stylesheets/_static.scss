@@ -1532,16 +1532,16 @@ body.thank-you {
 		font-size: emCalc(20px);
 		text-align: center;
 		.row-padded {
-			padding-top: emCalc(50px); 
+			padding-top: 60px; 
 		}
 		.row-padded-bottom {
-			padding-bottom: emCalc(50px); 			
+			padding-bottom: 60px; 			
 		}
 		.medium-padding {
-			padding-top: emCalc(30px);
+			padding-top: 30px;
 		}
 		.large-padding {
-			padding: emCalc(65px) 0;
+			padding: 65px 0;
 		}
 		h1, h2, h3, h4, h5 {
 			margin-top: 0;
@@ -1586,15 +1586,11 @@ body.thank-you {
 			z-index: 0;
 		}
 		.row-product {
-			padding-bottom: emCalc(50px);
+			padding-bottom: 60px;
 		}
 		.inverted {
 			color: initial;
-		}
-		.row-padded, .social-mobile {
-			padding-top: emCalc(25px); 
-		}
-	
+		}	
 		.full-grey {
 			background-color: #f9f9f9;
 			/*padding-bottom: emCalc(8px);*/
@@ -1621,11 +1617,9 @@ body.thank-you {
 				height: 100%;
 			}
 		}
-
 		.row-olapic {
 			background-color: #f9f9f9;
 		}
-
 		/*mobile view*/
 		@media only screen and (max-width: 48em) {
 			h1, h2, h3 {
@@ -1641,19 +1635,22 @@ body.thank-you {
 				font-size: emCalc(10px);
 				margin: 15px 0 0 0;
 				color: initial;
+			}
+			.row-padded, .social-mobile {
+				padding-top: 30px; 
 			}		
 			.row-padded-bottom {
-				padding-bottom: emCalc(25px); 			
+				padding-bottom: 30px; 			
 			}
 			.medium-padding {
-				padding-top: emCalc(15px);
+				padding-top: 30px;
 			}
 			.large-padding {
-				padding: emCalc(30px) 0;
+				padding: 30px 0;
 			}
 			.social-mobile {
-					margin: emCalc(30px) 0 0 0;
-					padding: emCalc(15px) 0;
+					margin: 30px 0 0 0;
+					padding: 30px 0;
 					background-color: #f9f9f9;
 					width: 100%;
 			}
