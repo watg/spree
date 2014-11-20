@@ -7,9 +7,9 @@ module Spree
 
     def orders
       if invoice?
-        invoice_orders
+        invoice_orders.not_cancelled
       elsif image_sticker?
-        image_sticker_orders
+        image_sticker_orders.not_cancelled
       end
     end
 

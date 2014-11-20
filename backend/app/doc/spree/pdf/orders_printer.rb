@@ -4,7 +4,7 @@ module Spree
       attr_accessor :errors
 
       def initialize(orders)
-        @orders = orders.order(:batch_print_id)
+        @orders = orders.sort_by(&:batch_print_id)
         @errors = []
       end
 
@@ -17,20 +17,13 @@ module Spree
           pdf = PackingList.new(order, pdf).create(index)
 
           if !shipped_to_europe?(order)
-            pdf.start_new_page
-            commercial_invoice = CommercialInvoice.new(order, pdf)
-            if commercial_invoice.errors.any?
-              @errors += commercial_invoice.errors
-            else
-              pdf = commercial_invoice.create
-            end
+            pdf = create_commercial_invoice(order, pdf)
           end
 
           # here we simply add one more commercial invoice
           # as we need 2 of them when shipping to US or Canada
           if shipped_to_us_or_canada?(order)
-            pdf.start_new_page
-            pdf = CommercialInvoice.new(order, pdf).create
+            pdf = create_commercial_invoice(order, pdf)
           end
 
           pdf.start_new_page unless count == num
@@ -52,8 +45,18 @@ module Spree
         pdf.render
       end
 
-
     private
+
+      def create_commercial_invoice(order, pdf)
+        pdf.start_new_page
+        commercial_invoice = CommercialInvoice.new(order, pdf)
+        if commercial_invoice.errors.any?
+          @errors += commercial_invoice.errors
+        else
+          pdf = commercial_invoice.create
+        end
+        pdf
+      end
 
       def shipped_to_us_or_canada?(order)
         north_america_zone = Spree::Zone.find_by(name: 'North America')
