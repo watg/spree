@@ -16,6 +16,17 @@ describe Spree::Order do
     end
   end
 
+  describe "#not_cancelled" do
+
+    let!(:order) { create(:order, state: :complete, completed_at: Time.now) }
+    let!(:cancelled_order) { create(:order, state: :canceled, completed_at: Time.now) }
+
+    it "returns only not cancelled orders" do
+      expect(described_class.not_cancelled).to eq [ order ]
+    end
+
+  end
+
   describe "#to_be_packed_and_shipped" do
     let!(:order_with_one_digital_line_item) { create(:order_with_line_items, line_items_count: 2,
                                         payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
