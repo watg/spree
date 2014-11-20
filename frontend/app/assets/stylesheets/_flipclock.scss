@@ -315,3 +315,44 @@
     opacity: 0;
   }
 } */
+
+/* Mobile */
+@media only screen and (max-width: 28.75em) {
+  .flip-clock-wrapper ul {
+    margin: 10px 2px 30px;
+    width: 26px;
+    height: 56px;
+  }
+
+  .flip-clock-wrapper ul li {
+      border: 1px solid #fff;
+  }
+
+  .flip-clock-wrapper ul li a div div.inn {
+    font-size: 26px;
+  }
+
+  .flip-clock-wrapper ul li a div.up div.inn {
+    top: 10px;
+  }
+
+  .flip-clock-wrapper ul li a div.down div.inn {
+    bottom: -10px;
+  }
+
+  .flip-clock-divider {
+    width: 10px;
+  }
+
+  .flip-clock-divider .flip-clock-label {
+    top: -1.5em;
+    right: -48px;
+    font-size: 16px;
+    text-shadow: none;
+    text-transform: uppercase;
+  }
+
+  .flip-clock-divider.hours .flip-clock-label { right: -54px; }
+  .flip-clock-divider.minutes .flip-clock-label { right: -62px; }
+  .flip-clock-divider.seconds .flip-clock-label { right: -62px; }
+}
