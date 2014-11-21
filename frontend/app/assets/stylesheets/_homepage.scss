@@ -55,34 +55,33 @@ body.homepage {
 	& > div {
 		height: 400px;
 	}
-	/*a {
+	a {
 		position: absolute;
 		display: block;
 		line-height: 0;
 		font-size: 0;
+		border: 1px solid orange !important;
 	}
-	.link-mbtg {
+	.link-cta-new {
 		width: 100%;
 		height: 100%;
 	}
-	.link-kyo {
-		width: 160px;
-		height: 45px;
+	.link-cta-tutorial {
+		width: 100%;
+		height: 100px;
 		// Positioning
-		bottom: 60px;
-		right: 80px;
-	}*/
+		bottom: 0;
+		right: 0;
+	}
 	/* Large screen background */
 	@media only screen and (min-width: 48em) {
 		background: #f7f7f7 cdn-url("/homepage/2014-11-18/Homepage_PurlJam_DESKTOP_V2.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
-		/*.link-kyo {
-			// Positioning
-			bottom: 208px;
-			right: 76px;
-		}*/
+		.link-cta-tutorial {
+			height: 50px;
+		}
 	}
 }
 
