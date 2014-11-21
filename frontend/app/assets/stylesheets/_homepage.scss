@@ -278,12 +278,20 @@ body.homepage {
 	text-align: center;
 	overflow: hidden;
 	.columns {
-			height: 600px;
+		height: 400px;
+	}
+	@media only screen and (min-width: 48em) {
+		.columns {
+				height: 600px;
+		}
 	}
 }
 
 .home-main .row-flavours .column-by-you {
-	background: cdn-url('/our-story/03_Made_By_You.jpg') center center no-repeat;
+	background: cdn-url('/homepage/2014-11-14/our-story/03_Made_By_You_MOBILE.jpg') center center no-repeat;
+	@media only screen and (min-width: 48em) {
+		background: cdn-url('/our-story/03_Made_By_You.jpg') center center no-repeat;
+	}
 	h2 {
 		margin: 88px 0 0 0.5em; /* Slight offset left */
 		position: relative;
@@ -306,7 +314,10 @@ body.homepage {
 }
 	
 .home-main .row-flavours .column-by-the-gang {
-	background: cdn-url('/our-story/04_Made_By_The_Gang.jpg') center center no-repeat;
+	background: cdn-url('/homepage/2014-11-14/our-story/04_Made_By_The_Gang_MOBILE.jpg') center center no-repeat;
+	@media only screen and (min-width: 48em) {
+		background: cdn-url('/our-story/04_Made_By_The_Gang.jpg') center center no-repeat;
+	}
 }
 
 .home-main .row-madeunique {
