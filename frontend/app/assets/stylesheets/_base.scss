@@ -549,3 +549,29 @@ p.promo-raf {
 footer p.promo-raf {
 	margin-top: -1em;
 }
+
+/* Press logos */
+.row-press-logos {
+	padding: emCalc(60px) 0;
+	background-color: #f7f7f7;
+	text-align: center;
+	border-bottom: 1px solid #000;
+	h6 {
+		margin-bottom: emCalc(30px);
+		font-family: $watg-font;
+		font-size: emCalc(20px);
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+	}
+	h6:before {
+		content: "— ";
+	}
+	h6:after {
+		content: " —";
+	}
+	@media only screen and (max-width: 48em) {
+		h6 {
+			margin-bottom: emCalc(15px);
+		}
+	}
+}
