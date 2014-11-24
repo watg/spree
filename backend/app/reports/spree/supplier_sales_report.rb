@@ -90,7 +90,7 @@ module Spree
 
     def completed_line_items(from, to)
       Spree::LineItem.all.merge(
-        Spree::Order.complete.where(:completed_at => from..to)
+        Spree::Order.complete.not_cancelled.where(:completed_at => from..to)
       ).references(:order).includes(:order, :variant, inventory_units: [:supplier] )
     end
 
