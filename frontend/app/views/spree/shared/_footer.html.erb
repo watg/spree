@@ -1,4 +1,18 @@
 <% cache Spree::Taxonomy.all do %>
+<!-- Press logos -->
+<div class="row-press-logos">
+	<div class="row">
+		<div class="large-12 columns">
+			<h6>As seen in</h6>
+			<% if mobile_device? %>
+				<%= cdn_image_tag("sitewide/Footer_Logos_MOBILE.jpg", alt: "Vogue, Elle, The New York Times and more!") %>
+			<% else %>
+				<%= cdn_image_tag("sitewide/Footer_Logos_DESKTOP.jpg", width: "970", height: "49", alt: "Vogue, Elle, The New York Times and more!") %>
+			<% end %>	
+		</div>
+	</div>
+</div>
+
 <!-- Global footer -->
 <footer class="row">
 	<!-- Newsletter signup / social media -->
