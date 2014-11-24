@@ -51,38 +51,50 @@ body.homepage {
 
 .home-main .leader-0 {
 	/* Small screen background */
-	background: #000 cdn-url("/homepage/2014-11-18/Homepage_PurlJam_MOBILE_V1.jpg") top center no-repeat;
+	background: #c1ced6 cdn-url("/homepage/2014-11-21/Homepage_Xmas_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 400px;
 	}
-	/*a {
+	a {
 		position: absolute;
 		display: block;
 		line-height: 0;
 		font-size: 0;
 	}
-	.link-mbtg {
+	.link-women {
 		width: 100%;
 		height: 100%;
 	}
-	.link-kyo {
-		width: 160px;
+	.link-men {
+		width: 65px;
 		height: 45px;
 		// Positioning
-		bottom: 60px;
-		right: 80px;
-	}*/
+		bottom: 18px;
+		right: 114px;
+	}
+	.link-kids {
+		width: 65px;
+		height: 45px;
+		// Positioning
+		bottom: 18px;
+		right: 32px;
+	}
 	/* Large screen background */
 	@media only screen and (min-width: 48em) {
-		background: #000 cdn-url("/homepage/2014-11-18/Homepage_PurlJam_DESKTOP_V1.jpg") top center no-repeat;
+		background: #c1ced6 cdn-url("/homepage/2014-11-21/Homepage_Xmas_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
-		/*.link-kyo {
+		.link-men {
 			// Positioning
-			bottom: 208px;
-			right: 76px;
-		}*/
+			bottom: 126px;
+			right: 212px;
+		}
+		.link-kids {
+			// Positioning
+			bottom: 126px;
+			right: 130px;
+		}
 	}
 }
 
@@ -125,55 +137,6 @@ body.homepage {
 	}
 
 }
-
-/*.home-main .leader-1 {
-	background: #fbfaf5 cdn-url("/homepage/2014-07-28/Homepage_CSM_MOBILE_V1.jpg") top center no-repeat;
-	& > div {
-		height: 580px;
-	}
-	a {
-		position: absolute;
-		display: block;
-		line-height: 0;
-		font-size: 0;
-	}
-	.link-maxi {
-		width: 100%;
-		height: 100%;
-	}
-	.link-lil {
-		width: 148px;
-		height: 45px;
-		// Positioning
-		margin-left: -158px;
-		bottom: 82px;
-		left: 50%;
-	}
-	.link-sleeves {
-		width: 240px;
-		height: 45px;
-		// Positioning
-		margin-left: -120px;
-		bottom: 20px;
-		left: 50%;
-	}
-	@media only screen and (min-width: 48em) {
-		background: #fbfaf5 cdn-url("/homepage/2014-07-04/1_Homepage_Vogue_DESKTOP_V1.jpg") top center no-repeat;
-		& > div {
-			height: 700px;
-		}
-		.link-lil {
-			bottom: 198px;
-			left: 340px;
-			// Positioning
-			margin: 0;
-		}
-		.link-sleeves {
-			bottom: 134px;
-			// Positioning
-		}
-	}
-}*/
 
 .home-main .leader-2 {
 	/* Small screen background */
@@ -229,7 +192,7 @@ body.homepage {
 	}*/
 }
 
-.home-main .leader-7 {
+.home-main .leader-3 {
 	/* Small screen background */
 	background: #000 cdn-url("/homepage/2014-11-14/Homepage_Community_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
@@ -242,6 +205,171 @@ body.homepage {
 			height: 700px;
 		}
  	}
+}
+
+/* Countdown */
+.home-main .leader-countdown {
+	padding: 90px 0 60px;
+	text-align: center;
+	background-color: #000;
+	color: #fff;
+	.only-mobile {
+		display: none;
+	}
+	.countdown {
+		margin: 0 auto;
+		width: 770px;
+	}
+	h2 {
+		font-size: 28px;
+		clear: left;
+	}
+	p {
+		font-size: 20px;
+	}
+	h2, p {
+		font-family: $watg-font-secondary-light;
+	}
+	h2, p, a {
+		color: #fff;
+		text-transform: uppercase;
+	}
+	ul.no-bullet {
+		margin: 0 auto;
+		width: 269px;
+		overflow: hidden;
+		li {
+			a {
+				margin-right: 30px;
+				padding: 10px;
+				border: 1px solid #fff;
+				display: block;
+				float: left;
+				font-family: $watg-font;
+				font-size: 20px;
+			}
+		}
+		li:last-child {
+			a {
+				margin: 0;
+			}
+		}
+	}
+}
+
+/* Countdown: Small screen */
+@media only screen and (max-width: 28.75em) {
+	.home-main .leader-countdown {
+		padding: 60px 0 30px;
+		.only-mobile {
+			display: initial;
+		}
+		.countdown {
+			width: 270px;
+		}
+		h2 {
+			font-size: 20px;
+			line-height: 1em;
+		}
+		p {
+			margin-bottom: 10px;
+			font-size: 16px;
+		}
+		ul.no-bullet {
+			width: 229px;
+			li {
+				a {
+					margin-right: 10px;
+					border: 1px solid #000;
+					text-decoration: underline;
+				}
+			}
+		}
+	}
+}
+
+.home-main .row-flavours {
+	text-align: center;
+	overflow: hidden;
+	.columns {
+		height: 400px;
+	}
+	@media only screen and (min-width: 48em) {
+		.columns {
+				height: 600px;
+		}
+	}
+}
+
+.home-main .row-flavours .column-by-you {
+	background: cdn-url('/homepage/2014-11-21/03_Made_By_You_MOBILE.jpg') center center no-repeat;
+	@media only screen and (min-width: 48em) {
+		background: cdn-url('/our-story/03_Made_By_You.jpg') center center no-repeat;
+	}
+	h2 {
+		margin: 88px 0 0 0.5em; /* Slight offset left */
+		position: relative;
+		left: 50%;
+		z-index: 100;
+		font-size: emCalc(70px);
+		span {
+			font-family: $watg-font-secondary-light;
+			font-size: 0.5em;
+			display: block;
+		}
+	}
+	@media only screen and (max-width: 48em) {
+		h2 {
+			font-size: (50px);
+			margin: 285px 0 0;
+			left: 0;
+		}
+	}
+}
+	
+.home-main .row-flavours .column-by-the-gang {
+	background: cdn-url('/homepage/2014-11-21/04_Made_By_The_Gang_MOBILE.jpg') center center no-repeat;
+	@media only screen and (min-width: 48em) {
+		background: cdn-url('/our-story/04_Made_By_The_Gang.jpg') center center no-repeat;
+	}
+}
+
+.home-main .row-madeunique {
+	padding: emCalc(100px) 0;
+	text-align: center;
+	background-color: #000;
+	* {
+		color: #fff;
+	}
+	.row {
+		margin: 0 auto;
+    max-width: 62.5em;
+    position: relative;
+	}
+	.only-desktop {
+		display: inital;
+	}
+	h2 {
+		font-size: emCalc(60px);
+		float: left;
+	}
+	img {
+		margin: 30px 0 0 120px;
+		float: right;
+	}
+	@media only screen and (max-width: 48em) {
+		padding: emCalc(30px) 0;
+		.only-desktop {
+			display: none;
+		}
+		h2 {
+			font-size: (40px);
+		}
+		h2, img {
+			margin: 30px 0 0 0 !important;
+			float: none;
+		}
+	}
 }
 
 /*************************************************************************************/
