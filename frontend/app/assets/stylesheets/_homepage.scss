@@ -292,7 +292,7 @@ body.homepage {
 	text-align: center;
 	overflow: hidden;
 	.columns {
-		height: 400px;
+		height: 200px;
 	}
 	@media only screen and (min-width: 48em) {
 		.columns {
@@ -302,7 +302,7 @@ body.homepage {
 }
 
 .home-main .row-flavours .column-by-you {
-	background: cdn-url('/homepage/2014-11-21/03_Made_By_You_MOBILE.jpg') center center no-repeat;
+	background: cdn-url('/homepage/2014-11-21/homepage-flavours-mobile.jpg') center center no-repeat;
 	@media only screen and (min-width: 48em) {
 		background: cdn-url('/our-story/03_Made_By_You.jpg') center center no-repeat;
 	}
@@ -320,15 +320,18 @@ body.homepage {
 	}
 	@media only screen and (max-width: 48em) {
 		h2 {
-			font-size: (50px);
-			margin: 285px 0 0;
+			font-size: (24px);
+			margin: 26px 0 0;
 			left: 0;
+			span {
+				margin: emCalc(10px) 0;
+			}
 		}
 	}
 }
 	
 .home-main .row-flavours .column-by-the-gang {
-	background: cdn-url('/homepage/2014-11-21/04_Made_By_The_Gang_MOBILE.jpg') center center no-repeat;
+	display: none;
 	@media only screen and (min-width: 48em) {
 		background: cdn-url('/our-story/04_Made_By_The_Gang.jpg') center center no-repeat;
 	}
@@ -358,7 +361,7 @@ body.homepage {
 		float: right;
 	}
 	@media only screen and (max-width: 48em) {
-		padding: emCalc(30px) 0;
+		padding: emCalc(30px) 0 emCalc(60px);
 		.only-desktop {
 			display: none;
 		}
