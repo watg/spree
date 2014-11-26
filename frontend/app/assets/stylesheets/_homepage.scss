@@ -80,7 +80,7 @@ body.homepage {
 		right: 32px;
 	}
 	/* Large screen background */
-	@media only screen and (min-width: 48em) {
+	@media only screen and (min-width: 56em) {
 		background: #c1ced6 cdn-url("/homepage/2014-11-21/Homepage_Xmas_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
