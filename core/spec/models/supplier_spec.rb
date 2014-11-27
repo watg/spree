@@ -32,6 +32,58 @@ describe Spree::Supplier do
   end
 
   context "name" do
+    context "validation" do
+      let(:supplier) { Spree::Supplier.new(permalink: "something", is_company: is_company) }
+
+      context "for a company" do
+        let(:is_company) { true }
+
+        it "is invalid when company name is blank" do
+          expect(supplier).not_to be_valid
+          expect(supplier.errors.messages).to have_key(:company_name)
+          expect(supplier.errors.messages).not_to have_key(:firstname)
+          expect(supplier.errors.messages).not_to have_key(:lastname)
+        end
+
+        it "is invalid when company name is blank but fullname given" do
+          supplier.firstname = "Some"
+          supplier.lastname = "Supplier"
+          expect(supplier).not_to be_valid
+        end
+
+        it "is valid if company name is given" do
+          supplier.company_name = "Company"
+          expect(supplier).to be_valid
+        end
+      end
+
+      context "for an individual" do
+        let(:is_company) { false }
+
+        it "is invalid when fullname is blank" do
+          expect(supplier).not_to be_valid
+          expect(supplier.errors.messages).not_to have_key(:company_name)
+          expect(supplier.errors.messages).to have_key(:firstname)
+          expect(supplier.errors.messages).to have_key(:lastname)
+        end
+
+        it "is invalid when fullname is blank but company name given" do
+          supplier.company_name = "Company"
+          expect(supplier).not_to be_valid
+        end
+
+        it "is valid if firstname is given" do
+          supplier.firstname = "Some"
+          expect(supplier).to be_valid
+        end
+
+        it "is valid if lastname is given" do
+          supplier.lastname = "Supplier"
+          expect(supplier).to be_valid
+        end
+      end
+    end
+
     it "returns the name" do
       expect(supplier.name).to eq "Dave Dawson"
     end

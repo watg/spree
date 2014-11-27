@@ -8,6 +8,8 @@ module Spree
     DEFAULT_MID_CODE = 'GBGANMAK89LON'
     DEFAULT_COUNTRY_ISO = 'GB'
 
+    validate :presence_of_name
+
     validates_uniqueness_of :firstname, :scope => [:lastname, :company_name]
     validates_uniqueness_of :permalink
     validates_presence_of :permalink
@@ -104,6 +106,15 @@ module Spree
         taxon.taxonomy_id = taxonomy.id
         taxon.parent_id = taxonomy.root.id
         taxon.save
+      end
+    end
+
+    def presence_of_name
+      if is_company? && company_name.blank?
+        errors.add :company_name, "is required"
+      elsif !is_company? && fullname.blank?
+        errors.add :firstname, "is required"
+        errors.add :lastname, "is required"
       end
     end
 
