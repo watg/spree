@@ -19,6 +19,7 @@ module Spree
         .where('spree_orders.completed_at is not null')
         .backordered.order("spree_orders.completed_at ASC")
     end
+    scope :last_24_hours, -> { where(["created_at > ?", 24.hours.ago]) }
 
     # state machine (see http://github.com/pluginaweek/state_machine/tree/master for details)
     state_machine initial: :on_hand do
