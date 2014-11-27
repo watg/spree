@@ -442,4 +442,14 @@ module Spree
       expect(StockLocation.valid_feed_into_locations_for(current_location)).to eq(active_locations)
     end
   end
+
+  describe ".with_feeders" do
+    let!(:location_with_feeder) { create(:stock_location) }
+    let!(:feeder_locations) { create_list(:stock_location, 2, active: false, feed_into: location_with_feeder) }
+    let!(:location_without_feeder) { create(:stock_location) }
+
+    it "returns all locations with feeders" do
+      expect(StockLocation.with_feeders).to match_array([location_with_feeder])
+    end
+  end
 end

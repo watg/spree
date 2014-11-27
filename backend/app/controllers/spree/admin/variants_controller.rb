@@ -22,9 +22,10 @@ module Spree
 
       def update
         outcome = Spree::UpdateVariantService.run(
-          variant: @variant,
-          details: params[:variant],
-          prices: params[:prices]
+          variant:          @variant,
+          details:          params[:variant],
+          prices:           params[:prices],
+          stock_thresholds: params[:stock_thresholds],
         )
         if outcome.valid?
           update_success(@variant)
@@ -63,6 +64,7 @@ module Spree
       def new_before
         @variant.attributes = @product.master.attributes.except('id', 'created_at', 'deleted_at', 'updated_at', 'is_master')
         @variant.prices = @product.master.prices.dup
+        @variant.stock_thresholds = @product.master.stock_thresholds.dup
       end
 
       def create_success(object)

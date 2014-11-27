@@ -133,4 +133,42 @@ describe Spree::Variant do
     end
   end
 
+  describe "#stock_threshold_for" do
+    let(:location) { create(:stock_location) }
+    subject(:variant) { create(:variant) }
+
+    it "returns the StockThreshold value" do
+      variant.stock_thresholds.create(stock_location: location, value: 100)
+      expect(variant.stock_threshold_for(location)).to eq(100)
+    end
+
+    it "defaults to 0" do
+      expect(variant.stock_threshold_for(location)).to eq(0)
+    end
+
+    it "works for unsaved variants" do
+      variant = build(:variant)
+      variant.stock_thresholds.build(stock_location: location, value: 50)
+      expect(variant.stock_threshold_for(location)).to eq(50)
+    end
+  end
+
+  describe ".with_stock_threshold_for" do
+    let(:london) { create(:stock_location) }
+    let(:bray) { create(:stock_location) }
+
+    let(:variant1) { create(:variant) }
+    let(:variant2) { create(:variant) }
+    let(:variant3) { create(:variant) }
+    let(:variant4) { create(:variant) }
+
+    it "returns variants with non-zero stock thresholds for a location" do
+      variant1.stock_thresholds.create(stock_location: london, value: 1)
+      variant2.stock_thresholds.create(stock_location: bray, value: 1)
+      variant3.stock_thresholds.create(stock_location: london, value: 0)
+      variant4.stock_thresholds.create(stock_location: london, value: 100)
+
+      expect(Spree::Variant.with_stock_threshold_for(london)).to match_array([variant1, variant4])
+    end
+  end
 end

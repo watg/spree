@@ -163,6 +163,13 @@
   </div>
 
   <div class="twelve columns alpha omega">
+    <fieldset>
+      <legend align="center"><%= Spree.t(:stock_thresholds) %></legend>
+        <%= render :partial => 'spree/admin/shared/stock_thresholds', :locals => {:variant => @product.master} %>
+    </fieldset>
+  </div>
+
+  <div class="twelve columns alpha omega">
     <div class="field">
       <label>Product Pages</label>
       <span class="info">

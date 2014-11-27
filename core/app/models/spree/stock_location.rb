@@ -10,6 +10,10 @@ module Spree
     belongs_to :feed_into, class_name: 'Spree::StockLocation'
     has_many :feeders, foreign_key: "feed_into_id", class_name: 'Spree::StockLocation'
 
+    has_many :stock_thresholds,
+      class_name: 'Spree::StockThreshold',
+      dependent: :destroy
+
     validates_presence_of :name
 
     validates_absence_of :feed_into, if: :active?, message: "must be blank for active locations"
@@ -17,6 +21,7 @@ module Spree
 
     scope :active, -> { where(active: true) }
     scope :available, -> { where("active = ? OR feed_into_id IS NOT NULL", true) }
+    scope :with_feeders, -> { joins(:feeders).uniq }
 
     after_create :create_stock_items, :if => "self.propagate_all_variants?"
 
