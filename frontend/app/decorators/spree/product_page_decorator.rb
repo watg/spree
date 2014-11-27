@@ -150,7 +150,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
     elsif word_lengths.detect { |word| word  >= 5 } || word_lengths.reduce(:+) >= 10
       "medium"
     else
-      "large"patterns
+      "large"
     end
   end
 
