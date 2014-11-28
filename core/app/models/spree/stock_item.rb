@@ -71,6 +71,7 @@ module Spree
           if unit.backordered?
             unit.fill_backorder
           elsif unit.awaiting_feed?
+            unit.supplier_id = self.supplier_id
             unit.fill_awaiting_feed
             awaiting_feed += 1
           end

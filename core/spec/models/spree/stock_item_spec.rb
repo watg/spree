@@ -98,8 +98,14 @@ describe Spree::StockItem do
           subject.count_on_hand.should == 1
         end
 
-        context "with inventory units awaiting fill" do
-          let(:inventory_unit_3) { double('InventoryUnit3', fill_awaiting_feed: true, backordered?: false, awaiting_feed?: true) }
+        context "with inventory units awaiting feed" do
+          let(:inventory_unit_3) {
+            double('InventoryUnit3',
+              :fill_awaiting_feed => true,
+              :backordered?       => false,
+              :awaiting_feed?     => true,
+              :supplier_id=       => true)
+          }
           let(:waiting_inventory_units) { backordered_inventory_units + [inventory_unit_3] }
 
           it "fills those inventory units" do
@@ -108,6 +114,17 @@ describe Spree::StockItem do
             expect(inventory_unit_3).to receive(:fill_awaiting_feed)
 
             subject.adjust_count_on_hand(3)
+          end
+
+          describe "supplier_id" do
+            let(:waiting_inventory_unit) { create(:inventory_unit, state: "awaiting_feed", supplier_id: nil) }
+            subject(:stock_item) { create(:stock_item) }
+
+            it "gets set on the inventory unit" do
+              allow(stock_item).to receive(:waiting_inventory_units).and_return([waiting_inventory_unit])
+              stock_item.adjust_count_on_hand(3)
+              expect(waiting_inventory_unit.reload.supplier_id).to eq(stock_item.supplier_id)
+            end
           end
 
           it "sets the correct count on hand" do
