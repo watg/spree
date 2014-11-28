@@ -4,8 +4,13 @@ module Spree
       subject = "Stock movement required"
 
       message = ""
-      plan = Spree::FeederRequirement.new.plan
-      plan.each_pair do |location, feed_requirement|
+
+      planner = Spree::Feed::Planner.new(
+        Spree::Feed::InventoryUnitRequirement,
+        Spree::Feed::StockThresholdRequirement
+      )
+
+      planner.plan.each_pair do |location, feed_requirement|
         feed_requirement.each do |feeder, variants|
           message << "#{feeder.name} -> #{location.name}\n"
           variants.each do |variant, count|
@@ -15,7 +20,7 @@ module Spree
         end
       end
 
-      if plan.present?
+      if message.present?
         mailer = Spree::NotificationMailer.send_notification(message, email_list, subject)
         mailer.deliver
       end
