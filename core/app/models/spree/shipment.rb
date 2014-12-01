@@ -48,11 +48,18 @@ module Spree
       after_transition to: :shipped, do: :after_ship
 
       event :cancel do
-        transition to: :canceled, from: [:pending, :ready]
+        transition to: :canceled, from: [:pending, :ready, :awaiting_feed]
       end
       after_transition to: :canceled, do: :after_cancel
 
       event :resume do
+        # This doesn't work.
+        #
+        # * Note that the first two 'if' blocks check the same thing.
+        # * determine_state returns a string and not a symbol
+        # * this gets overridden anyway by the final transition
+        #
+        # If this was fixed it would also need to handle 'awaiting_feed'
         transition from: :canceled, to: :ready, if: lambda { |shipment|
           shipment.determine_state(shipment.order) == :ready
         }
