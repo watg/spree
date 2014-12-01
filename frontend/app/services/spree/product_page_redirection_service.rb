@@ -40,12 +40,7 @@ module Spree
     
     def product_page
       return @page.permalink if @page
-      taxonomies = product.taxons.group_by(&:taxonomy).keys.map {|e| e.name.downcase }
-      
-      target = (taxonomies.include?('women') ? Spree::Target.find_by_name('Women') : nil)
-      target ||= (taxonomies.include?('men') ? Spree::Target.find_by_name('Men')   : nil)
-
-      @page = product.product_group.product_pages.where(target_id: (target ? target.id : nil)).first
+      @page = Spree::ProductPage.joins(tabs: [:product]).merge(Spree::Product.where(slug: product.slug)).first
       @page.permalink if @page
     end
     

@@ -2,13 +2,10 @@ require 'spec_helper'
 
 describe Spree::ProductPageRedirectionService, type: :routing do
   subject { Spree::ProductPageRedirectionService }
-  let(:women_target) { create(:target, name: 'Women') }
-  let(:women_taxon)  { t = create(:taxonomy, name: 'Women'); create(:taxon, taxonomy: t, name: 'scarf') }
-  let(:pg)   { create(:product_group, name: 'Lil Foxy Roxy')}
-  let(:page) { create(:product_page, name: 'Lil Foxy Roxy Women', target: women_target, permalink: 'lil-foxy-roxy-women') }
+  let!(:women_target) { create(:target, name: 'Women') }
+  let!(:page) { create(:product_page, name: 'Lil Foxy Roxy Women', target: women_target, permalink: 'lil-foxy-roxy-women') }
 
   before do
-    page.product_groups << pg
   end
 
   context 'routes' do
@@ -25,7 +22,8 @@ describe Spree::ProductPageRedirectionService, type: :routing do
   end
 
   context 'kit product' do
-    let!(:product) { create(:product, name: 'Lil Foxy Roxy', product_type: create(:product_type_kit), product_group: pg, taxons: [women_taxon]) }
+    let!(:product) { create(:product, name: 'Lil Foxy Roxy', product_type: create(:product_type_kit)) }
+    let!(:tab)   { create(:product_page_tab, product: product, product_page: page) }
     let(:variant) { create(:base_variant, product: product) }
     
     it "with selected variant" do
@@ -48,7 +46,8 @@ describe Spree::ProductPageRedirectionService, type: :routing do
   end
 
   context 'made-by-the-gang product' do
-    let(:product) { create(:product, name: 'Lil Foxy Roxy', product_group: pg, taxons: [women_taxon]) }
+    let(:product) { create(:product, name: 'Lil Foxy Roxy') }
+    let!(:tab)   { create(:product_page_tab, product: product, product_page: page) }
     let(:variant) { create(:base_variant, product: product) }
 
     it "with selected variant" do
@@ -71,13 +70,10 @@ describe Spree::ProductPageRedirectionService, type: :routing do
   end
 
   context 'supply product' do
-    let(:product) { create(:product, name: 'Lil Foxy Roxy Pattern', product_group: pg) }
+    let(:product) { create(:product, name: 'Lil Foxy Roxy Pattern') }
     let(:variant) { create(:base_variant, product: product) }
     let(:page)    { create(:product_page, name: 'Patterns', target: nil, permalink: 'pattern') }
-
-    before do
-      page.product_groups << pg
-    end
+    let!(:tab)   { create(:product_page_tab, product: product, product_page: page) }
 
     it "with selected variant" do
       o = subject.run(product: product, variant: variant)
