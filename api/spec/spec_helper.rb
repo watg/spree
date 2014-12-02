@@ -14,7 +14,12 @@ end
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV["RAILS_ENV"] ||= 'test'
 
-require Rails.root.join('config','environment')
+begin
+  require File.expand_path("../../../../../config/environment", __FILE__)
+rescue LoadError
+  puts "Could not load dummy application. Please ensure you have run `bundle exec rake test_app`"
+end
+
 require 'rspec/rails'
 
 # Requires supporting ruby files with custom matchers and macros, etc,

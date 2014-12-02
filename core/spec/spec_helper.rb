@@ -15,8 +15,6 @@ end
 # from the project root directory.
 ENV["RAILS_ENV"] ||= 'test'
 
-require Rails.root.join('config','environment')
-
 require 'rspec/rails'
 require 'database_cleaner'
 # require 'ffaker'
