@@ -591,6 +591,7 @@
 /* @group Spree checkout stages */
 
 #checkout {
+	padding-bottom: emCalc(30px);
 	.progress-steps {
 		padding: 1em 0;
 		border-top: 1px dotted $primary-color;
