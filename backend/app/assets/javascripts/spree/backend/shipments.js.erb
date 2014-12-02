@@ -353,7 +353,7 @@ addVariantFromStockLocation = function() {
   var quantity = $("input.quantity[data-stock-location-id='" + stock_location_id + "']").val();
 
   var shipment = _.find(shipments, function(shipment){
-    return shipment.stock_location_id == stock_location_id && (shipment.state == 'ready' || shipment.state == 'pending');
+    return shipment.stock_location_id == stock_location_id && (shipment.state != 'shipped');
   });
 
   if(shipment==undefined){
