@@ -15,6 +15,12 @@ end
 # from the project root directory.
 ENV["RAILS_ENV"] ||= 'test'
 
+begin
+  require File.expand_path("../../../../../config/environment", __FILE__)
+rescue LoadError
+  require File.expand_path("../../../config/environment", __FILE__ )
+end
+
 require 'rspec/rails'
 # require 'ffaker'
 
