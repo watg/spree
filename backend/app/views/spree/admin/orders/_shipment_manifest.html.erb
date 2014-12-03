@@ -1,19 +1,26 @@
-<% # THERE IS A HACK BELOW AS KITS ARE NOT HANDLED BY SHIPMENT MANIFEST %>
-<% order.line_items.each do |item| %>
+<% shipment.manifest.each do |manifest_item| %>
+  <% item = manifest_item.line_item %>
 
-  <tr class="stock-item" data-item-quantity="<%= item.quantity %>" data-selected-variants="<%= item.assembly_selected_variants.to_json %>">
-    <td class="item-type"><%= item.variant.product.marketing_type.name %></td>
+  <tr class="stock-item" data-item-quantity="<%= manifest_item.quantity %>" data-selected-variants="<%= item.assembly_selected_variants.to_json %>">
+    <td class="item-type">
+      <%= item.variant.product.marketing_type.name %>
+    </td>
     <td class="item-image">
-	  <%= mini_image(item.variant) %></td>
+	    <%= mini_image(item.variant) %>
+    </td>
     <td class="item-name">
       <strong>
-        <%= link_to item.variant.product.name, edit_admin_product_variant_path(item.variant.product, item.variant) %><br>
-        <%= "(" + variant_options(item.variant) + ")" unless item.variant.option_values.empty? %>
+        <div class="field">
+          <%= link_to item.variant.product.name, edit_admin_product_variant_path(item.variant.product, item.variant) %>
+        </div>
+        <% if item.variant.option_values.present? %>
+          <%= item.variant.options_text %> <br>
+        <% end %>
       </strong>
-      SKU: <%= item.variant.sku %>
+      <small><strong>SKU:</strong> <%= item.variant.sku %></small>
 
       <% if item.line_item_parts.required.any? %>
-        <h6>Parts:</h6>
+        <h6>Parts</h6>
         <ul class='assembly_parts' style="list-style:none;">
           <% item.line_item_parts.required.each do |o| %>
             <li><%= link_to "#{o.quantity} x #{o.variant.name} (#{o.variant.options_text})" , edit_admin_product_variant_path(o.variant.product, o.variant) %></li>
@@ -22,7 +29,7 @@
       <% end %>
 
       <% if item.line_item_parts.optional.any? %>
-        <h6>Optional Parts:</h6>
+        <h6>Optional Parts</h6>
         <ul class='assembly_parts' style="list-style:none;">
           <% item.line_item_parts.optional.each do |o| %>
             <li><%= link_to "#{o.quantity} x #{o.variant.name} (#{o.variant.options_text})" , edit_admin_product_variant_path(o.variant.product, o.variant) %></li>
@@ -31,7 +38,7 @@
       <% end %>
 
       <% if !item.line_item_personalisations.blank? %>
-        <h6>Personalisations:</h6>
+        <h6>Personalisations</h6>
         <ul class="personalisations" style="list-style:none;">
           <% item.line_item_personalisations.each do |p| %>
             <li> <%= p.text %> </li>
@@ -42,23 +49,24 @@
     </td>
     <td class="item-price align-center"><%= item.single_money.to_html %></td>
     <td class="item-qty-show align-center">
-      <% # This is a hack, as shipments can not deal with kits %>
-      <%= item.quantity %>
+      <% manifest_item.states.each do |state,count| %>
+        <%= count %> x <%= Spree.t(state).downcase %>
+      <% end %>
     </td>
     <% unless shipment.shipped? %>
       <td class="item-qty-edit hidden">
-        <%= number_field_tag :quantity, item.quantity, :min => 0, :class => "line_item_quantity", :size => 5%>
+        <%= number_field_tag :quantity, manifest_item.quantity, :min => 0, :class => "line_item_quantity", :size => 5 %>
       </td>
     <% end %>
     <td class="item-total align-center"><%= line_item_shipment_price(item, item.quantity) %></td>
     <% unless shipment.shipped? %>
       <td class="cart-item-delete actions" data-hook="cart_item_delete">
         <% if can? :update, item %>
-          <%= link_to '', [:admin, @order, item], :class => 'save-item icon_link icon-ok no-text with-tip', :data => {'shipment-number' => shipment.number, 'variant-id' => item.variant.id, 'line-item-id' => item.id, 'quantity' => item.quantity, :action => 'save'}, :title => Spree.t('actions.save'), :style => 'display: none' %>
+          <%= link_to '', [:admin, @order, item], :class => 'save-item icon_link icon-ok no-text with-tip', :data => {'shipment-number' => shipment.number, 'variant-id' => item.variant.id, 'line-item-id' => item.id, 'quantity' => manifest_item.quantity, :action => 'save'}, :title => Spree.t('actions.save'), :style => 'display: none' %>
           <%= link_to '', '#', :class => 'cancel-item icon_link icon-cancel no-text with-tip', :data => {:action => 'cancel'}, :title => Spree.t('actions.cancel'), :style => 'display: none' %>
           <%= link_to '', '#', :class => 'edit-item icon_link icon-edit no-text with-tip', :data => {:action => 'edit'}, :title => Spree.t('edit') %>
-          <%= link_to '', '#', :class => 'split-item icon_link icon-resize-horizontal no-text with-tip', :data => {:action => 'split', 'variant-id' => item.variant.id, 'line-item-id' => item.id, 'quantity' => item.quantity }, :title => Spree.t('split') %>
-          <%= link_to '', [:admin, @order, item], :class => 'delete-item icon-trash no-text with-tip', :data => { 'shipment-number' => shipment.number, 'variant-id' => item.variant.id, 'line-item-id' => item.id, 'quantity' => item.quantity, :action => 'remove'}, :title => Spree.t('delete') %>
+          <%# link_to '', '#', :class => 'split-item icon_link icon-resize-horizontal no-text with-tip', :data => {:action => 'split', 'variant-id' => item.variant.id, 'line-item-id' => item.id, 'quantity' => manifest_item.quantity }, :title => Spree.t('split') # Split does not work for kits %>
+          <%= link_to '', [:admin, @order, item], :class => 'delete-item icon-trash no-text with-tip', :data => { 'shipment-number' => shipment.number, 'variant-id' => item.variant.id, 'line-item-id' => item.id, 'quantity' => manifest_item.quantity, :action => 'remove'}, :title => Spree.t('delete') %>
         <% end %>
       </td>
     <% end %>
