@@ -1,0 +1,27 @@
+<%= render :partial => 'spree/admin/shared/order_sub_menu' %>
+
+<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @order } %>
+
+<%= form_for [:admin, @order], :html => { :multipart => true } do |f| %>
+  <fieldset data-hook="new_order">
+
+  <legend align="center"><%= Spree.t(:new_order) %></legend>
+
+  <div class="alpha four columns">
+    <%= f.field_container :currency do %>
+      <%= f.label :currency, Spree.t(:currency) %><br />
+    <%= f.select :currency, supported_currencies, {}, :class => "select2 fullwidth" %>
+    <%= f.error_message_on :currency %>
+  <% end %>
+  </div>
+
+  <div class="clearfix"></div>
+
+  <div class="actions filter-actions">
+    <%= button_link_to Spree.t('actions.create'), admin_orders_path(@order), :icon => 'icon-refresh', :method => :post  %>
+    <span class="or"><%= Spree.t(:or) %></span>
+    <%= button_link_to Spree.t('actions.cancel'), admin_orders_path, :icon => 'icon-remove' %>
+  </div>
+</fieldset>
+
+<% end %>

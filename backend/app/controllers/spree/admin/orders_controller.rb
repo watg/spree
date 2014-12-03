@@ -48,9 +48,14 @@ module Spree
       end
 
       def new
-        @order = Order.create
+        @order = Order.new
+      end
+
+      def create
+        @order = Order.new
+        @order.currency = params[:order][:currency]
         @order.created_by = try_spree_current_user
-        @order.save
+        @order.save!
         redirect_to edit_admin_order_url(@order)
       end
 
@@ -172,8 +177,14 @@ module Spree
       end
 
       def load_order
-        @order = Order.includes(:adjustments).find_by_number!(params[:id])
-        authorize! action, @order
+        # Spree auth calls load_order, hence you have no control over which actions
+        # it is enabled for in the above before_filter like you may think...
+        # hence only load the order if you have a params[:id] which is not the case
+        # for a new
+        if params[:id]
+          @order = Order.includes(:adjustments).find_by_number!(params[:id])
+          authorize! action, @order
+        end
       end
 
       # Used for extensions which need to provide their own custom event links on the order details view.
