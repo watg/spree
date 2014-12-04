@@ -1,6 +1,6 @@
 module Spree
 
- class CreateAndAllocateConsignmentService < ActiveInteraction::Base
+  class CreateAndAllocateConsignmentService < ActiveInteraction::Base
 
     integer :order_id
 
@@ -10,17 +10,29 @@ module Spree
 
       shipping_manifest = compose(Spree::ShippingManifestService, order: order)
 
-      response = Metapack::Client.create_and_allocate_consignment_with_booking_code(allocation_hash(order, shipping_manifest))
-      order.update_attributes!(order_attrs(response))
-      update_parcels(order, response[:tracking])
-      if order.metapack_allocated
-        mark_order_as_shipped(order)
-        Metapack::Client.create_labels_as_pdf(response[:metapack_consignment_code])
-      else
-        msg = "Cannot print Shipping Label for Consignment '#{response[:metapack_consignment_code]}' with status #{response[:metapack_status]}"
-        errors.add(:metapack, msg)
-      end
+      # Do not be tempted to rescue the whole block as it breaks the way compose propogates
+      # errors
+      begin
+        response = Metapack::Client.create_and_allocate_consignment_with_booking_code(allocation_hash(order, shipping_manifest))
+        order.update_attributes!(order_attrs(response))
+        update_parcels(order, response[:tracking])
+        if order.metapack_allocated
+          mark_order_as_shipped(order)
+          Metapack::Client.create_labels_as_pdf(response[:metapack_consignment_code])
+        else
+          msg = "Cannot print Shipping Label for Consignment '#{response[:metapack_consignment_code]}' with status #{response[:metapack_status]}"
+          errors.add(:metapack, msg)
+        end
 
+      rescue Exception => error
+        Airbrake.sender.delay.send_to_airbrake(error)
+
+        Rails.logger.info '-'*80
+        Rails.logger.info error.inspect
+        Rails.logger.info error.backtrace
+
+        errors.add(:metapack, error.inspect)
+      end
     end
 
     private
