@@ -10,20 +10,19 @@ module Spree
     cattr_accessor :options_cache
 
     cattr_accessor :enable_options_cache do
-      true
+      false
     end
 
     def initialize(amount, options={})
       @money = self.class.parse([amount, (options[:currency] || Spree::Config[:currency])].join)
 
-      @options = if enable_options_cache
-                   self.class.options_cache ||= self.class.default_options
-                   self.class.options_cache
-                 else
-                   self.class.default_options
-                 end
+      default_options = if enable_options_cache
+                          self.class.options_cache ||= self.class.default_options
+                        else
+                          self.class.default_options
+                        end
 
-      @options.merge!(options)
+      @options = default_options.merge(options)
 
       @options[:symbol_position] = @options[:symbol_position].to_sym
     end
