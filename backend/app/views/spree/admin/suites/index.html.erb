@@ -1,0 +1,74 @@
+<% content_for :page_title do %>
+  <%= Spree.t(:listing_suites) %>
+<% end %>
+
+<% content_for :page_actions do %>
+  <li id="new_suite">
+    <%= button_link_to Spree.t(:new_suite), new_object_url, { :remote => true, :icon => 'icon-plus', :id => 'admin_new_suite' } %>
+  </li>
+<% end %>
+
+<%= render :partial => 'spree/admin/shared/product_sub_menu' %>
+
+<% content_for :table_filter_title do %>
+  <%= Spree.t(:search) %>
+<% end %>
+
+<% content_for :table_filter do %>
+  <div>
+
+    <%= search_form_for [:admin, @search] do |f| %>
+
+        <%- locals = {:f => f} %>
+
+        <div>
+          <div class="alpha nine columns">
+            <div class="field">
+              <%= f.label :name_cont, Spree.t(:name) %>
+              <%= f.text_field :name_cont, :size => 15 %>
+            </div>
+          </div>
+        </div>
+
+        <div class="clear"></div>
+
+        <div class="form-buttons actions filter-actions" data-hook="admin_suites_index_search_buttons">
+          <%= button Spree.t(:search), 'icon-search' %>
+        </div>
+    <% end %>
+  </div>
+<% end %>
+
+<div id="new_suite_wrapper" data-hook></div>
+
+<%= paginate @suites %>
+
+<% if @suites.any? %>
+  <table class="index" id="listing_suites">
+    <colpage>
+       <col style="width: 85%;">
+    </colpage>
+    <thead>
+      <tr data-hook="admin_suites_index_headers">
+        <th><%= Spree.t(:name) %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @suites.each do |suite| %>
+          <tr <%= spree_dom_id suite %>" data-hook="admin_suites_index_rows" class="<%= cycle('odd', 'even') %>">
+            <td class="align-center"><%= suite.name rescue '' %></td>
+            <td class="actions" data-hook="admin_suites_index_row_actions">
+              <%= link_to_edit suite, :no_text => true, :class => 'edit' %>
+            </td>
+          </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="no-objects-found">
+    <%= Spree.t(:no_results) %>
+  </div>
+<% end %>
+
+<%= paginate @suites %>
+

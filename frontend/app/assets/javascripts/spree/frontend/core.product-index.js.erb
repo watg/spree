@@ -1,11 +1,15 @@
 core.productIndex = {};
 
-$(document).ready(function() {
+var readyProductIndex = function() {
 	if (!$('body').hasClass('product-index')) return false;
 
 	core.productIndex.runProductMethods();
 	core.productIndex.getProducts();
-});
+};
+
+
+$(document).ready(readyProductIndex);
+$(document).on('page:load', readyProductIndex);
 
 /* ----- Init methods ----- */
 
@@ -56,7 +60,7 @@ core.productIndex.readyProductOverlays = function() {
 			touchend: function(e) {
 				if(touched_without_scroll) {
 					$('.row-product ul').hide(); // Close all overlays
-					var overlay = $(this).find('ul');					
+					var overlay = $(this).find('ul');
 					overlay.show(); // Open this overlay
 					overlay.delay(3000).fadeOut('slow', function() {
 						$(this).find('a').removeClass('active');
@@ -64,7 +68,7 @@ core.productIndex.readyProductOverlays = function() {
 				}
 			}
 		});
-		
+
 		// Ensure the first anchor click for mobile doesn't do 'owt; it's the second click we want
 		$('.row-product .columns a').on({
 			click: function(e) {
@@ -89,7 +93,7 @@ core.productIndex.readyProductOverlays = function() {
 				$(this).next('.more-colours').hide();
 				$(this).hide();
 			}
-		});	
+		});
 	}
 }
 

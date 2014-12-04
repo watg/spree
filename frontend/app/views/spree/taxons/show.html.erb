@@ -1,51 +1,37 @@
-<h1 class="taxon-title"><%= @taxon.name %></h1>
+<% content_for :title do %><%= @taxon.title %><% end %>
+<% content_for :meta do %>
+  <meta content="" name="keywords" />
+  <meta content="" name="description" />
+<% end %>
 
-<% if banner(@taxon.permalink).present? %> 
-  <% small_url, large_url, text1, text2 = banner(@taxon.permalink) %>
-	<style type="text/css">
-    .listing-banner{position:relative;padding-top:25px;margin-bottom:1.875em;min-height:25.000em;
-      background:url(<%= small_url %>) center no-repeat}
-    .listing-banner h2{margin:0;padding-top:0px;font-family:'Gill Sans W01 Light';font-size:1.563em;line-height:1;text-align:center; center top no-repeat}
-    .listing-banner .pop{display:block;font-family:'Gill Sans W01 Book'}@media only screen and (min-width:48em){.listing-banner{padding-top:75px;min-height:18.750em;
-      background-image:url(<%= large_url %>)}
-    .listing-banner h2{padding-top:40px;font-size:2.500em; center top no-repeat}}
-	</style>
-  <div class="listing-banner">
-    <h2><span class="pop"><%= text1 %></span><%= text2 %></h2>
+<% @body_class = 'suites-index no-sitewide-promo' %>
+
+<div class="wrapper-product-index">
+
+  <div class="row-hero">
+    <div class="row">
+      <h1><%= @taxon.title %></h1>
+    </div>
+  </div>
+
+  <div class="row-products">
+		<div class="row">
+			<div class="large-12 columns">
+				<p class="show-all"><a href="?per_page=999">Show all</a></p>
+				<%= paginate @suites, theme: "frontend_override" %>
+			</div>		
+		</div>
+    
+		<div class="row row-product">
+      <%= render partial: "suite", collection: @suites, cache: Proc.new{|suite, counter| [suite, Spree::SuitePresenter.desktop_image_size(counter), @currency ,device]} %>
+  	</div>
+
+		<div class="row">
+			<div class="large-12 columns">
+				<p class="show-all"><a href="?per_page=999">Show all</a></p>
+				<%= paginate @suites, theme: "frontend_override" %>
+			</div>		
+		</div>
 	</div>
-<% end %>
 
-<% content_for :sidebar do %>
-<% end %>
-
-<div data-hook="taxon_products">
-  <% cache [@taxon, @curr_page, @per_page, current_currency] do %>
-    <% displayable_variants = @taxon.displayable_variants(current_currency) %>
-    <% variants = displayable_variants.includes(:normal_prices, :product => [:properties], :option_values => [:option_type]).page(@curr_page).per(@per_page) %>
-
-    <% if variants.num_pages > 1 && ( displayable_variants.size < @max_show_all ) %>
-      <p class="show-all top"><a href="?per_page=999">Show all</a></p>
-    <% end %>
-
-    <% if variants.respond_to?(:num_pages) %>
-      <%= paginate variants %>
-    <% end %>
-
-    <% if variants.blank? %>
-      <%= Spree.t(:no_products_found) %>
-    <% else %>
-      <ul id="products" class="product-listing" data-hook>
-        <%= render :partial => 'spree/shared/variants', :collection => variants, :as => :variant, :locals => { :currency => current_currency } %>
-      </ul>
-    <% end %> <%# variants.empty? %>
-
-    <% if variants.respond_to?(:num_pages) %>
-      <%= paginate variants %>
-    <% end %>
-
-    <% if variants.num_pages > 1 && ( displayable_variants.size < @max_show_all ) %>
-       <p class="show-all bottom"><a href="?per_page=999">Show all</a></p>
-    <% end %>
-
-  <%  end %>
-</div>
+</div><!-- /wrapper -->

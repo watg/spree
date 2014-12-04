@@ -72,105 +72,13 @@ describe Spree::Variant do
         variant.save
       end
     end
-    
+
   end
 
   context "physical" do
     subject { Spree::Variant.physical }
     it { should_not be_nil }
   end
-
-  context "#options_tree_for" do
-
-    let(:product) { create(:product_with_variants) }
-    let(:variant_in_sale) { create(:variant_in_sale) }
-
-    before do
-      product.variants.each  do |v|
-        price = v.price_normal_in('USD') 
-        price.amount = 19.99
-        price.save
-      end
-    end
-
-    it "should build a tree based on it's variants" do
-      variant_1 = product.variants[0]
-      variant_2 = product.variants[1]
-
-      ov1 = variant_1.option_values.first
-      ov2 = variant_2.option_values.first
-
-      attributes = product.variants.options_tree_for(nil,'USD')[ov1.option_type.name][ov1.name]['variant']
-      attributes.should_not be_nil
-      attributes["id"].should == variant_1.id
-      attributes["normal_price"].should == 1999
-      attributes["sale_price"].should == 0
-      attributes["part_price"].should == 0
-      attributes["in_sale"].should == false
-      attributes["total_on_hand"].should == variant_1.total_on_hand
-      attributes["suppliers"].should == variant_1.suppliers
-
-      attributes = product.variants.options_tree_for(nil,'USD')[ov2.option_type.name][ov2.name]['variant']
-      attributes.should_not be_nil
-      attributes["id"].should == variant_2.id
-      attributes["normal_price"].should == 1999
-      attributes["sale_price"].should == 0
-      attributes["part_price"].should == 0
-      attributes["in_sale"].should == false
-      attributes["total_on_hand"].should == variant_2.total_on_hand
-      attributes["suppliers"].should == variant_2.suppliers
-
-      #product.variant_options_tree_for(nil,'GBP').should == {
-      #  "color"=>{
-      #    "hot-pink1"=>{
-      #      "variant"=>{
-      #        "id"=>2,
-      #        "normal_price"=>1200,
-      #        "sale_price"=>0,
-      #        "in_sale"=>false}
-      #    },
-      #    "hot-pink2"=>{
-      #      "variant"=>{
-      #        "id"=>3,
-      #        "normal_price"=>1200,
-      #        "sale_price"=>0,
-      #        "in_sale"=>false
-      #      }
-      #    }
-      #  }
-      #}
-    end
-
-    it "should have prices in USD" do
-      variant = product.variants[0]
-      ov = variant.option_values.first
-      attributes = product.variants.options_tree_for(nil,'USD')[ov.option_type.name][ov.name]['variant']
-      attributes['normal_price'].should == 1999
-      attributes['sale_price'].should == 0
-      attributes['part_price'].should == 0
-      attributes['in_sale'].should == false
-    end
-
-    it "should have sale_price" do
-      ov = variant_in_sale.option_values.first
-      attributes = variant_in_sale.product.variants.options_tree_for(nil,'USD')[ov.option_type.name][ov.name]['variant']
-      attributes['normal_price'].should == 1999
-      attributes['sale_price'].should == 600
-      attributes['part_price'].should == 0
-      attributes['in_sale'].should == true
-    end
-
-    it "should have sale_price" do
-      ov = variant_in_sale.option_values.first
-      variant_in_sale.prices.create( currency: 'USD', sale: false, is_kit: true, amount: 50 ) 
-      attributes = variant_in_sale.product.variants.options_tree_for(nil,'USD')[ov.option_type.name][ov.name]['variant']
-      attributes['normal_price'].should == 1999
-      attributes['sale_price'].should == 600
-      attributes['part_price'].should == 5000
-      attributes['in_sale'].should == true
-    end
-  end
-
 
   context "#generate_variant_number" do
     it "should generate a random string" do
@@ -220,7 +128,7 @@ describe Spree::Variant do
         subject.valid?
         expect(subject.error_on(:weight)).to be_blank
       end
-      
+
     end
   end
 
@@ -245,7 +153,7 @@ describe Spree::Variant do
         subject.valid?
         expect(subject.error_on(:cost_price)).to be_blank
       end
-      
+
     end
   end
 
@@ -348,7 +256,7 @@ describe Spree::Variant do
     let(:product) { build(:product, can_be_part: true)}
     let(:subject) { FactoryGirl.build(:variant, product: product) }
 
-    [:normal, :normal_sale, :part, :part_sale].each do |price_type|
+    [:normal, :normal_sale, :part].each do |price_type|
       it "should return price for '#{price_type}'" do
         price = subject.price_for_type(price_type, 'GBP')
         expect(price).to be_a_kind_of(Spree::Price)
@@ -426,7 +334,7 @@ describe Spree::Variant do
       let(:currency) { nil }
 
       it "returns 0" do
-        subject.to_s.should == "$0.00"
+        subject.to_s.should == "$19.99"
       end
     end
 
@@ -721,7 +629,7 @@ describe Spree::Variant do
 
     # This has been disabled as it was causing too much of a performance overhead
     it "updates it's kit and assemblies_parts" do
-      part = create(:variant) 
+      part = create(:variant)
       variant.add_part part
       ap = Spree::AssembliesPart.where(part_id: part.id).first
       ap.update_column(:updated_at, 1.day.ago)

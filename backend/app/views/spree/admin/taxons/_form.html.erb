@@ -29,12 +29,6 @@
   </div>
 
   <div class="twelve columns alpha omega">
-    <%= f.label :page_type, "Point to page of type:" %> &nbsp; 
-    <%= f.select :page_type, [['Product Page', 'Spree::ProductPage'],['Index Page', 'Spree::IndexPage' ]] %>
-
-    <%= f.field_container :page_id do %>
-      <%= f.hidden_field :page_id, :class => "fullwidth" %>
-    <% end %>
 
     <%= f.field_container :meta_title do %>
       <%= f.label :meta_title, Spree.t(:meta_title) %><br />

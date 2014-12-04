@@ -1,10 +1,10 @@
 @import url("//fast.fonts.net/t/1.css?apiType=css&projectid=dd60acf1-a227-4ade-a786-95d05128d9ff");
 
-@font-face{
+/*@font-face{
 font-family:"Trade Gothic W01 Roman";
 src: font-url("413d9688-00d4-47c4-bb55-656a0cd396e9.eot?#iefix");
 src: font-url("413d9688-00d4-47c4-bb55-656a0cd396e9.eot?#iefix") format("eot"), font-url("c4aef0d4-bfcf-4790-acf5-909881f411e8.woff") format("woff"), font-url("e741f29c-bc18-4343-bff3-db2465a0be3e.ttf") format("truetype"), font-url("853e2a9b-4057-42a5-ad7e-0762cda0b13c.svg#853e2a9b-4057-42a5-ad7e-0762cda0b13c") format("svg");
-}
+}*/
 @font-face{
 font-family:"Trade Gothic W01 Bold";
 src: font-url('2e9af08f_0faf_45e3_9767_78a700434af3.eot?#iefix');
@@ -20,18 +20,18 @@ font-family:"Gill Sans W01 Book";
 src: font-url('2cebe80c_b289_4ae0_a3b0_baa82c6c6e10.eot?#iefix');
 src: font-url('2cebe80c_b289_4ae0_a3b0_baa82c6c6e10.eot?#iefix') format("eot"), font-url('2bc69477_90c2_4415_a51f_36e36eee3d5e.woff') format("woff"), font-url('33447d8d_d920_48e7_b0a9_1d3dda80d6a6.ttf') format("truetype"), font-url('e49c440c_7653_44ce_96d2_f775947ba9fe.svg#e49c440c_7653_44ce_96d2_f775947ba9fe') format("svg");
 }
-@font-face{
+/*@font-face{
 font-family:"Gill Sans W01 Medium";
 src: font-url('beab4258_af94_4971_a0db_b7bc2bef74bc.eot?#iefix');
 src: font-url('beab4258_af94_4971_a0db_b7bc2bef74bc.eot?#iefix') format("eot"), font-url('cd5a93fc_2bb1_48df_8982_11119cd6e270.woff') format("woff"), font-url('b6bdc93b_2720_4c92_b68d_48499456178e.ttf') format("truetype"), font-url('944cce8d_20bf_41c1_ae29_2bc8199859db.svg#944cce8d_20bf_41c1_ae29_2bc8199859db') format("svg");
-}
+}*/
 @font-face{
 font-family:"Gill Sans W01 Light";
 src: font-url('acd8a043_828c_4c2c_98cb_b5224f5d4cdb.eot?#iefix');
 src: font-url('acd8a043_828c_4c2c_98cb_b5224f5d4cdb.eot?#iefix') format("eot"), font-url('c56da29d_9c5b_4d94_900f_770cde3dd317.woff') format("woff"), font-url('378182d1_8021_4674_a814_cc8f01f9a937.ttf') format("truetype"), font-url('d8851d95_478d_47a9_a0b0_a8d8e4ca127a.svg#d8851d95_478d_47a9_a0b0_a8d8e4ca127a') format("svg");
 }
 
-$watg-font-text: "Trade Gothic W01 Roman", Helvetica, Arial, sans-serif;
+/*$watg-font-text: "Trade Gothic W01 Roman", Helvetica, Arial, sans-serif;*/
 $watg-font: "Trade Gothic W01 Bold", Helvetica, Arial, sans-serif;
 $watg-font-light: "Trade Gothic W01 Cn 18", Helvetica, Arial, sans-serif;
 $watg-font-secondary: "Gill Sans W01 Book", Helvetica, Arial, sans-serif;

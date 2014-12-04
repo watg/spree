@@ -8,7 +8,7 @@ jQuery(function($) {
         closeOnSelect: false
       });
   };
-  
+
   activateSelect2();
 
   function format_taxons(taxon) {
@@ -16,7 +16,7 @@ jQuery(function($) {
     return new_taxon;
   }
 
-  $("#product_taxon_ids").on({
+  $("#suite_taxon_ids").on({
     change: function(e){
       $('.select2-search-choice .with-tip').powerTip({
         smartPlacement: true,

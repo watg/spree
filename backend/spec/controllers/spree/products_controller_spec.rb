@@ -46,7 +46,6 @@ describe Spree::Admin::ProductsController, type: :controller do
       product: {
         name: product.name,
         option_type_ids: option_types.first.id,
-        taxon_ids: taxons.map(&:id).join(',')
       },
       "prices"=>{"normal"=>{"GBP"=>"£39.00", "USD"=>"$49.00", "EUR"=>"€47.00"}, "normal_sale"=>{"GBP"=>"£111.00", "USD"=>"$12.00", "EUR"=>"€0.00"}, "part"=>{"GBP"=>"£22.00", "USD"=>"$0.00", "EUR"=>"€0.00"}, "part_sale"=>{"GBP"=>"£0.00", "USD"=>"$0.00", "EUR"=>"€0.00"}
       }

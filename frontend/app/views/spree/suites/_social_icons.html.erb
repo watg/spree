@@ -1,0 +1,32 @@
+<% unless mobile_device? %>
+  <ul class="icons-social-variant ">
+      <li>
+      <!-- Twitter -->
+      <a class="twitter-share-button twitter"
+      data-count="none"
+        href="https://twitter.com/share">
+        Tweet
+      </a>
+    </li>
+    <li>
+      <!-- Pinterest Pinning -->
+      <a href="http://pinterest.com/pin/create/button/?url=<%=request.url%>
+          &media=<%=url_encode(variant_presenter.first_image_url(:product))%>
+          &description=I%20love%20Wool%20and%20the%20Gangs%20<%=url_encode(variant_presenter.name)%>"
+          data-pin-do="buttonPin"
+          data-pin-config="none">
+          <img src="//assets.pinterest.com/images/pidgets/pin_it_button.png" />
+      </a>
+    </li>
+    <li>
+    <!-- instagram profile -->
+      <a href="http://instagram.com/woolandthegang?ref=badge" class="ig-b- ig-b-16" target="_blank"><img src="//badges.instagram.com/static/images/ig-badge-16.png" alt="Instagram" class="instagram" /></a>
+    </li>
+  </ul>
+  <ul class="icons-facebook-social panel-social">
+    <li>
+      <!-- Facebook sharing -->
+      <div class="fb-like" data-href="https://www.facebook.com/woolandthegang" data-layout="standard" data-action="like" data-show-faces="false" data-share="true"></div>
+    </li>
+  </ul>
+<% end %>

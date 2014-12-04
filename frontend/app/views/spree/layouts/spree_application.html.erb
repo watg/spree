@@ -2,53 +2,54 @@
 <!--[if IE 8]><html class="no-js lt-ie9" lang="en" ><![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head data-hook="inside_head">
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<meta name="p:domain_verify" content="d55a740b763bcb14c5af217ac8eb2b21" />
-	<title><%= content_for?(:title) ? yield(:title) : title || "Wool And The Gang" %></title>
-	<%= content_for?(:meta) ? yield(:meta) : meta_data_tags.html_safe %>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="p:domain_verify" content="d55a740b763bcb14c5af217ac8eb2b21" />
+  <title><%= content_for?(:title) ? yield(:title) : title || "Wool And The Gang" %></title>
+  <%= content_for?(:meta) ? yield(:meta) : meta_data_tags.html_safe %>
 
-	<%= stylesheet_link_tag    "application" %>
-	<%= javascript_include_tag "application" %>
+  <%= stylesheet_link_tag    "application" %>
+  <%= javascript_include_tag "application" %>
 
-	<%= csrf_meta_tags %>
-	<%= render "spree/shared/routes" %>
-	<%= yield :head %>
+  <%= yield(:javascript_include) %>
+
+  <%= csrf_meta_tags %>
+  <%= render "spree/shared/routes" %>
+  <%= yield :head %>
+  <script type="text/javascript" src="//apis.google.com/js/plusone.js" parsetags="explicit"></script>
 </head>
 
 <body id="<%= @body_id || 'default' %>" class="shop <%= body_class %>" data-hook="body">
 
-	<%= render :partial => 'spree/shared/header' %>
+  <%= render :partial => 'spree/shared/header' %>
 
-	<%= render "spree/shared/menu" %>
-
-	<%= render "spree/shared/shipping_and_contact" %>
-
-	<div class="container">
-		<div class="row">
-			<div class="large-12 columns">
-				<%= flash_messages %>
-				<%= yield %>
-			</div>
-		</div>
-
-		<%= render "spree/shared/footer" %>
-	</div>
-
-	<script>
-          Spree.api_key = <%= raw(try_spree_current_user.try(:spree_api_key).to_s.inspect) %>;
-	</script>
-
-  <% if production_or_staging? %>
-	  <script type="text/javascript" src="//assets.pinterest.com/js/pinit.js"></script>
+  <% if Flip.on?(:suites_feature) %>
+  <%= render "spree/shared/taxons_driven_menu" %>
+  <% else %>
+  <%= render "spree/shared/menu" %>
   <% end %>
 
-	<%= render :partial => 'spree/shared/facebook_pixel' %>
-	<%= render :partial => 'spree/shared/adroll_pixel' %>
-	<%= render :partial => 'spree/shared/google_universal_analytics' %>
- 	<%= render :partial => 'spree/shared/google_analytics' %>
- 	<%= render :partial => 'spree/shared/google_adword_tag' %>
-	<%= render :partial => 'spree/shared/crazy_egg_analytics' %>
+  <%= render "spree/shared/shipping_and_contact" %>
+
+  <div class="container">
+    <div class="row">
+      <div class="large-12 columns">
+        <%= flash_messages %>
+        <%= yield %>
+      </div>
+    </div>
+
+    <%= render "spree/shared/footer" %>
+  </div>
+
+  <script>
+    Spree.api_key = <%= raw(try_spree_current_user.try(:spree_api_key).to_s.inspect) %>;
+  </script>
+
+  <%= render :partial => 'spree/shared/facebook_pixel' %>
+  <%= render :partial => 'spree/shared/adroll_pixel' %>
+  <%= render :partial => 'spree/shared/google_universal_analytics' %>
+  <%= render :partial => 'spree/shared/google_analytics' %>
 
 </body>
 </html>

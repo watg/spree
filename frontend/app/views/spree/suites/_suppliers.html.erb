@@ -1,0 +1,15 @@
+<h5 class="reveal-title suppliers">
+  <% displayable_suppliers = variant_presenter.displayable_suppliers %>
+	<%= cdn_image_tag("static/made-by-the-gang.png", alt: "", width: "40", height: "40") %>
+  #madeunique <span>by <%= displayable_suppliers.map(&:nickname).to_sentence %></span>
+</h5>
+<p class="reveal-content">
+   <% displayable_suppliers.each_with_index do |supplier, i| %>
+     <% if (supplier.profile.size > 0) %>
+			<strong><%= supplier.nickname.titlecase() %></strong>: <%= supplier.profile %>
+     	<% if (i < displayable_suppliers.size - 1) %>
+       <br/><br/>
+     	<% end %>
+		<% end %>
+   <% end %>
+</p>

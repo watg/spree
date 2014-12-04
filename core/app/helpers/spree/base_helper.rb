@@ -106,6 +106,14 @@ module Spree
       end
     end
 
+    def render_taxons_links(taxon)
+      taxon.children.map do |taxon|
+        content_tag :li do
+         link_to(taxon.name, seo_url(taxon))
+        end
+      end.join("\n").html_safe
+    end
+
     def available_countries
       checkout_zone = Zone.find_by(name: Spree::Config[:checkout_zone])
 
@@ -122,12 +130,7 @@ module Spree
     end
 
     def seo_url(taxon)
-      # when flipped, do static rendering only in _menu.html.erb
-      # if Flip.product_pages? && taxon.page.is_a? "Spree::IndexPage"
-      #   spree.index_page_path(taxon.permalink)
-      # else
       spree.nested_taxons_path(taxon.permalink)
-      # end
     end
 
     def gem_available?(name)

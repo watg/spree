@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Spree::StockCheckJob do
   let(:variant_not_part) {create(:variant_with_stock_items)}
   let(:stock_item) { variant_not_part.stock_items.first }
-  subject  { Spree::StockCheckJob.new(variant_not_part) }
+  subject { Spree::StockCheckJob.new(variant_not_part) }
 
   
   describe "#perform" do
@@ -22,6 +22,11 @@ describe Spree::StockCheckJob do
 
       it "touches the variant" do
         expect(stock_item.variant).to receive(:touch)
+        subject.perform
+      end
+
+      it "triggers the suite_tab_cache_rebuilder" do
+        expect(subject).to receive(:rebuild_suite_tab_cache).with(stock_item.variant)
         subject.perform
       end
 
@@ -53,19 +58,30 @@ describe Spree::StockCheckJob do
           expect(kit.reload.in_stock_cache).to eq(true)
         end
 
+        it "triggers the suite_tab_cache_rebuilder" do
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(kit)
+          subject.perform
+        end
+
       end
 
       context "kit with 1 part out of stock" do
+
+        subject  { Spree::StockCheckJob.new(out_of_stock_part) }
 
         before do 
           kit.in_stock_cache = true
           ap.update_column(:part_id, out_of_stock_part.id)
         end
 
-
         it "is out of stock when part is out of stock" do
           subject.perform
           expect(kit.reload.in_stock_cache).to eq(false)
+        end
+
+        it "triggers the suite_tab_cache_rebuilder" do
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(kit)
+          subject.perform
         end
 
       end
@@ -82,6 +98,11 @@ describe Spree::StockCheckJob do
           expect(kit.reload.in_stock_cache).to eq(false)
         end
 
+        it "triggers the suite_tab_cache_rebuilder" do
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(kit)
+          subject.perform
+        end
+
       end
 
       context "kit with 1 part in stock and another part out of stock which is optional" do
@@ -94,6 +115,11 @@ describe Spree::StockCheckJob do
         it "is not in stock" do
           subject.perform
           expect(kit.reload.in_stock_cache).to eq(true)
+        end
+
+        it "triggers the suite_tab_cache_rebuilder" do
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(kit)
+          subject.perform
         end
 
       end
@@ -111,6 +137,12 @@ describe Spree::StockCheckJob do
           expect(kit.reload.in_stock_cache).to eq(false)
         end
 
+        it "triggers the suite_tab_cache_rebuilder" do
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(kit)
+          subject.perform
+        end
+
+
       end
 
       context "kit with part in stock and another part in stock" do
@@ -124,6 +156,12 @@ describe Spree::StockCheckJob do
           subject.perform
           expect(kit.reload.in_stock_cache).to eq(true)
         end
+
+        it "triggers the suite_tab_cache_rebuilder" do
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(kit)
+          subject.perform
+        end
+
 
       end
 
@@ -143,6 +181,13 @@ describe Spree::StockCheckJob do
           expect(subject).to receive(:put_all_kits_using_this_variant_out_of_stock)
           subject.perform
         end
+
+        it "triggers the suite_tab_cache_rebuilder" do
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(part)
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(kit)
+          subject.perform
+        end
+
       end
 
     end

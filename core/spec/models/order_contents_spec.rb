@@ -50,6 +50,17 @@ describe Spree::OrderContents do
 
     end
 
+    context 'suite params' do
+      let(:options) { { suite_id: 21, suite_tab_id: 22 } }
+
+      it "should add suite params to the line_item" do
+        line_item = subject.add(variant, 1, options)
+        expect(line_item.suite_id).to eq(21)
+        expect(line_item.suite_tab_id).to eq(22)
+      end
+
+    end
+
     context 'given parts' do
       let(:variant_option1) { create(:variant) }
       let(:variant_option2) { create(:variant) }
@@ -382,8 +393,8 @@ describe Spree::OrderContents do
     end
 
     # This tests that the line_item than is in scope is the one
-    # off the order.line_items collection, this is important as the 
-    # validations later work off of order.line_items which would not 
+    # off the order.line_items collection, this is important as the
+    # validations later work off of order.line_items which would not
     # reflect changes on line_item otherwise
     it "should load all the line_items without hitting" do
       lonely_line_item = Spree::LineItem.find(line_item_1.id)

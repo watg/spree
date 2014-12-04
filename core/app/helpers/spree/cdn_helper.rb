@@ -34,17 +34,29 @@ module Spree
     end
 
     def cdn_url(source)
-      u_source = URI(source)
-      u_cdn = URI(cdn_prefix)
+
+      u_source = parse_source_for_environment(source)
+
       if u_source.path[0] == '/'
-        ["//", u_cdn.host, u_source.path].join + "?#{u_source.query}"
+        [cdn_prefix, u_source.path].join + "?#{u_source.query}"
       else
-        ["//", u_cdn.host, "/", u_source.path].join + "?#{u_source.query}"
+        [cdn_prefix, "/", u_source.path].join + "?#{u_source.query}"
       end
     end
-    
+
     def cdn_prefix
-      @_cdn_prefix ||= Spree::Config[:asset_cdn_url] + '/'
+      @_cdn_prefix ||= Spree::Config[:asset_cdn_url]
     end
+
+    def parse_source_for_environment(source)
+
+      if Rails.env.test? or Rails.env.features?
+        URI('')
+      else
+        URI(source)
+      end
+
+    end
+
   end
 end

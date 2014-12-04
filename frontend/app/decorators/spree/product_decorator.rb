@@ -1,6 +1,14 @@
 class Spree::ProductDecorator < Draper::Decorator
   delegate_all
-  
+
+  def product_options
+    @product_options ||= Spree::ProductOptionsPresenter.new(object, h, {currency: current_currency, target: target}) 
+  end
+
+  def target
+    context[:target]
+  end
+
   def memoized_variant_images
     @_variant_images ||= object.variant_images_for(context[:target])
   end
@@ -16,11 +24,6 @@ class Spree::ProductDecorator < Draper::Decorator
   def memoized_has_variants?
     @_has_variant ||= object.has_variants?
   end
-
-  def memoized_variants_and_option_values
-    @_variants_and_option_values ||= object.variants_and_option_values(context[:current_currency])
-  end
-
   def current_currency
     @_current_currency ||= context[:current_currency] || Spree::Config[:currency]
   end
@@ -56,18 +59,20 @@ class Spree::ProductDecorator < Draper::Decorator
     first_image.present? ? first_image.alt : 'No image'
   end
 
+  ################## Done #############
   def memoized_variant_options_tree
-    @_variant_options_tree ||= {}
-    @_variant_options_tree[[context[:target],current_currency]] ||= object.variant_options_tree_for(context[:target],current_currency)
+    @variant_options_tree ||= product_options.variant_tree.to_json
   end
 
   def memoized_option_type_order
-    @_option_type_order ||= object.option_type_order 
+    @option_type_order ||= product_options.option_type_order.to_json
   end
 
   def memoized_targeted_grouped_option_values
-    @_memoized_targeted_grouped_option_values_for ||= object.grouped_option_values_for(context[:target])
+    @targeted_grouped_option_values ||= product_options.grouped_option_values_in_stock
   end
+  ##################### Next #############
+
   
   def item_quantity(obj)
     obj.respond_to?(:count_part) ? obj.count_part : 1

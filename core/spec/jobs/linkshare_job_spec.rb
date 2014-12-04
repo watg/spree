@@ -3,7 +3,7 @@ require File.join(File.dirname(__FILE__), '..','spec_helper')
 describe Spree::LinkshareJob do
   describe :variants do
     it "loads only the variants that are accessible with a url endpoint" do
-      block = Proc.new do |actual_variant| 
+      block = Proc.new do |actual_variant|
         expect(actual_variant.product_type).to_not include('virtual_product', 'parcel')
       end
       subject.send(:variants) &block
@@ -27,20 +27,20 @@ describe Spree::LinkshareJob do
         expect(actual.css("feed author name").text).to eql("Wool And The Gang")
       end
     end
-    
+
     it "generates atom entry" do
       target = create(:target)
       product = create(:product, name: "my cool product")
       variant = create(:variant, number: 'V307238112', product: product).
         decorate(context: {target: target})
       allow(variant).to receive(:updated_at).and_return(time)
-      feed = Nokogiri::XML::Builder.new {|xml| 
-        xml.feed("xml:lang" => "en-GB", 
-                 "xmlns"    => "http://www.w3.org/2005/Atom", 
-                 "xmlns:g"  => "http://base.google.com/ns/1.0") { 
+      feed = Nokogiri::XML::Builder.new {|xml|
+        xml.feed("xml:lang" => "en-GB",
+                 "xmlns"    => "http://www.w3.org/2005/Atom",
+                 "xmlns:g"  => "http://base.google.com/ns/1.0") {
           subject.entry(xml, variant) }}
-      
-      Timecop.freeze(time) 
+
+      Timecop.freeze(time)
       Time.use_zone("London") do
 #        expect(feed.to_xml).to eql(entry_fixture(time))
         actual =  Nokogiri::XML(feed.to_xml)
@@ -83,7 +83,7 @@ EOF
     <title>my cool product</title>
     <id>V307238112</id>
     <summary/>
-    <link href="http://www.woolandthegang.com/shop/items/a/made-by-the-gang/V307238112"/>
+    <link href="http://www.woolandthegang.com/items/a/made-by-the-gang/V307238112"/> # This never gets tested. See above.
     <updated>#{t.iso8601}</updated>
     <g:price>0.0 GBP</g:price>
     <g:condition>new</g:condition>

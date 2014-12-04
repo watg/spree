@@ -10,52 +10,6 @@ describe Spree::AssemblyDefinitionPart do
   let(:colour)   { create(:option_type, name: 'colour', position: 2 )}
   subject { create(:assembly_definition_part, assembly_definition: assembly_definition, product: part, displayable_option_type: colour ) }
 
-  context "Stock and Option Values" do
-
-    let(:size)     { create(:option_type, name: 'size', presentation: 'Size', position: 1 )}
-    let(:big)      { create(:option_value, name: 'big', presentation: 'Big', option_type: size, position: 0) }
-    let(:small)    { create(:option_value, name: 'small', presentation: 'Small', option_type: size, position: 1) }
-
-  #  let(:colour)   { create(:option_type, name: 'colour', position: 2 )}
-    let(:pink)     { create(:option_value, name: 'pink', presentation: 'Pink', option_type: colour, position: 0) }
-    let(:blue)     { create(:option_value, name: 'blue', presentation: 'Blue', option_type: colour, position: 1) }
-
-    let(:language) { create(:option_type, name: 'language', presentation: 'Language', position: 3 )}
-    let(:french)   { create(:option_value, name: 'french', presentation: 'French', option_type: language, position: 0) }
-    let(:english)   { create(:option_value, name: 'english', presentation: 'English', option_type: language, position: 1) }
-
-
-    let!(:variant_in_stock1)  { create(:variant_with_stock_items, product: product, option_values: [pink,small] ) }
-    let!(:variant_in_stock2)  { create(:variant_with_stock_items, product: product, option_values: [pink,big] ) }
-    let!(:variant_in_stock3)  { create(:variant_with_stock_items, product: product, option_values: [blue,small] ) }
-    let!(:variant_in_stock4)  { create(:variant_with_stock_items, product: product, option_values: [blue,big] ) }
-    let!(:variant_out_of_stock)  { create(:variant, product: product, option_values: [english] ) }
-    let!(:variant_in_stock5)  { create(:variant_with_stock_items, product: product, option_values: [french] ) }
-
-
-    let(:product)  { create(:base_product) }
-
-    before do
-      subject.variants = [ variant_in_stock1, variant_in_stock2, variant_in_stock3, variant_in_stock4, variant_out_of_stock ]
-    end
-
-    context "#option_values_in_stock" do
-      it "should return option values" do
-        expect(subject.option_values).to include(big,small,pink,blue)
-      end
-    end
-
-    context "#variant_options_tree_for" do
-      it "should return variant_options_tree_for" do
-        tree = subject.variant_options_tree_for('USD')
-        expect(tree["colour"]["pink"]["variant"]["in_stock"]).to_not be_nil
-        expect(tree["colour"]["blue"]["variant"]["in_stock"]).to_not be_nil
-        expect(tree["colour"]["pink"]["variant"]["in_stock"]).to_not be_nil
-        expect(tree["colour"]["blue"]["variant"]).to_not be_nil
-        expect(tree["language"]).to be_nil
-      end
-    end
-  end
 
   context "set_assembly_product" do
     it "set assembly product before create" do

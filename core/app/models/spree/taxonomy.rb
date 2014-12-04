@@ -8,8 +8,23 @@ module Spree
     has_one :root, -> { where parent_id: nil }, class_name: "Spree::Taxon", dependent: :destroy
 
     after_save :set_name
+    after_save :clear_navigation_cache_key
 
     default_scope -> { order("#{self.table_name}.position") }
+
+    NAVIGATION_CACHE_KEY = 'nav_cache_key'
+
+    def clear_navigation_cache_key
+      if changed?
+        Rails.cache.delete(NAVIGATION_CACHE_KEY)
+      end
+    end
+
+    def self.navigation_cache_key
+      Rails.cache.fetch(NAVIGATION_CACHE_KEY) do
+        Time.now.to_i
+      end
+    end
 
     private
       def set_name

@@ -1,0 +1,34 @@
+<% present(suite, @context) do |suite_presenter| %>
+
+  <div class="<%= suite_presenter.container_class(cache_safe_suite_counter) %> small-6 columns" itemscope itemtype="http://schema.org/Product">
+
+      <a href="<%= suite_presenter.link_to_first_tab_in_stock %>">
+        <h2 itemprop="name" class="<%= suite_presenter.header_style %>"><%= suite_presenter.title %></h2>
+				<%= image_tag(suite_presenter.image_url(cache_safe_suite_counter), alt: suite_presenter.image_alt) %>
+      </a>
+
+      <ul class="no-bullet">
+        <% if suite_presenter.available_stock? %>
+          <% suite_presenter.suite_tab_presenters do |tab_presenter| %>
+            <li>
+              <a href="<%= tab_presenter.link_to %>">
+                <%= tab_presenter.presentation %><br/>
+                <%= tab_presenter.lowest_prices %>
+              </a>
+            </li>
+          <% end %>
+
+        <% else %>
+          <li class="item-unavailable">
+          	<% unless mobile_device? %>
+						Sorry, this item has been really popular. <a href="mailto:info@woolandthegang.com?subject=When will <%= suite_presenter.title %> be back in stock?">info@woolandthegang.com</a> Drop us an email and we'll let you know when it's back.<br/><br/>info@woolandthegang.com
+						<% else %>
+						Out of stock <a href="mailto:info@woolandthegang.com?subject=When will <%= suite_presenter.title %> be back in stock?">Pre-order it!</a>
+						<% end %>
+          </li>
+        <% end # end if stock is available %>
+      </ul>
+
+  </div>
+
+<% end # end presenter %>

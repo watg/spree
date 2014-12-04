@@ -23,7 +23,6 @@ module Spree
         edit_admin_index_page_path(@index_page)
       end
 
-
     end
   end
 end

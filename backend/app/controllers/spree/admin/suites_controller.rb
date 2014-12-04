@@ -1,0 +1,43 @@
+module Spree
+  module Admin
+    class SuitesController < ResourceController
+
+      def s3_callback
+        image = SuiteImage.where(viewable: @suite).first_or_create
+        @outcome = UploadImageToS3Service.run(
+          image: image,
+          attachment_file_name: params[:filename],
+          attachment_content_type: params[:filetype],
+          attachment_file_size: params[:filesize],
+          direct_upload_url: params[:image][:direct_upload_url]
+        )
+      end
+
+      protected
+      def suite_params
+        params.require(:suite).permit(:name, :title, :permalink, :target_id, :taxon_ids,
+                                      :tabs_attributes => [ :id, :product_id ])
+      end
+
+      def find_resource
+        Suite.find_by(permalink: params[:id])
+      end
+
+      def location_after_save
+        edit_admin_suite_url(@suite)
+      end
+
+      def collection
+        return @collection if @collection.present?
+        params[:q] ||= {}
+        params[:q][:s] ||= "name asc"
+        @collection = super
+        # @search needs to be defined as this is passed to search_form_for
+        @search = @collection.ransack(params[:q])
+        @collection = @search.result.page(params[:page]).per( 15 )
+        @collection
+      end
+
+    end
+  end
+end

@@ -1,0 +1,72 @@
+<div class="row">
+  <div class="left ten columns alpha">
+    <%= f.field_container :name do %>
+      <%= f.label :name, Spree.t(:name) %> <span class="required">*</span><br />
+      <%= f.text_field :name, :class => 'fullwidth title' %>
+      <%= f.error_message_on :name %>
+    <% end %>
+
+    <%= f.field_container :title do %>
+      <%= f.label :title, Spree.t(:title) %> <span class="required">*</span><br />
+      <%= f.text_field :title, :class => 'fullwidth title' %>
+      <%= f.error_message_on :title %>
+    <% end %>
+
+    <%= f.field_container :permalink do %>
+      <%= f.label :permalink, Spree.t(:permalink) %> <span class="required">*</span><br />
+      <%= f.text_field :permalink, :class => 'fullwidth title' %>
+      <%= f.error_message_on :permalink %>
+      <span class="info">
+        <%= link_to_with_icon 'icon-external-link', "Jump to frontpage", suite_path(id: @suite.permalink), target: :blank %>
+      </span>
+    <% end %>
+
+    <%= f.field_container :target do %>
+      <%= f.label :target_id, "Target" %><br>
+      <%= f.collection_select(:target_id, Spree::Target.all, :id, :name, {include_blank: true},  { class: 'select2 fullwidth'}) %>
+    <% end %>
+
+  </div>
+
+  <div class="right six columns omega">
+
+    <%= f.field_container :taxons do %>
+      <%= f.label :taxon_ids, Spree.t(:taxons) %>
+      <%= f.collection_select(:taxon_ids, Spree::Taxon.all, :id, :pretty_name, {include_blank: true}, { class: 'select2 fullwidth', multiple: true}) %>
+      <%# f.hidden_field :taxon_ids, :value => @suite.taxon_ids.join(','), class: "fullwidth" %>
+    <% end %>
+
+    <br>
+    <div class="dropzone" id="suite_image_container">
+      <%= f.fields_for :image do |image_fields| %>
+        <%= image_tag(image_fields.object.attachment.url(:mini))%>
+      <% end %>
+    </div>
+
+    <div class="field">
+      <%= f.fields_for :image do |image_fields| %>
+        <%= image_fields.hidden_field :_destroy %>
+        <%= link_to_with_icon 'icon-trash', "Delete Image", "#", class: "remove_image" %>
+      <% end %>
+    </div>
+
+  </div>
+</div>
+
+<fieldset>
+  <legend align="center"><%= "Suite Tabs" %></legend>
+  <div id="suite_tabs" class="row">
+    <%= f.fields_for :tabs do |builder| %>
+      <%= render 'tab_fields', f: builder %>
+  <% end %>
+  </div>
+  <div class="form-buttons filter-actions actions">
+    <%= link_to_add_suite_tab_fields "Add Tab", f, :tabs %>
+  </div>
+  <br>
+</fieldset>
+
+
+<%= render :partial => "spree/admin/products/product_autocomplete", :formats => :js %>
+
+<div class="clear"></div>

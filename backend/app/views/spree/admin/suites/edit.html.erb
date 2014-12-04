@@ -1,0 +1,49 @@
+<% content_for :page_actions do %>
+  <li><%= button_link_to Spree.t(:back_to_suites_list), admin_suites_url, :icon => 'icon-arrow-left' %></li>
+  <li id="new_suite_link">
+    <%= button_link_to Spree.t(:new_suite), new_object_url, { :icon => 'icon-plus', :id => 'admin_new_suite' } %>
+  </li>
+<% end %>
+
+<%= render :partial => 'spree/admin/shared/product_sub_menu' %>
+<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @suite } %>
+
+<div id="uploads_container"></div>
+
+<script id="template-upload" type="text/x-tmpl">
+  <div id="upload_{%=o.unique_id%}" class="upload">
+    <h5>{%=o.name%}</h5>
+    <div class="progress progress-striped active"><div class="bar" style="width: 0%"></div></div>
+  </div>
+</script>
+
+<% @suite.tabs.each do |tab| %>
+  <% next unless tab.persisted? %>
+  <%= s3_uploader_form callback_url: s3_callback_admin_suite_tab_path(@suite, tab),
+    class: "s3_uploader_form",
+    data: {
+      tab: tab.id,
+      drop_zone: "##{tab.tab_type}_image_container"
+    },
+    callback_param: "image[direct_upload_url]",
+    expiration: 24.hours.from_now.utc.iso8601,
+    max_file_size: 100.megabytes do %>
+    <%= file_field_tag :file, multiple: true, style: "display:none" %>
+  <% end %>
+<% end %>
+
+
+<%= s3_uploader_form callback_url: s3_callback_admin_suite_path(@suite),
+    class: "s3_uploader_form",
+    data: {drop_zone: "#suite_image_container"},
+    callback_param: "image[direct_upload_url]",
+    expiration: 24.hours.from_now.utc.iso8601,
+    max_file_size: 100.megabytes do %>
+  <%= file_field_tag :file, multiple: true, style: "display:none" %>
+<% end %>
+
+<%= form_for [:admin, @suite] do |f| %>
+  <%= render 'form', f: f  %>
+  <%= render :partial => 'spree/admin/shared/edit_resource_links' %>
+<% end %>
+

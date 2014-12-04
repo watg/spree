@@ -1,25 +1,29 @@
 core.productTop = {};
 
-$(document).ready(function() {
+var readyProductTop = function() {
 	if (!$('body').hasClass('product-top')) return false;
 
 	core.productTop.readyBackground();
-});
+};
+
+
+$(document).ready(readyProductTop);
+$(document).on('page:load', readyProductTop);
 
 /* ----- Init methods ----- */
 
 core.productTop.readyBackground = function() {
 	var body = $('body');
 	var prefix = 'background-';
-		
+
 	if (core.isMobileWidthOrLess() === true) {
 		prefix = 'mobile/background-';
 	}
 
-	prefix = '<%= cdn_prefix %>' + 'product-top/' + prefix 
-	
+	prefix = '<%= cdn_prefix %>' + '/product-top/' + prefix
+
 	var background = prefix + 'women-0914.jpg'; // Women by default
-	
+
 	if (body.hasClass('men')) {
 		background = prefix + 'men.jpg';
 	} else if (body.hasClass('kids')) {
@@ -37,7 +41,7 @@ core.productTop.readyBackground = function() {
 	} else if (body.hasClass('knitting-kids')) {
 		background = prefix + 'knitting-kids.jpg';
 	}
-	
+
 	$('html').css('background', '#f1f1f1 url(' + background + ') no-repeat center center fixed');
 	$('html').css('height', '100%');
 	$('html').css('background-size', 'cover');

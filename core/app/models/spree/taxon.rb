@@ -4,11 +4,9 @@ module Spree
     acts_as_nested_set dependent: :destroy
 
     belongs_to :taxonomy, class_name: 'Spree::Taxonomy', touch: true, inverse_of: :taxons
-	
-	# drop the columns and delete
-	# belongs_to :page, polymorphic: true
-	has_many :classifications, -> { order(:position) }, dependent: :delete_all, inverse_of: :taxon
-    has_many :products, through: :classifications
+
+  	has_many :classifications, -> { order(:position) }, dependent: :delete_all, inverse_of: :taxon
+    has_many :suites, through: :classifications
 
     before_create :set_permalink
 
@@ -69,8 +67,8 @@ module Spree
       permalink
     end
 
-    def active_products
-      scope = products.active
+    def active_suites
+      scope = suites.active
       scope
     end
 
@@ -79,6 +77,10 @@ module Spree
         name += "#{ancestor.name} -> "
       end
       ancestor_chain + "#{name}"
+    end
+
+    def title
+      name.humanize
     end
 
     # awesome_nested_set sorts by :lft and :rgt. This call re-inserts the child

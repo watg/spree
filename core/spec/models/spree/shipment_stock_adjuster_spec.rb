@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Spree::ShipmentStockAdjuster do
 
-  let(:stock_location) { mock_model(Spree::StockLocation) }
+  let(:stock_location) { build_stubbed(:stock_location) }
   let(:shipment) { mock_model(Spree::Shipment, stock_location: stock_location) }
   let(:supplier) { mock_model(Spree::Supplier, id: 22) }
   let(:variant) { mock_model(Spree::Variant) }
@@ -155,11 +155,12 @@ describe Spree::ShipmentStockAdjuster do
   end
 
   context "unstock_stock_item" do
-    let(:stock_item) { Spree::StockItem.create!(backorderable: true, supplier: supplier, variant: variant, stock_location: stock_location) }
+    let!(:stock_item) { Spree::StockItem.create!(backorderable: true, supplier: supplier, variant: variant, stock_location: stock_location) }
     let(:units) { [] }
 
     before do
       allow(variant).to receive(:touch)
+      allow(stock_item).to receive(:trigger_suite_tab_cache_rebuilder)
       stock_item.update_column(:count_on_hand, 2)
       units << Spree::InventoryUnit.create(order: order, pending: true, supplier_id: nil)
       units << Spree::InventoryUnit.create(order: order, pending: true, supplier_id: nil)

@@ -43,6 +43,7 @@ require 'spree/testing_support/flash'
 require 'spree/testing_support/url_helpers'
 require 'spree/testing_support/order_walkthrough'
 require 'spree/testing_support/caching'
+require 'spree/testing_support/image_stub'
 
 require 'paperclip/matchers'
 
@@ -79,6 +80,9 @@ RSpec.configure do |config|
     end
   end
 
+  # Ensure presenters works
+  config.include ActionView::TestCase::Behavior, example_group: {file_path: %r{spec/presenters}}
+
   config.before(:each) do
     WebMock.disable!
     if example.metadata[:js]
@@ -109,6 +113,9 @@ RSpec.configure do |config|
     end
   end
 
+  config.before(:each) do
+    reset_spree_preferences
+  end
 
   config.include FactoryGirl::Syntax::Methods
 

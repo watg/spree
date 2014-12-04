@@ -1,0 +1,278 @@
+core.suite = {};
+
+var readySuite = function() {
+	if (!$('body').hasClass('suite')) return false;
+
+	core.suite.setScrollPosition();
+	core.suite.runVariantMethods();
+	core.suite.readyHeroRow();
+	core.suite.readyTabs();
+	core.suite.readyRevealContent();
+	core.suite.readySocialWidget();
+	core.suite.readyHistoryPlugin();
+	
+	// Don't initialise zoom for mobile devices
+	if (core.isMobileWidthOrLess() === false) {
+		core.suite.readyZoomableImages();
+	}
+
+	core.suite.showHeroImage();
+	core.suite.positionHeroTitle();
+
+	/* ----- New kit UI only ----- */
+	core.suite.hideOutOfStockVariants();
+	core.suite.readyAssemblyMenus();
+	core.suite.closeAssemblyMenus();
+	core.suite.readyAssemblyItemNames();
+	core.suite.setAssemblyListHeights();
+};
+
+$(document).ready(readySuite);
+$(document).on('page:load', readySuite);
+
+/* ----- Init methods ----- */
+
+// Run all the methods associated with variants
+core.suite.runVariantMethods = function() {
+
+	// Kill existing event handlers before reassigning...
+	$('.row-made-by-the-gang').find('*').not('.zoomable');
+
+	core.suite.readyThumbnailImages();
+	core.suite.readyPinterestLinks();
+	core.suite.setAuthToken();
+
+	var visible_entity = $('.displayable-entity:visible');
+	if (visible_entity.length > 0) {
+		core.suite.readyVariantOptions(visible_entity.first());
+	}
+	var visible_entity = $('.displayable-kit-entity:visible');
+	if (visible_entity.length > 0) {
+		core.suite.readyKitVariantOptions(visible_entity.first());
+	}
+}
+
+core.suite.readySocialWidget = function() {
+	// Don't show widget on tablet/mobile, or for Gift Cards
+	if (core.isTabletWidthOrLess() === false && $('.title h1').text().toLowerCase() != 'gift cards') {
+		var widget = $('.widget-social');
+		var container = $('.row-social:visible div:first-child');
+
+		// Die if widget already in place
+		if (container.find('.widget-social').length > 0) return false;
+
+		// Move widget
+		widget.appendTo(container).show();
+
+		// Apply conditional backgrounds when widget carousel loaded
+		widget.on('DOMNodeInserted', '.olapic_carousel', function() {
+			if ($(this).hasClass('inserted')) return false; // Don't do this more than once
+
+			var thumbs = $(this).find('li').length;
+			var prefix = '<%= cdn_prefix %>' + '/product-group/';
+			// 1, 2, and 3...
+		    if (thumbs > 0 && thumbs < 4) {
+				$('.olapic_widget').css('background-image', 'url("' + prefix + 'olapic-widget-background-thumbs.png")');
+			} else {
+				$('.olapic_widget').css('background-image', 'url("' + prefix + 'olapic-widget-background.png")');
+			}
+
+			$(this).addClass('inserted');
+		})
+	} else {
+		$('.row-social').hide();
+	}
+}
+
+core.suite.readyZoomableImages = function() {
+	var images = $('img.zoomable');
+	images.load(function() {
+		core.suite.handleZoomableImage($(this));
+	});
+}
+
+// Remove space in Pinterest URL (we add the space to prevent Pinterest skinning the button)
+core.suite.readyPinterestLinks = function() {
+	var links = $('.icons-social .pinterest');
+	links.off();
+	links.on('click', function(e) {
+		e.preventDefault();
+		location.href = $(this).attr('href').replace('%20button', 'button');
+	});
+}
+
+// Clicking hero drops the user to the next row
+core.suite.readyHeroRow = function() {
+	var row_hero = $('.row-hero');
+	var row_next = row_hero.next('.row');
+
+	row_hero.on('click', function(e) {
+		$.scrollTo(row_next, 500, {axis: 'y', easing: 'swing'});
+	});
+}
+
+// Clicking tabs sets the scroll position
+core.suite.readyTabs = function() {
+	var tabs = $('.row-tabs a');
+
+	tabs.on('click', function(e) {
+		$.cookie('suiteScrollTop', $(window).scrollTop());
+	});
+}
+
+core.suite.readyRevealContent = function() {
+	$('.reveal-title').on('click', function() {
+		$(this).next('.reveal-content').toggle();
+		$(this).toggleClass('revealed');
+	});
+}
+
+core.suite.readyThumbnailImages = function() {
+	$('.thumbnails a').on('click', function(e) {
+		e.preventDefault();
+		var image = $('.main-image:visible img'); // The visible main image (VMI)
+		image.attr('src', $(this).attr('href')); // Update the VMI
+		$.scrollTo(image, 500, {axis: 'y', easing: 'swing'}); // Scroll to the VMI
+	});
+}
+
+core.suite.showHeroImage = function() {
+	var row = $('.row-hero');
+	row.css('background-image', 'none'); // Clear current image
+	var src = row.attr('data-hero-image')
+	if (src == undefined) return false;
+	$('<img/>').attr('src', src).load(function() {
+		$(this).remove(); // Prevent memory leaks
+		row.css('background-image', 'url(' + src + ')');
+	});
+
+	// Adjust hero row for mobile/tablet
+	if (core.isTabletWidthOrLess() === true) {
+		var height_row = row.outerHeight();
+		var height_title = $('.title').outerHeight();
+		var height_remains = height_row - height_title;
+		row.css('background-size', 'auto ' + height_remains + 'px');
+		row.css('background-position', '0 ' + height_title + 'px');
+		// Pull image 60px left for mobile
+		if (core.isMobileWidthOrLess() === true) {
+			row.css('background-position', '-60px ' + height_title + 'px');
+		}
+	}
+}
+
+// Use JS to vertically centre the hero title
+core.suite.positionHeroTitle = function() {
+	if (core.isTabletWidthOrLess() === false) {
+		var title = $('.title');
+		var title_height = title.outerHeight();
+		var row_height = $('.row-hero').outerHeight();
+		var tab_height = $('.tab-made-by-the-gang').outerHeight();
+		var margin = (row_height - tab_height - title_height) / 2;
+		title.css('margin-top', margin);
+	}
+}
+
+// Readies history.js
+core.suite.readyHistoryPlugin = function() {
+	(function(window, undefined) {
+		// Prepare
+		var History = window.History; // Note: We are using a capital H instead of a lower h
+		if (!History.enabled) {
+			// History.js is disabled for this browser.
+			// This is because we can optionally choose to support HTML4 browsers or not.
+			return false;
+		}
+
+		// Bind to StateChange Event
+		History.Adapter.bind(window, 'statechange', function() { // Note: We are using statechange instead of popstate
+			var State = History.getState(); // Note: We are using History.getState() instead of event.state
+			//History.log(State.data, State.title, State.url);
+		});
+	})(window);
+}
+
+// Do we have a position to scroll to?
+core.suite.setScrollPosition = function() {
+	var cookie = $.cookie('suiteScrollTop');
+	if (cookie) {
+		$(window).scrollTop(cookie);
+	}
+}
+
+/* ----- New kit UI only ----- */
+
+core.suite.hideOutOfStockVariants = function() {
+	var definitionId = $('.row-assembly').data('ad-id');
+	if (definitionId == null || definitionId == 'undefined') return false; // Die if not new kit UI
+
+	var path = "<%= api_assembly_definitions_option_values_out_of_stock_path(id: ':id') %>".replace(":id", definitionId);
+	$.get(path, function(data){
+		for(part_id in data.parts){
+			var partScope = '.product-variants[data-adp-id='+part_id+']';
+			$.each(data.parts[part_id], function(i, ovidList){
+				$.each(ovidList, function(i, ovid){
+					$('.variant-option-values [data-ov-id='+ovid+']', partScope).hide();
+				});
+			});
+		}
+	});
+}
+
+core.suite.readyAssemblyMenus = function() {
+	var row = $('.row-assembly');
+	if (row.length == 0) return false; // Die if not new kit UI
+
+	row.find('.product-variants').on('click', function(e) {
+		e.stopPropagation();
+		$(this).siblings().removeClass('revealed').find('.variant-options').hide();
+		$(this).find('.variant-options').toggle();
+		$(this).toggleClass('revealed');
+	});
+}
+
+core.suite.closeAssemblyMenus = function() {
+	$('.row-made-by-the-gang, .row-knit-your-own').on('click', function() {
+		$(this).find('.product-variants.revealed').click();
+	});
+}
+
+// Ensure item names are clickable
+core.suite.readyAssemblyItemNames = function() {
+	var row = $('.row-assembly');
+	if (row.length == 0) return false; // Die if not new kit UI
+
+	row.find('.assembly-name').on('click', function(e) {
+	  e.stopPropagation();
+	  $(this).prev().click();
+	});
+}
+
+// Make menu and image list items exactly the same height
+core.suite.setAssemblyListHeights = function() {
+	var row = $('.row-assembly');
+	if (row.length == 0) return false; // Die if not new kit UI
+
+	$.each($('.assembly-menus ol > li'), function(index, value) {
+		$('.assembly-images li').eq(index).css('height', $(this).outerHeight());
+	});
+}
+
+/* ----- New kit UI only ENDS ----- */
+
+core.suite.setAuthToken = function() {
+	var token = $("input[name='authenticity_token_fresh']").val();
+	$("input[name='authenticity_token']").val(token);
+}
+
+/* ----- Non-init methods ----- */
+
+core.suite.handleZoomableImage = function(image) {
+	if (image.data('elevateZoom')) { // If image already has zoom instance, just change the zoom image...
+		$('.zoomWindowContainer div').stop().css('background-image', 'url(' + image.attr('src').replace('product', 'original') + ')');
+	} else { // Init zoom instance
+		image.elevateZoom({ responsive: true, zoomType: 'inner', cursor: 'crosshair', zoomWindowFadeIn: 250, zoomWindowFadeOut: 250 });
+	}
+}
+
+/* ----- Social widget vendor code ----- */
+// social.js.coffee takes care of the initialization of Facebook, Google+, Pinterest and Twitter

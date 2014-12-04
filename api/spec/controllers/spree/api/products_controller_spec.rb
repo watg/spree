@@ -7,7 +7,7 @@ module Spree
 
     let!(:product) { create(:product) }
     let!(:inactive_product) { create(:product, :available_on => Time.now.tomorrow, :name => "inactive") }
-    let(:base_attributes) { [:id, :name, :description, :display_price, :available_on, :slug, :meta_description, :meta_keywords, :shipping_category_id, :taxon_ids] }
+    let(:base_attributes) { [:id, :name, :description, :display_price, :available_on, :slug, :meta_description, :meta_keywords, :shipping_category_id] }
     let(:show_attributes) { base_attributes.dup.push(:has_variants) }
     let(:new_attributes) { base_attributes }
 
@@ -212,8 +212,8 @@ module Spree
     end
 
     context "as an admin" do
-      let(:taxon_1) { create(:taxon) }
-      let(:taxon_2) { create(:taxon) }
+      #let(:taxon_1) { create(:taxon) }
+      #let(:taxon_2) { create(:taxon) }
 
       sign_in_as_admin!
 
@@ -308,18 +308,18 @@ module Spree
           expect(json_response['shipping_category_id']).to eq shipping_id
         end
 
-        it "puts the created product in the given taxon" do
-          product_data[:taxon_ids] = taxon_1.id.to_s
-          api_post :create, :product => product_data
-          expect(json_response["taxon_ids"]).to eq([taxon_1.id,])
-        end
+       # it "puts the created product in the given taxon" do
+       #   product_data[:taxon_ids] = taxon_1.id.to_s
+       #   api_post :create, :product => product_data
+       #   expect(json_response["taxon_ids"]).to eq([taxon_1.id,])
+       # end
 
         # Regression test for #4123
-        it "puts the created product in the given taxons" do
-          product_data[:taxon_ids] = [taxon_1.id, taxon_2.id].join(',')
-          api_post :create, :product => product_data
-          expect(json_response["taxon_ids"]).to eq([taxon_1.id, taxon_2.id])
-        end
+       # it "puts the created product in the given taxons" do
+       #   product_data[:taxon_ids] = [taxon_1.id, taxon_2.id].join(',')
+       #   api_post :create, :product => product_data
+       #   expect(json_response["taxon_ids"]).to eq([taxon_1.id, taxon_2.id])
+       # end
 
         # Regression test for #2140
         context "with authentication_required set to false" do
@@ -402,16 +402,16 @@ module Spree
         end
 
         # Regression test for #4123
-        it "puts the created product in the given taxon" do
-          api_put :update, :id => product.to_param, :product => {:taxon_ids => taxon_1.id.to_s}
-          expect(json_response["taxon_ids"]).to eq([taxon_1.id,])
-        end
+       # it "puts the created product in the given taxon" do
+       #   api_put :update, :id => product.to_param, :product => {:taxon_ids => taxon_1.id.to_s}
+       #   expect(json_response["taxon_ids"]).to eq([taxon_1.id,])
+       # end
 
         # Regression test for #4123
-        it "puts the created product in the given taxons" do
-          api_put :update, :id => product.to_param, :product => {:taxon_ids => [taxon_1.id, taxon_2.id].join(',')}
-          expect(json_response["taxon_ids"]).to eq([taxon_1.id, taxon_2.id])
-        end
+       # it "puts the created product in the given taxons" do
+       #   api_put :update, :id => product.to_param, :product => {:taxon_ids => [taxon_1.id, taxon_2.id].join(',')}
+       #   expect(json_response["taxon_ids"]).to eq([taxon_1.id, taxon_2.id])
+       # end
       end
 
       it "can delete a product" do

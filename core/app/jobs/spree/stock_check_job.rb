@@ -16,11 +16,16 @@ module Spree
 
     private
 
+    def rebuild_suite_tab_cache(variant)
+        Spree::SuiteTabCacheRebuilder.rebuild_from_variant(variant)
+    end
+
     def check_stock(variant)
       variant_in_stock = Spree::Stock::Quantifier.new(variant).can_supply?(1)
       if variant.in_stock_cache != variant_in_stock
         variant.update_column(:in_stock_cache, variant_in_stock)
         variant.touch
+        rebuild_suite_tab_cache(variant)
       end
       variant_in_stock
     end
@@ -28,6 +33,10 @@ module Spree
     def put_all_kits_using_this_variant_out_of_stock(part)
       variant_ids = list_of_kit_variants_using(part).map(&:id)
       Spree::Variant.where(id: variant_ids).update_all(in_stock_cache: false, updated_at: Time.now) if variant_ids
+      variant_ids.map do |v_id|
+        variant = Spree::Variant.find(v_id)
+        rebuild_suite_tab_cache(variant)
+      end
     end
 
     def check_stock_for_kits_using_this_variant(part)
@@ -41,6 +50,8 @@ module Spree
         else
           kit_variant.update_attributes(in_stock_cache: true)
         end
+
+        rebuild_suite_tab_cache(kit_variant)
 
       end
     end

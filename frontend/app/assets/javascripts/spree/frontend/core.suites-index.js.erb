@@ -1,0 +1,111 @@
+core.suitesIndex = {};
+
+var readySuitesIndex = function() {
+	if (!$('body').hasClass('suites-index')) return false;
+
+	// Kill existing event handlers before reassigning...
+	//$('.row-product').find('*').off();
+
+	if (core.isMobileWidthOrLess() === false) {
+		core.suitesIndex.readyProductOverlays();
+	}
+	
+	core.suitesIndex.readyLazyLoadImages();
+	core.suitesIndex.extendClickableArea();
+};
+
+$(document).ready(readySuitesIndex);
+$(document).on('page:load', readySuitesIndex);
+
+/* ----- Init methods ----- */
+
+core.suitesIndex.readyProductOverlays = function() {
+	if (Modernizr.touch) {
+		var touched_without_scroll = false;
+
+		// Tablet
+		$('.row-product .columns').on({
+			touchstart: function(e) {
+				if (e.originalEvent.touches.length > 1) return;
+				touched_without_scroll = true;
+			},
+			touchmove: function(e) {
+				touched_without_scroll = false;
+			},
+			touchend: function(e) {
+				if(touched_without_scroll) {
+					$('.row-product ul').hide(); // Close all overlays
+					var overlay = $(this).find('ul');
+					overlay.show(); // Open this overlay
+					overlay.delay(3000).fadeOut('slow', function() {
+						$(this).find('a').removeClass('active');
+					});
+				}
+			}
+		});
+
+		// Ensure the first anchor click for mobile doesn't do 'owt; it's the second click we want
+		$('.row-product .columns a').on({
+			click: function(e) {
+				if (!$(this).hasClass('active')) {
+					$(this).addClass('active');
+					return false;
+				}
+			}
+		});
+	} else {
+		// Desktop
+		$('.row-product .columns').on({
+			mouseover: function() {
+				$(this).find('h2').hide();
+				$(this).find('ul').show();
+				$(this).find('.more-colours').show();
+			}
+		});
+		$('.row-product ul').on({
+			mouseout: function() {
+				$(this).prev('a').find('h2').show();
+				$(this).next('.more-colours').hide();
+				$(this).hide();
+			}
+		});
+	}
+}
+
+core.suitesIndex.readyLazyLoadImages = function() {
+	$('img.lazy-load').each(function() {
+    $(this).lazyload({
+			load: function() {
+				// $(this).removeClass('lazy-load');
+			}
+		});
+	});
+}
+
+// Where an index product has just one link on hover, extend the clickable area to the whole image
+core.suitesIndex.extendClickableArea = function() {
+	if (core.isTabletWidthOrLess() === false) {
+		var lists = $('.row-product ul');
+
+		lists.each(function() {
+			var links = $(this).find('a');
+
+			if (links.length == 1) {
+				$(this).css('cursor', 'pointer');
+				$(this).on('click', function(e) {
+					window.location.href = links.attr('href');
+				});
+			}
+		});
+	}
+}
+
+/* ----- Non-init methods ----- */
+
+// core.suitesIndex.showLoadingImage = function() {
+// 	$('<%= cdn_image_tag("product-group/loading.gif", class: "loading-image", width: "60", height: "60",  alt: "") %>').insertAfter($('.row-product'));
+// }
+
+// core.suitesIndex.hideLoadingImage = function() {
+// 	$('.loading-image').remove();
+// }

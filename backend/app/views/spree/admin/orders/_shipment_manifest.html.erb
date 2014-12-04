@@ -1,7 +1,5 @@
-<%# shipment.manifest.each do |manifest_item| %>
-<% order.line_items.each do |item| %>
-  <%# item = manifest_item.line_item %>
-  <% manifest_item = item %>
+<% shipment.manifest.each do |manifest_item| %>
+  <% item = manifest_item.line_item %>
 
   <tr class="stock-item" data-item-quantity="<%= manifest_item.quantity %>" data-selected-variants="<%= item.assembly_selected_variants.to_json %>">
     <td class="item-type">
@@ -51,12 +49,9 @@
     </td>
     <td class="item-price align-center"><%= item.single_money.to_html %></td>
     <td class="item-qty-show align-center">
-       <%= item.quantity %>
-        <!--
-      <%# manifest_item.states.each do |state,count| %>
-        <%#= count %> x <%#= Spree.t(state).downcase %>
-      <%# end %>
-        -->
+      <% manifest_item.states.each do |state,count| %>
+        <%= count %> x <%= Spree.t(state).downcase %>
+      <% end %>
     </td>
     <% unless shipment.shipped? %>
       <td class="item-qty-edit hidden">

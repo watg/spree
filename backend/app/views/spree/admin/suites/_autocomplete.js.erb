@@ -1,0 +1,13 @@
+<script type='text/template' id='suite_template'>
+  <li id="suite_{{ suite.id }}" data-suite-id="{{suite.id}}" class="columns three alpha small_product">
+    <div class="suite-image">
+      {{#if suite.image }}
+        <img src='{{suite.image}}' alt='{{ suite.name }}' />
+      {{ else }}
+        <img src='<%= image_path("noimage/small.png") %>' alt='{{suite.name }}' />
+      {{/if}}
+    </div>
+    <a href="/admin/suites/{{suite.permalink}}/edit" class="name">{{ suite.name }}</a><br>
+  </li>
+</script>
+

@@ -1,5 +1,5 @@
 .top-bar {
-    background: #ffffff !important;
+  background: #ffffff !important;
 }
 
 /* @group Global shared elements (Spree and Refinery) */
@@ -51,14 +51,6 @@
 		font-family: $watg-font-light;
 		letter-spacing: 0.5px;
 		min-height: 14px;
-	}
-	li.worldwide {
-		padding-left: 19px;
-		background: image-url('watg-img/icon-airplane.png') 0 0 no-repeat;
-	}
-	li.telephone {
-		padding-left: 17px;
-		background: image-url('watg-img/icon-telephone.png') 0 0 no-repeat;
 	}
 	li:nth-last-child(2):after {
 		content: '' !important;
@@ -126,6 +118,7 @@
 		padding-right: 0;
 	}
 }
+
 
 /* Marketing Footer - Newsletter signup and social media */
 .marketing {
@@ -197,56 +190,14 @@
 	padding: 32px 0;
 	font-size: 0.750em;
 	h6 {
+		margin-right: 10px;
 		text-transform: uppercase;
 	}
 	a {
 		display: inline-block;
 		margin-left: 4px;
-		width: 1.667em;
-		height: 1.667em;
-		vertical-align: middle;
-		overflow: hidden;
-		text-align: left;
-		text-indent: -999em;
-		background-position: center;
-		background-repeat: no-repeat;
-		@include background-size(100% 100%);
-	}
-	.twitter {
-		background-image: image-url('watg-img/icon-sm-twitter.svg');
-		.no-svg & {
-			background-image: image-url('watg-img/icon-sm-twitter.png');
-		}
-	}
-	.facebook {
-		background-image: image-url('watg-img/icon-sm-facebook.svg');
-		.no-svg & {
-			background-image: image-url('watg-img/icon-sm-facebook.png');
-		}
-	}
-	.youtube {
-		background-image: image-url('watg-img/icon-sm-youtube.svg');
-		.no-svg & {
-			background-image: image-url('watg-img/icon-sm-youtube.png');
-		}
-	}
-	.pinterest {
-		background-image: image-url('watg-img/icon-sm-pinterest.svg');
-		.no-svg & {
-			background-image: image-url('watg-img/icon-sm-pinterest.png');
-		}
-	}
-	.tumblr {
-		background-image: image-url('watg-img/icon-sm-tumblr.svg');
-		.no-svg & {
-			background-image: image-url('watg-img/icon-sm-tumblr.png');
-		}
-	}
-	.instagram {
-		background-image: image-url('watg-img/icon-sm-instagram.svg');
-		.no-svg & {
-			background-image: image-url('watg-img/icon-sm-instagram.png');
-		}
+    text-decoration: none;
+    font-size: 1.5em;
 	}
 }
 @media #{$small} {
@@ -254,6 +205,83 @@
 		display: inline-block;
 	}
 }
+
+
+.mobile-marketing {
+	h6 {
+		font-size: (14px);
+		text-transform: uppercase;
+		display: inline-block;
+			}
+	.row {
+		margin: 0 emCalc(5px) 0 emCalc(10px);
+		padding-bottom: emCalc(16px);
+		padding-top: emCalc(16px);
+		border-bottom: 1px solid #d9d9d9;
+	}
+	.newsletter-subscribe {
+		margin: 0 emCalc(10px);
+		input {
+			padding: emCalc(5px) emCalc(15px);
+			text-transform: uppercase;
+			font-style: normal;
+		}
+		button {
+			background-color:#000000;
+			color:#ffffff ;
+		}
+	}
+	.mobile-social {
+		.social-icons {
+			text-align: center;
+			font-size: emCalc(20px);
+			a {
+				padding-left: emCalc(18px);
+			}
+			.first-icon {
+				padding: 0;
+			}
+		}
+	}
+	.mobile-raf {
+		font-family: $watg-font;
+		text-transform: uppercase;
+		font-size: 14px;
+		text-align: center;
+		.icon-smile, .icon-angle-right {
+			font-size: emCalc(20px);
+		}
+		h6 {
+			text-decoration: underline;
+		}
+	}
+	.row-button {
+		border: 0;
+		.button-inverse {
+			background-color: #fff;
+			color: #000000;
+		}
+		button {
+			margin: 0 10%;
+			width: 80%;
+			text-align: center;
+		}
+	}
+	.hidden {
+		display: none;
+		padding-left: emCalc(4px);
+		font-size: emCalc(12px);
+	}
+	.expanded {
+		display: inherit;
+	}
+	.footer-global-unit-mobile {
+		font-size: emCalc(14px);
+	}
+}
+
+
+
 
 /* @end */
 

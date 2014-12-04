@@ -1,8 +1,10 @@
-<img class="alpaca-attack" src="<%= image_path("alpaca.png") %>" alt="THE ALPACAS ARE ATTACKING" />
+<% unless mobile_device? %>
+	<img class="alpaca-attack" src="<%= image_path("alpaca.png") %>" alt="THE ALPACAS ARE ATTACKING" />
+<% end %>
 <header class="container">
 	<div class="row nav-top">
 		<div class="large-2 small-2 columns">
-			<a class="link-nav-primary-sub" href="#navPrimarySub">Navigation</a>
+			<a class="link-nav-primary-sub" href="#navPrimarySub">Menu</a>
 		</div>
 		<div class="large-10 small-10 columns">
 			<%= render :partial => 'spree/shared/nav_bar' %>
@@ -12,7 +14,11 @@
 	<div class="row row-logo">
 		<div class="large-2 columns">
 			<%= link_to root_path do %>
-				<img src="<%= image_path("logo-watg-135x99.png") %>" width="135" height="99" alt="Wool And The Gang" />
+				<% unless mobile_device? %>
+					<img src="<%= image_path("logo-watg-135x99.png") %>" width="135" height="99" alt="Wool And The Gang" />
+				<% else %>
+					<img src="<%= image_path("logo-watg-135x99.png") %>" width="68" height="50" alt="Wool And The Gang" />
+				<% end %>
 			<% end %>
 		</div>
 	</div>

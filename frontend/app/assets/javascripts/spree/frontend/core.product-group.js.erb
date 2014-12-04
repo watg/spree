@@ -1,6 +1,6 @@
 core.productGroup = {};
 
-$(document).ready(function() {
+var readyProductGroup = function() {
 	if (!$('body').hasClass('product-group')) return false;
 
 	core.productGroup.runVariantMethods();
@@ -21,7 +21,11 @@ $(document).ready(function() {
 	core.productGroup.closeAssemblyMenus();
 	core.productGroup.readyAssemblyItemNames();
 	core.productGroup.setAssemblyListHeights();
-});
+};
+
+
+$(document).ready(readyProductGroup);
+$(document).on('page:load', readyProductGroup);
 
 /* ----- Init methods ----- */
 
@@ -64,11 +68,11 @@ core.productGroup.runVariantMethods = function() {
 
 	var visible_entity = $('.displayable-entity:visible');
 	if (visible_entity.length > 0) {
-		core.productGroup.readyVariantOptions(visible_entity.first());
+		core.suite.readyVariantOptions(visible_entity.first());
 	}
 	var visible_entity = $('.displayable-kit-entity:visible');
 	if (visible_entity.length > 0) {
-		core.productGroup.readyKitVariantOptions(visible_entity.first());
+		core.suite.readyKitVariantOptions(visible_entity.first());
 	}
 }
 
@@ -87,7 +91,7 @@ core.productGroup.readySocialWidget = function() {
 		// Apply conditional backgrounds when widget carousel loaded
 		widget.on('DOMNodeInserted', '.olapic_carousel', function() {
 			var thumbs = $(this).find('li').length;
-			var prefix = '<%= cdn_prefix %>' + 'product-group/';
+			var prefix = '<%= cdn_prefix %>' + '/product-group/';
 			// 1, 2, and 3...
 		    if (thumbs > 0 && thumbs < 4) {
 				$('.olapic_widget').css('background-image', 'url("' + prefix + 'olapic-widget-background-thumbs.png")');
@@ -451,10 +455,10 @@ core.productGroup.switchContent = function(tab) {
   var displayableEntity = $('.displayable-entity:visible')
 
   if (displayableKitEntity.length > 0) {
-		core.productGroup.readyKitVariantOptions(displayableKitEntity);
+		core.suite.readyKitVariantOptions(displayableKitEntity);
   }
   else if (displayableEntity.length > 0) {
-		core.productGroup.readyVariantOptions(displayableEntity);
+		core.suite.readyVariantOptions(displayableEntity);
   }
 }
 
@@ -469,7 +473,7 @@ core.productGroup.showVariantDetails = function(name, before) {
 	core.productGroup.triggerLazyLoadImages(details);
 
 	// Pre-select the correct option values
-	core.productGroup.readyVariantOptions(details);
+	core.suite.readyVariantOptions(details);
 
 	// Do we have an element we'd like to insert before?
 	if (before != null) {
@@ -582,29 +586,4 @@ core.productGroup.handleZoomableImage = function(image) {
 	}
 }
 
-// this is facebook's generated code, hint why it is so horrible
-core.productGroup.facebooklikes = function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.0";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk');
-
-// twitter generated code - for product shares
-core.productGroup.twitter = function(d,s,id){
-	var t,js,fjs=d.getElementsByTagName(s)[0];
-	if(d.getElementById(id)){return}js=d.createElement(s);
-	js.id=id;js.src="https://platform.twitter.com/widgets.js";
-	fjs.parentNode.insertBefore(js,fjs);
-	return window.twttr||(t={_e:[],ready:function(f){t._e.push(f)}})
-}(document,"script","twitter-wjs");
-
-// pinterest generated code
-core.productGroup.pinterest = function(d){
-  var f = d.getElementsByTagName('SCRIPT')[0], p = d.createElement('SCRIPT');
-  p.type = 'text/javascript';
-  p.async = true;
-  p.src = '//assets.pinterest.com/js/pinit.js';
-  f.parentNode.insertBefore(p, f);
-}(document);
+// Social Widgets are loaded from core.suite.js.erb

@@ -9,21 +9,59 @@ module Spree
     validate :check_price
     validates :amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: false
 
+    after_save :trigger_suite_tab_cache_rebuilder
+
     # Prevent duplicate prices from happening in the system, there is also a uniq
     # index on the database table to ensure there are no race conditions
     validates_uniqueness_of :variant_id, :scope => [ :currency, :sale, :is_kit, :deleted_at ]
 
-    def self.default_price
-      self.new(amount: 0, currency: Spree::Config[:currency], sale: false, is_kit: false)
+    class << self
+
+      def money(amount, currency)
+        Spree::Money.new(amount || 0, { currency: currency })
+      end
+
+      def default_price
+        new(amount: 0, currency: Spree::Config[:currency], sale: false, is_kit: false)
+      end
+
+      def find_normal_prices(prices, currency=nil)
+        prices = prices.select{ |price| price.sale == false && price.is_kit == false }
+        prices = prices.select{ |price| price.currency == currency } if currency
+        prices
+      end
+
+      def find_normal_price(prices, currency=nil)
+        find_normal_prices(prices, currency).first
+      end
+
+      def find_sale_prices(prices, currency=nil)
+        prices = prices.select{ |price| price.sale == true && price.is_kit == false }
+        prices = prices.select{ |price| price.currency == currency } if currency
+        prices
+      end
+
+      def find_sale_price(prices, currency=nil)
+        find_sale_prices(prices, currency).first
+      end
+
+      def find_part_price(prices, currency)
+        prices.select{ |price| price.currency == currency && price.sale == false && price.is_kit == true }.first
+      end
+
+      def find_part_sale_price(prices, currency)
+        prices.select{ |price| price.currency == currency && price.sale == true && price.is_kit == true }.first
+      end
     end
 
     def display_amount
       money
     end
+
     alias :display_price :display_amount
 
     def money
-      Spree::Money.new(amount || 0, { currency: currency })
+      self.class.money(amount,currency)
     end
 
     def price
@@ -47,7 +85,12 @@ module Spree
       Spree::Variant.unscoped { super }
     end
 
-    private
+  private
+
+    def trigger_suite_tab_cache_rebuilder
+      Spree::SuiteTabCacheRebuilder.rebuild_from_variant_async(self.variant)
+    end
+
     def check_price
       raise "Price must belong to a variant" if variant.nil?
 

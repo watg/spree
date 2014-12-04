@@ -52,7 +52,7 @@ describe Spree::ShowProductPageService do
       outcome = subject.run( permalink: product_page.permalink, tab: 'made-by-the-gang', currency: 'GBP', request: 'foo', variant_id: variant.number  )
       expect(outcome.result[:redirect_to]).to be_nil
       expect(outcome.result[:decorated_product_page]).to eq(product_page)
-      expect(outcome.result[:decorated_product_page].selected_variant).to be_nil 
+      expect(outcome.result[:decorated_product_page].selected_variant).to be_nil
     end
 
   end
@@ -69,13 +69,13 @@ describe Spree::ShowProductPageService do
     it "should provide a redirect if not a valid permalink" do
       outcome = subject.run( permalink: product_page.permalink, tab: 'foobar', currency: 'GBP', request: 'foo'  )
       expect(outcome.result[:redirect_to]).to eq("/shop/items/#{product_page.permalink}/made-by-the-gang")
-      expect(outcome.result[:decorated_product_page]).to be_nil 
+      expect(outcome.result[:decorated_product_page]).to be_nil
     end
 
     it "should redirect back to the shope if a valid product_page can not be found" do
       outcome = subject.run( permalink: 'asdasd', tab: 'made-by-the-gang', currency: 'GBP', request: 'foo'  )
-      expect(outcome.result[:redirect_to]).to eq("/shop")
-      expect(outcome.result[:decorated_product_page]).to be_nil 
+      expect(outcome.result[:redirect_to]).to eq '/'
+      expect(outcome.result[:decorated_product_page]).to be_nil
     end
   end
 
@@ -95,13 +95,13 @@ describe Spree::ShowProductPageService do
     it "is successful with no tab" do
       outcome = subject.run( permalink: product_page.permalink, tab: nil, currency: 'GBP', request: 'foo'  )
       expect(outcome.result[:redirect_to]).to eq("/shop/items/#{product_page.permalink}/made-by-the-gang")
-      expect(outcome.result[:decorated_product_page]).to be_nil 
+      expect(outcome.result[:decorated_product_page]).to be_nil
     end
 
     it "get redirected with garbled tab" do
       outcome = subject.run( permalink: product_page.permalink, tab: 'asdasd', currency: 'GBP', request: 'foo'  )
       expect(outcome.result[:redirect_to]).to eq("/shop/items/#{product_page.permalink}/made-by-the-gang")
-      expect(outcome.result[:decorated_product_page]).to be_nil 
+      expect(outcome.result[:decorated_product_page]).to be_nil
     end
 
   end

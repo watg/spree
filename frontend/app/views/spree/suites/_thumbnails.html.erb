@@ -1,0 +1,39 @@
+<ul class="product-thumbnails thumbnails" data-hook>
+
+  <% if assembly_definition_presenter = product_presenter.assembly_definition_presenter %>
+    <% assembly_definition_presenter.images.each do |i| %>
+      <li class='tmb-assembly-definition tmb-assembly-definition-<%= variant_presenter.id %>' style="display: none;" >
+        <a href="<%= i.attachment.url(product_presenter.image_style) %>">
+         <%= image_tag(i.attachment.url(:mini)) %>
+        </a>
+      </li>
+    <% end %>
+  <% end %>
+
+  <% product_presenter.images.each do |i| %>
+  <li class="tmb-all tmb-<%= i.viewable.id %>" style="<%= show_thumb(i, product_presenter.master)%>">
+    <a href="<%= i.attachment.url(product_presenter.image_style) %>">
+      <%= image_tag(i.attachment.url(:mini)) %>
+    </a>
+  </li>
+  <% end %>
+
+ <% product_presenter.personalisation_images.each do |i| %>
+    <li class="tmb-personalisation tmb-personalisation-<%= i.viewable.id %>" style="<%= show_thumb(i, variant_presenter.variant)%>" >
+      <a href="<%= i.attachment.url(product_presenter.image_style) %>">
+        <%= image_tag(i.attachment.url(:mini)) %>
+      </a>
+    </li>
+  <% end %>
+
+  <% if product_presenter.has_variants? %>
+    <% product_presenter.variant_images.each do |i| %>
+      <% next if product_presenter.images.include?(i) %>
+      <li class="vtmb tmb-<%= i.viewable_id %>" style="<%= show_thumb(i, variant_presenter.variant)%>">
+        <a href="<%= i.attachment.url(product_presenter.image_style) %>">
+          <%= image_tag(i.attachment.url(:mini)) %>
+        </a>
+      </li>
+    <% end %>
+  <% end %>
+</ul>

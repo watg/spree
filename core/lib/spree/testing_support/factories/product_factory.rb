@@ -87,16 +87,6 @@ FactoryGirl.define do
 
       tax_category { |r| Spree::TaxCategory.first || r.association(:tax_category) }
       shipping_category { |r| Spree::ShippingCategory.first || r.association(:shipping_category) }
-
-      # association :taxons
-    end
-
-    factory :product_with_one_taxon do
-      after :create do |p|
-        t = FactoryGirl.build(:taxon)
-        p.taxons << t
-        p.save
-      end
     end
 
     factory :product_with_stock do
@@ -132,12 +122,13 @@ FactoryGirl.define do
 
     factory :product_with_variants do
       ignore do
+        amount 0.00
         number_of_variants 2
       end
 
       after :create do |p, evaluator|
         evaluator.number_of_variants.times do
-          p.variants << FactoryGirl.create(:variant, product_id: p.id)
+          p.variants << FactoryGirl.create(:variant, product_id: p.id, amount: evaluator.amount)
         end
       end
 

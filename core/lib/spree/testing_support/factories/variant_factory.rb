@@ -4,7 +4,25 @@ FactoryGirl.define do
   factory :base_variant, class: Spree::Variant do
 		cost_price 10
 
-		# upgraded
+    ignore do
+      target nil
+      amount nil
+      currency 'USD'
+    end
+
+    after(:build) do |i,evaluator|
+      if evaluator.amount
+        i.price_normal_in(evaluator.currency).amount = evaluator.amount
+      end
+    end
+
+    after :create do |i,evaluator|
+      if evaluator.target
+        create(:variant_target, variant: i, target: evaluator.target)
+      end
+    end
+
+    # upgraded
     # cost_price 17.00
     sku    { SecureRandom.hex }
     weight 10
@@ -26,30 +44,18 @@ FactoryGirl.define do
       in_stock_cache false
       product { |p| p.association(:product) }
 
-      ignore do
-        target nil
-        amount nil
-        currency 'USD'
-      end
-
-      after(:build) do |i,evaluator|
-        if evaluator.amount
-          i.price_normal_in(evaluator.currency).amount = evaluator.amount
-        end
-      end
-
-      after :create do |i,evaluator|
-        if evaluator.target
-          create(:variant_target, variant: i, target: evaluator.target)
-        end
-      end
-
       factory :variant_in_sale do
         in_sale true
-        before :create do |v|
-          v.price_normal_in('USD').amount = 19.99
-          v.price_normal_sale_in('USD').amount = 6
+
+        ignore do
+          amount 19.99
+          sale_amount 6
         end
+
+        after(:build) do |i,evaluator|
+          i.price_normal_sale_in(evaluator.currency).amount = evaluator.sale_amount
+        end
+
       end
 
       factory :variant_with_stock_items do

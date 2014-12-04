@@ -23,7 +23,7 @@ describe Spree::Admin::UsersController do
 
   context '#authorize_admin' do
     before { use_mock_user }
-    let(:unauthorized) {'/shop/unauthorized'}
+    let(:unauthorized) {'/unauthorized'}
 
     it 'grant access to users with an admin role' do
       user.spree_roles << Spree::Role.find_or_create_by(name: 'admin')

@@ -10,6 +10,7 @@ module Spree
         end
 
         @products = @products.distinct.page(params[:page]).per(params[:per_page])
+
         expires_in 15.minutes, :public => true
         headers['Surrogate-Control'] = "max-age=#{15.minutes}"
       end

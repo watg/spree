@@ -74,7 +74,9 @@
 // Products
 @import "_product-top";
 @import "_product-index";
+@import "_suites-index";
 @import "_product-group";
+@import "_suite";
 // Variant Options plugin style overrides
 @import "_variant-options";
 // @import "_product";
@@ -94,5 +96,7 @@
 // Refer-a-friend module
 @import "spree/frontend/spree_raf";
 
+//font awesome for icons
+@import "font-awesome";
 // party module
 @import "spree/frontend/spree_party";

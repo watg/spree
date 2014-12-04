@@ -1,0 +1,65 @@
+<div class="marketing large-6 columns">
+    <form action="/subscribe" method="post" class="signup-form newsletter-subscribe">
+      <label for="email">Sign up for wooly news</label>
+      <input type="email" value="" name="signupEmail" placeholder="Enter your email here" />
+      <input type="hidden" name="source" value="Website - Footer" />
+      <button type="submit">Submit</button>
+    </form>
+    <div class="signup-response">
+      <div>
+      </div>
+    </div>
+    <section class="social">
+      <h6 class="watg-font">Hang out with The Gang</h6>
+      <a href="http://twitter.com/woolandthegang" target="_blank"><i class="icon-twitter"></i></a>
+      <a href="http://www.facebook.com/pages/Wool-and-the-Gang/45057178937?ref=ts" target="_blank"><i class="icon-facebook"></i></a>
+      <a href="http://www.pinterest.com/woolandthegang/" target="_blank"><i class="icon-pinterest"></i></a>
+      <a href="http://www.youtube.com/user/WOOLANDTHEGANGsa" target="_blank"><i class="icon-youtube"></i></a>
+      <a href="http://tumblr.woolandthegang.com" target="_blank"><i class="icon-tumblr"></i></a>
+      <a href="http://instagram.com/woolandthegang" target="_blank"><i class="icon-instagram"></i></a>
+    </section>
+
+    <p class="promo-raf">Get your next order for free! <a href="/raf/invite"><i class="icon-smile"></i>Find out more</a></p>
+</div>
+
+<section class="footer-global-unit gang-culture large-2 columns">
+  <h6>Gang Culture</h6>
+  <ul class="sub-menu">
+    <li><%= link_to('Our Blog', 'http://blog.woolandthegang.com') %></li>
+    <li><%= link_to('Our Tumblr', 'http://tumblr.woolandthegang.com') %></li>
+    <li><%= link_to('Our Story', '/our-story') %></li>
+    <li><%= link_to('Become a Gang Maker', '/become-a-gang-maker') %></li>
+    <li><%= link_to('Video Tutorials', '/video-tutorials') %></li>
+    <li><%= link_to('Bespoke Projects', '/bespoke-projects') %></li>
+    <!--
+    <li><%= link_to('Press', '/press') %></li>
+    -->
+    <li><%= link_to('Hang With The Gang', '/hang-with-the-gang') %></li>
+  </ul>
+</section>
+<section class="footer-global-unit shop large-2 columns">
+  <h6>Shop</h6>
+  <ul class="sub-menu">
+    <% if Flip.on?(:suites_feature) %>
+      <% get_taxonomies.each do |taxonomy| %>
+        <li><%= link_to( taxonomy.name, seo_url(taxonomy.root) ) %></li>
+      <% end %>
+    <% else %>
+      <li><%= link_to('Collections', '/shop/knitwear/collections') %></li>
+      <li><%= link_to('Women', '/shop/knitwear/women') %></li>
+      <li><%= link_to('Men', '/shop/knitwear/men') %></li>
+      <li><%= link_to('Kids', '/shop/knitwear/kids') %></li>
+      <li><%= link_to('Knitting', '/shop/knitwear/knitting') %></li>
+    <% end %>
+  </ul>
+</section>
+<section class="footer-global-unit help large-2 columns">
+  <h6>Help</h6>
+  <ul class="sub-menu">
+    <li><%= link_to('FAQs', '/faqs') %></li>
+    <li><%= link_to('Careers', '/careers') %></li>
+    <li><%= link_to('Contact Us', '/contact-us') %></li>
+    <li><%= link_to('Ts & Cs', '/terms-and-conditions') %></li>
+    <li><%= link_to('Privacy', '/privacy') %></li>
+  </ul>
+</section>

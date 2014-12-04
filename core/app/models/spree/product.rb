@@ -31,8 +31,6 @@ module Spree
     has_many :product_properties, dependent: :destroy, inverse_of: :product
     has_many :properties, through: :product_properties
 
-    has_many :classifications, dependent: :delete_all, inverse_of: :product
-    has_many :taxons, through: :classifications
     has_and_belongs_to_many :promotion_rules, join_table: :spree_products_promotion_rules
 
     has_many :product_targets, class_name: 'Spree::ProductTarget', dependent: :destroy
@@ -54,6 +52,7 @@ module Spree
     has_many :assembly_definitions, -> { order "position" }, class_name: "Spree::AssemblyDefinition", foreign_key: :assembly_id
 
     has_many :product_page_tabs,  class_name: 'Spree::ProductPageTab'
+    has_many :suite_tabs,  class_name: 'Spree::SuiteTab', inverse_of: :product
     after_touch { delay(:priority => 20).touch_product_page_tabs }
 
     # Ensure that we blow the cache for any assemblies that have a part which belongs to
@@ -187,25 +186,6 @@ module Spree
 
     def all_variants_or_master
       variants.blank? ? Spree::Variant.where(is_master: true, product_id: self.id) : variants
-    end
-
-    def option_values
-      option_values_for(nil)
-    end
-
-    def option_values_for(target)
-      check_stock = true
-      selector = Spree::OptionValue.for_product(self,check_stock).includes(:option_type).joins(:option_type)
-      selector = selector.with_target(target) if target.present?
-      @_option_values ||= selector.reorder( "spree_option_types.position", "spree_option_values.position" )
-    end
-
-    def grouped_option_values
-      @_option_values ||= option_values.group_by(&:option_type)
-    end
-
-    def grouped_option_values_for(target)
-      @_grouped_option_values ||= option_values_for(target).group_by(&:option_type)
     end
 
     def variants_for_option_value(value)
@@ -357,24 +337,6 @@ module Spree
       else
         variants
       end
-    end
-
-    def variant_options_tree_for(target, current_currency)
-      variants.options_tree_for(target, current_currency)
-    end
-
-    # Need to retire once the new product_pages are live
-    def variant_options_tree(current_currency)
-      variant_options_tree_for(nil,current_currency)
-    end
-
-    # This does not need to be targetted as you can not have variants without
-    # populating each of the option types
-    def option_type_order
-      hash = {}
-      option_type_names = self.option_types.order(:position).map{|o| o.url_safe_name}
-      option_type_names.each_with_index { |o,i| hash[o] = option_type_names[i+1] }
-      hash
     end
 
     private

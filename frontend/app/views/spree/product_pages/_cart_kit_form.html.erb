@@ -37,7 +37,7 @@ cause big cache issues %>
             <% option_values = part.displayable_option_values %>
             <% type = part.displayable_option_type %>
             <!-- render parts -->
-            <li class="product-variants required" data-tree="<%= part.memoized_variant_options_tree.to_json %>" data-adjustment="0"  data-quantity="<%=part.count%>" data-adp-id="<%= part.id %>"><%= part.presentation %> <span class="color-value"></span>
+            <li class="product-variants required" data-tree="<%= part.memoized_variant_options_tree %>" data-adjustment="0"  data-quantity="<%=part.count%>" data-adp-id="<%= part.id %>"><%= part.presentation %> <span class="color-value"></span>
               <div class="variant-options required <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
                 <p><%= part.product.name %></p>
                 <ul class="variant-option-values <%= type.url_safe_name.downcase %>">
@@ -56,7 +56,7 @@ cause big cache issues %>
           <% option_values = part.displayable_option_values %>
           <% type = part.displayable_option_type %>
           <!-- render parts -->
-            <li class="product-variants optional" data-tree="<%= part.memoized_variant_options_tree.to_json %>" data-adjustment="0" data-quantity="<%=part.count%>" data-adp-id="<%= part.id %>"><%= part.presentation %> <span class="optional">(Optional)</span> <span class="color-value"></span>
+            <li class="product-variants optional" data-tree="<%= part.memoized_variant_options_tree %>" data-adjustment="0" data-quantity="<%=part.count%>" data-adp-id="<%= part.id %>"><%= part.presentation %> <span class="optional">(Optional)</span> <span class="color-value"></span>
               <div class="variant-options optional <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
 
                 <p><%= part.product.name %></p>

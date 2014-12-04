@@ -41,7 +41,7 @@ describe Spree::StockCheckAlertJob do
       end
 
       it "sends notificition" do
-        message = [variant.product.marketing_type.name, "===========", "", "\t name, sku, http://www.example.com//shop/admin/products/slug/stock","",""].join("\n")
+        message = [variant.product.marketing_type.name, "===========", "", "\t name, sku, #{Spree::Core::Engine.routes.url_helpers.stock_admin_product_url(variant.product)}","",""].join("\n")
 
         mock_object = double("mock_object")
         mock_object.should_receive(:deliver)

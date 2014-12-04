@@ -14,32 +14,6 @@ describe Spree::Product do
     let(:product) { create(:product) }
     let(:variant) { create(:variant, :product => product) }
 
-    context '#option_values_for' do
-      before do
-        Spree::StockItem.any_instance.stub(backorderable: false)
-      end
-      subject { create(:product) }
-      let(:women)              { create(:target, name: 'women') }
-      let!(:variant_out_stock) { create(:variant, product: subject, target: women) }
-      let!(:variant_in_stock)  { create(:variant_with_stock_items, product: subject, target: women) }
-
-      it "for made_by_the_gang" do
-        expect(subject.option_values_for(women)).to match_array(variant_in_stock.option_values)
-      end
-
-      it "for kit" do
-        subject  = create(:product, product_type: create(:product_type_kit))
-        subject.save
-
-        _kit_variant1 = create(:variant, product: subject, target: women, in_stock_cache: false)
-        kit_variant2 = create(:variant, product: subject, target: women, in_stock_cache: true)
-        kit_variant3 = create(:variant, product: subject, target: women, in_stock_cache: true)
-
-        option_values = kit_variant2.option_values + kit_variant3.option_values
-        expect(subject.option_values_for(women)).to match_array(option_values)
-      end
-    end
-
     describe "#variant_images_for" do
       let(:variant) { create(:variant) }
       let(:target) { create(:target) }
@@ -77,15 +51,11 @@ describe Spree::Product do
     end
 
     context '#duplicate' do
-      before do
-        product.stub :taxons => [create(:taxon)]
-      end
 
       it 'duplicates product' do
         clone = product.duplicate
         clone.name.should == 'COPY OF ' + product.name
         clone.master.sku.should == 'COPY OF ' + product.master.sku
-        clone.taxons.should == product.taxons
         clone.images.size.should == product.images.size
       end
 
@@ -458,117 +428,6 @@ describe Spree::Product do
 
     it "should be sorted by position" do
       product.images.pluck(:alt).should eq(["position 1", "position 2"])
-    end
-  end
-
-  context "#option_type_order" do
-    let(:product) do
-      size = build_option_type_with_values("size", %w(Small Medium Large), 0 )
-      color = build_option_type_with_values("color", %w(red green), 1 )
-      create(:product, :option_types => [ color, size ])
-    end
-
-    it "should return the order of the types" do
-      product.option_type_order["size"].should == "color"
-      product.option_type_order["color"].should be_nil
-    end
-  end
-
-  context "Option Values, Targets and Stock" do
-
-    let(:size)     { create(:option_type, name: 'size', presentation: 'Size', position: 1 )}
-    let(:big)      { create(:option_value, name: 'big', presentation: 'Big', option_type: size, position: 0) }
-    let(:small)    { create(:option_value, name: 'small', presentation: 'Small', option_type: size, position: 1) }
-
-    let(:colour)   { create(:option_type, name: 'colour', presentation: 'Colour', position: 2 )}
-    let(:pink)     { create(:option_value, name: 'pink', presentation: 'Pink', option_type: colour, position: 0) }
-    let(:blue)     { create(:option_value, name: 'blue', presentation: 'Blue', option_type: colour, position: 1) }
-
-    let(:language) { create(:option_type, name: 'language', presentation: 'Langauge', position: 3 )}
-    let(:french)   { create(:option_value, name: 'french', presentation: 'French', option_type: language, position: 0) }
-    let(:english)   { create(:option_value, name: 'english', presentation: 'English', option_type: language, position: 1) }
-
-    let(:women) { create(:target, name:'Women') }
-    let(:men)   { create(:target, name:'Men') }
-    subject     { create(:base_product) }
-
-    let!(:variant_in_stock1)  { create(:variant_with_stock_items, product: subject, target: women, option_values: [pink,small] ) }
-    let!(:variant_in_stock2)  { create(:variant_with_stock_items, product: subject, target: women, option_values: [pink,big] ) }
-    let!(:variant_in_stock3)  { create(:variant_with_stock_items, product: subject, target: women, option_values: [blue,small] ) }
-    let!(:variant_in_stock4)  { create(:variant_with_stock_items, product: subject, target: women, option_values: [blue,big] ) }
-    let!(:variant_out_stock) { create(:variant, product: subject, target: women, option_values: [english]) }
-    let!(:variant_in_stock_men)  { create(:variant_with_stock_items, product: subject, target: men, option_values: [french] ) }
-
-    before do
-      Spree::StockItem.any_instance.stub(backorderable: false)
-    end
-
-    context "#option_values" do
-      it "should return untargetted and instock items" do
-        expect(subject.option_values).to eq([big,small,pink,blue,french])
-      end
-    end
-
-    context "#option_values_for" do
-      it "should return targetted and instock items" do
-        expect(subject.option_values_for(women)).to eq([big,small,pink,blue])
-      end
-      it "should return untargetted and instock items" do
-        expect(subject.option_values_for(nil)).to eq([big,small,pink,blue,french])
-      end
-    end
-
-    context "#grouped_option_values" do
-      it "should return untargetted and instock items" do
-        expect(subject.grouped_option_values).to eq({ size => [big,small], colour => [pink,blue], language => [french]})
-      end
-    end
-
-    context "#grouped_option_values_for" do
-      it "should return targeted grouped_option_values_for that are in stock " do
-        expect(subject.grouped_option_values_for(women)).to eq({ size => [big,small], colour => [pink,blue]})
-      end
-
-      it "should return not_tareted grouped_option_values_for that are in stock " do
-        expect(subject.grouped_option_values_for(nil)).to eq({ size => [big,small], colour => [pink,blue], language =>[french]})
-      end
-
-    end
-
-    context "#variant_options_tree_for" do
-      it "should return targeted variant_options_tree_for that are in stock " do
-        tree = subject.variant_options_tree_for(women,'USD')
-        expect(tree["size"]["small"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
-        expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
-        expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
-        expect(tree["size"]["big"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
-        expect(tree["language"]["english"]).to_not be_nil
-      end
-
-      it "should return untargeted variant_options_tree_for that are in stock " do
-        tree = subject.variant_options_tree_for(nil,'USD')
-        expect(tree["size"]["small"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
-        expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
-        expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
-        expect(tree["size"]["big"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
-        expect(tree["language"]["french"]["variant"]["in_stock"]).to be_true
-        expect(tree["language"]["english"]["in_stock"]).to be_false
-      end
-
-    end
-
-  end
-
-  # Regression tests for #2352
-  context "classifications and taxons" do
-    it "is joined through classifications" do
-      reflection = Spree::Product.reflect_on_association(:taxons)
-      expect(reflection.options[:through]).to eq(:classifications)
-    end
-
-    it "will delete all classifications" do
-      reflection = Spree::Product.reflect_on_association(:classifications)
-      expect(reflection.options[:dependent]).to eq(:delete_all)
     end
   end
 

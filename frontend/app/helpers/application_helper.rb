@@ -5,9 +5,9 @@ module ApplicationHelper
   include Spree::CdnHelper
   include Spree::OrdersHelper
 
-  def present(object, klass = nil)
+  def present(object, options, klass = nil)
     klass ||= "#{object.class}Presenter".constantize
-    presenter = klass.new(object, self)
+    presenter = klass.new(object, self, options)
     yield presenter if block_given?
     presenter
   end
@@ -20,36 +20,39 @@ module ApplicationHelper
     Rails.env.production? or Rails.env.staging?
   end
 
-  def product_variant_options_path(variant)
-    variant_option_values = variant.option_values.order('option_type_id ASC').map { |ov| ov.name }.join('/')
-    params = {
-      controller:    'spree/products',
-      action:        :show,
-      id:            variant.product.slug
-    }
-
-    "#{url_for(params)}/#{variant_option_values}"
-  end
-
   def path_to_variant(line_item, variant)
-    pp = line_item.product_page
-    unless pp
-      pp = Spree::ProductPage.unscoped.find_by_id line_item.product_page_id
-    end
-    permalink = (pp ? pp.permalink : 'not-found')
+    if Flip.on? :suites_feature
+      suite = Spree::Suite.unscoped.find_by(id: line_item.suite_id)
+      return '#' unless suite
 
+      permalink = suite.permalink
 
-    tab = line_item.product_page_tab
-    unless tab
-      tab = Spree::ProductPageTab.unscoped.find_by_id line_item.product_page_tab_id
-    end
+      tab = Spree::SuiteTab.unscoped.find_by(id: line_item.suite_tab_id)
+      tab_type = tab.try(:tab_type)
 
-    safe_tab = ( tab ? tab.url_safe_tab_type : '')
+      if !tab_type || variant.assembly_definition.present?
+        spree.suite_path(id: permalink, tab: tab_type)
+      else
+        spree.suite_path(id: permalink, tab: tab_type, variant_id: variant.number)
+      end
 
-    if variant.assembly_definition.present?
-      spree.product_page_path(id: permalink, tab: safe_tab)
     else
-      spree.product_page_path(id: permalink, tab: safe_tab, variant_id: variant.id)
+
+      product_page = line_item.product_page || Spree::ProductPage.unscoped.find_by(id: line_item.product_page_id)
+      return '#' unless product_page
+
+      permalink = product_page.permalink
+
+      tab = line_item.product_page_tab || Spree::ProductPageTab.unscoped.find_by(id: line_item.product_page_tab_id)
+
+      safe_tab = ( tab ? tab.url_safe_tab_type : '')
+
+      if variant.assembly_definition.present?
+        spree.product_page_path(id: permalink, tab: safe_tab)
+      else
+        spree.product_page_path(id: permalink, tab: safe_tab, variant_id: variant.number)
+      end
+
     end
   end
 

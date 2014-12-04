@@ -10,6 +10,9 @@ module Spree
     belongs_to :product_page, class_name: "Spree::ProductPage"
     belongs_to :product_page_tab, class_name: "Spree::ProductPageTab"
 
+    belongs_to :suite, class_name: "Spree::Suite"
+    belongs_to :suite_tab, class_name: "Spree::SuiteTab"
+
     has_one :product, through: :variant
 
     has_many :adjustments, as: :adjustable, dependent: :destroy

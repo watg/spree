@@ -173,12 +173,6 @@
       </span>
     </div>
 
-    <%= f.field_container :taxons do %>
-      <%= f.label :taxon_ids, Spree.t(:taxons) %>
-      <%= f.hidden_field :taxon_ids, :value => @product.taxon_ids.join(',') %>
-    <% end %>
-
-
     <%= f.field_container :option_types do %>
       <%= f.label :option_type_ids, Spree.t(:option_types) %>
       <%= f.hidden_field :option_type_ids, :value => @product.option_type_ids.join(',') %>

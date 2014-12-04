@@ -2,12 +2,12 @@ module Spree
   class Classification < ActiveRecord::Base
     acts_as_paranoid
 
-    self.table_name = 'spree_products_taxons'
+    self.table_name = 'spree_suites_taxons'
     acts_as_list
-    belongs_to :product, class_name: "Spree::Product", inverse_of: :classifications
+    belongs_to :suite, class_name: "Spree::Suite", inverse_of: :classifications
     belongs_to :taxon, class_name: "Spree::Taxon", inverse_of: :classifications
 
-    # For #3494
-    validates_uniqueness_of :taxon_id, :scope => :product_id, :message => :already_linked
+    default_scope { order(:position) }
+    validates_uniqueness_of :taxon_id, :scope => :suite_id, :message => :already_linked
   end
 end

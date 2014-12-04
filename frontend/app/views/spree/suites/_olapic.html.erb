@@ -1,0 +1,28 @@
+<% if production_or_staging? %>
+<script type="text/javascript" data-turbolinks-eval=false>
+(function() {
+
+	for(identifier=0; document.getElementById("olapic-widget-"+identifier) != null; identifier++){}
+	var elementId = "olapic-widget-"+identifier;
+	var customer_id = 216176;
+	var tags = null;
+	if(document.getElementsByName("photorank:tags").length != 0)
+	tags = document.getElementsByName("photorank:tags")[0].content;
+	var widget_config = 886168101;
+	var tag_based = true;
+	var cat_based = false;
+	var collection = false;
+	var Olapic_ob = document.createElement("script");
+	var canonicalUrl = "";
+	var linkElements = document.getElementsByTagName("link");
+	for(i in linkElements){ if(linkElements[i].rel == "canonical") canonicalUrl = linkElements[i].href; }
+	var url = canonicalUrl == "" ? document.domain+document.location.pathname : canonicalUrl;
+	Olapic_ob.async = true;
+	Olapic_ob.type = "text/javascript";
+	Olapic_ob.src = encodeURI("//widgets.photorank.me/automator?e="+elementId+"&customer_id="+customer_id+"&url="+encodeURIComponent(url)+"&title="+encodeURIComponent(document.title)+"&widget="+widget_config+"&tags="+tags+"&tag_based="+tag_based+"&cat_based="+cat_based+"&collection="+collection);
+	(document.getElementsByTagName("head")[0] || document.getElementsByTagName("body")[0]).appendChild(Olapic_ob);
+	document.write('<div id="'+elementId+'"></div>');
+	console.log("Olapic runs");
+})();
+</script>
+<% end %>

@@ -117,47 +117,6 @@ module Spree
         selector.reorder('amount').first
       end
 
-      def options_tree_for(target, currency, option_type=nil)
-        selector = self.includes(:prices, :images, :option_values => [:option_type])
-        if !target.blank?
-          selector = selector.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
-        end
-        variants = selector.order( "spree_option_types.position", "spree_option_values.position", "spree_assets.position" )
-
-        hash={}
-        variants.each do |v|
-          base=hash
-
-          # Allow us to pass in an option type so we only pass back a tree with
-          # a depth of 1
-          option_values = v.option_values
-          if !option_type.blank?
-            option_values = option_values.where(option_type: option_type)
-          end
-
-          option_values.each_with_index do |o,i|
-            base[o.option_type.url_safe_name] ||= {}
-            base[o.option_type.url_safe_name][o.url_safe_name] ||= {}
-            base = base[o.option_type.url_safe_name][o.url_safe_name]
-          end
-          base['variant'] ||= {}
-          base['variant']['id']=v.id
-          base['variant']['normal_price']=v.price_normal_in(currency).in_subunit
-          base['variant']['sale_price']=v.price_normal_sale_in(currency).in_subunit
-          base['variant']['part_price']=v.price_part_in(currency).in_subunit
-          base['variant']['in_sale']=v.in_sale
-          base['variant']['in_stock']= v.in_stock_cache
-          base['variant']['total_on_hand']= v.total_on_hand
-          base['variant']['suppliers']= v.suppliers
-          if v.images.any?
-            #base['variant']['image_url']= v.images.reorder(:position).first.attachment.url(:mini)
-            # above replaced by below, as it was causing extra sql queries
-            base['variant']['image_url']= v.images.first.attachment.url(:mini)
-          end
-        end
-        hash
-      end
-
     end
 
     def memoized_images
@@ -265,19 +224,23 @@ module Spree
 
     # --- new price getters --------
     def price_normal_in(currency_code)
-      find_normal_price(currency_code, :regular) || self.prices.new(currency: currency_code, is_kit: false, sale: false)
+      Spree::Price.find_normal_price(prices, currency_code) ||
+      self.prices.new(currency: currency_code, is_kit: false, sale: false)
     end
 
     def price_normal_sale_in(currency_code)
-      find_normal_price(currency_code, :sale) || self.prices.new(currency: currency_code, is_kit: false, sale: true)
+      Spree::Price.find_sale_price(prices, currency_code) ||
+      self.prices.new(currency: currency_code, is_kit: false, sale: true)
     end
 
     def price_part_in(currency_code)
-      find_part_price(currency_code, :regular) || self.prices.new(currency: currency_code, is_kit: true, sale: false)
+      Spree::Price.find_part_price(prices, currency_code) ||
+      self.prices.new(currency: currency_code, is_kit: true, sale: false)
     end
 
     def price_part_sale_in(currency_code)
-      find_part_price(currency_code, :sale) || self.prices.new(currency: currency_code, is_kit: true, sale: true)
+      Spree::Price.find_part_sale_price(prices, currency_code) ||
+      self.prices.new(currency: currency_code, is_kit: true, sale: true)
     end
     # ------------------------------
 
@@ -381,6 +344,7 @@ module Spree
     end
 
     def amount_in(currency)
+      return nil unless currency
       price_normal_in(currency).try(:amount)
     end
 
@@ -408,8 +372,8 @@ module Spree
       Spree::Stock::Quantifier.new(self).can_supply?(quantity)
     end
 
-    def total_on_hand
-      Spree::Stock::Quantifier.new(self).total_on_hand
+    def total_on_hand(stock_items=nil)
+      Spree::Stock::Quantifier.new(self,stock_items).total_on_hand
     end
 
     def total_awaiting_feed
@@ -456,14 +420,6 @@ module Spree
 
     def touch_assembly_products
       assembly_products.map(&:touch)
-    end
-
-    def find_normal_price(currency, type)
-      prices.select{ |price| price.currency == currency && price.sale == (type == :sale) && (price.is_kit == false) }.first
-    end
-
-    def find_part_price(currency, type)
-      prices.select{ |price| price.currency == currency && price.sale == (type == :sale) && (price.is_kit == true) }.first
     end
 
     def touch_assemblies_parts

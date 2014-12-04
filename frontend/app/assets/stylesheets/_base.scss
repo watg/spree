@@ -121,7 +121,7 @@ select {
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 	cursor: pointer;
-	background: #fff image-url('watg-img/icon-currency.svg') right center no-repeat;
+	background: #fff image-url('watg-img/icon-currency.gif') right center no-repeat;
 }
 /* IE10 */
 select::-ms-expand {
@@ -299,6 +299,21 @@ table {
 		}
 		a {
 			text-decoration: underline;
+		}
+	}
+}
+
+@media only screen and (max-width: 56em) {
+	.row-shipping-and-contact {
+		padding: emCalc(10px) 0;
+		.column-shipping {
+			width: 100% !important;
+			p {
+				text-align: center;
+			}
+		}
+		.column-contact {
+			display: none
 		}
 	}
 }
@@ -540,10 +555,13 @@ p.promo-raf {
 	font-size: emCalc(16px);
 	text-transform: uppercase;
 	a {
-		padding-left: 25px;
 		font-family: $watg-font;
 		text-decoration: underline;
-		background: image-url('product-group/icon-smile.png') 0 0 no-repeat;
+		i {
+			padding:0 5px;
+			text-decoration: none;
+			font-size: emCalc(20px);
+		}
 	}
 }
 footer p.promo-raf {

@@ -24,7 +24,6 @@ module Spree
       active.where.not(id: location.id)
     end
 
-
     # Wrapper for creating a new stock item respecting the backorderable config
     def propagate_variant(variant, supplier=nil)
       create_params = { variant: variant, backorderable: self.backorderable_default }
@@ -115,6 +114,10 @@ module Spree
 
     def available_stock_items(variant)
       stock_items.where(variant_id: variant).available
+    end
+
+    def available?
+      self.active or !self.feed_into_id.nil?
     end
 
     private

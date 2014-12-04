@@ -1,11 +1,12 @@
 module Spree
   class ProductPagesController < Spree::StoreController
-    require_feature :product_pages
 
     PER_PAGE = 6
-    
+
     respond_to :html, :json
     rescue_from ActionController::UnknownFormat, with: :render_404
+
+    before_filter :redirect_to_suites_pages, :only => :show
 
     def show
       respond_to do |format|
@@ -59,8 +60,15 @@ module Spree
 
     def render_variants( per_page, selected_variant )
       @current_currency = current_currency
-      @context = { target: @product_page.target, current_currency: @current_currency } 
+      @context = { target: @product_page.target, current_currency: @current_currency }
       @product_page.made_by_the_gang_variants(selected_variant).page(params[:page]).per( per_page )
+    end
+
+    def redirect_to_suites_pages
+      if Flip.on?(:suites_feature)
+        result = Spree::SuitePageRedirectionService.run(permalink: params[:id], tab: params[:tab]).result
+        redirect_to result[:url], status: result[:http_code]
+      end
     end
 
   end

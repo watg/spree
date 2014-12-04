@@ -1,67 +1,68 @@
 module Spree
-  class PinterestService < Mutations::Command
-    # new api
-    # http://0.0.0.0:3000/shop/api/pinterest/?url=http://0.0.0.0:3000/shop/items/zion-lion-men/made-by-the-gang/879
-    # old api
-    # http://0.0.0.0:3000/shop/api/pinterest/?url=http://0.0.0.0:3000/shop/products/florence-sweater-1/ivory-white
+  class PinterestService <  ActiveInteraction::Base
+    # product page api
+    # http://0.0.0.0:3000/api/pinterest/?url=http://0.0.0.0:3000/shop/items/zion-lion-men/made-by-the-gang/879
+    # suite api
+    # http://0.0.0.0:3000/api/pinterest/?url=http://0.0.0.0:3000/product/zion-lion-men/made-by-the-gang/879
 
-    required do
-      string :url
-    end
+    string :url
+
+    attr_reader :suite
 
     def execute
+      open_struct_result = nil
 
-      if url.match(/products\/(.*)/)
+      if url.match(/product\/(.*)/)
         url_parts = $1.split("/")
-        old_api( *url_parts )
+        open_struct_result = suite_api( *url_parts )
       elsif url.match(/items\/(.*)/)
         url_parts = $1.split("/")
-        new_api( *url_parts )
+        # new_api is in fact the old one, in time where we had index and product pages
+        open_struct_result = new_api( *url_parts )
       else
-        add_error(:url, :could_not_parse_url, "Could not parse url")
+        errors.add(:url, "Could not parse url")
       end
+
+      if errors.empty? && !open_struct_result.kind_of?(OpenStruct)
+        errors.add(:url, "Could not find requested product")
+        return
+      end
+
+      open_struct_result
     end
 
-    def old_api(product_slug, variant_option_values)
-      return if has_errors?
 
-      product = load_product(product_slug) if product_slug
-      if !product
-        add_error(:url, :could_not_find_product, "Could not find product")
-        return
-      end
+    def suite_api(suite_permalink=nil, suite_tab_type=nil, variant_number=nil)
 
-      variant = load_selected_variant(product, variant_option_values)
-      if !variant
-        add_error(:url, :could_not_find_variant, "Could not find variant")
-        return
-      end
+      suite = load_suite(suite_permalink)
+      return unless suite
 
-      tab = if variant.product.product_type.kit?
-              Spree::ProductPageTab::KNIT_YOUR_OWN
-            else
-              Spree::ProductPageTab::MADE_BY_THE_GANG
-            end
+      suite_tab = load_suite_tab(suite, suite_tab_type)
+
+      product = suite_tab.product
+      return unless product
+
+      variant = load_variant(product, variant_number)
 
       OpenStruct.new({
         provider_name: "Wool and the Gang",
         url: url,
-        title: fancy_title(product.name, tab),
-        description: product.description,
-        product_id: product_slug,
+        title: fancy_title(product.name, suite_tab_type),
+        description: product.clean_description_for(suite.target),
+        product_id: variant.number,
         price: variant.current_price_in("GBP").amount,
         currency_code: "GBP",
-        availability: variant.in_stock_cache ? "in stock" : "out of stock"
+        availability: variant.in_stock_cache ? "in stock" : "out of stock",
+        gender: gender(suite.target),
+        images: images(variant)
       })
     end
 
+    # new_api is in fact the old one, in time where we had index and product pages
     def new_api(product_page_slug, product_page_tab=nil, variant_id=nil)
-      return if has_errors?
-
-
       product_page = load_product_page(product_page_slug) if product_page_slug
       if !product_page
-        add_error(:url, :could_not_find_product_page, "Could not find product page")
+        errors.add(:url, "Could not find product page")
         return
       end
 
@@ -72,7 +73,7 @@ module Spree
       variant = find_variant(variant_id, product_page_tab, product_page)
 
       if !variant
-        add_error(:url, :could_not_find_variant, "Could not find product page")
+        errors.add(:url, "Could not find product page")
         return
       end
 
@@ -88,18 +89,17 @@ module Spree
         currency_code: "GBP",
         availability: variant.in_stock_cache ? "in stock" : "out of stock",
         gender: gender(product_page.target),
-        # Only supply the first 6 images
-        images: variant.images_for(product_page.target).first(6)
+        images: images(variant)
       })
 
     end
 
-    private
+  private
 
     def find_variant(variant_id, product_page_tab, product_page)
       variant = nil
       if variant_id
-        variant = load_variant(variant_id)
+        variant = Spree::Variant.where(number: variant_id).first
       else
 
         if tabs = product_page.tabs.where(tab_type: product_page_tab)
@@ -115,6 +115,7 @@ module Spree
       variant
     end
 
+
     def gender(target)
       return 'unisex' unless target
       target.name.downcase
@@ -124,26 +125,22 @@ module Spree
       ProductPage.where(permalink: permalink).first
     end
 
-    def load_variant(variant_id)
-      if Spree::Variant.is_number(variant_id)
-        selected_variant = Spree::Variant.where(number: variant_id).first
-      else
-        selected_variant = Spree::Variant.where(id: variant_id).first
-      end
+    def load_suite(permalink)
+      Suite.find_by(permalink: permalink)
     end
 
-    def load_product(slug)
-      Product.where(slug: slug).first
+    def load_suite_tab(suite, tab_type=nil)
+      suite.tabs.find {|tab| tab.tab_type == tab_type } ||
+      suite.tabs.first
     end
 
-    def load_selected_variant(product, variant_option_values)
-      if variant_option_values.blank?
-        variant = product.master
-      else
-        variant = Spree::Variant.options_by_product(product, variant_option_values)
-      end
+    def load_variant(product, variant_number=nil)
+      product.variants_including_master.find {|variant| variant.number == variant_number } ||
+      product.variants.first || product.variants_including_master.first
+    end
 
-      variant
+    def images(variant)
+      variant.images.first(6).map(&:attachment).map(&:url)
     end
 
     def fancy_title(product_name, product_page_tab)

@@ -1,5 +1,4 @@
 # encoding: utf-8
-
 require 'money'
 
 module Spree
@@ -8,18 +7,36 @@ module Spree
 
     delegate :cents, :to => :money
 
+    cattr_accessor :options_cache
+
+    cattr_accessor :enable_options_cache do
+      true
+    end
+
     def initialize(amount, options={})
       @money = self.class.parse([amount, (options[:currency] || Spree::Config[:currency])].join)
-      @options = {}
-      @options[:with_currency] = Spree::Config[:display_currency]
-      @options[:symbol_position] = Spree::Config[:currency_symbol_position].to_sym
-      @options[:no_cents] = Spree::Config[:hide_cents]
-      @options[:decimal_mark] = Spree::Config[:currency_decimal_mark]
-      @options[:thousands_separator] = Spree::Config[:currency_thousands_separator]
-      @options[:sign_before_symbol] = Spree::Config[:currency_sign_before_symbol]
+
+      @options = if enable_options_cache
+                   self.class.options_cache ||= self.class.default_options
+                   self.class.options_cache
+                 else
+                   self.class.default_options
+                 end
+
       @options.merge!(options)
-      # Must be a symbol because the Money gem doesn't do the conversion
+
       @options[:symbol_position] = @options[:symbol_position].to_sym
+    end
+
+    def self.default_options
+      {
+        with_currency:       Spree::Config[:display_currency],
+        symbol_position:     Spree::Config[:currency_symbol_position].to_sym,
+        no_cents:            Spree::Config[:hide_cents],
+        decimal_mark:        Spree::Config[:currency_decimal_mark],
+        thousands_separator: Spree::Config[:currency_thousands_separator],
+        sign_before_symbol:  Spree::Config[:currency_sign_before_symbol],
+      }
     end
 
     # This method is being deprecated in Money 6.1.0, so now lives here.

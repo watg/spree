@@ -3,11 +3,41 @@ require 'spec_helper'
 
 describe Spree::Money do
   before do
+    Spree::Money.enable_options_cache = false
+
     configure_spree_preferences do |config|
       config.currency = "USD"
       config.currency_symbol_position = :before
       config.display_currency = false
     end
+  end
+
+  context "enable_options_cache" do
+
+    context "when disabled" do
+
+      it "calls default_options on every initialize" do
+        expect(Spree::Money).to receive(:default_options).twice.and_return(Spree::Money.default_options)
+        Spree::Money.new(10)
+        Spree::Money.new(10)
+      end
+
+    end
+
+    context "when enabled" do
+
+      before do
+        Spree::Money.options_cache = nil 
+        Spree::Money.enable_options_cache = true
+      end
+
+      it "calls default_options once" do
+        expect(Spree::Money).to receive(:default_options).once.and_return(Spree::Money.default_options)
+        Spree::Money.new(10)
+        Spree::Money.new(10)
+      end
+    end
+
   end
 
   it "formats correctly" do
@@ -18,6 +48,26 @@ describe Spree::Money do
   it "can get cents" do
     money = Spree::Money.new(10)
     money.cents.should == 1000
+  end
+
+  context "default_options" do
+
+    it "returns the default options" do
+      expect(described_class.default_options).to eq ( {
+        with_currency: Spree::Config[:display_currency],
+        symbol_position: Spree::Config[:currency_symbol_position].to_sym,
+        no_cents:  Spree::Config[:hide_cents],
+        decimal_mark:  Spree::Config[:currency_decimal_mark],
+        thousands_separator: Spree::Config[:currency_thousands_separator],
+        sign_before_symbol: Spree::Config[:currency_sign_before_symbol]
+      })
+    end
+
+    it "calls default options as part of the initialize" do
+      expect(described_class).to receive(:default_options).and_return(described_class.default_options)
+      expect(described_class.new(10))
+    end
+
   end
 
   context "with currency" do

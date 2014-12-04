@@ -17,6 +17,7 @@ module Spree
     after_touch { variant.touch }
 
     scope :available, -> { where("count_on_hand > 0 or backorderable = true") }
+    scope :active, -> { joins(:stock_location).where(Spree::StockLocation.table_name =>{ :active => true}) }
 
     def waiting_inventory_units
       Spree::InventoryUnit.waiting_for_stock_item(self)
@@ -118,12 +119,14 @@ module Spree
     # creating the cache invalidation job once it knows all the updates have
     # finished.
     def conditional_variant_touch
-      # the variant_id changes from nil when a new stock location is added
-      stock_changed = (count_on_hand_changed? && count_on_hand_change.any?(&:zero?)) || variant_id_changed?
-
-      if !Spree::Config.binary_inventory_cache || stock_changed
+      if !Spree::Config.binary_inventory_cache || stock_changed?
         ::Delayed::Job.enqueue Spree::StockCheckJob.new(variant), queue: 'stock_check', priority: 10
       end
+    end
+
+    # the variant_id changes from nil when a new stock location is added
+    def stock_changed?
+      @stock_chagned ||= (count_on_hand_changed? && count_on_hand_change.any?(&:zero?)) || variant_id_changed?
     end
 
   end

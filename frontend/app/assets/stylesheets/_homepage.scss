@@ -12,7 +12,7 @@ body.homepage {
 	.currency-setting select {
 		background-color: transparent;
 	}
-	@media only screen and (min-width: 48em) {
+	@media only screen and (min-width: 28.750em) {
 		.nav-global {
 			background-color: transparent;
 		}
@@ -127,7 +127,7 @@ body.homepage {
 		right: 100px;
 	}
 	/* Large screen background */
-	@media only screen and (min-width: 48em) {
+	@media only screen and (min-width: 28.750em) {
 		background: #fff cdn-url("/homepage/2014-11-06/Homepage_BabyGang_DEKSTOP_V1.jpg") top center no-repeat;
   	//background: #efefef cdn-url("/homepage/2014-11-06/Homepage_BabyGang_DEKSTOP_V1.jpg") top center no-repeat;
 		& > div {
@@ -175,7 +175,7 @@ body.homepage {
 		left: 50%;
 	}
 	/* Large screen background */
-	@media only screen and (min-width: 48em) {
+	@media only screen and (min-width: 28.750em) {
 		background: #fbfaf5 cdn-url("/homepage/2014-07-18/HOMEPAGE_summer_yarn.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
@@ -424,7 +424,7 @@ body.homepage {
 	h2 {
 		font-family: 'Trade Gothic W01 Bold';
 		font-size: 4.375em;
-		@media only screen and (min-width: 48em) {
+		@media only screen and (min-width: 28.750em) {
 			& {
 				position: absolute;
 				top: 40%;

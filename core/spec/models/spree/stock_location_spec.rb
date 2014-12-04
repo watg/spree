@@ -11,6 +11,31 @@ module Spree
       subject.stock_items.count.should eq Variant.count
     end
 
+    context "#available?" do
+
+      let(:stock_location) { build_stubbed(:stock_location) }
+
+      before do
+        subject.active = false
+        subject.feed_into = nil
+      end
+
+      it "is false if both active is false and feed_into is null" do
+        expect(subject.available?).to be_false
+      end
+
+      it "is true if active" do
+        subject.active = true
+        expect(subject.available?).to be_true
+      end
+
+      it "is true if feed_into is not null" do
+        subject.feed_into = stock_location
+        expect(subject.available?).to be_true
+      end
+
+    end
+
     context "handling stock items" do
       let!(:variant) { create(:variant) }
 

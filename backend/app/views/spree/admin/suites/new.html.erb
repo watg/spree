@@ -1,0 +1,24 @@
+<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @suite } %>
+
+<%= form_for [:admin, @suite] do |f| %>
+  <fieldset>
+    <legend align="center"><%= Spree.t(:new_suite) %></legend>
+    <div class="row">
+      <div class="left six columns alpha">
+        <%= f.field_container :name do %>
+          <%= f.label :name, Spree.t(:name) %> <span class="required">*</span><br />
+          <%= f.text_field :name, :class => 'fullwidth title' %>
+          <%= f.error_message_on :name %>
+        <% end %>
+
+        <%= f.field_container :title do %>
+          <%= f.label :title, Spree.t(:title) %> <span class="required">*</span><br />
+          <%= f.text_field :title, :class => 'fullwidth title' %>
+          <%= f.error_message_on :title %>
+        <% end %>
+      </div>
+    </div>
+    <%= render :partial => 'spree/admin/shared/new_resource_links' %>
+  </fieldset>
+<% end %>
+

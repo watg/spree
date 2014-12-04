@@ -56,7 +56,7 @@ module Spree
     end
 
     def url(product_id)
-      Spree::Core::Engine.routes.url_helpers.stock_admin_product_url(product_id, host: Rails.application.routes.url_helpers.root_url)
+      Spree::Core::Engine.routes.url_helpers.stock_admin_product_url(product_id)
     end
 
   end

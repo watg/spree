@@ -1,8 +1,6 @@
 core = {}; // Extend from this core object
 
-$(document).ready(function() {
-	core.readyNavigation();
-	core.readyNavigationMobile();
+var readyCore = function() {
 	core.readyModals();
 	core.readyTooltips();
 	core.readyAccordions();
@@ -10,8 +8,11 @@ $(document).ready(function() {
 	core.showCookieMessage();
 	core.readyAlpacaAttack();
   core.readyCountdown();
-});
+};
 
+$(document).ready(readyCore);
+$(document).on('page:load', readyCore);
+  
 // On document fully loaded...
 $(window).bind('load', function() {
   if ($('body').hasClass('no-sitewide-promo')) return false; // Die if sitewide promo not required
@@ -19,78 +20,6 @@ $(window).bind('load', function() {
 });
 
 /* ----- Init methods ----- */
-
-// Ready primary navigation
-core.readyNavigation = function() {
-	if (Modernizr.touch) {
-		// ----- Tablet
-		$('.nav-primary li').bind('touchstart', function(e) {
-			if ($(this).children('a').hasClass('active')) {
-				return true;
-			} else {
-				e.preventDefault();
-				core.showSubNavigation($(this));
-			}
-		});
-	} else {
-		// ----- Desktop
-		$('.nav-primary li').on({
-			mouseover: function() {
-				core.showSubNavigation($(this));
-			},
-			mouseout: function() {
-				core.hideSubNavigation($(this));
-			}
-		});
-		$('.nav-primary-sub').on({
-			mouseover: function() {
-				$(this).addClass('expanded');
-			},
-			mouseout: function() {
-				$(this).removeClass('expanded');
-			}
-		});
-	}
-};
-
-// Ready primary navigation for mobile
-core.readyNavigationMobile = function() {
-	$('.link-nav-primary-sub').on({
-		click: function(e) {
-			e.preventDefault();
-			core.showSubNavigationMobile();
-		}
-	});
-};
-
-// Show sub primary navigation
-core.showSubNavigation = function(e) {
-	$('.nav-primary li a').removeClass('active')
-	// Needed for tablet
-
-	e.children('a').addClass('active');
-
-	$('.nav-primary-sub').addClass('expanded');
-	$('.nav-primary-sub .columns').show();
-	$(".nav-primary-sub [class$='-sub']").hide();
-
-	var sub_id = '.' + e.attr('class') + '-sub';
-	$(sub_id).show();
-};
-
-// Show sub primary navigation for mobile
-core.showSubNavigationMobile = function(e) {
-	$('.nav-primary-sub').toggleClass('expanded');
-	$(".nav-primary-sub [class$='-sub']").show();
-	$('.nav-primary-sub .columns').not('.small-12').hide();
-};
-
-// Hide sub primary navigation
-core.hideSubNavigation = function(e) {
-	e.children('a').removeClass('active');
-
-	$('.nav-primary-sub').removeClass('expanded');
-};
 
 // Ready modal plugin
 core.readyModals = function() {
@@ -228,7 +157,7 @@ core.isTabletWidthOrLess = function() {
 
 // Test for mobile width or less
 core.isMobileWidthOrLess = function() {
-  var test = $(window).width() <= 320 ? true : false;
+  var test = $(window).width() <= 460 ? true : false;
   return test;
 }
 

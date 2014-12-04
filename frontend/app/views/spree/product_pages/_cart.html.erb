@@ -19,8 +19,8 @@
 
   <div class="displayable-entity row <%= active_class %>"
   data-option-values="<%= variant.option_types_and_values.to_json %>"
-  data-tree="<%= product.memoized_variant_options_tree.to_json  %>"
-  data-option-type-order="<%= product.memoized_option_type_order.to_json %>" >
+  data-tree="<%= product.memoized_variant_options_tree %>"
+  data-option-type-order="<%= product.memoized_option_type_order %>" >
 
 <% end %>
 

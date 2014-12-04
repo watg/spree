@@ -53,7 +53,7 @@ module Spree
     end
 
     def remove_by_line_item(line_item, quantity, shipment=nil)
-      
+
       line_item = eager_load(line_item)
 
       if remove_from_line_item(line_item, quantity, shipment)
@@ -105,6 +105,8 @@ module Spree
         target_id: options[:target_id],
         product_page_id: options[:product_page_id],
         product_page_tab_id: options[:product_page_tab_id],
+        suite_id: options[:suite_id],
+        suite_tab_id: options[:suite_tab_id],
         price:  variant.current_price_in(currency).amount,
         normal_price:  variant.price_normal_in(currency).amount,
         in_sale: variant.in_sale,

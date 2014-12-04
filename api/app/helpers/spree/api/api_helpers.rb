@@ -32,6 +32,7 @@ module Spree
         :stock_item_attributes,
         :product_group_attributes,
         :product_page_attributes,
+        :suite_attributes,
         :index_page_attributes,
         :target_attributes,
         :tag_attributes
@@ -54,7 +55,6 @@ module Spree
       @@product_attributes = [
         :id, :name, :description, :display_price, :available_on,
         :slug, :meta_description, :meta_keywords, :shipping_category_id,
-        :taxon_ids
       ]
 
       @@product_property_attributes = [
@@ -157,6 +157,8 @@ module Spree
 	    @@product_group_attributes = [:id, :name]
 
       @@product_page_attributes = [:id, :name]
+
+      @@suite_attributes = [:id, :name, :title, :permalink]
 
       @@index_page_attributes = [:id, :name]
 

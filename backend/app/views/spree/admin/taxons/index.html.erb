@@ -1,5 +1,5 @@
 <% content_for :table_filter_title do %>
-  <%= Spree.t(:choose_a_taxon_to_sort_products_for) %>
+  <%= Spree.t(:choose_a_taxon_to_sort_suites_for) %>
 <% end %>
 
 <% content_for :table_filter do %>
@@ -9,8 +9,8 @@
 <% end %>
 
 <%= render :partial => 'spree/admin/shared/product_sub_menu' %>
-<span id='sorting_explanation' style='display:none'>Click &amp; drag on the products to sort them.</span>
-<ul id='taxon_products'></ul>
+<span id='sorting_explanation' style='display:none'>Click &amp; drag on the suites to sort them.</span>
+<ul id='taxon_suites'></ul>
 
-<%= render :partial => "spree/admin/products/autocomplete", :formats => :js %>
+<%= render :partial => "spree/admin/suites/autocomplete", :formats => :js %>
 

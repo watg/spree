@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::StockItem do
-  let(:stock_location) { create(:stock_location_with_items) }
+  let!(:stock_location) { create(:stock_location_with_items) }
 
   subject { stock_location.stock_items.order(:id).first }
 
@@ -252,6 +252,24 @@ describe Spree::StockItem do
         end
       end
     end
+  end
+
+  context "stock_changed?" do
+    it "is true when count on hand changes from positive to 0" do
+      subject.send(:count_on_hand=,0)
+      expect(subject.send(:stock_changed?)).to be_true
+    end
+
+    it "is false when it changes but not to 0" do
+      subject.send(:count_on_hand=,1123)
+      expect(subject.send(:stock_changed?)).to be_false
+    end
+
+    it "is true if the variant_id changes from nil" do
+      subject.variant_id = nil
+      expect(subject.send(:stock_changed?)).to be_true
+    end
+
   end
 
   describe "#after_touch" do

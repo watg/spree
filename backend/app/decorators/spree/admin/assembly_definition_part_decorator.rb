@@ -6,7 +6,7 @@ module Spree
 
       def url
         #api_assembly_definition_part_variants_path(id: self.id)
-        "/shop/api/assembly_definition_parts/#{self.id}/variants"
+        "/api/assembly_definition_parts/#{self.id}/variants"
       end
     end
   end

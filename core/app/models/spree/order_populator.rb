@@ -25,6 +25,8 @@ module Spree
     #  :target_id => 2,
     #  :product_page_tab_id => 1,
     #  :product_page_id => 2,
+    #  :suite_id => 2,
+    #  :suite_tab_id => 1,
     #  :options => [56, 34] # array of variant_ids
     #  ....
     def populate(params)
@@ -90,7 +92,7 @@ module Spree
       if is_quantity_reasonable?(quantity)
         # products"=>{"401"=>"1997", "options"=>["325"], "personalisations"=>{}}
         # We need to delete the keys(parts, personalisations from the hash first before we can call
-        # first to get the variant and quantity, this is Fing horrible and needs refactoring 
+        # first to get the variant and quantity, this is Fing horrible and needs refactoring
         optional_parts_params = products.delete(:options)
 
         personalisation_params = {

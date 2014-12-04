@@ -9,7 +9,7 @@ module Spree
     let(:order) { Spree::Order.create }
 
     it 'should understand order routes with token' do
-      spree.token_order_path('R123456', 'ABCDEF').should == '/shop/orders/R123456/token/ABCDEF'
+      spree.token_order_path('R123456', 'ABCDEF').should == '/orders/R123456/token/ABCDEF'
     end
 
     context 'when no order exists in the session' do

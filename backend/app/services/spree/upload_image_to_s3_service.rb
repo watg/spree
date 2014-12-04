@@ -14,7 +14,6 @@ module Spree
 
     def execute
       self.direct_upload_url = CGI.unescape(direct_upload_url)
-
       unless DIRECT_UPLOAD_URL_FORMAT.match(direct_upload_url)
         errors.add(:direct_upload_url, "Url not correctly formatted")
         return

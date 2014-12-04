@@ -19,8 +19,8 @@ require 'spec_helper'
         p.should have_attributes(attributes)
         p["productId"].should == product_page.permalink
         p["name"].should == product_page.name
-        p["productUrl"].should == "http://test.host//shop/items/#{product_page.permalink}"
-        p["stockImageUrl"].should == "http://test.host/images/foobar" 
+        p["productUrl"].should == "http://test.host/shop/items/#{product_page.permalink}"
+        p["stockImageUrl"].should == "http://test.host/images/foobar"
         p["category"].should == product_page.target.name
 
         json_response["total_count"].should == 1

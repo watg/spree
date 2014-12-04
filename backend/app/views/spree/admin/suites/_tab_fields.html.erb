@@ -1,0 +1,41 @@
+<div class="suite_tab eight columns alpha">
+  <fieldset class="suite_fieldset">
+    <legend><%= f.object.tab_type ? f.object.tab_type.titleize : 'New Tab' %></legend>
+
+    <div class="field">
+      <%= f.label :tab_type, Spree.t(:tab_type) %> <span class="required">*</span><br />
+      <%= f.select(:tab_type, Spree::SuiteTab.tab_types, {},class: 'select2 fullwidth') %>
+    </div>
+
+    <div class="field">
+      <%= f.label :product_id, Spree.t('product_rule.choose_products') %>
+      <%= f.hidden_field :product_id, :class => "product_autocomplete fullwidth" %>
+      <span class="info">
+        <% if f.object.product %>
+          <%= link_to_with_icon 'icon-external-link', "Jump to product", edit_admin_product_path(id: f.object.product), target: :blank %>
+        <% end %>
+      </span>
+    </div>
+
+    <div class="dropzone" id="<%= f.object.tab_type %>_image_container">
+      <div>
+        <%= f.fields_for :image do |image_fields| %>
+          <%= image_tag(image_fields.object.attachment.url(:small))%>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="field alpha six columns">
+      <%= f.fields_for :image do |image_fields| %>
+        <%= image_fields.hidden_field :_destroy %>
+        <%= link_to_with_icon 'icon-trash', "Delete Image", "#", class: "remove_image" %>
+      <% end %>
+    </div>
+
+    <div class="field omega two columns">
+      <%= f.hidden_field :_destroy %>
+      <%= link_to_with_icon 'icon-trash', "Delete Tab", "#", class: "remove_tab" %>
+    </div>
+
+  </fieldset>
+</div>

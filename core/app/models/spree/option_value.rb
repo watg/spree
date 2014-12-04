@@ -5,6 +5,8 @@ module Spree
     acts_as_list scope: :option_type
     has_and_belongs_to_many :variants, join_table: 'spree_option_values_variants', class_name: "Spree::Variant"
 
+    has_many :option_values_variants, class_name: 'Spree::OptionValuesVariant'
+
     validates :name, presence: true
     validates_uniqueness_of :name, :scope => [:option_type_id]
     validates_uniqueness_of :sku_part, :scope => [:option_type_id]

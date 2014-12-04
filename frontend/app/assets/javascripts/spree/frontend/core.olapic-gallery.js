@@ -1,7 +1,7 @@
 core.olapicGallery = {};
 
 core.olapicGallery.apiUrl = 'http://api.photorank.me/v1/photos';
-core.olapicGallery.proxyUrl = '/shop/oproxy';
+core.olapicGallery.proxyUrl = '/oproxy';
 core.olapicGallery.streamOffset = 0;
 core.olapicGallery.streamTotal = 0;
 core.olapicGallery.streamId;
@@ -53,26 +53,26 @@ core.olapicGallery.processStreamData = function(response) {
 	var code = response.code;
 	var data = response.response;
 	var cursor = response.cursor;
-	
+
 	if (code != 0 || data.length == 0) return false; // Die if error or no photos in stream
-		
+
 	$.each(data, function(id, photo) {
 		core.olapicGallery.addPhoto(id, photo);
 		core.olapicGallery.addModal(id, photo);
 		core.resetModals();
 		core.readyModals();
 	});
-	
+
 	// How many photos?
-	core.olapicGallery.streamTotal = cursor.total;	
-	
+	core.olapicGallery.streamTotal = cursor.total;
+
 	// Hide button when we run out of photos
 	if ((core.olapicGallery.streamOffset + data.length) >= core.olapicGallery.streamTotal) {
 		$('.button').hide();
 	} else {
 		$('.button').show();
 	}
-	
+
 	// Count offset...
 	core.olapicGallery.streamOffset += data.length;
 }
@@ -80,7 +80,7 @@ core.olapicGallery.processStreamData = function(response) {
 // Add photo to the page
 core.olapicGallery.addPhoto = function(id, data) {
 	var container = $('.olapic-photos');
-	
+
 	var item = '<li class="' + data.id + '"><a rel="modal" href="#modal-' + data.id + '">More about photo ' + data.id + '</a></li>';
 	if (id % 5 === 0) { // Every fifth item
 		if (id % 2 === 0) { // Odd ('cos human beans count from one, not zero)
@@ -89,7 +89,7 @@ core.olapicGallery.addPhoto = function(id, data) {
 			container.append('<ul class="no-bullet even"></ul>');
 		}
 	}
-	
+
 	container.find('ul:last').append(item);
 	container.find('li.' + data.id).css('background-image', 'url(' + data.normal_image + ')');
 }
@@ -98,11 +98,11 @@ core.olapicGallery.addPhoto = function(id, data) {
 core.olapicGallery.addModal = function(id, data) {
 	var row = $('.row-olapic-gallery');
 	var modal = $('<div class="modal" id="modal-' + data.id + '"></div>');
-	
+
 	modal.append('<a class="modal-close" href="#">Close</a>');
 	modal.append('<div class="col-left"></div>');
 	modal.append('<div class="col-right"><h3><a href="' + data.original_source + '">' + data.user_name + '</a></h3><p>' + data.caption + '</p></div>');
 	modal.insertAfter(row);
-	
+
 	$('#modal-' + data.id + ' .col-left').css('background-image', 'url(' + data.normal_image + ')');
 }

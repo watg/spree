@@ -1,129 +1,139 @@
 Spree::Core::Engine.add_routes do
 
-  scope path: 'shop' do
-    namespace :admin do
-      resources :users do
-        member do
-          put :generate_api_key
-          put :clear_api_key
-        end
+  namespace :admin do
+    resources :users do
+      member do
+        put :generate_api_key
+        put :clear_api_key
       end
     end
+  end
 
+  # delete once the provider api points are changed
+  scope path: 'shop' do
     namespace :api, :defaults => { :format => 'json' } do
-      get 'pinterest' => 'pinterest#show', :as => 'pinterest'
+      get 'olapic' => 'olapic#index'
+      get 'pinterest' => 'pinterest#show', as: :old_pinterest
+    end
+  end
 
-      resources :olapic, :only => [:index]
-      get 'assembly_definition_parts/:id/variants' => 'assembly_definition_parts#variants', :as => 'assembly_definition_part_variants'
-      get 'assembly_definitions/:id/out_of_stock_variants' => 'assembly_definitions#out_of_stock_variants', :as => 'assembly_definitions_variant_out_of_stock'
-      get 'assembly_definitions/:id/out_of_stock_option_values' => 'assembly_definitions#out_of_stock_option_values', :as => 'assembly_definitions_option_values_out_of_stock'
+  namespace :api, :defaults => { :format => 'json' } do
+    get 'pinterest' => 'pinterest#show', :as => 'pinterest'
 
-      resources :tags
-      resources :targets
+    resources :olapic, :only => [:index]
+    get 'assembly_definition_parts/:id/variants' => 'assembly_definition_parts#variants', :as => 'assembly_definition_part_variants'
+    get 'assembly_definitions/:id/out_of_stock_variants' => 'assembly_definitions#out_of_stock_variants', :as => 'assembly_definitions_variant_out_of_stock'
+    get 'assembly_definitions/:id/out_of_stock_option_values' => 'assembly_definitions#out_of_stock_option_values', :as => 'assembly_definitions_option_values_out_of_stock'
 
-      resources :products do
-        resources :images
-        resources :variants
-        resources :product_properties
+    resources :tags
+    resources :targets
+
+    resources :products do
+      resources :images
+      resources :variants
+      resources :product_properties
+    end
+    resources :product_groups, :only => [:index]
+
+    resources :suite, :only => [:index]
+    resources :index_pages, :only => [:index]
+    resources :product_pages, :only => [:index] do
+      resources :variants, :only => [:index]
+    end
+
+    order_routes = lambda {
+      member do
+        put :cancel
+        put :empty
+        put :apply_coupon_code
       end
-      resources :product_groups, :only => [:index]
-      resources :index_pages, :only => [:index]
-      resources :product_pages, :only => [:index] do
-        resources :variants, :only => [:index]
-      end
 
-      order_routes = lambda {
+      resources :line_items
+      resources :payments do
         member do
+          put :authorize
+          put :capture
+          put :purchase
+          put :void
+          put :credit
+        end
+      end
+
+      resources :shipments, :only => [:create, :update] do
+        member do
+          put :ready
+          put :ship
+          put :add
+          put :remove
+          put :add_by_line_item
+          put :remove_by_line_item
+        end
+      end
+
+      resources :addresses, :only => [:show, :update]
+
+      resources :return_authorizations do
+        member do
+          put :add
           put :cancel
-          put :empty
-          put :apply_coupon_code
+          put :receive
         end
-
-        resources :line_items
-        resources :payments do
-          member do
-            put :authorize
-            put :capture
-            put :purchase
-            put :void
-            put :credit
-          end
-        end
-
-        resources :shipments, :only => [:create, :update] do
-          member do
-            put :ready
-            put :ship
-            put :add
-            put :remove
-            put :add_by_line_item
-            put :remove_by_line_item
-          end
-        end
-
-        resources :addresses, :only => [:show, :update]
-
-        resources :return_authorizations do
-          member do
-            put :add
-            put :cancel
-            put :receive
-          end
-        end
-      }
-
-      resources :checkouts do
-        member do
-          put :next
-          put :advance
-        end
-        order_routes.call
       end
+    }
 
-      resources :variants, :only => [:index, :show] do
-        resources :images
+    resources :checkouts do
+      member do
+        put :next
+        put :advance
       end
+      order_routes.call
+    end
 
-      resources :option_types do
-        resources :option_values
+    resources :variants, :only => [:index, :show] do
+      resources :images
+    end
+
+    resources :option_types do
+      resources :option_values
+    end
+
+    get '/orders/mine', :to => 'orders#mine', :as => 'my_orders'
+
+    resources :orders, &order_routes
+
+    resources :zones
+    resources :countries, :only => [:index, :show] do
+      resources :states, :only => [:index, :show]
+    end
+    resources :states,    :only => [:index, :show]
+
+    resources :taxonomies do
+      member do
+        get :jstree
       end
-
-      get '/orders/mine', :to => 'orders#mine', :as => 'my_orders'
-
-      resources :orders, &order_routes
-
-      resources :zones
-      resources :countries, :only => [:index, :show] do
-        resources :states, :only => [:index, :show]
-      end
-      resources :states,    :only => [:index, :show]
-
-      resources :taxonomies do
+      resources :taxons do
         member do
           get :jstree
         end
-        resources :taxons do
-          member do
-            get :jstree
-          end
-        end
       end
-
-      resources :taxons, :only => [:index]
-
-      resources :inventory_units, :only => [:show, :update]
-      resources :users
-      resources :properties
-      resources :stock_locations do
-        resources :stock_movements
-        resources :stock_items
-      end
-
-      get '/config/money', :to => 'config#money'
-      get '/config', :to => 'config#show'
-
-      put '/classifications', :to => 'classifications#update', :as => :classifications
-      get '/taxons/products', :to => 'taxons#products', :as => :taxon_products
     end
+
+    resources :taxons, :only => [:index]
+
+    resources :inventory_units, :only => [:show, :update]
+    resources :users
+    resources :properties
+    resources :stock_locations do
+      resources :stock_movements
+      resources :stock_items
+    end
+
+    get '/config/money', :to => 'config#money'
+    get '/config', :to => 'config#show'
+
+    put '/classifications', :to => 'classifications#update', :as => :classifications
+    get '/taxons/products', :to => 'taxons#products', :as => :taxon_products
+    get '/taxons/suites', :to => 'taxons#suites', :as => :taxon_suites
   end
+
 end

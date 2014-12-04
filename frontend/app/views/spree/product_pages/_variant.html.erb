@@ -4,8 +4,8 @@
 <% cache [product,variant,variant.target,@current_currency] do %>
 <li class="displayable-entity details" data-variant="<%= variant.id %>"
 	data-option-values="<%= variant.option_types_and_values.to_json %>"
-	data-tree="<%= product.memoized_variant_options_tree.to_json %>"
-	data-option-type-order="<%= product.memoized_option_type_order.to_json %>">
+	data-tree="<%= product.memoized_variant_options_tree %>"
+	data-option-type-order="<%= product.memoized_option_type_order %>">
 
 	<a class="close" href="#">Close</a>
 	<a class="arrow prev" href="#">Previous <%= @title %></a>
@@ -65,9 +65,6 @@
     </h4>
 	</a>
 </li>
-
-<!-- Place this tag in your head or just before your close body tag. -->
-<script src="https://apis.google.com/js/platform.js" async defer></script>
 
 <% end # cache %>
 <!-- /variant -->
