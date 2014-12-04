@@ -26,6 +26,17 @@ describe Spree::Taxonomy do
 
     end
 
+    describe "#after_touch" do
+
+      context "clear_navigation_cache_key" do
+        it "gets called" do
+          expect(taxonomy).to receive(:clear_navigation_cache_key)
+          taxonomy.touch
+        end
+      end
+
+    end
+
     describe "navigation_cache_key" do
 
       before do
@@ -44,15 +55,8 @@ describe Spree::Taxonomy do
           Rails.cache.write(Spree::Taxonomy::NAVIGATION_CACHE_KEY, 'lol')
         end
 
-        it "does not clear the key if nothing has changed" do
+        it "clears the key" do
           expect(Rails.cache.read(Spree::Taxonomy::NAVIGATION_CACHE_KEY)).not_to be_nil
-          taxonomy.clear_navigation_cache_key
-          expect(Rails.cache.read(Spree::Taxonomy::NAVIGATION_CACHE_KEY)).not_to be_nil
-        end
-
-        it "clears the key if something has changed" do
-          expect(Rails.cache.read(Spree::Taxonomy::NAVIGATION_CACHE_KEY)).not_to be_nil
-          taxonomy.updated_at = Time.now
           taxonomy.clear_navigation_cache_key
           expect(Rails.cache.read(Spree::Taxonomy::NAVIGATION_CACHE_KEY)).to be_nil
         end

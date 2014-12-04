@@ -9,15 +9,14 @@ module Spree
 
     after_save :set_name
     after_save :clear_navigation_cache_key
+    after_touch :clear_navigation_cache_key
 
     default_scope -> { order("#{self.table_name}.position") }
 
     NAVIGATION_CACHE_KEY = 'nav_cache_key'
 
     def clear_navigation_cache_key
-      if changed?
-        Rails.cache.delete(NAVIGATION_CACHE_KEY)
-      end
+      Rails.cache.delete(NAVIGATION_CACHE_KEY)
     end
 
     def self.navigation_cache_key
