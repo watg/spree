@@ -10,7 +10,7 @@ module Spree
     cattr_accessor :options_cache
 
     cattr_accessor :enable_options_cache do
-      true
+      false
     end
 
     def initialize(amount, options={})
