@@ -339,6 +339,28 @@ module Spree
       end
     end
 
+    def variant_options_tree_for(target, current_currency)
+      variants.options_tree_for(target, current_currency)
+    end
+
+    # Need to retire once the new product_pages are live
+    def variant_options_tree(current_currency)
+      variant_options_tree_for(nil,current_currency)
+    end
+
+    # This does not need to be targetted as you can not have variants without
+    # populating each of the option types
+    def option_type_order
+      hash = {}
+      option_type_names = self.option_types.order(:position).map{|o| o.url_safe_name}
+      option_type_names.each_with_index { |o,i| hash[o] = option_type_names[i+1] }
+      hash
+    end
+
+    def stock_threshold_for(location)
+      master.stock_threshold_for(location)
+    end
+
     private
       def normalize_slug
         self.slug = normalize_friendly_id(slug)
@@ -387,7 +409,7 @@ module Spree
     def save_master
       if master && (master.changed? || master.new_record? || (master.default_price && (master.default_price.changed? || master.default_price.new_record?)))
         master.save!
-        # Save with a bang as I want to know when this fails, and not have wishy washy errors 
+        # Save with a bang as I want to know when this fails, and not have wishy washy errors
         # that I have to hunt down for on certain models
         #master.errors.each do |attr, message|
         #  master.product.errors.add(attr, message)

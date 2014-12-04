@@ -1,0 +1,21 @@
+<div class="twelve columns alpha omega">
+  <table class="stock-thresholds">
+    <colgroup>
+      <col style="width: 30%" />
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Stock Location</th>
+        <th>Stock Threshold</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% Spree::StockLocation.active.each do |stock_location| %>
+      <tr class="<%= cycle('odd', 'even')%>">
+	<td><%= stock_location.name %></td>
+	<td><%= text_field_tag("stock_thresholds[#{stock_location.id}]", variant.stock_threshold_for(stock_location)) %></td>
+      </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'spec_helper'
 
 describe Spree::UpdateProductService do
@@ -13,17 +14,16 @@ describe Spree::UpdateProductService do
     :part_sale=>{"GBP"=>"£0.00", "USD"=>"$0.00", "EUR"=>"€0.00"}
   } }
 
-
   context "#run" do
     let(:subject) { Spree::UpdateProductService }
 
     it "should invoke success callback when all is good" do
-      outcome = subject.run(product: product, details: valid_params, prices: prices)
+      outcome = subject.run(product: product, details: valid_params, prices: prices, stock_thresholds: nil)
       expect(outcome).to be_success
     end
 
     it "should invoke failure callback on any error" do
-      outcome = subject.run(product: product, details: "wrong params!", prices: prices)
+      outcome = subject.run(product: product, details: "wrong params!", prices: prices, stock_thresholds: nil)
       expect(outcome).not_to be_success
     end
 
@@ -32,19 +32,18 @@ describe Spree::UpdateProductService do
       instance.should_receive(:update_details)
       instance.should_receive(:option_type_visibility)
 
-      subject.run(product: product, details: {}, prices: prices)
+      subject.run(product: product, details: {}, prices: prices, stock_thresholds: nil)
     end
 
     it "sets the prices on the master" do
       Spree::UpdateProductService.any_instance.should_receive(:update_prices).once.with(hash_including(prices) ,product.master)
-      subject.run(product: product, details: valid_params, prices: prices)
+      subject.run(product: product, details: valid_params, prices: prices, stock_thresholds: nil)
     end
 
     it "allow nil for prices on the master" do
-      outcome = subject.run(product: product, details: valid_params, prices: nil)
+      outcome = subject.run(product: product, details: valid_params, prices: nil, stock_thresholds: nil)
       expect(outcome).to be_success
     end
-
   end
 
   context "#option_type_visibility" do
@@ -75,13 +74,55 @@ describe Spree::UpdateProductService do
       product_options = product.option_types.dup
       product_id = product.id
 
-      outcome = subject.run({product: product, details: properties_params, prices: prices})
+      outcome = subject.run({product: product, details: properties_params, prices: prices, stock_thresholds: nil})
       product  = Spree::Product.find(product_id)
 
       expect(outcome).to be_success
       product.option_types.should == product_options
     end
 
+  end
+
+  describe "update stock_thresholds" do
+    let(:london) { create(:stock_location) }
+    let(:bray) { create(:stock_location) }
+    let(:stock_thresholds) { {
+      london.to_param => 100,
+      bray.to_param   => 200,
+    } }
+
+    subject(:service) { Spree::UpdateProductService }
+
+    it "creates stock thresholds on the master" do
+      service.run(product: product, details: valid_params, prices: prices, stock_thresholds: stock_thresholds)
+      thresholds = product.master.stock_thresholds
+      expect(thresholds.size).to eq(2)
+    end
+
+    it "updates thresholds if they already exist" do
+      product.master.stock_thresholds.create(
+        stock_location: london,
+        value:          7
+      )
+
+      service.run(product: product, details: valid_params, prices: prices, stock_thresholds: stock_thresholds)
+      thresholds = product.master.stock_thresholds
+
+      expect(thresholds.size).to eq(2)
+      london_threshold = thresholds.detect { |t| t.stock_location == london }
+      expect(london_threshold.value).to eq(100)
+    end
+
+    it "sets the correct threshold for each location" do
+      service.run(product: product, details: valid_params, prices: prices, stock_thresholds: stock_thresholds)
+      thresholds = product.master.stock_thresholds
+
+      london_threshold = thresholds.detect { |t| t.stock_location == london }
+      expect(london_threshold.value).to eq(100)
+
+      bray_threshold = thresholds.detect { |t| t.stock_location == bray }
+      expect(bray_threshold.value).to eq(200)
+    end
   end
 
   # ----------------------

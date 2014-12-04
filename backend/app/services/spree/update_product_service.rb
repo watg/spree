@@ -1,10 +1,13 @@
 module Spree
   class UpdateProductService < Mutations::Command
     include ServiceTrait::Prices
+    include ServiceTrait::StockThresholds
+
     required do
       model :product, class: 'Spree::Product'
       duck  :details
       duck  :prices, nils: true
+      duck  :stock_thresholds, nils: true
     end
 
     def execute
@@ -12,6 +15,7 @@ module Spree
       ActiveRecord::Base.transaction do
         update_details(product, details.dup)
         update_prices(prices.dup, product.master)                 if prices
+        update_stock_thresholds(stock_thresholds, product.master) if stock_thresholds
         option_type_visibility(product, visible_option_type_ids)  unless details.has_key?(:product_properties_attributes)
       end
     rescue Exception => e

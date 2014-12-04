@@ -82,7 +82,7 @@ describe Spree::UpdateVariantService do
     end
 
     it "preserves visible product page variants" do
-      product_page = create(:product_page) 
+      product_page = create(:product_page)
       t = create(:target)
       variant.targets = [t]
       ppv = product_page.product_page_variants.create( variant: variant, target: t )
@@ -94,6 +94,48 @@ describe Spree::UpdateVariantService do
       expect(new_ppv).to match_array([ppv])
     end
 
+  end
+
+  describe "update stock_thresholds" do
+    let(:london) { create(:stock_location) }
+    let(:bray) { create(:stock_location) }
+    let(:stock_thresholds) { {
+      london.to_param => 100,
+      bray.to_param   => 200,
+    } }
+
+    subject(:service) { Spree::UpdateVariantService }
+
+    it "creates stock thresholds on the master" do
+      service.run(variant: variant, details: valid_params, prices: prices, stock_thresholds: stock_thresholds)
+      thresholds = variant.stock_thresholds
+      expect(thresholds.size).to eq(2)
+    end
+
+    it "updates thresholds if they already exist" do
+      variant.stock_thresholds.create(
+        stock_location: london,
+        value:          7
+      )
+
+      service.run(variant: variant, details: valid_params, prices: prices, stock_thresholds: stock_thresholds)
+      thresholds = variant.stock_thresholds
+
+      expect(thresholds.size).to eq(2)
+      london_threshold = thresholds.detect { |t| t.stock_location == london }
+      expect(london_threshold.value).to eq(100)
+    end
+
+    it "sets the correct threshold for each location" do
+      service.run(variant: variant, details: valid_params, prices: prices, stock_thresholds: stock_thresholds)
+      thresholds = variant.reload.stock_thresholds
+
+      london_threshold = thresholds.detect { |t| t.stock_location == london }
+      expect(london_threshold.value).to eq(100)
+
+      bray_threshold = thresholds.detect { |t| t.stock_location == bray }
+      expect(bray_threshold.value).to eq(200)
+    end
   end
 
   context "requires a supplier" do

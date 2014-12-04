@@ -1,10 +1,12 @@
 module Spree
   class UpdateVariantService < ActiveInteraction::Base
     include ServiceTrait::Prices
+    include ServiceTrait::StockThresholds
 
     model :variant, class: 'Spree::Variant'
     hash :details, strip: false
     hash :prices, strip: false, default: nil
+    hash :stock_thresholds, strip: false, default: nil
 
     def execute
       validate_prices(prices) if prices
@@ -29,6 +31,7 @@ module Spree
         assign_targets(variant, split_params(target_ids).map(&:to_i) ) if target_ids
         update_prices(prices, variant) if prices
 
+        update_stock_thresholds(stock_thresholds, variant) if stock_thresholds
 
         variant
       end

@@ -160,4 +160,18 @@ describe Spree::Product do
       end
     end
   end
+
+  describe "#stock_threshold_for" do
+    let(:location) { create(:stock_location) }
+    subject(:product) { create(:base_product) }
+
+    it "returns the StockThreshold value" do
+      product.master.stock_thresholds.create(stock_location: location, value: 100)
+      expect(product.stock_threshold_for(location)).to eq(100)
+    end
+
+    it "defaults to 0" do
+      expect(product.stock_threshold_for(location)).to eq(0)
+    end
+  end
 end

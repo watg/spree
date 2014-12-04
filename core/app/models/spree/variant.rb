@@ -31,6 +31,10 @@ module Spree
       class_name: 'Spree::Price',
       dependent: :destroy
 
+    has_many :stock_thresholds,
+      class_name: 'Spree::StockThreshold',
+      dependent: :destroy
+
     delegate_belongs_to :default_price, :display_price, :display_amount, :currency
 
     delegate_belongs_to :product, :assembly_definitions
@@ -79,6 +83,12 @@ module Spree
     scope :available, lambda { joins(:product).where("spree_products.available_on <= ?", Time.zone.now)  }
 
     scope :in_stock, lambda { where(in_stock_cache: true) }
+
+    scope :with_stock_threshold_for, -> (location) {
+      joins(:stock_thresholds).
+        merge(Spree::StockThreshold.nonzero_for_location(location)).
+        uniq
+    }
 
     NUMBER_PREFIX = 'V'
 
@@ -414,6 +424,12 @@ module Spree
 
     def duplicator
       @_duplicator ||= VariantDuplicator.new(self)
+    end
+
+    def stock_threshold_for(location)
+      # We don't use arel for this because it should work for unsaved variants
+      threshold = stock_thresholds.detect { |st| st.stock_location == location }
+      threshold ? threshold.value : 0
     end
 
     private
