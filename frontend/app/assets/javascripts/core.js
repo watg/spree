@@ -26,7 +26,7 @@ core.readyModals = function() {
 	$('a[rel*=modal]').leanModal({top: 30, closeButton: '.modal-close'});
 
 	// Prime additional 'close modal' CTA...
-	$('.modal .button').on('click', function(e) {
+	$('.modal .button:not(.no-close)').on('click', function(e) {
 		e.preventDefault();
 		$(this).parent().siblings('.modal-close').click();
 	});
@@ -68,7 +68,6 @@ core.showCookieMessage = function() {
 };
 
 core.readyCarousels = function() {
-
   if (core.isMobileWidthOrLess() === true) {
     // Carousel initialization
   $('.jcarousel')
@@ -118,12 +117,19 @@ core.readyAlpacaAttack = function() {
   });
 }
 
+/* Check for sign-up cookie. No sign-up cookie = display sign-up. Yes sign-up cookie = display pattern */
 core.signupCheck = function() {
   var cookie = core.signupGetCookie();
-  if (!cookie) {
+  if (!cookie) { // No sign-up cookie
     core.signupUser();
     $('.link-modal-signup').click();
     core.signupSetCookie();
+  } else { // Yes sign-up cookie
+    cookie = core.patternsGetCookie();
+    if (!cookie) { // Yes pattern cookie
+      $('.link-modal-patterns').click();
+      core.patternsSetCookie();
+    }
   }
 }
 
@@ -299,6 +305,14 @@ core.signupSetCookie = function() {
 
 core.signupGetCookie = function() {
   return $.cookie('signupPopKilled');
+}
+
+core.patternsSetCookie = function() {
+  $.cookie('patternPopKilled', 'true', {expires: 365, path: '/'});
+}
+
+core.patternsGetCookie = function() {
+  return $.cookie('patternPopKilled');
 }
 
 core.signupGetPromoCode = function() {
