@@ -21,12 +21,6 @@ module Spree
         errors.add(:metapack, msg)
       end
 
-    rescue Exception => error
-      Rails.logger.info '-'*80
-      Rails.logger.info error.inspect
-      Rails.logger.info error.backtrace
-
-      errors.add(:metapack, error.inspect)
     end
 
     private
