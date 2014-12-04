@@ -306,14 +306,10 @@ table {
 @media only screen and (max-width: 56em) {
 	.row-shipping-and-contact {
 		padding: emCalc(10px) 0;
-		.column-shipping {
-			width: 100% !important;
+		.columns {
 			p {
 				text-align: center;
 			}
-		}
-		.column-contact {
-			display: none
 		}
 	}
 }
@@ -483,7 +479,6 @@ table {
 		}
 	}
 }
-
 // Contact modal
 #modal-contact {
 	width: 760px;
@@ -498,7 +493,6 @@ table {
   background-color: #000;
   display: none;
 }
-
 // Signup modal
 #modal-signup {
 	min-height: 310px;
@@ -531,13 +525,89 @@ table {
 		}
 	}
 }
-
 // Mobile #modal-signup
 @media only screen and (max-width: 48em) {
 	#modal-signup {
 		p.promo-code {
 			margin-top: inherit;
 			font-size: emCalc(30px);
+		}
+	}
+}
+// Xmas modal
+#modal-xmas {
+	text-transform: uppercase;
+	img {
+		margin: emCalc(15px) 0;
+	}
+	h4 {
+		font-size: 1.75em;
+		margin-bottom: 40px;
+	}
+	.list-dates {
+		margin-bottom: 40px;
+		font-size: 1.25em;
+		li {
+			padding: emCalc(10px) 0;
+			border-top: 1px solid #ccc;
+			font-family: $watg-font-secondary-light;
+			strong {
+				font-family: $watg-font-secondary;
+				font-weight: normal;
+			}
+		}
+		li:last-child {
+			border-bottom: 1px solid #ccc;
+		}
+	}
+	.list-links {
+		overflow: hidden;
+		margin-bottom: emCalc(15px);
+		li {
+			a {
+				margin-right: emCalc(15px);
+				padding: 10px;
+				display: block;
+				float: left;
+				font-family: $watg-font;
+				font-size: 20px;
+				color: #fff;
+				background-color: #000;
+			}
+		}
+		li:last-child {
+			a {
+				margin: 0;
+			}
+		}
+	}
+}
+// Mobile #modal-xmas
+@media only screen and (max-width: 48em) {
+	#modal-xmas {
+		.only-desktop {
+			display: none;
+		}
+		img {
+			margin: emCalc(25px) 0;
+		}
+		h4 {
+			font-size: 1.25em;
+			margin-bottom: 20px;
+		}
+		.list-dates {
+			font-size: 1em;
+			margin-bottom: 20px;
+		}
+		.list-links {
+			margin-bottom: emCalc(5px);
+			li {
+				a {
+					margin: 0 emCalc(10px) emCalc(10px) 0 ;
+					padding: 10px;
+					font-size: 15px;
+				}
+			}
 		}
 	}
 }
