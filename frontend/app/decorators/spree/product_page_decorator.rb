@@ -145,7 +145,7 @@ class Spree::ProductPageDecorator < Draper::Decorator
     word_lengths = object.title.split.map(&:length)
     if word_lengths.detect { |word| word >= 8 }
       "mini"
-    elsif word_lengths.reduce(:+) >= 12
+    elsif word_lengths.reduce(:+) >= 11
       "small"
     elsif word_lengths.detect { |word| word  >= 5 } || word_lengths.reduce(:+) >= 10
       "medium"
