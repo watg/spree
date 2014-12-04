@@ -126,7 +126,7 @@ core.signupCheck = function() {
     core.signupSetCookie();
   } else { // Yes sign-up cookie
     cookie = core.patternsGetCookie();
-    if (!cookie) { // Yes pattern cookie
+    if (!cookie && !core.isMobileWidthOrLess()) { // Yes pattern cookie
       $('.link-modal-patterns').click();
       core.patternsSetCookie();
     }
