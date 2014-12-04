@@ -49,11 +49,12 @@ module Spree
 
       def new
         @order = Order.new
+        @order.created_by = try_spree_current_user
       end
 
       def create
         @order = Order.new
-        @order.currency = params[:order][:currency]
+        @order.currency = params[:order][:currency] || Spree::Config[:default_currency]
         @order.created_by = try_spree_current_user
         @order.save!
         redirect_to edit_admin_order_url(@order)
@@ -181,7 +182,7 @@ module Spree
         # it is enabled for in the above before_filter like you may think...
         # hence only load the order if you have a params[:id] which is not the case
         # for a new
-        if params[:id]
+        unless ['new'].include? params[:action]
           @order = Order.includes(:adjustments).find_by_number!(params[:id])
           authorize! action, @order
         end
