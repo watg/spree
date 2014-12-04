@@ -182,7 +182,7 @@ module Spree
         # it is enabled for in the above before_filter like you may think...
         # hence only load the order if you have a params[:id] which is not the case
         # for a new
-        unless ['new'].include? params[:action]
+        unless params[:action] == 'create'
           @order = Order.includes(:adjustments).find_by_number!(params[:id])
           authorize! action, @order
         end
