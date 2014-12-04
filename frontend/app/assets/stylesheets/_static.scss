@@ -633,8 +633,8 @@ body.thank-you {
     text-decoration: none;
   }
 
-/*	.row-hero {
-		background: cdn-url('static/gang-labs/gang_lab.jpg') center 0;
+	.row-hero {
+		background: cdn-url('static/gang-labs/GangLabs_3_Site_Banner.jpg') center 0;
 		min-height: 407px;
     max-height: 407px;
   	margin-bottom: emCalc(50px);
@@ -659,13 +659,13 @@ body.thank-you {
       }
     }
 	}
-*/
-  .row-text {
 
+  .row-text {
+  	text-align: center;
     h1 {
     	text-align: center;
     	padding: emCalc(10px) 0;
-  		/*display: none;*/
+  		// display: none;
   	}
 
   	a {
@@ -674,12 +674,13 @@ body.thank-you {
   	}
 
   	h3 {
-  		display: none;
+  		// display: none;
   	}
-/*    h3 {
+    h3 {
       font-family: $watg-font-secondary-light;
       font-size: emCalc(30px);
       margin: 40px;
+      margin-top: emCalc(80px);
     }
 
     h2 {
@@ -693,10 +694,12 @@ body.thank-you {
       margin: 20px;
     }
 
-*/    .button {
+    .button {
+    	text-align: center;
       margin: 20px;
       font-size: emCalc(20px);
       margin-bottom: emCalc(70px);
+      padding: emCalc(15px);
     }
   }
 }
