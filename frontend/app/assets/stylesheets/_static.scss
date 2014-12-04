@@ -933,13 +933,14 @@ body.thank-you {
 /* Free patterns */
 .free-patterns,
 .free-christmas-patterns {
-	 text-align: center;
-
 	.row-shipping-and-contact + .container > div.row {
 		max-width: none !important;
 	}
 	.row-shipping-and-contact + .container > div.row > .columns {
 		padding: 0;
+	}
+	.wrapper-free-patterns {
+		text-align: center;
 	}
 	.wrapper-free-patterns div.row {
 		margin: 0 auto;
