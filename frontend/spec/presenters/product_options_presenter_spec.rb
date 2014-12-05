@@ -184,7 +184,7 @@ describe Spree::ProductOptionsPresenter do
       end
 
       context "image" do
-        let!(:image) { create(:image) }
+        let(:image) { build(:image) }
 
         before do
           variant_in_stock1.images << image
@@ -194,6 +194,22 @@ describe Spree::ProductOptionsPresenter do
           tree = subject.variant_tree
           image_url = image.attachment.url(:mini)
           expect(tree["size"]["small"]["colour"]["pink"]["variant"]["image_url"]).to eq image_url
+        end
+
+        context "variant has product variants with images" do
+
+          let(:image_2) { build(:image) }
+
+          before do
+            variant_in_stock1.images = []
+            variant_in_stock2.images << image_2
+          end
+
+          it "does not return another variant image" do
+            tree = subject.variant_tree
+            expect(tree["size"]["small"]["colour"]["pink"]["variant"]["image_url"]).to be_nil
+          end
+
         end
 
         context "targetted image" do
