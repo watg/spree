@@ -23,7 +23,7 @@ module Spree
     end
 
     def simple_variant_tree
-      variants.inject({}) do |hash, variant|
+      item.variants.inject({}) do |hash, variant|
         base = create_options_base(hash, variant)
         add_generic_details_to_base(base, variant)
         add_prices_to_base(base, variant)
