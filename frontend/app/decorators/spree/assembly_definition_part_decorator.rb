@@ -17,6 +17,10 @@ class Spree::AssemblyDefinitionPartDecorator < Draper::Decorator
     @variant_options_tree ||= product_options.variant_tree.to_json
   end
 
+  def memoized_simple_variant_options_tree
+    @memoized_simple_variant_options_tree ||= product_options.simple_variant_tree.to_json
+  end
+
   def memoized_grouped_option_values
     @targeted_grouped_option_values ||= product_options.grouped_option_values_in_stock
   end

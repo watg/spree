@@ -23,7 +23,7 @@ module Spree
     end
 
     def simple_variant_tree
-      item.variants.inject({}) do |hash, variant|
+      variants.inject({}) do |hash, variant|
         base = create_options_base(hash, variant)
         add_generic_details_to_base(base, variant)
         add_prices_to_base(base, variant)
@@ -78,7 +78,7 @@ module Spree
 
     def targeted_variants(item, target)
       selector = item.variants
-      if !target.blank?
+      if !target.blank? and item.kind_of?(Spree::Product)
         selector = selector.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
       end
       selector
