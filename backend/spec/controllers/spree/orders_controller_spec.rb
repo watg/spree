@@ -74,6 +74,20 @@ describe Spree::Admin::OrdersController, type: :controller do
       end
     end
 
+    context "#create" do
+      let(:params) { { order: { currency: 'GBP'}} }
+      it "a created order has the current user assigned as a creator" do
+        spree_post :create, params
+        assigns[:order].created_by.should == controller.try_spree_current_user
+      end
+
+      it "a created order has the currency assigned" do
+        spree_post :create, params
+        assigns[:order].currency.should == 'GBP'
+      end
+
+    end
+
     # Regression test for #3684
     context "#edit" do
       it "does not refresh rates if the order is complete" do

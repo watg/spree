@@ -3,8 +3,8 @@
 <% end %>
 
 <% content_for :page_actions do %>
-  <li>
-    <%= button_link_to Spree.t(:new_order), new_admin_order_url, :icon => 'icon-plus', :id => 'admin_new_order' %>
+  <li id="new_order_link">
+    <%= button_link_to Spree.t(:new_order), new_admin_order_url, { :remote => true, :icon => 'icon-plus', :id => 'admin_new_order' } %>
   </li>
 <% end if can? :edit, Spree::Order.new %>
 
@@ -92,6 +92,8 @@
     <% end %>
   </div>
 <% end %>
+
+<div id="new_order_wrapper" data-hook></div>
 
 <%= paginate @orders %>
 
