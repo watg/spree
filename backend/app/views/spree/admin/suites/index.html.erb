@@ -59,6 +59,7 @@
             <td class="align-center"><%= suite.name rescue '' %></td>
             <td class="actions" data-hook="admin_suites_index_row_actions">
               <%= link_to_edit suite, :no_text => true, :class => 'edit' %>
+              <%= link_to_delete(suite, :no_text => true) %>
             </td>
           </tr>
       <% end %>
