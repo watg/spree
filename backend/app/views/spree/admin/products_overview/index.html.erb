@@ -60,8 +60,8 @@
         <th>Current type</th>
         <th>First variant in stock?</th>
         <th>Product Group</th>
-        <th>Gang Member</th>
-        <th>New Product Type</th>
+        <th>Unused column</th>
+        <th>Marketing Type</th>
         <th>Check to update</th>
       </tr>
     </thead>
@@ -79,7 +79,7 @@
           <td class="align-center">
           <%= select_tag "products[][product_group]", options_from_collection_for_select(Spree::ProductGroup.all, "id", "name", product.product_group_id), {include_blank: true, :class => 'select2 fullwidth'} %>
           </td>
-          <td class="align-center"><%= product.supplier.name %></td>
+          <td class="align-center"></td>
           <td class="align-center">
           <%= select_tag "products[][marketing_type]", options_from_collection_for_select(Spree::MarketingType.all, "id", "name", product.marketing_type_id), {include_blank: true, :class => 'select2 fullwidth'} %>
           </td>          
