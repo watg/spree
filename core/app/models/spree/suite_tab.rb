@@ -1,7 +1,7 @@
 module Spree
   class SuiteTab < ActiveRecord::Base
     acts_as_paranoid
-    acts_as_list
+    acts_as_list scope: [:suite_id, :deleted_at]
 
     DEFAULT_PRESENTATION = 'GET IT!'
     DEFAULT_PARTIAL = 'default'
