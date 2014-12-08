@@ -17,9 +17,10 @@ module Spree
 
       taxons_ids = @taxon.self_and_descendants.pluck(:id)
 
-      @suites = Spree::Suite.includes(:classifications, :image,:tabs,:target).references(:classifications)
-        .merge(Spree::Classification.where(taxon_id: taxons_ids))
-        .merge(Spree::SuiteTab.where.not(id: nil ))
+      @suites = Spree::Suite.joins(classifications: :taxon).joins(:tabs)
+        .includes(:image, :tabs, :target)
+        .merge(Spree::Taxon.where(id: taxons_ids).order(:lft))
+        .references(:taxon)
         .page(curr_page).per(per_page)
 
       @taxonomies = Spree::Taxonomy.includes(root: :children)
