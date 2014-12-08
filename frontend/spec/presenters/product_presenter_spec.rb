@@ -22,6 +22,8 @@ describe Spree::ProductPresenter do
   its(:personalisation_images) { should eq product.personalisation_images }
   its(:optional_parts_for_display) { should eq product.optional_parts_for_display }
 
+
+
   it "#variants should return only targetted variants" do
     expect(product).to receive(:variants_for).with(target)
     subject.variants
@@ -41,12 +43,6 @@ describe Spree::ProductPresenter do
     expect(product).to receive(:variant_images_for).with(target)
     subject.variant_images
   end
-
-  it "#grouped_option_values should accept target as an argument" do
-    expect(product).to receive(:grouped_option_values_for).with(target)
-    subject.grouped_option_values
-  end
-
 
   context 'with assembly definition' do
     let(:assembly_definition) { Spree::AssemblyDefinition.new }
@@ -97,93 +93,18 @@ describe Spree::ProductPresenter do
 
   ## Presenters
 
-  describe "#product_options_presenter" do
-    it "wraps the product options in their own presenter" do
-      presenter = subject.product_options_presenter
-      expect(presenter).to be_kind_of Spree::ProductOptionsPresenter
-      expect(presenter.item).to eq product
-    end
-  end
 
-  describe "#assembly_definition_presenter" do
-    it "returns an asembly definition presenter when an assembly definition is available" do
-      allow(subject).to receive(:assembly_definition).and_return true
-      expect(subject.assembly_definition_presenter).to be_kind_of Spree::AssemblyDefinitionPresenter
-      expect(subject.assembly_definition_presenter.assembly_definition).to eq true
-    end
-
-    it "returns nil when an assembly definition is not available" do
-      expect(subject.assembly_definition_presenter).to be_nil
-    end
-  end
-
-  describe "#assembly_definition_part_presenters" do
-    let(:part) { Spree::AssemblyDefinitionPart.new }
-
-    before do
-      allow(subject).to receive(:assembly_definition_parts).and_return [part]
-    end
-
-    it "wraps each assembly definition part in a presenter" do
-      presenters = subject.assembly_definition_part_presenters
-      expect(presenters).to be_kind_of Array
-      expect(presenters.first).to be_kind_of Spree::AssemblyDefinitionPartPresenter
-      expect(presenters.first.assembly_definition_part).to eq part
-    end
-  end
-
-  describe "#suppliers_variant_presenter returns a variant presenter" do
-    let(:assembly_definition) { Spree::AssemblyDefinition.new }
-    let(:part1) { Spree::AssemblyDefinitionPart.new }
-    let(:part2) { Spree::AssemblyDefinitionPart.new }
-
-    context 'when assembly definition is present' do
-      before do
-        assembly_definition.parts << part1
-        assembly_definition.parts << part2
-        product.master.assembly_definition = assembly_definition
-      end
-
-      it "uses the first variant from the first part when a main part is not present" do
-        part1.variants << variant
-        # assembly_definition.main_part = part2
-        presenter = subject.suppliers_variant_presenter
-
-        expect(presenter).to be_kind_of Spree::VariantPresenter
-        expect(presenter.variant).to eq variant
-      end
-
-      it "uses the first variant from the first part when a main part is not present" do
-        part2.variants << variant
-        assembly_definition.main_part = part2
-        presenter = subject.suppliers_variant_presenter
-
-        expect(presenter).to be_kind_of Spree::VariantPresenter
-        expect(presenter.variant).to eq variant
-      end
-    end
-
-    context 'when an assembly_definition is not present' do
-      it "uses first_variant_or_master" do
-        presenter = subject.suppliers_variant_presenter
-
-        expect(presenter).to be_kind_of Spree::VariantPresenter
-        expect(presenter.variant).to be_kind_of Spree::Variant
-      end
-    end
-  end
-
-  describe "#first_variant_or_master_presenter" do
+  describe "#first_variant_or_master" do
     it "returns an the first variant in stock when variants are available" do
       product.stub_chain(:variants, :in_stock, :first).and_return variant
-      expect(subject.first_variant_or_master_presenter).to be_kind_of Spree::VariantPresenter
-      expect(subject.first_variant_or_master_presenter.variant).to eq variant
+      expect(subject.first_variant_or_master).to be_kind_of Spree::Variant
+      expect(subject.first_variant_or_master).to eq variant
     end
 
     it "returns master variant when no variants are available" do
       allow(product).to receive(:master).and_return variant
-      expect(subject.first_variant_or_master_presenter).to be_kind_of Spree::VariantPresenter
-      expect(subject.first_variant_or_master_presenter.variant).to eq variant
+      expect(subject.first_variant_or_master).to be_kind_of Spree::Variant
+      expect(subject.first_variant_or_master).to eq variant
     end
   end
 
@@ -203,6 +124,66 @@ describe Spree::ProductPresenter do
         expect(subject.image_style).to eq :small
       end
     end
+  end
+
+  context "#variant_options" do
+
+    it "instantiates a new VariantOption object" do
+      expect(Spree::VariantOptions).to receive(:new).with(subject.variants, subject.currency)
+      subject.send(:variant_options)
+    end
+
+  end
+
+  context "methods that delegate to variant_options" do
+
+    let(:variant_options) { double('variant_options')}
+
+    before do
+      allow(subject).to receive(:variant_options).and_return(variant_options)
+    end
+
+    describe "#option_types_and_values" do
+
+      it "delegates to variant_options" do
+        expect(variant_options).to receive(:option_types_and_values_for).with(subject.first_variant_or_master)
+        subject.option_types_and_values
+      end
+    end
+
+    describe "#variant_tree" do
+
+      it "delegates to variant_options" do
+        expect(variant_options).to receive(:tree)
+        subject.variant_tree
+      end
+    end
+
+    describe "#option_type_order" do
+
+      it "delegates to variant_options" do
+        expect(variant_options).to receive(:option_type_order)
+        subject.option_type_order
+      end
+    end
+
+    describe "#option_values_in_stock" do
+
+      it "delegates to variant_options" do
+        expect(variant_options).to receive(:option_values_in_stock)
+        subject.option_values_in_stock
+      end
+    end
+
+    describe "#grouped_option_values_in_stock" do
+
+      it "delegates to variant_options" do
+        expect(variant_options).to receive(:grouped_option_values_in_stock)
+        subject.grouped_option_values_in_stock
+      end
+    end
+
+
   end
 
 

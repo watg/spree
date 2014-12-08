@@ -1,28 +1,24 @@
 # encoding: utf-8
 require 'spec_helper'
 
-describe Spree::ProductOptionsPresenter do
-  let(:women)              { build_stubbed(:target, name: 'women') }
-  let(:men)                { build_stubbed(:target, name: 'women') }
-  let(:target) { nil }
+describe Spree::VariantOptions do
   let(:currency) { 'USD' }
   let(:product) { build_stubbed(:base_product) }
+  let(:variants) { [] }
   let(:context) { { currency: currency, target: target}}
 
-  subject { described_class.new(product, view, context) }
+  subject { described_class.new(variants, currency) }
 
    describe '#option_values_in_stock' do
-
-    let(:target) { women }
 
     before do
       Spree::StockItem.any_instance.stub(backorderable: false)
     end
     context "for made by the gang" do
 
-      let!(:variant_out_stock) { create(:variant, product: product, target: women, label: 'women out of stock') }
-      let!(:variant_in_stock1)  { create(:variant_with_stock_items, product: product, target: women, label: 'women') }
-      let!(:variant_in_stock2)  { create(:variant_with_stock_items, product: product, target: men, label: 'men') }
+      let!(:variant_out_stock) { create(:variant, product: product, label: 'women out of stock') }
+      let!(:variant_in_stock1)  { create(:variant_with_stock_items, product: product, label: 'women') }
+      let(:variants) { [ variant_out_stock, variant_in_stock1 ] }
 
       it "returns the correct option values" do
         expect(subject.option_values_in_stock).to match_array(variant_in_stock1.option_values)
@@ -33,9 +29,11 @@ describe Spree::ProductOptionsPresenter do
     context "for kit" do
       let(:product) { create(:product, product_type: create(:product_type_kit)) }
 
-      let!(:_kit_variant1) { create(:variant, product: product, target: women, in_stock_cache: false) }
-      let!(:kit_variant2) { create(:variant, product: product, target: women, in_stock_cache: true) }
-      let!(:kit_variant3) { create(:variant, product: product, target: women, in_stock_cache: true) }
+      let!(:kit_variant1) { create(:variant, product: product, in_stock_cache: false) }
+      let!(:kit_variant2) { create(:variant, product: product, in_stock_cache: true) }
+      let!(:kit_variant3) { create(:variant, product: product, in_stock_cache: true) }
+
+      let(:variants) { [ kit_variant1, kit_variant2, kit_variant3 ] }
 
       it "returns the correct option values" do
         option_values = kit_variant2.option_values + kit_variant3.option_values
@@ -58,15 +56,14 @@ describe Spree::ProductOptionsPresenter do
     let!(:french)   { create(:option_value, name: 'french', presentation: 'French', option_type: language, position: 0) }
     let!(:english)   { create(:option_value, name: 'english', presentation: 'English', option_type: language, position: 1) }
 
-    let!(:women) { create(:target, name:'Women') }
-    let!(:men)   { create(:target, name:'Men') }
 
-    let!(:variant_in_stock1)  { create(:variant_with_stock_items, product: product, target: women, option_values: [pink,small], amount: 19.99 ) }
-    let!(:variant_in_stock2)  { create(:variant_with_stock_items, product: product, target: women, option_values: [pink,big], amount: 19.99 ) }
-    let!(:variant_in_stock3)  { create(:variant_with_stock_items, product: product, target: women, option_values: [blue,small], amount: 19.99 ) }
-    let!(:variant_in_stock4)  { create(:variant_with_stock_items, product: product, target: women, option_values: [blue,big], amount: 19.99 ) }
-    let!(:variant_out_stock) { create(:variant, product: product, target: women, option_values: [english], amount: 19.99) }
-    let!(:variant_in_stock_men)  { create(:variant_with_stock_items, product: product, target: men, option_values: [french], amount: 19.99 ) }
+    let!(:variant_in_stock1)  { create(:variant_with_stock_items, product: product, option_values: [pink,small], amount: 19.99 ) }
+    let!(:variant_in_stock2)  { create(:variant_with_stock_items, product: product, option_values: [pink,big], amount: 19.99 ) }
+    let!(:variant_in_stock3)  { create(:variant_with_stock_items, product: product, option_values: [blue,small], amount: 19.99 ) }
+    let!(:variant_in_stock4)  { create(:variant_with_stock_items, product: product, option_values: [blue,big], amount: 19.99 ) }
+    let!(:variant_out_stock) { create(:variant, product: product, option_values: [english], amount: 19.99) }
+
+    let(:variants) { [variant_in_stock1, variant_in_stock2, variant_in_stock3, variant_in_stock4, variant_out_stock] }
 
     before do
       Spree::StockItem.any_instance.stub(backorderable: false)
@@ -78,58 +75,21 @@ describe Spree::ProductOptionsPresenter do
         grouped_option_values_in_stock = subject.grouped_option_values_in_stock
         expect(grouped_option_values_in_stock[size]).to eq([big,small])
         expect(grouped_option_values_in_stock[colour]).to eq([pink,blue])
-        expect(grouped_option_values_in_stock[language]).to eq([french])
-      end
-
-      context "men" do
-
-        let(:target) { men }
-        it "should return untargetted and instock items" do
-          grouped_option_values_in_stock = subject.grouped_option_values_in_stock
-          expect(grouped_option_values_in_stock[size]).to be_nil
-          expect(grouped_option_values_in_stock[colour]).to be_nil
-          expect(grouped_option_values_in_stock[language]).to eq([french])
-        end
-      end
-
-      context "women" do
-        let(:target) { women }
-        it "should return untargetted and instock items" do
-          grouped_option_values_in_stock = subject.grouped_option_values_in_stock
-          expect(grouped_option_values_in_stock[size]).to eq([big,small])
-          expect(grouped_option_values_in_stock[colour]).to eq([pink,blue])
-          expect(grouped_option_values_in_stock[language]).to be_nil
-        end
       end
 
     end
 
-    describe "#variant_tree" do
+    describe "#tree" do
 
       context "target and in_stock" do
-        let(:target) { women }
         it "should return targeted variant_options_tree_for that are in stock " do
-          tree = subject.variant_tree
+          tree = subject.tree
           expect(tree["size"]["small"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
           expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
           expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
           expect(tree["size"]["big"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
-          expect(tree["language"]["english"]).to_not be_nil
         end
 
-        context "no target" do
-
-          let(:target) { nil }
-          it "should return untargeted variant_options_tree_for that are in stock " do
-            tree = subject.variant_tree
-            expect(tree["size"]["small"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
-            expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
-            expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
-            expect(tree["size"]["big"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
-            expect(tree["language"]["french"]["variant"]["in_stock"]).to be_true
-            expect(tree["language"]["english"]["in_stock"]).to be_false
-          end
-        end
       end
 
       context "option_type positions" do
@@ -140,12 +100,11 @@ describe Spree::ProductOptionsPresenter do
         end
 
         it "should take into account position of the option_type " do
-          tree = subject.variant_tree
+          tree = subject.tree
           expect(tree["colour"]["pink"]["size"]["small"]["variant"]["in_stock"]).to be_true
           expect(tree["colour"]["blue"]["size"]["small"]["variant"]["in_stock"]).to be_true
           expect(tree["colour"]["pink"]["size"]["big"]["variant"]["in_stock"]).to be_true
           expect(tree["colour"]["blue"]["size"]["big"]["variant"]["in_stock"]).to be_true
-          expect(tree["language"]["french"]["variant"]["in_stock"]).to be_true
           expect(tree["language"]["english"]["in_stock"]).to be_false
         end
       end
@@ -159,7 +118,7 @@ describe Spree::ProductOptionsPresenter do
         end
 
         it "should take into account position of the option_type " do
-          tree = subject.variant_tree
+          tree = subject.tree
           expect(tree["size"]["small"]["colour"]["pink"]["variant"]["total_on_hand"]).to eq 20
         end
       end
@@ -171,14 +130,14 @@ describe Spree::ProductOptionsPresenter do
         let!(:stock_item2) { create(:stock_item, supplier: supplier2, variant: variant_in_stock1) }
 
         it "should take into account position of the option_type " do
-          tree = subject.variant_tree
+          tree = subject.tree
           expect(tree["size"]["small"]["colour"]["pink"]["variant"]["suppliers"]).to match_array([nil, supplier1, supplier2])
         end
       end
 
       context "number" do
         it "should provide variant number" do
-          tree = subject.variant_tree
+          tree = subject.tree
           expect(tree["size"]["small"]["colour"]["pink"]["variant"]["number"]).to eq variant_in_stock1.number
         end
       end
@@ -191,7 +150,7 @@ describe Spree::ProductOptionsPresenter do
         end
 
         it "should return the correct non targetted image" do
-          tree = subject.variant_tree
+          tree = subject.tree
           image_url = image.attachment.url(:mini)
           expect(tree["size"]["small"]["colour"]["pink"]["variant"]["image_url"]).to eq image_url
         end
@@ -206,36 +165,8 @@ describe Spree::ProductOptionsPresenter do
           end
 
           it "does not return another variant image" do
-            tree = subject.variant_tree
+            tree = subject.tree
             expect(tree["size"]["small"]["colour"]["pink"]["variant"]["image_url"]).to be_nil
-          end
-
-        end
-
-        context "targetted image" do
-          let(:target) { women }
-
-          before do
-            variant_in_stock1.targets = [women]
-          end
-
-          it "should return the correct targetted image" do
-            tree = subject.variant_tree
-            image_url = image.attachment.url(:mini)
-            expect(tree["size"]["small"]["colour"]["pink"]["variant"]["image_url"]).to eq image_url
-          end
-
-          context "wrong target" do
-
-            before do
-              variant_in_stock1.targets = [men]
-            end
-
-            it "should return the correct targetted image" do
-              tree = subject.variant_tree
-              expect(tree["size"]["small"]["colour"]["pink"]).to be_nil
-            end
-
           end
 
         end
@@ -251,7 +182,7 @@ describe Spree::ProductOptionsPresenter do
         end
 
         it "should have sale_price" do
-          tree = subject.variant_tree
+          tree = subject.tree
           attributes = tree["size"]["small"]["colour"]["pink"]["variant"]
           attributes['in_sale'].should == true
           attributes['normal_price'].should == 1999
@@ -266,7 +197,7 @@ describe Spree::ProductOptionsPresenter do
         let!(:part_price) { create(:price, amount: BigDecimal.new('50'), sale: false, is_kit: true, variant: variant_in_stock1)}
 
         it "should have part_price" do
-          tree = subject.variant_tree
+          tree = subject.tree
           attributes = tree["size"]["small"]["colour"]["pink"]["variant"]
           attributes['normal_price'].should == 1999
           attributes['sale_price'].should == 0
@@ -281,7 +212,7 @@ describe Spree::ProductOptionsPresenter do
         let(:currency) {'GBP'}
 
         it "should have sale_price" do
-          tree = subject.variant_tree
+          tree = subject.tree
           attributes = tree["size"]["small"]["colour"]["pink"]["variant"]
           attributes['in_sale'].should == false
           attributes['normal_price'].should == 700
@@ -296,7 +227,6 @@ describe Spree::ProductOptionsPresenter do
 
     describe "#simple_variant_tree" do
 
-      let(:target) { women }
       let!(:image) { create(:image) }
 
       before do
@@ -304,7 +234,7 @@ describe Spree::ProductOptionsPresenter do
       end
 
       it "should return targeted variant_options_tree_for that are in stock " do
-        tree = subject.simple_variant_tree
+        tree = subject.simple_tree
         expect(tree["size"]["small"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
         expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
         expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
@@ -335,6 +265,8 @@ describe Spree::ProductOptionsPresenter do
       let(:variant_1) {product.variants[0] }
       let(:variant_2) {product.variants[1] }
 
+      let(:variants) { [ variant_1, variant_2 ] }
+
       let(:ov1) { variant_1.option_values.first }
       let(:ov2) { variant_2.option_values.first }
 
@@ -345,7 +277,7 @@ describe Spree::ProductOptionsPresenter do
 
       it "should build a tree based on it's variants" do
 
-        tree = subject.variant_tree
+        tree = subject.tree
         attributes = tree[ov1.option_type.name][ov1.name]['variant']
 
         attributes.should_not be_nil

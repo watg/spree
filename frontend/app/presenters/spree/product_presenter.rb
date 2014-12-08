@@ -30,7 +30,27 @@ module Spree
       @optional_parts_for_display ||= product.optional_parts_for_display
     end
 
+    #### option value methods ####
 
+    def variant_tree
+      variant_options.tree
+    end
+
+    def option_type_order
+      variant_options.option_type_order
+    end
+
+    def option_values_in_stock
+      variant_options.option_values_in_stock
+    end
+
+    def grouped_option_values_in_stock
+      variant_options.grouped_option_values_in_stock
+    end
+
+    def option_types_and_values
+      variant_options.option_types_and_values_for(first_variant_or_master)
+    end
 
     #### Targetted accessors ###
 
@@ -50,14 +70,9 @@ module Spree
       @variant_images ||= product.variant_images_for(target)
     end
 
-    def grouped_option_values
-      @grouped_option_values ||= product.grouped_option_values_for(target)
-    end
-
     def image_style
       is_mobile? ? :small : :product
     end
-
 
 
     ### Assembly definition accessors ###
@@ -85,12 +100,13 @@ module Spree
       @part_quantity[part]
     end
 
+    def first_variant_or_master
+      @first_variant_or_master ||= begin
+        product.variants.in_stock.first || product.master
+      end
+    end
 
     ### Presenters ###
-
-    def product_options_presenter
-      @product_options_presenter ||= Spree::ProductOptionsPresenter.new(product, template, context)
-    end
 
     def assembly_definition_presenter
       @assembly_definition_presenter ||= begin
@@ -98,36 +114,14 @@ module Spree
       end
     end
 
-    def assembly_definition_part_presenters
-      assembly_definition_parts.map do |part|
-        presenter = AssemblyDefinitionPartPresenter.new(part, template, context)
-        yield presenter if block_given?
-        presenter
-      end
-    end
-
-    def suppliers_variant_presenter
-      if assembly_definition
-        part = assembly_definition.main_part || assembly_definition_parts.first
-        build_variant_presenter(part.variants.first)
-      else
-        first_variant_or_master_presenter
-      end
-    end
-
-    def first_variant_or_master_presenter
-      @first_variant_or_master_presenter ||= begin
-        variant = product.variants.in_stock.first || product.master
-        build_variant_presenter(variant)
-      end
-    end
-
-    ### end of presenters ###
-
     private
 
     def build_variant_presenter(variant)
       VariantPresenter.new(variant, template, context)
+    end
+
+    def variant_options
+      @variant_options ||= Spree::VariantOptions.new(variants, currency)
     end
 
   end

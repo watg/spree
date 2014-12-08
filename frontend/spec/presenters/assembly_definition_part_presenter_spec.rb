@@ -30,14 +30,31 @@ describe Spree::AssemblyDefinitionPartPresenter do
     its(:product_name) { should eq "Product Name" }
   end
 
-  context "#product_options_presenter" do
-    its(:product_options_presenter) { should be_kind_of(Spree::ProductOptionsPresenter) }
+  context "#variant_options" do
 
-    it "should receive the correct arguments" do
-      product_options_presenter = double
-      expect(Spree::ProductOptionsPresenter).to receive(:new).with(assembly_definition_part, view, context).and_return(product_options_presenter)
-      expect(subject.product_options_presenter).to eq product_options_presenter
+    it "instantiates a new VariantOption object" do
+      expect(Spree::VariantOptions).to receive(:new).with(subject.variants, subject.currency)
+      subject.send(:variant_options)
     end
+
+  end
+
+  context "methods that delegate to variant_options" do
+
+    let(:variant_options) { double('variant_options')}
+
+    before do
+      allow(subject).to receive(:variant_options).and_return(variant_options)
+    end
+
+    describe "#variant_tree" do
+
+      it "delegates to variant_options" do
+        expect(variant_options).to receive(:simple_tree)
+        subject.variant_tree
+      end
+    end
+
   end
 
 end

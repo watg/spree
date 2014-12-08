@@ -14,7 +14,6 @@ describe Spree::VariantPresenter do
   its(:name) { should eq variant.name }
   its(:product) { should eq product }
   its(:in_sale?) { should eq variant.in_sale? }
-  its(:option_types_and_values) { should eq variant.option_types_and_values.to_json }
   its(:displayable_suppliers) { should eq variant.suppliers.displayable }
 
 

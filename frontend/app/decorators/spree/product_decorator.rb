@@ -1,8 +1,8 @@
 class Spree::ProductDecorator < Draper::Decorator
   delegate_all
 
-  def product_options
-    @product_options ||= Spree::ProductOptionsPresenter.new(object, h, {currency: current_currency, target: target}) 
+  def variant_options
+    @variant_options ||= Spree::VariantOptions.new(variants, currency)
   end
 
   def target
@@ -61,15 +61,19 @@ class Spree::ProductDecorator < Draper::Decorator
 
   ################## Done #############
   def memoized_variant_options_tree
-    @variant_options_tree ||= product_options.variant_tree.to_json
+    @variant_options_tree ||= variant_options.tree
   end
 
   def memoized_option_type_order
-    @option_type_order ||= product_options.option_type_order.to_json
+    @option_type_order ||= variant_options.option_type_order
   end
 
   def memoized_targeted_grouped_option_values
-    @targeted_grouped_option_values ||= product_options.grouped_option_values_in_stock
+    @targeted_grouped_option_values ||= variant_options.grouped_option_values_in_stock
+  end
+
+  def option_types_and_values(variant)
+    variant_options.option_types_and_values_for(variant)
   end
   ##################### Next #############
 

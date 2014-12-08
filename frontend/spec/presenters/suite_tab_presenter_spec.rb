@@ -26,8 +26,6 @@ describe Spree::SuiteTabPresenter do
     its(:tab_type) { should eq tab.tab_type }
   end
 
-
-
   describe "#cart_partial" do
     its(:cart_partial) { should eq 'spree/suites/tab_type/knit_your_own' }
 
@@ -41,14 +39,6 @@ describe Spree::SuiteTabPresenter do
       its(:cart_partial) { should eq 'spree/suites/tab_type/default' }
     end
 
-  end
-
-  context "#product_presenter" do
-    it "creates a product presenter" do
-      product_context = {currency: 'USD', target: target, device: :desktop}
-      expect(Spree::ProductPresenter).to receive(:new).with(tab.product, view, product_context)
-      subject.product_presenter
-    end
   end
 
   context "#link_to" do

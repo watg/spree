@@ -1,85 +1,93 @@
-<% product_presenter = selected_tab_presenter.product_presenter %>
-<% variant_presenter = product_presenter.first_variant_or_master_presenter %>
-<% product_options_presenter = product_presenter.product_options_presenter %>
+<% present(selected_tab_presenter.product, @context) do |product_presenter| %>
+  <% present(product_presenter.first_variant_or_master, @context) do |variant_presenter| %>
 
-<% if product_presenter.assembly_definition %>
-  <div class="displayable-kit-entity row active">
-
-<% else %>
-
-  <div class="displayable-entity row active"
-  data-option-values="<%= variant_presenter.option_types_and_values %>"
-  data-tree="<%= product_options_presenter.variant_tree.to_json  %>"
-  data-option-type-order="<%= product_options_presenter.option_type_order.to_json %>" >
-
-<% end %>
-
-  <div class="row">
-    <div class="large-6 small-12 columns">
-      <div class="product-images" data-hook="product_images">
-        <div class="main-image">
-          <%= image_tag(variant_presenter.main_image_url, variant_presenter.main_image_options) %>
-        </div>
-        <div class="thumbnails" data-hook>
-          <%= render :partial => 'thumbnails', :locals => {variant_presenter: variant_presenter, product_presenter: product_presenter} %>
-        </div>
-      </div>
-    </div>
-
-    <div class="large-6 small-12 columns">
-      <h1><%= product_presenter.name %></h1>
-      <p class="stock-level">Low stock <span class="stock-value"></span></p>
-
-      <div class="cart-form" data-hook="cart_form">
-        <%= form_for :order, :url => populate_orders_path do |f| %>
-          <%= hidden_field_tag "suite_id", suite_presenter.id %>
-          <%= hidden_field_tag "suite_tab_id", selected_tab_presenter.id %>
-          <%= hidden_field_tag "target_id", suite_presenter.target.try(:id) %>
-
-          <% unless Rails.env.production? %>
-          	<a href="<%= spree.edit_admin_product_variant_url(product_presenter.slug,variant_presenter.id) %>">goto admin</a>
-          <% end %>
-
-          <% if variant_presenter.level %>
-          	<p class="level">Level <span><%= variant_presenter.level %></span></p>
-          <% end %>
-
-          <div class="product-price prices" data-hook="product_price" data-in-sale="<%=variant_presenter.in_sale?%>">
-          	<% if variant_presenter.price.present? %>
-          		<span class="<%=variant_presenter.normal_price_classes %>" data-price="<%= variant_presenter.price_in_subunit %>" data-currency="<%= variant_presenter.currency_symbol %>"><%= variant_presenter.price_html %></span>
-          		<span class="<%=variant_presenter.sale_price_classes %>" data-price="<%= variant_presenter.sale_price_in_subunit %>" data-currency="<%= variant_presenter.currency_symbol %>"><%= variant_presenter.sale_price_html %></span>
-          	<% end %>
+    <% if product_presenter.assembly_definition %>
+      <div class="displayable-kit-entity row active">
+    
+    <% else %>
+    
+      <div class="displayable-entity row active"
+      data-option-values="<%= product_presenter.option_types_and_values.to_json %>"
+      data-tree="<%= product_presenter.variant_tree.to_json  %>"
+      data-option-type-order="<%= product_presenter.option_type_order.to_json %>" >
+    
+    <% end %>
+    
+      <div class="row">
+        <div class="large-6 small-12 columns">
+          <div class="product-images" data-hook="product_images">
+            <div class="main-image">
+              <%= image_tag(variant_presenter.main_image_url, variant_presenter.main_image_options) %>
+            </div>
+            <div class="thumbnails" data-hook>
+              <%= render :partial => 'thumbnails', :locals => {variant_presenter: variant_presenter, product_presenter: product_presenter} %>
+            </div>
           </div>
-
+        </div>
+    
+        <div class="large-6 small-12 columns">
+          <h1><%= product_presenter.name %></h1>
+          <p class="stock-level">Low stock <span class="stock-value"></span></p>
+    
+          <div class="cart-form" data-hook="cart_form">
+            <%= form_for :order, :url => populate_orders_path do |f| %>
+              <%= hidden_field_tag "suite_id", suite_presenter.id %>
+              <%= hidden_field_tag "suite_tab_id", selected_tab_presenter.id %>
+              <%= hidden_field_tag "target_id", suite_presenter.target.try(:id) %>
+    
+              <% unless Rails.env.production? %>
+              	<a href="<%= spree.edit_admin_product_variant_url(product_presenter.slug,variant_presenter.id) %>">goto admin</a>
+              <% end %>
+    
+              <% if variant_presenter.level %>
+              	<p class="level">Level <span><%= variant_presenter.level %></span></p>
+              <% end %>
+    
+              <div class="product-price prices" data-hook="product_price" data-in-sale="<%=variant_presenter.in_sale?%>">
+              	<% if variant_presenter.price.present? %>
+              		<span class="<%=variant_presenter.normal_price_classes %>" data-price="<%= variant_presenter.price_in_subunit %>" data-currency="<%= variant_presenter.currency_symbol %>"><%= variant_presenter.price_html %></span>
+              		<span class="<%=variant_presenter.sale_price_classes %>" data-price="<%= variant_presenter.sale_price_in_subunit %>" data-currency="<%= variant_presenter.currency_symbol %>"><%= variant_presenter.sale_price_html %></span>
+              	<% end %>
+              </div>
+    
+              <% if product_presenter.assembly_definition %>
+                <%= render 'cart_kit_form', variant_presenter: variant_presenter, product_presenter: product_presenter %>
+              <% else %>
+                <%= render 'cart_form', variant_presenter: variant_presenter, product_presenter: product_presenter %>
+              <% end %>
+    
+            <% end %>
+          </div>
+    
+          <h5 class="reveal-title revealed">Contents</h5>
+          <p class="reveal-content"><%= product_presenter.clean_description %></p>
+    
           <% if product_presenter.assembly_definition %>
-            <%= render 'cart_kit_form', variant_presenter: variant_presenter, product_presenter: product_presenter %>
+            <% present(product_presenter.assembly_definition, @context) do |assembly_definition_presenter| %>
+              <%= render 'suppliers', suppliers: assembly_definition_presenter.displayable_suppliers %>
+            <% end %>
           <% else %>
-            <%= render 'cart_form', variant_presenter: variant_presenter, product_presenter: product_presenter %>
+            <%= render 'suppliers', suppliers: variant_presenter.displayable_suppliers %>
           <% end %>
 
-        <% end %>
+    			<h5 class="reveal-title delivery">Delivery info</h5>
+    			<div class="reveal-content">
+    					<%= render "/spree/suites/delivery/delivery_default" %>
+    			</div>
+
+          <%= render 'social_icons', variant_presenter: variant_presenter %>
+    
+          <p class="promo-raf">Get your next order for free! <a href="/raf/invite">Find out more</a></p>
+        </div>
       </div>
-
-      <h5 class="reveal-title revealed">Contents</h5>
-      <p class="reveal-content"><%= product_presenter.clean_description %></p>
-
-      <%= render 'suppliers', variant_presenter: product_presenter.suppliers_variant_presenter %>
-
-			<h5 class="reveal-title delivery">Delivery info</h5>
-			<div class="reveal-content">
-					<%= render "/spree/suites/delivery/delivery_default" %>
-			</div>
-
-      <%= render 'social_icons', variant_presenter: variant_presenter %>
-
-      <p class="promo-raf">Get your next order for free! <a href="/raf/invite">Find out more</a></p>
-    </div>
-  </div>
-
-  <div class="row row-social">
-    <div class="large-12 columns"></div>
-  </div>
-</div><!-- /row -->
+    
+      <div class="row row-social">
+        <div class="large-12 columns"></div>
+      </div>
+    </div><!-- /row -->
+    
+  <% end # variant_presenter %>
+<% end # product_presenter %>
 
 
 

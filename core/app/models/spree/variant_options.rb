@@ -1,16 +1,15 @@
 module Spree
-  class ProductOptionsPresenter < BasePresenter
-    presents :item
+  class VariantOptions
 
-    attr_accessor :variant_options, :option_types, :option_values
+    attr_reader :variants, :currency, :items, :option_types, :option_values
 
-    def initialize(object, template, context={})
-      super(object, template, context)
-
-      build_variant_options
+    def initialize(variants, currency)
+      @variants = variants
+      @currency = currency
+      build
     end
 
-    def variant_tree
+    def tree
       variants.inject({}) do |hash, variant|
         base = create_options_base(hash, variant)
         add_generic_details_to_base(base, variant)
@@ -22,7 +21,7 @@ module Spree
       end
     end
 
-    def simple_variant_tree
+    def simple_tree
       variants.inject({}) do |hash, variant|
         base = create_options_base(hash, variant)
         add_generic_details_to_base(base, variant)
@@ -42,23 +41,24 @@ module Spree
     end
 
     def option_values_in_stock
-      variant_options_in_stock.map(&:value).uniq
+      items_in_stock.map(&:value).uniq
     end
 
     def grouped_option_values_in_stock
       return @grouped_option_values_in_stock if @grouped_option_values_in_stock
-      rtn = variant_options_in_stock.group_by(&:type).inject({}) do |hash,(type,options)|
+      rtn = items_in_stock.group_by(&:type).inject({}) do |hash,(type,options)|
         hash[type] = options.map { |o| o.value }.uniq.sort { |a| a.position }
         hash
       end
-       @grouped_option_values_in_stock ||= rtn
+      @grouped_option_values_in_stock ||= rtn
+    end
+
+    def option_types_and_values_for(variant)
+      items = find(variant)
+      items.map{ |item| [ item.type.url_safe_name, item.value.url_safe_name, item.value.presentation] }
     end
 
     private
-
-    def variants
-      @variants ||= targeted_variants(item, target)
-    end
 
     def prices
       @prices ||= Spree::Price.where(variant_id: variants, currency: currency)
@@ -72,16 +72,8 @@ module Spree
       @stock_items ||= Spree::StockItem.active.where(variant_id: variants).includes(:supplier).references(:supplier)
     end
 
-    def variant_options_in_stock
-      @variant_options_in_stock ||= variant_options.select { |vo| vo.variant.in_stock_cache? }
-    end
-
-    def targeted_variants(item, target)
-      selector = item.variants
-      if !target.blank? and item.kind_of?(Spree::Product)
-        selector = selector.joins(:variant_targets).where("spree_variant_targets.target_id = ?", target.id)
-      end
-      selector
+    def items_in_stock
+      @items_in_stock ||= items.select { |item| item.variant.in_stock_cache? }
     end
 
     def create_options_base(existing_hash, variant)
@@ -159,29 +151,28 @@ module Spree
     end
 
 
-    VariantOption = Struct.new(:variant, :value, :type)
+    Item = Struct.new(:variant, :value, :type)
 
-    def build_variant_options
+    def build
       option_values_variants = Spree::OptionValuesVariant.joins(:option_value).where(variant_id: variants)
       option_value_ids = option_values_variants.map { |ovv| ovv.option_value_id }.uniq
       @option_values = Spree::OptionValue.where(id: option_value_ids)
       @option_types = Spree::OptionType.where(id: option_values.map { |ov| ov.option_type_id}.uniq )
 
-      @variant_options = option_values_variants.map do |ovv|
+      @items = option_values_variants.map do |ovv|
         variant = variants.detect { |v| v.id == ovv.variant_id }
         option_value = option_values.detect { |ov| ov.id == ovv.option_value_id }
         option_type = option_types.detect { |ot| ot.id == option_value.option_type_id }
 
-        VariantOption.new(variant, option_value, option_type)
+        Item.new(variant, option_value, option_type)
       end
 
-      @variant_options.sort! { |a,b| [a.type.position, a.value.position ] <=> [b.type.position, b.value.position ] }
+      @items.sort! { |a,b| [a.type.position, a.value.position ] <=> [b.type.position, b.value.position ] }
     end
 
     def find(variant)
-      variant_options.select { |variant_option| variant_option.variant == variant }
+      items.select { |item| item.variant == variant }
     end
 
   end
 end
-

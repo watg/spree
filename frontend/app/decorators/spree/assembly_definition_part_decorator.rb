@@ -1,8 +1,8 @@
 class Spree::AssemblyDefinitionPartDecorator < Draper::Decorator
   delegate_all
 
-  def product_options
-    @product_options ||= Spree::ProductOptionsPresenter.new(object, h, {currency: current_currency, target: target})
+  def variant_options
+    @variant_options ||= Spree::VariantOptions.new(object.variants, current_currency)
   end
 
   def current_currency
@@ -14,15 +14,11 @@ class Spree::AssemblyDefinitionPartDecorator < Draper::Decorator
   end
 
   def memoized_variant_options_tree
-    @variant_options_tree ||= product_options.variant_tree.to_json
-  end
-
-  def memoized_simple_variant_options_tree
-    @memoized_simple_variant_options_tree ||= product_options.simple_variant_tree.to_json
+    @variant_options_tree ||= variant_options.tree
   end
 
   def memoized_grouped_option_values
-    @targeted_grouped_option_values ||= product_options.grouped_option_values_in_stock
+    @grouped_option_values ||= variant_options.grouped_option_values_in_stock
   end
 
   def url

@@ -23,16 +23,20 @@ module Spree
       @displayable_option_type ||= assembly_definition_part.displayable_option_type
     end
 
+    #### option value methods ####
 
-    ### start of presenters ###
-
-    def product_options_presenter
-      @product_options_presenter ||= Spree::ProductOptionsPresenter.new(assembly_definition_part, template, context)
+    def variant_tree
+      variant_options.simple_tree
     end
 
-    ### end of presenters ###
+    ###############################
+
+
     private
 
+    def variant_options
+      @variant_options ||= Spree::VariantOptions.new(variants, currency)
+    end
 
   end
 end

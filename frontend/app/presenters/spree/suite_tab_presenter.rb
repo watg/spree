@@ -30,13 +30,6 @@ module Spree
       @tab_type ||= suite_tab.tab_type
     end
 
-    def product_presenter
-      product_context = {currency: currency, target: target, device: device}
-      presenter = ProductPresenter.new(product, template, product_context)
-      yield presenter if block_given?
-      presenter
-    end
-
     def link_to
       @link_to ||= Spree::Core::Engine.routes.url_helpers.suite_url(
         id: suite.permalink, tab: suite_tab.tab_type)

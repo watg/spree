@@ -3,9 +3,9 @@
 <% variant = variant.decorate( context: @context ) %>
 <% cache [product,variant,variant.target,@current_currency] do %>
 <li class="displayable-entity details" data-variant="<%= variant.id %>"
-	data-option-values="<%= variant.option_types_and_values.to_json %>"
-	data-tree="<%= product.memoized_variant_options_tree %>"
-	data-option-type-order="<%= product.memoized_option_type_order %>">
+	data-option-values="<%= product.option_types_and_values(variant).to_json %>"
+	data-tree="<%= product.memoized_variant_options_tree.to_json %>"
+	data-option-type-order="<%= product.memoized_option_type_order.to_json %>">
 
 	<a class="close" href="#">Close</a>
 	<a class="arrow prev" href="#">Previous <%= @title %></a>

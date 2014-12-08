@@ -1,10 +1,9 @@
 <div data-hook="inside_product_cart_form" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
 
-  <% product_options_presenter = product_presenter.product_options_presenter %>
-	<% if product_options_presenter.grouped_option_values_in_stock.any? %>
+	<% if product_presenter.grouped_option_values_in_stock.any? %>
 		<div class="product-variants">
 			<% index = 0 %>
-			<% product_options_presenter.grouped_option_values_in_stock.each do |type, values|  %>
+			<% product_presenter.grouped_option_values_in_stock.each do |type, values|  %>
 			<div class="variant-options index-<%= index %> <%= type.url_safe_name.downcase %>">
 
 				<h5 class="variant-option-type"><%= type.presentation %>

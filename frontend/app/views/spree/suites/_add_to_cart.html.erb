@@ -1,9 +1,8 @@
 <% if product_presenter.price and !product_presenter.price.nil? %>
-  <% product_options_presenter = product_presenter.product_options_presenter %>
 	<div class="add-to-cart">
     <% if !product_presenter.out_of_stock_override? %>
 			  <label>Quantity</label>
-			  <%= number_field_tag (product_options_presenter.grouped_option_values_in_stock.any? ? :quantity : "variants[#{product_presenter.master.id}]"), 1, :id => 'qty', :min => 1 %>
+			  <%= number_field_tag (product_presenter.grouped_option_values_in_stock.any? ? :quantity : "variants[#{product_presenter.master.id}]"), 1, :id => 'qty', :min => 1 %>
 			  <%= button_tag :class => 'add-to-cart-button small disabled', :type => :submit, :style => "opacity: 0.5", :title => "Please select above options" do %>
 			  	<%= Spree.t(:add_to_cart) %>
 			  <% end %>
