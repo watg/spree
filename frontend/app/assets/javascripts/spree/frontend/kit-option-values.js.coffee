@@ -92,9 +92,9 @@ core.suite.readyKitVariantOptions = (entity) ->
   # being enabled
   entity.find(".add-to-cart-button").on('update',( ->
     if entity.find('.variant-options.required:not(.selected)').length > 0
-      $(this).attr("style", "opacity: 0.5").addClass('disabled tooltip').tooltipster('enable');
+      $(this).attr("style", "opacity: 0.5").addClass('disabled tooltip');
     else
-      $(this).removeAttr("style").removeClass("disabled tooltip").tooltipster('disable');
+      $(this).removeAttr("style").removeClass("disabled tooltip");
   ))
 
   entity.find('.add-to-cart-button').click (event) ->
