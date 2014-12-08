@@ -39,6 +39,16 @@
 
 </div>
 
+<% if @order.active_hold_note.present? %>
+<p>
+  This item was put on hold
+  <%= distance_of_time_in_words(Time.now, @order.active_hold_note.created_at) %> ago by
+  <%= @order.active_hold_note.user.email %>.
+
+  <%= link_to "See more...", admin_order_hold_path(@order, @order.active_hold_note) %>
+</p>
+<% end %>
+
 <%= render :partial => 'add_product' if can?(:update, @order) %>
 
 <% if @order.line_items.empty? %>
