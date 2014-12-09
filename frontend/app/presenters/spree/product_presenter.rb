@@ -40,10 +40,7 @@ module Spree
       variant_options.option_type_order
     end
 
-    def option_values_in_stock
-      variant_options.option_values_in_stock
-    end
-
+  
     def grouped_option_values_in_stock
       variant_options.grouped_option_values_in_stock
     end

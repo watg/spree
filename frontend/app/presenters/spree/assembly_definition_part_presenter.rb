@@ -15,10 +15,6 @@ module Spree
       @product_name ||= assembly_definition_part.product.name
     end
 
-    def displayable_option_values
-      @displayable_option_values ||= assembly_definition_part.displayable_option_values
-    end
-
     def displayable_option_type
       @displayable_option_type ||= assembly_definition_part.displayable_option_type
     end
@@ -27,6 +23,10 @@ module Spree
 
     def variant_tree
       variant_options.simple_tree
+    end
+
+    def displayable_option_values
+      @displayable_option_values ||= variant_options.option_values_in_stock
     end
 
     ###############################

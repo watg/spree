@@ -167,14 +167,6 @@ describe Spree::ProductPresenter do
       end
     end
 
-    describe "#option_values_in_stock" do
-
-      it "delegates to variant_options" do
-        expect(variant_options).to receive(:option_values_in_stock)
-        subject.option_values_in_stock
-      end
-    end
-
     describe "#grouped_option_values_in_stock" do
 
       it "delegates to variant_options" do

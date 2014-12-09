@@ -53,7 +53,19 @@ describe Spree::AssemblyDefinitionPartPresenter do
         expect(variant_options).to receive(:simple_tree)
         subject.variant_tree
       end
+
     end
+
+    describe "#displayable_option_values" do
+
+      it "delegates to variant_options" do
+        expect(variant_options).to receive(:option_values_in_stock)
+        subject.displayable_option_values
+      end
+
+    end
+
+
 
   end
 
