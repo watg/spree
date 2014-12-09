@@ -648,11 +648,11 @@ describe Spree::Variant do
 
 
       # This is not needed for the time being
-      #it "touches assembly product after touch" do
-      #  variant.product.update_column(:updated_at, 1.day.ago)
-      #  variant_part.reload.touch
-      #  expect(variant.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
-      #end
+      it "touches assembly product after touch" do
+        variant.product.update_column(:updated_at, 1.day.ago)
+        variant_part.reload.touch
+        expect(variant.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
+      end
 
       it "touches assembly product after save" do
         variant.product.update_column(:updated_at, 1.day.ago)

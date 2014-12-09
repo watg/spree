@@ -138,6 +138,37 @@ describe Spree::Product do
     end
   end
 
+
+  describe "#after_touch" do
+
+    before { Delayed::Worker.delay_jobs = false }
+    after { Delayed::Worker.delay_jobs = true }
+    let(:product) { create(:base_product) }
+
+    it "calls touch_suite_tabs" do
+      expect(product).to receive(:touch_suite_tabs)
+      product.touch
+    end
+
+  end
+
+  describe "#touch_suite_tabs" do
+
+    let(:product) { create(:base_product) }
+    let(:suite_tab) { build(:suite_tab, product: product) }
+
+    before do
+      product.suite_tabs = [ suite_tab ]
+    end
+
+    it "touches suite tabs" do
+      expect(suite_tab).to receive(:touch)
+      product.send(:touch_suite_tabs)
+    end
+
+  end
+
+
   describe "#description_for" do
     subject { create(:base_product, description: "Just a very basic description") }
     let(:target1) { create(:target) }

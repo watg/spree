@@ -71,6 +71,7 @@ module Spree
 
     has_many :assembly_products ,-> { uniq }, through: :assembly_definition_variants
     after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
+    after_touch { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
 
     after_touch :clear_in_stock_cache
     after_save  :check_stock

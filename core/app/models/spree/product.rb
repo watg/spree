@@ -54,6 +54,7 @@ module Spree
     has_many :product_page_tabs,  class_name: 'Spree::ProductPageTab'
     has_many :suite_tabs,  class_name: 'Spree::SuiteTab', inverse_of: :product
     after_touch { delay(:priority => 20).touch_product_page_tabs }
+    after_touch { delay(:priority => 20).touch_suite_tabs }
 
     # Ensure that we blow the cache for any assemblies that have a part which belongs to
     # this product
@@ -362,9 +363,9 @@ module Spree
     end
 
     private
-      def normalize_slug
-        self.slug = normalize_friendly_id(slug)
-      end
+    def normalize_slug
+      self.slug = normalize_friendly_id(slug)
+    end
 
     def touch_assembly_products
       assembly_products.uniq.map(&:touch)
@@ -372,6 +373,10 @@ module Spree
 
     def touch_product_page_tabs
       product_page_tabs.uniq.map(&:touch)
+    end
+
+    def touch_suite_tabs
+      suite_tabs.uniq.map(&:touch)
     end
 
     # Builds variants from a hash of option types & values
