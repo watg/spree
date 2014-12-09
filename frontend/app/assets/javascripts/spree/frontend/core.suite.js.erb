@@ -205,18 +205,20 @@ core.suite.checkForVariantNumber = function() {
 	var url = core.getUrlPathAsArray(); // Get the URL
 	var url_last_item = url[url.length - 1]; // Get the last item in the URL (should be the variant number)
 	var opt_values_data = $('.displayable-entity').data('variant-option-values'); // Get option values data from page
-	var opt_values = opt_values_data[url_last_item]; // Get option values for variant number
 
-	if (opt_values != undefined) {
-		$.each(opt_values, function(key, value) {
-			var list = $('.variant-option-values.' + value[0]); // e.g. value[0] == 'colour'
-			if (list != undefined) {
-				var link = list.find('a.' + value[1]) //e.g. value[1] == 'shacklewell-grey'
-				if (link != undefined) {
-					link.click();
+	if (opt_values_data != undefined) {
+		var opt_values = opt_values_data[url_last_item]; // Get option values for variant number
+		if (opt_values != undefined) {
+			$.each(opt_values, function(key, value) {
+				var list = $('.variant-option-values.' + value[0]); // e.g. value[0] == 'colour'
+				if (list != undefined) {
+					var link = list.find('a.' + value[1]) //e.g. value[1] == 'shacklewell-grey'
+					if (link != undefined) {
+						link.click();
+					}
 				}
-			}
-		})
+			})
+		}
 	}
 }
 
