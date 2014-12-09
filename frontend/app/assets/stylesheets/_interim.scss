@@ -563,7 +563,8 @@
 	.large-12 > #existing-customer,
 	#forgot-password,
 	#registration {
-		min-height: 545px;
+		margin-bottom: emCalc(30px);
+		min-height: 660px;
 		padding-left: 40%;
 		padding-right: 20%;
 		background: $watg-tint-light image-url('watg-img/bg-login.jpg') left bottom no-repeat;
