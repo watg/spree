@@ -44,6 +44,14 @@ module Spree
       items_in_stock.map(&:value).uniq
     end
 
+    def variant_option_values
+      items_in_stock.inject({}) do |hash, item|
+        hash[item.variant.number] ||= []
+        hash[item.variant.number] << [ item.type.url_safe_name, item.value.url_safe_name ]
+        hash
+      end
+    end
+
     def grouped_option_values_in_stock
       return @grouped_option_values_in_stock if @grouped_option_values_in_stock
       rtn = items_in_stock.group_by(&:type).inject({}) do |hash,(type,options)|
@@ -149,7 +157,6 @@ module Spree
         0
       end
     end
-
 
     Item = Struct.new(:variant, :value, :type)
 

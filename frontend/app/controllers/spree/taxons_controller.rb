@@ -15,12 +15,9 @@ module Spree
       # @searcher = build_searcher(params.merge(taxon: @taxon.id, include_images: true))
       # @products = @searcher.retrieve_products
 
-      taxons_ids = @taxon.self_and_descendants.pluck(:id)
-
-      @suites = Spree::Suite.joins(classifications: :taxon).joins(:tabs)
-        .includes(:image, :tabs, :target)
-        .merge(Spree::Taxon.where(id: taxons_ids).order(:lft))
-        .references(:taxon)
+      @suites = Spree::Suite.joins(:classifications, :tabs).includes(:image, :tabs, :target)
+        .merge(Spree::Classification.where(taxon_id: @taxon.id))
+        .references(:classifications)
         .page(curr_page).per(per_page)
 
       @taxonomies = Spree::Taxonomy.includes(root: :children)
