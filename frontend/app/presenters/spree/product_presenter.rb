@@ -40,7 +40,6 @@ module Spree
       variant_options.option_type_order
     end
 
-  
     def grouped_option_values_in_stock
       variant_options.grouped_option_values_in_stock
     end
@@ -50,7 +49,7 @@ module Spree
     end
 
     def variant_option_values
-      product.variants.inject({}) { |hash, v| hash[v.number] = v.option_values.map { |ov| [ov.option_type.url_safe_name, ov.url_safe_name] }; hash }
+      variant_options.variant_option_values
     end
 
     #### Targetted accessors ###

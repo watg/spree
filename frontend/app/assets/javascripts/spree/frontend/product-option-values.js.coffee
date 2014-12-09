@@ -9,7 +9,6 @@ core.suite.readyVariantOptions = (entity) ->
   for option_value in option_values
     variant_details = toggle_option_values(entity, option_value[0], option_value[1], option_value[2], option_type_order, master_tree)
   if variant_details
-    update_url(entity, variant_details['number'])
     update_supplier_details(entity, variant_details['suppliers'])
     set_stock_level(entity, variant_details['total_on_hand'])
     set_prices(entity, variant_details['id'], variant_details['normal_price'], variant_details['sale_price'], variant_details['in_sale'])
@@ -54,7 +53,7 @@ core.suite.readyVariantOptions = (entity) ->
     selected_presentation = $(this).data('presentation')
     variant_details = toggle_option_values(entity, selected_type, selected_value, selected_presentation, option_type_order, master_tree)
     if variant_details
-      update_url(entity, variant_details['number'])     
+      update_url(entity, variant_details['number'])
       update_supplier_details(entity, variant_details['suppliers'])
       set_stock_level(entity, variant_details['total_on_hand'])
       toggle_images(entity, variant_details['id'])

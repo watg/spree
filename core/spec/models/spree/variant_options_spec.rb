@@ -79,6 +79,19 @@ describe Spree::VariantOptions do
 
     end
 
+    describe "#variant_option_values" do
+
+      it "should return variant_option_values" do
+        variant_option_values = subject.variant_option_values
+        expect(variant_option_values[variant_in_stock1.number]).to eq [["size", "small"], ["colour", "pink"]]
+        expect(variant_option_values[variant_in_stock2.number]).to eq [["size", "big"],   ["colour", "pink"]]
+        expect(variant_option_values[variant_in_stock3.number]).to eq [["size", "small"], ["colour", "blue"]]
+        expect(variant_option_values[variant_in_stock4.number]).to eq [["size", "big"], ["colour", "blue"]]
+        expect(variant_option_values[variant_out_stock.number]).to be_nil
+      end
+
+    end
+
     describe "#tree" do
 
       context "target and in_stock" do
