@@ -12,9 +12,7 @@ describe Spree::TaxonsController do
   # end
 
   describe "#show" do
-    let(:level2_taxon) { create(:multiple_nested_taxons) }
-    let(:level1_taxon) { level2_taxon.parent }
-    let(:top_taxon) { level1_taxon.parent }
+    let(:taxon) { create(:taxon, :permalink => "test") }
 
     let(:suite_tabs_1) { [ create(:suite_tab) ] }
     let(:suite_tabs_2) { [ create(:suite_tab) ] }
@@ -27,20 +25,20 @@ describe Spree::TaxonsController do
     let!(:suites) { [ suite_1, suite_2, suite_3] }
 
     before do
-      suite_1.taxons << top_taxon
-      suite_2.taxons << level1_taxon
-      suite_3.taxons << level2_taxon
+      suite_1.taxons << taxon
+      suite_2.taxons << taxon
+      suite_3.taxons << taxon
     end
 
-    it "assigns @suites to containt suites from both the parent taxon and its children" do
-      spree_get :show, :id => top_taxon.permalink
+    it "assigns @suites to the suites, which belong to a taxon" do
+      spree_get :show, :id => taxon.permalink
 
       expect(assigns(:suites)).to eq suites
       expect(response).to render_template(:show)
     end
 
     it "only returns the number of suites required by per_page" do
-      spree_get :show, :id => top_taxon.permalink, per_page: 1
+      spree_get :show, :id => taxon.permalink, per_page: 1
 
       expect(assigns(:suites).size).to eq 1
       expect(response).to render_template(:show)
@@ -53,7 +51,7 @@ describe Spree::TaxonsController do
       let!(:suite_3) { create(:suite, tabs: []) }
 
       it "does not return suites that have no tabs" do
-        spree_get :show, :id => top_taxon.permalink, per_page: 3
+        spree_get :show, :id => taxon.permalink, per_page: 3
         expect(assigns(:suites).size).to eq 1
         expect(response).to render_template(:show)
       end
@@ -62,7 +60,7 @@ describe Spree::TaxonsController do
 
     context "context" do
       it "assigns @context to contain device" do
-        spree_get :show, :id => top_taxon.permalink
+        spree_get :show, :id => taxon.permalink
         expected = {:currency=>"USD", :device => :desktop}
         expect(assigns(:context)).to eq expected 
       end
@@ -74,7 +72,7 @@ describe Spree::TaxonsController do
         end
 
         it "assigns mobile as device in the context" do
-          spree_get :show, :id => top_taxon.permalink
+          spree_get :show, :id => taxon.permalink
 
           expected = {:currency=>"USD", :device => :mobile}
           expect(assigns(:context)).to eq expected 
