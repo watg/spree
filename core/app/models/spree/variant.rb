@@ -69,9 +69,8 @@ module Spree
     # This can take a while so run it asnyc with a low priority for now
     after_touch { delay(:priority => 20).touch_assemblies_parts if self.assemblies.any? }
 
-    has_many :assembly_products ,-> { uniq }, through: :assembly_definition_variants
-    after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
-    after_touch { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
+    after_save { delay(:priority => 20 ).touch_assembly_definition_variants if assembly_definition_variants.any? }
+    after_touch { delay(:priority => 20 ).touch_assembly_definition_variants if assembly_definition_variants.any? }
 
     after_touch :clear_in_stock_cache
     after_save  :check_stock
@@ -435,8 +434,8 @@ module Spree
 
     private
 
-    def touch_assembly_products
-      assembly_products.map(&:touch)
+    def touch_assembly_definition_variants
+      assembly_definition_variants.map(&:touch)
     end
 
     def touch_assemblies_parts

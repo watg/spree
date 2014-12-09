@@ -627,6 +627,25 @@ describe Spree::Variant do
       variant.product.reload.updated_at.should be_within(3.seconds).of(Time.now)
     end
 
+    context "assembly_definition_variants" do
+
+      let(:assembly_definition_variant) { mock_model(Spree::AssemblyDefinitionVariant) }
+      before do
+        allow(variant).to receive(:assembly_definition_variants).and_return [ assembly_definition_variant ]
+      end
+
+      it "calls touch_assembly_definition_variants after touch" do
+        expect(variant).to receive(:touch_assembly_definition_variants)
+        variant.touch
+      end
+
+      it "touches it assembly_definition_variants" do
+        expect(assembly_definition_variant).to receive(:touch)
+        variant.touch
+      end
+    end
+
+
     # This has been disabled as it was causing too much of a performance overhead
     it "updates it's kit and assemblies_parts" do
       part = create(:variant)
