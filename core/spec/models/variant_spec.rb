@@ -109,6 +109,7 @@ describe Spree::Variant do
         expect(index_page_item.reload.updated_at).to be_within(1.seconds).of(Time.now)
       end
     end
+
   end
 
   describe "#add_to_all_assembly_definitions" do
