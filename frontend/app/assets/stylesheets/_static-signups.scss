@@ -1,0 +1,406 @@
+/* Competitions - using refer a friend*/
+.competition {
+  h1 {
+    text-align: center;
+    font-size: emCalc(60px);
+    padding: 60px 0;
+    margin: 0;
+  }
+
+  .link {
+    text-decoration: underline;
+  }
+
+  .row-referral {
+    /*min-height: 654px;*/
+    margin: -3em 0 3em;
+
+    h3 {
+      font-family: "Gill Sans W01 Light";
+      font-size: 1.25em;
+    }
+
+    .text-center {
+      font-size: 0.75em;
+      a {
+        text-decoration: underline;
+      }
+    }
+    .error {
+      margin: 2.75em 0 -1.75em;
+    }
+    .wait, .thanks {
+      margin: 2.75em 0 3em;
+      font-family: "Gill Sans W01 Light";
+      font-size: 1.5em;
+      line-height: 1.25em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    fieldset:nth-child(0) {
+      margin-top: 2em;
+    }
+    fieldset {
+      margin-top: 3em;
+      padding: 0;
+      background: none;
+      border: 0;
+      p {
+        margin: 0;
+      }
+    }
+  }
+  #referrerForm {
+    fieldset {
+      margin-top: 3em;
+      p {
+        margin: 0;
+      }
+      small {
+        font-size: 0.75em;
+        color: #999;
+      }
+    }
+    input {
+      margin-bottom: 0;
+    }
+  }
+  #refereeForm {
+    fieldset {
+      margin-top: 0;
+      margin-bottom: 3em;
+    }
+    p {
+      margin-bottom: 1.25em;
+      text-transform: uppercase;
+      text-align: right;
+      font-size: 0.875em;
+      a {
+        font-family: "Trade Gothic W01 Bold";
+        font-size: 1.125em;
+        line-height: 1em;
+        text-transform: uppercase;
+        text-decoration: underline;
+      }
+    }
+    p:before {
+      content: '+ ';
+    }
+    button {
+      float: right;
+    }
+  }
+  .terms {
+    h4 {
+      font-size: emCalc(15px);
+      text-transform: uppercase;
+      text-align: center;
+      font-family: $watg-font-secondary-light !important;
+    }
+  }
+}
+
+/* Free patterns */
+.free-patterns {
+  .row-shipping-and-contact + .container > div.row {
+    max-width: none !important;
+  }
+  .row-shipping-and-contact + .container > div.row > .columns {
+    padding: 0;
+  }
+  .wrapper-free-patterns {
+    text-align: center;
+  }
+  .wrapper-free-patterns div.row {
+    margin: 0 auto;
+    position: relative;
+    max-width: 62.5em;
+  }
+
+  .row-hero {
+    background: cdn-url('static/free-knitting-patterns/free-patterns-banner.jpg') center 0 no-repeat;
+    width: 100%;
+    h1 {
+      color: #5b06aa;
+      margin-top: 299px;
+      font-family: $watg-font;
+      font-size: emCalc(80px);
+      text-transform: uppercase;
+      text-align: center;
+      letter-spacing: 0.1em;
+      line-height: 0.9em;
+      margin-bottom: 20px;
+    }
+
+    @media only screen and (max-width: 320px) {
+      background: cdn-url('static/free-knitting-patterns/free-pattern-mobile-hero.jpg') center 0 no-repeat;
+
+      h1 {
+        margin-top: 23px;
+        font-size: emCalc(35px);
+        color: #000000;
+      }
+    }
+  }
+
+  .row-intro {
+    div {
+      text-align: center;
+      .desktop-intro {
+        h2 {
+          font-family: $watg-font-secondary-light;
+          font-size: emCalc(30px);
+        }
+      }
+      .mobile-intro {
+        display: none;
+      }
+    }
+  }
+
+  .logo-images {
+    #small-logo {
+      display: none
+    }
+  }
+
+  .logo-images, .pattern-title{
+    h3 {
+      padding: 40px;
+    }
+  }
+
+  /*desktop mode (normal) see carosel settings in mobile below*/
+  .jcarousel {
+    h2 {
+        font-family: $watg-font-secondary-light;
+        font-size: emCalc(20px);
+        span, strong {
+          font-family: $watg-font-secondary;
+          font-weight: normal;
+        }
+      }
+
+    h3 {
+      margin-top: 40px;
+    }
+
+    ul {
+      list-style-type: none;
+      li {
+        display: inline-block;
+        width: 190px;
+        h3 {
+          margin: 0;
+          font-size: emCalc(20px);
+        }
+        h2 {
+          font-size: emCalc(20px);
+        }
+      }
+    }
+    .jcarousel-control-prev, .jcarousel-control-next {
+      display: none;
+    }
+  }
+}
+
+// mobile views
+.free-patterns + .mobile {
+
+  .logo-images {
+    h3 {
+      padding: 20px;
+    }
+    #small-logo {
+      display: inline;
+    }
+    #large-logo {
+      display: none;
+    }
+  }
+  .pattern-title {
+    h3 {
+      padding-bottom: 0;
+    }
+  }
+
+  .mobile-intro {
+    display: inline;
+    h2 {
+      margin-top: 20px;
+      font-family: $watg-font-secondary-light;
+      font-size: emCalc(25px);
+    }
+  }
+
+  .desktop-intro {
+    display:none;
+  }
+
+  /** Carousel **/
+  .jcarousel-wrapper {
+    padding-bottom: 20px;
+  }
+  /* This is the visible area of carousel.
+  Set a width here to define how much items are visible.
+  Position must be relative!
+  */
+  .jcarousel {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /*
+  You must ensure that the position is relative or absolute and
+  that the width is big enough to contain all items.
+  */
+  .jcarousel ul {
+    width: 20000em;
+    position: relative;
+
+    /* Optional, required in this case since it's a <ul> element */
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /*
+  jCarousel works best, if the items
+  have a fixed width and height (but it's not required).
+  */
+  .jcarousel li {
+    /* Required only for block elements like <li>'s */
+    float: left;
+    display: list-item;
+    width: 305px !important;
+  }
+  .jcarousel-control-prev, .jcarousel-control-next {
+    position: absolute;
+    top: 0;
+    display: block !important;
+  }
+
+  .jcarousel-control-next {
+    right: 0;
+  }
+
+
+  .sign-up-header {
+    margin-bottom: 40px;
+    h3 {
+      margin-top: 40px;
+      span {
+        font-size: emCalc(15px);
+      }
+    }
+  }
+
+  .row-form {
+    max-width: none !important;
+    background-color: #fafafa;
+  }
+
+  #referralForm {
+    fieldset {
+      margin-top: 0;
+    }
+  }
+
+  #refereeForm {
+    margin-top: 30px;
+  }
+
+  .row-tsandcs {
+    h4 {
+      font-size: 11px;
+      font-family: "Gill Sans W01 Light";
+      padding: 20px;
+      text-transform: none;
+    }
+  }
+}
+
+/*tweaks specific for free christmas patterns*/
+
+.free-christmas-patterns {
+  /*clear excessive padding from free-patterns to start again*/
+  h2, h3 {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .wrapper-free-patterns {
+    h1 {
+      color: #820f3a;
+      margin-top: 460px;
+      margin-bottom: 60px;
+      img {
+        height: auto;
+        margin-bottom: 5px;
+      }
+    }
+    .row-intro, .jcarosel-wrapper {
+      padding-bottom: emCalc(60px);
+    }
+    .padding-bottom-desktop {
+      padding-bottom: emCalc(40px);
+    }
+    .pattern-title {
+      padding-bottom: emCalc(30px);
+    }
+    .jcarousel {
+      h4 {
+        font-size: emCalc(16px);
+        text-transform: uppercase;
+        font-family: $watg-font-secondary-light;
+      }
+      h5 {
+        font-size: emCalc(16px);
+        text-transform: uppercase;
+        font-family: $watg-font;
+      }
+      .jcarousel-list {
+        margin-bottom: 0;
+        padding-bottom: emCalc(60px);
+      }
+    }
+    .sign-up-header {
+      padding: emCalc(60px) 0 emCalc(30px);
+      margin: 0;
+    }
+    .row-referral {
+      .input-heading {
+        padding-bottom: emCalc(15px);
+        text-align: left;
+      }
+    }
+    @media only screen and (max-width: 28.75em) {
+      h1 {
+        margin: 60px 0;
+        color: initial;
+        img {
+          width: 30px;
+        }
+      }
+      .row-intro, .jcarosel-wrapper {
+        padding-bottom: emCalc(25px);
+      }
+      .pattern-title {
+        padding-bottom: emCalc(15px);
+      }
+      .sign-up-header {
+        padding: emCalc(30px) 0 emCalc(30px);
+        margin: 0;
+      }
+      .row-referral {
+        .input-heading {
+          padding-bottom: emCalc(15px);
+        }
+      }
+      .padding-bottom-desktop {
+        padding-bottom: 0;
+      }
+    }
+  }
+}
