@@ -52,6 +52,10 @@ module Spree
       variant_options.option_types_and_values_for(first_variant_or_master)
     end
 
+    def variant_option_values
+      product.variants.inject({}) { |hash, v| hash[v.number] = v.option_values.map { |ov| [ov.option_type.url_safe_name, ov.url_safe_name] }; hash }
+    end
+
     #### Targetted accessors ###
 
     def variants

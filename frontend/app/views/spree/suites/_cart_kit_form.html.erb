@@ -2,7 +2,6 @@
 	<div class="assembly-menus large-10 small-8 column">
 		<ol>
       <% product_presenter.assembly_definition.parts.each do |part| %>
-    <% cache [part, product_presenter.currency, device] do %>
         <% present(part, @context) do |part_presenter| %>
 
         <!--- if it is not optional -->
@@ -20,8 +19,7 @@
               <div class="variant-options required <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
                 <p><%= part_presenter.product_name %></p>
                 <ul class="variant-option-values <%= type.url_safe_name.downcase %>">
-
-                  <%= render 'spree/suites/part', type: type, option_values: option_values %>
+                  <%= render 'part', type: type, option_values: option_values %>
                 </ul>
               </div>
               <input class="selected-parts" type="hidden" name="parts[<%= part_presenter.id %>]" value="" />
@@ -40,7 +38,7 @@
                 <p><%= part_presenter.product_name %></p>
                 <ul class="variant-option-values <%= type.url_safe_name.downcase %>">
 
-                  <%= render 'spree/suites/part', type: type, option_values: option_values %>
+                  <%= render 'part', type: type, option_values: option_values %>
 
                   <li class="no-thanks">
                     <a class="option-value" href="#" title="No thanks" data-value="" data-type="<%= type.url_safe_name %>" data-presentation=""><span>No&nbsp;thanks</span></a>
@@ -57,7 +55,6 @@
         <% end %>
 
       <% end # part_presenter %>
-      <% end # cache %>
     <% end # each parts %>
 
     <%= render 'add_to_cart', product_presenter: product_presenter %>
