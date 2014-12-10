@@ -77,7 +77,7 @@ module Spree
     end
 
     def stock_items
-      @stock_items ||= Spree::StockItem.active.where(variant_id: variants).includes(:supplier).references(:supplier)
+      @stock_items ||= Spree::StockItem.joins(:stock_location).where(variant_id: variants).includes(:supplier).references(:supplier).merge(StockLocation.available)
     end
 
     def items_in_stock
