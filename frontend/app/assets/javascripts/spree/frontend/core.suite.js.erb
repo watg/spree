@@ -89,7 +89,7 @@ core.suite.readyZoomableImages = function() {
 	images.load(function() {
 		core.suite.handleZoomableImage($(this));
 	}).each(function() {
-  	if(this.complete) $(this).load(); // Force reload if image already loaded
+		if(this.complete) $(this).load(); // Force reload if image already loaded
 	});
 }
 
