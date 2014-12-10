@@ -3,6 +3,11 @@ core.suite = {};
 var readySuite = function() {
 	if (!$('body').hasClass('suite')) return false;
 
+	// Don't initialise zoom for mobile devices
+	if (core.isMobileWidthOrLess() === false) {
+		core.suite.readyZoomableImages();
+	}
+
 	core.suite.setScrollPosition();
 	core.suite.runVariantMethods();
 	core.suite.readyHeroRow();
@@ -11,12 +16,6 @@ var readySuite = function() {
 	core.suite.readySocialWidget();
 	core.suite.readyHistoryPlugin();
 	core.suite.checkForVariantNumber();
-	
-	// Don't initialise zoom for mobile devices
-	if (core.isMobileWidthOrLess() === false) {
-		core.suite.readyZoomableImages();
-	}
-
 	core.suite.showHeroImage();
 	core.suite.positionHeroTitle();
 
@@ -89,6 +88,8 @@ core.suite.readyZoomableImages = function() {
 	var images = $('img.zoomable');
 	images.load(function() {
 		core.suite.handleZoomableImage($(this));
+	}).each(function() {
+  	if(this.complete) $(this).load(); // Force reload if image already loaded
 	});
 }
 
