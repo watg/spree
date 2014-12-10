@@ -19,7 +19,7 @@
   <script type="text/javascript" src="//apis.google.com/js/plusone.js" parsetags="explicit"></script>
 </head>
 
-<body id="<%= @body_id || 'default' %>" class="shop <%= body_class %>" data-hook="body">
+<body id="<%= @body_id || 'default' %>" class="shop <%= body_class %> <%= device_class %>" data-hook="body">
 
   <%= render :partial => 'spree/shared/header' %>
 
