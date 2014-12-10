@@ -39,7 +39,7 @@
     <br>
     <div class="dropzone" id="suite_image_container">
       <%= f.fields_for :image do |image_fields| %>
-        <%= image_tag(image_fields.object.attachment.url(:mini))%>
+        <%= image_tag(image_fields.object.attachment.url(:mobile))%>
       <% end %>
     </div>
 
