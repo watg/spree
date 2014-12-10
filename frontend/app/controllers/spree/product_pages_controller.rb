@@ -67,6 +67,8 @@ module Spree
     def redirect_to_suites_pages
       if Flip.on?(:suites_feature)
         permalink = params.delete(:id)
+        params.delete(:controller)
+        params.delete(:action)
         outcome = Spree::SuitePageRedirectionService.run(permalink: permalink, params: params)
         if outcome.valid?
           result = outcome.result
