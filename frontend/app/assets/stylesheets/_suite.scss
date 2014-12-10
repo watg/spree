@@ -198,6 +198,9 @@
 		}
 	}
 	.stock-level {
+		float: right;
+		position: relative;
+		top: emCalc(-5px);
 		display: none;
 		color: #8224e3;
 		span {

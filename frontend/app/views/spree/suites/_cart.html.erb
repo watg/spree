@@ -37,7 +37,7 @@
               <%= hidden_field_tag "target_id", suite_presenter.target.try(:id) %>
     
               <% unless Rails.env.production? %>
-              	<a href="<%= spree.edit_admin_product_variant_url(product_presenter.slug,variant_presenter.id) %>">goto admin</a>
+              	<a class="link-admin" href="<%= spree.edit_admin_product_variant_url(product_presenter.slug,variant_presenter.id) %>">Goto admin</a>
               <% end %>
     
               <% if variant_presenter.level %>

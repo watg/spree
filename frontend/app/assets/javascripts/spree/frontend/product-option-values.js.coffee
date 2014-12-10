@@ -177,10 +177,10 @@ set_prices = (entity, variant_id, normal_price, sale_price, in_sale) ->
 
 set_stock_level = (entity, total_on_hand) ->
 	if total_on_hand <= 5
-		entity.find('.stock-level').show()
+		entity.find('.stock-level').css('display', 'initial')
 		entity.find('.stock-value').text(total_on_hand + ' left')
 	else
-		entity.find('.stock-level').hide()
+		entity.find('.stock-level').css('display', 'none')
 
 update_url = (entity, number) ->
   if number.length > 1
