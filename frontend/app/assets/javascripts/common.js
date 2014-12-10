@@ -227,17 +227,8 @@ $(function() {
     });
 
 	// Refer-your-friends competitions
-	if ($('body').hasClass('competition-2014') ||
-		$('body').hasClass('competition-beatkit') ||
-		$('body').hasClass('competition-shopping-spree-apr-2014') ||
-		$('body').hasClass('competition-summer-look-jun-2014') ||
-		$('body').hasClass('competition-summer-bag-jun-2014') ||
-		$('body').hasClass('free-patterns') ||
-		$('body').hasClass('competition-bespoke-hat') ||
-		$('body').hasClass('catbird-giveaway') ||
-		$('body').hasClass('wool-week-competition') ||
-		$('body').hasClass('mollie-makes-pattern') ||
-		$('body').hasClass('free-mouse-pattern')) {
+	if ($('body').hasClass('competition') ||
+		$('body').hasClass('free-patterns')) {
 		WATG.referral.init();
 	}
 
