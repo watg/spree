@@ -43,9 +43,13 @@
                     <%= render 'spree/suites/part', type: type, option_values: option_values %>
   
                     <li class="no-thanks">
-                      <a class="option-value" href="#" title="No thanks" data-value="" data-type="<%= type.url_safe_name %>" data-presentation=""><span>No&nbsp;thanks</span></a>
-                      <% if option_values[0].has_image? %>
-                        <p class="assembly-name">No&nbsp;thanks</p>
+                      <% if option_values.any? %>
+                        <a class="option-value" href="#" title="No thanks" data-value="" data-type="<%= type.url_safe_name %>" data-presentation=""><span>No&nbsp;thanks</span></a>
+                        <% if option_values[0].has_image? %>
+                          <p class="assembly-name">No&nbsp;thanks</p>
+                        <% end %>
+                      <% else %>
+                        <p>No&nbsp;stock</p>
                       <% end %>
                     </li>
   
