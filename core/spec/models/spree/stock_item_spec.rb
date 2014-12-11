@@ -106,14 +106,41 @@ describe Spree::StockItem do
               :awaiting_feed?     => true,
               :supplier_id=       => true)
           }
-          let(:waiting_inventory_units) { backordered_inventory_units + [inventory_unit_3] }
+
+          let(:inventory_unit_4) {
+            double('InventoryUnit4',
+              :fill_awaiting_feed => true,
+              :backordered?       => false,
+              :awaiting_feed?     => true,
+              :supplier_id=       => true)
+          }
+
+          let(:waiting_inventory_units) { backordered_inventory_units + [inventory_unit_3, inventory_unit_4] }
+
+          let(:order_1) { build(:order) }
+          let(:order_2) { build(:order) }
+
+          before do
+            allow(order_1).to receive(:update!)
+            allow(order_2).to receive(:update!)
+            allow(inventory_unit_3).to receive(:order).and_return(order_1)
+            allow(inventory_unit_4).to receive(:order).and_return(order_2)
+          end
 
           it "fills those inventory units" do
             expect(inventory_unit).to receive(:fill_backorder)
             expect(inventory_unit_2).to receive(:fill_backorder)
             expect(inventory_unit_3).to receive(:fill_awaiting_feed)
+            expect(inventory_unit_4).to receive(:fill_awaiting_feed)
 
-            subject.adjust_count_on_hand(3)
+            subject.adjust_count_on_hand(4)
+          end
+
+          it "updates the orders" do
+            subject.adjust_count_on_hand(4)
+
+            expect(order_1).to have_received(:update!)
+            expect(order_2).to have_received(:update!)
           end
 
           describe "supplier_id" do
