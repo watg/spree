@@ -3,13 +3,12 @@ module Spree
     include Spree::Core::Engine.routes.url_helpers
 
     string :permalink
-    string :tab
+    hash   :params, strip: false
 
     def execute
       suite = Spree::Suite.where(permalink: permalink).first
-
       if suite
-        { url: suite_path(suite, tab: tab), http_code: :moved_permanently }
+        { url: suite_path(suite, params), http_code: :moved_permanently }
       else
         { url: root_path, http_code: :temporary_redirect }
       end

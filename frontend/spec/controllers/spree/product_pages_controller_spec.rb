@@ -77,7 +77,7 @@ describe Spree::ProductPagesController, type: :controller do
 
     context '#redirect_to_suites_pages' do
       context 'when Flip suites_feature is on' do
-        let(:redirection_service_result) { double(result: {url: 'http://url.com', http_code: 301}) }
+        let!(:redirection_service_result) { double(valid?: true, result: {url: 'http://url.com', http_code: 301}) }
 
         before do
           allow(Flip).to receive(:on?).with(:suites_feature).and_return(true)
@@ -85,7 +85,7 @@ describe Spree::ProductPagesController, type: :controller do
 
         it "uses the SuitePageRedirectionService to redirect to a suite" do
           expect(Spree::SuitePageRedirectionService).to receive(:run).
-            with(permalink: 'product-page-permalink', tab: 'made-by-the-gang').
+            with(permalink: 'product-page-permalink', params: { "tab" => 'made-by-the-gang'}).
             and_return redirection_service_result
 
           spree_get :show, :id => 'product-page-permalink', :tab => "made-by-the-gang"
