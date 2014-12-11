@@ -8,6 +8,7 @@ FactoryGirl.define do
 
   factory :option_value, class: Spree::OptionValue do
     sequence(:name) {|e| "hot-pink#{e}"}
+    presentation 'Hot Pink'
     option_type
   end
 
@@ -16,5 +17,4 @@ FactoryGirl.define do
     presentation 'Color'
     sku_part 'COL'
   end
-
 end
