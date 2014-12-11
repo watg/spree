@@ -6,6 +6,7 @@ module Spree
     respond_to :html
 
     PER_PAGE = 27
+    SHOW_ALL = 999
 
     def show
       @taxon = Taxon.find_by_permalink!(params[:id])
