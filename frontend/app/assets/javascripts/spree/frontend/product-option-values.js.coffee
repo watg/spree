@@ -240,6 +240,7 @@ change_main_image = (entity, thumb) ->
   entity.find('ul.thumbnails li').removeClass('selected')
   thumb.addClass('selected')
   entity.find('.main-image img').attr('src', newImg)
+  entity.find('.main-image img').attr('data-zoomable', newImg.replace('product', 'original')) # Update zoomable
   entity.find('.main-image a').attr('href', newImg)
   entity.find(".main-image").data('selectedThumb', newImg)
   #$("#main-image").data('selectedThumbId', thumb.attr('id'))
