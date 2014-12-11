@@ -21,6 +21,7 @@ jQuery ->
   $('.s3_uploader_form').each ->
     $(this).S3Uploader(
       {
+        before_add: alertIfSmallerThan1MB,
         remove_completed_progress_bar: false,
         allow_multiple_files: false,
         progress_bar_target: $('#uploads_container'),
@@ -37,3 +38,10 @@ jQuery ->
   product_group = $('#product_page_product_group_ids')
   product_group.productGroupAutocomplete()
 
+
+alertIfSmallerThan1MB = (file) ->
+  if (file.size < Math.pow(2,20) )
+    alert("carefull! it looks like that image may be too small, make sure you check it is not blurry")
+
+  # we only want to give a warning and not disallow the image upload
+  true
