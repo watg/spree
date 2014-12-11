@@ -31,7 +31,6 @@ module Spree
       event :fill_awaiting_feed do
         transition to: :on_hand, from: :awaiting_feed
       end
-      after_transition on: :fill_awaiting_feed, do: :update_order
 
       event :ship do
         transition to: :shipped, if: :allow_ship?

@@ -66,6 +66,7 @@ module Spree
     # If stock was -20 but then was -25 (decrease of 5 units), do nothing.
     def process_waiting(number)
       awaiting_feed = 0
+      orders_to_update = Set.new
 
       if number > 0
         waiting_inventory_units.first(number).each do |unit|
@@ -74,10 +75,15 @@ module Spree
           elsif unit.awaiting_feed?
             unit.supplier_id = self.supplier_id
             unit.fill_awaiting_feed
+
+            # Remember the order so we can update it at the end
+            orders_to_update << unit.order
             awaiting_feed += 1
           end
         end
       end
+
+      orders_to_update.each { |o| o.update! }
 
       awaiting_feed
     end
