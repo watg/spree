@@ -2,7 +2,7 @@ class Spree::ProductDecorator < Draper::Decorator
   delegate_all
 
   def variant_options
-    @variant_options ||= Spree::VariantOptions.new(variants, currency)
+    @variant_options ||= Spree::VariantOptions.new(variants, current_currency)
   end
 
   def target
