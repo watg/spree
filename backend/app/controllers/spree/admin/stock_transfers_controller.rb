@@ -22,38 +22,25 @@ module Spree
 
 
       def create
-        stock_transfer_items = []
+        outcome = Spree::StockTransferService::Create.run(params)
 
-        params[:variant].each_with_index do |variant_id, i|
-          variant = Spree::Variant.find variant_id
-          supplier = Spree::Supplier.where(id: params[:supplier][i]).first
-          quantity = params[:quantity][i].to_i
-
-          stock_transfer_items << Spree::StockTransfer::TransferItem.new(variant, quantity, supplier)
+        if outcome.valid?
+          flash[:success] = Spree.t(:stock_successfully_transferred)
+          redirect_to admin_stock_transfer_path(outcome.result)
+        else
+          flash[:error] = outcome.errors.full_messages.to_sentence
+          redirect_to new_admin_stock_transfer_path
         end
-
-        stock_transfer = StockTransfer.create(:reference => params[:reference])
-        stock_transfer.transfer(source_location,
-                                destination_location,
-                                stock_transfer_items)
-
-        flash[:success] = Spree.t(:stock_successfully_transferred)
-        redirect_to admin_stock_transfer_path(stock_transfer)
+      
       end
 
       private
+     
+
       def load_stock_locations
         @stock_locations = Spree::StockLocation.active.order('name ASC')
       end
 
-      def source_location
-        @source_location ||= params.has_key?(:transfer_receive_stock) ? nil :
-                               StockLocation.find(params[:transfer_source_location_id])
-      end
-
-      def destination_location
-        @destination_location ||= StockLocation.find(params[:transfer_destination_location_id])
-      end
     end
   end
 end
