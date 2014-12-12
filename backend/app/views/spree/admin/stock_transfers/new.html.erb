@@ -16,11 +16,11 @@
       <td>{{{name}}</td>
       <td>
         {{#if ../receiving_stock}}
-          <%= select_tag 'supplier[]', options_from_collection_for_select(@suppliers, :id, :name), :include_blank => true, class: 'select2 fullwidth' %>
+          <%= select_tag 'suppliers[]', options_from_collection_for_select(@suppliers, :id, :name), :include_blank => true, class: 'variant_supplier select2 fullwidth' %>
         {{else}}
           {{supplier_name}} ({{supplier_permalink}})
           <br>
-          <input type='hidden' id='supplier[]' name='supplier[]' value='{{supplier_id}}'>
+          <input type='hidden' id='suppliers[]' name='suppliers[]' value='{{supplier_id}}'>
           <small>on hand:</small> {{count_on_hand}}
         {{/if}}
       </td>
@@ -29,8 +29,8 @@
         <button class='icon_link icon-trash no-text transfer_remove_variant'
                 data-variant-id='{{id}}' data-action='remove'></button>
       </td>
-      <input type='hidden' id='variant[]' name='variant[]' value='{{id}}'>
-      <input type='hidden' id='quantity[]' name='quantity[]' value='{{quantity}}'>
+      <input type='hidden' id='variants[]' name='variants[]' value='{{id}}'>
+      <input type='hidden' id='quantities[]' name='quantities[]' value='{{quantity}}'>
     </tr>
   {{/each}}
 </script>

@@ -37,5 +37,45 @@ module Spree
         assigns[:stock_transfers].should include(stock_transfer2)
       end
     end
+
+    context "#create" do
+
+      let(:params) { {
+        "reference"=>"", 
+        "transfer_source_location_id"=>"1", 
+        "transfer_destination_location_id"=>"1",
+        "transfer_variant"=>"1",
+        "transfer_variant_quantity"=>"1",
+        "suppliers"=>["1"],
+        "variants"=>["1"],
+        "quantities"=>["1"] 
+      } } 
+
+      context 'with correct params' do
+        let(:outcome) { OpenStruct.new(:valid? => true, :result =>  stock_transfer1 ) }
+
+        before { allow(Spree::StockTransferService::Create).to receive(:run).and_return(outcome) }
+        
+        it 'calls tranfer service and returns success message' do
+          spree_post :create, params.dup
+          expect(Spree::StockTransferService::Create).to have_received(:run).with(hash_including(params))
+          expect(flash[:success]).to be_present
+        end
+      end
+
+      context 'with incorrect params' do
+        let(:errors) { double(full_messages: ['foobar'])}
+        let(:unsuccessful_outcome) { OpenStruct.new(:valid? => false, :errors =>  errors ) }
+        
+        before { allow(Spree::StockTransferService::Create).to receive(:run).and_return(unsuccessful_outcome) }
+        
+        it 'calls the transfer service with given params and returns an error message' do
+          spree_post :create, params.dup
+          expect(Spree::StockTransferService::Create).to have_received(:run).with(hash_including(params))
+          expect(flash[:error]).to be_present
+        end
+
+      end
+    end
   end
 end

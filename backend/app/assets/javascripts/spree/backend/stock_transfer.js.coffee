@@ -165,10 +165,15 @@ $ ->
         event.preventDefault()
         @remove_variant $(event.target)
 
-      $('button.transfer_transfer').click =>
-        unless @variants.length > 0
-          alert('no variants to transfer')
-          false
+      
+
+      $('button.transfer_transfer').on 'click', (event) =>
+        
+        $('.variant_supplier').each ->
+          unless $(this).select2('data')? and $(this).select2('data').id.length > 0
+            alert('Please select a supplier first')
+            event.preventDefault()
+            false
 
     add_variant: ->
       variant = $('#transfer_variant').select2('data')
