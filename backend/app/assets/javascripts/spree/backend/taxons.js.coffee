@@ -14,6 +14,10 @@ $(document).ready ->
     $('#taxon_id').select2
       dropdownCssClass: "taxon_select_box",
       placeholder: Spree.translations.find_a_taxon,
+      initSelection: (element, callback) ->
+        last_selected_taxon_val = jQuery.cookie('last_selected_taxon')
+        callback({ id: last_selected_taxon_val, text: "Random text" })
+
       ajax:
         url: Spree.routes.taxons_search,
         datatype: 'json',
@@ -33,8 +37,11 @@ $(document).ready ->
       formatSelection: (taxon) ->
         taxon.pretty_name;
 
+
   $('#taxon_id').on "change", (e) ->
     el = $('#taxon_suites')
+    jQuery.cookie('last_selected_taxon', e.val)
+
     $.ajax
       url: Spree.routes.taxon_suites_api,
       data:
@@ -46,9 +53,9 @@ $(document).ready ->
           $('#taxon_suites').html("<h4>" + Spree.translations.no_results + "</h4>")
         else
           for suite in data.suites
-            # console.log suite.image === 'null'
             if suite.image != null && suite.image.mobile_url != undefined
               suite.image = suite.image.mobile_url
             el.append(suiteTemplate({ suite: suite }))
           $('#sorting_explanation').show()
 
+  $('#taxon_id').select2("val", "dummy value", true) # true triggers a change event
