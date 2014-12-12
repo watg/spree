@@ -4,6 +4,9 @@
       <%= f.label :name, Spree.t(:name) %> <span class="required">*</span><br />
       <%= f.text_field :name, :class => 'fullwidth title' %>
       <%= f.error_message_on :name %>
+      <span class="info">
+        <%= link_to_with_icon 'icon-external-link', "Jump to frontpage", suite_path(id: @suite.permalink), target: :blank %>
+      </span>
     <% end %>
 
     <%= f.field_container :title do %>
@@ -13,12 +16,16 @@
     <% end %>
 
     <%= f.field_container :permalink do %>
-      <%= f.label :permalink, Spree.t(:permalink) %> <span class="required">*</span><br />
-      <%= f.text_field :permalink, :class => 'fullwidth title' %>
+      <%= f.label :permalink, Spree.t(:permalink) %> : &nbsp;
+
+        <% if try_spree_current_user.has_spree_role?('superuser') %> <!-- only super-ecom-users can edit this -->
+          <%= f.text_field :permalink, :class => 'fullwidth title' %>
+        <% else %>
+          <%= f.text_field :permalink, :class => 'fullwidth title', disabled: true %>
+          <small><em>Only to be edited by super users</em></small>
+      <% end %>
+
       <%= f.error_message_on :permalink %>
-      <span class="info">
-        <%= link_to_with_icon 'icon-external-link', "Jump to frontpage", suite_path(id: @suite.permalink), target: :blank %>
-      </span>
     <% end %>
 
     <%= f.field_container :target do %>
