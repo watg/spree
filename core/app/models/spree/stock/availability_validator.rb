@@ -22,22 +22,23 @@ module Spree
           grouped_variants[variant_id] = grouped_variants[variant_id].to_i - grouped_units[variant_id].to_i
         end.select {|v_id, count| count > 0}
 
-        valid = grouped_variants.all? do |variant_id, quantity|
+        out_of_stock_variants = []
+        grouped_variants.each do |variant_id, quantity|
           variant = Spree::Variant.find(variant_id)
-          Stock::Quantifier.new(variant).can_supply? quantity
+          if !Stock::Quantifier.new(variant).can_supply? quantity
+            out_of_stock_variants << variant
+          end
         end
 
-        unless valid
-          variant = line_item.variant
-          display_name = %Q{#{variant.name}}
-          display_name += %Q{ (#{variant.options_text})} unless variant.options_text.blank?
-          line_item.errors[:quantity] << Spree.t(:selected_quantity_not_available, :scope => :order_populator, :item => display_name)
+        if out_of_stock_variants.any?
+          line_item.errors[:quantity] << out_of_stock_error_message(out_of_stock_variants)
           false
         else
           true
         end
       end
 
+      
 
       def validate_order(order)
         ## Needs to be upgraded to the new syntax in rails 4.1
@@ -79,6 +80,24 @@ module Spree
 
         valids.all?
       end
+
+      private
+
+      def out_of_stock_error_message(variants)
+        display_names = variants.map do |variant|
+          display_name = %Q{#{variant.name}}
+          display_name += %Q{ (#{variant.options_text})} unless variant.options_text.blank?
+          display_name
+        end
+
+        error_message = Spree.t(
+          :selected_quantity_not_available, 
+          :scope => :order_populator, 
+          :item => display_names.to_sentence
+        )
+        error_message
+      end
+
 
     end
   end
