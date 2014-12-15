@@ -122,9 +122,9 @@
       </ul>
     </li>
     <li class="large-3 columns inverted">
-      <a href="<%= suite_path(id: 'mixtape-yarn', tab: 'made-by-the-gang') %>">
-        <img src="<%= cdn_url('navigation/knitting-mixtape-yarn.jpg') %>" width="230" height="294" alt="Mixtape Yarn" />
-        <h3 class="image-caption">Mixtape Yarn</h3>
+      <a href="<%= suite_path(id: 'crazy-sexy-wool', tab: 'made-by-the-gang') %>">
+        <img src="<%= cdn_url('navigation/knitting-crazy-sexy-wool-1214-4.jpg') %>" width="230" height="294" alt="Crazy Sexy Wool" />
+        <h3 class="image-caption">Crazy Sexy Wool</h3>
         <p class="image-caption">Shop now</p>
       </a>
     </li>
@@ -145,21 +145,16 @@
       <ul>
         <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/yarn')) %>
       </ul>
-      <h3>Patterns</h3>
-      <ul>
-        <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/patterns')) %>
-      </ul>
       <h3>Supplies</h3>
       <ul>
         <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/supplies')) %>
       </ul>
     </li>
-    <li class="large-3 columns inverted">
-      <a href="<%= suite_path(id: 'crazy-sexy-wool', tab: 'made-by-the-gang') %>">
-        <img src="<%= cdn_url('navigation/knitting-crazy-sexy-wool.jpg') %>" width="230" height="294" alt="Crazy Sexy Wool" />
-        <h3 class="image-caption">Crazy Sexy Wool</h3>
-        <p class="image-caption">Shop now</p>
-      </a>
+    <li class="large-3 columns">
+      <h3>Patterns</h3>
+      <ul>
+        <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/patterns')) %>
+      </ul>
     </li>
     <li class="large-3 columns">
       <a href="/video-tutorials">
