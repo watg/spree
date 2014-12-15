@@ -109,16 +109,49 @@
       </a>
     </li>
   </ul>
-  <ul class="knitting-sub">
+  <ul class="knit-kits-sub">
+    <li class="large-3 columns">
+      <h2>Start your new <br/><span>knitting project</span></h2>
+    </li>
+    <li class="large-3 small-12 columns">
+      <h3>
+        <a href="<%= seo_url(knit_kits) %>">Knit kits</a>
+      </h3>
+      <ul>
+        <%= render_taxons_links(knit_kits) %>
+      </ul>
+    </li>
+    <li class="large-3 columns inverted">
+      <a href="<%= suite_path(id: 'mixtape-yarn', tab: 'made-by-the-gang') %>">
+        <img src="<%= cdn_url('navigation/knitting-mixtape-yarn.jpg') %>" width="230" height="294" alt="Mixtape Yarn" />
+        <h3 class="image-caption">Mixtape Yarn</h3>
+        <p class="image-caption">Shop now</p>
+      </a>
+    </li>
+    <li class="large-3 columns inverted">
+      <a href="/video-tutorials">
+        <img src="<%= cdn_url('navigation/knitting-wool-school.jpg') %>" width="230" height="294" alt="Wool School" />
+        <h3 class="image-caption">Wool School</h3>
+        <p class="image-caption">Learn something new</p>
+      </a>
+    </li>
+  </ul>
+  <ul class="yarn-and-patterns-sub">
     <li class="large-3 columns">
       <h2>All you need <br/><span>for your knitting project</span></h2>
     </li>
     <li class="large-3 small-12 columns">
-      <h3>
-        <a href="<%= seo_url(knitting) %>">Knitting</a>
-      </h3>
+      <h3>Yarn</h3>
       <ul>
-        <%= render_taxons_links(knitting) %>
+        <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/yarn')) %>
+      </ul>
+      <h3>Patterns</h3>
+      <ul>
+        <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/patterns')) %>
+      </ul>
+      <h3>Supplies</h3>
+      <ul>
+        <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/supplies')) %>
       </ul>
     </li>
     <li class="large-3 columns inverted">
@@ -128,9 +161,9 @@
         <p class="image-caption">Shop now</p>
       </a>
     </li>
-    <li class="large-3 columns inverted">
+    <li class="large-3 columns">
       <a href="/video-tutorials">
-        <img src="<%= cdn_url('navigation/knitting-wool-school-0914.jpg') %>" width="230" height="294" alt="Wool School" />
+        <img src="<%= cdn_url('navigation/gang-culture-wool-school-0914.jpg') %>" width="230" height="294" alt="Wool School" />
         <h3 class="image-caption">Wool School</h3>
         <p class="image-caption">Learn something new</p>
       </a>

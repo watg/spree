@@ -54,16 +54,37 @@
       </ul>
     </li>
   </ul>
-  <ul class="knitting-sub">
+  <ul class="knit-kits-sub">
     <li class="large-3 small-12 columns hidden">
       <h3>
-        <a href="<%= seo_url(knitting) %>">Knitting</a>
+        <a href="<%= seo_url(knit_kits) %>">Knit kits</a>
         <a href="#" class="sub-menu"><i class="icon-angle-down"></i></a>
       </h3>
       <ul class="dropdown">
-        <%= render_taxons_links(knitting) %>
+        <%= render_taxons_links(knit_kits) %>
       </ul>
     </li>
+  </ul>
+  <ul class="yarn-and-patterns-sub">
+    <li class="large-3 small-12 columns hidden">
+      <h3>
+        <a href="<%= seo_url(yarn_and_patterns) %>">Yarns &amp; patterns</a>
+        <a href="#" class="sub-menu"><i class="icon-angle-down"></i></a>
+      </h3>
+      <ul class="dropdown">
+        <li>
+          <h3>Yarn</h3>
+        </li>
+        <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/yarn')) %>
+        <li>
+          <h3>Patterns</h3>
+        </li>
+        <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/patterns')) %>
+        <li>
+          <h3>Supplies</h3>
+        </li>
+        <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/supplies')) %>
+      </ul>
   </ul>
   <ul class="gang-culture-sub">
     <li class="large-3 small-12 columns hidden">
