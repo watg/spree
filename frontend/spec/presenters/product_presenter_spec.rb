@@ -23,9 +23,10 @@ describe Spree::ProductPresenter do
   its(:optional_parts_for_display) { should eq product.optional_parts_for_display }
 
 
-
-  it "#variants should return only targetted variants" do
-    expect(product).to receive(:variants_for).with(target)
+  it "#variants should return only targetted variants that are in_stock" do
+    mocked_variants = double
+    expect(mocked_variants).to receive(:in_stock)
+    expect(product).to receive(:variants_for).with(target).and_return(mocked_variants)
     subject.variants
   end
 
@@ -96,7 +97,7 @@ describe Spree::ProductPresenter do
 
   describe "#first_variant_or_master" do
     it "returns an the first variant in stock when variants are available" do
-      product.stub_chain(:variants, :in_stock, :first).and_return variant
+      subject.stub_chain(:variants, :first).and_return variant
       expect(subject.first_variant_or_master).to be_kind_of Spree::Variant
       expect(subject.first_variant_or_master).to eq variant
     end

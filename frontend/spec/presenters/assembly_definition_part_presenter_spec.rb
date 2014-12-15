@@ -18,10 +18,20 @@ describe Spree::AssemblyDefinitionPartPresenter do
   its(:presentation) { should eq assembly_definition_part.presentation }
 
   context "#variants" do
-    before { assembly_definition_part.variants << variant }
+    before do 
+      assembly_definition_part.variants << variant
+    end
 
-    its(:variants) { should eq [variant] }
-    its(:first_variant) { should eq variant }
+    its(:variants) { should eq [] }
+    its(:first_variant) { should be_nil  }
+
+    it "should call in_stock" do
+      mocked_variants = double
+      expect(mocked_variants).to receive(:in_stock)
+      expect(assembly_definition_part).to receive(:variants).and_return(mocked_variants)
+      subject.variants
+    end
+
   end
 
   context "#product_name" do

@@ -4,7 +4,7 @@ module Spree
     delegate :id, :optional?, :count, :presentation, to: :assembly_definition_part
 
     def variants
-      @variants ||= assembly_definition_part.variants
+      @variants ||= assembly_definition_part.variants.in_stock
     end
 
     def first_variant

@@ -55,7 +55,7 @@ module Spree
     #### Targetted accessors ###
 
     def variants
-      @variants ||= product.variants_for(target)
+      @variants ||= product.variants_for(target).in_stock
     end
 
     def clean_description
@@ -102,7 +102,7 @@ module Spree
 
     def first_variant_or_master
       @first_variant_or_master ||= begin
-        product.variants.in_stock.first || product.master
+        variants.first || product.master
       end
     end
 
