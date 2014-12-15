@@ -195,9 +195,15 @@ core.suite.readyHistoryPlugin = function() {
 
 // Do we have a position to scroll to?
 core.suite.setScrollPosition = function() {
-	var cookie = $.cookie('suiteScrollTop');
-	if (cookie) {
-		$(window).scrollTop(cookie);
+	// If we've got a flash error, let's scroll to that
+	var flash = $('.flash.error');
+	if (flash.length > 0) {
+		$(window).scrollTop(flash);
+	} else {
+		var cookie = $.cookie('suiteScrollTop');
+		if (cookie) {
+			$(window).scrollTop(cookie);
+		}
 	}
 }
 
