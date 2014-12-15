@@ -43,7 +43,16 @@ describe Spree::AssemblyDefinitionPartPresenter do
   context "#variant_options" do
 
     it "instantiates a new VariantOption object" do
-      expect(Spree::VariantOptions).to receive(:new).with(subject.variants, subject.currency)
+      expect(Spree::VariantOptions).to receive(:new).with(subject.variants, subject.currency, nil)
+      subject.send(:variant_options)
+    end
+
+    before do 
+
+    end
+
+    it "instantiates a new VariantOption object" do
+      expect(Spree::VariantOptions).to receive(:new).with(subject.variants, subject.currency, nil)
       subject.send(:variant_options)
     end
 
