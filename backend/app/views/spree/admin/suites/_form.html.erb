@@ -49,8 +49,7 @@
 
     <%= f.field_container :taxons do %>
       <%= f.label :taxon_ids, Spree.t(:taxons) %>
-      <%= f.collection_select(:taxon_ids, Spree::Taxon.all, :id, :pretty_name, {include_blank: true}, { class: 'select2 fullwidth', multiple: true}) %>
-      <%# f.hidden_field :taxon_ids, :value => @suite.taxon_ids.join(','), class: "fullwidth" %>
+      <%= f.collection_select(:taxon_ids, Spree::Taxon.all.sort_by(&:pretty_name), :id, :pretty_name, {include_hidden: false, include_blank: false}, { class: 'select2 fullwidth', multiple: true}) %>
     <% end %>
 
     <br>

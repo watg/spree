@@ -16,12 +16,14 @@ describe "Suite scopes" do
       suite.taxons << @child_taxon
     end
 
-    it "calling suite.in_taxon returns suite in child taxons" do
-      suite.taxons -= [@child_taxon]
-      suite.taxons.count.should == 1
-
-      Spree::Suite.in_taxon(@parent_taxon).should include(suite)
-    end
+    # This spec does not make sense anymore as we propogate
+    # the classifications up the ancestor tree now
+    #xit "calling suite.in_taxon returns suite in child taxons" do
+    # suite.taxons -= [@child_taxon]
+    # suite.taxons.count.should == 1
+    #
+    #  Spree::Suite.in_taxon(@parent_taxon).should include(suite)
+    #end
 
     it "calling Suite.in_taxon should not return duplicate records" do
       Spree::Suite.in_taxon(@parent_taxon).to_a.count.should == 1

@@ -73,7 +73,7 @@ describe Spree::Suite do
 
     it "will delete all classifications" do
       reflection = Spree::Suite.reflect_on_association(:classifications)
-      expect(reflection.options[:dependent]).to eq(:delete_all)
+      expect(reflection.options[:dependent]).to eq(:destroy)
     end
   end
 end

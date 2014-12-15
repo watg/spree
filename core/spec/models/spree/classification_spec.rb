@@ -10,6 +10,5 @@ module Spree
       add_taxon.should_not raise_error
       add_taxon.should raise_error(ActiveRecord::RecordInvalid)
     end
-
   end
 end

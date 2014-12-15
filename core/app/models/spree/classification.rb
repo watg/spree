@@ -8,6 +8,7 @@ module Spree
     belongs_to :taxon, class_name: "Spree::Taxon", inverse_of: :classifications
 
     default_scope { order(:position) }
-    validates_uniqueness_of :taxon_id, :scope => :suite_id, :message => :already_linked
+    validates_uniqueness_of :taxon_id, :scope => [:suite_id, :deleted_at], :message => :already_linked
+
   end
 end

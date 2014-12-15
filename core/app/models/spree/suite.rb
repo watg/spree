@@ -10,8 +10,8 @@ module Spree
     belongs_to :target
     has_one :image, as: :viewable, dependent: :destroy, class_name: "Spree::SuiteImage"
 
-    has_many :classifications, dependent: :delete_all, inverse_of: :suite
-    has_many :taxons, through: :classifications
+    has_many :classifications, dependent: :destroy, inverse_of: :suite
+    has_many :taxons, through: :classifications, dependent: :destroy
     has_many :tabs, -> { order(:position) }, dependent: :destroy, class_name: "Spree::SuiteTab"
     alias_method :suite_tabs, :tabs
 

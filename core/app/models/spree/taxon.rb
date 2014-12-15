@@ -1,12 +1,15 @@
 module Spree
   class Taxon < ActiveRecord::Base
     acts_as_paranoid
-    acts_as_nested_set dependent: :destroy
 
     belongs_to :taxonomy, class_name: 'Spree::Taxonomy', touch: true, inverse_of: :taxons
 
-  	has_many :classifications, -> { order(:position) }, dependent: :delete_all, inverse_of: :taxon
+  	has_many :classifications, -> { order(:position) }, dependent: :destroy, inverse_of: :taxon
     has_many :suites, through: :classifications
+
+    # Please do not move this above the has_many classification and suites as it will break
+    # the after_destroy callback in classification .... yep dependency and magic !!!
+    acts_as_nested_set dependent: :destroy
 
     before_create :set_permalink
 
@@ -33,7 +36,9 @@ module Spree
       fs
     end
 
-    # This is method is here as awesome_nested_set method self_and_ancestors in version 2.1.6 does not seem to work
+   
+    # We use this instead of self_and_ancesors as this gives us gaurentees about the
+    # order of the parents, we would like to walk up the tree
     def self_and_parents
       parents = [self]
       child = self.dup
@@ -93,6 +98,9 @@ module Spree
       move_to_child_with_index(parent, idx.to_i) unless self.new_record?
     end
 
+    # TODO: if we delete a taxon we need to ensure all the classifications down
+    # streem get deleted
+    
     private
 
     def touch_parent

@@ -66,4 +66,5 @@ describe Spree::Taxon do
       expect { taxonomy.root.children.unscoped.where(:name => "Some name").first_or_create }.not_to raise_error
     end
   end
+
 end

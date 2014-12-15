@@ -13,9 +13,22 @@ module Spree
         )
       end
 
+      def update
+        outcome = SuiteUpdateService.run(suite: @suite, params: suite_params)
+        if outcome.valid?
+          flash[:success] = flash_message_for(outcome, :successfully_updated)
+          respond_with(outcome.result) do |format|
+            format.html { redirect_to location_after_save }
+            format.js   { render :layout => false }
+          end
+        else
+          respond_with(@suite)
+        end
+      end
+
       protected
       def suite_params
-        params.require(:suite).permit(:name, :title, :permalink, :target_id, :taxon_ids,
+        params.require(:suite).permit(:name, :title, :permalink, :target_id, :taxon_ids => [],
                                       :tabs_attributes => [ :id, :product_id ])
       end
 

@@ -47,9 +47,8 @@ module Spree
 
       def update
         authorize! :update, taxon
-        #outcome = Spree::UpdateTaxonPositionService.run(update_params)
-        #if outcome.success?
-        if taxon.update_attributes(taxon_params)
+        outcome = TaxonUpdateService.run(taxon: taxon, params: taxon_params)
+        if outcome.valid?
           respond_with(taxon, status: 200, default_template: :show)
         else
           invalid_resource!(taxon)
@@ -58,7 +57,7 @@ module Spree
 
       def destroy
         authorize! :destroy, taxon
-        taxon.destroy
+        TaxonDestroyService.run(taxon: taxon)
         respond_with(taxon, status: 204)
       end
 
