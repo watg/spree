@@ -72,7 +72,9 @@ module Spree
 
         if parts = params.delete(:parts)
 
-          if options_parser.missing_required_parts(variant, parts).any?
+          missing_parts = options_parser.missing_required_parts(variant, parts)
+          if missing_parts.any?
+            Helpers::AirbrakeNotifier.delay.notify("Some required parts are missing", {parts: missing_parts.map(&:id)})
             errors.add(:base, "Some required parts are missing")
             return false
           end

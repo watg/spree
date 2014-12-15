@@ -67,6 +67,15 @@ describe Spree::OrderPopulator do
             subject.populate(:variants => { variant.id => 2 }, :parts => part_params, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
             expect(subject.errors.full_messages.join("")).to eq 'Some required parts are missing'
           end
+
+          it "sends an airbrake notification" do
+            expect(order.contents).to_not receive(:add)
+            part_params = {adp1.id => adv1.id, adp2.id => adv2.id}
+            notifier = double
+            expect(notifier).to receive(:notify).with("Some required parts are missing", parts: [part.id])
+            expect(Helpers::AirbrakeNotifier).to receive(:delay).and_return(notifier)
+            subject.populate(:variants => { variant.id => 2 }, :parts => part_params, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
+          end
         end
       end
 
