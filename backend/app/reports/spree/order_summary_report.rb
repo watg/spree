@@ -3,16 +3,8 @@ module Spree
     include BaseReport
 
     def initialize(params)
-      @from = params[:from].blank? ? Time.now.midnight : Time.parse(params[:from])  
-      @to = params[:to].blank? ? Time.now.tomorrow.midnight : Time.parse(params[:to])  
-    end
-
-    def self.run(from=Time.now.midnight, to=Time.now.tomorrow.midnight)
-      report = self.new( from: from, to: to )
-      puts report.header.join(',')
-      report.retrieve_data do |data|
-        puts data.join(',')
-      end
+      @from = params[:from].blank? ? Time.now.midnight : Time.parse(params[:from])
+      @to = params[:to].blank? ? Time.now.tomorrow.midnight : Time.parse(params[:to])
     end
 
     def filename_uuid
@@ -31,7 +23,7 @@ module Spree
         returning_customer
         internal
         currency
-        cost_price 
+        cost_price
         item_normal_total
         item_total
         shipping_total
@@ -45,16 +37,16 @@ module Spree
       ) +
         marketing_type_headers +
       %w(
-        billing_address_firstname 
-        billing_address_lastname 
+        billing_address_firstname
+        billing_address_lastname
         billing_address_line_1
         billing_address_line_2
         billing_city
         billing_country
         billing_postcode
 
-        shipping_address_firstname 
-        shipping_address_lastname 
+        shipping_address_firstname
+        shipping_address_lastname
         shipping_address_line_1
         shipping_address_line_2
         shipping_city
@@ -77,7 +69,7 @@ module Spree
 
       Spree::Order.includes(:shipments, line_items: [ :line_item_parts] ).
         where( :state => 'complete', :completed_at => @from..@to ).find_each do |o|
-        #Spree::Order.includes(:shipments).where( :state => 'complete', :completed_at => @from..@to ).find_each do |o| 
+        #Spree::Order.includes(:shipments).where( :state => 'complete', :completed_at => @from..@to ).find_each do |o|
         yield generate_csv_line(o,previous_users)
       end
     end
@@ -118,8 +110,8 @@ module Spree
     def generate_csv_line(o,previous_users)
 
       shipped_at = ''
-      if !o.shipments.last.nil? 
-        if !o.shipments.last.shipped_at.blank? 
+      if !o.shipments.last.nil?
+        if !o.shipments.last.shipped_at.blank?
           shipped_at = o.shipments.last.shipped_at.to_s(:db)
         end
       end
@@ -139,11 +131,11 @@ module Spree
       promo_label = promotions.map(&:label).join('|')
       if promo_label
       [
-        o.id, 
+        o.id,
         o.email,
-        o.number, 
+        o.number,
         o.line_items.size,
-        o.completed_at.to_s(:db), 
+        o.completed_at.to_s(:db),
         shipped_at,
         o.shipping_address.country.name,
         returning_customer(o,previous_users),
@@ -181,9 +173,9 @@ module Spree
 
         o.payments.where( :state => ['completed','pending']).size,
         payment_method,
-        ( shipping_methods && shipping_methods.find_by_display_on('front_end') ? shipping_methods.find_by_display_on('front_end').name : '' ), 
+        ( shipping_methods && shipping_methods.find_by_display_on('front_end') ? shipping_methods.find_by_display_on('front_end').name : '' ),
         ( shipping_methods && shipping_methods.find_by_display_on('back_end') ? shipping_methods.find_by_display_on('back_end').name : '' ),
-      ] 
+      ]
       end
 
     end
@@ -200,7 +192,7 @@ module Spree
       rtn
     end
 
-    def first_order(order) 
+    def first_order(order)
       if order.user || order.email
         orders_complete = completed_orders(order.user, order.email)
         orders_complete.blank? || (orders_complete.order("completed_at asc").first == order)
@@ -216,6 +208,6 @@ module Spree
     def orders_by_email(email)
       Spree::Order.where(email: email).complete
     end
-    
+
   end
 end
