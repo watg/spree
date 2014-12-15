@@ -73,17 +73,20 @@
       </h3>
       <ul class="dropdown">
         <li>
-          <h3>Yarn</h3>
+          <% yarn = find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/yarn') %>
+          <h3><a href="<%= seo_url(yarn) %>">Yarn</a></h3>
         </li>
-        <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/yarn')) %>
+        <%= render_taxons_links(yarn) %>
         <li>
-          <h3>Patterns</h3>
+          <% patterns = find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/patterns') %>
+          <h3><a href="<%= seo_url(patterns) %>">Patterns</a></h3>
         </li>
-        <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/patterns')) %>
+        <%= render_taxons_links(patterns) %>
         <li>
-          <h3>Supplies</h3>
+          <% supplies = find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/supplies') %>
+          <h3><a href="<%= seo_url(supplies) %>">Supplies</a></h3>
         </li>
-        <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/supplies')) %>
+        <%= render_taxons_links(supplies) %>
       </ul>
   </ul>
   <ul class="gang-culture-sub">

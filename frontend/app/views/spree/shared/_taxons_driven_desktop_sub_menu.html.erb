@@ -141,19 +141,22 @@
       <h2>All you need <br/><span>for your knitting project</span></h2>
     </li>
     <li class="large-3 small-12 columns">
-      <h3>Yarn</h3>
+      <% yarn = find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/yarn') %>
+      <h3><a href="<%= seo_url(yarn) %>">YARN</a></h3>
       <ul>
-        <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/yarn')) %>
+        <%= render_taxons_links(yarn) %>
       </ul>
-      <h3>Supplies</h3>
+      <% supplies = find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/supplies') %>
+      <h3><a href="<%= seo_url(supplies) %>">SUPPLIES</a></h3>
       <ul>
-        <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/supplies')) %>
+        <%= render_taxons_links(supplies) %>
       </ul>
     </li>
     <li class="large-3 columns">
-      <h3>Patterns</h3>
+      <% patterns = find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/patterns') %>
+      <h3><a href="<%= seo_url(patterns) %>">PATTERNS</a></h3>
       <ul>
-        <%= render_taxons_links(find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/patterns')) %>
+        <%= render_taxons_links(patterns) %>
       </ul>
     </li>
     <li class="large-3 columns">
