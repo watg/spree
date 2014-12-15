@@ -2,7 +2,7 @@
 	<div class="assembly-menus large-10 small-8 column">
 		<ol>
       <% product_presenter.assembly_definition.parts.each do |part| %>
-        <% cache [part.product, product_presenter.currency, device] do %>
+        <% cache [part, product_presenter.currency, device] do %>
           <% present(part, @context) do |part_presenter| %>
   
           <!--- if it is not optional -->
