@@ -91,7 +91,7 @@
  	ul {
  		margin-right: 1em;
  		li {
- 			padding: 0 emCalc(20px);
+ 			padding: 0 1em;
  			display: inline-block;
  			a {
  				padding: emCalc(15px) 0;
@@ -156,6 +156,10 @@
  	-webkit-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
  	-o-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
  	transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+ 	ul ul li h3 {
+ 		padding-left: 0 !important;
+ 		margin-bottom: 10px !important; // nasty little hack pre-relase for menu - to be re-done when we redesign menu
+ 	}
  	ul {
  		margin: 0 auto;
  		position: relative;
@@ -179,6 +183,9 @@
  				&.sale {
  					color: #ff0054;
  				}
+ 			}
+ 			ul + h3 {
+ 				margin-top: emCalc(30px);
  			}
  			img + h3 {
  				position: absolute;

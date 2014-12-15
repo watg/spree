@@ -107,11 +107,16 @@ module Spree
     end
 
     def render_taxons_links(taxon)
+      return unless taxon
       taxon.children.map do |taxon|
         content_tag :li do
-         link_to(taxon.name, seo_url(taxon))
+          link_to(taxon.name, seo_url(taxon))
         end
       end.join("\n").html_safe
+    end
+
+    def find_child_taxon(taxon, child_permalink)
+      taxon.children.detect {|t| t.permalink == child_permalink }
     end
 
     def available_countries

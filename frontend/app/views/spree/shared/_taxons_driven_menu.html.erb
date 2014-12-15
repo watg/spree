@@ -3,7 +3,7 @@
 <% kids = @taxonomies.detect{ |taxonomy| taxonomy.root.permalink == 'kids' }.root %>
 <% women = @taxonomies.detect{ |taxonomy| taxonomy.root.permalink == 'women' }.root %>
 <% men = @taxonomies.detect{ |taxonomy| taxonomy.root.permalink == 'men' }.root %>
-<% knitting = @taxonomies.detect{ |taxonomy| taxonomy.root.permalink == 'knit-kits' }.root %>
+<% knit_kits = @taxonomies.detect{ |taxonomy| taxonomy.root.permalink == 'knit-kits' }.root %>
 <% yarn_and_patterns = @taxonomies.detect{ |taxonomy| taxonomy.root.permalink == 'yarn-and-patterns' }.root %>
 <% whats_new = @taxonomies.detect{ |taxonomy| taxonomy.root.permalink == 'whats-new' }.root %>
 <% collections = @taxonomies.detect{ |taxonomy| taxonomy.root.permalink == 'collections' }.root %>
@@ -11,9 +11,9 @@
 <!-- Primary navigation THIS IS NOT USED IN MOBILE -->
 <nav id="navPrimary" class="row nav-primary">
 	<ul>
-		<li class="sale">
+		<!--<li class="sale">
 			<a href="/shop/knitwear/sale/made-by-the-gang">Sale</a>
-		</li><!-- Comments fix inline-block spacing
+		</li>--><!-- Comments fix inline-block spacing
 		--><li class="whats-new">
 			<a href="<%= seo_url(whats_new) %>">What's new</a>
 		</li><!--
@@ -26,19 +26,22 @@
 		--><li class="kids">
 			<a href="<%= seo_url(kids) %>">Kids</a>
 		</li><!--
-		--><li class="knitting">
-			<a href="<%= seo_url(knitting) %>">Knitting</a>
+		--><li class="knit-kits">
+			<a href="<%= seo_url(knit_kits) %>">Knit kits</a>
+		</li><!--
+		--><li class="yarn-and-patterns">
+			<a href="<%= seo_url(yarn_and_patterns) %>">Yarn &amp; patterns</a>
 		</li><!--
 		--><li class="gang-culture">
-			<a href="/meet-the-gang">Gang Culture</a>
+			<a href="/meet-the-gang">Gang culture</a>
 		</li>
 	</ul>
 </nav>
 
 <!-- Primary sub-navigation -->
 	<% if mobile_device? %>
-		<%= render 'spree/shared/taxons_driven_mobile_sub_menu', whats_new: whats_new, women: women, men: men, kids: kids, knitting: knitting, collections: collections %>
+		<%= render 'spree/shared/taxons_driven_mobile_sub_menu', whats_new: whats_new, women: women, men: men, kids: kids, knit_kits: knit_kits, yarn_and_patterns: yarn_and_patterns, collections: collections %>
 	<% else %>
-		<%= render 'spree/shared/taxons_driven_desktop_sub_menu', whats_new: whats_new, women: women, men: men, kids: kids, knitting: knitting, collections: collections %>
+		<%= render 'spree/shared/taxons_driven_desktop_sub_menu', whats_new: whats_new, women: women, men: men, kids: kids, knit_kits: knit_kits, yarn_and_patterns: yarn_and_patterns, collections: collections %>
 	<% end %>
 <% end %>
