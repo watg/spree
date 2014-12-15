@@ -58,6 +58,8 @@ module Spree
 
         shipping_method_frontend
         shipping_method_backend
+        state
+        latest_note
       )
     end
 
@@ -67,8 +69,10 @@ module Spree
       previous_users = CSV.read(File.join(File.dirname(__FILE__),"unique_previous_users.csv")).flatten
       previous_users = previous_users.to_set
 
+      valid_states = %w(complete resumed warehouse_on_hold customer_service_on_hold)
+
       Spree::Order.includes(:shipments, line_items: [ :line_item_parts] ).
-        where( :state => 'complete', :completed_at => @from..@to ).find_each do |o|
+        where( :state => valid_states, :completed_at => @from..@to ).find_each do |o|
         #Spree::Order.includes(:shipments).where( :state => 'complete', :completed_at => @from..@to ).find_each do |o|
         yield generate_csv_line(o,previous_users)
       end
@@ -175,6 +179,8 @@ module Spree
         payment_method,
         ( shipping_methods && shipping_methods.find_by_display_on('front_end') ? shipping_methods.find_by_display_on('front_end').name : '' ),
         ( shipping_methods && shipping_methods.find_by_display_on('back_end') ? shipping_methods.find_by_display_on('back_end').name : '' ),
+        o.state,
+        o.order_notes.last ? o.order_notes.last.reason : ""
       ]
       end
 
