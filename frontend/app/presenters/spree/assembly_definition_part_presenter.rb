@@ -35,7 +35,7 @@ module Spree
     private
 
     def variant_options
-      @variant_options ||= Spree::VariantOptions.new(variants, currency)
+      @variant_options ||= Spree::VariantOptions.new(variants, currency, displayable_option_type)
     end
 
   end

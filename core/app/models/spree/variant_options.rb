@@ -1,11 +1,12 @@
 module Spree
   class VariantOptions
 
-    attr_reader :variants, :currency, :items, :option_types, :option_values
+    attr_reader :variants, :currency, :items, :option_types, :option_values, :displayable_option_type
 
-    def initialize(variants, currency)
+    def initialize(variants, currency, displayable_option_type = nil)
       @variants = variants
       @currency = currency
+      @displayable_option_type = displayable_option_type
       build
     end
 
@@ -161,7 +162,12 @@ module Spree
     Item = Struct.new(:variant, :value, :type)
 
     def build
-      option_values_variants = Spree::OptionValuesVariant.joins(:option_value).where(variant_id: variants)
+      option_values_variants = Spree::OptionValuesVariant.joins(option_value: [:option_type]).where(variant_id: variants)
+
+      if displayable_option_type
+        option_values_variants = option_values_variants.where("spree_option_types.id = ?", displayable_option_type.id)
+      end
+
       option_value_ids = option_values_variants.map { |ovv| ovv.option_value_id }.uniq
       @option_values = Spree::OptionValue.where(id: option_value_ids)
       @option_types = Spree::OptionType.where(id: option_values.map { |ov| ov.option_type_id}.uniq )

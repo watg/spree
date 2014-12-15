@@ -258,6 +258,7 @@ describe Spree::VariantOptions do
         image_url = image.attachment.url(:mini)
         expect(tree["size"]["small"]["colour"]["pink"]["variant"]["image_url"]).to eq image_url
       end
+
     end
 
 
@@ -267,6 +268,29 @@ describe Spree::VariantOptions do
         subject.option_type_order["size"].should == "colour"
         subject.option_type_order["colour"].should == "language"
         subject.option_type_order["language"].should be_nil
+      end
+
+    end
+
+    context "when passed in displayable_option_type" do
+
+      subject { described_class.new(variants, currency, colour) }
+
+      describe "tree" do
+        it "returns the tree scoped by just the type" do
+          tree = subject.simple_tree
+          expect(tree["colour"]["pink"]["variant"]["in_stock"]).to be_true
+          expect(tree["colour"]["blue"]["variant"]["in_stock"]).to be_true
+          expect(tree["colour"]["pink"]["variant"]["number"]).to match(/#{variant_in_stock1.number}|#{variant_in_stock2.number}/)
+        end
+      end
+
+      describe "option_values_in_stock" do
+
+        it "returns scoped option values by type" do
+          expect(subject.option_values_in_stock).to match_array([pink,blue])
+        end
+
       end
 
     end
