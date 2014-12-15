@@ -9,7 +9,7 @@
   			  <% if !part_presenter.optional? %>
             <!-- If we have only one variant and it is not optional then it becomes mandatory -->
             <% if part_presenter.variants.size == 1 %>
-              <input class="selected-parts" type="hidden" name="parts[<%= part_presenter.id %>]" value=<%= part_presenter.first_variant.id %>/>
+              <input class="selected-parts" type="hidden" name="parts[<%= part_presenter.id %>]" value="<%= part_presenter.first_variant.id %>"/>
   
             <% else %>
   
@@ -32,6 +32,7 @@
           <% else # optional %>
   
             <% option_values = part_presenter.displayable_option_values %>
+
             <% type = part_presenter.displayable_option_type %>
             <!-- render parts -->
               <li class="product-variants optional" data-tree="<%= part_presenter.variant_tree.to_json %>" data-adjustment="0" data-quantity="<%=part_presenter.count%>" data-adp-id="<%= part_presenter.id %>"><%= part_presenter.presentation %> <span class="optional">(Optional)</span> <span class="color-value"></span>
