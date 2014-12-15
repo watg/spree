@@ -3,7 +3,7 @@ module Spree
     default from: "TechWATG <techadmin@woolandthegang.com>"
 
     def send_notification(message, to=nil, subject=nil)
-      to ||= 'techadmin@woolandthegang.com'
+      to ||= Rails.application.config.tech_email_list
       subject ||= 'Notification from the site'
       @message = message
       mail(:to => to, :subject => subject)
