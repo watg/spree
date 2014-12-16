@@ -148,8 +148,20 @@
 }
 .video-unit {
 	text-align: center;
-	a {
+	h3 {
+		padding: emCalc(30px 10px);
+		font-family: $watg-font-secondary;
+		font-size: emCalc(30px);
+		color: #000;
+		border: 1px solid #ccc;
+		height: 200px;
+		overflow: hidden;
+	}
+	h3, a {
 		display: block;
+	}
+	a:hover {
+		text-decoration: none;
 	}
 	div {
 		min-height: 3.5em;
