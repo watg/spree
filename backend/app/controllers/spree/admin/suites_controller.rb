@@ -28,8 +28,7 @@ module Spree
 
       protected
       def suite_params
-        params.require(:suite).permit(:name, :title, :permalink, :target_id, :taxon_ids => [],
-                                      :tabs_attributes => [ :id, :product_id ])
+        params.require(:suite).permit!
       end
 
       def find_resource
