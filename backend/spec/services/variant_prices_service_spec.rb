@@ -6,6 +6,8 @@ describe Spree::VariantPricesService do
   let(:variant) { FactoryGirl.create(:variant, product_id: product.id) }
   let(:variant2) { FactoryGirl.create(:variant, product_id: product.id) }
 
+  let(:commit) { nil }
+
   describe "#run" do
 
     let(:params) { {
@@ -18,6 +20,20 @@ describe Spree::VariantPricesService do
       in_sale: [product.master.id.to_s, variant2.id.to_s],
       commit: commit 
     } } 
+
+    before do
+      allow(Spree::SuiteTabCacheRebuilder).to receive(:rebuild_from_product_async)
+    end
+
+    context "suite tab cache rebuilder" do
+
+      it "get's called" do
+        expect(Spree::SuiteTabCacheRebuilder).to receive(:rebuild_from_product_async).with(product)
+        allow_any_instance_of(Spree::VariantPricesService).to receive(:update_prices)
+        allow_any_instance_of(Spree::VariantPricesService).to receive(:validate_prices)
+        Spree::VariantPricesService.run(params) 
+      end
+    end
 
     context "when apply all" do
 
