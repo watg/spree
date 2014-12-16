@@ -2,7 +2,11 @@ class Spree::AssemblyDefinitionPartDecorator < Draper::Decorator
   delegate_all
 
   def variant_options
-    @variant_options ||= Spree::VariantOptions.new(object.variants, current_currency)
+    @variant_options ||= Spree::VariantOptions.new(object.variants, current_currency, displayable_option_type )
+  end
+
+  def displayable_option_type
+    @displayable_option_type ||= object.displayable_option_type
   end
 
   def current_currency
