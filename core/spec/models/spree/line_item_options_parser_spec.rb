@@ -124,30 +124,26 @@ describe Spree::LineItemOptionsParser do
         let(:bogus_adv) { create(:assembly_definition_variant, assembly_definition_part: bogus_adp, variant: bogus_variant_part) }
 
         it "assembly variant must be valid" do
-          expect do 
-            subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => bogus_variant_part.id})
-          end.to raise_error
+          parts = subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => bogus_variant_part.id})
+          expect(parts).to match_array []
         end
 
         it "parts must be valid" do
-          expect do 
-            parts = subject.dynamic_kit_parts(variant_assembly, {bogus_adp.id.to_s => variant_part.id})
-          end.to raise_error
+          parts = subject.dynamic_kit_parts(variant_assembly, {bogus_adp.id.to_s => variant_part.id})
+          expect(parts).to match_array []
         end
 
         # create a variant based off the correct part, but do not create a assembly_definition_variant, hence it should not be allowed
         let(:another_bogus_variant_part)  { create(:base_variant, product: product) }
 
         it "selected variant must be valid" do
-          expect do 
-            subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => another_bogus_variant_part.id.to_s})
-          end.to raise_error
+          parts = subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => another_bogus_variant_part.id.to_s})
+          expect(parts).to match_array []
         end
 
         it "selected variant can not be nil" do
-          expect do 
-            subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => ""})
-          end.to raise_error
+          parts = subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => ""})
+          expect(parts).to match_array []
         end
 
         context "#missing_required_parts" do
