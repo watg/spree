@@ -117,6 +117,22 @@ describe Spree::SuitePresenter do
 
   end
 
+  describe "#sorted_tabs" do
+
+    let(:another_tab_1) { Spree::SuiteTab.new(position: 1) }
+    let(:another_tab_2) { Spree::SuiteTab.new(position: 3) }
+
+    before do
+      tab.position = 2
+      allow(subject).to receive(:tabs).and_return([tab, another_tab_2, another_tab_1])
+    end
+
+    it "should order it's tabs" do
+      expect(subject.sorted_tabs).to eq [another_tab_1, tab, another_tab_2 ]
+    end
+
+  end
+
   context "#available_stock?" do
     let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false)}
 

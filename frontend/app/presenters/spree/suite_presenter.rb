@@ -18,8 +18,12 @@ module Spree
       @image ||= suite.image
     end
 
+    def sorted_tabs
+      @sorted_tabs ||= tabs.sort_by(&:position)
+    end
+
     def suite_tab_presenters
-      tabs.map do |tab|
+      sorted_tabs.map do |tab|
         presenter = suite_tab_presenter(tab)
         yield presenter if block_given?
         presenter
