@@ -103,11 +103,18 @@ module Spree
       parts
     end
 
-    def missing_required_parts(variant, parts)
-      parts_with_variants = parts.select { |p,v| !v.blank? }
-      parts_id = parts_with_variants.keys.map(&:to_i)
-      variant.assembly_definition.parts.required.select {|part| !parts_id.include?(part.id)}
+    def missing_parts(variant, parts)
+      part_ids = variant.assembly_definition.parts.map(&:id)
+      variant_ids = variant.assembly_definition.assembly_definition_variants.map(&:variant_id)
+
+      parts.reject do |part_id, variant_id|
+        part_ok = part_ids.include?(part_id.to_i)
+        variant_ok = variant_ids.include?(variant_id.to_i)
+        variant_not_required = (variant_id == Spree::AssemblyDefinitionPart::NO_THANKS )
+        (part_ok && ( variant_ok or variant_not_required) )
+      end
     end
+
 
     private
 

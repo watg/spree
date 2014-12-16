@@ -9,7 +9,6 @@ describe Spree::OrderPopulator do
   let(:product) { variant.product }
   let(:target_id) { 45 }
 
-
   context "#populate" do
 
     before do
@@ -43,7 +42,7 @@ describe Spree::OrderPopulator do
 
         before do
           options[:parts] = match_array [lip1, lip2]
-          allow(subject.options_parser).to receive(:missing_required_parts).and_return([])
+          allow(subject.options_parser).to receive(:missing_parts).and_return({})
         end
 
         it "calls order contents correctly" do
@@ -54,11 +53,11 @@ describe Spree::OrderPopulator do
         end
 
 
-        context "missing_required_parts" do
+        context "missing_parts" do
           let(:part) { mock_model(Spree::AssemblyDefinitionPart)}
 
           before do
-            allow(subject.options_parser).to receive(:missing_required_parts).and_return([part])
+            allow(subject.options_parser).to receive(:missing_parts).and_return({part => variant})
           end
 
           it "adds error on order when some assembly definition parts are missing" do
@@ -72,7 +71,14 @@ describe Spree::OrderPopulator do
             expect(order.contents).to_not receive(:add)
             part_params = {adp1.id => adv1.id, adp2.id => adv2.id}
             notifier = double
-            expect(notifier).to receive(:notify).with("Some required parts are missing", parts: [part.id])
+            notification_params = {
+              :target_id           => options[:target_id],
+              :product_page_id     => options[:product_page_id],
+              :product_page_tab_id => options[:product_page_tab_id],
+              :order_id            => order.id,
+              :missing_parts_and_variants => {part.id => variant.id}
+            }
+            expect(notifier).to receive(:notify).with("Some required parts are missing", notification_params)
             expect(Helpers::AirbrakeNotifier).to receive(:delay).and_return(notifier)
             subject.populate(:variants => { variant.id => 2 }, :parts => part_params, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
           end

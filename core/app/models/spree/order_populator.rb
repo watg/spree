@@ -68,13 +68,23 @@ module Spree
       quantity = quantity.to_i
 
       if is_quantity_reasonable?(quantity)
-        variant = Spree::Variant.find(variant_id)
+        variant = Spree::Variant.includes(assembly_definition: [assembly_definition_parts: [:assembly_definition_variants]]).find(variant_id)
 
         if parts = params.delete(:parts)
 
-          missing_parts = options_parser.missing_required_parts(variant, parts)
+          missing_parts = options_parser.missing_parts(variant, parts)
+
           if missing_parts.any?
-            Helpers::AirbrakeNotifier.delay.notify("Some required parts are missing", {parts: missing_parts.map(&:id)})
+
+            missing_parts_as_params = missing_parts.inject({}) do |hash, (part,variant)| 
+              hash[part.id] = variant.id
+              hash
+            end
+
+            notifier_params = params.merge(
+              order_id: order.id, missing_parts_and_variants: missing_parts_as_params)
+
+            Helpers::AirbrakeNotifier.delay.notify("Some required parts are missing", notifier_params)
             errors.add(:base, "Some required parts are missing")
             return false
           end
