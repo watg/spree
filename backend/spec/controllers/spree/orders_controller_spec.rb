@@ -31,7 +31,7 @@ describe Spree::Admin::OrdersController, type: :controller do
       end
     end
 
-    let(:order) { mock_model(Spree::Order, :complete? => true, :total => 100, :number => 'R123456789', :can_cancel? => true) }
+    let(:order) { mock_model(Spree::Order, :complete? => true, :total => 100, :number => 'R123456789', :can_cancel? => true, :toggle => true) }
     before { Spree::Order.stub :find_by_number! => order }
 
     context "#approve" do
@@ -120,6 +120,14 @@ describe Spree::Admin::OrdersController, type: :controller do
           line_items_variant_id_in: Spree::Order.first.variants.map(&:id)
         }
         expect(assigns[:orders].map { |o| o.number }.count).to eq 1
+      end
+    end
+
+    context "important" do
+      it "toggles the important flag" do
+        expect(order).to receive(:toggle).with(:important)
+        expect(order).to receive(:save!)
+        spree_post :important, :id => order.number
       end
     end
   end

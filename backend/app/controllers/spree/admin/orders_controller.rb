@@ -2,7 +2,7 @@ module Spree
   module Admin
     class OrdersController < Spree::Admin::BaseController
       before_filter :initialize_order_events
-      before_filter :load_order, :only => [:edit, :update, :cancel, :resume, :approve, :resend, :open_adjustments, :close_adjustments]
+      before_filter :load_order, :only => [:edit, :update, :cancel, :resume, :approve, :resend, :open_adjustments, :close_adjustments, :important]
 
       respond_to :html
 
@@ -63,6 +63,12 @@ module Spree
       def internal
         @order.internal= !@order.internal?
         @order.save(validation: false)
+        redirect_to edit_admin_order_url(@order)
+      end
+
+      def important
+        @order.toggle(:important)
+        @order.save!
         redirect_to edit_admin_order_url(@order)
       end
 

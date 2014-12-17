@@ -62,3 +62,9 @@
   color: #FFF;
   font-size: 2em;
 }
+
+p.important {
+  font-variant: small-caps;
+  font-weight: bold;
+  color: $color-error;
+}

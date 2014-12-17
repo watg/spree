@@ -42,7 +42,7 @@ describe Spree::Order do
     end
 
     it "disregards orders with digital products only" do
-      result = Spree::Order.to_be_packed_and_shipped
+       result = Spree::Order.to_be_packed_and_shipped
       expect(result.count).to eq 1
       expect(result.first).to eq order_with_one_digital_line_item
     end
@@ -168,6 +168,17 @@ describe Spree::Order do
       expect(subject.reload.internal).to be_true
     end
 
+  end
+
+  describe "prioritised" do
+    let!(:older) { create(:order, completed_at: 5.minutes.ago, important: false)}
+    let!(:newer) { create(:order, completed_at: 1.minute.ago)}
+    let!(:important2) { create(:order, completed_at: 1.week.ago, important: true) }
+    let!(:important1) { create(:order, completed_at: 10.minutes.ago, important: true) }
+
+    it "sorts by 'important' and then by competion date" do
+      expect(Spree::Order.prioritised.to_a).to eq([important1, important2, newer, older])
+    end
   end
 
 end
