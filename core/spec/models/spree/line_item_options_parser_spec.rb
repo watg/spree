@@ -144,10 +144,7 @@ describe Spree::LineItemOptionsParser do
           end.to raise_error
         end
 
-        # Once the platform has been live for a while, add this spec and remove the following
-        # in line_item_options_parser -> 
-        #  next if selected_part_variant_id.blank?
-        xit "selected variant can not be nil" do
+        it "selected variant can not be nil" do
           expect do 
             subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => ""})
           end.to raise_error

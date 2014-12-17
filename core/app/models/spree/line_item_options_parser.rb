@@ -50,11 +50,6 @@ module Spree
       parts = []
       params.each do |part_id, selected_part_variant_id|
 
-        # Remove if the date is 1 month on from 16/12/14 as it is 
-        # no longer needed and is in place to deal with people who
-        # have stale carts
-        next if selected_part_variant_id.blank?
-
         next if selected_part_variant_id == Spree::AssemblyDefinitionPart::NO_THANKS
 
         assembly_definition_part = valid_part( variant, part_id.to_i )
@@ -177,4 +172,3 @@ module Spree
   end
 
 end
-
