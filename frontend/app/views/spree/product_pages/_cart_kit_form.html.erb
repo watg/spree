@@ -73,7 +73,7 @@ cause big cache issues %>
 
                 </ul>
               </div>
-              <input class="selected-parts" type="hidden" name="parts[<%= part.id %>]" value="<%= Spree::AssemblyDefinitionPart::NO_THANKS %>" />
+              <input class="selected-parts" type="hidden" name="parts[<%= part.id %>]" value="<%= Spree::AssemblyDefinitionPart::NO_THANKS %>" data-original-value="<%= Spree::AssemblyDefinitionPart::NO_THANKS %>" />
             </li>
           <!-- render parts -->
         <% end %>
