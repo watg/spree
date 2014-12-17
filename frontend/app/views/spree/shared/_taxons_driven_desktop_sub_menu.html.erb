@@ -109,24 +109,44 @@
       </a>
     </li>
   </ul>
+
+
+
   <ul class="knit-kits-sub">
     <li class="large-3 columns">
       <h2>Start your new <br/><span>knitting project</span></h2>
     </li>
     <li class="large-3 small-12 columns">
+    <% type = find_child_taxon(knit_kits, 'knit-kits/type') %>
       <h3>
-        <a href="<%= seo_url(knit_kits) %>">Knit kits</a>
+        <a href="<%= seo_url(knit_kits) %>">Knit Kits For</a>
       </h3>
       <ul>
-        <%= render_taxons_links(knit_kits) %>
+        <%= render_taxons_links(type) %>
+      </ul>
+      <% yarn = find_child_taxon(knit_kits, 'knit-kits/yarn-type') %>
+      <h3>
+        <a href="<%= seo_url(yarn) %>">By Yarn</a>
+      </h3>
+      <ul>
+        <%= render_taxons_links(yarn) %>
       </ul>
     </li>
     <li class="large-3 columns inverted">
-      <a href="<%= suite_path(id: 'crazy-sexy-wool', tab: 'made-by-the-gang') %>">
-        <img src="<%= cdn_url('navigation/knitting-crazy-sexy-wool-1214-4.jpg') %>" width="230" height="294" alt="Crazy Sexy Wool" />
-        <h3 class="image-caption">Crazy Sexy Wool</h3>
-        <p class="image-caption">Shop now</p>
-      </a>
+      <% level = find_child_taxon(knit_kits, 'knit-kits/level') %>
+      <h3>
+        <a href="<%= seo_url(knit_kits) %>">By Level</a>
+      </h3>
+      <ul>
+        <%= render_taxons_links(level) %>
+      </ul>
+      <% season = find_child_taxon(knit_kits, 'knit-kits/season') %>
+      <h3>
+        <a href="<%= seo_url(yarn) %>">By Season</a>
+      </h3>
+      <ul>
+        <%= render_taxons_links(season) %>
+      </ul>
     </li>
     <li class="large-3 columns inverted">
       <a href="/video-tutorials">
@@ -136,6 +156,9 @@
       </a>
     </li>
   </ul>
+
+
+
   <ul class="yarn-and-patterns-sub">
     <li class="large-3 columns">
       <h2>All you need <br/><span>for your knitting project</span></h2>
@@ -167,6 +190,9 @@
       </a>
     </li>
   </ul>
+
+
+
   <ul class="gang-culture-sub">
     <li class="large-3 columns">
       <h2>Hang with The Gang</h2>
