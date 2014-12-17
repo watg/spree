@@ -107,16 +107,23 @@ module Spree
       part_ids = variant.assembly_definition.parts.map(&:id)
       variant_ids = variant.assembly_definition.assembly_definition_variants.map(&:variant_id)
 
-      parts.reject do |part_id, variant_id|
+      parts.reject do |part_id, asm_variant_id|
         part_ok = part_ids.include?(part_id.to_i)
-        variant_ok = variant_ids.include?(variant_id.to_i)
-        variant_not_required = (variant_id == Spree::AssemblyDefinitionPart::NO_THANKS )
-        (part_ok && ( variant_ok or variant_not_required) )
+        variant_not_required = (asm_variant_id == Spree::AssemblyDefinitionPart::NO_THANKS )
+
+        if variant_not_required
+          part_ok
+        else
+          variant_ok = variant_ids.include?(asm_variant_id.to_i)
+          part_ok && variant_ok
+        end
+
       end
     end
 
 
     private
+
 
     def part_price_amount(part)
       price = part.price_part_in(currency).amount
