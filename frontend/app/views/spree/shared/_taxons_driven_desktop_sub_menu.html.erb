@@ -69,15 +69,15 @@
     </li>
     <li class="large-3 columns">
       <a href="<%= suite_path(id: 'stevie-sweater-men', tab: 'made-by-the-gang') %>">
-        <img src="<%= cdn_url('navigation/men-stevie-sweater.jpg') %>" width="230" height="294" alt="Stevie Sweater" />
+        <img src="<%= cdn_url('navigation/StevieSweater_nav.jpg') %>" width="230" height="294" alt="Stevie Sweater" />
         <h3 class="image-caption">Stevie Sweater</h3>
         <p class="image-caption">Shop now</p>
       </a>
     </li>
     <li class="large-3 columns">
-      <a href="<%= suite_path(id: 'zissou-hat-men', tab: 'made-by-the-gang') %>">
-        <img src="<%= cdn_url('navigation/men-zissou-hat.jpg') %>" width="230" height="294" alt="Zissou Hat" />
-        <h3 class="image-caption">Zissou Hat</h3>
+      <a href="<%= suite_path(id: 'jumpin-jack-vest-men', tab: 'made-by-the-gang') %>">
+        <img src="<%= cdn_url('navigation/JumpinJackVest_nav.jpg') %>" width="230" height="294" alt="Jumpin' Jack Vest" />
+        <h3 class="image-caption">Jumpin' Jack Vest</h3>
         <p class="image-caption">Shop now</p>
       </a>
     </li>
@@ -101,10 +101,10 @@
         <p class="image-caption">Shop now</p>
       </a>
     </li>
-    <li class="large-3 columns">
-      <a href="<% nested_taxons_path(id: 'kids/baby-gang') %>">
-        <img src="<%= cdn_url('navigation/kids-personalise-it.jpg') %>" width="230" height="294" alt="Personalise it!" />
-        <h3 class="image-caption">Personalise it!</h3>
+    <li class="large-3 columns inverted">
+      <a href="<%= suite_path(id: 'happy-hat-baby', tab: 'knit-your-own') %>">
+        <img src="<%= cdn_url('navigation/Happy_Hat_Nav.jpg') %>" width="230" height="294" alt="Happy Hat" />
+        <h3 class="image-caption">Happy Hat</h3>
         <p class="image-caption">Shop now</p>
       </a>
     </li>
@@ -114,19 +114,36 @@
       <h2>Start your new <br/><span>knitting project</span></h2>
     </li>
     <li class="large-3 small-12 columns">
+    <% type = find_child_taxon(knit_kits, 'knit-kits/type') %>
       <h3>
-        <a href="<%= seo_url(knit_kits) %>">Knit kits</a>
+        <a href="<%= seo_url(knit_kits) %>">Knit Kits For</a>
       </h3>
       <ul>
-        <%= render_taxons_links(knit_kits) %>
+        <%= render_taxons_links(type) %>
+      </ul>
+      <% yarn = find_child_taxon(knit_kits, 'knit-kits/yarn') %>
+      <h3>
+        <a href="<%= seo_url(yarn) %>">By Yarn</a>
+      </h3>
+      <ul>
+        <%= render_taxons_links(yarn) %>
       </ul>
     </li>
     <li class="large-3 columns inverted">
-      <a href="<%= suite_path(id: 'crazy-sexy-wool', tab: 'made-by-the-gang') %>">
-        <img src="<%= cdn_url('navigation/knitting-crazy-sexy-wool-1214-4.jpg') %>" width="230" height="294" alt="Crazy Sexy Wool" />
-        <h3 class="image-caption">Crazy Sexy Wool</h3>
-        <p class="image-caption">Shop now</p>
-      </a>
+      <% level = find_child_taxon(knit_kits, 'knit-kits/level') %>
+      <h3>
+        <a href="<%= seo_url(knit_kits) %>">By Level</a>
+      </h3>
+      <ul>
+        <%= render_taxons_links(level) %>
+      </ul>
+      <% season = find_child_taxon(knit_kits, 'knit-kits/season') %>
+      <h3>
+        <a href="<%= seo_url(yarn) %>">By Season</a>
+      </h3>
+      <ul>
+        <%= render_taxons_links(season) %>
+      </ul>
     </li>
     <li class="large-3 columns inverted">
       <a href="/video-tutorials">
@@ -176,22 +193,23 @@
         <a href="/meet-the-gang">Gang Culture</a>
       </h3>
       <ul>
-        <li><a href="/vote-for-your-favourite">Gang Labs</a></li>
-        <li><a href="http://blog.woolandthegang.com">Our Blog</a></li>
-        <li><a href="http://tumblr.woolandthegang.com">Our Tumblr</a></li>
-        <li><a href="/our-story">Our Story</a></li>
-        <li><a href="/become-a-gang-maker">Become a Gang Maker</a></li>
         <li><a href="/video-tutorials">Video Tutorials</a></li>
-        <li><a href="/bespoke-projects">Bespoke Projects</a></li>
-        <!--<li><a href="/press">Press</a></li>-->
+        <li><a href="/host-a-party">Host a Knit Party</li>
+        <li><a href="/our-story">Our Story</a></li>
+        <li><a href="http://blog.woolandthegang.com">Blog</a></li>
         <li><a href="/hang-with-the-gang">Hang With The Gang</a></li>
+        <li><a href="/become-a-gang-maker">Become a Gang Maker</a></li>
+        <li><a href="/vote-for-your-favourite">Gang Labs</a></li>
+        <li><a href="/bespoke-projects">Bespoke Projects</a></li>
         <li><a href="/raf/invite">Get Your Next Order For Free!</a></li>
+        <!-- <li><a href="http://tumblr.woolandthegang.com">Our Tumblr</a></li> -->
+        <!--<li><a href="/press">Press</a></li>-->
       </ul>
     </li>
     <li class="large-3 columns inverted">
       <a href="/raf/invite">
-        <img src="<%= cdn_url('navigation/gang-culture-refer-a-friend.jpg') %>" width="230" height="294" alt="Refer a friend" />
-        <h3 class="image-caption">Refer your friends</h3>
+        <img src="<%= cdn_url('navigation/knit-party-map.jpg') %>" width="230" height="294" alt="Refer a friend" />
+        <h3 class="image-caption">Host a Knit Party</h3>
         <p class="image-caption">And get free orders!</p>
       </a>
     </li>
