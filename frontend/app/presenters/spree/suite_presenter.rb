@@ -11,19 +11,15 @@ module Spree
     end
 
     def tabs
-      @tabs ||= suite.tabs.select { |tab| tab.in_stock_cache }
+      @tabs ||= suite.tabs.select { |tab| tab.in_stock_cache }.sort_by(&:position)
     end
 
     def image
       @image ||= suite.image
     end
 
-    def sorted_tabs
-      @sorted_tabs ||= tabs.sort_by(&:position)
-    end
-
     def suite_tab_presenters
-      sorted_tabs.map do |tab|
+      tabs.map do |tab|
         presenter = suite_tab_presenter(tab)
         yield presenter if block_given?
         presenter

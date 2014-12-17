@@ -16,12 +16,32 @@ describe Spree::SuitePresenter do
   end
 
   describe "#tabs" do
-    let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true)}
-    let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false)}
+    context "in_stock" do
+      let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true)}
+      let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false)}
 
-    it "should give you only the tabs in stock" do
-      expect(subject.tabs).to eq [tab_in_stock]
+      it "should give you only the tabs in stock" do
+        expect(subject.tabs).to eq [tab_in_stock]
+      end
     end
+
+    context "sort order of tabs" do
+      let!(:another_tab_1) { build(:suite_tab, suite: suite, position: 100, in_stock_cache: true) }
+      let!(:another_tab_2) { build(:suite_tab, suite: suite, position: 102, in_stock_cache: true) }
+      let!(:another_tab_3) { build(:suite_tab, suite: suite, position: 101, in_stock_cache: true) }
+
+      before do
+        tab.position = 101
+        suite_mock = double
+        allow(suite_mock).to receive(:tabs).and_return([another_tab_1, another_tab_2, another_tab_3])
+        allow(subject).to receive(:suite).and_return(suite_mock)
+      end
+
+      it "should order it's tabs" do
+        expect(subject.tabs).to eq [another_tab_1, another_tab_3, another_tab_2 ]
+      end
+    end
+
   end
 
   describe "#desktop_image_size" do
@@ -113,22 +133,6 @@ describe Spree::SuitePresenter do
       suite_tab_presenter = double
       expect(Spree::SuiteTabPresenter).to receive(:new).with(tab, view, context.merge(suite: suite, target: target, device: device)).and_return(suite_tab_presenter)
       expect(subject.suite_tab_presenters).to eq [suite_tab_presenter]
-    end
-
-  end
-
-  describe "#sorted_tabs" do
-
-    let(:another_tab_1) { Spree::SuiteTab.new(position: 1) }
-    let(:another_tab_2) { Spree::SuiteTab.new(position: 3) }
-
-    before do
-      tab.position = 2
-      allow(subject).to receive(:tabs).and_return([tab, another_tab_2, another_tab_1])
-    end
-
-    it "should order it's tabs" do
-      expect(subject.sorted_tabs).to eq [another_tab_1, tab, another_tab_2 ]
     end
 
   end
