@@ -45,6 +45,8 @@ module Spree
     def dynamic_kit_parts(variant, params)
       return [] if !variant.assembly_definition or params.nil?
 
+      main_part_id = variant.assembly_definition.main_part_id
+
       parts = []
       params.each do |part_id, selected_part_variant_id|
 
@@ -57,8 +59,6 @@ module Spree
 
         assembly_definition_part = valid_part( variant, part_id.to_i )
         selected_part_variant = valid_selected_part_variant( assembly_definition_part, selected_part_variant_id.to_i )
-
-        main_part_id = variant.assembly_definition.main_part_id
 
         if selected_part_variant.required_parts_for_display.any?
 
