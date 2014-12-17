@@ -10,6 +10,13 @@ module Spree
 
       suite.update_attributes!(params)
 
+      update_suites(suite, taxon_ids, existing_taxon_ids)
+      rebuild_suite_tabs_cache(suite)
+    end
+
+    private
+
+    def update_suites(suite, taxon_ids, existing_taxon_ids)
       taxon_ids_to_add = taxon_ids - existing_taxon_ids
       taxon_ids_to_remove = existing_taxon_ids - taxon_ids
 
@@ -23,7 +30,12 @@ module Spree
         compose(SuiteUpdate::RemoveSuiteFromAncestorsService, suite: suite, taxon: taxon)
         compose(SuiteUpdate::RemoveSuiteFromDescendantsService, suite: suite, taxon: taxon)
       end
+    end
 
+    def rebuild_suite_tabs_cache(suite)
+      suite.tabs.each do |tab|
+        Spree::SuiteTabCacheRebuilder.rebuild_from_product(tab.product)
+      end
     end
 
   end
