@@ -33,6 +33,20 @@ describe Spree::SuiteTabCacheRebuilder do
 
   end
 
+  context "#rebuild_from_product" do
+
+    before { Delayed::Worker.delay_jobs = false }
+    after { Delayed::Worker.delay_jobs = true }
+
+    it "creates a async job" do
+      expect_any_instance_of(described_class).to receive(:rebuild).once
+
+      product.suite_tabs << suite_tab
+      described_class.rebuild_from_product(product)
+    end
+
+  end
+
   context "rebuild_in_stock" do
 
     context "variants and not master" do

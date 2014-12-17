@@ -5,8 +5,17 @@ module Spree
 
     class << self
 
+      def rebuild_from_product(product)
+        product.suite_tabs.map { |suite_tab| new(suite_tab).rebuild }
+      end
+
+      def rebuild_from_product_async(product)
+        rebuild_from_product(product)
+      end
+      handle_asynchronously :rebuild_from_product_async, :queue => 'cache', :priority => 10
+
       def rebuild_from_variant(variant)
-        variant.product.suite_tabs.map { |suite_tab| new(suite_tab).rebuild }
+        rebuild_from_product(variant.product)
       end
 
       def rebuild_from_variant_async(variant)
