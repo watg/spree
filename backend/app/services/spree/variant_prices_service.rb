@@ -26,7 +26,6 @@ module Spree
         Spree::SuiteTabCacheRebuilder.rebuild_from_product_async(product)
       end
     rescue Exception => e
-      d { e }
       Rails.logger.error "[NewVariantService] #{e.message} -- #{e.backtrace}"
       add_error(:variant, :exception, e.message)
     end
