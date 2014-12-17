@@ -359,14 +359,20 @@
 						}
 					}
 				}
-			}			
+			}
 			.large-4 {
-				max-height: 387px;
 				overflow: hidden;
+				img { // Ensure erroneous image sizes don't explode the grid...
+					max-width: 303px;
+					max-height: 387px;
+				}
 			}
 			.large-8 {
-				max-height: 814px;
 				overflow: hidden;
+				img { // Ensure erroneous image sizes don't explode the grid...
+					max-width: 636px;
+					max-height: 813px;
+				}
 				ul {
 					li {
 						a {
