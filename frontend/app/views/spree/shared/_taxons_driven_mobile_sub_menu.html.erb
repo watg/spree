@@ -61,7 +61,34 @@
         <a href="#" class="sub-menu"><i class="icon-angle-down"></i></a>
       </h3>
       <ul class="dropdown">
-        <%= render_taxons_links(knit_kits) %>
+        <% type = find_child_taxon(knit_kits, 'knit-kits/type') %>
+        <h3 class="mobile-sub">
+        <a href="<%= seo_url(knit_kits) %>">Knit Kits For</a>
+        </h3>
+        <ul>
+          <%= render_taxons_links(type) %>
+        </ul>
+        <% yarn = find_child_taxon(knit_kits, 'knit-kits/yarn') %>
+        <h3 class="mobile-sub">
+          <a href="<%= seo_url(knit_kits) %>">By Yarn</a>
+        </h3>
+        <ul>
+          <%= render_taxons_links(yarn) %>
+        </ul>
+        <% level = find_child_taxon(knit_kits, 'knit-kits/level') %>
+        <h3 class="mobile-sub">
+          <a href="<%= seo_url(knit_kits) %>">By Level</a>
+        </h3>
+        <ul>
+          <%= render_taxons_links(level) %>
+        </ul>
+        <% season = find_child_taxon(knit_kits, 'knit-kits/season') %>
+        <h3 class="mobile-sub">
+          <a href="<%= seo_url(knit_kits) %>">By Season</a>
+        </h3>
+        <ul>
+          <%= render_taxons_links(season) %>
+        </ul>
       </ul>
     </li>
   </ul>
@@ -74,17 +101,17 @@
       <ul class="dropdown">
         <li>
           <% yarn = find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/yarn') %>
-          <h3><a href="<%= seo_url(yarn) %>">Yarn</a></h3>
+          <h3 class="mobile-sub"><a href="<%= seo_url(yarn) %>">Yarn</a></h3>
         </li>
         <%= render_taxons_links(yarn) %>
         <li>
           <% patterns = find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/patterns') %>
-          <h3><a href="<%= seo_url(patterns) %>">Patterns</a></h3>
+          <h3 class="mobile-sub"><a href="<%= seo_url(patterns) %>">Patterns</a></h3>
         </li>
         <%= render_taxons_links(patterns) %>
         <li>
           <% supplies = find_child_taxon(yarn_and_patterns, 'yarn-and-patterns/supplies') %>
-          <h3><a href="<%= seo_url(supplies) %>">Supplies</a></h3>
+          <h3 class="mobile-sub"><a href="<%= seo_url(supplies) %>">Supplies</a></h3>
         </li>
         <%= render_taxons_links(supplies) %>
       </ul>
