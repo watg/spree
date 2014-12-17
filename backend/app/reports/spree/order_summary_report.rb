@@ -60,6 +60,7 @@ module Spree
         shipping_method_backend
         state
         latest_note
+        important
       )
     end
 
@@ -180,7 +181,8 @@ module Spree
         ( shipping_methods && shipping_methods.find_by_display_on('front_end') ? shipping_methods.find_by_display_on('front_end').name : '' ),
         ( shipping_methods && shipping_methods.find_by_display_on('back_end') ? shipping_methods.find_by_display_on('back_end').name : '' ),
         o.state,
-        o.order_notes.last ? o.order_notes.last.reason : ""
+        o.order_notes.last ? o.order_notes.last.reason : "",
+        o.important?,
       ]
       end
 
