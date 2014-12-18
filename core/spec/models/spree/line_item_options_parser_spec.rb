@@ -124,46 +124,64 @@ describe Spree::LineItemOptionsParser do
         let(:bogus_adv) { create(:assembly_definition_variant, assembly_definition_part: bogus_adp, variant: bogus_variant_part) }
 
         it "assembly variant must be valid" do
-          parts = subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => bogus_variant_part.id})
-          expect(parts).to match_array []
+          expect do 
+            subject.dynamic_kit_parts(variant_assembly, {bogus_adp.id.to_s => variant_part.id})
+          end.to raise_error
         end
 
         it "parts must be valid" do
-          parts = subject.dynamic_kit_parts(variant_assembly, {bogus_adp.id.to_s => variant_part.id})
-          expect(parts).to match_array []
+          expect do 
+            subject.dynamic_kit_parts(variant_assembly, {bogus_adp.id.to_s => variant_part.id})
+          end.to raise_error
         end
 
         # create a variant based off the correct part, but do not create a assembly_definition_variant, hence it should not be allowed
         let(:another_bogus_variant_part)  { create(:base_variant, product: product) }
 
         it "selected variant must be valid" do
-          parts = subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => another_bogus_variant_part.id.to_s})
-          expect(parts).to match_array []
+          expect do 
+            subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => another_bogus_variant_part.id.to_s})
+          end.to raise_error
         end
 
         it "selected variant can not be nil" do
-          parts = subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => ""})
+          expect do 
+            subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => ""})
+          end.to raise_error
+        end
+
+        it "selected variant " do
+          parts = subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => Spree::AssemblyDefinitionPart::NO_THANKS})
           expect(parts).to match_array []
         end
 
-        context "#missing_required_parts" do
+        context "#missing_parts" do
 
-          it "tests true if all parts are present" do
-            outcome = subject.missing_required_parts(variant_assembly, {adp.id.to_s => variant_part.id})
-            expect(outcome).to eq []
+          it "returns empty hash if all parts are present" do
+            outcome = subject.missing_parts(variant_assembly, {adp.id.to_s => variant_part.id})
+            expect(outcome).to eq Hash.new
           end
 
-          it "tests false if all parts are present" do
-            outcome = subject.missing_required_parts(variant_assembly, {bogus_adp.id.to_s => variant_part.id})
-            expect(outcome).to eq [adp]
+          it "returns parts that are bogus" do
+            outcome = subject.missing_parts(variant_assembly, {bogus_adp.id.to_s => variant_part.id})
+            expected = { bogus_adp.id.to_s => variant_part.id }
+            expect(outcome).to eq expected
           end
 
           it "returns parts missing their variant" do
-            outcome = subject.missing_required_parts(variant_assembly, {bogus_adp.id.to_s => "" })
-            expect(outcome).to eq [adp]
+            outcome = subject.missing_parts(variant_assembly, {bogus_adp.id.to_s => "" })
+            expected = { bogus_adp.id.to_s => "" }
+            expect(outcome).to eq expected
+          end
+
+          it "returns no missing parts if the value is set to no_thanks" do
+            outcome = subject.missing_parts(variant_assembly, 
+              {adp.id.to_s => Spree::AssemblyDefinitionPart::NO_THANKS})
+            expect(outcome).to eq Hash.new
           end
 
         end
+
       end
 
       context "when the part has parts of its own (old kit in an assembly)" do

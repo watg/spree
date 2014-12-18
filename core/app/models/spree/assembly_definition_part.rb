@@ -19,10 +19,17 @@ module Spree
     accepts_nested_attributes_for :variants
 
     before_create :set_assembly_product
+
+    NO_THANKS = 'no_thanks'
+
     class << self
       def required
         where(optional: false)
       end
+    end
+
+    def required?
+      !optional?
     end
 
     def displayable_option_values
