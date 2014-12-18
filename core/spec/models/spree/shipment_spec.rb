@@ -395,6 +395,22 @@ describe Spree::Shipment do
       shipment.state.should eq 'ready'
     end
 
+    context "when the shipment is pending" do
+      before do
+        shipment.state = 'pending'
+      end
+
+      it "leaves the state in pending" do
+        expect(shipment).not_to receive(:after_resume)
+        shipment.resume!
+      end
+
+      it "does not call the after_resume callback" do
+        shipment.resume!
+        expect(shipment).to be_pending
+      end
+    end
+
     it 'unstocks them items' do
       supplier = double
       inventory_units = [mock_model(Spree::InventoryUnit, line_item: line_item, variant: variant, supplier: supplier)]

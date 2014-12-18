@@ -200,32 +200,25 @@ describe Spree::Order do
     end
   end
 
-  context "#can_ship?" do
-    let(:order) { Spree::Order.create }
+  describe "#can_ship?" do
+    let(:order) { build(:order) }
+    let(:valid_states) { %w(complete resumed awaiting_return returned) }
 
-    it "should be true for order in the 'complete' state" do
-      order.stub(:complete? => true)
-      order.can_ship?.should be_true
+    it "is true for shippable states" do
+      valid_states.each do |state|
+        order.state = state
+        expect(order.can_ship?).to be_true
+      end
     end
 
-    it "should be true for order in the 'resumed' state" do
-      order.stub(:resumed? => true)
-      order.can_ship?.should be_true
-    end
+    it "is false for all other states" do
+      other_states = Spree::Order.state_machine.states.map(&:name) -
+        valid_states
 
-    it "should be true for an order in the 'awaiting return' state" do
-      order.stub(:awaiting_return? => true)
-      order.can_ship?.should be_true
-    end
-
-    it "should be true for an order in the 'returned' state" do
-      order.stub(:returned? => true)
-      order.can_ship?.should be_true
-    end
-
-    it "should be false if the order is neither in the 'complete' nor 'resumed' state" do
-      order.stub(:resumed? => false, :complete? => false)
-      order.can_ship?.should be_false
+      other_states.each do |state|
+        order.state = state
+        expect(order.can_ship?).to be_false
+      end
     end
   end
 
@@ -989,4 +982,57 @@ describe Spree::Order do
     end
   end
 
+  describe "active_hold_note" do
+    let(:order) { create(:order) }
+    let(:on_hold) { true }
+
+    before do
+      allow(order).to receive(:on_hold?).and_return(on_hold)
+    end
+
+    context "when a note exists" do
+      let!(:note) { create(:order_note, order: order) }
+
+      context "and the order is on hold" do
+        it "returns the note" do
+          expect(order.active_hold_note).to eq(note)
+        end
+      end
+
+      context "and the order is not on hold" do
+        let(:on_hold) { false }
+
+        it "returns nil" do
+          expect(order.active_hold_note).to be_nil
+        end
+      end
+    end
+
+    context "when no note exists" do
+      it "returns nil" do
+        expect(order.active_hold_note).to be_nil
+      end
+    end
+  end
+
+  describe "#on_hold?" do
+    let(:order) { build(:order) }
+    let(:hold_states) { %w(warehouse_on_hold customer_service_on_hold) }
+
+    it "is true for hold states" do
+      hold_states.each do |state|
+        order.state = state
+        expect(order).to be_on_hold
+      end
+    end
+
+    it "is false for all other states" do
+      other_states = Spree::Order.state_machine.states.map(&:value) - hold_states
+
+      other_states.each do |state|
+        order.state = state
+        expect(order).not_to be_on_hold
+      end
+    end
+  end
 end

@@ -46,6 +46,12 @@ describe Spree::Order do
       expect(result.count).to eq 1
       expect(result.first).to eq order_with_one_digital_line_item
     end
+
+    it "includes resumed orders" do
+      resumed_order = create(:order_ready_to_be_consigned_and_allocated, state: 'resumed')
+      result = Spree::Order.to_be_packed_and_shipped
+      expect(result).to include(resumed_order)
+    end
   end
 
   describe "#unprinted_invoices and #unprinted_image_stickers" do

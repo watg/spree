@@ -57,7 +57,7 @@ describe Spree::Api::ShipmentsController do
     end
 
     it "can make a shipment ready" do
-      Spree::Order.any_instance.stub(:paid? => true, :complete? => true, :physical_line_items => [double])
+      Spree::Order.any_instance.stub(:paid? => true, :state => "complete", :complete? => true, :physical_line_items => [double])
       api_put :ready
       json_response.should have_attributes(attributes)
       json_response["state"].should == "ready"
@@ -147,7 +147,7 @@ describe Spree::Api::ShipmentsController do
 
         context "normal" do
 
-          before do 
+          before do
             line_item.update_attributes(quantity: 2)
           end
 
@@ -169,7 +169,7 @@ describe Spree::Api::ShipmentsController do
 
           let(:variant_part) { create(:base_variant) }
 
-          before do 
+          before do
             line_item.update_column(:quantity,  2)
             Spree::InventoryUnit.delete_all
             create(:line_item_part, optional: false, line_item: line_item, variant: variant_part, quantity: 3)
@@ -199,7 +199,7 @@ describe Spree::Api::ShipmentsController do
 
     context "can transition a shipment from ready to ship" do
       before do
-        Spree::Order.any_instance.stub(:paid? => true, :complete? => true, :physical_line_items => [double])
+        Spree::Order.any_instance.stub(:paid? => true, :state => "complete", :complete? => true, :physical_line_items => [double])
         # For the shipment notification email
         Spree::Config[:mails_from] = "spree@example.com"
 
