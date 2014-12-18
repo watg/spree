@@ -14,7 +14,8 @@ module Spree
 
     after_touch :touch_all_products
 
-    COLOUR = 'color'
+    COLOUR = 'Colour'
+    SIZE = 'Size'
 
     def touch_all_products
       products.find_each do |p|
@@ -27,11 +28,11 @@ module Spree
     end
 
     def is_color?
-      name == COLOUR
+      presentation == COLOUR
     end
 
     def is_size?
-
+      presentation == SIZE
     end
 
 
