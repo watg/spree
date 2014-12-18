@@ -363,15 +363,15 @@
 			.large-4 {
 				overflow: hidden;
 				img { // Ensure erroneous image sizes don't explode the grid...
-					max-width: 303px;
-					max-height: 387px;
+					width: 303px;
+					height: 387px;
 				}
 			}
 			.large-8 {
 				overflow: hidden;
 				img { // Ensure erroneous image sizes don't explode the grid...
-					max-width: 636px;
-					max-height: 813px;
+					width: 636px;
+					height: 813px;
 				}
 				ul {
 					li {
@@ -389,7 +389,10 @@
 			// Mobile .large-4, .large-8
 			@media only screen and (max-width: 28.750em) {
 				.large-4, .large-8 {
-					max-height: none;
+					img {
+						width: auto;
+						height: auto;
+					}
 					ul {
 						li {
 							a {
