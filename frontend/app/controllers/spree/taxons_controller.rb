@@ -9,7 +9,7 @@ module Spree
     SHOW_ALL = 999
 
     def show
-      @taxon = Taxon.with_deleted.find_by_permalink!(params[:id])
+      @taxon = Taxon.find_by_permalink!(params[:id])
       return unless @taxon
 
       # TODO: Try to get the search working

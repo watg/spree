@@ -17,6 +17,8 @@ module Spree
 
     after_touch :touch_parent
 
+    scope :displayable, -> { where(hidden: [false,nil]) }
+
     has_attached_file :icon,
       styles: { mini: '32x32>', normal: '128x128>' },
       default_style: :mini,

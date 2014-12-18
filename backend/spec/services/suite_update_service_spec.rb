@@ -10,7 +10,6 @@ describe Spree::SuiteUpdateService do
 
   let(:params) { Hash.new }
 
-
   before do
     taxon.children << taxon_child
     taxon_child.children << taxon_childs_child
@@ -183,7 +182,26 @@ describe Spree::SuiteUpdateService do
 
   end
 
-  describe "remove_suite_from_descendants" do
+  context "rebuild_suite_tabs_cache" do
+
+    let!(:suite) { build(:suite) }
+    let!(:product_1) { build(:base_product) }
+    let!(:product_2) { build(:base_product) }
+    let!(:tab_1) { build(:suite_tab, product: product_1) }
+    let!(:tab_2) { build(:suite_tab, product: product_2) }
+
+    before do
+      allow(suite).to receive(:update_attributes!)
+      allow_any_instance_of(Spree::SuiteTabCacheRebuilder).to receive(:update_suites)
+      suite.tabs = [tab_1, tab_2]
+    end
+
+    it "rebuild the cache for each tab" do
+      expect(Spree::SuiteTabCacheRebuilder).to receive(:rebuild_from_product).with(product_1)
+      expect(Spree::SuiteTabCacheRebuilder).to receive(:rebuild_from_product).with(product_2)
+      expect(subject.valid?).to be_true
+    end
+
   end
 
 

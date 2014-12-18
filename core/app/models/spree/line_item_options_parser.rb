@@ -45,71 +45,85 @@ module Spree
     def dynamic_kit_parts(variant, params)
       return [] if !variant.assembly_definition or params.nil?
 
+      main_part_id = variant.assembly_definition.main_part_id
+
       parts = []
       params.each do |part_id, selected_part_variant_id|
-        if assembly_definition_part = valid_part( variant, part_id.to_i )
 
-          if selected_part_variant = valid_selected_part_variant( assembly_definition_part, selected_part_variant_id.to_i )
+        next if selected_part_variant_id == Spree::AssemblyDefinitionPart::NO_THANKS
 
-            main_part_id = assembly_definition_part.assembly_definition.main_part_id
+        assembly_definition_part = valid_part( variant, part_id.to_i )
+        selected_part_variant = valid_selected_part_variant( assembly_definition_part, selected_part_variant_id.to_i )
 
-            if selected_part_variant.required_parts_for_display.any?
-              # Adding the container. It may be optional.
-              #
-              parent = Spree::LineItemPart.new(
-                assembly_definition_part_id: assembly_definition_part.id,
-                variant_id:                  selected_part_variant.id,
-                quantity:                    assembly_definition_part.count,
-                optional:                    assembly_definition_part.optional,
-                price:                       part_price_amount(selected_part_variant),
-                currency:                    currency,
-                assembled:                   assembly_definition_part.assembled,
-                container:                   true,
-                main_part:                   (assembly_definition_part.id == main_part_id)
-              )
-              parts << parent
+        if selected_part_variant.required_parts_for_display.any?
 
-              # Adding the parts of the container. They are always required.
-              selected_part_variant.required_parts_for_display.each do |sub_part|
-                child = Spree::LineItemPart.new(
-                  assembly_definition_part_id: assembly_definition_part.id,
-                  variant_id:                  sub_part.id,
-                  quantity:                    sub_part.count_part * assembly_definition_part.count,
-                  optional:                    false,
-                  price:                       part_price_amount(sub_part),
-                  currency:                    currency,
-                  assembled:                   assembly_definition_part.assembled,
-                  parent_part:                 parent,
-                )
+          # Adding the container. It may be optional.
+          parent = Spree::LineItemPart.new(
+            assembly_definition_part_id: assembly_definition_part.id,
+            variant_id:                  selected_part_variant.id,
+            quantity:                    assembly_definition_part.count,
+            optional:                    assembly_definition_part.optional,
+            price:                       part_price_amount(selected_part_variant),
+            currency:                    currency,
+            assembled:                   assembly_definition_part.assembled,
+            container:                   true,
+            main_part:                   (assembly_definition_part.id == main_part_id)
+          )
+          parts << parent
 
-                parts << child
-              end
-            else
-              parts << Spree::LineItemPart.new(
-                assembly_definition_part_id: assembly_definition_part.id,
-                variant_id:                  selected_part_variant.id,
-                quantity:                    assembly_definition_part.count,
-                optional:                    assembly_definition_part.optional,
-                price:                       part_price_amount(selected_part_variant),
-                currency:                    currency,
-                assembled:                   assembly_definition_part.assembled,
-                main_part:                   (assembly_definition_part.id == main_part_id)
-              )
-            end
+          # Adding the parts of the container. They are always required.
+          selected_part_variant.required_parts_for_display.each do |sub_part|
+            child = Spree::LineItemPart.new(
+              assembly_definition_part_id: assembly_definition_part.id,
+              variant_id:                  sub_part.id,
+              quantity:                    sub_part.count_part * assembly_definition_part.count,
+              optional:                    false,
+              price:                       part_price_amount(sub_part),
+              currency:                    currency,
+              assembled:                   assembly_definition_part.assembled,
+              parent_part:                 parent,
+            )
+
+            parts << child
           end
+        else
+          parts << Spree::LineItemPart.new(
+            assembly_definition_part_id: assembly_definition_part.id,
+            variant_id:                  selected_part_variant.id,
+            quantity:                    assembly_definition_part.count,
+            optional:                    assembly_definition_part.optional,
+            price:                       part_price_amount(selected_part_variant),
+            currency:                    currency,
+            assembled:                   assembly_definition_part.assembled,
+            main_part:                   (assembly_definition_part.id == main_part_id)
+          )
         end
       end
 
       parts
     end
 
-    def missing_required_parts(variant, parts)
-      parts_with_variants = parts.select { |p,v| !v.blank? }
-      parts_id = parts_with_variants.keys.map(&:to_i)
-      variant.assembly_definition.parts.required.select {|part| !parts_id.include?(part.id)}
+    def missing_parts(variant, parts)
+      part_ids = variant.assembly_definition.parts.map(&:id)
+      variant_ids = variant.assembly_definition.assembly_definition_variants.map(&:variant_id)
+
+      parts.reject do |part_id, asm_variant_id|
+        part_ok = part_ids.include?(part_id.to_i)
+        variant_not_required = (asm_variant_id == Spree::AssemblyDefinitionPart::NO_THANKS )
+
+        if variant_not_required
+          part_ok
+        else
+          variant_ok = variant_ids.include?(asm_variant_id.to_i)
+          part_ok && variant_ok
+        end
+
+      end
     end
 
+
     private
+
 
     def part_price_amount(part)
       price = part.price_part_in(currency).amount
@@ -165,4 +179,3 @@ module Spree
   end
 
 end
-

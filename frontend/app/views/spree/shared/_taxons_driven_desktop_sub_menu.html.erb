@@ -123,7 +123,7 @@
       </ul>
       <% yarn = find_child_taxon(knit_kits, 'knit-kits/yarn') %>
       <h3>
-        <a href="<%= seo_url(yarn) %>">By Yarn</a>
+        <a href="<%= seo_url(knit_kits) %>">By Yarn</a>
       </h3>
       <ul>
         <%= render_taxons_links(yarn) %>
@@ -139,7 +139,7 @@
       </ul>
       <% season = find_child_taxon(knit_kits, 'knit-kits/season') %>
       <h3>
-        <a href="<%= seo_url(yarn) %>">By Season</a>
+        <a href="<%= seo_url(knit_kits) %>">By Season</a>
       </h3>
       <ul>
         <%= render_taxons_links(season) %>
@@ -176,9 +176,9 @@
         <%= render_taxons_links(patterns) %>
       </ul>
     </li>
-    <li class="large-3 columns">
+    <li class="large-3 columns inverted">
       <a href="/video-tutorials">
-        <img src="<%= cdn_url('navigation/gang-culture-wool-school-0914.jpg') %>" width="230" height="294" alt="Wool School" />
+        <img src="<%= cdn_url('navigation/knitting-wool-school-0914.jpg') %>" width="230" height="294" alt="Wool School" />
         <h3 class="image-caption">Wool School</h3>
         <p class="image-caption">Learn something new</p>
       </a>

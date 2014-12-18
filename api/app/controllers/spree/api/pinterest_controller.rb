@@ -7,7 +7,7 @@ module Spree
       def show
         outcome = Spree::PinterestService.run(params)
         
-        if outcome.success?
+        if outcome.valid?
           @pinterest = outcome.result
           respond_with(@pinterest)
         else

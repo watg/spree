@@ -70,7 +70,7 @@
         </ul>
         <% yarn = find_child_taxon(knit_kits, 'knit-kits/yarn') %>
         <h3 class="mobile-sub">
-          <a href="<%= seo_url(yarn) %>">By Yarn</a>
+          <a href="<%= seo_url(knit_kits) %>">By Yarn</a>
         </h3>
         <ul>
           <%= render_taxons_links(yarn) %>
@@ -84,7 +84,7 @@
         </ul>
         <% season = find_child_taxon(knit_kits, 'knit-kits/season') %>
         <h3 class="mobile-sub">
-          <a href="<%= seo_url(yarn) %>">By Season</a>
+          <a href="<%= seo_url(knit_kits) %>">By Season</a>
         </h3>
         <ul>
           <%= render_taxons_links(season) %>

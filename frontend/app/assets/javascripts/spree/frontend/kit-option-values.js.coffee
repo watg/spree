@@ -53,7 +53,8 @@ core.suite.readyKitVariantOptions = (entity) ->
 
     else
       $('.assembly-images li').eq(product_variants.index()).css('background-image', 'none')
-      product_variants.find('.selected-parts').val('')
+      selected_parts = product_variants.find('.selected-parts')
+      selected_parts.val(selected_parts.data('original-value'))
       product_variants.data('adjustment', 0)
 
     entity.find(".price").trigger('recalculate')
