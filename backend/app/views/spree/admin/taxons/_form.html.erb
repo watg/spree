@@ -26,6 +26,12 @@
       <%= f.label :icon, Spree.t(:icon) %><br />
       <%= f.file_field :icon %>
     <% end %>
+
+    <%= f.field_container :hidden do %>
+      <%= f.label :hidden, Spree.t(:hidden) %>
+      <%= f.check_box :hidden %>
+    <% end %>
+
   </div>
 
   <div class="twelve columns alpha omega">
