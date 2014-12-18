@@ -61,6 +61,8 @@ module Spree
     has_many :parcels
     has_many :line_item_parts, through: :line_items
 
+    has_many :order_notes
+
     belongs_to :invoice_print_job, class_name: "PrintJob"
     belongs_to :image_sticker_print_job, class_name: "PrintJob"
 
@@ -89,6 +91,8 @@ module Spree
 
     class_attribute :update_hooks
     self.update_hooks = Set.new
+
+    SHIPPABLE_STATES = %w(complete resumed awaiting_return returned)
 
     class << self
       def by_number(number)
@@ -119,12 +123,16 @@ module Spree
         where.not(state: :canceled)
       end
 
+      def shippable_state
+        where(state: SHIPPABLE_STATES)
+      end
+
       # only physical line item to be dispatched
       def to_be_packed_and_shipped
         non_digital_product_type_ids = Spree::ProductType.where(is_digital: false).pluck(:id)
         select('spree_orders.*').includes(line_items: [variant: :product]).
-          where(state: 'complete',
-                payment_state: 'paid',
+          shippable_state.
+          where(payment_state: 'paid',
                 shipment_state: 'ready',
                 internal: false,
                 'spree_products.product_type_id' => non_digital_product_type_ids).
@@ -397,7 +405,7 @@ module Spree
     end
 
     def can_ship?
-      self.complete? || self.resumed? || self.awaiting_return? || self.returned?
+      SHIPPABLE_STATES.include?(self.state)
     end
 
     def credit_cards
@@ -741,6 +749,14 @@ module Spree
           OrderContents.new(self).delete_line_item(li)
         end
       end
+    end
+
+    def active_hold_note
+      order_notes.last if on_hold?
+    end
+
+    def on_hold?
+      %(warehouse_on_hold customer_service_on_hold).include?(state)
     end
 
     private

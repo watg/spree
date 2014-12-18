@@ -81,6 +81,21 @@ module Spree
                 transition :to => :awaiting_return
               end
 
+              event :warehouse_hold do
+                transition :from => :complete, :to => :warehouse_on_hold
+                transition :from => :resumed, :to => :warehouse_on_hold
+              end
+
+              event :customer_service_hold do
+                transition :from => :complete, :to => :customer_service_on_hold
+                transition :from => :resumed, :to => :customer_service_on_hold
+              end
+
+              event :remove_hold do
+                transition :from => :warehouse_on_hold, :to => :resumed
+                transition :from => :customer_service_on_hold, :to => :resumed
+              end
+
               if states[:payment]
                 before_transition :to => :complete do |order|
                   order.process_payments! if order.payment_required?
@@ -105,7 +120,7 @@ module Spree
               end
 
               after_transition :to => :complete, :do => :finalize!
-              after_transition :to => :resumed,  :do => :after_resume
+              after_transition :from => :canceled, :to => :resumed,  :do => :after_resume
               after_transition :to => :canceled, :do => :after_cancel
 
               after_transition :from => any - :cart, :to => any - [:confirm, :complete] do |order|

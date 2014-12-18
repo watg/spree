@@ -209,6 +209,8 @@ Spree::Core::Engine.add_routes do
 
         resources :log_entries
       end
+
+      resources :holds, :controller => "orders/holds"
     end
 
     resource :general_settings do
