@@ -108,7 +108,7 @@ module Spree
 
     def render_taxons_links(taxon)
       return unless taxon
-      taxon.children.map do |taxon|
+      taxon.children.displayable.map do |taxon|
         content_tag :li do
           link_to(taxon.name, seo_url(taxon))
         end
