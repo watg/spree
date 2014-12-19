@@ -57,7 +57,7 @@ describe Spree::OrderPopulator do
           let(:part) { mock_model(Spree::AssemblyDefinitionPart)}
 
           before do
-            allow(subject.options_parser).to receive(:missing_parts).and_return({part => variant})
+            allow(subject.options_parser).to receive(:missing_parts).and_return({part.id => variant.id})
           end
 
           it "adds error on order when some assembly definition parts are missing" do
