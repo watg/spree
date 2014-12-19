@@ -68,15 +68,6 @@ module Spree
       awaiting_feed.non_pending.where(variant: variant).count
     end
 
-    def self.finalize_units!(inventory_units)
-      inventory_units.map do |iu|
-        iu.update_columns(
-          pending: false,
-          updated_at: Time.now,
-        )
-      end
-    end
-
     def find_stock_item
       Spree::StockItem.where(stock_location_id: shipment.stock_location_id,
         variant_id: variant_id).first

@@ -196,18 +196,4 @@ describe Spree::InventoryUnit do
       expect(Spree::InventoryUnit.joins(:variant).includes(:variant).first.variant).to be_a Spree::Variant
     end
   end
-
-  context "#finalize_units!" do
-    let!(:stock_location) { create(:stock_location) }
-    let(:variant) { create(:variant) }
-    let(:inventory_units) { [
-      create(:inventory_unit, variant: variant),
-      create(:inventory_unit, variant: variant)
-    ] }
-
-    it "should create a stock movement" do
-      Spree::InventoryUnit.finalize_units!(inventory_units)
-      inventory_units.any?(&:pending).should be_false
-    end
-  end
 end
