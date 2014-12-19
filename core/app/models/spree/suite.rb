@@ -18,6 +18,9 @@ module Spree
     accepts_nested_attributes_for :tabs, allow_destroy: true
     accepts_nested_attributes_for :image, allow_destroy: true
 
+    # TODO this should be a boolean
+    scope :active, -> { where(deleted_at: nil) }
+
     make_permalink
 
     LARGE_TOP = 1
