@@ -20,6 +20,12 @@ module Spree
       let(:shipment) { order.shipments.first }
       let!(:variant) { subject.variant }
       let(:inventory_unit) { mock_model(Spree::InventoryUnit)}
+      let(:adjuster) { double(Spree::ShipmentStockAdjuster) }
+
+      before do
+        allow(Spree::ShipmentStockAdjuster).to receive(:new).and_return(adjuster)
+        allow(adjuster).to receive(:unstock)
+      end
 
       context "order can not be shipped" do
         before { order.stub can_ship?: false }
@@ -39,8 +45,8 @@ module Spree
 
         it "unstocks items" do
           shipment.stock_location.should_receive(:fill_status).with(subject.variant, 2).and_return([2,0, 0])
-          expect_any_instance_of(Spree::ShipmentStockAdjuster).to receive(:unstock).with(variant, [inventory_unit, inventory_unit])
           subject.send(:add_to_shipment, shipment, 2).should == 2
+          expect(adjuster).to have_received(:unstock).with(variant, [inventory_unit, inventory_unit])
         end
       end
 
@@ -111,16 +117,6 @@ module Spree
           expect(units.first).to be_on_hand
         end
       end
-
-      it 'should create stock_movement' do
-        subject.send(:add_to_shipment, shipment, 5).should == 5
-
-        stock_item = shipment.stock_location.stock_item(subject.variant)
-        movement = stock_item.stock_movements.last
-        # movement.originator.should == shipment
-        movement.quantity.should == -5
-      end
-
     end
 
     context "#determine_target_shipment" do

@@ -9,7 +9,7 @@ describe Spree::ShipmentStockAdjuster do
   let(:order) { Spree::Order.new }
 
   let(:inventory_units) { build_list(:inventory_unit, 3, line_item: nil, supplier: supplier, variant: variant, state: 'on_hand') }
-  subject { described_class.new(shipment)  }
+  subject(:adjuster) { described_class.new(shipment)  }
 
   context "restock" do
 
@@ -42,96 +42,150 @@ describe Spree::ShipmentStockAdjuster do
   end
 
   context "unstock" do
-    let(:stock_items) {  2.times.map { mock_model(Spree::StockItem, count_on_hand: 2, backorderable?: true) }  }
+    let(:supplier) { nil } # create inventory units without suppliers
+    let(:iu_states) { 3.times.map { 'on_hand'} }
+    let(:backorderable) { true }
+    let(:count_on_hand) { 2 }
+    let(:stock_items) {  2.times.map { mock_model(Spree::StockItem, count_on_hand: count_on_hand, backorderable?: backorderable) }  }
+    let(:feeder_stock_items) { [] }
 
-    it "calls available_stock_items" do
-      subject.stub(:unstock_stock_item)
-      expect(subject).to receive(:available_items).with(variant).once.and_return([])
-      subject.unstock(variant, inventory_units)
-    end
-
-    
     before do
-      subject.stub(:available_items).and_return(stock_items)
+      inventory_units.each_with_index do |iu, idx|
+        allow(iu).to receive(:state).and_return(iu_states[idx])
+      end
+      allow(adjuster).to receive(:available_items).and_return(stock_items)
+      allow(adjuster).to receive(:feeder_stock_items).with(variant).and_return(feeder_stock_items)
     end
 
-    context "on_hand and in stock" do
-
-      it "assigns stock" do
-        expect(subject).to receive(:unstock_stock_item).with(stock_items[0], inventory_units.slice(0,2)).once
-        expect(subject).to receive(:unstock_stock_item).with(stock_items[1], inventory_units.slice(2,1)).once
-        subject.unstock(variant, inventory_units)
+    context "when all stock is on hand" do
+      it "unstocks the items" do
+        expect(adjuster).to receive(:unstock_stock_item).with(stock_items[0], inventory_units.first(2)).once
+        expect(adjuster).to receive(:unstock_stock_item).with(stock_items[1], inventory_units.last(1)).once
+        adjuster.unstock(variant, inventory_units)
       end
     end
 
-    context "on_hand and some in stock" do
+    context "when only partial stock is on hand" do
+      context "and the stock is backordered" do
+        let(:iu_states) { 3.times.map { 'backordered' } }
 
-      before do
-        stock_items[1].stub(:count_on_hand).and_return 0
+        it "assigns stock which is backordered" do
+          expect(adjuster).to receive(:unstock_stock_item).with(stock_items[0], inventory_units).once
+          adjuster.unstock(variant, inventory_units)
+        end
+
+        context "but the stock item does not allow backordering" do
+          let(:backorderable) { false }
+
+          context "but it does have count on hand" do
+            it "allocates stock from on hand" do
+              expect(adjuster).to receive(:unstock_stock_item).with(stock_items[0], inventory_units.first(2)).once
+              expect(adjuster).to receive(:unstock_stock_item).with(stock_items[1], inventory_units.last(1)).once
+              adjuster.unstock(variant, inventory_units)
+            end
+
+            it "changes the inventory unit state to on_hand" do
+              allow(adjuster).to receive(:unstock_stock_item)
+              inventory_units.each do |iu|
+                expect(iu).to receive(:state=).with(:on_hand).ordered
+                expect(iu).to receive(:save).ordered
+              end
+              adjuster.unstock(variant, inventory_units)
+            end
+          end
+
+          context "but it doesn't have count on hand but it is in a feeder" do
+            let(:count_on_hand) { 0 }
+            let(:feeder_stock_items) { [mock_model(Spree::StockItem, count_on_hand: 3)] }
+
+            it "changes the inventory unit state to awaiting feed" do
+              inventory_units.each do |iu|
+                expect(iu).to receive(:state=).with(:awaiting_feed).ordered
+                expect(iu).to receive(:save).ordered
+              end
+              adjuster.unstock(variant, inventory_units)
+            end
+          end
+
+          context "and there is no stock anywhere" do
+            let(:count_on_hand) { 0 }
+            it "allocates stock from any matching stock item" do
+              expect(adjuster).to receive(:unstock_stock_item).with(stock_items[0], inventory_units).once
+              adjuster.unstock(variant, inventory_units)
+            end
+
+            it "changes the inventory unit state to on_hand" do
+              allow(adjuster).to receive(:unstock_stock_item)
+              inventory_units.each do |iu|
+                expect(iu).to receive(:state=).with(:on_hand).ordered
+                expect(iu).to receive(:save).ordered
+              end
+              adjuster.unstock(variant, inventory_units)
+            end
+          end
+        end
       end
 
-      it "assigns stock" do
-        expect(subject).to receive(:unstock_stock_item).with(stock_items[0], inventory_units.slice(0,2)).once
-        # The second call will be to deal with the on_hand which is not in stock
-        expect(subject).to receive(:unstock_stock_item).with(stock_items[0], inventory_units.slice(2,1)).once
-        subject.unstock(variant, inventory_units)
-      end
+      context "and somehow there is no stock available" do
+        let(:count_on_hand) { 0 }
 
+        context "with stock available in a feeder location" do
+          let(:feeder_stock_items) { [mock_model(Spree::StockItem, count_on_hand: 3)] }
+
+          it "changes the inventory unit state to awaiting feed" do
+            inventory_units.each do |iu|
+              expect(iu).to receive(:state=).with(:awaiting_feed).ordered
+              expect(iu).to receive(:save).ordered
+            end
+            adjuster.unstock(variant, inventory_units)
+          end
+        end
+
+        context "with backorderable stock available" do
+          let(:backorderable) { true }
+
+          it "allocates the stock from backorderable inventory units" do
+            expect(adjuster).to receive(:unstock_stock_item).with(stock_items[0], inventory_units).once
+            adjuster.unstock(variant, inventory_units)
+          end
+
+          it "changes the inventory unit state to backordered" do
+              allow(adjuster).to receive(:unstock_stock_item)
+              inventory_units.each do |iu|
+                expect(iu).to receive(:state=).with(:backordered).ordered
+                expect(iu).to receive(:save).ordered
+              end
+              adjuster.unstock(variant, inventory_units)
+          end
+        end
+
+        context "with no stock available in feeders either" do
+          let(:count_on_hand) { 0 }
+
+          it "allocates stock from any matching stock item" do
+            expect(adjuster).to receive(:unstock_stock_item).with(stock_items[0], inventory_units).once
+            adjuster.unstock(variant, inventory_units)
+          end
+        end
+      end
     end
 
-    context "on_hand and none in stock" do
+    context "when an inventory unit awaiting feed" do
+      let(:iu_states) { ["on_hand", "backorderable", "awaiting_feed"] }
 
-      before do
-        stock_items[0].stub(:count_on_hand).and_return 0
-        stock_items[1].stub(:count_on_hand).and_return 0
-      end
-
-      it "assigns stock" do
-        expect(subject).to_not receive(:unstock_stock_item)
-        subject.unstock(variant, inventory_units)
-      end
-
-    end
-
-
-    context "backordered" do
-
-      before do
-        inventory_units.map { |iu| iu.stub(:state).and_return('backordered') }
-      end
-
-      it "assigns stock which is backordered" do
-        expect(subject).to receive(:unstock_stock_item).with(stock_items[0], inventory_units.slice(0,3)).once
-        subject.unstock(variant, inventory_units)
-      end
-
-      it "does not assigns stock which is backordered if backorderable is false" do
-        stock_items.map { |si| si.stub(:backorderable?).and_return(false) }
-        expect(subject).to_not receive(:unstock_stock_item)
-        subject.unstock(variant, inventory_units)
-      end
-
-    end
-
-    context "awaiting_feed" do
       it "does not unstock items awaiting_feed" do
-        inventory_units[0].state = "on_hand"
-        inventory_units[1].state = "backorderable"
-        inventory_units[2].state = "awaiting_feed"
-
-        expect(subject).to receive(:unstock_stock_item).with(stock_items[0], inventory_units.slice(0,1)).once
-        expect(subject).to receive(:unstock_stock_item).with(stock_items[0], inventory_units.slice(1,1)).once
-        subject.unstock(variant, inventory_units)
+        expect(adjuster).to receive(:unstock_stock_item).with(stock_items[0], inventory_units.slice(0,1)).once
+        expect(adjuster).to receive(:unstock_stock_item).with(stock_items[0], inventory_units.slice(1,1)).once
+        adjuster.unstock(variant, inventory_units)
       end
     end
-
   end
 
   context "available_items" do
 
     let!(:stock_location) { create(:base_stock_location) }
     let(:variant) { create(:base_variant) }
-    let(:stock_item_1) { create(:stock_item, stock_location: stock_location, count_on_hand: 2, backorderable: true, variant: variant, last_unstocked_at: '2012-01-01') } 
+    let(:stock_item_1) { create(:stock_item, stock_location: stock_location, count_on_hand: 2, backorderable: true, variant: variant, last_unstocked_at: '2012-01-01') }
     let(:stock_item_2) { create(:stock_item, stock_location: stock_location, count_on_hand: 2, backorderable: true, variant: variant, last_unstocked_at: '2012-02-01') }
 
 

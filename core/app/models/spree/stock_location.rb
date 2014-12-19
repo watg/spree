@@ -125,8 +125,6 @@ module Spree
       self.active or !self.feed_into_id.nil?
     end
 
-    private
-
     def feeder_items(variant)
       # There is an n+1 query issue here - for every variant that isn't on hand
       # in the active location we call available_stock_items for each feeder,
@@ -135,6 +133,8 @@ module Spree
       # stores this seems unnecessary at the moment.
       @feeder_items ||= feeders.map { |f| f.available_stock_items(variant) }.flatten
     end
+
+    private
 
     def create_stock_items
       Variant.find_each { |variant| self.propagate_variant(variant) }
