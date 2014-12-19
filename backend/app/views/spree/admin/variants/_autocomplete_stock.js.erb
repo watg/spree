@@ -59,7 +59,7 @@
                 {{this.name}}<br/>
                 <select class="part-options" data-url="{{this.url}}" data-key="">
                   {{#if this.optional}}
-                  <option>No option</option>
+                    <option><%= Spree::AssemblyDefinitionPart::NO_THANKS%></option>
                   {{/if}}
                 </select>
               </td>
