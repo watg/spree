@@ -14,10 +14,17 @@ module Spree
     delegate :weight, :should_track_inventory?, to: :variant
 
     after_save :conditional_variant_touch
+    after_save :clear_total_on_hand_cache
+    after_save :clear_backorderable_cache
+
     after_touch { variant.touch }
 
     scope :available, -> { where("count_on_hand > 0 or backorderable = true") }
     scope :active, -> { joins(:stock_location).where(Spree::StockLocation.table_name =>{ :active => true}) }
+
+    scope :from_available_locations, -> do
+       Spree::StockItem.joins(:stock_location).merge(StockLocation.available)
+    end
 
     def waiting_inventory_units
       Spree::InventoryUnit.waiting_for_stock_item(self)
@@ -127,6 +134,22 @@ module Spree
     def conditional_variant_touch
       if !Spree::Config.binary_inventory_cache || stock_changed?
         ::Delayed::Job.enqueue Spree::StockCheckJob.new(variant), queue: 'stock_check', priority: 10
+      end
+    end
+
+    def stock_quantifier
+      Spree::Stock::Quantifier.new(self.variant)
+    end
+
+    def clear_total_on_hand_cache
+      if count_on_hand_changed? || variant_id_changed?
+        stock_quantifier.clear_total_on_hand_cache
+      end
+    end
+
+    def clear_backorderable_cache
+      if backorderable_changed? || variant_id_changed?
+        stock_quantifier.clear_backorderable_cache
       end
     end
 

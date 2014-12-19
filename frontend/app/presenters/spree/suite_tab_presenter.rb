@@ -65,6 +65,16 @@ module Spree
       @in_stock ||= suite_tab.in_stock_cache
     end
 
+    def variants_total_on_hand
+      product.variants.inject({}) do |hash,v|
+        total_on_hand = Spree::Stock::Quantifier.new(v).total_on_hand
+        if total_on_hand < 6 and total_on_hand > 0
+          hash[v.number] = total_on_hand
+        end
+        hash
+      end
+    end
+
     private
 
     def social_description

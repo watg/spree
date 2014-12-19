@@ -21,6 +21,8 @@ module Spree
     end
     scope :last_24_hours, -> { where(["created_at > ?", 24.hours.ago]) }
 
+    after_save :clear_total_on_hand_cache
+
     # state machine (see http://github.com/pluginaweek/state_machine/tree/master for details)
     state_machine initial: :on_hand do
       event :fill_backorder do
@@ -87,13 +89,28 @@ module Spree
 
     private
 
-      def allow_ship?
-        Spree::Config[:allow_backorder_shipping] || self.on_hand?
-      end
+    def allow_ship?
+      Spree::Config[:allow_backorder_shipping] || self.on_hand?
+    end
 
-      def update_order
-        order.update!
+    def update_order
+      order.update!
+    end
+
+    def stock_quantifier
+      Spree::Stock::Quantifier.new(self.variant)
+    end
+
+    def state_change_affects_total_on_hand?
+      state_changed? && state_change.any? { |state| state == "awaiting_feed" }
+    end
+
+    def clear_total_on_hand_cache
+      if state_change_affects_total_on_hand?
+        stock_quantifier.clear_total_on_hand_cache
       end
+    end
+
   end
 end
 

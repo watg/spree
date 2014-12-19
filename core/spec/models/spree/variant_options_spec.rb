@@ -122,19 +122,6 @@ describe Spree::VariantOptions do
         end
       end
 
-      context "total on hand" do
-        let(:supplier) { create(:supplier) }
-        let(:stock_item) { create(:stock_item, supplier: supplier, variant: variant_in_stock1) }
-
-        before do
-          stock_item.set_count_on_hand(10)
-        end
-
-        it "should take into account position of the option_type " do
-          tree = subject.tree
-          expect(tree["size"]["small"]["colour"]["pink"]["variant"]["total_on_hand"]).to eq 20
-        end
-      end
 
       context "supplier" do
         let!(:supplier1) { create(:supplier) }
@@ -323,7 +310,6 @@ describe Spree::VariantOptions do
         attributes["sale_price"].should == 0
         attributes["part_price"].should == 0
         attributes["in_sale"].should == false
-        attributes["total_on_hand"].should == variant_1.total_on_hand
         attributes["suppliers"].should == variant_1.suppliers
 
         attributes = tree[ov2.option_type.name][ov2.name]['variant']
@@ -333,7 +319,6 @@ describe Spree::VariantOptions do
         attributes["sale_price"].should == 0
         attributes["part_price"].should == 0
         attributes["in_sale"].should == false
-        attributes["total_on_hand"].should == variant_2.total_on_hand
         attributes["suppliers"].should == variant_2.suppliers
 
         #product.variant_options_tree_for(nil,'GBP').should == {

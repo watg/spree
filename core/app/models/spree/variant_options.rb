@@ -17,7 +17,6 @@ module Spree
         add_image_to_base(base, variant)
         add_prices_to_base(base, variant)
         add_supplier_to_base(base, variant)
-        add_total_on_hand_to_base(base, variant)
         hash
       end
     end
@@ -78,7 +77,8 @@ module Spree
     end
 
     def stock_items
-      @stock_items ||= Spree::StockItem.joins(:stock_location).where(variant_id: variants).includes(:supplier).references(:supplier).merge(StockLocation.available)
+      @stock_items ||= StockItem.from_available_locations.
+        where(variant_id: variants).includes(:supplier).references(:supplier)
     end
 
     def items_in_stock
@@ -114,11 +114,6 @@ module Spree
       variant_stock_items = stock_items.select { |s| s.variant_id == variant.id }
       suppliers = variant_stock_items.map(&:supplier).uniq
       base['variant']['suppliers'] = suppliers
-    end
-
-    def add_total_on_hand_to_base(base, variant)
-      variant_stock_items = stock_items.select { |s| s.variant_id == variant.id }
-      base['variant']['total_on_hand'] = variant.total_on_hand(variant_stock_items)
     end
 
     def add_image_to_base(base,variant)

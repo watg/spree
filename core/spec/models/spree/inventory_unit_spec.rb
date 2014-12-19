@@ -75,6 +75,77 @@ describe Spree::InventoryUnit do
       end
     end
 
+    describe "stock_quantifier" do
+
+      it "instantiates stock Quantifier with the correct arguments" do
+        expect(Spree::Stock::Quantifier).to receive(:new).with(subject.variant)
+        subject.send(:stock_quantifier)
+      end
+
+    end
+
+    describe "state_change_affects_total_on_hand?" do
+
+      context "state is :awaiting_feed" do
+        let!(:inventory_unit) { create(:inventory_unit, state: 'awaiting_feed') }
+
+        it "returns true if state has changed" do
+          inventory_unit.state = 'on_hand'
+          expect(inventory_unit.send(:state_change_affects_total_on_hand?)).to be_true
+        end
+      end
+
+      context "state is not :awaiting_feed" do
+        let!(:inventory_unit) { create(:inventory_unit, state: 'on_hand') }
+
+        it "returns true if its new state is :awaiting_feed " do
+          inventory_unit.state = 'awaiting_feed'
+          expect(inventory_unit.send(:state_change_affects_total_on_hand?)).to be_true
+        end
+
+        it "returns false if its new state is not :awaiting_feed " do
+          inventory_unit.state = 'backordered'
+          expect(inventory_unit.send(:state_change_affects_total_on_hand?)).to be_false
+        end
+      end
+
+    end
+
+
+    describe "clear_total_on_hand_cache" do
+
+      let(:variant) { build_stubbed(:variant) }
+
+      let!(:inventory_unit) { build_stubbed(:inventory_unit, variant: variant) }
+      let(:stock_quantifier) { Spree::Stock::Quantifier.new(variant)}
+      let (:return_value) { true }
+
+      before do
+        allow(inventory_unit).to receive(:stock_quantifier).and_return(stock_quantifier)
+        allow(inventory_unit).to receive(:state_change_affects_total_on_hand?).and_return(return_value)
+      end
+
+      it "responds to clear_total_on_hand_cache" do
+        expect(stock_quantifier).to respond_to(:clear_total_on_hand_cache)
+      end
+
+      context "state is awaiting_feed" do
+        it "is called if state_changed? includes awaiting_feed" do
+          expect(stock_quantifier).to receive(:clear_total_on_hand_cache)
+          inventory_unit.send(:clear_total_on_hand_cache)
+        end
+      end
+
+      context "state is not awaiting_feed" do
+        let (:return_value) { false }
+        it "is not called if state_changed? does not include awaiting_feed" do
+          expect(stock_quantifier).to_not receive(:clear_total_on_hand_cache)
+          inventory_unit.send(:clear_total_on_hand_cache)
+        end
+      end
+    end
+
+
     context "other shipments" do
       let(:other_order) do
         order = create(:order)

@@ -382,8 +382,8 @@ module Spree
       Spree::Stock::Quantifier.new(self).can_supply?(quantity)
     end
 
-    def total_on_hand(stock_items=nil)
-      Spree::Stock::Quantifier.new(self,stock_items).total_on_hand
+    def total_on_hand
+      Spree::Stock::Quantifier.new(self).total_on_hand
     end
 
     def total_awaiting_feed

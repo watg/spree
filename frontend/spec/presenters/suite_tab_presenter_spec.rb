@@ -22,6 +22,70 @@ describe Spree::SuiteTabPresenter do
     its(:in_stock?) { should eq tab.in_stock_cache }
   end
 
+  describe "variants_total_on_hand" do
+    let(:product) { Spree::Product.new }
+    let(:variant_1) { Spree::Variant.new }
+    let(:variant_2) { Spree::Variant.new }
+
+    before do
+      tab.product = product
+      product.variants = [variant_1, variant_2]
+
+      mock_quantifier_1 = double(total_on_hand: 2)
+      allow(Spree::Stock::Quantifier).to receive(:new).with(variant_1).and_return(mock_quantifier_1)
+
+      mock_quantifier_2 = double(total_on_hand: 3)
+      allow(Spree::Stock::Quantifier).to receive(:new).with(variant_2).and_return(mock_quantifier_2)
+    end
+
+    it "should return a data structure of variants and total on hand" do
+      expected = {
+        variant_1.number => 2,
+        variant_2.number => 3
+      }
+      expect(subject.variants_total_on_hand).to eq expected
+    end
+
+    context "count on hand above 5" do
+
+      before do
+        mock_quantifier_1 = double(total_on_hand: 5)
+        allow(Spree::Stock::Quantifier).to receive(:new).with(variant_1).and_return(mock_quantifier_1)
+
+        mock_quantifier_2 = double(total_on_hand: 6)
+        allow(Spree::Stock::Quantifier).to receive(:new).with(variant_2).and_return(mock_quantifier_2)
+      end
+
+      it "only includes variants with 5 or fewer in stock" do
+        expected = {
+          variant_1.number => 5
+        }
+        expect(subject.variants_total_on_hand).to eq expected
+      end
+
+    end
+
+    context "count on hand less than 1" do
+
+      before do
+        mock_quantifier_1 = double(total_on_hand: 1)
+        allow(Spree::Stock::Quantifier).to receive(:new).with(variant_1).and_return(mock_quantifier_1)
+
+        mock_quantifier_2 = double(total_on_hand: 0)
+        allow(Spree::Stock::Quantifier).to receive(:new).with(variant_2).and_return(mock_quantifier_2)
+      end
+
+      it "should return a data structure of variants and total on hand" do
+        expected = {
+          variant_1.number => 1
+        }
+        expect(subject.variants_total_on_hand).to eq expected
+      end
+
+    end
+
+  end
+
   context "#tab_type" do
     its(:tab_type) { should eq tab.tab_type }
   end
@@ -158,6 +222,7 @@ describe Spree::SuiteTabPresenter do
       end
     end
   end
+
 
 
 end

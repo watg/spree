@@ -21,6 +21,32 @@ module Spree
 
       specify { subject.stock_items.should == [stock_item] }
 
+      describe "clear_total_on_hand_cache" do
+        it "clears the total_on_hand cache key" do
+          expect(Rails.cache).to receive(:delete).with(subject.send(:total_on_hand_cache_key))
+          subject.clear_total_on_hand_cache
+        end
+      end
+
+      describe "total_on_hand_cache_key" do
+        it "is unique to the variant" do
+          expect(subject.send(:total_on_hand_cache_key)).to eq "variant-#{stock_item.variant.id}-total_on_hand"
+        end
+      end
+
+      describe "clear_backorderable_cache" do
+        it "clears the backorderable cache key" do
+          expect(Rails.cache).to receive(:delete).with(subject.send(:backorderable_cache_key))
+          subject.clear_backorderable_cache
+        end
+      end
+
+
+      describe "backorderable_cache_key" do
+        it "is unique to the variant" do
+          expect(subject.send(:backorderable_cache_key)).to eq "variant-#{stock_item.variant.id}-backorderable"
+        end
+      end
 
       context 'with a single stock location/item' do
         describe "total_on_hand" do
@@ -35,6 +61,36 @@ module Spree
             create_list(:inventory_unit, 2, state: "awaiting_feed", variant: variant, pending: true)
             expect(subject.total_on_hand).to eq(stock_item.count_on_hand - 2)
           end
+
+          it 'uses rails cache' do
+            expect(Rails.cache).to receive(:fetch).with(subject.send(:total_on_hand_cache_key))
+            subject.total_on_hand
+          end
+
+          it 'caches the value' do
+            expect(Spree::InventoryUnit).to receive(:total_awaiting_feed_for).and_return(0)
+            subject.total_on_hand
+
+            expect(Spree::InventoryUnit).to_not receive(:total_awaiting_feed_for)
+            subject.total_on_hand
+          end
+
+        end
+
+        describe "backorderable?" do
+          it 'uses rails cache' do
+            expect(Rails.cache).to receive(:fetch).with(subject.send(:backorderable_cache_key))
+            subject.backorderable? 
+          end
+
+          it 'caches the value' do
+            expect(subject).to receive(:stock_items).and_return([])
+            subject.backorderable?
+
+            expect(subject).to_not receive(:stock_items)
+            subject.backorderable?
+          end
+
         end
 
         context 'when track_inventory_levels is false' do
@@ -88,6 +144,7 @@ module Spree
         it 'total_on_hand should total all active stock_items' do
           subject.total_on_hand.should == 20
         end
+
 
         context 'when any stock item allows backordering' do
           specify { subject.backorderable?.should be_true }
