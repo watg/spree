@@ -55,9 +55,9 @@ module Spree
 
     def s3_connection
       AWS::S3.new(
-        access_key_id:      ENV['AWS_ACCESS_KEY_ID'],
-        secret_access_key:  ENV['AWS_SECRET_ACCESS_KEY'],
-        s3_endpoint:        ENV['AWS_S3_ENDPOINT'],
+        access_key_id:      Rails.configuration.aws[:access_key_id],
+        secret_access_key:  Rails.configuration.aws[:secret_access_key],
+        s3_endpoint:        's3-eu-west-1.amazonaws.com'
       )
     end
 

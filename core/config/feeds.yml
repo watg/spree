@@ -1,13 +1,13 @@
 development: &dev
   linkshare:
     storage_method: cache
-    s3_bucket: 
+    s3_bucket:
     name: 'linkshare-atom.xml'
     host:  http://www.woolandthegang.com
     feed_url: http://localhost:3000/linkshare-atom.xml
   polyvor:
     storage_method: cache
-    s3_bucket: 
+    s3_bucket:
     name: 'polyvor_feed.tsv'
     host:  http://www.woolandthegang.com
     feed_url: http://localhost:3000/polyvor.tsv
@@ -19,16 +19,16 @@ test:
 staging: &staging
   linkshare:
     storage_method: s3
-    s3_bucket: watg-dest-test
+    s3_bucket: feeds.watg-staging.com
     name: 'linkshare/atom.xml'
     host:  http://www.woolandthegang.com
-    feed_url: http://s3.amazonaws.com/watg-dest-test/linkshare/atom.xml
+    feed_url: http://s3.amazonaws.com/feeds.watg-staging.com/linkshare/atom.xml
   polyvor:
     storage_method: s3
-    s3_bucket: watg-dest-test
+    s3_bucket: feeds.watg-staging.com
     name: 'polyvor/feed.tsv'
     host:  http://www.woolandthegang.com
-    feed_url: http://s3.amazonaws.com/watg-dest-test/polyvor/feed.tsv
+    feed_url: http://s3.amazonaws.com/feeds.watg-staging.com/polyvor/feed.tsv
 
 production:
   linkshare:
