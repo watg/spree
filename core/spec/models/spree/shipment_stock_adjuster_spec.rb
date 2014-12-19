@@ -29,9 +29,9 @@ describe Spree::ShipmentStockAdjuster do
 
     it "sets inventory_units` supplier to nil and their pending state to true" do
       units = []
-      units << Spree::InventoryUnit.create(order: order, pending: false, supplier_id: 1)
-      units << Spree::InventoryUnit.create(order: order, state: 'backordered', pending: false, supplier_id: 2)
-      units << Spree::InventoryUnit.create(order: order, state: 'awaiting_feed', pending: false, supplier_id: 3)
+      units << Spree::InventoryUnit.create(order: order, pending: false, supplier_id: 1, variant: variant)
+      units << Spree::InventoryUnit.create(order: order, state: 'backordered', pending: false, supplier_id: 2, variant: variant)
+      units << Spree::InventoryUnit.create(order: order, state: 'awaiting_feed', pending: false, supplier_id: 3, variant: variant)
       stock_location.stub(:restock)
 
       subject.restock(variant, units)

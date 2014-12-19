@@ -25,7 +25,7 @@ module Spree
         find_each do |v|
           # we do not want to include master variant if its product has normal variants
           unless v.is_master_but_has_variants?
-            data << v unless Spree::Stock::Quantifier.new(v, v.stock_items).can_supply? 1
+            data << v unless Spree::Stock::Quantifier.new(v).can_supply? 1
           end
         end
 

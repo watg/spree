@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe Spree::StockItem do
   let!(:stock_location) { create(:stock_location_with_items) }
+  let!(:stock_item) { stock_location.stock_items.first }
 
   subject { stock_location.stock_items.order(:id).first }
 
@@ -11,6 +12,35 @@ describe Spree::StockItem do
 
   it "can return the stock item's variant's name" do
     subject.variant_name.should == subject.variant.name
+  end
+
+  describe "#from_available_locations" do
+    let!(:stock_location_2) { create :stock_location }
+    let!(:stock_location_3) { create :stock_location, active: false }
+    let!(:stock_location_4) { create :stock_location, feed_into: stock_location_2, active: false }
+
+    before do
+      stock_location_2.stock_items.where(variant_id: stock_item.variant).update_all(count_on_hand: 5, backorderable: false)
+      stock_location_3.stock_items.where(variant_id: stock_item.variant).update_all(count_on_hand: 5, backorderable: false)
+      stock_location_4.stock_items.where(variant_id: stock_item.variant).update_all(count_on_hand: 5, backorderable: false)
+    end
+
+    it "return stock items from only avaiable locations" do
+      stock_items = described_class.from_available_locations.
+        where(variant: stock_item.variant)
+
+      expect(stock_items.size).to eq 3
+
+      stock_locations = stock_items.map(&:stock_location)
+
+      expected_stock_locations = [
+        stock_location,
+        stock_location_2,
+        stock_location_4,
+      ]
+
+      expect(stock_locations).to match_array expected_stock_locations
+    end
   end
 
   context "available to be included in shipment" do
@@ -235,6 +265,20 @@ describe Spree::StockItem do
 
     after { Delayed::Worker.delay_jobs = true }
 
+    context "clear_total_on_hand_cache" do
+      it "gets called" do
+        expect(subject).to receive(:clear_total_on_hand_cache)
+        subject.save
+      end
+    end
+
+    context "clear_backorderable_cache" do
+      it "gets called" do
+        expect(subject).to receive(:clear_backorderable_cache)
+        subject.save
+      end
+    end
+
     context "binary_inventory_cache is set to false (default)" do
       context "in_stock? changes" do
         it "touches its variant" do
@@ -281,7 +325,83 @@ describe Spree::StockItem do
     end
   end
 
-  context "stock_changed?" do
+  describe "stock_quantifier" do
+
+    it "returns an instance of the stock Quantifier" do
+      expect(Spree::Stock::Quantifier).to receive(:new).with(subject.variant)
+      subject.send(:stock_quantifier)
+    end
+
+  end
+
+  describe "clear_total_on_hand_cache" do
+
+    let(:variant) { build_stubbed(:base_variant)}
+    let(:stock_quantifier) { Spree::Stock::Quantifier.new(variant)}
+
+    before { allow(subject).to receive(:stock_quantifier).and_return(stock_quantifier) }
+
+    it "is called if count_on_hand_changed? is true" do
+      allow(subject).to receive(:count_on_hand_changed?).and_return(true)
+      expect(stock_quantifier).to receive(:clear_total_on_hand_cache)
+      subject.send(:clear_total_on_hand_cache)
+    end
+
+    it "is not called if count_on_hand_changed? is false" do
+      allow(subject).to receive(:count_on_hand_changed?).and_return(false)
+      expect(stock_quantifier).to_not receive(:clear_total_on_hand_cache)
+      subject.send(:clear_total_on_hand_cache)
+    end
+
+    it "is called if variant_id_changed? is true" do
+      allow(subject).to receive(:variant_id_changed?).and_return(true)
+      expect(stock_quantifier).to receive(:clear_total_on_hand_cache)
+      subject.send(:clear_total_on_hand_cache)
+    end
+
+    it "is not called if variant_id_changed? is false" do
+      allow(subject).to receive(:variant_id_changed?).and_return(false)
+      expect(stock_quantifier).to_not receive(:clear_total_on_hand_cache)
+      subject.send(:clear_total_on_hand_cache)
+    end
+
+  end
+
+
+  describe "clear_backorderable_cache" do
+
+    let(:variant) { build_stubbed(:base_variant)}
+    let(:stock_quantifier) { Spree::Stock::Quantifier.new(variant)}
+
+    before { allow(subject).to receive(:stock_quantifier).and_return(stock_quantifier) }
+
+    it "is called if backorderable_changed? is true" do
+      allow(subject).to receive(:backorderable_changed?).and_return(true)
+      expect(stock_quantifier).to receive(:clear_backorderable_cache)
+      subject.send(:clear_backorderable_cache)
+    end
+
+    it "is not called if backorderable_changed? is false" do
+      allow(subject).to receive(:backorderable_changed?).and_return(false)
+      expect(stock_quantifier).to_not receive(:clear_backorderable_cache)
+      subject.send(:clear_backorderable_cache)
+    end
+
+    it "is called if variant_id_changed? is true" do
+      allow(subject).to receive(:variant_id_changed?).and_return(true)
+      expect(stock_quantifier).to receive(:clear_total_on_hand_cache)
+      subject.send(:clear_total_on_hand_cache)
+    end
+
+    it "is not called if variant_id_changed? is false" do
+      allow(subject).to receive(:variant_id_changed?).and_return(false)
+      expect(stock_quantifier).to_not receive(:clear_backorderable_cache)
+      subject.send(:clear_backorderable_cache)
+    end
+
+  end
+
+  describe "stock_changed?" do
     it "is true when count on hand changes from positive to 0" do
       subject.send(:count_on_hand=,0)
       expect(subject.send(:stock_changed?)).to be_true

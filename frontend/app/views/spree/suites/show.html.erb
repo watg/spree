@@ -18,46 +18,48 @@
 
     <input type="hidden" name="authenticity_token_fresh" value="<%= form_authenticity_token %>" />
     <% @body_class = 'suite no-sitewide-promo' %>
-    <% cache [suite_presenter.suite, selected_tab_presenter.tab_type, suite_presenter.currency, device] do %>
-    <div class="wrapper-product-group" itemscope itemtype="http://schema.org/Product">
 
-    	<div class="widget-social">
-    		<%= render partial: 'olapic' %>
-    	</div>
-    	<div class="row-hero <%= selected_tab_presenter.tab_type %>" data-hero-image="<%= selected_tab_presenter.banner_url %>">
-    		<div class="row">
-    			<div class="large-4 push-8 small-12 columns title <%= selected_tab_presenter.inverted_colour %>">
-    				<p>Presenting</p>
-    				<h1 itemprop="name" class=<%= suite_presenter.title_size_class %>><%= suite_presenter.title %></h1>
-    				<ul class="no-bullet icons-social">
-    					<% [:twitter, :facebook, :pinterest].each do |social| %>
-    					<li>
-    					  <%= link_to("Share with #{social}", selected_tab_presenter.send("#{social}_url"), target: '_blank', class: social) %>
-    					</li>
-    					<% end %>
-    				</ul>
-    			</div>
-    		</div>
-    	</div><!-- /row -->
+    <div class="wrapper-product-group" itemscope itemtype="http://schema.org/Product" data-variants-total-on-hand="<%= selected_tab_presenter.variants_total_on_hand.to_json %>" >
 
-    	<% if suite_presenter.tabs.size > 1 # Show row if we have both ready made and knit your own %>
-    		<div class="row row-tabs">
-    		<% suite_presenter.suite_tab_presenters.each_with_index do |tab_presenter, index| %>
-    			<div class="large-3 small-6 columns tab <%= suite_presenter.tab_grid_class(index) %> <%= 'active' if tab_presenter.tab_type == selected_tab_presenter.tab_type %>">
-    			  <h2><a class="tab-<%= tab_presenter.tab_type %>" href="<%= tab_presenter.link_to %>"><span><%= tab_presenter.presentation %></span></a></h2>
-    			</div>
-    		<% end %>
-    		</div><!-- /row -->
-    	<% end %>
+      <% cache [suite_presenter.suite, selected_tab_presenter.tab_type, suite_presenter.currency, device] do %>
 
-      <%# Template Dependency: spree/suites/tab_type/default %>
-      <%# Template Dependency: spree/suites/tab_type/knit_your_own %>
-      <%# Template Dependency: spree/suites/tab_type/made_by_the_gang %>
-      <% cache [selected_tab_presenter.suite_tab, suite_presenter.currency, device] do %>
-    	  <%= render selected_tab_presenter.cart_partial, selected_tab_presenter: selected_tab_presenter, suite_presenter: suite_presenter %>
-      <% end %>
+      	<div class="widget-social">
+      		<%= render partial: 'olapic' %>
+      	</div>
+      	<div class="row-hero <%= selected_tab_presenter.tab_type %>" data-hero-image="<%= selected_tab_presenter.banner_url %>">
+      		<div class="row">
+      			<div class="large-4 push-8 small-12 columns title <%= selected_tab_presenter.inverted_colour %>">
+      				<p>Presenting</p>
+      				<h1 itemprop="name" class=<%= suite_presenter.title_size_class %>><%= suite_presenter.title %></h1>
+      				<ul class="no-bullet icons-social">
+      					<% [:twitter, :facebook, :pinterest].each do |social| %>
+      					<li>
+      					  <%= link_to("Share with #{social}", selected_tab_presenter.send("#{social}_url"), target: '_blank', class: social) %>
+      					</li>
+      					<% end %>
+      				</ul>
+      			</div>
+      		</div>
+      	</div><!-- /row -->
 
-    <% end # cache suite,selected_tab_presenter %>
+      	<% if suite_presenter.tabs.size > 1 # Show row if we have both ready made and knit your own %>
+      		<div class="row row-tabs">
+      		<% suite_presenter.suite_tab_presenters.each_with_index do |tab_presenter, index| %>
+      			<div class="large-3 small-6 columns tab <%= suite_presenter.tab_grid_class(index) %> <%= 'active' if tab_presenter.tab_type == selected_tab_presenter.tab_type %>">
+      			  <h2><a class="tab-<%= tab_presenter.tab_type %>" href="<%= tab_presenter.link_to %>"><span><%= tab_presenter.presentation %></span></a></h2>
+      			</div>
+      		<% end %>
+      		</div><!-- /row -->
+      	<% end %>
+
+        <%# Template Dependency: spree/suites/tab_type/default %>
+        <%# Template Dependency: spree/suites/tab_type/knit_your_own %>
+        <%# Template Dependency: spree/suites/tab_type/made_by_the_gang %>
+        <% cache [selected_tab_presenter.suite_tab, suite_presenter.currency, device] do %>
+      	  <%= render selected_tab_presenter.cart_partial, selected_tab_presenter: selected_tab_presenter, suite_presenter: suite_presenter %>
+        <% end %>
+
+      <% end # cache suite,selected_tab_presenter %>
     </div><!-- /wrapper -->
   <% end # selected_tab_presenter_presenter %>
 <% end # suite_presenter %>

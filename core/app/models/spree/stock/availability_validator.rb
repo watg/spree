@@ -57,19 +57,16 @@ module Spree
           grouped_variants[variant_id] = grouped_variants[variant_id].to_i - grouped_units[variant_id].to_i
         end.select {|v_id, count| count > 0}
 
-        preloaded_variants = Spree::Variant.where(id: grouped_variants.keys).
-          includes(:stock_items).joins(stock_items: :stock_location).
-          merge(Spree::StockLocation.available).
-          references(:stock_location).load
+        variants = Spree::Variant.where(id: grouped_variants.keys)
 
-        valids = grouped_variants.map do |variant_id, quantity|
-          variant = preloaded_variants.find { |variant| variant.id == variant_id }
+        valids = variants.map do |variant|
+          quantity = grouped_variants[variant.id]
 
-          if !Stock::Quantifier.new(variant, variant.stock_items).can_supply? quantity
+          if !Stock::Quantifier.new(variant).can_supply? quantity
             display_name = %Q{#{variant.name}}
             display_name += %Q{ (#{variant.options_text})} unless variant.options_text.blank?
 
-            out_of_stock_line_item = item_builder.find_by_variant_id(variant_id).last.line_item
+            out_of_stock_line_item = item_builder.find_by_variant_id(variant.id).last.line_item
             out_of_stock_line_item.errors[:quantity] << Spree.t(:selected_quantity_not_available, :scope => :order_populator, :item => display_name.inspect)
 
             false

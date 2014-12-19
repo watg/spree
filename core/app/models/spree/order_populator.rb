@@ -76,8 +76,8 @@ module Spree
 
           if missing_parts.any?
 
-            missing_parts_as_params = missing_parts.inject({}) do |hash, (part,variant)| 
-              hash[part.id] = variant.id
+            missing_parts_as_params = missing_parts.inject({}) do |hash, (part_id,variant_id)| 
+              hash[part_id] = variant_id
               hash
             end
 
