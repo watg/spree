@@ -438,7 +438,9 @@ module Spree
       touch :completed_at
 
       deliver_gift_card_emails
-      deliver_order_confirmation_email unless confirmation_delivered?
+      unless confirmation_delivered? || internal?
+        deliver_order_confirmation_email
+      end
 
       consider_risk
 
@@ -803,7 +805,7 @@ module Spree
     end
 
     def send_cancel_email
-      OrderMailer.cancel_email(self.id).deliver
+      OrderMailer.cancel_email(self.id).deliver unless internal?
     end
 
     def after_resume

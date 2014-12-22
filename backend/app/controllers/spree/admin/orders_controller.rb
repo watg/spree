@@ -55,6 +55,7 @@ module Spree
       def create
         @order = Order.new
         @order.currency = params[:order][:currency] || Spree::Config[:default_currency]
+        @order.internal = params[:order][:internal]
         @order.created_by = try_spree_current_user
         @order.save!
         redirect_to edit_admin_order_url(@order)

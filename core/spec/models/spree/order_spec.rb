@@ -299,6 +299,13 @@ describe Spree::Order do
       order.finalize!
     end
 
+    it "does not send a confirmation email for internal orders" do
+      order.internal = true
+      allow(Spree::OrderMailer).to receive(:confirm_email)
+      order.finalize!
+      expect(Spree::OrderMailer).not_to have_received(:confirm_email)
+    end
+
     it "sets confirmation delivered when finalizing" do
       expect(order.confirmation_delivered?).to be_false
       order.finalize!
@@ -478,6 +485,25 @@ describe Spree::Order do
       order.shipment_state = nil
       order.completed_at = Time.now
       order.can_cancel?.should be_true
+    end
+  end
+
+  context "#send_cancel_email" do
+    let(:deliverable) { double("Deliverable", deliver: true) }
+
+    before do
+      allow(Spree::OrderMailer).to receive(:cancel_email).and_return(deliverable)
+    end
+
+    it "sends the cancel email" do
+      order.send(:send_cancel_email)
+      expect(Spree::OrderMailer).to have_received(:cancel_email).with(order.id)
+    end
+
+    it "does not send email for internal orders" do
+      order.internal = true
+      order.send(:send_cancel_email)
+      expect(Spree::OrderMailer).not_to have_received(:cancel_email)
     end
   end
 

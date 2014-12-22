@@ -86,6 +86,12 @@ describe Spree::Admin::OrdersController, type: :controller do
         assigns[:order].currency.should == 'GBP'
       end
 
+      it "sets the internal" do
+        params[:order][:internal] = 1
+        spree_post :create, params
+        expect(assigns[:order]).to be_internal
+      end
+
     end
 
     # Regression test for #3684
