@@ -28,6 +28,8 @@ module Spree
     has_many :option_types, through: :product_option_types
     has_many :visible_option_types, -> { where spree_product_option_types: true }, through: :product_option_types
 
+    has_many :marketing_types, class_name: 'Spree::MarketingType'
+
     has_many :product_properties, dependent: :destroy, inverse_of: :product
     has_many :properties, through: :product_properties
 
