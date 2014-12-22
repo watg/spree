@@ -200,6 +200,91 @@ describe Spree::SuiteTabPresenter do
     end
   end
 
+  describe "#meta_name" do
+
+    it "returns the name of the suite" do
+      expect(subject.meta_name).to eq subject.suite.name
+    end
+
+  end
+
+  describe "#meta_description" do
+
+    before do
+      long_sentance = []
+      16.times { long_sentance << '1234567890' }
+      long_sentance = long_sentance.join(' ')
+
+      mock_product = mock_model(Spree::Product, description: long_sentance)
+      allow(subject).to receive(:product).and_return(mock_product)
+    end
+
+
+    it "returns the description of the product" do
+      expect(subject.meta_description.size).to eq 156
+      expect(subject.meta_description.split(' ').last).to eq '1234567890...'
+    end
+
+  end
+
+  describe "meta_title" do
+
+    let(:marketing_type) { Spree::MarketingType.new(title: 'title', meta_title: "meta_title")}
+    let(:product) { Spree::Product.new(marketing_type: marketing_type)}
+
+    before do
+      subject.suite_tab.product = product
+      suite.title = 'suite_title'
+    end
+
+    it "returns the title" do
+      expected = "suite_title | meta_title | WOOL AND THE GANG"
+      expect(subject.meta_title).to eq expected 
+    end
+
+    context "suite has a meta_title" do
+
+      before do
+        subject.suite.meta_title = 'ralf'
+      end
+
+      it "returns the title" do
+        expected = "ralf | meta_title | WOOL AND THE GANG"
+        expect(subject.meta_title).to eq expected 
+      end
+
+    end
+
+    context "no marketing type meta title" do
+
+      before do
+        marketing_type.meta_title = nil
+      end
+
+      it "returns the title" do
+        expected = "suite_title | title | WOOL AND THE GANG"
+        expect(subject.meta_title).to eq expected 
+      end
+    end
+
+  end
+
+
+  describe "meta_keywords" do
+
+    let(:marketing_type) { Spree::MarketingType.new(title: 'marketing_type', meta_title: "meta_title")}
+    let(:product) { Spree::Product.new(meta_keywords: 'product', marketing_type: marketing_type)}
+
+    before do
+      subject.suite_tab.product = product
+      suite.title = 'suite_title'
+    end
+
+    it "returns the keywords of the product" do
+      expected = "Knitwear, Knitting, Knitted, Wool, Unique, Handmade, Sustainable yarn, How to knit, Learn to knit, suite_title, marketing_type, product"
+      expect(subject.meta_keywords).to eq expected 
+    end
+  end
 
   context "#lowest_prices" do
 
