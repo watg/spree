@@ -84,7 +84,7 @@ describe Spree::ProductPageDecorator, type: :decorator do
     end
 
     it "assigns the correct size (mini) class for a title" do
-      subject.title = "Minis Giles"
+      subject.title = "Mini Giles"
       expect(subject.title_size_class).to eq ("medium")
     end
 
