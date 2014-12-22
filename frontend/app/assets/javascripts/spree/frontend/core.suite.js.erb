@@ -20,7 +20,6 @@ var readySuite = function() {
 	core.suite.positionHeroTitle();
 
 	/* ----- New kit UI only ----- */
-	//core.suite.hideOutOfStockVariants();
 	core.suite.readyAssemblyMenus();
 	core.suite.closeAssemblyMenus();
 	core.suite.readyAssemblyItemNames();
@@ -230,23 +229,6 @@ core.suite.checkForVariantNumber = function() {
 }
 
 /* ----- New kit UI only ----- */
-// we are doing this via the frontend now
-//core.suite.hideOutOfStockVariants = function() {
-//	var definitionId = $('.row-assembly').data('ad-id');
-//	if (definitionId == null || definitionId == 'undefined') return false; // Die if not new kit UI
-//
-//	var path = "<%= api_assembly_definitions_option_values_out_of_stock_path(id: ':id') %>".replace(":id", definitionId);
-//	$.get(path, function(data){
-//		for(part_id in data.parts){
-//			var partScope = '.product-variants[data-adp-id='+part_id+']';
-//			$.each(data.parts[part_id], function(i, ovidList){
-//				$.each(ovidList, function(i, ovid){
-//					$('.variant-option-values [data-ov-id='+ovid+']', partScope).hide();
-//				});
-//			});
-//		}
-//	});
-//}
 
 core.suite.readyAssemblyMenus = function() {
 	var row = $('.row-assembly');
