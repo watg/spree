@@ -213,7 +213,6 @@ module Spree
     end
 
     def finalize!
-      InventoryUnit.finalize_units!(inventory_units)
       manifest.each { |item| manifest_unstock(item) }
     end
 
