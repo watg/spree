@@ -127,16 +127,21 @@ module Spree
         where(state: SHIPPABLE_STATES)
       end
 
+      def prioritised
+        # We use COALESCE to turn nulls into falses
+        order("COALESCE(spree_orders.important, FALSE) DESC, spree_orders.completed_at DESC")
+      end
+
       # only physical line item to be dispatched
       def to_be_packed_and_shipped
         non_digital_product_type_ids = Spree::ProductType.where(is_digital: false).pluck(:id)
-        select('spree_orders.*').includes(line_items: [variant: :product]).
+        select('spree_orders.*', "COALESCE(spree_orders.important, FALSE)").includes(line_items: [variant: :product]).
           shippable_state.
           where(payment_state: 'paid',
                 shipment_state: 'ready',
                 internal: false,
                 'spree_products.product_type_id' => non_digital_product_type_ids).
-                order('spree_orders.completed_at')
+          prioritised
       end
 
       def unprinted_invoices

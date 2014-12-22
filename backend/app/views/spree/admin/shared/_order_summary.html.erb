@@ -1,5 +1,8 @@
 <header id="order_tab_summary" data-hook>
   <dl class="additional-info">
+    <% if @order.important? %>
+      <p class="important">Important</p>
+    <% end %>
     <dt id="order_status" data-hook><%= Spree.t(:status) %>:</dt>
     <dd><span class="state <%= @order.state %>"><%= Spree.t(@order.state, :scope => :order_state) %></span></dd>
     <dt data-hook><%= Spree.t(:subtotal) %>:</dt>

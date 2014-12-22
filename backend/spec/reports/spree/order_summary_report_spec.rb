@@ -45,7 +45,6 @@ describe Spree::OrderSummaryReport do
 
   end
 
-
   describe "order states" do
     let(:state_idx) { report.header.index("state") }
     let(:notes_idx) { report.header.index("latest_note") }
@@ -90,6 +89,29 @@ describe Spree::OrderSummaryReport do
           expect(row[notes_idx]).to eq(notes.last.reason)
         end
         expect(processed).to eq(1)
+      end
+    end
+  end
+
+  describe "important orders" do
+    let(:important_idx) { report.header.index("important") }
+
+    describe "headers" do
+      it "includes important field" do
+        expect(important_idx).not_to be_nil
+      end
+    end
+
+    describe "data" do
+      let!(:important_order) { create(:order_ready_to_ship, completed_at: Time.now, important: true) }
+      let!(:unimportant_order) { create(:order_ready_to_ship, completed_at: Time.now) }
+
+      it "includes order important flag" do
+        important_values = []
+        report.retrieve_data do |row|
+          important_values << row[important_idx]
+        end
+        expect(important_values).to eq([true, false])
       end
     end
   end
