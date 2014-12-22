@@ -135,6 +135,13 @@ module Spree
     def unstock_stock_item(stock_item, units)
 
       supplier_id = stock_item.try(:supplier).try(:id)
+      if supplier_id.nil?
+        Helpers::AirbrakeNotifier.delay.notify(
+          "Stock Item has no supplier",
+          {stock_item_id: stock_item.id}
+        )
+      end
+
       Spree::InventoryUnit.where(id: units.map(&:id)).update_all(supplier_id: supplier_id, pending: false)
 
       adjust_quantity = units.size * -1

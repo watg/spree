@@ -235,6 +235,27 @@ describe Spree::ShipmentStockAdjuster do
       # Updates the stock_item last_unstocked_at time
       expect(stock_item.last_unstocked_at).to be_within(1.second).of(Time.now)
     end
+
+    context "when the stock item has no supplier" do
+      let(:supplier) { nil }
+
+      before do
+        stock_movements = double('StockMovement')
+        allow(stock_item).to receive(:stock_movements).and_return(stock_movements)
+        allow(stock_movements).to receive(:create!)
+      end
+
+      it "sends an airbrake notification" do
+        notifier = double
+        notification_params = {
+          stock_item_id: stock_item.id
+        }
+
+        expect(notifier).to receive(:notify).with("Stock Item has no supplier", notification_params)
+        expect(Helpers::AirbrakeNotifier).to receive(:delay).and_return(notifier)
+        adjuster.send(:unstock_stock_item, stock_item, units)
+      end
+    end
   end
 
 end
