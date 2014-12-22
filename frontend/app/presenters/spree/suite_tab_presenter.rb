@@ -75,6 +75,28 @@ module Spree
       end
     end
 
+    def meta_title
+      suite_title = suite.meta_title.blank? ? suite.title : suite.meta_title
+      marketing_meta_title = product.marketing_type.meta_title || product.marketing_type.title
+      [suite_title, marketing_meta_title, 'WOOL AND THE GANG'].join(' | ')
+    end
+
+    def meta_keywords
+       keywords = %w{Knitwear Knitting Knitted Wool Unique Handmade }
+       keywords += ['Sustainable yarn', 'How to knit', 'Learn to knit']
+       keywords << suite.title
+       keywords << product.marketing_type.title
+       keywords << product.meta_keywords
+       keywords.uniq.join(", ")
+    end
+    def meta_description
+      h.truncate(product.description, length: 160, separator: ' ')
+    end
+
+    def meta_name
+      suite.name
+    end
+
     private
 
     def social_description

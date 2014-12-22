@@ -1,7 +1,10 @@
-<% content_for :title do %><%= @taxon.title %><% end %>
+<% meta_title = @taxon.meta_title.blank? ? @taxon.title : @taxon.meta_title %>
+<% content_for :title do %><%= "#{meta_title} | Knit Kits | Knitwear | WOOL AND THE GANG" %><% end %>
+
 <% content_for :meta do %>
-  <meta content="" name="keywords" />
-  <meta content="" name="description" />
+  <meta content="index,follow" name="robots" />
+  <meta content="<%= @taxon.meta_keywords %>" name="keywords" />
+  <meta content="<%= @taxon.meta_description %>" name="description" />
 <% end %>
 
 <% show_all = Spree::TaxonsController::SHOW_ALL %>

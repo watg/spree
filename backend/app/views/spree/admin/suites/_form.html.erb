@@ -33,15 +33,23 @@
       <%= f.collection_select(:target_id, Spree::Target.all, :id, :name, {include_blank: true},  { class: 'select2 fullwidth'}) %>
     <% end %>
 
-    <%= f.label :title, Spree.t(:layout) %><br/>
+    <%= f.field_container :meta_title do %>
+      <%= f.label :title, Spree.t(:meta_title) %>
+      <%= f.text_field :meta_title, :class => 'fullwidth title' %>
+      <%= f.error_message_on :meta_title %>
+    <% end %>
 
-    <%= f.check_box :inverted %> Inverted colours<br/><br/>
+    <%= f.field_container :layout do %>
+      <%= f.label :title, Spree.t(:layout) %><br/>
 
-    <%= f.radio_button :template_id, 1 %>
-    <%= f.label :template_id, 'top left hand' %><br/>
+      <%= f.check_box :inverted %> Inverted colours<br/><br/>
 
-    <%= f.radio_button :template_id, 2 %>
-    <%= f.label :template_id, 'bottom centre' %><br/>
+      <%= f.radio_button :template_id, 1 %>
+      <%= f.label :template_id, 'top left hand' %><br/>
+
+      <%= f.radio_button :template_id, 2 %>
+      <%= f.label :template_id, 'bottom centre' %><br/>
+    <% end %>
 
   </div>
 

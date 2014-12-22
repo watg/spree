@@ -1,3 +1,7 @@
+<% content_for :meta do %>
+  <meta content="noindex, nofollow, noarchive, nosnippet" name="robots" />
+<% end %>
+
 <div id="checkout" data-hook>
   <%= render :partial => 'spree/shared/error_messages', :locals => { :target => @order } %>
 
