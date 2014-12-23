@@ -1,0 +1,3 @@
+Spree.fetch_cart();
+$('#cart-ajax-message').remove();
+$('<%= escape_javascript(render :partial => "add_to_cart_ajax_message") %>').insertAfter('#cart-form');

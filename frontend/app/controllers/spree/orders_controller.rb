@@ -7,6 +7,7 @@ module Spree
     helper 'spree/products', 'spree/orders'
 
     respond_to :html
+    respond_to :js, :only => :populate
 
     before_action :assign_order_with_lock, only: :update
     before_action :apply_coupon_code, only: :update

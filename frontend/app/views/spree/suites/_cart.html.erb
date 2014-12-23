@@ -32,7 +32,7 @@
           <p class="digital-available">PDF + Printed Pattern</p>
 
           <div class="cart-form" data-hook="cart_form">
-            <%= form_for :order, :url => populate_orders_path do |f| %>
+            <%= form_for :order, :url => populate_orders_path, :remote => true do |f| %>
               <%= hidden_field_tag "suite_id", suite_presenter.id %>
               <%= hidden_field_tag "suite_tab_id", selected_tab_presenter.id %>
               <%= hidden_field_tag "target_id", suite_presenter.target.try(:id) %>
