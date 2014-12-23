@@ -15,6 +15,13 @@
   <% end %>
   </div>
 
+  <div class="alpha four columns">
+    <%= f.field_container :internal do %>
+      <%= f.label :internal, Spree.t(:internal) %><br />
+    <%= f.check_box :internal %>
+  <% end %>
+  </div>
+
   <div class="clearfix"></div>
 
   <div class="actions filter-actions">
