@@ -58,7 +58,7 @@ module Spree
       else
         @products = Product.active(current_currency)
       end
-      @product = @products.friendly.find(params[:product_id])
+      @product = @products.friendly.find(params[:product_id] || params[:id])
     end
   end
 end
