@@ -6,7 +6,6 @@ module Spree
     end
 
     def execute
-      d { suite_url }
       {
         url:       suite_url,
         http_code: code,
@@ -28,11 +27,8 @@ module Spree
       return '/' if product.blank?
       return '/' if suite.blank?
 
-      base = [
-              'product',
-              suite,
-              tab(product)]
-      
+      base = ['product', suite, tab(product)]
+
       base << variant.number if variant
       
       '/' + base.compact.join('/')
