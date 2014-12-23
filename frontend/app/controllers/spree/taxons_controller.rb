@@ -12,10 +12,7 @@ module Spree
       @taxon = TaxonShowService.run!(permalink: params[:id])
       raise ActiveRecord::RecordNotFound if @taxon.nil?
 
-      @suites = Spree::Suite.joins(:classifications, :tabs).includes(:image, :tabs, :target)
-        .merge(Spree::Classification.where(taxon_id: @taxon.id))
-        .references(:classifications)
-        .page(curr_page).per(per_page)
+      @suites = fetch_suites(@taxon)
 
       @taxonomies = Spree::Taxonomy.includes(root: :children)
       @currency = current_currency
@@ -23,6 +20,21 @@ module Spree
     end
 
     private
+
+    def fetch_suites(taxon)
+      selector = Spree::Suite.joins(:classifications, :tabs).includes(:image, :tabs, :target)
+        .merge(Spree::Classification.where(taxon_id: taxon.id))
+        .references(:classifications)
+
+      # Ensure that if for some reason the page you are looking at is 
+      # now empty then re-run the query with the first page
+      suites = selector.page(curr_page).per(per_page)
+      if suites.empty? and curr_page > 1
+        params[:page] = 1
+        suites = selector.page(curr_page).per(per_page)
+      end
+      suites
+    end
 
     def per_page
       per_page = params[:per_page].to_i

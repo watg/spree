@@ -44,6 +44,17 @@ describe Spree::TaxonsController do
       expect(response).to render_template(:show)
     end
 
+    context "no suites on page" do
+
+      it "loads the first page" do
+        spree_get :show, :id => taxon.permalink, per_page: 10, page: 2
+
+        expect(assigns(:suites).size).to eq 3
+        expect(response).to render_template(:show)
+      end
+
+    end
+
     context "suite has no tabs" do
 
       let!(:suite_1) { create(:suite, tabs: suite_tabs_1) }
