@@ -9,12 +9,8 @@ module Spree
     SHOW_ALL = 999
 
     def show
-      @taxon = Taxon.find_by_permalink!(params[:id])
-      return unless @taxon
-
-      # TODO: Try to get the search working
-      # @searcher = build_searcher(params.merge(taxon: @taxon.id, include_images: true))
-      # @products = @searcher.retrieve_products
+      @taxon = TaxonShowService.run!(permalink: params[:id])
+      raise ActiveRecord::RecordNotFound if @taxon.nil?
 
       @suites = Spree::Suite.joins(:classifications, :tabs).includes(:image, :tabs, :target)
         .merge(Spree::Classification.where(taxon_id: @taxon.id))
@@ -26,8 +22,8 @@ module Spree
       @context = { currency: @currency, device: device }
     end
 
-  private
-  
+    private
+
     def per_page
       per_page = params[:per_page].to_i
       (per_page <= 0) ? PER_PAGE : per_page

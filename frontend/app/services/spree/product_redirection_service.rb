@@ -1,13 +1,14 @@
 module Spree
-  class ProductPageRedirectionService < Mutations::Command
+  class ProductRedirectionService < Mutations::Command
     optional do
       duck :product
       duck :variant
     end
 
     def execute
+      d { suite_url }
       {
-        url:       product_pages_url,
+        url:       suite_url,
         http_code: code,
         flash:     message
       }
@@ -15,22 +16,21 @@ module Spree
     
     private
     def code
-      ((product.blank? || product_page.blank?) ? 302 : 301)
+      ((product.blank? || suite.blank?) ? 302 : 301)
     end
 
     def message
       return "Item not found" if product.blank?
-      return "Page not found" if product_page.blank?
+      return "Page not found" if suite.blank?
     end
 
-    def product_pages_url
+    def suite_url
       return '/' if product.blank?
-      return '/' if product_page.blank?
+      return '/' if suite.blank?
 
       base = [
-              'shop',
-              'items',
-              product_page,
+              'product',
+              suite,
               tab(product)]
       
       base << variant.number if variant
@@ -38,9 +38,9 @@ module Spree
       '/' + base.compact.join('/')
     end
     
-    def product_page
+    def suite
       return @page.permalink if @page
-      @page = Spree::ProductPage.joins(tabs: [:product]).merge(Spree::Product.where(slug: product.slug)).first
+      @page = Spree::Suite.joins(tabs: [:product]).merge(Spree::Product.where(slug: product.slug)).first
       @page.permalink if @page
     end
     

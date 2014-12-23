@@ -38,11 +38,12 @@ module Spree
       'knitting-bag-knit-kits' => 'knit-kits/bags',
       'knitting/new-arrivals' => 'knit-kits/new-arrivals',
 
+      'knitting/men/scarves-and-snoods'  => 'men/scarves-and-snoods',
+
       # 3 left:
       # /knitting-bag-knit-kits
       # /knitting/knit-your-own
       # /knitting/new-arrivals
-
     }
 
     def show

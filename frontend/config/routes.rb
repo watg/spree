@@ -10,9 +10,9 @@ Spree::Core::Engine.add_routes do
   get '/oproxy' => 'oproxy#show', :via => :get, :as => :olapic_proxy
 
   # we don't use spree's default products
-  # resources :products, :only => [:index, :show] do
-  #   match '*option_values' => 'products#show', :via => :get, :as => :variant_options
-  # end
+  resources :products, :only => [:index, :show] do
+    match '*option_values' => 'products#show', :via => :get, :as => :variant_options
+  end
 
   post '/currency/set'   => 'currency#set',    :as => :set_currency, :defaults => { :format => :json }
 
