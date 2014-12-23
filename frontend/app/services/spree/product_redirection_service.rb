@@ -6,7 +6,6 @@ module Spree
     end
 
     def execute
-      d { suite_url }
       {
         url:       suite_url,
         http_code: code,
@@ -28,11 +27,7 @@ module Spree
       return '/' if product.blank?
       return '/' if suite.blank?
 
-      base = [
-              'product',
-              suite,
-              tab(product)]
-      
+      base = [ 'product', suite, suite.tabs.first.tab_type]
       base << variant.number if variant
       
       '/' + base.compact.join('/')
@@ -44,10 +39,6 @@ module Spree
       @page.permalink if @page
     end
     
-    def tab(product)
-      return 'knit-your-own' if product.product_type.kit?
-      'made-by-the-gang'
-    end
     
   end
 end

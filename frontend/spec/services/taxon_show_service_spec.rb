@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::TaxonShowService, type: :routing do
+describe Spree::TaxonShowService do
   subject { Spree::TaxonShowService }
 
 
