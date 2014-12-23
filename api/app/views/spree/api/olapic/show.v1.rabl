@@ -1,8 +1,14 @@
-object @product_page
-node(:productId) { |pp| pp.permalink }
-node(:name) { |pp| pp.name }
-node(:productUrl) do |pp|
-  spree.product_page_url(pp.permalink)
+object @suite
+node(:productId) { |s| s.permalink }
+node(:name) { |s| s.title }
+node(:productUrl) do |s|
+  spree.suite_url(s.permalink)
 end
-node(:stockImageUrl) { |pp| image_url(pp.banner_url) }
-node(:category) { |pp| pp.target.name if pp.target }
+node(:stockImageUrl) do |s| 
+  if s.image
+    image_url(s.image.attachment.url)
+  else
+    image_url("/product-group/placeholder-470x600.gif")
+  end
+end
+node(:category) { |s| s.target.name if s.target }
