@@ -3,25 +3,20 @@
 	<div class="row">
 		<% if free_shipping? %>
 			<% if mobile_device? %>
-				<div class="small-6 columns column-shipping">
+				<div class="small-12 columns column-shipping">
 					<p><a rel="modal" name="modal-shipping" href="#modal-shipping"><strong>Free shipping over <%= free_shipping_amount %></strong></a></p>
-				</div>
-				<div class="small-6 columns column-contact">
-					<p><a rel="modal" name="modal-xmas" href="#modal-xmas">Xmas last order dates</a></p>
 				</div>
 			<% else %>
 				<div class="large-6 small-6 columns column-shipping">
 					<p><strong>Free shipping</strong> on orders over <%= free_shipping_amount %> <a rel="modal" name="modal-shipping" href="#modal-shipping">Find out more</a></p>
 				</div>
 				<div class="large-6 small-6 columns column-contact">
-					<!--<p><strong>We're happy if you're happy</strong> <a rel="modal" name="modal-contact" href="#modal-contact">contact us</a> if you need our help</p>-->
-					<p><strong>Last order dates before Xmas</strong> <a rel="modal" name="modal-xmas" href="#modal-xmas">Find out more</a></p>
+					<p><strong>We're happy if you're happy</strong> <a rel="modal" name="modal-contact" href="#modal-contact">contact us</a> if you need our help</p>
 				</div>
 			<% end %>
 		<% else %>
 			<div class="large-12 small-12 columns column-contact">
-				<!--<p><strong>We're happy if you're happy</strong> <a rel="modal" name="modal-contact" href="#modal-contact">contact us</a> if you need our help</p>-->
-				<p><strong>Last order dates before Xmas</strong> <a rel="modal" name="modal-xmas" href="#modal-xmas">Find out more</a></p>
+				<p><strong>We're happy if you're happy</strong> <a rel="modal" name="modal-contact" href="#modal-contact">contact us</a> if you need our help</p>
 			</div>
 		<% end %>
 	</div>

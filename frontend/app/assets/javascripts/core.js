@@ -7,7 +7,6 @@ var readyCore = function() {
 	core.readyCarousels();
 	core.showCookieMessage();
 	core.readyAlpacaAttack();
-  core.readyCountdown();
 };
 
 $(document).ready(readyCore);
@@ -131,26 +130,6 @@ core.signupCheck = function() {
       core.patternsSetCookie();
     }
   }
-}
-
-core.readyCountdown = function() {
-  if (!$('body').hasClass('homepage')) return false; // Die if not homepage
-
-  var currentDate = new Date();   // Grab the current date
-  var xmasDate  = new Date(currentDate.getFullYear(), 11, 25); // Set Xmas date
-  var diff = xmasDate.getTime() / 1000 - currentDate.getTime() / 1000; // Calculate the difference
-
-  if (1 > 0) {
-    var clock = $('.countdown').FlipClock(diff, {
-      clockFace: 'DailyCounter',
-      countdown: true
-    });
-  }
-
-  // No linking, please...
-  $('.countdown a').on('click', function(e) {
-    e.preventDefault();
-  });
 }
 
 /* ----- Non-init methods ----- */
