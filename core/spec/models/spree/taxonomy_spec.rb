@@ -63,6 +63,21 @@ describe Spree::Taxonomy do
 
       end
 
+
+      describe "#self.clear_navigation_cache_key" do
+
+        before do
+          Rails.cache.write(Spree::Taxonomy::NAVIGATION_CACHE_KEY, 'lol')
+        end
+
+        it "clears the key" do
+          expect(Rails.cache.read(Spree::Taxonomy::NAVIGATION_CACHE_KEY)).not_to be_nil
+          described_class.clear_navigation_cache_key
+          expect(Rails.cache.read(Spree::Taxonomy::NAVIGATION_CACHE_KEY)).to be_nil
+        end
+
+      end
+
     end
 
   end

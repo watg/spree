@@ -15,14 +15,22 @@ module Spree
 
     NAVIGATION_CACHE_KEY = 'nav_cache_key'
 
-    def clear_navigation_cache_key
-      Rails.cache.delete(NAVIGATION_CACHE_KEY)
+    class << self
+
+      def clear_navigation_cache_key
+        Rails.cache.delete(NAVIGATION_CACHE_KEY)
+      end
+
+      def navigation_cache_key
+        Rails.cache.fetch(NAVIGATION_CACHE_KEY) do
+          Time.now.to_i
+        end
+      end
+
     end
 
-    def self.navigation_cache_key
-      Rails.cache.fetch(NAVIGATION_CACHE_KEY) do
-        Time.now.to_i
-      end
+    def clear_navigation_cache_key
+      Spree::Taxonomy.clear_navigation_cache_key
     end
 
     private
