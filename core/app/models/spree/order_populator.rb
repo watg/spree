@@ -1,13 +1,16 @@
 module Spree
   class OrderPopulator
     attr_accessor :order, :currency, :options_parser
-    attr_reader :errors
+    attr_reader :errors, :item
+
+    Item = Struct.new(:variant, :quantity)
 
     def initialize(order, _currency)
       @order = order
       @currency = order.currency
       @errors = ActiveModel::Errors.new(self)
       @options_parser = Spree::LineItemOptionsParser.new(currency)
+      @item = nil
     end
 
     #
@@ -48,7 +51,8 @@ module Spree
 
         if line_item.errors.any?
           errors.add(:base, line_item.errors.messages.values.join(" "))
-          return false
+        else
+          @item = Item.new(variant, quantity)
         end
 
       end
@@ -66,37 +70,35 @@ module Spree
       quantity = quantity.to_i
 
       if is_quantity_reasonable?(quantity)
+
         variant = Spree::Variant.includes(assembly_definition: [:assembly_definition_variants, assembly_definition_parts: [:assembly_definition_variants]]).find(variant_id)
 
-        if parts = params.delete(:parts)
+        parts = params.delete(:parts)
+        missing_parts = options_parser.missing_parts(variant, parts)
 
-          missing_parts = options_parser.missing_parts(variant, parts)
-
-          if missing_parts.any?
-
-            missing_parts_as_params = missing_parts.inject({}) do |hash, (part_id,variant_id)| 
-              hash[part_id] = variant_id
-              hash
-            end
-
-            notifier_params = params.merge(
-              order_id: order.id,
-              parts: parts,
-              missing_parts_and_variants: missing_parts_as_params
-            )
-
-            Helpers::AirbrakeNotifier.notify("Some required parts are missing", notifier_params)
-            errors.add(:base, "Some required parts are missing")
-            return false
+        if missing_parts.empty?
+          params[:parts] = options_parser.dynamic_kit_parts(variant, parts)
+          attempt_cart_add(variant, quantity, params || {})
+        else
+          missing_parts_as_params = missing_parts.inject({}) do |hash, (part_id,variant_id)| 
+            hash[part_id] = variant_id
+            hash
           end
 
+          notifier_params = params.merge(
+            order_id: order.id,
+            parts: parts,
+            missing_parts_and_variants: missing_parts_as_params
+          )
+
+          Helpers::AirbrakeNotifier.notify("Some required parts are missing", notifier_params)
+          errors.add(:base, "Some required parts are missing")
+          return false
         end
 
-        params[:parts] = options_parser.dynamic_kit_parts(variant, parts)
-
-        attempt_cart_add(variant, quantity, params || {})
+      else
+        add_reasonable_quantity_error
       end
-
     end
 
     def parse_products_style_params(products, params)
@@ -122,20 +124,25 @@ module Spree
         params[:personalisations] = options_parser.personalisations(personalisation_params)
 
         attempt_cart_add(variant, quantity || 1, params || {})
+
+      else
+        add_reasonable_quantity_error
       end
 
     end
 
     def is_quantity_reasonable?(quantity)
-
       # 2,147,483,647 is crazy.
       # See issue #2695.
       if quantity > 2_147_483_647
-        errors.add(:base, Spree.t(:please_enter_reasonable_quantity, :scope => :order_populator))
         false
       else
         true
       end
+    end
+
+    def add_reasonable_quantity_error
+      errors.add(:base, Spree.t(:please_enter_reasonable_quantity, :scope => :order_populator))
     end
 
 

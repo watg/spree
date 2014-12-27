@@ -1,4 +1,7 @@
-<p id="cart-ajax-message">
-  <%= Spree.t(:product_was_added_to_your_cart) %>. <br>
-  <a href="<%= cart_path %>"><%= Spree.t(:checkout_now) %></a>
-</p>
+<div id="cart-ajax-message"> 
+  <div class="flash success">
+    <h5><%= Spree.t(:added_to_your_cart) %></h5>
+    <span><%="#{@item.quantity} x #{@item.variant.product.name} (#{@item.variant.options_text})" %></span>
+    <p><a class="button" href="<%= cart_path %>"<%= Spree.t(:checkout_now) %></a></p>
+  </div>
+</div>
