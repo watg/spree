@@ -49,6 +49,70 @@ body.homepage {
 	}
 }
 
+.home-main .leader-new-year {
+	/* Small screen background */
+	background: #fff cdn-url("/homepage/2015-01-02/Homepage_Fresh_MOBILE_V2.jpg") top center no-repeat;
+	& > div {
+		height: 580px;
+	}
+	a {
+		position: absolute;
+		display: block;
+		line-height: 0;
+		font-size: 0;
+	}
+	.link-beginner {
+		width: 100%;
+		height: 100%;
+	}
+	.link-easy {
+		width: 100%;
+		height: 30px;
+		// Positioning
+		bottom: 108px;
+	}
+	.link-intermediate {
+		width: 100%;
+		height: 30px;
+		// Positioning
+		bottom: 70px;
+	}
+	.link-advanced {
+		width: 100%;
+		height: 30px;
+		// Positioning
+		bottom: 30px;
+	}
+	/* Large screen background */
+	@media only screen and (min-width: 56em) {
+		background: #fff cdn-url("/homepage/2015-01-02/Homepage_Fresh_DESKTOP_V2.jpg") top center no-repeat;
+		& > div {
+			height: 700px;
+		}
+		.link-easy {
+			width: 86px;
+			height: 30px;
+			// Positioning
+			bottom: 45px;
+			left: 368px;
+		}
+		.link-intermediate {
+			width: 146px;
+			height: 30px;
+			// Positioning
+			bottom: 45px;
+			left: 478px;
+		}
+		.link-advanced {
+			width: 120px;
+			height: 30px;
+			// Positioning
+			bottom: 45px;
+			right: 230px;
+		}
+	}
+}
+
 .home-main .leader-0 {
 	/* Small screen background */
 	background: #f6e8db cdn-url("/homepage/2014-12-24/Homepage_BigSale_MOBILE_V1.jpg") top center no-repeat;
@@ -103,6 +167,7 @@ body.homepage {
 	}
 
 }
+
 .home-main .leader-2 {
 	/* Small screen background */
 	background: #000 cdn-url("/homepage/2014-12-16/Homepage_15perc_Off_RTW_MOBILE_V1.jpg") top center no-repeat;
