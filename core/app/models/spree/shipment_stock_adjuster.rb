@@ -136,7 +136,7 @@ module Spree
 
       supplier_id = stock_item.try(:supplier).try(:id)
       if supplier_id.nil?
-        Helpers::AirbrakeNotifier.delay.notify(
+        Helpers::AirbrakeNotifier.notify(
           "Stock Item has no supplier",
           {stock_item_id: stock_item.id}
         )

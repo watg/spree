@@ -62,7 +62,7 @@ module Spree
     end
 
     def notify(alert_message)
-      Helpers::AirbrakeNotifier.delay.notify(alert_message)
+      Helpers::AirbrakeNotifier.notify(alert_message)
     end
 
 
