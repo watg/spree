@@ -4,13 +4,7 @@
       <% sale = Spree::Taxon.find_by_permalink('sale/made-by-the-gang') %>
       <h3>
         <a href="<%= seo_url(sale) %>">Sale</a>
-        <a href="#" class="sub-menu"><i class="icon-angle-down"></i></a>
       </h3>
-      <ul class="dropdown">
-        <li>
-          <%= link_to("All Sale Items", seo_url(sale)) %>
-        </li>
-      </ul>
     </li>
   </ul>
   <ul class="whats-new-sub">
