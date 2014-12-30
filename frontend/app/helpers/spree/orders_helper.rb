@@ -27,5 +27,10 @@ module Spree
       flash[:order_completed] && order.present?
     end
 
+    def referring_page
+      last_page = request.referrer
+      last_page ? last_page : root_path
+    end
+
   end
 end
