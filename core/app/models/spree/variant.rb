@@ -306,7 +306,9 @@ module Spree
         "#{ov.option_type.presentation}: #{ov.presentation}"
       end
 
-      values.to_sentence({ words_connector: ", ", two_words_connector: ", " })
+      if values.any?
+        values.to_sentence({ words_connector: ", ", two_words_connector: ", " })
+      end
     end
 
     # use deleted? rather than checking the attribute directly. this
