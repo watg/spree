@@ -25,7 +25,7 @@ module Spree
         end
 
       rescue Exception => error
-        Helpers::AirbrakeNotifier.delay.notify(error)
+        Helpers::AirbrakeNotifier.notify(error)
 
         Rails.logger.info '-'*80
         Rails.logger.info error.inspect

@@ -84,7 +84,7 @@ module Spree
             notifier_params = params.merge(
               order_id: order.id, missing_parts_and_variants: missing_parts_as_params)
 
-            Helpers::AirbrakeNotifier.delay.notify("Some required parts are missing", notifier_params)
+            Helpers::AirbrakeNotifier.notify("Some required parts are missing", notifier_params)
             errors.add(:base, "Some required parts are missing")
             return false
           end
