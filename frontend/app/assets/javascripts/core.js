@@ -3,7 +3,6 @@ core = {}; // Extend from this core object
 var readyCore = function() {
 	core.readyModals();
 	core.readyTooltips();
-	core.readyAccordions();
 	core.readyCarousels();
 	core.showCookieMessage();
 	core.readyAlpacaAttack();
@@ -43,13 +42,6 @@ core.readyTooltips = function() {
     $('.tooltip').tooltipster({ delay: 0
 	});
 };
-
-core.readyAccordions = function() {
-    $('.accordion-content').hide();
-    $('.accordion-title').on('click', function() {
-        $(this).next().slideToggle();
-    });
-}
 
 core.showCookieMessage = function() {
 	var name = 'showCookieMessage';
