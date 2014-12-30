@@ -251,8 +251,10 @@ describe Spree::ShipmentStockAdjuster do
           stock_item_id: stock_item.id
         }
 
-        expect(notifier).to receive(:notify).with("Stock Item has no supplier", notification_params)
-        expect(Helpers::AirbrakeNotifier).to receive(:delay).and_return(notifier)
+        #expect(notifier).to receive(:notify).with("Stock Item has no supplier", notification_params)
+        #expect(Helpers::AirbrakeNotifier).to receive(:delay).and_return(notifier)
+        # async above sync below
+        expect(Helpers::AirbrakeNotifier).to receive(:notify).with("Stock Item has no supplier", notification_params)
         adjuster.send(:unstock_stock_item, stock_item, units)
       end
     end

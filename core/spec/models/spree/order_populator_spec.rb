@@ -78,8 +78,10 @@ describe Spree::OrderPopulator do
               :order_id            => order.id,
               :missing_parts_and_variants => {part.id => variant.id}
             }
-            expect(notifier).to receive(:notify).with("Some required parts are missing", notification_params)
-            expect(Helpers::AirbrakeNotifier).to receive(:delay).and_return(notifier)
+            #expect(notifier).to receive(:notify).with("Some required parts are missing", notification_params)
+            #expect(Helpers::AirbrakeNotifier).to receive(:delay).and_return(notifier)
+            #Comment out the below and uncomment the above if we want to get this working async
+            expect(Helpers::AirbrakeNotifier).to receive(:notify).with("Some required parts are missing", notification_params)
             subject.populate(:variants => { variant.id => 2 }, :parts => part_params, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
           end
         end
