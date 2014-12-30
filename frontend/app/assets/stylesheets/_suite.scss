@@ -57,6 +57,28 @@
     }
 	}
 
+	/* Ajax cart styling */
+	#cart-ajax-message {
+		.flash.success {
+			padding: emCalc(15px) emCalc(15px) 0;
+			background-color: #f9f9f9;
+			border: 1px solid #eee;
+			h5 {
+				margin-bottom: emCalc(15px);
+				span {
+					font-family: $watg-font;
+					font-size: emCalc(18px);
+				}
+			}
+			span {
+				font-family: $watg-font-light;
+				text-transform: uppercase;
+			}
+			p {
+				margin: emCalc(15px) 0 0;
+			}
+		}
+	}
 
 	/* Reveal content */
 	.reveal-title {
@@ -133,9 +155,6 @@
 			}
 		}	
 	}
-
-
-
 	ul.icons-social-variant {
     font-size: 1px;
     li {
