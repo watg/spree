@@ -58,11 +58,13 @@ module Spree
         @item = populator.item
         current_order.ensure_updated_shipments
         respond_with(@order) do |format|
+          format.js
           format.html { redirect_to cart_path }
         end
       else
         @errors = populator.errors.full_messages.join(" ")
         respond_with(@order) do |format|
+          format.js
           format.html do
             flash[:error] = @errors
             redirect_back_or_default(:back)
