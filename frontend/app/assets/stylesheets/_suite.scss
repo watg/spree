@@ -61,8 +61,6 @@
 	#cart-ajax-message {
 		.flash.success {
 			padding: emCalc(15px) emCalc(15px) 0;
-			background-color: #f9f9f9;
-			border: 1px solid #eee;
 			h5 {
 				margin-bottom: emCalc(15px);
 				span {
@@ -75,7 +73,7 @@
 				text-transform: uppercase;
 			}
 			p {
-				margin: emCalc(15px) 0 0;
+				margin: emCalc(30px) 0 0;
 			}
 		}
 	}
