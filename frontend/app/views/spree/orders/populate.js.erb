@@ -5,4 +5,5 @@ $('#cart-ajax-message').remove();
 <% else %>
     Spree.fetch_cart();
     $('<%= escape_javascript(render :partial => "add_to_cart_ajax_message") %>').insertAfter('.cart-form');
+    $('.flash.success').delay(5000).fadeOut(500);
 <% end %>
