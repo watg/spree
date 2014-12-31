@@ -19,7 +19,11 @@ module Spree
         @context = { currency: current_currency, target: @suite.target, device: device }
       else
         flash[:notice] = Spree.t("the_page_you_requested_no_longer_exists")
-        redirect_to(:back)
+        if request.referrer
+          redirect_to(:back)
+        else
+          redirect_to root_path
+        end
       end
     end
 
