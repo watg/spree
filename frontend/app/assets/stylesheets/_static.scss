@@ -1244,11 +1244,14 @@ body.thank-you {
 			text-transform: uppercase;
 		}
 		h2 {
-			font-family: $watg-font-secondary;
+			font-family: $watg-font-secondary-light;
 			font-size: emCalc(30px);
 			text-align: center;
 			text-transform: uppercase;
 			margin: 0;
+			span {
+				font-size: 25px;
+			}
 		}
 		h3 {
 			font-size: emCalc(30px);
@@ -1331,6 +1334,15 @@ body.thank-you {
   		}
   		h2 {
   			font-size: emCalc(20px);
+  			span {
+  				font-size: 15px;
+  			}
+  		}
+  		#map_wrapper {
+  			height: 200px;
+  		}
+  		#map_canvas {
+  			// height: 50%;
   		}
   		.country, .row-stock-type, .stockist-lists {
   			margin: 0 emCalc(10px);
