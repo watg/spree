@@ -2,7 +2,9 @@ core.Static = {}; // Extend from this core object
 
 $(document).ready(function() {
   if (!$('body').hasClass('static')) return false;
-
+  
+  core.readyAccordions();
+  
   if ($('body').hasClass('knit-party')) {
     core.Static.readyscrolltoForm();
     core.Static.readyscrolltoInfo();
@@ -53,4 +55,12 @@ core.Static.showJobFromHash = function() {
 			window.location.href = hash;
 		}
 	}
+}
+
+core.readyAccordions = function() {
+  $('.accordion-content').hide();
+  $('.accordion-title').on('click', function() {
+    $(this).children().children().toggleClass('purple');
+    $(this).next().slideToggle();
+  });
 }
