@@ -47,6 +47,20 @@ describe Spree::SuitesController do
           expect(flash.notice).to eq Spree.t("the_page_you_requested_no_longer_exists")
         end
 
+        context "has come from an external page" do
+
+          before do
+            request.env["HTTP_REFERER"] = nil
+          end
+
+          it "redirects back to the root page" do
+            spree_get :show, id: "suite-permalink", tab: 'arbitrary-tab-2'
+            expect(response).to redirect_to(spree.root_path)
+            expect(flash.notice).to eq Spree.t("the_page_you_requested_no_longer_exists")
+          end
+
+        end
+
       end
 
     end
