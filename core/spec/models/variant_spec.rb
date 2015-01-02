@@ -8,8 +8,8 @@ describe Spree::Variant do
 
     it "checks stock level" do
       Spree::StockItem.any_instance.stub(backorderable: false)
-      expect(variant_in_stock.in_stock?).to be_true
-      expect(variant.in_stock?).to be_false
+      expect(variant_in_stock.in_stock?).to be true
+      expect(variant.in_stock?).to be false
     end
 
   end

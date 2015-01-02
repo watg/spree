@@ -154,7 +154,7 @@ describe Spree.user_class do
     end
 
     it "#customer_has_subscribed?" do
-      expect(subject.customer_has_subscribed?('bob@sponge.net')).to be_true
+      expect(subject.customer_has_subscribed?('bob@sponge.net')).to be true
     end
   end
 end

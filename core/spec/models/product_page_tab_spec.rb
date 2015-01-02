@@ -19,14 +19,14 @@ describe Spree::ProductPageTab do
 
     it "work when tab type is made by the gang " do
       subject.tab_type = Spree::ProductPageTab::MADE_BY_THE_GANG
-      expect(subject.made_by_the_gang?).to be_true
-      expect(subject.knit_your_own?).to be_false
+      expect(subject.made_by_the_gang?).to be true
+      expect(subject.knit_your_own?).to be false
     end
 
     it "work when tab type is knit your own" do
       subject.tab_type = Spree::ProductPageTab::KNIT_YOUR_OWN
-      expect(subject.made_by_the_gang?).to be_false
-      expect(subject.knit_your_own?).to be_true
+      expect(subject.made_by_the_gang?).to be false
+      expect(subject.knit_your_own?).to be true
     end
 
   end

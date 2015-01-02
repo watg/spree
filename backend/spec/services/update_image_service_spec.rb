@@ -13,7 +13,7 @@ describe Spree::UpdateImageService do
       image_params = { alt: "holaa", image: image }
       result = subject.run(image_params)
 
-      expect(result.valid?).to be_true
+      expect(result.valid?).to be true
       expect(image.reload.alt).to eq("holaa")
     end
 
@@ -21,7 +21,7 @@ describe Spree::UpdateImageService do
       image_params = { variant_id: image.viewable.id, activate_personalisation: "123", image: image }
       result = subject.run(image_params)
 
-      expect(result.valid?).to be_true
+      expect(result.valid?).to be true
       expect(image.reload.viewable_type).to eq("Spree::Variant")
       expect(image.reload.viewable_id).to eq(base_variant.id)
     end
@@ -30,7 +30,7 @@ describe Spree::UpdateImageService do
       image_params = { variant_id: image.viewable.id, personalisation_id: "12", image: image }
       result = subject.run(image_params)
 
-      expect(result.valid?).to be_true
+      expect(result.valid?).to be true
       expect(image.reload.viewable_type).to eq("Spree::Variant")
       expect(image.reload.viewable_id).to eq(base_variant.id)
     end
@@ -39,7 +39,7 @@ describe Spree::UpdateImageService do
       image_params = { personalisation_id: personalisation.id.to_s, activate_personalisation: "123", image: image}
       result = subject.run(image_params)
 
-      expect(result.valid?).to be_true
+      expect(result.valid?).to be true
       expect(image.reload.viewable_type).to eq("Spree::Personalisation")
       expect(image.reload.viewable_id).to eq(personalisation.id)
     end
@@ -48,7 +48,7 @@ describe Spree::UpdateImageService do
       image_params = { variant_id: image.viewable.id.to_s, target_id: target.id.to_s, image: image }
       result = subject.run(image_params)
 
-      expect(result.valid?).to be_true
+      expect(result.valid?).to be true
       expect(image.reload.viewable_type).to eq("Spree::Variant")
       expect(image.reload.viewable_id).to eq(base_variant.id)
       expect(image.reload.target_id).to eq(target.id)
@@ -58,7 +58,7 @@ describe Spree::UpdateImageService do
       image_params = { variant_id: image.viewable.id.to_s, target_id: "", image: image}
       result = subject.run(image_params)
 
-      expect(result.valid?).to be_true
+      expect(result.valid?).to be true
       expect(image.reload.viewable_type).to eq("Spree::Variant")
       expect(image.reload.viewable_id).to eq(base_variant.id)
     end

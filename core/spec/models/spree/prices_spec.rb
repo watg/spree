@@ -107,9 +107,9 @@ describe Spree::Price do
     let(:dup_price) { build(:price, currency: 'GBP', variant: variant) }
 
     it "should not allow duplicate prices" do
-      expect(price.valid?).to be_true
+      expect(price.valid?).to be true
       price.save
-      expect(dup_price.valid?).to be_false
+      expect(dup_price.valid?).to be false
     end
   end
 

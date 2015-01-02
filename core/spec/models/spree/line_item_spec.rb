@@ -404,12 +404,12 @@ describe Spree::LineItem do
     it "variant out of stock across order" do
       line_item.errors[:quantity] << "Insufficient stock error"
       allow_any_instance_of(Spree::Stock::AvailabilityValidator).to receive(:validate)
-      expect(line_item.sufficient_stock?).to be_false
+      expect(line_item.sufficient_stock?).to be false
     end
 
     it "variant in stock across order" do
       allow_any_instance_of(Spree::Stock::AvailabilityValidator).to receive(:validate)
-      expect(line_item.sufficient_stock?).to be_true
+      expect(line_item.sufficient_stock?).to be true
     end
   end
 

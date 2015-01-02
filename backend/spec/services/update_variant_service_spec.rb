@@ -33,12 +33,12 @@ describe Spree::UpdateVariantService do
 
     it "should invoke success callback when all is good" do
       outcome = subject.run(variant: variant, details: valid_params, prices: prices)
-      expect(outcome.valid?).to be_true
+      expect(outcome.valid?).to be true
     end
 
     it "should invoke failure callback on any error" do
       outcome = subject.run(variant: variant, details: "wrong params!", prices: prices)
-      expect(outcome.valid?).to be_false
+      expect(outcome.valid?).to be false
       expect(outcome.errors.full_messages.to_sentence).to eq 'Details is not a valid hash'
     end
 
@@ -46,7 +46,7 @@ describe Spree::UpdateVariantService do
       bad_prices = prices.dup
       bad_prices[:normal]['GBP'] = '£0'
       outcome = subject.run(variant: variant, details: valid_params, prices: bad_prices)
-      expect(outcome.valid?).to be_false
+      expect(outcome.valid?).to be false
       expect(outcome.errors.full_messages.to_sentence).to eq 'Variant amount can not be <= 0 for currency: GBP and normal price'
     end
 
@@ -89,7 +89,7 @@ describe Spree::UpdateVariantService do
       params = valid_params.dup
       params[:target_ids] = t.id.to_s
       outcome = subject.run(variant: variant, details: params, prices: prices)
-      expect(outcome.valid?).to be_true
+      expect(outcome.valid?).to be true
       new_ppv = product_page.reload.product_page_variants
       expect(new_ppv).to match_array([ppv])
     end
@@ -153,7 +153,7 @@ describe Spree::UpdateVariantService do
 
         it "sets the supplier on variant" do
           outcome = subject.run(variant: variant, details: valid_params, prices: prices)
-          expect(outcome.valid?).to be_true
+          expect(outcome.valid?).to be true
           expect(variant.supplier).to eq supplier
         end
       end
@@ -177,7 +177,7 @@ describe Spree::UpdateVariantService do
         before { valid_params.merge!(supplier_id: supplier.id) }
         it "does not set the supplier on variant" do
           outcome = subject.run(variant: variant, details: valid_params, prices: prices)
-          expect(outcome.valid?).to be_true
+          expect(outcome.valid?).to be true
           expect(variant.supplier).to be_nil
         end
       end
@@ -186,7 +186,7 @@ describe Spree::UpdateVariantService do
 
         it "does not provide an error" do
           outcome = subject.run(variant: variant, details: valid_params, prices: prices)
-          expect(outcome.valid?).to be_true
+          expect(outcome.valid?).to be true
           expect(variant.supplier).to be_nil
         end
 
@@ -211,7 +211,7 @@ describe Spree::UpdateVariantService do
 
         it "sets the supplier on variant" do
           outcome = subject.run(variant: variant, details: valid_params, prices: prices)
-          expect(outcome.valid?).to be_true
+          expect(outcome.valid?).to be true
           expect(variant.supplier).to be_nil
         end
       end
@@ -222,7 +222,7 @@ describe Spree::UpdateVariantService do
 
         it "provides an error" do
           outcome = subject.run(variant: variant, details: valid_params, prices: prices)
-          expect(outcome.valid?).to be_true
+          expect(outcome.valid?).to be true
           expect(variant.supplier).to be_nil
         end
 
@@ -234,9 +234,9 @@ describe Spree::UpdateVariantService do
 
       it "sets defaults" do
         outcome = subject.run(variant: variant, details: valid_params, prices: prices)
-        expect(outcome.valid?).to be_true
-        expect(variant.track_inventory).to be_true
-        expect(variant.in_stock_cache).to be_false
+        expect(outcome.valid?).to be true
+        expect(variant.track_inventory).to be true
+        expect(variant.in_stock_cache).to be false
       end
 
       context "when an assembly" do
@@ -247,9 +247,9 @@ describe Spree::UpdateVariantService do
 
         it "sets defaults" do
           outcome = subject.run(variant: variant, details: valid_params, prices: prices)
-          expect(outcome.valid?).to be_true
-          expect(variant.track_inventory).to be_false
-          expect(variant.in_stock_cache).to be_true
+          expect(outcome.valid?).to be true
+          expect(variant.track_inventory).to be false
+          expect(variant.in_stock_cache).to be true
         end
 
       end
@@ -262,7 +262,7 @@ describe Spree::UpdateVariantService do
         before { valid_params.merge!(supplier_id: supplier.id) }
         it "does not set the supplier on variant" do
           outcome = subject.run(variant: variant, details: valid_params, prices: prices)
-          expect(outcome.valid?).to be_true
+          expect(outcome.valid?).to be true
           expect(variant.supplier).to be_nil
         end
       end
@@ -271,7 +271,7 @@ describe Spree::UpdateVariantService do
 
         it "does not provide an error" do
           outcome = subject.run(variant: variant, details: valid_params, prices: prices)
-          expect(outcome.valid?).to be_true
+          expect(outcome.valid?).to be true
           expect(variant.supplier).to be_nil
         end
 

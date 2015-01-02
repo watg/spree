@@ -13,7 +13,7 @@ describe Spree::IssueGiftCardService do
   
   it "skips processsing when line_item does have gift card" do
     outcome = subject.run(order: order, line_item: item, position: 0)
-    expect(outcome.success?).to be_false
+    expect(outcome.success?).to be false
     expect(outcome.errors.message_list).to eq(['Product on line item is not a GIFT CARD!'])
   end
 

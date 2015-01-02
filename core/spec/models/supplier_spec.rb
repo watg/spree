@@ -18,7 +18,7 @@ describe Spree::Supplier do
   context "is_company" do
 
     it "is false by default" do
-      expect(supplier.is_company).to be_false
+      expect(supplier.is_company).to be false
     end
 
   end
@@ -26,7 +26,7 @@ describe Spree::Supplier do
   context "is_displayable" do
 
     it "is true by default" do
-      expect(supplier.is_displayable).to be_true
+      expect(supplier.is_displayable).to be true
     end
 
   end

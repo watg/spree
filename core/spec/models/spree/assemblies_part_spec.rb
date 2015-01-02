@@ -14,7 +14,7 @@ module Spree
 
       it "should provide an error" do
         ap = product.assemblies_parts.create( :part_id => variant.id, :optional => true, :count => 1 )
-        expect(ap.errors.any?).to be_true
+        expect(ap.errors.any?).to be true
       end
 
     end

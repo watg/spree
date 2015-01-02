@@ -15,7 +15,7 @@ describe Spree::Suite do
 
     it "can change permalink" do
       subject.permalink = 'anything-unique'
-      expect(subject.save).to be_true
+      expect(subject.save).to be true
     end
 
     it "does not include illegal charecters" do

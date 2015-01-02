@@ -20,14 +20,14 @@ describe Spree::SuiteUpdateService do
     subject { Spree::SuiteUpdateService.run(suite: suite, params: params) }
 
     it "returns valid if correct params" do
-      expect(subject.valid?).to be_true
+      expect(subject.valid?).to be true
     end
 
     context "adding" do
       let!(:params) { { taxon_ids: [taxon.id, taxon_child.id, taxon_childs_child.id] } }
 
       it "adds the taxon suite to the ancestors unless already there" do
-        expect(subject.valid?).to be_true
+        expect(subject.valid?).to be true
         expect(taxon_child.suites.select { |s| s == suite }.size).to eq 1
         expect(taxon.suites.reload.select { |s| s == suite }.size).to eq 1
       end
@@ -57,7 +57,7 @@ describe Spree::SuiteUpdateService do
         let!(:params) { { taxon_ids: [taxon.id, taxon_childs_child.id] } }
 
         it "destroys ancestors and descendents classifications" do
-          expect(subject.valid?).to be_true
+          expect(subject.valid?).to be true
           expect(taxon.suites.count).to eq 0
           expect(taxon_child.suites.count).to eq 0
           expect(taxon_childs_child.suites.count).to eq 0
@@ -72,7 +72,7 @@ describe Spree::SuiteUpdateService do
           end
 
           it "destroys just the descendents classifications" do
-            expect(subject.valid?).to be_true
+            expect(subject.valid?).to be true
             expect(taxon.suites.count).to eq 1
             expect(taxon_child.suites.count).to eq 0
             expect(taxon_childs_child.suites.count).to eq 0
@@ -88,7 +88,7 @@ describe Spree::SuiteUpdateService do
 
           it "destroys just the descendents classifications" do
             expect(taxon.suites.count).to eq 2
-            expect(subject.valid?).to be_true
+            expect(subject.valid?).to be true
             expect(taxon.suites.count).to eq 1
             expect(taxon_child.suites.count).to eq 0
             expect(taxon_childs_child.suites.count).to eq 0
@@ -103,13 +103,13 @@ describe Spree::SuiteUpdateService do
           end
 
           it "should not be affected" do
-            expect(subject.valid?).to be_true
+            expect(subject.valid?).to be true
             expect(taxon.suites.count).to eq 1
-            expect(taxon.suites.detect {|s| s == suite_2}).to be_true
+            expect(taxon.suites.detect {|s| s == suite_2}).to be true
             expect(taxon_child.suites.count).to eq 1
-            expect(taxon_child.suites.detect {|s| s == suite_2}).to be_true
+            expect(taxon_child.suites.detect {|s| s == suite_2}).to be true
             expect(taxon_childs_child.suites.count).to eq 1
-            expect(taxon_childs_child.suites.detect {|s| s == suite_2}).to be_true
+            expect(taxon_childs_child.suites.detect {|s| s == suite_2}).to be true
           end
 
         end
@@ -120,7 +120,7 @@ describe Spree::SuiteUpdateService do
         let!(:params) { { taxon_ids: [taxon.id, taxon_child.id] } }
 
         it "destroys ancestors classifications of parents parent" do
-          expect(subject.valid?).to be_true
+          expect(subject.valid?).to be true
           expect(taxon.suites.count).to eq 0
           expect(taxon_child.suites.count).to eq 0
         end
@@ -134,7 +134,7 @@ describe Spree::SuiteUpdateService do
           end
 
           it "destroys just the descendents classifications" do
-            expect(subject.valid?).to be_true
+            expect(subject.valid?).to be true
             expect(taxon.suites.count).to eq 1
             expect(taxon_child.suites.count).to eq 0
             expect(taxon_childs_child.suites.count).to eq 0
@@ -150,7 +150,7 @@ describe Spree::SuiteUpdateService do
 
           it "destroys just the descendents classifications" do
             expect(taxon.suites.count).to eq 2
-            expect(subject.valid?).to be_true
+            expect(subject.valid?).to be true
             expect(taxon.suites.count).to eq 1
             expect(taxon_child.suites.count).to eq 0
             expect(taxon_childs_child.suites.count).to eq 0
@@ -165,13 +165,13 @@ describe Spree::SuiteUpdateService do
           end
 
           it "should not be affected" do
-            expect(subject.valid?).to be_true
+            expect(subject.valid?).to be true
             expect(taxon.suites.count).to eq 1
-            expect(taxon.suites.detect {|s| s == suite_2}).to be_true
+            expect(taxon.suites.detect {|s| s == suite_2}).to be true
             expect(taxon_child.suites.count).to eq 1
-            expect(taxon_child.suites.detect {|s| s == suite_2}).to be_true
+            expect(taxon_child.suites.detect {|s| s == suite_2}).to be true
             expect(taxon_childs_child.suites.count).to eq 1
-            expect(taxon_childs_child.suites.detect {|s| s == suite_2}).to be_true
+            expect(taxon_childs_child.suites.detect {|s| s == suite_2}).to be true
           end
 
         end
@@ -199,7 +199,7 @@ describe Spree::SuiteUpdateService do
     it "rebuild the cache for each tab" do
       expect(Spree::SuiteTabCacheRebuilder).to receive(:rebuild_from_product).with(product_1)
       expect(Spree::SuiteTabCacheRebuilder).to receive(:rebuild_from_product).with(product_2)
-      expect(subject.valid?).to be_true
+      expect(subject.valid?).to be true
     end
 
   end

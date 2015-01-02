@@ -128,7 +128,7 @@ describe Spree::Order do
 
     it "returns ture when order has at least one gift card" do
       gift_line_item = create(:line_item, quantity: 1, variant: create(:product, product_type: product_type_gift_card).master, order: subject)
-      expect(subject.reload.has_gift_card?).to be_true
+      expect(subject.reload.has_gift_card?).to be true
     end
 
     it "creates gift card job when purchased" do
@@ -168,7 +168,7 @@ describe Spree::Order do
         subject.finalize!
       }.to change { ActionMailer::Base.deliveries.size }.by(1)
 
-      expect(subject.reload.internal).to be_true
+      expect(subject.reload.internal).to be true
     end
 
   end

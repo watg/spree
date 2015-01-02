@@ -61,12 +61,12 @@ describe Spree::Order do
   context "#internal?" do
     it "returns true when order is marked as such" do
       order = build(:order, internal: true)
-      expect(order.internal?).to be_true
+      expect(order.internal?).to be true
     end
 
     it "return false by default" do
       order = build(:order)
-      expect(order.internal?).to be_false
+      expect(order.internal?).to be false
     end
   end
 

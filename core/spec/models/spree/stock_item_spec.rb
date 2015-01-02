@@ -404,17 +404,17 @@ describe Spree::StockItem do
   describe "stock_changed?" do
     it "is true when count on hand changes from positive to 0" do
       subject.send(:count_on_hand=,0)
-      expect(subject.send(:stock_changed?)).to be_true
+      expect(subject.send(:stock_changed?)).to be true
     end
 
     it "is false when it changes but not to 0" do
       subject.send(:count_on_hand=,1123)
-      expect(subject.send(:stock_changed?)).to be_false
+      expect(subject.send(:stock_changed?)).to be false
     end
 
     it "is true if the variant_id changes from nil" do
       subject.variant_id = nil
-      expect(subject.send(:stock_changed?)).to be_true
+      expect(subject.send(:stock_changed?)).to be true
     end
 
   end

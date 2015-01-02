@@ -66,9 +66,10 @@ describe Spree::StockCheckAlertJob do
     context "when there is stock in feeder stores" do
       let(:active_location) { create(:stock_location, active: true) }
       let(:feeder) { create(:stock_location, active: false, feed_into: active_location) }
-      let!(:alternative_stock) { create(:stock_item, stock_location: feeder, count_on_hand: 1, variant: variant)}
+      let!(:alternative_stock) { create(:stock_item, stock_location: feeder, variant: variant)}
 
       before do
+        alternative_stock.set_count_on_hand(1)
         stock_item.update_columns(updated_at: 1.days.ago, backorderable: false, count_on_hand: 0)
       end
 

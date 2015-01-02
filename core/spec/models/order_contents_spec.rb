@@ -336,7 +336,7 @@ describe Spree::OrderContents do
       it "should use normal variant price by default" do
         line_item = subject.send(:build_line_item, variant, 'I123', {} )
 
-        expect(line_item.in_sale?).to be_false
+        expect(line_item.in_sale?).to be false
         expect(line_item.price).to eq(variant.price_normal_in(currency).amount)
         expect(line_item.normal_price).to eq(variant.price_normal_in(currency).amount)
       end
@@ -344,7 +344,7 @@ describe Spree::OrderContents do
       it "should use normal_sale variant price when variant is in sale" do
         line_item = subject.send(:build_line_item, variant_in_sale, 'I123', {} )
 
-        expect(line_item.in_sale?).to be_true
+        expect(line_item.in_sale?).to be true
         expect(line_item.price).to eq(variant_in_sale.price_normal_sale_in(currency).amount)
         expect(line_item.normal_price).to eq(variant_in_sale.price_normal_in(currency).amount)
       end

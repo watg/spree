@@ -8,14 +8,14 @@ describe Spree::ProductType do
   describe "requires_supplier" do
 
     it "is true" do
-      expect(subject.requires_supplier?).to be_true
+      expect(subject.requires_supplier?).to be true
     end
 
     context "is_operational" do
       before { Spree::ProductType.any_instance.stub is_operational?: true }
 
       it "is false" do
-        expect(subject.requires_supplier?).to be_false
+        expect(subject.requires_supplier?).to be false
       end
 
     end
@@ -24,7 +24,7 @@ describe Spree::ProductType do
       before { Spree::ProductType.any_instance.stub is_digital?: true }
 
       it "is false" do
-        expect(subject.requires_supplier?).to be_false
+        expect(subject.requires_supplier?).to be false
       end
 
     end
@@ -33,7 +33,7 @@ describe Spree::ProductType do
       before { Spree::ProductType.any_instance.stub is_assembly?: true }
 
       it "is false" do
-        expect(subject.requires_supplier?).to be_false
+        expect(subject.requires_supplier?).to be false
       end
 
     end

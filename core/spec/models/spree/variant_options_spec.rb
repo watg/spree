@@ -97,10 +97,10 @@ describe Spree::VariantOptions do
       context "target and in_stock" do
         it "should return targeted variant_options_tree_for that are in stock " do
           tree = subject.tree
-          expect(tree["size"]["small"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
-          expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
-          expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
-          expect(tree["size"]["big"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
+          expect(tree["size"]["small"]["colour"]["pink"]["variant"]["in_stock"]).to be true
+          expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to be true
+          expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to be true
+          expect(tree["size"]["big"]["colour"]["blue"]["variant"]["in_stock"]).to be true
         end
 
       end
@@ -114,11 +114,11 @@ describe Spree::VariantOptions do
 
         it "should take into account position of the option_type " do
           tree = subject.tree
-          expect(tree["colour"]["pink"]["size"]["small"]["variant"]["in_stock"]).to be_true
-          expect(tree["colour"]["blue"]["size"]["small"]["variant"]["in_stock"]).to be_true
-          expect(tree["colour"]["pink"]["size"]["big"]["variant"]["in_stock"]).to be_true
-          expect(tree["colour"]["blue"]["size"]["big"]["variant"]["in_stock"]).to be_true
-          expect(tree["language"]["english"]["in_stock"]).to be_false
+          expect(tree["colour"]["pink"]["size"]["small"]["variant"]["in_stock"]).to be true
+          expect(tree["colour"]["blue"]["size"]["small"]["variant"]["in_stock"]).to be true
+          expect(tree["colour"]["pink"]["size"]["big"]["variant"]["in_stock"]).to be true
+          expect(tree["colour"]["blue"]["size"]["big"]["variant"]["in_stock"]).to be true
+          expect(tree["language"]["english"]["in_stock"]).to be false
         end
       end
 
@@ -235,10 +235,10 @@ describe Spree::VariantOptions do
 
       it "should return targeted variant_options_tree_for that are in stock " do
         tree = subject.simple_tree
-        expect(tree["size"]["small"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
-        expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
-        expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to be_true
-        expect(tree["size"]["big"]["colour"]["blue"]["variant"]["in_stock"]).to be_true
+        expect(tree["size"]["small"]["colour"]["pink"]["variant"]["in_stock"]).to be true
+        expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to be true
+        expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to be true
+        expect(tree["size"]["big"]["colour"]["blue"]["variant"]["in_stock"]).to be true
         expect(tree["size"]["small"]["colour"]["pink"]["variant"]["number"]).to eq variant_in_stock1.number
         expect(tree["language"]["english"]).to_not be_nil
 
@@ -266,8 +266,8 @@ describe Spree::VariantOptions do
       describe "tree" do
         it "returns the tree scoped by just the type" do
           tree = subject.simple_tree
-          expect(tree["colour"]["pink"]["variant"]["in_stock"]).to be_true
-          expect(tree["colour"]["blue"]["variant"]["in_stock"]).to be_true
+          expect(tree["colour"]["pink"]["variant"]["in_stock"]).to be true
+          expect(tree["colour"]["blue"]["variant"]["in_stock"]).to be true
           expect(tree["colour"]["pink"]["variant"]["number"]).to match(/#{variant_in_stock1.number}|#{variant_in_stock2.number}/)
         end
       end

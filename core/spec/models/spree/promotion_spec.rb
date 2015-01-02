@@ -106,7 +106,7 @@ describe Spree::Promotion do
         it "will not assign the order" do
           @order.state = 'complete'
           expect(promotion.orders).to be_empty
-          expect(promotion.activate(@payload)).to be_falsey
+          expect(promotion.activate(@payload)).to be falsey
           expect(promotion.orders).to be_empty
         end
       end
