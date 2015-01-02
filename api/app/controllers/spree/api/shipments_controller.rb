@@ -14,8 +14,7 @@ module Spree
         authorize! :create, Shipment
         quantity = params[:quantity].to_i
         @shipment = @order.shipments.create(stock_location_id: params[:stock_location_id])
-# ASD: add options
-        @order.contents.add(variant, quantity, nil, @shipment)
+        @order.contents.add(variant, quantity, options)
 
         @shipment.save!
         respond_with(@shipment.reload, default_template: :show)
@@ -50,18 +49,17 @@ module Spree
         respond_with(@shipment, default_template: :show)
       end
 
-#ASD: add options
       def add
         quantity = params[:quantity].to_i
 
-        @shipment.order.contents.add(variant, quantity, nil, @shipment)
+        @shipment.order.contents.add(variant, quantity, options)
 
         respond_with(@shipment, default_template: :show)
       end
 
       def add_by_line_item
         quantity = params[:quantity].to_i
-        returned_line_item = @order.contents.add_by_line_item(line_item, quantity, @shipment)
+        returned_line_item = @shipment.order.contents.add_by_line_item(line_item, quantity, @shipment)
         if returned_line_item.errors.any?
           invalid_resource!(returned_line_item)
         else
@@ -71,16 +69,14 @@ module Spree
 
       def remove
         quantity = params[:quantity].to_i
-#ASD: add options
-        @shipment.order.contents.remove(variant, quantity, @shipment)
+        @shipment.order.contents.remove(variant, quantity, options)
         @shipment.reload if @shipment.persisted?
         respond_with(@shipment, default_template: :show)
       end
       
-#ASD: add options
       def remove_by_line_item
         quantity = params[:quantity].to_i
-        returned_line_item = @order.contents.remove_by_line_item(line_item, quantity, @shipment)
+        returned_line_item = @shipment.order.contents.remove_by_line_item(line_item, quantity, @shipment)
         if returned_line_item.errors.any?
           invalid_resource!(returned_line_item)
         else
@@ -114,7 +110,7 @@ module Spree
       end
 
       def options_parser
-        @options_parser ||= Spree::LineItemOptionsParser.new(@order.currency)
+        @options_parser ||= Spree::LineItemOptionsParser.new(@shipment.order.currency)
       end
 
       def find_order

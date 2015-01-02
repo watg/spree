@@ -19,8 +19,8 @@ module Spree
 
       before do
         @variant = create(:variant, :product => product)
-        product.price = 15
-        @variant.price = 10
+        @variant.price_normal_in('USD').amount = 15
+        product.master.price_normal_in('USD').amount = 15
         product.stub(:amount_in) { product_price }
         @variant.stub(:amount_in) { variant_price }
       end
@@ -81,9 +81,9 @@ module Spree
 
       context "when currency is default" do
         it "should return the variant price if the price is different than master" do
-          product.price = 10
-          @variant1.price = 15
-          @variant2.price = 20
+          product.master.price_normal_in('USD').amount = 10
+          @variant1.price_normal_in('USD').amount = 15
+          @variant2.price_normal_in('USD').amount = 20
           helper.variant_price(@variant1).should == "$15.00"
           helper.variant_price(@variant2).should == "$20.00"
         end
@@ -102,14 +102,14 @@ module Spree
         end
 
         it "should return the variant price if the price is different than master" do
-          product.price = 100
-          @variant1.price = 150
+          product.master.price_normal_in('JPY').amount = 100
+          @variant1.price_normal_in('JPY').amount = 150
           helper.variant_price(@variant1).should == "&#x00A5;150"
         end
       end
 
       it "should be nil when all variant prices are equal" do
-        product.price = 10
+        product.master.price_normal_in('USD').amount = 10
         @variant1.default_price.update_column(:amount, 10)
         @variant2.default_price.update_column(:amount, 10)
         helper.variant_price(@variant1).should be_nil

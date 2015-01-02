@@ -31,7 +31,7 @@ describe Spree::PinterestService do
 
       it "returns the first variant" do
         outcome = Spree::PinterestService.run({url: url})
-        outcome.result.product_id.should == variant.number
+        expect(outcome.result.product_id).to eq variant.number
       end
 
     end
@@ -41,7 +41,7 @@ describe Spree::PinterestService do
 
       it "returns the first variant" do
         outcome = Spree::PinterestService.run({url: url})
-        outcome.result.product_id.should == variant.number
+        expect(outcome.result.product_id).to eq variant.number
       end
 
     end
@@ -49,27 +49,27 @@ describe Spree::PinterestService do
     it "returns a correct OpenStruct response with a product" do
       outcome = Spree::PinterestService.run({url: url})
 
-      outcome.valid?.should be_true
-      outcome.result.product_id.should == variant.number
-      outcome.result.title.should == product.name.to_s + " #madeunique by The Gang"
-      outcome.result.gender.should == "female"
+      expect(outcome.valid?).to be true
+      expect(outcome.result.product_id).to eq variant.number
+      expect(outcome.result.title).to eq product.name.to_s + " #madeunique by The Gang"
+      expect(outcome.result.gender).to eq "female"
 
-      outcome.result.price.should == variant.current_price_in("GBP").amount
-      outcome.result.currency_code.should == "GBP"
-      outcome.result.availability.should == "in stock"
+      expect(outcome.result.price).to eq variant.current_price_in("GBP").amount
+      expect(outcome.result.currency_code).to eq "GBP"
+      expect(outcome.result.availability).to eq "in stock"
     end
 
     it "returns a correct OpenStruct response with a kit" do
       outcome = Spree::PinterestService.run({url: kit_url})
 
-      outcome.valid?.should be_true
-      outcome.result.product_id.should == variant.number
-      outcome.result.title.should == product.name.to_s + " Knit Kit"
-      outcome.result.gender.should == "female"
+      expect(outcome.valid?).to be true
+      expect(outcome.result.product_id).to eq variant.number
+      expect(outcome.result.title).to eq product.name.to_s + " Knit Kit"
+      expect(outcome.result.gender).to eq "female"
 
-      outcome.result.price.should == variant.current_price_in("GBP").amount
-      outcome.result.currency_code.should == "GBP"
-      outcome.result.availability.should == "in stock"
+      expect(outcome.result.price).to eq variant.current_price_in("GBP").amount
+      expect(outcome.result.currency_code).to eq "GBP"
+      expect(outcome.result.availability).to eq "in stock"
     end
 
   end # end product_page_url test
@@ -196,13 +196,13 @@ describe Spree::PinterestService do
     it "returns a could_not_parse_url error" do
       url = "invalid_string"
       outcome = Spree::PinterestService.run({url: url})
-      outcome.errors[:url].should == ["Could not parse url"]
+      expect(outcome.errors[:url]).to eq ["Could not parse url"]
     end
 
     it "returns a could_not_find_product error" do
       url = "http://www.woolandthegang.com/shop/product/invalid_suite"
       outcome = Spree::PinterestService.run({url: url})
-      outcome.errors[:url].should == ["Could not find requested product"]
+      expect(outcome.errors[:url]).to eq ["Could not find requested product"]
     end
   end
 

@@ -1,6 +1,8 @@
 module Spree
   module BaseHelper
 
+    include CdnHelper
+
     # Defined because Rails' current_page? helper is not working when Spree is mounted at root.
     def current_spree_page?(url)
       path = request.fullpath.gsub(/^\/\//, '/')
@@ -167,7 +169,7 @@ module Spree
     def link_to_tracking(shipment, options = {})
       return unless shipment.tracking
 
-      if shipment.shipping_method && shipment.tracking_url
+      if shipment.tracking_url
         link_to(shipment.tracking, shipment.tracking_url, options)
       else
         content_tag(:span, shipment.tracking)
