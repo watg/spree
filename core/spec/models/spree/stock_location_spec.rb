@@ -21,17 +21,17 @@ module Spree
       end
 
       it "is false if both active is false and feed_into is null" do
-        expect(subject.available?).to be_false
+        expect(subject.available?).to be false
       end
 
       it "is true if active" do
         subject.active = true
-        expect(subject.available?).to be_true
+        expect(subject.available?).to be true
       end
 
       it "is true if feed_into is not null" do
         subject.feed_into = stock_location
-        expect(subject.available?).to be_true
+        expect(subject.available?).to be true
       end
 
     end
@@ -79,12 +79,12 @@ module Spree
           context "passes backorderable default config" do
             context "true" do
               before { subject.backorderable_default = true }
-              it { stock_item.backorderable.should be_true }
+              it { stock_item.backorderable.should be true }
             end
 
             context "false" do
               before { subject.backorderable_default = false }
-              it { stock_item.backorderable.should be_false }
+              it { stock_item.backorderable.should be false }
             end
           end
         end
@@ -145,7 +145,7 @@ module Spree
       end
 
       it 'finds determines if you a variant is backorderable' do
-        subject.backorderable?(variant).should be_true
+        subject.backorderable?(variant).should be true
       end
 
       context "with supplier" do
@@ -202,7 +202,7 @@ module Spree
 
 
         it 'finds determines if you a variant is backorderable' do
-          subject.backorderable?(variant, supplier).should be_true
+          subject.backorderable?(variant, supplier).should be true
         end
 
       end
@@ -395,6 +395,26 @@ module Spree
         end
       end
     end
+    
+    context '#state_text' do
+      context 'state is blank' do
+        subject { StockLocation.create(name: "testing", state: nil, state_name: 'virginia') }
+        specify { subject.state_text.should == 'virginia' }
+      end
+
+      context 'both name and abbr is present' do
+        let(:state) { stub_model(Spree::State, name: 'virginia', abbr: 'va') }
+        subject { StockLocation.create(name: "testing", state: state, state_name: nil) }
+        specify { subject.state_text.should == 'va' }
+      end
+
+      context 'only name is present' do
+        let(:state) { stub_model(Spree::State, name: 'virginia', abbr: nil) }
+        subject { StockLocation.create(name: "testing", state: state, state_name: nil) }
+        specify { subject.state_text.should == 'virginia' }
+      end
+    end
+
   end
 
   describe "feeder" do

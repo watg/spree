@@ -20,7 +20,7 @@
 module Spree
   class Product < ActiveRecord::Base
     extend FriendlyId
-    friendly_id :name, use: :slugged
+    friendly_id :slug_candidates, use: :slugged
 
     acts_as_paranoid
 
@@ -68,9 +68,8 @@ module Spree
     has_one :master,
       -> { where is_master: true },
       inverse_of: :product,
-      class_name: 'Spree::Variant',
-      dependent: :destroy
-
+      class_name: 'Spree::Variant'
+      
     has_many :variants,
       -> { where(is_master: false).order("#{::Spree::Variant.quoted_table_name}.position ASC") },
       inverse_of: :product,
@@ -81,8 +80,6 @@ module Spree
       inverse_of: :product,
       class_name: 'Spree::Variant',
       dependent: :destroy
-
-    has_many :all_variants_unscoped, class_name: 'Spree::Variant'
 
     has_many :prices, -> { order('spree_variants.position, spree_variants.id, currency') }, through: :variants
 
@@ -96,8 +93,8 @@ module Spree
     after_create :add_properties_and_option_types_from_prototype
     after_create :build_variants_from_option_values_hash, if: :option_values_hash
     after_save :save_master
-    after_save :touch
-    # after_touch :touch_taxons
+    after_save :run_touch_callbacks, if: :anything_changed?
+    after_save :reset_nested_changes
 
     delegate :images, to: :master, prefix: true
     alias_method :images, :master_images
@@ -113,8 +110,11 @@ module Spree
     validates :name, presence: true
     validates :shipping_category_id, presence: true
     validates :slug, length: { minimum: 3 }
+    validates :slug, uniqueness: true
 
     before_validation :normalize_slug, on: :update
+
+    after_destroy :punch_slug
 
     attr_accessor :option_values_hash
 
@@ -319,12 +319,11 @@ module Spree
     end
 
     def total_on_hand
-      raise "DEPRECATED: this method does not take account of active stock locations. Use Variant or Quantifier total_on_hand instead."
-      # if self.variants_including_master.any? { |v| !v.should_track_inventory? }
-      #   Float::INFINITY
-      # else
-      #   self.stock_items.sum(&:count_on_hand)
-      # end
+      if any_variants_not_track_inventory?
+        Float::INFINITY
+      else
+        stock_items.sum(:count_on_hand)
+      end
     end
 
     # Master variant may be deleted (i.e. when the product is deleted)
@@ -393,7 +392,6 @@ module Spree
         # attrs.merge!(kit_price: master.kit_price) if master.kit_price
         variants.create(attrs)
       end
-
       save
     end
 
@@ -406,9 +404,42 @@ module Spree
       end
     end
 
+    def any_variants_not_track_inventory?
+      if variants_including_master.loaded?
+        variants_including_master.any? { |v| !v.should_track_inventory? }
+      else
+        !Spree::Config.track_inventory_levels || variants_including_master.where(track_inventory: false).any?
+      end
+    end
+
+    def any_variants_not_track_inventory?
+      if variants_including_master.loaded?
+        variants_including_master.any? { |v| !v.should_track_inventory? }
+      else
+        !Spree::Config.track_inventory_levels || variants_including_master.where(track_inventory: false).any?
+      end
+    end
+
     # ensures the master variant is flagged as such
-    def set_master_variant_defaults
-      master.is_master = true
+    def ensure_master
+      return unless new_record?
+      self.master ||= Variant.new
+    end
+     
+    def normalize_slug
+      self.slug = normalize_friendly_id(slug)
+    end
+
+    def punch_slug
+      update_column :slug, "#{Time.now.to_i}_#{slug}" # punch slug with date prefix to allow reuse of original
+    end
+
+    def anything_changed?
+      changed? || @nested_changes
+    end
+
+    def reset_nested_changes
+      @nested_changes = false
     end
 
     # there's a weird quirk with the delegate stuff that does not automatically save the delegate object
@@ -416,22 +447,35 @@ module Spree
     def save_master
       if master && (master.changed? || master.new_record? || (master.default_price && (master.default_price.changed? || master.default_price.new_record?)))
         master.save!
-        # Save with a bang as I want to know when this fails, and not have wishy washy errors
-        # that I have to hunt down for on certain models
-        #master.errors.each do |attr, message|
-        #  master.product.errors.add(attr, message)
-        #end
+        @nested_changes = true
       end
     end
 
-    def ensure_master
-      return unless new_record?
-      self.master ||= Variant.new
+    def set_master_variant_defaults
+      master.is_master = true
     end
 
-      def touch_taxons
-        self.taxons.each(&:touch)
-      end
+    # Try building a slug based on the following fields in increasing order of specificity.
+    def slug_candidates
+      [
+          :name,
+          [:name, :sku]
+      ]
+    end
+
+    def run_touch_callbacks
+      run_callbacks(:touch)
+    end
+
+    # Iterate through this products taxons and taxonomies and touch their timestamps in a batch
+    def touch_taxons
+      taxons_to_touch = taxons.map(&:self_and_ancestors).flatten.uniq
+      Spree::Taxon.where(id: taxons_to_touch.map(&:id)).update_all(updated_at: Time.current)
+
+      taxonomy_ids_to_touch = taxons_to_touch.map(&:taxonomy_id).flatten.uniq
+      Spree::Taxonomy.where(id: taxonomy_ids_to_touch).update_all(updated_at: Time.current)
+    end
+
   end
 end
 

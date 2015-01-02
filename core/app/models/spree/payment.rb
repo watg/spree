@@ -2,11 +2,13 @@ module Spree
   class Payment < ActiveRecord::Base
     include Spree::Payment::Processing
 
-    IDENTIFIER_CHARS = (('A'..'Z').to_a + ('0'..'9').to_a - %w(0 1 I O)).freeze
+    IDENTIFIER_CHARS    = (('A'..'Z').to_a + ('0'..'9').to_a - %w(0 1 I O)).freeze
+    NON_RISKY_AVS_CODES = ['B', 'D', 'H', 'J', 'M', 'Q', 'T', 'V', 'X', 'Y'].freeze
+    RISKY_AVS_CODES     = ['A', 'C', 'E', 'F', 'G', 'I', 'K', 'L', 'N', 'O', 'P', 'R', 'S', 'U', 'W', 'Z'].freeze
 
     belongs_to :order, class_name: 'Spree::Order', touch: true, inverse_of: :payments
     belongs_to :source, polymorphic: true
-    belongs_to :payment_method, class_name: 'Spree::PaymentMethod'
+    belongs_to :payment_method, class_name: 'Spree::PaymentMethod', inverse_of: :payments
 
     has_many :offsets, -> { where("source_type = 'Spree::Payment' AND amount < 0 AND state = 'completed'") },
       class_name: "Spree::Payment", foreign_key: :source_id
@@ -16,7 +18,6 @@ module Spree
 
     before_validation :validate_source
     before_create :set_unique_identifier
-    before_save :update_uncaptured_amount
 
     after_save :create_payment_profile, if: :profiles_supported?
 
@@ -33,6 +34,7 @@ module Spree
     scope :completed, -> { with_state('completed') }
     scope :pending, -> { with_state('pending') }
     scope :failed, -> { with_state('failed') }
+    scope :risky, -> { where("avs_response IN (?) OR (cvv_response_code IS NOT NULL and cvv_response_code != 'M') OR state = 'failed'", RISKY_AVS_CODES) }
     scope :valid, -> { where.not(state: %w(failed invalid)) }
 
     after_rollback :persist_invalid
@@ -94,7 +96,7 @@ module Spree
         case amount
         when String
           separator = I18n.t('number.currency.format.separator')
-          number    = amount.delete("^0-9-#{separator}").tr(separator, '.')
+          number    = amount.delete("^0-9-#{separator}\.").tr(separator, '.')
           number.to_d if number.present?
         end || amount
     end
@@ -132,8 +134,7 @@ module Spree
     end
 
     def is_avs_risky?
-      return false if avs_response == "D"
-      return false if avs_response.blank?
+      return false if avs_response.blank? || NON_RISKY_AVS_CODES.include?(avs_response)
       return true
     end
 
@@ -142,6 +143,10 @@ module Spree
       return false if cvv_response_code.nil?
       return false if cvv_response_message.present?
       return true
+    end
+
+    def uncaptured_amount
+      amount - capture_events.sum(:amount)
     end
 
     private
@@ -161,7 +166,8 @@ module Spree
       end
 
       def create_payment_profile
-        return unless source.respond_to?(:has_payment_profile?) && !source.has_payment_profile?
+        return unless source.respond_to?(:has_payment_profile?) && !source.has_payment_profile? &&
+          state != 'invalid' && state != 'failed'
 
         payment_method.create_profile(self)
       rescue ActiveMerchant::ConnectionError => e
@@ -169,8 +175,10 @@ module Spree
       end
 
       def invalidate_old_payments
-        order.payments.with_state('checkout').where("id != ?", self.id).each do |payment|
-          payment.invalidate!
+        if state != 'invalid' and state != 'failed'
+          order.payments.with_state('checkout').where("id != ?", self.id).each do |payment|
+            payment.invalidate!
+          end
         end
       end
 
@@ -192,10 +200,6 @@ module Spree
 
       def generate_identifier
         Array.new(8){ IDENTIFIER_CHARS.sample }.join
-      end
-
-      def update_uncaptured_amount
-        self.uncaptured_amount = amount - capture_events.sum(:amount)
       end
   end
 end

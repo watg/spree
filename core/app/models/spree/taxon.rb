@@ -24,6 +24,9 @@ module Spree
       default_style: :mini,
       default_url: '/assets/default_taxon.png'
 
+    validates_attachment :icon,
+      content_type: { content_type: ["image/jpg", "image/jpeg", "image/png", "image/gif"] }
+
     include Spree::Core::ProductFilters  # for detailed defs of filters
 
     # indicate which filters should be used for a taxon

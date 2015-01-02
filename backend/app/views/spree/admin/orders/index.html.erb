@@ -4,7 +4,7 @@
 
 <% content_for :page_actions do %>
   <li id="new_order_link">
-    <%= button_link_to Spree.t(:new_order), new_admin_order_url, { :remote => true, :icon => 'icon-plus', :id => 'admin_new_order' } %>
+    <%= button_link_to Spree.t(:new_order), new_admin_order_url, { :remote => true, :icon => 'plus', :id => 'admin_new_order' } %>
   </li>
 <% end if can? :edit, Spree::Order.new %>
 
@@ -24,7 +24,7 @@
             <%= f.text_field :created_at_gt, :class => 'datepicker datepicker-from', :value => params[:q][:created_at_gt], :placeholder => Spree.t(:start) %>
 
             <span class="range-divider">
-              <i class="icon-arrow-right"></i>
+              <i class="fa fa-arrow-right"></i>
             </span>
 
             <%= f.text_field :created_at_lt, :class => 'datepicker datepicker-to', :value => params[:q][:created_at_lt], :placeholder => Spree.t(:stop) %>
@@ -37,7 +37,7 @@
         </div>
         <div class="field">
           <%= label_tag nil, Spree.t(:email) %>
-          <%= f.email_field :email_cont %>
+          <%= f.text_field :email_cont %>
         </div>
       </div>
 
@@ -86,7 +86,7 @@
 
       <div class="actions filter-actions">
         <div data-hook="admin_orders_index_search_buttons">
-          <%= button Spree.t(:filter_results), 'icon-search' %>
+          <%= button Spree.t(:filter_results), 'search' %>
         </div>
       </div>
     <% end %>
@@ -139,13 +139,19 @@
           <% if Spree::Order.checkout_step_names.include?(:delivery) %>
             <td class="align-center"><span class="state <%= order.shipment_state %>"><%= Spree.t("shipment_states.#{order.shipment_state}") if order.shipment_state %></span></td>
           <% end %>
-        <td><%= mail_to order.email %></td>
+        <td>
+          <% if order.user %>
+            <%= link_to order.email, edit_admin_user_path(order.user) %>
+          <% else %>
+            <%= mail_to order.email %>
+          <% end %>
+        </td>
         <td class="align-center"><%= order.display_total.to_html %></td>
         <td class='actions align-center' data-hook="admin_orders_index_row_actions">
           <%= link_to_edit_url edit_admin_order_path(order), :title => "admin_edit_#{dom_id(order)}", :no_text => true %>
-          <%= link_to_with_icon 'icon-envelope-alt', Spree.t(:invoice), admin_order_path(order, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
-          <%= link_to_with_icon 'icon-barcode', 'sticker', admin_order_path(order, :type =>:sticker, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
-          <%= link_to_with_icon 'icon-file', 'Packing List', admin_order_path(order, :type =>:packing_list, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
+          <%= link_to_with_icon 'envelope-alt', Spree.t(:invoice), admin_order_path(order, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
+          <%= link_to_with_icon 'barcode', 'sticker', admin_order_path(order, :type =>:sticker, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
+          <%= link_to_with_icon 'file', 'Packing List', admin_order_path(order, :type =>:packing_list, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
         </td>
       </tr>
     <% end %>

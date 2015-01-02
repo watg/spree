@@ -9,7 +9,7 @@ module Spree
                         :shipping_category_id, :meta_description, :meta_keywords,
                         :shipping_category
 
-    has_many :inventory_units
+    has_many :inventory_units, inverse_of: :variant
     has_many :line_items, inverse_of: :variant
 
     has_many :stock_items, dependent: :destroy, inverse_of: :variant
@@ -290,10 +290,6 @@ module Spree
 
       values.to_sentence({ words_connector: ", ", two_words_connector: ", " })
     end
-
-    #def gross_profit
-    #  cost_price.nil? ? 0 : (price - cost_price)
-    #end
 
     # use deleted? rather than checking the attribute directly. this
     # allows extensions to override deleted? if they want to provide

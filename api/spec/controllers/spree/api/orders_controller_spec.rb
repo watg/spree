@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'spree/testing_support/bar_ability'
 
 module Spree
   describe Api::OrdersController do
@@ -74,6 +75,18 @@ module Spree
         response.status.should == 200
         json_response["orders"].length.should == 0
       end
+
+      it "returns orders in reverse chronological order" do
+        order2 = create(:order, line_items: [line_item], user: order.user)
+        order2.created_at.should > order.created_at
+
+        api_get :mine
+        response.status.should == 200
+        json_response["pages"].should == 1
+        json_response["orders"].length.should == 2
+        json_response["orders"][0]["number"].should == order2.number
+        json_response["orders"][1]["number"].should == order.number
+      end
     end
 
     it "can view their own order" do
@@ -116,6 +129,20 @@ module Spree
       response.status.should == 200
     end
 
+    context "with BarAbility registered" do
+      before { Spree::Ability.register_ability(::BarAbility) }
+      after { Spree::Ability.remove_ability(::BarAbility) }
+
+      it "can view an order" do
+        user = mock_model(Spree::LegacyUser)
+        user.stub(:has_spree_role?).with('bar').and_return(true)
+        user.stub(:has_spree_role?).with('admin').and_return(false)
+        controller.stub try_spree_current_user: user
+        api_get :show, :id => order.to_param
+        response.status.should == 200
+      end
+    end
+
     it "cannot cancel an order that doesn't belong to them" do
       order.update_attribute(:completed_at, Time.now)
       order.update_attribute(:shipment_state, "ready")
@@ -147,7 +174,7 @@ module Spree
       Order.should_receive(:create!).and_return(order = Spree::Order.new)
       order.stub(:associate_user!)
       order.stub_chain(:contents, :add).and_return(line_item = double('LineItem'))
-      line_item.should_receive(:update_attributes).with("special" => true)
+      line_item.should_receive(:update_attributes!).with("special" => true)
 
       controller.stub(permitted_line_item_attributes: [:id, :variant_id, :quantity, :special])
       api_post :create, :order => {
@@ -426,7 +453,7 @@ module Spree
             shipping_rate = shipment["shipping_rates"][0]
             shipping_rate["name"].should == json_shipping_method["name"]
             shipping_rate["cost"].should == "10.0"
-            shipping_rate["selected"].should be_true
+            shipping_rate["selected"].should be true
             shipping_rate["display_cost"].should == "$10.00"
 
             shipment["stock_location_name"].should_not be_blank
@@ -451,13 +478,32 @@ module Spree
 
       it "responds with orders updated_at with miliseconds precision" do
         if ActiveRecord::Base.connection.adapter_name == "Mysql2"
-          pending "MySQL does not support millisecond timestamps."
+          skip "MySQL does not support millisecond timestamps."
+        else
+          skip "Probable need to make it call as_json. See https://github.com/rails/rails/commit/0f33d70e89991711ff8b3dde134a61f4a5a0ec06"
         end
 
         api_get :index
         milisecond = order.updated_at.strftime("%L")
         updated_at = json_response["orders"].first["updated_at"]
         expect(updated_at.split("T").last).to have_content(milisecond)
+      end
+
+      context "caching enabled" do
+        before do
+          ActionController::Base.perform_caching = true
+          3.times { Order.create }
+        end
+
+        it "returns unique orders" do
+          api_get :index
+
+          orders = json_response["orders"]
+          expect(orders.count).to be >= 3
+          expect(orders.map { |o| o["id"] }.sort).to eq(Order.order(:id).pluck(:id))
+        end
+
+        after { ActionController::Base.perform_caching = false }
       end
 
       context "with two orders" do
@@ -534,4 +580,3 @@ module Spree
     end
   end
 end
-

@@ -16,6 +16,22 @@ describe Spree::OrderContents do
       end
     end
 
+    context 'given a shipment' do
+      it "ensure shipment calls update_amounts instead of order calling ensure_updated_shipments" do
+        shipment = create(:shipment)
+        expect(subject.order).to_not receive(:ensure_updated_shipments)
+        expect(shipment).to receive(:update_amounts)
+        subject.add(variant, 1, nil, shipment)
+      end
+    end
+
+    context 'not given a shipment' do
+      it "ensures updated shipments" do
+        expect(subject.order).to receive(:ensure_updated_shipments)
+        subject.add(variant)
+      end
+    end
+
     it 'should add line item if one does not exist' do
       line_item = subject.add(variant, 1)
       line_item.quantity.should == 1
@@ -92,6 +108,24 @@ describe Spree::OrderContents do
       end
     end
 
+    context 'given a shipment' do
+      it "ensure shipment calls update_amounts instead of order calling ensure_updated_shipments" do
+        line_item = subject.add(variant, 1)
+        shipment = create(:shipment)
+        expect(subject.order).to_not receive(:ensure_updated_shipments)
+        expect(shipment).to receive(:update_amounts)
+        subject.remove(variant, 1, shipment)
+      end
+    end
+
+    context 'not given a shipment' do
+      it "ensures updated shipments" do
+        line_item = subject.add(variant, 1)
+        expect(subject.order).to receive(:ensure_updated_shipments)
+        subject.remove(variant)
+      end
+    end
+
     it 'should reduce line_item quantity if quantity is less the line_item quantity' do
       line_item = subject.add(variant, 3)
       subject.remove(variant, 1)
@@ -157,5 +191,23 @@ describe Spree::OrderContents do
 
     pending "what if validation fails"
     pending "destroy existing shipments when order is not in cart state"
+  end
+
+  context "completed order" do
+    let(:order) { Spree::Order.create! state: 'complete', completed_at: Time.now }
+
+    before { order.shipments.create! stock_location_id: variant.stock_location_ids.first }
+
+    it "updates order payment state" do
+      expect {
+        subject.add variant
+      }.to change { order.payment_state }
+
+      order.payments.create! amount: order.total
+
+      expect {
+        subject.remove variant
+      }.to change { order.payment_state }
+    end
   end
 end

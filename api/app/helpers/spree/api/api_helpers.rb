@@ -55,6 +55,7 @@ module Spree
       @@product_attributes = [
         :id, :name, :description, :display_price, :available_on,
         :slug, :meta_description, :meta_keywords, :shipping_category_id,
+        :total_on_hand
       ]
 
       @@product_property_attributes = [
@@ -118,7 +119,7 @@ module Spree
       @@address_attributes = [
         :id, :firstname, :lastname, :full_name, :address1, :address2, :city,
         :zipcode, :phone, :company, :alternative_phone, :country_id, :state_id,
-        :state_name
+        :state_name, :state_text
       ]
 
       @@country_attributes = [:id, :iso_name, :iso, :iso3, :name, :numcode]
@@ -127,7 +128,7 @@ module Spree
 
       @@adjustment_attributes = [
         :id, :source_type, :source_id, :adjustable_type, :adjustable_id,
-        :source_type, :source_id, :amount, :label, :mandatory,
+        :originator_type, :originator_id, :amount, :label, :mandatory,
         :locked, :eligible,  :created_at, :updated_at
       ]
 

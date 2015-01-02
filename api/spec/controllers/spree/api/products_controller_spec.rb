@@ -7,7 +7,7 @@ module Spree
 
     let!(:product) { create(:product) }
     let!(:inactive_product) { create(:product, :available_on => Time.now.tomorrow, :name => "inactive") }
-    let(:base_attributes) { [:id, :name, :description, :display_price, :available_on, :slug, :meta_description, :meta_keywords, :shipping_category_id] }
+    let(:base_attributes) { Api::ApiHelpers.product_attributes }
     let(:show_attributes) { base_attributes.dup.push(:has_variants) }
     let(:new_attributes) { base_attributes }
 
@@ -70,6 +70,34 @@ module Spree
         json_response["current_page"].should == 1
         json_response["pages"].should == 1
         json_response["per_page"].should == Kaminari.config.default_per_page
+      end
+
+      context "specifying a rabl template for a custom action" do
+        before do
+          Spree::Api::ProductsController.class_eval do
+            def custom_show
+              @product = find_product(params[:id])
+              respond_with(@product)
+            end
+          end
+        end
+
+        it "uses the specified custom template through the request header" do
+          request.headers['X-Spree-Template'] = 'show'
+          api_get :custom_show, :id => product.id
+          response.should render_template('spree/api/products/show')
+        end
+
+        it "uses the specified custom template through the template URL parameter" do
+          api_get :custom_show, :id => product.id, :template => 'show'
+          response.should render_template('spree/api/products/show')
+        end
+
+        it "falls back to the default template if the specified template does not exist" do
+          request.headers['X-Spree-Template'] = 'invoice'
+          api_get :show, :id => product.id
+          response.should render_template('spree/api/products/show')
+        end
       end
 
       context "product has more than one price" do
@@ -170,6 +198,17 @@ module Spree
                                                                          :property_name])
       end
 
+      context "tracking is disabled" do
+        before { Config.track_inventory_levels = false }
+
+        it "still displays valid json with total on hand" do
+          api_get :show, :id => product.to_param
+          expect(response).to be_ok
+          expect(json_response[:total_on_hand]).to eq nil
+        end
+
+        after { Config.track_inventory_levels = true }
+      end
 
       context "finds a product by slug first then by id" do
         let!(:other_product) { create(:product, :slug => "these-are-not-the-droids-you-are-looking-for") }

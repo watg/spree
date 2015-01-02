@@ -134,10 +134,10 @@ module Spree
 
       it 'should select first non-shipped shipment that already contains given variant' do
         shipment = subject.send(:determine_target_shipment)
-        shipment.shipped?.should be_false
+        shipment.shipped?.should be false
         shipment.inventory_units_for(variant).should_not be_empty
 
-        variant.stock_location_ids.include?(shipment.stock_location_id).should be_true
+        variant.stock_location_ids.include?(shipment.stock_location_id).should be true
       end
 
       context "when no shipments already contain this varint" do
@@ -149,9 +149,9 @@ module Spree
         it 'selects first non-shipped shipment that leaves from same stock_location' do
           shipment = subject.send(:determine_target_shipment)
           shipment.reload
-          shipment.shipped?.should be_false
+          shipment.shipped?.should be false
           shipment.inventory_units_for(variant).should be_empty
-          variant.stock_location_ids.include?(shipment.stock_location_id).should be_true
+          variant.stock_location_ids.include?(shipment.stock_location_id).should be true
         end
       end
     end

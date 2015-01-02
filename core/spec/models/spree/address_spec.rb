@@ -163,7 +163,7 @@ describe Spree::Address do
       it "shows no errors when phone is blank" do
         address.zipcode = ""
         address.valid?
-        address.should have(:no).errors_on(:zipcode)
+        expect(address.errors[:zipcode].size).to eq 0
       end
     end
   end
@@ -192,12 +192,12 @@ describe Spree::Address do
     end
 
     context "user given" do
-      let(:bill_address) { Spree::Address.new(phone: Time.now.to_i) }
+      let(:bill_address) { double("BillAddress", name: "John") }
       let(:ship_address) { double("ShipAddress") }
-      let(:user) { double("User", bill_address: bill_address, ship_address: ship_address) }
+      let!(:user) { double("User", bill_address: bill_address, ship_address: ship_address) }
 
-      it "returns a copy of that user bill address" do
-        expect(subject.default(user).phone).to eq bill_address.phone
+      it "returns that user bill address" do
+        expect(subject.default(user).name).to eq "John"
       end
 
       it "falls back to build default when user has no address" do
@@ -251,6 +251,6 @@ describe Spree::Address do
 
   context "defines require_phone? helper method" do
     let(:address) { stub_model(Spree::Address) }
-    specify { address.instance_eval{ require_phone? }.should be_true}
+    specify { address.instance_eval{ require_phone? }.should be true}
   end
 end

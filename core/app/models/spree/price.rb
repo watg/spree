@@ -2,9 +2,11 @@
 module Spree
   class Price < ActiveRecord::Base
     acts_as_paranoid
-    belongs_to :variant, class_name: 'Spree::Variant', inverse_of: :prices, touch: true
+
     CURRENCY_SYMBOL = {'USD' => '$', 'GBP' => '£', 'EUR' => '€'}
     TYPES = [:normal,:normal_sale,:part,:part_sale]
+
+    belongs_to :variant, class_name: 'Spree::Variant', inverse_of: :prices, touch: true
 
     validate :check_price
     validates :amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: false
@@ -116,4 +118,3 @@ module Spree
     end
   end
 end
-

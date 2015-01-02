@@ -1,9 +1,9 @@
 module Spree
   class ReturnAuthorization < ActiveRecord::Base
-    belongs_to :order, class_name: 'Spree::Order'
+    belongs_to :order, class_name: 'Spree::Order', inverse_of: :return_authorizations
 
-    has_many :inventory_units
-    has_one :stock_location
+    has_many :inventory_units, dependent: :nullify, inverse_of: :return_authorization
+    belongs_to :stock_location
     before_create :generate_number
     before_save :force_positive_amount
 
@@ -62,7 +62,7 @@ module Spree
       order.shipped_shipments.collect{|s| s.inventory_units.to_a}.flatten
     end
 
-    # Used when Adjustment#update! wants to update the related adjustmenrt
+    # Used when Adjustment#update! wants to update the related adjustment
     def compute_amount(*args)
       amount.abs * -1
     end
@@ -81,16 +81,17 @@ module Spree
       end
 
       def process_return
-        inventory_units.each do |iu|
+        inventory_units(include: :variant).each do |iu|
           iu.return!
-          stock_item = Spree::StockItem.where(variant_id: iu.variant.id, stock_location_id: stock_location_id).first
-          Spree::StockMovement.create!(stock_item_id: stock_item.id, quantity: 1)
+
+          if iu.variant.should_track_inventory?
+            if stock_item = Spree::StockItem.find_by(variant_id: iu.variant_id, stock_location_id: stock_location_id)
+              Spree::StockMovement.create!(stock_item_id: stock_item.id, quantity: 1)
+            end
+          end
         end
 
-        credit = Adjustment.new(amount: compute_amount, label: Spree.t(:rma_credit))
-        credit.source = self
-        credit.adjustable = order
-        credit.save
+        Adjustment.create(adjustable: order, amount: compute_amount, label: Spree.t(:rma_credit), source: self)
         order.update!
 
         order.return if inventory_units.all?(&:returned?)

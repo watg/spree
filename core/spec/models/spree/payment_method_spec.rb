@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Spree::PaymentMethod do
   describe "#available" do
     before do
-      Spree::PaymentMethod.delete_all
+      Spree::PaymentMethod.destroy_all # TODO: Fix Regression in Rails 4.1.6 and/or rspec/database_cleaner isn't cleaning up before specs properly.
       [nil, 'both', 'front_end', 'back_end'].each do |display_on|
         Spree::Gateway::Test.create(
           :name => 'Display Both',
@@ -57,7 +57,7 @@ describe Spree::PaymentMethod do
 
         it 'should be false' do
           gateway.auto_capture.should be_nil
-          subject.should be_false
+          subject.should be false
         end
       end
 
@@ -66,7 +66,7 @@ describe Spree::PaymentMethod do
 
         it 'should be true' do
           gateway.auto_capture.should be_nil
-          subject.should be_true
+          subject.should be true
         end
       end
     end
@@ -80,7 +80,7 @@ describe Spree::PaymentMethod do
         let(:auto_capture) { true }
 
         it 'should be true' do
-          subject.should be_true
+          subject.should be true
         end
       end
 
@@ -88,7 +88,7 @@ describe Spree::PaymentMethod do
         let(:auto_capture) { false }
 
         it 'should be true' do
-          subject.should be_false
+          subject.should be false
         end
       end
     end

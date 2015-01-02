@@ -7,11 +7,11 @@
 <% content_for :page_actions do %>
   <li>
     <span id="new_add_option_value" data-hook>
-      <%= link_to_add_fields Spree.t(:add_option_value), "tbody#option_values", :class => 'button icon-plus' %>
+      <%= link_to_add_fields Spree.t(:add_option_value), "tbody#option_values", :class => 'button fa fa-plus' %>
     </span>      
   </li>
   <li>
-    <%= button_link_to Spree.t(:back_to_option_types_list), spree.admin_option_types_path, :icon => 'icon-arrow-left' %>
+    <%= button_link_to Spree.t(:back_to_option_types_list), spree.admin_option_types_path, :icon => 'arrow-left' %>
   </li>
 <% end %>
 
@@ -23,68 +23,17 @@
     
     <%= render :partial => 'form', :locals => { :f => f } %>
 
-    <table class="index sortable" data-hook data-sortable-link="<%= update_values_positions_admin_option_types_url %>" data-sortable-link="/admin/option_values/update_positions">
-      <%# from variant options %>
-
-<script>
-$(document).ready(function(){
-    // Warning, there should be a better way of doing this:
-    // We unbind the click event, and reassign it to a custom one.
-    // We do this because we need to clear the 'preview' box when a new row is copied to the table.
-    
-    $('.spree_add_fields').unbind("click");
-    
-    // function is called on click while adding new fiels in a form
-    $('.spree_add_fields').click(function() {
-      var target = $(this).data("target");
-      var new_table_row = $(target + ' tr:visible:last').clone();
-      var new_id = new Date().getTime();
-      new_table_row.find("input").each(function () {
-        var el = $(this);
-        el.val("");
-        el.attr("id", el.attr("id").replace(/\d+/, new_id))
-        el.attr("name", el.attr("name").replace(/\d+/, new_id))
-      })
-      // When cloning a new row, set the href of all icons to be an empty "#"
-      // This is so that clicking on them does not perform the actions for the
-      // duplicated row
-      new_table_row.find("a").each(function () {
-        var el = $(this);
-        el.attr('href', '#');
-      })
-      
-      // We need to add this line to clear the "preview" box.
-      new_table_row.find('.preview').empty();
-      
-      $(target).prepend(new_table_row);
-      
-    });
-});
-</script>
-
+    <table class="index sortable" data-hook data-sortable-link="<%= update_values_positions_admin_option_types_url %>">
       <thead data-hook="option_header">
         <tr>
           <th colspan="2"><%= Spree.t(:name) %></th>
-          <th><%= Spree.t(:presentation) %></th>
-          <th><%= Spree.t(:sku_part) %></th>
-          <th><%= Spree.t(:preview) %></th>
-          <th><%= Spree.t(:image) %></th>
+          <th><%= Spree.t(:display) %></th>
           <th class="actions"></th>
         </tr>
       </thead>
-
-      <%# end variant options %>
-
       <tbody id="option_values">
-        <% if @option_type.option_values.empty? %>
-          <tr id="none" data-hook="option_none" class="<%= cycle('odd', 'even')%>">
-            <td colspan="5"><%= Spree.t(:none) %></td>
-            <td class="actions"></td>
-          </tr>
-        <% else %>
-          <%= f.fields_for :option_values do |option_value_form| %>
-            <%= render :partial => 'option_value_fields', :locals => { :f => option_value_form } %>
-          <% end %>
+        <%= f.fields_for :option_values, @option_values do |option_value_form| %>
+          <%= render :partial => 'option_value_fields', :locals => { :f => option_value_form } %>
         <% end %>
       </tbody>
     </table>

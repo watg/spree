@@ -170,18 +170,38 @@ module Spree
               expect(subject.error).to eq Spree.t(:coupon_code_already_applied)
             end
 
+            it "coupon fails to activate" do
+              Spree::Promotion.any_instance.stub(:activate).and_return false
+              subject.apply
+              expect(subject.error).to eq Spree.t(:coupon_code_unknown_error)
+            end
+
+
             it "coupon code hit max usage" do
               promotion.update_column(:usage_limit, 1)
               coupon = Coupon.new(order)
               coupon.apply
-              expect(coupon.successful?).to be_true
+              expect(coupon.successful?).to be true
 
               order_2 = create(:order)
               order_2.stub :coupon_code => "10off"
               coupon = Coupon.new(order_2)
               coupon.apply
-              expect(coupon.successful?).to be_false
+              expect(coupon.successful?).to be false
               expect(coupon.error).to eq Spree.t(:coupon_code_max_usage)
+            end
+
+            context "when the a new coupon is less good" do
+              let!(:action_5) { Promotion::Actions::CreateAdjustment.create(promotion: promotion_5, calculator: calculator_5) }
+              let(:calculator_5) { Calculator::FlatRate.new(preferred_amount: 5) }
+              let!(:promotion_5) { Promotion.create name: "promo", :code => "5off"  }
+
+              it 'notifies of better deal' do
+                subject.apply
+                order.stub( { coupon_code: '5off' } )
+                coupon = Coupon.new(order).apply
+                expect(coupon.error).to eq Spree.t(:coupon_code_better_exists)
+              end
             end
           end
         end
@@ -213,7 +233,7 @@ module Spree
             end
             it "successfully applies the promo" do
               # 3 * (9 + 0.9)
-              @order.reload.total.should == 29.7
+              @order.total.should == 29.7
               coupon = Coupon.new(@order)
               coupon.apply
               expect(coupon.success).to be_present
@@ -268,6 +288,23 @@ module Spree
             end
           end
         end
+
+        context "with a CreateLineItems action" do
+          let!(:variant) { create(:variant) }
+          let!(:action) { Promotion::Actions::CreateLineItems.create(promotion: promotion, promotion_action_line_items_attributes: { :'0' => { variant_id: variant.id }}) }
+          let(:order) { create(:order) }
+
+          before do
+            order.stub(coupon_code: "10off")
+          end
+
+          it "successfully activates promo" do
+            subject.apply
+            expect(subject.success).to be_present
+            expect(order.line_items.pluck(:variant_id)).to include(variant.id)
+          end
+        end
+
       end
     end
   end

@@ -6,6 +6,7 @@ module Spree
     # how they will deal with redirects
     before_filter :redirect_to_product_pages, :only => :show
     before_filter :load_selected_variant, :only => :show
+    before_filter :load_taxon, :only => :index
 
     rescue_from ActiveRecord::RecordNotFound, :with => :render_404
     helper 'spree/taxons'
@@ -59,6 +60,10 @@ module Spree
         @products = Product.active(current_currency)
       end
       @product = @products.friendly.find(params[:product_id] || params[:id])
+    end
+
+    def load_taxon
+      @taxon = Spree::Taxon.find(params[:taxon]) if params[:taxon].present?
     end
   end
 end

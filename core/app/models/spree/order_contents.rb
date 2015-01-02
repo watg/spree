@@ -30,6 +30,7 @@ module Spree
       line_item.target_shipment = shipment if shipment
       if line_item.save
         reload_totals
+        shipment.present? ? shipment.update_amounts : order.ensure_updated_shipments
         PromotionHandler::Cart.new(order, line_item).activate
         ItemAdjustments.new(line_item).update
         reload_totals
@@ -58,6 +59,7 @@ module Spree
 
       if remove_from_line_item(line_item, quantity, shipment)
         reload_totals
+        shipment.present? ? shipment.update_amounts : order.ensure_updated_shipments
         PromotionHandler::Cart.new(order, line_item).activate
         ItemAdjustments.new(line_item).update
         reload_totals
@@ -144,9 +146,7 @@ module Spree
 
     def reload_totals
       order_updater.update_item_count
-      order_updater.update_item_total
-      order_updater.update_adjustment_total
-      order_updater.persist_totals
+      order_updater.update
       order.reload
     end
 

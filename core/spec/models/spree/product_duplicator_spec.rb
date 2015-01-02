@@ -68,6 +68,44 @@ module Spree
       end
     end
 
+    context 'when image duplication disabled' do
+
+      let!(:duplicator) { Spree::ProductDuplicator.new(product, false) }
+
+      it "will not duplicate the product images" do
+        expect{duplicator.duplicate}.to change{Spree::Image.count}.by(0)
+      end
+
+    end
+
+    context 'image duplication default' do
+
+      context 'when default is set to true' do
+
+        it 'clones images if no flag passed to initializer' do
+          expect{duplicator.duplicate}.to change{Spree::Image.count}.by(1)
+        end
+
+      end
+
+      context 'when default is set to false' do
+
+        before do
+          ProductDuplicator.clone_images_default = false
+        end
+
+        after do
+          ProductDuplicator.clone_images_default = true
+        end
+
+        it 'does not clone images if no flag passed to initializer' do
+          expect{ProductDuplicator.new(product).duplicate}.to change{Spree::Image.count}.by(0)
+        end
+
+      end
+
+    end
+
     context "product attributes" do
       let!(:new_product) {duplicator.duplicate}
 

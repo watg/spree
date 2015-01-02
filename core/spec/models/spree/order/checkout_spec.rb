@@ -43,17 +43,17 @@ describe Spree::Order do
     end
 
     it '.find_transition when contract was broken' do
-      Spree::Order.find_transition({foo: :bar, baz: :dog}).should be_false
+      expect(Spree::Order.find_transition({foo: :bar, baz: :dog})).to be_falsey
     end
 
     it '.remove_transition' do
       options = {:from => transitions.first.keys.first, :to => transitions.first.values.first}
       Spree::Order.stub(:next_event_transition).and_return([options])
-      Spree::Order.remove_transition(options).should be_true
+      Spree::Order.remove_transition(options).should be_truthy
     end
 
     it '.remove_transition when contract was broken' do
-      Spree::Order.remove_transition(nil).should be_false
+      expect(Spree::Order.remove_transition(nil)).to be_falsey
     end
 
     context "#checkout_steps" do
@@ -125,6 +125,7 @@ describe Spree::Order do
         line_item = FactoryGirl.create(:line_item, :price => 10, :adjustment_total => 10)
         order.line_items << line_item
         tax_rate = create(:tax_rate, :tax_category => line_item.tax_category, :amount => 0.05)
+        Spree::TaxRate.stub :match => [tax_rate]
         FactoryGirl.create(:tax_adjustment, :adjustable => line_item, :source => tax_rate)
         order.email = "user@example.com"
         order.next!
@@ -201,6 +202,7 @@ describe Spree::Order do
         context "with a shipment that has a price" do
           before do
             shipment.shipping_rates.first.update_column(:cost, 10)
+            order.set_shipments_cost
           end
 
           it "transitions to payment" do
@@ -212,6 +214,7 @@ describe Spree::Order do
         context "with a shipment that is free" do
           before do
             shipment.shipping_rates.first.update_column(:cost, 0)
+            order.set_shipments_cost
           end
 
           it "skips payment, transitions to complete" do
@@ -279,7 +282,7 @@ describe Spree::Order do
       end
     end
 
-    pending "should only call default transitions once when checkout_flow is redefined" do
+    skip "should only call default transitions once when checkout_flow is redefined" do
       order = SubclassedOrder.new
       order.stub :payment_required? => true
       order.should_receive(:process_payments!).once
@@ -311,7 +314,7 @@ describe Spree::Order do
 
     it "should not keep old events when checkout_flow is redefined" do
       state_machine = Spree::Order.state_machine
-      state_machine.states.any? { |s| s.name == :address }.should be_false
+      state_machine.states.any? { |s| s.name == :address }.should be false
       known_states = state_machine.events[:next].branches.map(&:known_states).flatten
       known_states.should_not include(:address)
       known_states.should_not include(:delivery)
@@ -440,6 +443,7 @@ describe Spree::Order do
   describe 'update_from_params' do
     let(:permitted_params) { {} }
     let(:params) { {} }
+
     it 'calls update_atributes without order params' do
       order.should_receive(:update_attributes).with({})
       order.update_from_params( params, permitted_params)
@@ -462,6 +466,7 @@ describe Spree::Order do
         ActionController::Parameters.new(
           order: { payments_attributes: [{payment_method_id: 1}] },
           existing_card: credit_card.id,
+          cvc_confirm: "737",
           payment_source: {
             "1" => { name: "Luis Braga",
                      number: "4111 1111 1111 1111",
@@ -473,6 +478,12 @@ describe Spree::Order do
       end
 
       before { order.user_id = 3 }
+
+      it "sets confirmation value when its available via :cvc_confirm" do
+        Spree::CreditCard.stub find: credit_card
+        expect(credit_card).to receive(:verification_value=)
+        order.update_from_params(params, permitted_params)
+      end
 
       it "sets existing card as source for new payment" do
         expect {

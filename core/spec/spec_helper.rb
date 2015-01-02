@@ -38,6 +38,7 @@ require 'spree/testing_support/image_stub'
 
 RSpec.configure do |config|
   config.color = true
+  config.infer_spec_type_from_file_location!
   config.mock_with :rspec
   config.backtrace_exclusion_patterns = [
     /\/lib\d*\/ruby\//,

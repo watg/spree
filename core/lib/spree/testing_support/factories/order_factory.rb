@@ -37,7 +37,7 @@ FactoryGirl.define do
       bill_address
       ship_address
 
-      ignore do
+      transient do
         line_items_count 5
       end
 

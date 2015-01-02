@@ -11,6 +11,7 @@ require 'paranoia'
 require 'ransack'
 require 'state_machine'
 require 'friendly_id'
+require 'font-awesome-rails'
 
 module Spree
 
@@ -68,6 +69,7 @@ require 'spree/core/delegate_belongs_to'
 require 'spree/core/permalinks'
 require 'spree/core/token_resource'
 require 'spree/core/calculated_adjustments'
+require 'spree/core/adjustment_source'
 require 'spree/core/product_duplicator'
 require 'spree/core/variant_duplicator'
 require 'spree/core/controller_helpers'

@@ -71,7 +71,7 @@ describe Spree::Api::BaseController do
     json_response.should == { "exception" => "no joy" }
   end
 
-  it "maps symantec keys to nested_attributes keys" do
+  it "maps semantic keys to nested_attributes keys" do
     klass = double(:nested_attributes_options => { :line_items => {},
                                                   :bill_address => {} })
     attributes = { 'line_items' => { :id => 1 },
@@ -79,7 +79,11 @@ describe Spree::Api::BaseController do
                    'name' => 'test order' }
 
     mapped = subject.map_nested_attributes_keys(klass, attributes)
-    mapped.has_key?('line_items_attributes').should be_true
-    mapped.has_key?('name').should be_true
+    mapped.has_key?('line_items_attributes').should be true
+    mapped.has_key?('name').should be true
+  end
+
+  it "lets a subclass override the product associations that are eager-loaded" do
+    controller.respond_to?(:product_includes, true).should be
   end
 end

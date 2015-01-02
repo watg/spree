@@ -44,8 +44,7 @@ RSpec.configure do |config|
     /spec\/spec_helper\.rb/,
     /lib\/rspec\/(core|expectations|matchers|mocks)/
   ]
-
-  # config.fixture_path = "dasds"
+  config.infer_spec_type_from_file_location!
 
   config.include FactoryGirl::Syntax::Methods
   config.include Spree::Api::TestingSupport::Helpers, :type => :controller

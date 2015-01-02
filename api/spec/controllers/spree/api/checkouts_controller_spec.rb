@@ -55,10 +55,26 @@ module Spree
         order
       end
 
-
       before(:each) do
         Order.any_instance.stub(:confirmation_required? => true)
         Order.any_instance.stub(:payment_required? => true)
+      end
+
+      it 'should not allow users to change the price of line items' do
+        line_item = order.line_items.first
+        price_was = line_item.price
+        api_put(
+          :update,
+          id: order.to_param,
+          order_token: order.token,
+          order: {
+            line_items: {0 => {id: line_item.id, price: '0.1', quantity: '3'}}
+          }
+        )
+        response.status.should == 200
+        line_item.reload
+        expect(line_item.price).to eq price_was
+        expect(line_item.price).to_not eq 0.1
       end
 
       it "should transition a recently created order from cart to address" do
@@ -93,7 +109,7 @@ module Spree
       end
 
       it "will return an error if the order cannot transition" do
-        pending "not sure if this test is valid"
+        skip "not sure if this test is valid"
         order.bill_address = nil
         order.save
         order.update_column(:state, "address")
@@ -136,7 +152,7 @@ module Spree
         # Find the correct shipping rate for that shipment...
         json_shipping_rate = json_shipment['shipping_rates'].detect { |sr| sr["id"] == shipping_rate.id }
         # ... And finally ensure that it's selected
-        json_shipping_rate['selected'].should be_true
+        json_shipping_rate['selected'].should be true
         # Order should automatically transfer to payment because all criteria are met
         json_response['state'].should == 'payment'
       end
@@ -226,7 +242,7 @@ module Spree
       end
 
       it "can apply a coupon code to an order" do
-        pending "ensure that the order totals are properly updated, see frontend orders_controller or checkout_controller as example"
+        skip "ensure that the order totals are properly updated, see frontend orders_controller or checkout_controller as example"
 
         order.update_column(:state, "payment")
         PromotionHandler::Coupon.should_receive(:new).with(order).and_call_original

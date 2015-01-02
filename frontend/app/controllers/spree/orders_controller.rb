@@ -45,24 +45,19 @@ module Spree
       # Remove any line_items which have been deleted
       @order.prune_line_items
       associate_user
-
-      if stale?(current_order)
-        respond_with(current_order)
-      end
     end
 
     # Adds a new item to the order (creating a new order if none already exists)
     def populate
       populator = Spree::OrderPopulator.new(current_order(create_order_if_necessary: true), current_currency)
-      if populator.populate(params.slice(:products, :variants, :quantity, :parts, :target_id, :product_page_id, :product_page_tab_id, :suite_id, :suite_tab_id))
-        current_order.ensure_updated_shipments
 
+      if populator.populate(params.slice(:products, :variants, :quantity, :parts, :target_id, :product_page_id, :product_page_tab_id, :suite_id, :suite_tab_id))
         respond_with(@order) do |format|
           format.html { redirect_to cart_path }
         end
       else
         flash[:error] = populator.errors.full_messages.join(" ")
-        redirect_to :back
+        redirect_back_or_default(spree.root_path)
       end
     end
 
@@ -83,7 +78,7 @@ module Spree
     end
 
     def check_authorization
-      session[:access_token] ||= params[:token]
+      session[:access_token] = params[:token] if params[:token]
       order = Spree::Order.find_by_number(params[:id]) || current_order
 
       if order
@@ -95,20 +90,21 @@ module Spree
 
     private
 
-      def order_params
-        if params[:order]
-          params[:order].permit(*permitted_order_attributes)
-        else
-          {}
-        end
+    def order_params
+      if params[:order]
+        params[:order].permit(*permitted_order_attributes)
+      else
+        {}
       end
+    end
 
-      def assign_order_with_lock
-        @order = current_order(lock: true)
-        unless @order
-          flash[:error] = Spree.t(:order_not_found)
-          redirect_to root_path and return
-        end
+    def assign_order_with_lock
+      @order = current_order(lock: true)
+      unless @order
+        flash[:error] = Spree.t(:order_not_found)
+        redirect_to root_path and return
       end
+    end
+
   end
 end

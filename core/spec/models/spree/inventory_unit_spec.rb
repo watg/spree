@@ -191,9 +191,23 @@ describe Spree::InventoryUnit do
     end
 
     it "can still fetch variants by eager loading (remove default_scope)" do
-      pending "find a way to remove default scope when eager loading associations"
+      skip "find a way to remove default scope when eager loading associations"
       unit.variant.destroy
       expect(Spree::InventoryUnit.joins(:variant).includes(:variant).first.variant).to be_a Spree::Variant
+    end
+  end
+
+  context "#finalize_units!" do
+    let!(:stock_location) { create(:stock_location) }
+    let(:variant) { create(:variant) }
+    let(:inventory_units) { [
+      create(:inventory_unit, variant: variant),
+      create(:inventory_unit, variant: variant)
+    ] }
+
+    it "should create a stock movement" do
+      Spree::InventoryUnit.finalize_units!(inventory_units)
+      inventory_units.any?(&:pending).should be false
     end
   end
 end

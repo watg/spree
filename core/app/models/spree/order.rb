@@ -4,16 +4,13 @@ require  File.join(Rails.root,'vendor/spree/core/app/jobs/spree/issue_gift_card_
 
 module Spree
   class Order < ActiveRecord::Base
-    include Checkout
-    include CurrencyUpdater
+    include Spree::Order::Checkout
+    include Spree::Order::CurrencyUpdater
 
     checkout_flow do
       go_to_state :address
       go_to_state :delivery
-      go_to_state :payment, if: ->(order) do
-        order.set_shipments_cost if order.shipments.any?
-        order.payment_required?
-      end
+      go_to_state :payment, if: ->(order) { order.payment_required? }
       go_to_state :confirm, if: ->(order) { order.confirmation_required? }
       go_to_state :complete
       remove_transition from: :delivery, to: :confirm
@@ -42,13 +39,15 @@ module Spree
     alias_attribute :ship_total, :shipment_total
 
     has_many :state_changes, as: :stateful
-    has_many :line_items, -> { order('created_at ASC') }, dependent: :destroy, inverse_of: :order
+    has_many :line_items, -> { order("#{LineItem.table_name}.created_at ASC") }, dependent: :destroy, inverse_of: :order
     has_many :payments, -> { order('created_at ASC') }, dependent: :destroy
-    has_many :return_authorizations, dependent: :destroy
+    has_many :return_authorizations, dependent: :destroy, inverse_of: :order
     has_many :adjustments, -> { order("#{Adjustment.table_name}.created_at ASC") }, as: :adjustable, dependent: :destroy
     has_many :line_item_adjustments, through: :line_items, source: :adjustments
     has_many :shipment_adjustments, through: :shipments, source: :adjustments
     has_many :inventory_units, inverse_of: :order
+    has_many :products, through: :variants
+    has_many :variants, through: :line_items
 
     has_and_belongs_to_many :promotions, join_table: 'spree_orders_promotions'
 
@@ -83,6 +82,7 @@ module Spree
 
     validates :email, presence: true, if: :require_email
     validates :email, email: true, if: :require_email, allow_blank: true
+    validates :number, uniqueness: true
     validate :has_available_shipment
 
     make_permalink field: :number
@@ -94,13 +94,18 @@ module Spree
 
     SHIPPABLE_STATES = %w(complete resumed awaiting_return returned)
 
+    scope :created_between, ->(start_date, end_date) { where(created_at: start_date..end_date) }
+    scope :completed_between, ->(start_date, end_date) { where(completed_at: start_date..end_date) }
+    scope :reverse_chronological, -> { order(created_at: :desc) }
+
+    def self.between(start_date, end_date)
+      ActiveSupport::Deprecation.warn("Order#between will be deprecated in Spree 2.3, please use either Order#created_between or Order#completed_between instead.")
+      self.created_between(start_date, end_date)
+    end
+
     class << self
       def by_number(number)
         where(number: number)
-      end
-
-      def between(start_date, end_date)
-        where(created_at: start_date..end_date)
       end
 
       def by_customer(customer)
@@ -141,7 +146,7 @@ module Spree
                 shipment_state: 'ready',
                 internal: false,
                 'spree_products.product_type_id' => non_digital_product_type_ids).
-          prioritised
+                prioritised
       end
 
       def unprinted_invoices
@@ -193,7 +198,8 @@ module Spree
     end
 
     def all_adjustments
-      Adjustment.where("order_id = :order_id OR adjustable_id = :order_id", :order_id => self.id)
+      Adjustment.where("order_id = :order_id OR (adjustable_id = :order_id AND adjustable_type = 'Spree::Order')",
+                       order_id: self.id)
     end
 
     # For compatiblity with Calculator::PriceSack
@@ -299,7 +305,7 @@ module Spree
     # Returns the relevant zone (if any) to be used for taxation purposes.
     # Uses default tax zone unless there is a specific match
     def tax_zone
-      Zone.match(tax_address) || Zone.default_tax
+      @tax_zone ||= Zone.match(tax_address) || Zone.default_tax
     end
 
     # Indicates whether tax should be backed out of the price calcualtions in
@@ -307,7 +313,7 @@ module Spree
     # taxes in that case.
     def exclude_tax?
       return false unless Spree::Config[:prices_inc_tax]
-      return tax_zone != Zone.default_tax
+      tax_zone != Zone.default_tax
     end
 
     # Returns the address for taxation based on configuration
@@ -349,26 +355,31 @@ module Spree
     end
 
     # Associates the specified user with the order.
-    def associate_user!(user)
+    def associate_user!(user, override_email = true)
       self.user = user
-      self.email = user.email
-      self.created_by = user if self.created_by.blank?
+      attrs_to_set = { user_id: user.id }
+      attrs_to_set[:email] = user.email if override_email
+      attrs_to_set[:created_by_id] = user.id if self.created_by.blank?
+      assign_attributes(attrs_to_set)
 
       if persisted?
         # immediately persist the changes we just made, but don't use save since we might have an invalid address associated
-        self.class.unscoped.where(id: id).update_all(email: user.email, user_id: user.id, created_by_id: self.created_by_id)
+        self.class.unscoped.where(id: id).update_all(attrs_to_set)
       end
     end
 
-    # FIXME refactor this method and implement validation using validates_* utilities
-    def generate_order_number
-      record = true
-      while record
-        random = "R#{Array.new(9){rand(9)}.join}"
-        record = self.class.where(number: random).first
+    def generate_order_number(digits = 9)
+      self.number ||= loop do
+        # Make a random number.
+        random = "R#{Array.new(digits){rand(10)}.join}"
+        # Use the random  number if no other order exists with it.
+        if self.class.exists?(number: random)
+          # If over half of all possible options are taken add another digit.
+          digits += 1 if self.class.count > (10 ** digits / 2)
+        else
+          break random
+        end
       end
-      self.number = random if self.number.blank?
-      self.number
     end
 
     def shipped_shipments
@@ -396,7 +407,11 @@ module Spree
     end
 
     def outstanding_balance
-      total - payment_total
+      if self.state == 'canceled' && self.payments.present? && self.payments.completed.size > 0
+        -1 * payment_total
+      else
+        total - payment_total
+      end
     end
 
     def outstanding_balance?
@@ -582,10 +597,18 @@ module Spree
       line_items.select {|line| line.errors.any? }
     end
 
+    def ensure_line_items_are_in_stock
+      if insufficient_stock_lines.present?
+        errors.add(:base, Spree.t(:insufficient_stock_lines_present)) and return false
+      end
+    end
+
+
     def merge!(order, user = nil)
       order.line_items.each do |line_item|
         next unless line_item.currency == currency
         current_line_item = self.line_items.find_by(variant: line_item.variant)
+
         if current_line_item
           current_line_item.quantity += line_item.quantity
           current_line_item.save
@@ -597,6 +620,10 @@ module Spree
 
       self.associate_user!(user) if !self.user && !user.blank?
 
+      updater.update_item_count
+      updater.update_item_total
+      updater.persist_totals
+
       # So that the destroy doesn't take out line items which may have been re-assigned
       order.line_items.reload
       order.destroy
@@ -605,8 +632,9 @@ module Spree
     def empty!
       line_items.destroy_all
       updater.update_item_count
-
       adjustments.destroy_all
+      shipments.destroy_all
+
       update_totals
       persist_totals
     end
@@ -693,12 +721,7 @@ module Spree
     end
 
     def is_risky?
-      self.payments.where(%{
-        (avs_response IS NOT NULL and avs_response != '' and avs_response != 'D' and avs_response != 'M') or
-        (cvv_response_code IS NOT NULL and cvv_response_code != 'M') or
-        cvv_response_message IS NOT NULL and cvv_response_message != '' or
-        state = 'failed'
-                          }.squish!).uniq.count > 0
+      self.payments.risky.count > 0
     end
 
     def approved_by(user)
@@ -766,6 +789,12 @@ module Spree
       %(warehouse_on_hold customer_service_on_hold).include?(state)
     end
 
+
+    def reload(options=nil)
+      remove_instance_variable(:@tax_zone) if defined?(@tax_zone)
+      super
+    end
+
     private
 
     def link_by_email
@@ -774,7 +803,7 @@ module Spree
 
     # Determine if email is required (we don't want validation errors before we hit the checkout)
     def require_email
-      return true unless new_record? or ['cart', 'address'].include?(state)
+      true unless new_record? or ['cart', 'address'].include?(state)
     end
 
     def ensure_line_items_present
@@ -798,10 +827,9 @@ module Spree
 
     def after_cancel
       shipments.each { |shipment| shipment.cancel! }
-      payments.completed.each { |payment| payment.credit! if payment.try(:payment_method).respond_to?(:credit) }
-
+      payments.completed.each { |payment| payment.cancel! }
       send_cancel_email
-      self.update_column(:payment_state, 'credit_owed') unless shipped?
+      self.update!
     end
 
     def send_cancel_email

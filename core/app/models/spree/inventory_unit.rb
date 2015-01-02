@@ -3,7 +3,7 @@ module Spree
     belongs_to :variant, class_name: "Spree::Variant", inverse_of: :inventory_units
     belongs_to :order, class_name: "Spree::Order", inverse_of: :inventory_units
     belongs_to :shipment, class_name: "Spree::Shipment", touch: true, inverse_of: :inventory_units
-    belongs_to :return_authorization, class_name: "Spree::ReturnAuthorization"
+    belongs_to :return_authorization, class_name: "Spree::ReturnAuthorization", inverse_of: :inventory_units
     belongs_to :line_item, class_name: "Spree::LineItem", inverse_of: :inventory_units
     belongs_to :line_item_part, class_name: "Spree::LineItemPart", inverse_of: :inventory_units
     belongs_to :supplier, class_name: "Spree::Supplier", inverse_of: :inventory_units
@@ -85,6 +85,7 @@ module Spree
     end
 
     def update_order
+      self.reload
       order.update!
     end
 
@@ -102,6 +103,10 @@ module Spree
       end
     end
 
+      def update_order
+        self.reload
+        order.update!
+      end
   end
 end
 

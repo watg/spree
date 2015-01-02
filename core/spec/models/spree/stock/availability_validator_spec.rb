@@ -79,44 +79,12 @@ module Spree
         end
       end
 
-      describe "validation of an entire order" do
-        before do
-          order.line_items << extra_line_item
-        end
-
-        it 'should show errors for all line_items, which are missing stock' do
-          Stock::Quantifier.any_instance.stub(can_supply?: false)
-
-          line_item.errors.should_receive(:[]).with(:quantity).and_return []
-          extra_line_item.errors.should_receive(:[]).with(:quantity).and_return []
-
-          subject.validate_order(order).should eq false
-        end
+      it 'should consider existing inventory_units sufficient' do
+        Stock::Quantifier.any_instance.stub(can_supply?: false)
+        line_item.should_not_receive(:errors)
+        line_item.stub(inventory_units: [double] * 5)
+        subject.validate(line_item)
       end
-
-
-      context "with feeder and inactive locations" do
-        let!(:inactive_location) { create(:stock_location, active: false) }
-        let!(:active_location) { variant.stock_items.first.stock_location }
-        let!(:feeder_location) { create(:stock_location, active: false, feed_into: active_location) }
-
-        let(:available_stock_locations) { [active_location, feeder_location] }
-
-        let(:stock_items) {
-          variant.stock_items.select do |si|
-            available_stock_locations.include?(si.stock_location)
-          end
-        }
-
-        it "only passes stock items from feeder and active locations into the Quantifier" do
-          expect(Stock::Quantifier).to receive(:new) do |call_variant, call_items|
-            expect(call_variant).to eq(variant)
-            expect(call_items.map(&:id)).to match_array(stock_items.map(&:id))
-          end.and_call_original
-          subject.validate_order(order)
-        end
-      end
-
     end
   end
 end

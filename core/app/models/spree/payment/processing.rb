@@ -5,7 +5,7 @@ module Spree
         if payment_method && payment_method.source_required?
           if source
             if !processing?
-              if payment_method.supports?(source)
+              if payment_method.supports?(source) || token_based?
                 if payment_method.auto_capture?
                   purchase!
                 else
@@ -50,7 +50,7 @@ module Spree
             gateway_options
           )
 
-          money = ::Money.new(amount, Spree::Config[:currency])
+          money = ::Money.new(amount, currency)
           capture_events.create!(amount: money.to_f)
           handle_response(response, :complete, :failure)
         end
@@ -81,11 +81,17 @@ module Spree
       end
 
       def credit!(credit_amount=nil)
+        raise Core::GatewayError.new(Spree.t(:payment_processing_failed)) if processing?
+
+        # Calculate credit amount before marking as processing since it messes up the order totals not having payment in completed state.
+        credit_amount ||= credit_allowed >= order.outstanding_balance.abs ? order.outstanding_balance.abs : credit_allowed.abs
+        credit_amount = credit_amount.to_f
+
+        # Mark as processing to avoid race condition that could send multiple credits to the gateway.
+        started_processing!
         protect_from_connection_error do
           check_environment
 
-          credit_amount ||= credit_allowed >= order.outstanding_balance.abs ? order.outstanding_balance.abs : credit_allowed.abs
-          credit_amount = credit_amount.to_f
           credit_cents = Spree::Money.new(credit_amount, currency: currency).money.cents
 
           if payment_method.payment_profiles_supported?
@@ -100,6 +106,8 @@ module Spree
           
           if response
           record_response(response)
+          # Always set back to 'completed' as initial payment record was successful.
+          self.update_column(:state, 'completed')
 
           if response.success?
             self.class.create!(
@@ -117,13 +125,21 @@ module Spree
         end
       end
 
+      def cancel!
+        if payment_method.respond_to?(:cancel)
+          payment_method.cancel(response_code)
+        else
+          credit!
+        end
+      end
+
       def partial_credit(amount)
         return if amount > credit_allowed
-        started_processing!
         credit!(amount)
       end
 
       def gateway_options
+        order.reload
         options = { :email       => order.email,
                     :customer    => order.email,
                     :customer_id => order.user_id,
@@ -215,6 +231,10 @@ module Spree
       # The unique identifier to be passed in to the payment gateway
       def gateway_order_id
         "#{order.number}-#{self.identifier}"
+      end
+
+      def token_based?
+        source.gateway_customer_profile_id.present? || source.gateway_payment_profile_id.present?
       end
     end
   end

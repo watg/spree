@@ -13,6 +13,7 @@ module Spree
 
         expires_in 15.minutes, :public => true
         headers['Surrogate-Control'] = "max-age=#{15.minutes}"
+        respond_with(@products)
       end
 
       def show
@@ -20,6 +21,7 @@ module Spree
         expires_in 15.minutes, :public => true
         headers['Surrogate-Control'] = "max-age=#{15.minutes}"
         headers['Surrogate-Key'] = "product_id=1"
+        respond_with(@product)
       end
 
       # Takes besides the products attributes either an array of variants or

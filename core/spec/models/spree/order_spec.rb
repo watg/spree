@@ -84,7 +84,7 @@ describe Spree::Order do
     end
 
     it "contains?" do
-      order.contains?(@variant1).should be_true
+      order.contains?(@variant1).should be true
     end
 
     it "gets the quantity of a given variant" do
@@ -130,8 +130,8 @@ describe Spree::Order do
 
   context "#generate_order_number" do
     it "should generate a random string" do
-      order.generate_order_number.is_a?(String).should be_true
-      (order.generate_order_number.to_s.length > 0).should be_true
+      order.generate_order_number.is_a?(String).should be true
+      (order.generate_order_number.to_s.length > 0).should be true
     end
   end
 
@@ -207,7 +207,7 @@ describe Spree::Order do
     it "is true for shippable states" do
       valid_states.each do |state|
         order.state = state
-        expect(order.can_ship?).to be_true
+        expect(order.can_ship?).to be true
       end
     end
 
@@ -217,7 +217,7 @@ describe Spree::Order do
 
       other_states.each do |state|
         order.state = state
-        expect(order.can_ship?).to be_false
+        expect(order.can_ship?).to be false
       end
     end
   end
@@ -307,9 +307,9 @@ describe Spree::Order do
     end
 
     it "sets confirmation delivered when finalizing" do
-      expect(order.confirmation_delivered?).to be_false
+      expect(order.confirmation_delivered?).to be false
       order.finalize!
-      expect(order.confirmation_delivered?).to be_true
+      expect(order.confirmation_delivered?).to be true
     end
 
     it "should not send duplicate confirmation emails" do
@@ -372,12 +372,12 @@ describe Spree::Order do
 
     it "should process the payments" do
       payment.should_receive(:process!)
-      order.process_payments!.should be_true
+      order.process_payments!.should be_truthy
     end
 
     it "should return false if no pending_payments available" do
       order.stub :pending_payments => []
-      order.process_payments!.should be_false
+      order.process_payments!.should be false
     end
 
     context "when a payment raises a GatewayError" do
@@ -385,12 +385,12 @@ describe Spree::Order do
 
       it "should return true when configured to allow checkout on gateway failures" do
         Spree::Config.set :allow_checkout_on_gateway_error => true
-        order.process_payments!.should be_true
+        order.process_payments!.should be true
       end
 
       it "should return false when not configured to allow checkout on gateway failures" do
         Spree::Config.set :allow_checkout_on_gateway_error => false
-        order.process_payments!.should be_false
+        order.process_payments!.should be false
       end
 
     end
@@ -414,27 +414,27 @@ describe Spree::Order do
     it "should be true when total greater than payment_total" do
       order.total = 10.10
       order.payment_total = 9.50
-      order.outstanding_balance?.should be_true
+      order.outstanding_balance?.should be true
     end
     it "should be true when total less than payment_total" do
       order.total = 8.25
       order.payment_total = 10.44
-      order.outstanding_balance?.should be_true
+      order.outstanding_balance?.should be true
     end
     it "should be false when total equals payment_total" do
       order.total = 10.10
       order.payment_total = 10.10
-      order.outstanding_balance?.should be_false
+      order.outstanding_balance?.should be false
     end
   end
 
   context "#completed?" do
     it "should indicate if order is completed" do
       order.completed_at = nil
-      order.completed?.should be_false
+      order.completed?.should be false
 
       order.completed_at = Time.now
-      order.completed?.should be_true
+      order.completed?.should be true
     end
   end
 
@@ -453,11 +453,11 @@ describe Spree::Order do
   context "#allow_checkout?" do
     it "should be true if there are line_items in the order" do
       order.stub_chain(:line_items, :count => 1)
-      order.checkout_allowed?.should be_true
+      order.checkout_allowed?.should be true
     end
     it "should be false if there are no line_items in the order" do
       order.stub_chain(:line_items, :count => 0)
-      order.checkout_allowed?.should be_false
+      order.checkout_allowed?.should be false
     end
   end
 
@@ -477,14 +477,14 @@ describe Spree::Order do
       order.state = 'canceled'
       order.shipment_state = 'ready'
       order.completed_at = Time.now
-      order.can_cancel?.should be_false
+      order.can_cancel?.should be false
     end
 
     it "should be true for completed order with no shipment" do
       order.state = 'complete'
       order.shipment_state = nil
       order.completed_at = Time.now
-      order.can_cancel?.should be_true
+      order.can_cancel?.should be true
     end
   end
 
@@ -520,6 +520,9 @@ describe Spree::Order do
       out_of_stock_lines = order.insufficient_stock_lines
       expect(out_of_stock_lines.size).to eq 1
       expect(out_of_stock_lines).to include line_item
+    it "should return line_item that has insufficient stock on hand" do
+      order.insufficient_stock_lines.size.should == 1
+      order.insufficient_stock_lines.include?(line_item).should be true
     end
   end
 
@@ -534,6 +537,7 @@ describe Spree::Order do
     it "clears out line items, adjustments and update totals" do
       expect(order.line_items).to receive(:destroy_all)
       expect(order.adjustments).to receive(:destroy_all)
+      expect(order.shipments).to receive(:destroy_all)
       expect(order.updater).to receive(:update_totals)
       expect(order.updater).to receive(:persist_totals)
 
@@ -636,6 +640,9 @@ describe Spree::Order do
         line_items = order_1.line_items
         line_items.count.should == 2
 
+        expect(order_1.item_count).to eq 2
+        expect(order_1.item_total).to eq line_items.map(&:amount).sum
+
         # No guarantee on ordering of line items, so we do this:
         line_items.pluck(:quantity).should =~ [1, 1]
         line_items.pluck(:variant_id).should =~ [variant.id, variant_2.id]
@@ -711,12 +718,12 @@ describe Spree::Order do
     let(:order) { Spree::Order.new }
 
     context "total is zero" do
-      it { order.payment_required?.should be_false }
+      it { order.payment_required?.should be false }
     end
 
     context "total > zero" do
       before { order.stub(total: 1) }
-      it { order.payment_required?.should be_true }
+      it { order.payment_required?.should be true }
     end
   end
 
@@ -868,13 +875,6 @@ describe Spree::Order do
         end
       end
 
-      context "CVV response message" do
-        let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, cvv_response_message: "foobar'd")]) }
-        it "returns true if the order has an cvv_response_message" do
-          order.is_risky?.should == true
-        end
-      end
-
       context "CVV response code" do
         let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, cvv_response_code: "N")]) }
         it "returns true if the order has an cvv_response_code" do
@@ -903,7 +903,7 @@ describe Spree::Order do
       order.approved_by(stub_model(Spree::LegacyUser, id: 1))
       expect(order.approver_id).to eq(1)
       expect(order.approved_at).to be_present
-      expect(order.approved?).to be_true
+      expect(order.approved?).to be true
     end
   end
 
@@ -981,84 +981,12 @@ describe Spree::Order do
     end
   end
 
-  describe "#create_proposed_shipments" do
-    it "assigns the coordinator returned shipments to its shipments" do
-      shipment = build(:shipment)
-      Spree::Stock::Coordinator.any_instance.stub(:shipments).and_return([shipment])
-      subject.create_proposed_shipments
-      expect(subject.shipments).to eq [shipment]
-    end
-  end
+  # Regression test for #4923
+  context "locking" do
+    let(:order) { Spree::Order.create } # need a persisted in order to test locking
 
-  describe "#after_resume" do
-    let(:order) { Spree::Order.new(state: 'canceled') }
-    let(:line_item) { Spree::LineItem.new(currency: order.currency) }
-
-    it "should not allow resume if stock is not enough" do
-      line_item.errors[:quantity] << "Insufficient stock error"
-      order.line_items << line_item
-
-      order.resume
-      expect(order.state).to eq 'canceled'
-    end
-
-    it "should allow resume if stock is enough" do
-      order.resume!
-      expect(order.state).to eq 'resumed'
-    end
-  end
-
-  describe "active_hold_note" do
-    let(:order) { create(:order) }
-    let(:on_hold) { true }
-
-    before do
-      allow(order).to receive(:on_hold?).and_return(on_hold)
-    end
-
-    context "when a note exists" do
-      let!(:note) { create(:order_note, order: order) }
-
-      context "and the order is on hold" do
-        it "returns the note" do
-          expect(order.active_hold_note).to eq(note)
-        end
-      end
-
-      context "and the order is not on hold" do
-        let(:on_hold) { false }
-
-        it "returns nil" do
-          expect(order.active_hold_note).to be_nil
-        end
-      end
-    end
-
-    context "when no note exists" do
-      it "returns nil" do
-        expect(order.active_hold_note).to be_nil
-      end
-    end
-  end
-
-  describe "#on_hold?" do
-    let(:order) { build(:order) }
-    let(:hold_states) { %w(warehouse_on_hold customer_service_on_hold) }
-
-    it "is true for hold states" do
-      hold_states.each do |state|
-        order.state = state
-        expect(order).to be_on_hold
-      end
-    end
-
-    it "is false for all other states" do
-      other_states = Spree::Order.state_machine.states.map(&:value) - hold_states
-
-      other_states.each do |state|
-        order.state = state
-        expect(order).not_to be_on_hold
-      end
+    it 'can lock' do
+      expect { order.with_lock {} }.to_not raise_error
     end
   end
 end

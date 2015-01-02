@@ -6,32 +6,30 @@ module Spree
       before_filter :find_and_update_shipment, only: [:ship, :ready, :add, :remove, :add_by_line_item, :remove_by_line_item]
 
       def create
+        # TODO Can remove conditional here once deprecated #find_order is removed.
+        unless @order.present?
+          @order = Spree::Order.find_by!(number: params[:shipment][:order_id])
+          authorize! :read, @order
+        end
         authorize! :create, Shipment
         quantity = params[:quantity].to_i
         @shipment = @order.shipments.create(stock_location_id: params[:stock_location_id])
-        @order.contents.add(variant, quantity, options)
-        @shipment.refresh_rates
+# ASD: add options
+        @order.contents.add(variant, quantity, nil, @shipment)
+
         @shipment.save!
         respond_with(@shipment.reload, default_template: :show)
       end
 
       def update
-        @shipment = @order.shipments.accessible_by(current_ability, :update).find_by!(number: params[:id])
-
-        unlock = params[:shipment].delete(:unlock)
-
-        if unlock == 'yes'
-          @shipment.adjustment.open
+        if @order.present?
+          @shipment = @order.shipments.accessible_by(current_ability, :update).find_by!(number: params[:id])
+        else
+          @shipment = Spree::Shipment.accessible_by(current_ability, :update).readonly(false).find_by!(number: params[:id])
         end
 
-        @shipment.update_attributes(shipment_params)
-
-        if unlock == 'yes'
-          @shipment.adjustment.close
-        end
-
-        @shipment.reload
-        respond_with(@shipment, default_template: :show)
+        @shipment.update_attributes_and_order(shipment_params)
+        respond_with(@shipment.reload, default_template: :show)
       end
 
       def ready
@@ -52,15 +50,13 @@ module Spree
         respond_with(@shipment, default_template: :show)
       end
 
-
+#ASD: add options
       def add
         quantity = params[:quantity].to_i
-        returned_line_item = @order.contents.add(variant, quantity, options)
-        if returned_line_item.errors.any?
-          invalid_resource!(returned_line_item)
-        else
-          respond_with(@shipment, default_template: :show)
-        end
+
+        @shipment.order.contents.add(variant, quantity, nil, @shipment)
+
+        respond_with(@shipment, default_template: :show)
       end
 
       def add_by_line_item
@@ -75,15 +71,13 @@ module Spree
 
       def remove
         quantity = params[:quantity].to_i
-        returned_line_item = @order.contents.remove(variant, quantity, options)
-        if returned_line_item.errors.any?
-          invalid_resource!(returned_line_item)
-        else
-          @shipment.reload if @shipment.persisted?
-          respond_with(@shipment, default_template: :show)
-        end
+#ASD: add options
+        @shipment.order.contents.remove(variant, quantity, @shipment)
+        @shipment.reload if @shipment.persisted?
+        respond_with(@shipment, default_template: :show)
       end
-
+      
+#ASD: add options
       def remove_by_line_item
         quantity = params[:quantity].to_i
         returned_line_item = @order.contents.remove_by_line_item(line_item, quantity, @shipment)
@@ -124,12 +118,19 @@ module Spree
       end
 
       def find_order
-        @order = Spree::Order.find_by!(number: order_id)
-        authorize! :read, @order
+        if params[:order_id].present?
+          ActiveSupport::Deprecation.warn "Spree::Api::ShipmentsController#find_order is deprecated and will be removed from Spree 2.3.x, access shipments directly without being nested to orders route instead.", caller
+          @order = Spree::Order.find_by!(number: params[:order_id])
+          authorize! :read, @order
+        end
       end
 
       def find_and_update_shipment
-        @shipment = @order.shipments.accessible_by(current_ability, :update).find_by!(number: params[:id])
+        if @order.present?
+          @shipment = @order.shipments.accessible_by(current_ability, :update).find_by!(number: params[:id])
+        else
+          @shipment = Spree::Shipment.accessible_by(current_ability, :update).readonly(false).find_by!(number: params[:id])
+        end
         @shipment.update_attributes(shipment_params)
         @shipment.reload
       end

@@ -11,11 +11,17 @@ end
 module Spree
   class TaxRate < ActiveRecord::Base
     acts_as_paranoid
-    include Spree::Core::CalculatedAdjustments
-    belongs_to :zone, class_name: "Spree::Zone"
-    belongs_to :tax_category, class_name: "Spree::TaxCategory"
 
-    has_many :adjustments, as: :source, dependent: :destroy
+    # Need to deal with adjustments before calculator is destroyed.
+    before_destroy :deals_with_adjustments_for_deleted_source
+
+    include Spree::Core::CalculatedAdjustments
+    include Spree::Core::AdjustmentSource
+
+    belongs_to :zone, class_name: "Spree::Zone", inverse_of: :tax_rates
+    belongs_to :tax_category, class_name: "Spree::TaxCategory", inverse_of: :tax_rates
+
+    has_many :adjustments, as: :source
 
     validates :amount, presence: true, numericality: true
     validates :tax_category_id, presence: true
@@ -25,11 +31,12 @@ module Spree
 
     # Gets the array of TaxRates appropriate for the specified order
     def self.match(order)
-      return [] unless order.tax_zone
+      order_zone = order.tax_zone
+      return [] unless order_zone
       rates = includes(zone: { zone_members: :zoneable }).load.select do |rate|
     		# Apply only the rates for the set currency
-    		next unless order.currency == rate.currency
-
+        # REmoved as not sure if it adds any value
+    		# next unless order.currency == rate.currency
         # Why "potentially"?
         # Go see the documentation for that method.
         rate.potentially_applicable?(order)
@@ -54,7 +61,7 @@ module Spree
       end
     end
 
-    # Pre-tax amounts must be stored so that we can calculate 
+    # Pre-tax amounts must be stored so that we can calculate
     # correct rate amounts in the future. For example:
     # https://github.com/spree/spree/issues/4318#issuecomment-34723428
     def self.store_pre_tax_amount(item, rates)
@@ -74,13 +81,20 @@ module Spree
     def self.adjust(order, items)
       rates = self.match(order)
       tax_categories = rates.map(&:tax_category)
-      relevant_items = items.select { |item| tax_categories.include?(item.tax_category) }
+      relevant_items, non_relevant_items = items.partition { |item| tax_categories.include?(item.tax_category) }
       relevant_items.each do |item|
         item.adjustments.tax.delete_all
         relevant_rates = rates.select { |rate| rate.tax_category == item.tax_category }
         store_pre_tax_amount(item, relevant_rates)
         relevant_rates.each do |rate|
           rate.adjust(order, item)
+        end
+      end
+      non_relevant_items.each do |item|
+        if item.adjustments.tax.present?
+          item.adjustments.tax.delete_all
+          item.update_column(:pre_tax_amount, nil)
+          Spree::ItemAdjustments.new(item).update
         end
       end
     end
@@ -98,7 +112,7 @@ module Spree
       rate || 0
     end
 
-    
+
     # Tax rates can *potentially* be applicable to an order.
     # We do not know if they are/aren't until we attempt to apply these rates to
     # the items contained within the Order itself.
@@ -106,14 +120,14 @@ module Spree
     # but then has a tax category that doesn't match against any of the line items
     # inside of the order, then that tax rate will not be applicable to anything.
     # For instance:
-    # 
+    #
     # Zones:
     #   - Spain (default tax zone)
     #   - France
     #
     # Tax rates: (note: amounts below do not actually reflect real VAT rates)
     #   21% inclusive - "Clothing" - Spain
-    #   18% inclusive - "Clothing" - France 
+    #   18% inclusive - "Clothing" - France
     #   10% inclusive - "Food" - Spain
     #   8% inclusive - "Food" - France
     #   5% inclusive - "Hotels" - Spain
@@ -122,14 +136,14 @@ module Spree
     # Order has:
     #   Line Item #1 - Tax Category: Clothing
     #   Line Item #2 - Tax Category: Food
-    # 
+    #
     # Tax rates that should be selected:
     #
     #  21% inclusive - "Clothing" - Spain
     #  10% inclusive - "Food" - Spain
     #
     # If the order's address changes to one in France, then the tax will be recalculated:
-    #  
+    #
     #  18% inclusive - "Clothing" - France
     #  8% inclusive - "Food" - France
     #
@@ -193,6 +207,9 @@ module Spree
         label = ""
         label << (name.present? ? name : tax_category.name) + " "
         label << (show_rate_in_label? ? "#{amount * 100}%" : "")
+        label << " (#{Spree.t(:included_in_price)})" if included_in_price?
+        label
       end
+
   end
 end

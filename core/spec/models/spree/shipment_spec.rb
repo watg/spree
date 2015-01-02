@@ -293,7 +293,7 @@ describe Spree::Shipment do
 
       it "should validate with inventory" do
         shipment.inventory_units = [create(:inventory_unit)]
-        shipment.valid?.should be_true
+        shipment.valid?.should be true
       end
     end
 
@@ -301,7 +301,7 @@ describe Spree::Shipment do
       before { Spree::Config.set track_inventory_levels: false }
 
       it "should validate with no inventory" do
-        shipment.valid?.should be_true
+        shipment.valid?.should be true
       end
     end
   end
@@ -321,7 +321,7 @@ describe Spree::Shipment do
 
       it "should validate with inventory" do
         shipment.inventory_units = [create(:inventory_unit)]
-        shipment.valid?.should be_true
+        shipment.valid?.should be true
       end
     end
 
@@ -329,7 +329,7 @@ describe Spree::Shipment do
       before { Spree::Config.set track_inventory_levels: false }
 
       it "should validate with no inventory" do
-        shipment.valid?.should be_true
+        shipment.valid?.should be true
       end
     end
   end
@@ -537,6 +537,31 @@ describe Spree::Shipment do
     end
   end
 
+  context "changes shipping rate via general update" do
+    let(:order) do
+      Spree::Order.create(
+        payment_total: 100, payment_state: 'paid', total: 100, item_total: 100
+      )
+    end
+
+    let(:shipment) { Spree::Shipment.create order_id: order.id }
+
+    let(:shipping_rate) do
+      Spree::ShippingRate.create shipment_id: shipment.id, cost: 10
+    end
+
+    before do
+      shipment.update_attributes_and_order selected_shipping_rate_id: shipping_rate.id
+    end
+
+    it "updates everything around order shipment total and state" do
+      expect(shipment.cost.to_f).to eq 10
+      expect(shipment.state).to eq 'pending'
+      expect(shipment.order.total.to_f).to eq 110
+      expect(shipment.order.payment_state).to eq 'balance_due'
+    end
+  end
+
   context "after_save" do
     context "line item changes" do
       before do
@@ -610,7 +635,7 @@ describe Spree::Shipment do
   context "#destroy" do
     it "destroys linked shipping_rates" do
       reflection = Spree::Shipment.reflect_on_association(:shipping_rates)
-      reflection.options[:dependent] = :destroy
+      expect(reflection.options[:dependent]).to be(:delete_all)
     end
   end
 
@@ -625,8 +650,8 @@ describe Spree::Shipment do
 
     it "are logged to the database" do
       shipment.state_changes.should be_empty
-      expect(shipment.ready!).to be_true
-      expect(shipment.state_changes.count).to eq 1
+      expect(shipment.ready!).to be true
+      shipment.state_changes.count.should == 1
       state_change = shipment.state_changes.first
       expect(state_change.previous_state).to eq('pending')
       expect(state_change.next_state).to eq('ready')

@@ -56,7 +56,7 @@ module Spree
     after_save :update_inventory
     after_save :update_adjustments
 
-    after_create :create_tax_charge
+    after_create :update_tax_charge
 
     delegate :name, :description, :should_track_inventory?, to: :variant
 
@@ -227,6 +227,13 @@ module Spree
       end
     end
 
+    def update_adjustments
+      if quantity_changed?
+        update_tax_charge # Called to ensure pre_tax_amount is updated.
+        recalculate_adjustments
+      end
+    end
+
     def update_inventory
       #There is a quirk where the after_create hook which run's before after_save is saving the
       #line_item in a nested model callback, hence by the time changed? is evaluated it is false
@@ -235,17 +242,11 @@ module Spree
       #end
     end
 
-    def update_adjustments
-      if quantity_changed?
-        recalculate_adjustments
-      end
-    end
-
     def recalculate_adjustments
       Spree::ItemAdjustments.new(self).update
     end
 
-    def create_tax_charge
+    def update_tax_charge
       Spree::TaxRate.adjust(order, [self])
     end
 
@@ -257,4 +258,3 @@ module Spree
 
   end
 end
-

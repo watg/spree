@@ -17,6 +17,7 @@ module Spree
         def collection
           return @collection if @collection.present?
           params[:q] ||= HashWithIndifferentAccess.new
+          params[:q][:s] ||= 'id desc'
 
           params[:q][:dynamic_null] ||= '1'
           @hide_dynamic = params[:q][:dynamic_null] == '1'

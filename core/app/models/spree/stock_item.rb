@@ -2,21 +2,21 @@ module Spree
   class StockItem < ActiveRecord::Base
     acts_as_paranoid
 
-    belongs_to :stock_location, class_name: 'Spree::StockLocation'
+    belongs_to :stock_location, class_name: 'Spree::StockLocation', inverse_of: :stock_items
     belongs_to :supplier, class_name: 'Spree::Supplier'
-
     belongs_to :variant, class_name: 'Spree::Variant', inverse_of: :stock_items
     has_many :stock_movements, inverse_of: :stock_item
 
     validates_presence_of :stock_location, :variant
+    validates_uniqueness_of :variant_id, scope: [:stock_location_id, :deleted_at]
     validates_uniqueness_of :variant_id, scope: [:stock_location_id, :deleted_at, :supplier_id]
+    validates :count_on_hand, numericality: { greater_than_or_equal_to: 0 }, if: :verify_count_on_hand?
 
     delegate :weight, :should_track_inventory?, to: :variant
 
-    after_save :conditional_variant_touch
+    after_save :conditional_variant_touch, if: :changed?
     after_save :clear_total_on_hand_cache
     after_save :clear_backorderable_cache
-
     after_touch { variant.touch }
 
     scope :available, -> { where("count_on_hand > 0 or backorderable = true") }
@@ -63,10 +63,18 @@ module Spree
       self.in_stock? || self.backorderable?
     end
 
-    private
-    def count_on_hand=(value)
-      write_attribute(:count_on_hand, value)
+    def variant
+      Spree::Variant.unscoped { super }
     end
+
+    private
+      def verify_count_on_hand?
+        count_on_hand_changed? && !backorderable? && (count_on_hand < count_on_hand_was) && (count_on_hand < 0)
+      end
+
+      def count_on_hand=(value)
+        write_attribute(:count_on_hand, value)
+      end
 
     # Process backorders based on amount of stock received
     # If stock was -20 and is now -15 (increase of 5 units), then we should process 5 inventory orders.
