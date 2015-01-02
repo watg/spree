@@ -4,7 +4,7 @@ FactoryGirl.define do
   factory :base_variant, class: Spree::Variant do
 		cost_price 10
 
-    ignore do
+    transient do
       target nil
       amount nil
       currency 'USD'
@@ -47,7 +47,7 @@ FactoryGirl.define do
       factory :variant_in_sale do
         in_sale true
 
-        ignore do
+        transient do
           amount 19.99
           sale_amount 6
         end

@@ -25,7 +25,7 @@ FactoryGirl.define do
     end
 
     factory :stock_package_fulfilled do
-      ignore do 
+      transient do 
         variant { build(:variant) }
         line_item { build(:line_item, quantity: 2, variant: variant) }
         line_items { [line_item] }

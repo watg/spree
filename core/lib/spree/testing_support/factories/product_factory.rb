@@ -14,7 +14,7 @@ FactoryGirl.define do
     association :marketing_type, factory: :marketing_type, strategy: :build
     shipping_category { |r| Spree::ShippingCategory.first || r.association(:shipping_category) }
 
-    ignore do
+    transient do
       amount nil
       currency 'USD'
     end
@@ -42,7 +42,7 @@ FactoryGirl.define do
     end
 
     factory :product_with_prices do
-      ignore do
+      transient do
         usd_price 19.99
         gbp_price 19.99
         eur_price 19.99
@@ -97,7 +97,7 @@ FactoryGirl.define do
     end
 
     factory :product_with_stock_and_prices do
-      ignore do
+      transient do
         usd_price 19.99
         gbp_price 19.99
         eur_price 19.99
@@ -121,7 +121,7 @@ FactoryGirl.define do
     end
 
     factory :product_with_variants do
-      ignore do
+      transient do
         amount 0.00
         number_of_variants 2
       end
