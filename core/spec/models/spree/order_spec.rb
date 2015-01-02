@@ -326,7 +326,7 @@ describe Spree::Order do
       adjustments = [double]
       order.should_receive(:all_adjustments).and_return(adjustments)
       adjustments.each do |adj|
-	expect(adj).to receive(:close)
+        expect(adj).to receive(:close)
       end
       order.finalize!
     end
@@ -520,9 +520,10 @@ describe Spree::Order do
       out_of_stock_lines = order.insufficient_stock_lines
       expect(out_of_stock_lines.size).to eq 1
       expect(out_of_stock_lines).to include line_item
-    it "should return line_item that has insufficient stock on hand" do
-      order.insufficient_stock_lines.size.should == 1
-      order.insufficient_stock_lines.include?(line_item).should be true
+      it "should return line_item that has insufficient stock on hand" do
+        order.insufficient_stock_lines.size.should == 1
+        order.insufficient_stock_lines.include?(line_item).should be true
+      end
     end
   end
 
