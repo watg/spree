@@ -299,15 +299,27 @@ describe Spree::SuiteTabPresenter do
     context "with sale price" do
 
       before do
+        tab.in_sale_cache = true
         allow(subject).to receive(:lowest_sale_amount).and_return(BigDecimal.new('11.99'))
       end
 
       it "returns formatted normal and sale price" do
         expect(subject.lowest_prices).to eq '<span class="price was" itemprop="price">from $21.89</span><span class="price now">$11.99</span>'
       end
+
+      context "sale price disabled" do
+
+        before do
+          tab.in_sale_cache = false
+        end
+
+        it "returns formatted normal and sale price" do
+          expect(subject.lowest_prices).to eq '<span class="price now" itemprop="price">from $21.89</span>'
+        end
+
+      end
+
     end
   end
-
-
 
 end
