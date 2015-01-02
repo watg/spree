@@ -115,9 +115,13 @@ module Spree
       {currency: currency}
     end
 
+    def in_sale
+      suite_tab.in_sale_cache
+    end
+
     def render_prices(normal_amount, sale_amount)
       normal_money_amount = "from #{Spree::Money.new(normal_amount, money_options)}"
-      if sale_amount && ( sale_amount < normal_amount )
+      if in_sale && sale_amount && ( sale_amount < normal_amount )
         sale_money_amount = "#{Spree::Money.new(sale_amount, money_options)}"
         h.content_tag(:span, normal_money_amount.to_html, class: 'price was', itemprop: 'price') +
           h.content_tag(:span, sale_money_amount.to_html, class: 'price now')
