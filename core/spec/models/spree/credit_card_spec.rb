@@ -4,7 +4,7 @@ describe Spree::CreditCard do
   let(:valid_credit_card_attributes) do
     { :number => '4111111111111111',
       :verification_value => '123',
-      :expiry => "12 / 14",
+      :expiry => "12 / 19",
       :name => "Spree Commerce" }
   end
 
@@ -201,27 +201,27 @@ describe Spree::CreditCard do
   # Regression test for #3847 & #3896
   context "#expiry=" do
     it "can set with a 2-digit month and year" do
-      credit_card.expiry = '04 / 14'
+      credit_card.expiry = '04 / 19'
       expect(credit_card.month).to eq(4)
-      expect(credit_card.year).to eq(2014)
+      expect(credit_card.year).to eq(2019)
     end
 
     it "can set with a 2-digit month and 4-digit year" do
-      credit_card.expiry = '04 / 2014'
+      credit_card.expiry = '04 / 2019'
       expect(credit_card.month).to eq(4)
-      expect(credit_card.year).to eq(2014)
+      expect(credit_card.year).to eq(2019)
     end
 
     it "can set with a 2-digit month and 4-digit year without whitespace" do
-      credit_card.expiry = '04/14'
+      credit_card.expiry = '04/19'
       expect(credit_card.month).to eq(4)
-      expect(credit_card.year).to eq(2014)
+      expect(credit_card.year).to eq(2019)
     end
 
     it "can set with a 2-digit month and 4-digit year without whitespace" do
-      credit_card.expiry = '04/2014'
+      credit_card.expiry = '04/2019'
       expect(credit_card.month).to eq(4)
-      expect(credit_card.year).to eq(2014)
+      expect(credit_card.year).to eq(2019)
     end
 
     it "can set with a 2-digit month and 4-digit year without whitespace and slash" do
