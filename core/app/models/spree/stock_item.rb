@@ -8,7 +8,6 @@ module Spree
     has_many :stock_movements, inverse_of: :stock_item
 
     validates_presence_of :stock_location, :variant
-    validates_uniqueness_of :variant_id, scope: [:stock_location_id, :deleted_at]
     validates_uniqueness_of :variant_id, scope: [:stock_location_id, :deleted_at, :supplier_id]
     validates :count_on_hand, numericality: { greater_than_or_equal_to: 0 }, if: :verify_count_on_hand?
 
