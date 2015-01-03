@@ -115,8 +115,6 @@ module Spree
         item_uuid: uuid
       )
 
-      d { line_item }
-
       line_item.line_item_parts = options[:parts] || []
       line_item.line_item_personalisations = options[:personalisations] || []
 
