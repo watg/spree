@@ -43,7 +43,7 @@ describe Spree::Order do
     end
 
     it '.find_transition when contract was broken' do
-      expect(Spree::Order.find_transition({foo: :bar, baz: :dog})).to be falsey
+      expect(Spree::Order.find_transition({foo: :bar, baz: :dog})).to be_falsey
     end
 
     it '.remove_transition' do
@@ -53,7 +53,7 @@ describe Spree::Order do
     end
 
     it '.remove_transition when contract was broken' do
-      expect(Spree::Order.remove_transition(nil)).to be falsey
+      expect(Spree::Order.remove_transition(nil)).to be_falsey
     end
 
     context "#checkout_steps" do

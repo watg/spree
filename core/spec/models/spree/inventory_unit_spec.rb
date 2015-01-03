@@ -197,17 +197,18 @@ describe Spree::InventoryUnit do
     end
   end
 
-  context "#finalize_units!" do
-    let!(:stock_location) { create(:stock_location) }
-    let(:variant) { create(:variant) }
-    let(:inventory_units) { [
-      create(:inventory_unit, variant: variant),
-      create(:inventory_unit, variant: variant)
-    ] }
-
-    it "should create a stock movement" do
-      Spree::InventoryUnit.finalize_units!(inventory_units)
-      expect(inventory_units.any?(&:pending)).to be false
-    end
-  end
+  # Removed as we no longer update the inventory units pending status here
+  #context "#finalize_units!" do
+  #  let!(:stock_location) { create(:stock_location) }
+  #  let(:variant) { create(:variant) }
+  #  let(:inventory_units) { [
+  #    create(:inventory_unit, variant: variant),
+  #    create(:inventory_unit, variant: variant)
+  #  ] }
+#
+#    it "should create a stock movement" do
+#      Spree::InventoryUnit.finalize_units!(inventory_units)
+#      expect(inventory_units.any?(&:pending)).to be false
+#    end
+#  end
 end

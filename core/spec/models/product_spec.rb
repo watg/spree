@@ -45,17 +45,10 @@ describe Spree::Product do
     end
   end
 
-  describe '#first_variant_or_master' do
-    subject { super().first_variant_or_master }
-    it { is_expected.to eql(variant) }
-  end
+  its(:first_variant_or_master) { should eql(variant) }
   context "product has no variant" do
     subject { create(:base_product) }
-
-    describe '#first_variant_or_master' do
-      subject { super().first_variant_or_master }
-      it { is_expected.to be_is_master }
-    end
+    its(:first_variant_or_master) { should be_is_master }
   end
 
   describe "#all_variants_or_master" do
@@ -72,10 +65,7 @@ describe Spree::Product do
     context "with multiple variants" do
       let(:variants) { 2.times.map { create(:variant, :product => subject) } }
 
-      describe '#all_variants_or_master' do
-        subject { super().all_variants_or_master }
-        it { is_expected.to eq(variants) }
-      end
+      its(:all_variants_or_master) { should eq(variants)  }
     end
   end
 
