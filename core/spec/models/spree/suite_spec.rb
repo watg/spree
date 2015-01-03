@@ -3,7 +3,10 @@ require 'spec_helper'
 describe Spree::Suite do
   subject { create(:suite, name: ' Zion liOn haT  ', title: 'zion lion', permalink: nil) }
 
-  its(:title) { should eql('zion lion') }
+  describe '#title' do
+    subject { super().title }
+    it { is_expected.to eql('zion lion') }
+  end
 
   it "should not allow unnamed group to be saved" do
     subject.name = nil
@@ -11,7 +14,10 @@ describe Spree::Suite do
   end
 
   context "permalink" do
-    its(:permalink) { should eql('zion-lion-hat') }
+    describe '#permalink' do
+      subject { super().permalink }
+      it { is_expected.to eql('zion-lion-hat') }
+    end
 
     it "can change permalink" do
       subject.permalink = 'anything-unique'

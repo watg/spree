@@ -114,6 +114,9 @@ module Spree
         in_sale: variant.in_sale,
         item_uuid: uuid
       )
+
+      d { line_item }
+
       line_item.line_item_parts = options[:parts] || []
       line_item.line_item_personalisations = options[:personalisations] || []
 

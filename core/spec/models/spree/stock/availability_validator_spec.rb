@@ -19,28 +19,28 @@ module Spree
       describe "validation of line item" do
 
         it 'should be valid when supply is sufficient' do
-          Stock::Quantifier.any_instance.stub(can_supply?: true)
+          allow_any_instance_of(Stock::Quantifier).to receive_messages(can_supply?: true)
 
-          line_item.should_not_receive(:errors)
-          subject.validate(line_item).should eq true
+          expect(line_item).not_to receive(:errors)
+          expect(subject.validate(line_item)).to eq true
         end
 
         it 'should be invalid when supply is insufficent' do
-          Stock::Quantifier.any_instance.stub(can_supply?: false)
+          allow_any_instance_of(Stock::Quantifier).to receive_messages(can_supply?: false)
 
-          line_item.errors.should_receive(:[]).with(:quantity).and_return []
-          subject.validate(line_item).should eq false
+          expect(line_item.errors).to receive(:[]).with(:quantity).and_return []
+          expect(subject.validate(line_item)).to eq false
         end
 
         it "does not validate other line items" do
           order.line_items << extra_line_item
-          Stock::Quantifier.should_not_receive(:new).with(extra_variant)
+          expect(Stock::Quantifier).not_to receive(:new).with(extra_variant)
 
-          Stock::Quantifier.should_receive(:new).with(variant).and_return quantifier
-          quantifier.should_receive(:can_supply?).with(2).and_return true
+          expect(Stock::Quantifier).to receive(:new).with(variant).and_return quantifier
+          expect(quantifier).to receive(:can_supply?).with(2).and_return true
 
-          line_item.should_not_receive(:errors)
-          subject.validate(line_item).should eq true
+          expect(line_item).not_to receive(:errors)
+          expect(subject.validate(line_item)).to eq true
         end
 
         context "when variant is required by other line items" do
@@ -50,39 +50,39 @@ module Spree
           end
 
           it "should not add errors if the line item quantity required is eq to 0" do
-            Stock::Quantifier.any_instance.stub(can_supply?: false)
+            allow_any_instance_of(Stock::Quantifier).to receive_messages(can_supply?: false)
 
-            line_item.should_not_receive(:errors)
-            subject.validate(line_item).should eq true
+            expect(line_item).not_to receive(:errors)
+            expect(subject.validate(line_item)).to eq true
           end
         end
 
         context "when inventory units exist" do
           before do
-            Stock::Quantifier.any_instance.stub(can_supply?: false)
+            allow_any_instance_of(Stock::Quantifier).to receive_messages(can_supply?: false)
             Spree::InventoryUnit.create(variant_id: variant.id, order: order, pending: false)
           end
 
           it 'should consider pending inventory units not sufficient' do
             Spree::InventoryUnit.create(variant_id: variant.id, order: order, pending: true)
 
-            line_item.errors.should_receive(:[]).with(:quantity).and_return []
-            subject.validate(line_item).should eq false
+            expect(line_item.errors).to receive(:[]).with(:quantity).and_return []
+            expect(subject.validate(line_item)).to eq false
           end
 
           it 'should consider non-pending inventory units sufficient' do
             Spree::InventoryUnit.create(variant_id: variant.id, order: order, pending: false)
 
-            line_item.should_not_receive(:errors)
-            subject.validate(line_item).should eq true
+            expect(line_item).not_to receive(:errors)
+            expect(subject.validate(line_item)).to eq true
           end
         end
       end
 
       it 'should consider existing inventory_units sufficient' do
-        Stock::Quantifier.any_instance.stub(can_supply?: false)
-        line_item.should_not_receive(:errors)
-        line_item.stub(inventory_units: [double] * 5)
+        allow_any_instance_of(Stock::Quantifier).to receive_messages(can_supply?: false)
+        expect(line_item).not_to receive(:errors)
+        allow(line_item).to receive_messages(inventory_units: [double] * 5)
         subject.validate(line_item)
       end
     end

@@ -37,7 +37,7 @@ describe Spree::OptionValue do
       option_value = variant.option_values.first
       variant.update_column(:updated_at, 1.day.ago)
       option_value.touch
-      variant.reload.updated_at.should be_within(3.seconds).of(Time.now)
+      expect(variant.reload.updated_at).to be_within(3.seconds).of(Time.now)
     end
   end
 end

@@ -3,9 +3,20 @@ require 'spec_helper'
 describe Spree::ProductPageTab do
   subject { create(:product_page).tabs.first }
 
-  its(:banner_mini_url) { should be_nil }
-  its(:banner_url) { should be_nil }
-  its(:position) { should eq(0) }
+  describe '#banner_mini_url' do
+    subject { super().banner_mini_url }
+    it { is_expected.to be_nil }
+  end
+
+  describe '#banner_url' do
+    subject { super().banner_url }
+    it { is_expected.to be_nil }
+  end
+
+  describe '#position' do
+    subject { super().position }
+    it { is_expected.to eq(0) }
+  end
 
   it "should assign its position automatically" do
     expect(subject.product_page.tabs.last.position).to eq(1)
@@ -53,8 +64,15 @@ describe Spree::ProductPageTab do
       allow(attachment).to receive(:url).with(:mini).and_return("mini-image-url")
     end
 
-    its(:banner_url) { should eq("image-url") }
-    its(:banner_mini_url) { should eq("mini-image-url") }
+    describe '#banner_url' do
+      subject { super().banner_url }
+      it { is_expected.to eq("image-url") }
+    end
+
+    describe '#banner_mini_url' do
+      subject { super().banner_mini_url }
+      it { is_expected.to eq("mini-image-url") }
+    end
   end
 
   describe "background_color_code" do
@@ -78,7 +96,7 @@ describe Spree::ProductPageTab do
     it "updates a product_page" do
       product_page.update_column(:updated_at, 1.day.ago)
       product_page_tab.reload.touch
-      product_page.reload.updated_at.should be_within(3.seconds).of(Time.now)
+      expect(product_page.reload.updated_at).to be_within(3.seconds).of(Time.now)
     end
 
   end

@@ -20,8 +20,15 @@ describe Spree::AssemblyDefinition do
       Spree::AssemblyDefinitionVariant.create(assembly_definition_part_id: part2.id, variant_id: variant.id)
     end
 
-    its(:selected_variants_out_of_stock) { should eq( {part1.id => [variant_no_stock.id]} )}
-    its(:selected_variants_out_of_stock_option_values) { should eq( {part1.id => [variant_no_stock.option_values.pluck(:id)] } )}
+    describe '#selected_variants_out_of_stock' do
+      subject { super().selected_variants_out_of_stock }
+      it { is_expected.to eq( {part1.id => [variant_no_stock.id]} )}
+    end
+
+    describe '#selected_variants_out_of_stock_option_values' do
+      subject { super().selected_variants_out_of_stock_option_values }
+      it { is_expected.to eq( {part1.id => [variant_no_stock.option_values.pluck(:id)] } )}
+    end
 
   end
 

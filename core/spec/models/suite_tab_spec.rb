@@ -27,31 +27,53 @@ describe Spree::SuiteTab do
   end
 
   describe "#presentation" do
-    its(:presentation) { should eq 'MADE BY THE GANG' }
+    describe '#presentation' do
+      subject { super().presentation }
+      it { is_expected.to eq 'MADE BY THE GANG' }
+    end
 
     context "knit-your-own" do
       before { subject.tab_type = 'knit-your-own' }
-      its(:presentation) { should eq 'KNIT YOUR OWN' }
+
+      describe '#presentation' do
+        subject { super().presentation }
+        it { is_expected.to eq 'KNIT YOUR OWN' }
+      end
     end
 
     context "default" do
       before { subject.tab_type = 'default' }
-      its(:presentation) { should eq 'GET IT!' }
+
+      describe '#presentation' do
+        subject { super().presentation }
+        it { is_expected.to eq 'GET IT!' }
+      end
     end
 
   end
 
   describe "#partial" do
-    its(:partial) { should eq 'default' }
+    describe '#partial' do
+      subject { super().partial }
+      it { is_expected.to eq 'default' }
+    end
 
     context "knit-your-own" do
       before { subject.tab_type = 'knit-your-own' }
-      its(:partial) { should eq 'knit_your_own' }
+
+      describe '#partial' do
+        subject { super().partial }
+        it { is_expected.to eq 'knit_your_own' }
+      end
     end
 
     context "default" do
       before { subject.tab_type = 'default' }
-      its(:partial) { should eq 'default' }
+
+      describe '#partial' do
+        subject { super().partial }
+        it { is_expected.to eq 'default' }
+      end
     end
 
   end
@@ -118,7 +140,7 @@ describe Spree::SuiteTab do
     it "updates a suite" do
       suite.update_column(:updated_at, 1.day.ago)
       suite_tab.reload.touch
-      suite.reload.updated_at.should be_within(3.seconds).of(Time.now)
+      expect(suite.reload.updated_at).to be_within(3.seconds).of(Time.now)
     end
 
   end

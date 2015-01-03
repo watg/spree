@@ -8,7 +8,7 @@ module Spree
     let(:supplier) { create(:supplier) }
 
     it 'creates stock_items for all variants' do
-      subject.stock_items.count.should eq Variant.count
+      expect(subject.stock_items.count).to eq Variant.count
     end
 
     context "#available?" do
@@ -44,7 +44,7 @@ module Spree
 
         context "set up" do
           it "creates stock item" do
-            subject.should_receive(:propagate_variant)
+            expect(subject).to receive(:propagate_variant)
             subject.set_up_stock_item(variant)
           end
 
@@ -52,7 +52,7 @@ module Spree
             let!(:stock_item) { subject.propagate_variant(variant) }
 
             it "returns existing stock item" do
-              subject.set_up_stock_item(variant).should == stock_item
+              expect(subject.set_up_stock_item(variant)).to eq(stock_item)
             end
           end
         end
@@ -79,12 +79,12 @@ module Spree
           context "passes backorderable default config" do
             context "true" do
               before { subject.backorderable_default = true }
-              it { stock_item.backorderable.should be true }
+              it { expect(stock_item.backorderable).to be true }
             end
 
             context "false" do
               before { subject.backorderable_default = false }
-              it { stock_item.backorderable.should be false }
+              it { expect(stock_item.backorderable).to be false }
             end
           end
         end
@@ -96,7 +96,7 @@ module Spree
             before { subject.propagate_all_variants = true }
 
             specify do
-              subject.should_receive(:propagate_variant).at_least(:once)
+              expect(subject).to receive(:propagate_variant).at_least(:once)
               subject.save!
             end
           end
@@ -105,7 +105,7 @@ module Spree
             before { subject.propagate_all_variants = false }
 
             specify do
-              subject.should_not_receive(:propagate_variant)
+              expect(subject).not_to receive(:propagate_variant)
               subject.save!
             end
           end
@@ -118,17 +118,17 @@ module Spree
 
       it 'finds a stock_item for a variant' do
         stock_item = subject.stock_item(variant)
-        stock_item.count_on_hand.should eq 10
+        expect(stock_item.count_on_hand).to eq 10
       end
 
       it 'finds a stock_item for a variant by id' do
         stock_item = subject.stock_item(variant.id)
-        stock_item.variant.should eq variant
+        expect(stock_item.variant).to eq variant
       end
 
       it 'returns nil when stock_item is not found for variant' do
         stock_item = subject.stock_item(100)
-        stock_item.should be_nil
+        expect(stock_item).to be_nil
       end
 
       it 'creates a stock_item if not found for a variant' do
@@ -137,15 +137,15 @@ module Spree
         variant.save
 
         stock_item = subject.stock_item_or_create(variant)
-        stock_item.variant.should eq variant
+        expect(stock_item.variant).to eq variant
       end
 
       it 'finds a count_on_hand for a variant' do
-        subject.count_on_hand(variant).should eq 10
+        expect(subject.count_on_hand(variant)).to eq 10
       end
 
       it 'finds determines if you a variant is backorderable' do
-        subject.backorderable?(variant).should be true
+        expect(subject.backorderable?(variant)).to be true
       end
 
       context "with supplier" do
@@ -158,17 +158,17 @@ module Spree
 
         it 'finds a stock_item for a variant and supplier' do
           stock_item = subject.stock_item(variant, supplier)
-          stock_item.count_on_hand.should eq 10
+          expect(stock_item.count_on_hand).to eq 10
         end
 
         it 'finds a stock_item for variant  and supplier id' do
           stock_item = subject.stock_item(variant, supplier.id)
-          stock_item.variant.should eq variant
+          expect(stock_item.variant).to eq variant
         end
 
         it 'returns nil when stock_item is not found for supplier' do
           stock_item = subject.stock_item(variant, 100)
-          stock_item.should be_nil
+          expect(stock_item).to be_nil
         end
 
         it 'creates a stock_item if not found for a variant and supplier' do
@@ -177,8 +177,8 @@ module Spree
           variant.save
 
           stock_item = subject.stock_item_or_create(variant, supplier)
-          stock_item.variant.should eq variant
-          stock_item.supplier.should eq supplier
+          expect(stock_item.variant).to eq variant
+          expect(stock_item.supplier).to eq supplier
         end
 
         # We create 2 x extra stock_items ontop of the existing one that belongs to supplier
@@ -192,17 +192,17 @@ module Spree
           end
 
           it 'returns total count inc stock_items without suppliers' do
-            subject.count_on_hand(variant).should eq 15
+            expect(subject.count_on_hand(variant)).to eq 15
           end
 
           it 'finds a count_on_hand for a variant and supplier' do
-            subject.count_on_hand(variant, supplier).should eq 10
+            expect(subject.count_on_hand(variant, supplier)).to eq 10
           end
         end
 
 
         it 'finds determines if you a variant is backorderable' do
-          subject.backorderable?(variant, supplier).should be true
+          expect(subject.backorderable?(variant, supplier)).to be true
         end
 
       end
@@ -212,7 +212,7 @@ module Spree
     it 'restocks a variant with a positive stock movement' do
       originator = double
       supplier = double
-      subject.should_receive(:move).with(variant, 5, originator, supplier)
+      expect(subject).to receive(:move).with(variant, 5, originator, supplier)
       subject.restock(variant, 5, originator, supplier )
     end
 
@@ -221,7 +221,7 @@ module Spree
         originator = double
         supplier = double
         mock_movement = mock_model(Spree::StockMovement, stock_item: stock_item)
-        subject.should_receive(:move).with(variant, -5, originator, supplier).and_return(mock_movement)
+        expect(subject).to receive(:move).with(variant, -5, originator, supplier).and_return(mock_movement)
         subject.unstock(variant, 5, originator, supplier)
       end
     end
@@ -235,19 +235,19 @@ module Spree
     it 'can be deactivated' do
       create(:stock_location, :active => true)
       create(:stock_location, :active => false)
-      Spree::StockLocation.active.count.should eq 1
+      expect(Spree::StockLocation.active.count).to eq 1
     end
 
     context 'fill_status' do
 
       it 'all on_hand with no backordered' do
         items = subject.fill_status(variant, 5)
-        items.should eq [5, 0, 0]
+        expect(items).to eq [5, 0, 0]
       end
 
       it 'some on_hand with some backordered' do
         items = subject.fill_status(variant, 20)
-        items.should eq [10, 10, 0]
+        expect(items).to eq [10, 10, 0]
       end
 
       it 'zero on_hand with all backordered' do
@@ -255,12 +255,12 @@ module Spree
                                      count_on_hand: 0,
                                      backorderable?: true)
 
-        subject.should_receive(:available_stock_items).with(variant).and_return([zero_stock_item])
+        expect(subject).to receive(:available_stock_items).with(variant).and_return([zero_stock_item])
 
         on_hand, backordered, awaiting_feed = subject.fill_status(variant, 20)
-        on_hand.should eq 0
-        backordered.should eq 20
-        awaiting_feed.should eq 0
+        expect(on_hand).to eq 0
+        expect(backordered).to eq 20
+        expect(awaiting_feed).to eq 0
       end
 
       context "when partial stock is in a feeder location" do
@@ -276,43 +276,43 @@ module Spree
 
         it "backorders enough stock" do
           on_hand, backordered, awaiting_feed = subject.fill_status(variant, 20)
-          on_hand.should eq 5
-          backordered.should eq 10
-          awaiting_feed.should eq 5
+          expect(on_hand).to eq 5
+          expect(backordered).to eq 10
+          expect(awaiting_feed).to eq 5
         end
       end
 
       context 'when backordering is not allowed' do
         before do
           @stock_item = mock_model(StockItem, backorderable?: false)
-          subject.should_receive(:available_stock_items).with(variant).and_return([@stock_item])
+          expect(subject).to receive(:available_stock_items).with(variant).and_return([@stock_item])
         end
 
         it 'all on_hand' do
-          @stock_item.stub(count_on_hand: 10)
+          allow(@stock_item).to receive_messages(count_on_hand: 10)
 
           on_hand, backordered, awaiting_feed = subject.fill_status(variant, 5)
-          on_hand.should eq 5
-          backordered.should eq 0
-          awaiting_feed.should eq 0
+          expect(on_hand).to eq 5
+          expect(backordered).to eq 0
+          expect(awaiting_feed).to eq 0
         end
 
         it 'some on_hand' do
-          @stock_item.stub(count_on_hand: 10)
+          allow(@stock_item).to receive_messages(count_on_hand: 10)
 
           on_hand, backordered, awaiting_feed = subject.fill_status(variant, 20)
-          on_hand.should eq 10
-          backordered.should eq 0
-          awaiting_feed.should eq 0
+          expect(on_hand).to eq 10
+          expect(backordered).to eq 0
+          expect(awaiting_feed).to eq 0
         end
 
         it 'zero on_hand' do
-          @stock_item.stub(count_on_hand: 0)
+          allow(@stock_item).to receive_messages(count_on_hand: 0)
 
           on_hand, backordered, awaiting_feed = subject.fill_status(variant, 20)
-          on_hand.should eq 0
-          backordered.should eq 0
-          awaiting_feed.should eq 0
+          expect(on_hand).to eq 0
+          expect(backordered).to eq 0
+          expect(awaiting_feed).to eq 0
         end
       end
 
@@ -332,9 +332,9 @@ module Spree
           feeder_stock_item.save!
 
           on_hand, backordered, awaiting_feed = subject.fill_status(variant, 20)
-          on_hand.should eq 5
-          backordered.should eq 0
-          awaiting_feed.should eq 15
+          expect(on_hand).to eq 5
+          expect(backordered).to eq 0
+          expect(awaiting_feed).to eq 15
         end
 
         it "backorders partial stock from the feeder" do
@@ -343,9 +343,9 @@ module Spree
           feeder_stock_item.save!
 
           on_hand, backordered, awaiting_feed = subject.fill_status(variant, 20)
-          on_hand.should eq 5
-          backordered.should eq 0
-          awaiting_feed.should eq 5
+          expect(on_hand).to eq 5
+          expect(backordered).to eq 0
+          expect(awaiting_feed).to eq 5
         end
 
         it "backorders all if feeder stock is backorderable" do
@@ -354,9 +354,9 @@ module Spree
           feeder_stock_item.save!
 
           on_hand, backordered, awaiting_feed = subject.fill_status(variant, 20)
-          on_hand.should eq 5
-          backordered.should eq 15
-          awaiting_feed.should eq 0
+          expect(on_hand).to eq 5
+          expect(backordered).to eq 15
+          expect(awaiting_feed).to eq 0
         end
       end
 
@@ -391,7 +391,7 @@ module Spree
           subject
           variant.stock_items.destroy_all
           items = subject.fill_status(variant, 1)
-          items.should eq [0, 0, 0]
+          expect(items).to eq [0, 0, 0]
         end
       end
     end
@@ -399,19 +399,19 @@ module Spree
     context '#state_text' do
       context 'state is blank' do
         subject { StockLocation.create(name: "testing", state: nil, state_name: 'virginia') }
-        specify { subject.state_text.should == 'virginia' }
+        specify { expect(subject.state_text).to eq('virginia') }
       end
 
       context 'both name and abbr is present' do
         let(:state) { stub_model(Spree::State, name: 'virginia', abbr: 'va') }
         subject { StockLocation.create(name: "testing", state: state, state_name: nil) }
-        specify { subject.state_text.should == 'va' }
+        specify { expect(subject.state_text).to eq('va') }
       end
 
       context 'only name is present' do
         let(:state) { stub_model(Spree::State, name: 'virginia', abbr: nil) }
         subject { StockLocation.create(name: "testing", state: state, state_name: nil) }
-        specify { subject.state_text.should == 'virginia' }
+        specify { expect(subject.state_text).to eq('virginia') }
       end
     end
 

@@ -3,7 +3,11 @@ require 'spec_helper'
 describe Spree::Taxon do
   let(:parent_taxon){ FactoryGirl.create(:taxon, name: "Women")}
   let(:subject)     { FactoryGirl.create(:taxon, name: "Sweaters & Jumpers", parent_id: parent_taxon.id) }
-  its(:pretty_name) { should eq("Women -> Sweaters & Jumpers") }
+
+  describe '#pretty_name' do
+    subject { super().pretty_name }
+    it { is_expected.to eq("Women -> Sweaters & Jumpers") }
+  end
 
   describe "displayable" do
     let!(:hidden_taxon) { create(:taxon, hidden: true, name: 'hidden')}

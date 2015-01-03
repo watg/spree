@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::LineItem do
+describe Spree::LineItem, type: :model do
   let(:order) { create :order_with_line_items, line_items_count: 1 }
   let(:line_item) { order.line_items.first }
 
@@ -34,10 +34,15 @@ describe Spree::LineItem do
         subject.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: true, assembly_definition_part_id: part4.id)
         subject.save
       end
-      its(:item_sku) { should eq "#{subject.variant.sku} [#{variant10.sku}, #{variant8.sku}, #{variant11.sku}]" }
+
+      it "is made up of the part skus" do
+        expect(subject.item_sku).to eq "#{subject.variant.sku} [#{variant10.sku}, #{variant8.sku}, #{variant11.sku}]"
+      end
     end
     context "non - dynamic kit" do
-      its(:item_sku) { should eq subject.variant.sku }
+      it "is equal to the variant sku" do
+        expect(subject.item_sku).to eq "#{subject.variant.sku}"
+      end
     end
   end
 
@@ -99,7 +104,7 @@ describe Spree::LineItem do
       line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
       line_item.line_item_parts.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
 
-      Rails.logger.should_receive(:warn).with("The cost_price of variant id: #{variant10.id} is nil for line_item_part: #{lio.id}")
+      expect(Rails.logger).to receive(:warn).with("The cost_price of variant id: #{variant10.id} is nil for line_item_part: #{lio.id}")
       expect(line_item.cost_price).to eq 24.0
     end
   end
@@ -155,7 +160,7 @@ describe Spree::LineItem do
       line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
       line_item.line_item_parts.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
 
-      Rails.logger.should_receive(:warn).with("The weight of variant id: #{variant10.id} is nil for line_item_part: #{lio.id}")
+      expect(Rails.logger).to receive(:warn).with("The weight of variant id: #{variant10.id} is nil for line_item_part: #{lio.id}")
       expect(line_item.weight).to eq 22.0
     end
 
@@ -163,7 +168,7 @@ describe Spree::LineItem do
 
   context '#save' do
     it 'touches the order' do
-      line_item.order.should_receive(:touch)
+      expect(line_item.order).to receive(:touch)
       line_item.save
     end
   end
@@ -184,7 +189,7 @@ describe Spree::LineItem do
     end
 
     it "returns inventory when a line item is destroyed" do
-      Spree::OrderInventory.any_instance.should_receive(:verify).with(nil)
+      expect_any_instance_of(Spree::OrderInventory).to receive(:verify).with(nil)
       line_item.destroy
     end
 
@@ -219,8 +224,8 @@ describe Spree::LineItem do
       end
 
       it "triggers adjustment total recalculation" do
-        line_item.should_receive(:update_tax_charge) # Regression test for https://github.com/spree/spree/issues/4671
-        line_item.should_receive(:recalculate_adjustments)
+        expect(line_item).to receive(:update_tax_charge) # Regression test for https://github.com/spree/spree/issues/4671
+        expect(line_item).to receive(:recalculate_adjustments)
         line_item.save
       end
 
@@ -233,7 +238,7 @@ describe Spree::LineItem do
 
       it "should trigger if changes are made" do
         line_item.updated_at = Time.now
-        Spree::OrderInventory.any_instance.should_receive(:verify)
+        expect_any_instance_of(Spree::OrderInventory).to receive(:verify)
         line_item.save
       end
 
@@ -249,7 +254,7 @@ describe Spree::LineItem do
 
     context "line item does not change" do
       it "does not trigger adjustment total recalculation" do
-        line_item.should_not_receive(:recalculate_adjustments)
+        expect(line_item).not_to receive(:recalculate_adjustments)
         line_item.save
       end
     end
@@ -265,19 +270,19 @@ describe Spree::LineItem do
     end
 
     it "verifies order_inventory" do
-      Spree::OrderInventory.any_instance.should_receive(:verify)
+      expect_any_instance_of(Spree::OrderInventory).to receive(:verify)
       order.contents.add(variant)
     end
 
     context "when order has a tax zone" do
       before do
-        order.tax_zone.should be_present
+        expect(order.tax_zone).to be_present
       end
 
       it "creates a tax adjustment" do
         order.contents.add(variant)
         line_item = order.find_line_item_by_variant(variant)
-        line_item.adjustments.tax.count.should == 1
+        expect(line_item.adjustments.tax.count).to eq(1)
       end
     end
 
@@ -286,13 +291,13 @@ describe Spree::LineItem do
         order.bill_address = nil
         order.ship_address = nil
         order.save
-        order.reload.tax_zone.should be_nil
+        expect(order.reload.tax_zone).to be_nil
       end
 
       it "does not create a tax adjustment" do
         order.contents.add(variant)
         line_item = order.find_line_item_by_variant(variant)
-        line_item.adjustments.tax.count.should == 0
+        expect(line_item.adjustments.tax.count).to eq(0)
       end
 
     end
@@ -306,9 +311,9 @@ describe Spree::LineItem do
       line_item.currency = nil
       line_item.copy_price
       variant = line_item.variant
-      line_item.price.should == variant.price_normal_in(order.currency).amount
-      line_item.cost_price.should == variant.cost_price
-      line_item.currency.should == variant.currency
+      expect(line_item.price).to eq(variant.price_normal_in(order.currency).amount)
+      expect(line_item.cost_price).to eq(variant.cost_price)
+      expect(line_item.currency).to eq(variant.currency)
     end
   end
   # TODO, if it is in the sale, we should change the price to reflect that
@@ -327,7 +332,7 @@ describe Spree::LineItem do
       line_item.price = 10
       line_item.quantity = 2
       line_item.promo_total = -5
-      line_item.discounted_amount.should == 15
+      expect(line_item.discounted_amount).to eq(15)
     end
   end
 
@@ -345,7 +350,7 @@ describe Spree::LineItem do
     end
 
     it "returns a Spree::Money representing the total for this line item" do
-      line_item.normal_display_amount.to_s.should == "$7.00"
+      expect(line_item.normal_display_amount.to_s).to eq("$7.00")
     end
 
   end
@@ -358,12 +363,12 @@ describe Spree::LineItem do
     end
 
     it "returns a Spree::Money representing the total for this line item" do
-      line_item.sale_display_amount.to_s.should == "$7.00"
+      expect(line_item.sale_display_amount.to_s).to eq("$7.00")
     end
 
     it "returns a Spree::Money representing the total for this line item when in the sale" do
       line_item.in_sale = true
-      line_item.sale_display_amount.to_s.should == "$5.00"
+      expect(line_item.sale_display_amount.to_s).to eq("$5.00")
     end
 
   end
@@ -376,25 +381,25 @@ describe Spree::LineItem do
     end
 
     it "returns a Spree::Money representing the total for this line item" do
-      line_item.money.to_s.should == "$7.00"
+      expect(line_item.money.to_s).to eq("$7.00")
     end
   end
 
   describe '.single_money' do
     before { line_item.price = 3.50 }
     it "returns a Spree::Money representing the price for one variant" do
-      line_item.single_money.to_s.should == "$3.50"
+      expect(line_item.single_money.to_s).to eq("$3.50")
     end
   end
 
   describe '.has_gift_card?' do
     it "returns false when has no gift card" do
-      line_item.should_not be_has_gift_card
+      expect(line_item).not_to be_has_gift_card
     end
 
     it "returns true when have a gift card" do
       line_item.product.product_type = create(:product_type_gift_card)
-      line_item.should be_has_gift_card
+      expect(line_item).to be_has_gift_card
     end
   end
 
@@ -444,7 +449,7 @@ describe Spree::LineItem do
         line_item.target_shipment = order.shipments.first
 
         line_item.save
-        expect(line_item).to have(0).errors_on(:quantity)
+        expect(line_item.errors[:quantity].size).to eq(0)
       end
 
       it "doesnt allow to increase item quantity" do
@@ -453,7 +458,7 @@ describe Spree::LineItem do
         line_item.target_shipment = order.shipments.first
 
         line_item.save
-        expect(line_item).to have(1).error_on(:quantity)
+        expect(line_item.errors[:quantity].size).to eq(1)
       end
     end
 
@@ -471,7 +476,7 @@ describe Spree::LineItem do
         line_item.target_shipment = order.shipments.first
 
         line_item.save
-        expect(line_item).to have(0).errors_on(:quantity)
+        expect(line_item.errors[:quantity].size).to eq(0)
       end
 
       it "doesnt allow to increase item quantity" do
@@ -480,7 +485,7 @@ describe Spree::LineItem do
         line_item.target_shipment = order.shipments.first
 
         line_item.save
-        expect(line_item).to have(1).errors_on(:quantity)
+        expect(line_item.errors[:quantity].size).to eq(1)
       end
     end
 
@@ -498,7 +503,7 @@ describe Spree::LineItem do
         line_item.target_shipment = order.shipments.first
 
         line_item.save
-        expect(line_item).to have(0).errors_on(:quantity)
+        expect(line_item.errors[:quantity].size).to eq(0)
       end
 
       it "doesnt allow to increase quantity over stock availability" do
@@ -507,7 +512,7 @@ describe Spree::LineItem do
         line_item.target_shipment = order.shipments.first
 
         line_item.save
-        expect(line_item).to have(1).errors_on(:quantity)
+        expect(line_item.errors[:quantity].size).to eq(1)
       end
     end
 
@@ -520,7 +525,7 @@ describe Spree::LineItem do
       line_item.currency = order.currency
       line_item.valid?
 
-      expect(line_item).to have(0).error_on(:currency)
+      expect(line_item.errors[:currency].size).to eq(0)
     end
   end
 
@@ -530,7 +535,7 @@ describe Spree::LineItem do
       line_item.currency = "no currency"
       line_item.valid?
 
-      expect(line_item).to have(1).error_on(:currency)
+      expect(line_item.errors[:currency].size).to eq(1)
     end
   end
 

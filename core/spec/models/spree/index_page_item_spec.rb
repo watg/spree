@@ -12,14 +12,14 @@ describe Spree::IndexPageItem do
     context "adding the same product page after deleting the first" do
       before { existing.delete }
       subject { build(:index_page_item, params) }
-      it { should be_valid }
+      it { is_expected.to be_valid }
     end
 
     context "adding the same product page with different variants" do
       let(:variant) { create(:variant) }
       subject { build(:index_page_item, params.merge(variant: variant)) }
 
-      it { should be_valid }
+      it { is_expected.to be_valid }
     end
 
     context "adding the same variant with different product pages" do
@@ -32,7 +32,7 @@ describe Spree::IndexPageItem do
         existing.save
       end
 
-      it { should be_valid }
+      it { is_expected.to be_valid }
     end
   end
 end

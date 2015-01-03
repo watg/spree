@@ -41,7 +41,7 @@ describe Spree::Payment do
 
   before(:each) do
     # So it doesn't create log entries every time a processing method is called
-    payment.log_entries.stub(:create!)
+    allow(payment.log_entries).to receive(:create!)
   end
 
   context '.risky' do
@@ -709,9 +709,9 @@ describe Spree::Payment do
 
       payment = Spree::Payment.new(params)
       payment.should_not be_valid
-      payment.source.should_not be_nil
-      payment.source.should have(1).error_on(:number)
-      payment.source.should have(1).error_on(:verification_value)
+      expect(payment.source).to_not be_nil
+      expect(payment.source.errors[:number].size).to eq 1
+      expect(payment.source.errors[:verification_value].size).to eq 1
     end
 
     it "does not build a new source when duplicating the model with source_attributes set" do

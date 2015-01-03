@@ -16,14 +16,14 @@ describe Spree::ShipmentStockAdjuster do
     it "restocks all the on_hand and backordered inventory_units" do
       inventory_units.last.state = 'backordered'
       expect(stock_location).to receive(:restock).with(variant, 3, shipment, supplier)
-      inventory_units.stub(:update_all)
+      allow(inventory_units).to receive(:update_all)
       subject.restock(variant, inventory_units)
     end
 
     it "does not restock the awaiting_feed inventory_units" do
       inventory_units.last.state = 'awaiting_feed'
       expect(stock_location).to receive(:restock).with(variant, 2, shipment, supplier)
-      inventory_units.stub(:update_all)
+      allow(inventory_units).to receive(:update_all)
       subject.restock(variant, inventory_units)
     end
 
@@ -32,7 +32,7 @@ describe Spree::ShipmentStockAdjuster do
       units << Spree::InventoryUnit.create(order: order, pending: false, supplier_id: 1, variant: variant)
       units << Spree::InventoryUnit.create(order: order, state: 'backordered', pending: false, supplier_id: 2, variant: variant)
       units << Spree::InventoryUnit.create(order: order, state: 'awaiting_feed', pending: false, supplier_id: 3, variant: variant)
-      stock_location.stub(:restock)
+      allow(stock_location).to receive(:restock)
 
       subject.restock(variant, units)
       expect(order.inventory_units.pluck(:supplier_id)).to eq [nil, nil, nil]

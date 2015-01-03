@@ -7,8 +7,8 @@ module Spree
       suite = create(:suite)
       taxon = create(:taxon)
       add_taxon = lambda { suite.taxons << taxon }
-      add_taxon.should_not raise_error
-      add_taxon.should raise_error(ActiveRecord::RecordInvalid)
+      expect(add_taxon).not_to raise_error
+      expect(add_taxon).to raise_error(ActiveRecord::RecordInvalid)
     end
   end
 end

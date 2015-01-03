@@ -13,15 +13,15 @@ module Spree
           package = Package.new(packer.stock_location)
           4.times { package.add build(:inventory_unit, variant: variant) }
           packages = subject.split([package])
-          packages.size.should eq 4
+          expect(packages.size).to eq 4
         end
 
         it 'handles packages that can not be reduced' do
           package = Package.new(packer.stock_location)
-          variant.stub(:weight => 200)
+          allow(variant).to receive_messages(:weight => 200)
           2.times { package.add build(:inventory_unit, variant: variant) }
           packages = subject.split([package])
-          packages.size.should eq 2
+          expect(packages.size).to eq 2
         end
       end
     end

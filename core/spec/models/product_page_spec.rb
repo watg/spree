@@ -8,7 +8,10 @@ describe Spree::ProductPage do
     subject.product_groups << product_group
   end
 
-  its(:title) { should eql('zion lion') }
+  describe '#title' do
+    subject { super().title }
+    it { is_expected.to eql('zion lion') }
+  end
 
   it "should not allow unnamed group to be saved" do
     subject.name = nil
@@ -16,7 +19,10 @@ describe Spree::ProductPage do
   end
 
   context "permalink" do
-    its(:permalink) { should eql('zion-lion-hat') }
+    describe '#permalink' do
+      subject { super().permalink }
+      it { is_expected.to eql('zion-lion-hat') }
+    end
 
     it "can change permalink" do
       subject.permalink = 'anything-unique'

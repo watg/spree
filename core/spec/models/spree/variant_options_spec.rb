@@ -12,7 +12,7 @@ describe Spree::VariantOptions do
    describe '#option_values_in_stock' do
 
     before do
-      Spree::StockItem.any_instance.stub(backorderable: false)
+      allow_any_instance_of(Spree::StockItem).to receive_messages(backorderable: false)
     end
     context "for made by the gang" do
 
@@ -66,7 +66,7 @@ describe Spree::VariantOptions do
     let(:variants) { [variant_in_stock1, variant_in_stock2, variant_in_stock3, variant_in_stock4, variant_out_stock] }
 
     before do
-      Spree::StockItem.any_instance.stub(backorderable: false)
+      allow_any_instance_of(Spree::StockItem).to receive_messages(backorderable: false)
     end
 
     describe "#grouped_option_values_in_stock" do
@@ -184,10 +184,10 @@ describe Spree::VariantOptions do
         it "should have sale_price" do
           tree = subject.tree
           attributes = tree["size"]["small"]["colour"]["pink"]["variant"]
-          attributes['in_sale'].should == true
-          attributes['normal_price'].should == 1999
-          attributes['sale_price'].should == 600
-          attributes['part_price'].should == 0
+          expect(attributes['in_sale']).to eq(true)
+          expect(attributes['normal_price']).to eq(1999)
+          expect(attributes['sale_price']).to eq(600)
+          expect(attributes['part_price']).to eq(0)
         end
 
       end
@@ -199,10 +199,10 @@ describe Spree::VariantOptions do
         it "should have part_price" do
           tree = subject.tree
           attributes = tree["size"]["small"]["colour"]["pink"]["variant"]
-          attributes['normal_price'].should == 1999
-          attributes['sale_price'].should == 0
-          attributes['part_price'].should == 5000
-          attributes['in_sale'].should == false
+          expect(attributes['normal_price']).to eq(1999)
+          expect(attributes['sale_price']).to eq(0)
+          expect(attributes['part_price']).to eq(5000)
+          expect(attributes['in_sale']).to eq(false)
         end
       end
 
@@ -214,10 +214,10 @@ describe Spree::VariantOptions do
         it "should have sale_price" do
           tree = subject.tree
           attributes = tree["size"]["small"]["colour"]["pink"]["variant"]
-          attributes['in_sale'].should == false
-          attributes['normal_price'].should == 700
-          attributes['sale_price'].should == 0
-          attributes['part_price'].should == 0
+          expect(attributes['in_sale']).to eq(false)
+          expect(attributes['normal_price']).to eq(700)
+          expect(attributes['sale_price']).to eq(0)
+          expect(attributes['part_price']).to eq(0)
         end
 
 
@@ -252,9 +252,9 @@ describe Spree::VariantOptions do
     context "#option_type_order" do
 
       it "should return the order of the types" do
-        subject.option_type_order["size"].should == "colour"
-        subject.option_type_order["colour"].should == "language"
-        subject.option_type_order["language"].should be_nil
+        expect(subject.option_type_order["size"]).to eq("colour")
+        expect(subject.option_type_order["colour"]).to eq("language")
+        expect(subject.option_type_order["language"]).to be_nil
       end
 
     end
@@ -304,22 +304,22 @@ describe Spree::VariantOptions do
         tree = subject.tree
         attributes = tree[ov1.option_type.name][ov1.name]['variant']
 
-        attributes.should_not be_nil
-        attributes["id"].should == variant_1.id
-        attributes["normal_price"].should == 1999
-        attributes["sale_price"].should == 0
-        attributes["part_price"].should == 0
-        attributes["in_sale"].should == false
-        attributes["suppliers"].should == variant_1.suppliers
+        expect(attributes).not_to be_nil
+        expect(attributes["id"]).to eq(variant_1.id)
+        expect(attributes["normal_price"]).to eq(1999)
+        expect(attributes["sale_price"]).to eq(0)
+        expect(attributes["part_price"]).to eq(0)
+        expect(attributes["in_sale"]).to eq(false)
+        expect(attributes["suppliers"]).to eq(variant_1.suppliers)
 
         attributes = tree[ov2.option_type.name][ov2.name]['variant']
-        attributes.should_not be_nil
-        attributes["id"].should == variant_2.id
-        attributes["normal_price"].should == 1999
-        attributes["sale_price"].should == 0
-        attributes["part_price"].should == 0
-        attributes["in_sale"].should == false
-        attributes["suppliers"].should == variant_2.suppliers
+        expect(attributes).not_to be_nil
+        expect(attributes["id"]).to eq(variant_2.id)
+        expect(attributes["normal_price"]).to eq(1999)
+        expect(attributes["sale_price"]).to eq(0)
+        expect(attributes["part_price"]).to eq(0)
+        expect(attributes["in_sale"]).to eq(false)
+        expect(attributes["suppliers"]).to eq(variant_2.suppliers)
 
         #product.variant_options_tree_for(nil,'GBP').should == {
         #  "color"=>{

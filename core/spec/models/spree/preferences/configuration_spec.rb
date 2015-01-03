@@ -12,7 +12,7 @@ describe Spree::Preferences::Configuration do
   # Regression test for #3831
   context "with a rails cache id set" do
     before do
-      @config.stub :rails_cache_id => "cache"
+      allow(@config).to receive_messages :rails_cache_id => "cache"
     end
 
     it "can access the preference cache key" do
@@ -28,17 +28,17 @@ describe Spree::Preferences::Configuration do
 
   it "has named methods to access preferences" do
     @config.color = 'orange'
-    @config.color.should eq 'orange'
+    expect(@config.color).to eq 'orange'
   end
 
   it "uses [ ] to access preferences" do
     @config[:color] = 'red'
-    @config[:color].should eq 'red'
+    expect(@config[:color]).to eq 'red'
   end
 
   it "uses set/get to access preferences" do
     @config.set :color, 'green'
-    @config.get(:color).should eq 'green'
+    expect(@config.get(:color)).to eq 'green'
   end
 
 end

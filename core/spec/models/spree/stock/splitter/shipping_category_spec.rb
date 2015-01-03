@@ -36,10 +36,10 @@ module Spree
           9.times { package2.add inventory_unit2, :backordered }
 
           packages = subject.split([package1, package2])
-          packages[0].quantity.should eq 4
-          packages[1].quantity.should eq 8
-          packages[2].quantity.should eq 6
-          packages[3].quantity.should eq 9
+          expect(packages[0].quantity).to eq 4
+          expect(packages[1].quantity).to eq 8
+          expect(packages[2].quantity).to eq 6
+          expect(packages[3].quantity).to eq 9
         end
 
       end

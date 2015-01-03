@@ -10,8 +10,15 @@ module Spree
 
     subject { StockTransfer.create(reference: 'PO123') }
 
-    its(:reference) { should eq 'PO123' }
-    its(:to_param) { should match /T\d+/ }
+    describe '#reference' do
+      subject { super().reference }
+      it { is_expected.to eq 'PO123' }
+    end
+
+    describe '#to_param' do
+      subject { super().to_param }
+      it { is_expected.to match /T\d+/ }
+    end
 
     it "considers suppliers and creates stock items if they do not exist at destination" do
       location1 = create(:stock_location)
@@ -41,15 +48,15 @@ module Spree
                        destination_location,
                        stock_transfer_items)
 
-      source_location.count_on_hand(variant).should eq 5
-      destination_location.count_on_hand(variant).should eq 5
-      subject.should have(2).stock_movements
+      expect(source_location.count_on_hand(variant)).to eq 5
+      expect(destination_location.count_on_hand(variant)).to eq 5
+      expect(subject.stock_movements.size).to eq(2)
 
-      subject.source_location.should eq source_location
-      subject.destination_location.should eq destination_location
+      expect(subject.source_location).to eq source_location
+      expect(subject.destination_location).to eq destination_location
 
-      subject.source_movements.first.quantity.should eq -5
-      subject.destination_movements.first.quantity.should eq 5
+      expect(subject.source_movements.first.quantity).to eq -5
+      expect(subject.destination_movements.first.quantity).to eq 5
     end
 
     it 'receive new inventory (from a vendor)' do
@@ -57,11 +64,11 @@ module Spree
 
       subject.receive(destination_location, stock_transfer_items)
 
-      destination_location.count_on_hand(variant).should eq 5
-      subject.should have(1).stock_movements
+      expect(destination_location.count_on_hand(variant)).to eq 5
+      expect(subject.stock_movements.size).to eq(1)
 
-      subject.source_location.should be_nil
-      subject.destination_location.should eq destination_location
+      expect(subject.source_location).to be_nil
+      expect(subject.destination_location).to eq destination_location
     end
   end
 end

@@ -14,10 +14,25 @@ describe Spree::GiftCard do
   end
 
   context 'fields populated at creation' do
-    its(:buyer_order) { should_not be_blank }
-    its(:code)        { should match(/\w{4}\-\w{6}\-\w{4}/) }
-    its(:expiry_date) { should_not be_blank }
-    its(:state)       { should eq('not_redeemed')}
+    describe '#buyer_order' do
+      subject { super().buyer_order }
+      it { is_expected.not_to be_blank }
+    end
+
+    describe '#code' do
+      subject { super().code }
+      it { is_expected.to match(/\w{4}\-\w{6}\-\w{4}/) }
+    end
+
+    describe '#expiry_date' do
+      subject { super().expiry_date }
+      it { is_expected.not_to be_blank }
+    end
+
+    describe '#state' do
+      subject { super().state }
+      it { is_expected.to eq('not_redeemed')}
+    end
   end
 
   it "has defined states" do

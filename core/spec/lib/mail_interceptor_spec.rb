@@ -22,7 +22,7 @@ describe Spree::OrderMailer do
       Spree::Config[:mails_from] = "no-reply@foobar.com"
       message.deliver
       @email = ActionMailer::Base.deliveries.first
-      @email.from.should == ["no-reply@foobar.com"]
+      expect(@email.from).to eq(["no-reply@foobar.com"])
     end
 
     it "should use the provided from address" do
@@ -31,38 +31,38 @@ describe Spree::OrderMailer do
       message.to = "test@test.com"
       message.deliver
       email = ActionMailer::Base.deliveries.first
-      email.from.should == ["override@foobar.com"]
-      email.to.should == ["test@test.com"]
+      expect(email.from).to eq(["override@foobar.com"])
+      expect(email.to).to eq(["test@test.com"])
     end
 
     it "should add the bcc email when provided" do
       Spree::Config[:mail_bcc] = "bcc-foo@foobar.com"
       message.deliver
       @email = ActionMailer::Base.deliveries.first
-      @email.bcc.should == ["bcc-foo@foobar.com"]
+      expect(@email.bcc).to eq(["bcc-foo@foobar.com"])
     end
 
     context "when intercept_email is provided" do
       it "should strip the bcc recipients" do
-        message.bcc.should be_blank
+        expect(message.bcc).to be_blank
       end
 
       it "should strip the cc recipients" do
-        message.cc.should be_blank
+        expect(message.cc).to be_blank
       end
 
       it "should replace the receipient with the specified address" do
         Spree::Config[:intercept_email] = "intercept@foobar.com"
         message.deliver
         @email = ActionMailer::Base.deliveries.first
-        @email.to.should == ["intercept@foobar.com"]
+        expect(@email.to).to eq(["intercept@foobar.com"])
       end
 
       it "should modify the subject to include the original email" do
         Spree::Config[:intercept_email] = "intercept@foobar.com"
         message.deliver
         @email = ActionMailer::Base.deliveries.first
-        @email.subject.match(/customer@example\.com/).should be_truthy
+        expect(@email.subject.match(/customer@example\.com/)).to be_truthy
       end
     end
 
@@ -71,7 +71,7 @@ describe Spree::OrderMailer do
         Spree::Config[:intercept_email] = ""
         message.deliver
         @email = ActionMailer::Base.deliveries.first
-        @email.to.should == ["customer@example.com"]
+        expect(@email.to).to eq(["customer@example.com"])
       end
     end
   end

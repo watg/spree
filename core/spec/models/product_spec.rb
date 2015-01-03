@@ -4,8 +4,15 @@ describe Spree::Product do
   subject { create(:product_with_variants) }
   let(:variant) { subject.variants.first}
 
-  its(:visible_option_types) { should be_blank }
-  its(:product_group)        { should be_kind_of(Spree::ProductGroup) }
+  describe '#visible_option_types' do
+    subject { super().visible_option_types }
+    it { is_expected.to be_blank }
+  end
+
+  describe '#product_group' do
+    subject { super().product_group }
+    it { is_expected.to be_kind_of(Spree::ProductGroup) }
+  end
 
   describe "#not_assembly" do
     it "excludes products with assembly definition" do
@@ -38,10 +45,17 @@ describe Spree::Product do
     end
   end
 
-  its(:first_variant_or_master) { should eql(variant) }
+  describe '#first_variant_or_master' do
+    subject { super().first_variant_or_master }
+    it { is_expected.to eql(variant) }
+  end
   context "product has no variant" do
     subject { create(:base_product) }
-    its(:first_variant_or_master) { should be_is_master }
+
+    describe '#first_variant_or_master' do
+      subject { super().first_variant_or_master }
+      it { is_expected.to be_is_master }
+    end
   end
 
   describe "#all_variants_or_master" do
@@ -57,7 +71,11 @@ describe Spree::Product do
 
     context "with multiple variants" do
       let(:variants) { 2.times.map { create(:variant, :product => subject) } }
-      its(:all_variants_or_master) { should eq(variants) }
+
+      describe '#all_variants_or_master' do
+        subject { super().all_variants_or_master }
+        it { is_expected.to eq(variants) }
+      end
     end
   end
 

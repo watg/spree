@@ -17,7 +17,7 @@ module Spree
       let(:params) { {:viewable_id => product.master.id, :viewable_type => 'Spree::Variant', :attachment => image, :alt => "position 1", :position => 1} }
 
       before do
-        Spree::Image.any_instance.unstub(:save_attached_files)
+        allow_any_instance_of(Spree::Image).to receive(:save_attached_files).and_call_original
         Spree::Image.create(params)
       end
 

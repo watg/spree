@@ -30,24 +30,24 @@ describe Spree::Promotion::Rules::ItemTotal do
   context "uk zone" do
 
     it "should be eligible when zone-country is enabled - currency GBP" do
-      order.stub :line_items => [double(:line_item, :amount => 30, :currency => 'GBP'), double(:line_item, :amount => 21, :currency => 'GBP')]
-      rule.should be_eligible(order)
+      allow(order).to receive_messages :line_items => [double(:line_item, :amount => 30, :currency => 'GBP'), double(:line_item, :amount => 21, :currency => 'GBP')]
+      expect(rule).to be_eligible(order)
     end
 
     it "should be eligible when zone-country is enabled - currency EUR" do
-      order.stub :line_items => [double(:line_item, :amount => 10, :currency => 'EUR'), double(:line_item, :amount => 10, :currency => 'EUR')]
-      another_order.stub :currency => 'EUR' 
-      rule.should be_eligible(order)
+      allow(order).to receive_messages :line_items => [double(:line_item, :amount => 10, :currency => 'EUR'), double(:line_item, :amount => 10, :currency => 'EUR')]
+      allow(another_order).to receive_messages :currency => 'EUR' 
+      expect(rule).to be_eligible(order)
     end
 
     it "should not be eligible when currency / zone is disabled" do
-      order_currency_usd.stub :line_items => [double(:line_item, :amount => 30, :currency => 'USD'), double(:line_item, :amount => 21, :currency => 'USD')]
-      rule.should_not be_eligible(order_currency_usd)
+      allow(order_currency_usd).to receive_messages :line_items => [double(:line_item, :amount => 30, :currency => 'USD'), double(:line_item, :amount => 21, :currency => 'USD')]
+      expect(rule).not_to be_eligible(order_currency_usd)
     end
 
     it "should not be eligible when amount is to small" do
-      order.stub :line_items => [double(:line_item, :amount => 5, :currency => 'GBP'), double(:line_item, :amount => 4, :currency => 'GBP')]
-      rule.should_not be_eligible(order)
+      allow(order).to receive_messages :line_items => [double(:line_item, :amount => 5, :currency => 'GBP'), double(:line_item, :amount => 4, :currency => 'GBP')]
+      expect(rule).not_to be_eligible(order)
     end
 
   end
@@ -55,19 +55,19 @@ describe Spree::Promotion::Rules::ItemTotal do
   context "other zone" do
 
     it "should be eligible when zone-country is enabled - currency GBP" do
-      another_order.stub :line_items => [double(:line_item, :amount => 30, :currency => 'GBP'), double(:line_item, :amount => 21, :currency => 'GBP')]
-      rule.should be_eligible(another_order)
+      allow(another_order).to receive_messages :line_items => [double(:line_item, :amount => 30, :currency => 'GBP'), double(:line_item, :amount => 21, :currency => 'GBP')]
+      expect(rule).to be_eligible(another_order)
     end
 
     it "should not be eligible when zone-country does not exist - currency EUR" do
-      another_order.stub :line_items => [double(:line_item, :amount => 10, :currency => 'EUR'), double(:line_item, :amount => 10, :currency => 'EUR')]
-      another_order.stub :currency => 'EUR' 
-      rule.should_not be_eligible(another_order)
+      allow(another_order).to receive_messages :line_items => [double(:line_item, :amount => 10, :currency => 'EUR'), double(:line_item, :amount => 10, :currency => 'EUR')]
+      allow(another_order).to receive_messages :currency => 'EUR' 
+      expect(rule).not_to be_eligible(another_order)
     end
 
     it "should not be eligible when amount is to small" do
-      another_order.stub :line_items => [double(:line_item, :amount => 5, :currency => 'GBP'), double(:line_item, :amount => 4, :currency => 'GBP')]
-      rule.should_not be_eligible(another_order)
+      allow(another_order).to receive_messages :line_items => [double(:line_item, :amount => 5, :currency => 'GBP'), double(:line_item, :amount => 4, :currency => 'GBP')]
+      expect(rule).not_to be_eligible(another_order)
     end
 
   end
@@ -75,20 +75,20 @@ describe Spree::Promotion::Rules::ItemTotal do
   context "user has not entered their address" do
 
     it "should be eligible if the amounts are correct regardless of currency" do
-      order_no_address.stub :line_items => [double(:line_item, :amount => 30, :currency => 'GBP'), double(:line_item, :amount => 21, :currency => 'GBP')]
-      rule.should be_eligible(order_no_address)
+      allow(order_no_address).to receive_messages :line_items => [double(:line_item, :amount => 30, :currency => 'GBP'), double(:line_item, :amount => 21, :currency => 'GBP')]
+      expect(rule).to be_eligible(order_no_address)
     end
 
     it "should be eligible when zone-country does not exist - currency EUR" do
-      order_no_address.stub :line_items => [double(:line_item, :amount => 10, :currency => 'EUR'), double(:line_item, :amount => 10, :currency => 'EUR')]
-      order_no_address.stub :currency => 'EUR' 
-      rule.should be_eligible(order_no_address)
+      allow(order_no_address).to receive_messages :line_items => [double(:line_item, :amount => 10, :currency => 'EUR'), double(:line_item, :amount => 10, :currency => 'EUR')]
+      allow(order_no_address).to receive_messages :currency => 'EUR' 
+      expect(rule).to be_eligible(order_no_address)
     end
 
     it "should not be eligible when amount is to small" do
-      order_no_address.stub :line_items => [double(:line_item, :amount => 5, :currency => 'GBP'), double(:line_item, :amount => 4, :currency => 'GBP')]
-      order_no_address.stub :currency => 'GBP' 
-      rule.should_not be_eligible(order_no_address)
+      allow(order_no_address).to receive_messages :line_items => [double(:line_item, :amount => 5, :currency => 'GBP'), double(:line_item, :amount => 4, :currency => 'GBP')]
+      allow(order_no_address).to receive_messages :currency => 'GBP' 
+      expect(rule).not_to be_eligible(order_no_address)
     end
 
   end

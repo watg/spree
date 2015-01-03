@@ -2,9 +2,9 @@ require 'spec_helper'
 
 shared_examples_for 'unlimited supply' do
   it 'can_supply? any amount' do
-    subject.can_supply?(1).should be true
-    subject.can_supply?(101).should be true
-    subject.can_supply?(100_001).should be true
+    expect(subject.can_supply?(1)).to be true
+    expect(subject.can_supply?(101)).to be true
+    expect(subject.can_supply?(100_001)).to be true
   end
 end
 
@@ -12,14 +12,14 @@ module Spree
   module Stock
     describe Quantifier do
 
-      before(:all) { Spree::StockLocation.destroy_all } #FIXME leaky database
+#      before(:all) { Spree::StockLocation.destroy_all } #FIXME leaky database
 
       let!(:stock_location) { create :stock_location_with_items  }
       let!(:stock_item) { stock_location.stock_items.order(:id).first }
 
       subject { described_class.new(stock_item.variant) }
 
-      specify { subject.stock_items.should == [stock_item] }
+      specify { expect(subject.stock_items).to eq([stock_item]) }
 
       describe "clear_total_on_hand_cache" do
         it "clears the total_on_hand cache key" do
@@ -53,7 +53,7 @@ module Spree
           let(:variant) { stock_item.variant }
 
           it 'matches stock_item' do
-            subject.total_on_hand.should ==  stock_item.count_on_hand
+            expect(subject.total_on_hand).to eq(stock_item.count_on_hand)
           end
 
           it 'deducts awaiting_feed inventory units' do
@@ -96,7 +96,7 @@ module Spree
         context 'when track_inventory_levels is false' do
           before { configure_spree_preferences { |config| config.track_inventory_levels = false } }
 
-          specify { subject.total_on_hand.should == Float::INFINITY }
+          specify { expect(subject.total_on_hand).to eq(Float::INFINITY) }
 
           it_should_behave_like 'unlimited supply'
         end
@@ -104,14 +104,14 @@ module Spree
         context 'when variant inventory tracking is off' do
           before { stock_item.variant.track_inventory = false }
 
-          specify { subject.total_on_hand.should == Float::INFINITY }
+          specify { expect(subject.total_on_hand).to eq(Float::INFINITY) }
 
           it_should_behave_like 'unlimited supply'
         end
 
         context 'when stock item allows backordering' do
 
-          specify { subject.backorderable?.should be true }
+          specify { expect(subject.backorderable?).to be true }
 
           it_should_behave_like 'unlimited supply'
         end
@@ -119,12 +119,12 @@ module Spree
         context 'when stock item prevents backordering' do
           before { stock_item.update_attributes(backorderable: false) }
 
-          specify { subject.backorderable?.should be false }
+          specify { expect(subject.backorderable?).to be false }
 
           it 'can_supply? only upto total_on_hand' do
-            subject.can_supply?(1).should be true
-            subject.can_supply?(10).should be true
-            subject.can_supply?(11).should be false
+            expect(subject.can_supply?(1)).to be true
+            expect(subject.can_supply?(10)).to be true
+            expect(subject.can_supply?(11)).to be false
           end
         end
 
@@ -142,12 +142,12 @@ module Spree
         end
 
         it 'total_on_hand should total all active stock_items' do
-          subject.total_on_hand.should == 20
+          expect(subject.total_on_hand).to eq(20)
         end
 
 
         context 'when any stock item allows backordering' do
-          specify { subject.backorderable?.should be true }
+          specify { expect(subject.backorderable?).to be true }
 
           it_should_behave_like 'unlimited supply'
         end
@@ -155,13 +155,13 @@ module Spree
         context 'when all stock items prevent backordering' do
           before { stock_item.update_attributes(backorderable: false) }
 
-          specify { subject.backorderable?.should be false }
+          specify { expect(subject.backorderable?).to be false }
 
           it 'can_supply? upto total_on_hand' do
-            subject.can_supply?(1).should be true
-            subject.can_supply?(15).should be true
-            subject.can_supply?(20).should be true
-            subject.can_supply?(21).should be false
+            expect(subject.can_supply?(1)).to be true
+            expect(subject.can_supply?(15)).to be true
+            expect(subject.can_supply?(20)).to be true
+            expect(subject.can_supply?(21)).to be false
           end
         end
 

@@ -14,13 +14,13 @@ describe Spree::Calculator::FlatRate do
 
   context "compute" do
     it "should discount with the correct currency" do
-      order.stub :currency => "GBP"
+      allow(order).to receive_messages :currency => "GBP"
       expect(calculator.compute(order)).to eq 10
 
-      order.stub :currency => "EUR"
+      allow(order).to receive_messages :currency => "EUR"
       expect(calculator.compute(order)).to eq 20
 
-      order.stub :currency => "USD"
+      allow(order).to receive_messages :currency => "USD"
       expect(calculator.compute(order)).to eq 30
     end
   end

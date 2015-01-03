@@ -16,23 +16,30 @@ module Spree
 
       subject { OrderCounter.new(order) }
 
-      its(:variants) { should eq [variant1, variant2] }
-      its(:variants_with_remaining) { should eq [variant1] }
-      it { should be_remaining }
+      describe '#variants' do
+        subject { super().variants }
+        it { is_expected.to eq [variant1, variant2] }
+      end
+
+      describe '#variants_with_remaining' do
+        subject { super().variants_with_remaining }
+        it { is_expected.to eq [variant1] }
+      end
+      it { is_expected.to be_remaining }
 
       it 'counts ordered' do
-        subject.ordered(variant1).should eq 2
-        subject.ordered(variant2).should eq 2
+        expect(subject.ordered(variant1)).to eq 2
+        expect(subject.ordered(variant2)).to eq 2
       end
 
       it 'counts assigned' do
-        subject.assigned(variant1).should eq 1
-        subject.assigned(variant2).should eq 2
+        expect(subject.assigned(variant1)).to eq 1
+        expect(subject.assigned(variant2)).to eq 2
       end
 
       it 'counts remaining' do
-        subject.remaining(variant1).should eq 1
-        subject.remaining(variant2).should eq 0
+        expect(subject.remaining(variant1)).to eq 1
+        expect(subject.remaining(variant2)).to eq 0
       end
 
 
@@ -42,7 +49,7 @@ module Spree
         let(:variant1) { order.variants.first }
 
         it 'does not raise NoMethodError for Order#inventory_units' do
-          subject.ordered(variant1).should eq 1
+          expect(subject.ordered(variant1)).to eq 1
         end
       end
     end

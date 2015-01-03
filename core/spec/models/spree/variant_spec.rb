@@ -38,7 +38,7 @@ describe Spree::Variant do
     let!(:variant_in_stock) { create(:variant_with_stock_items, product_id: variant.product.id) }
 
     it "checks stock level" do
-      Spree::StockItem.any_instance.stub(backorderable: false)
+      allow_any_instance_of(Spree::StockItem).to receive_messages(backorderable: false)
       expect(variant_in_stock.in_stock?).to be true
       expect(variant.in_stock?).to be false
     end
@@ -77,13 +77,13 @@ describe Spree::Variant do
 
   context "physical" do
     subject { Spree::Variant.physical }
-    it { should_not be_nil }
+    it { is_expected.not_to be_nil }
   end
 
   context "#generate_variant_number" do
     it "should generate a random string" do
-      variant.generate_variant_number.is_a?(String).should be_true
-      (variant.generate_variant_number.to_s.length > 0).should be_true
+      expect(variant.generate_variant_number.is_a?(String)).to be_truthy
+      expect(variant.generate_variant_number.to_s.length > 0).to be_truthy
     end
 
     it "should not if one already exists" do
@@ -110,7 +110,11 @@ describe Spree::Variant do
   context "weight" do
 
     subject { create(:variant, weight: 12.0) }
-    its(:weight) { should == 12.0 }
+
+    describe '#weight' do
+      subject { super().weight }
+      it { is_expected.to eq(12.0) }
+    end
 
     context "weight validation" do
       subject { Spree::Variant.new }
@@ -135,7 +139,11 @@ describe Spree::Variant do
   context "cost_price" do
 
     subject { create(:variant, cost_price: 12.0) }
-    its(:cost_price) { should == 12.0 }
+
+    describe '#cost_price' do
+      subject { super().cost_price }
+      it { is_expected.to eq(12.0) }
+    end
 
     context "cost_price validation" do
       subject { Spree::Variant.new }
@@ -162,15 +170,15 @@ describe Spree::Variant do
     let!(:product) { create(:product) }
 
     it "propagate to stock items" do
-      Spree::StockLocation.any_instance.should_receive(:propagate_variant)
+      expect_any_instance_of(Spree::StockLocation).to receive(:propagate_variant)
       product.variants.create(:name => "Foobar", weight: 10, cost_price: 10)
     end
 
     context "stock location has disable propagate all variants" do
-      before { Spree::StockLocation.any_instance.stub(propagate_all_variants?: false) }
+      before { allow_any_instance_of(Spree::StockLocation).to receive_messages(propagate_all_variants?: false) }
 
       it "propagate to stock items" do
-        Spree::StockLocation.any_instance.should_not_receive(:propagate_variant)
+        expect_any_instance_of(Spree::StockLocation).not_to receive(:propagate_variant)
         product.variants.create(:name => "Foobar", weight: 10, cost_price: 10)
       end
     end
@@ -186,13 +194,13 @@ describe Spree::Variant do
       let(:multi_variant) { @multi_variant }
 
       it "should set option value" do
-        multi_variant.option_value('media_type').should be_nil
+        expect(multi_variant.option_value('media_type')).to be_nil
 
         multi_variant.set_option_value('media_type', 'DVD')
-        multi_variant.option_value('media_type').should == 'DVD'
+        expect(multi_variant.option_value('media_type')).to eq('DVD')
 
         multi_variant.set_option_value('media_type', 'CD')
-        multi_variant.option_value('media_type').should == 'CD'
+        expect(multi_variant.option_value('media_type')).to eq('CD')
       end
 
       it "should not duplicate associated option values when set multiple times" do
@@ -218,13 +226,13 @@ describe Spree::Variant do
         let(:multi_variant) { @multi_variant }
 
         it "should set option value" do
-          multi_variant.option_value('media_type').should be_nil
+          expect(multi_variant.option_value('media_type')).to be_nil
 
           multi_variant.set_option_value('media_type', 'DVD')
-          multi_variant.option_value('media_type').should == 'DVD'
+          expect(multi_variant.option_value('media_type')).to eq('DVD')
 
           multi_variant.set_option_value('media_type', 'CD')
-          multi_variant.option_value('media_type').should == 'CD'
+          expect(multi_variant.option_value('media_type')).to eq('CD')
         end
 
         it "should not duplicate associated option values when set multiple times" do
@@ -279,7 +287,7 @@ describe Spree::Variant do
       context "with decimal point" do
         it "captures the proper amount for a formatted price" do
           variant.cost_price = '1,599.99'
-          variant.cost_price.should == 1599.99
+          expect(variant.cost_price).to eq(1599.99)
         end
       end
 
@@ -287,7 +295,7 @@ describe Spree::Variant do
         it "captures the proper amount for a formatted price" do
           I18n.locale = :de
           variant.cost_price = '1.599,99'
-          variant.cost_price.should == 1599.99
+          expect(variant.cost_price).to eq(1599.99)
         end
       end
 
@@ -295,7 +303,7 @@ describe Spree::Variant do
         it "uses the price as is" do
           I18n.locale = :de
           variant.cost_price = 1599.99
-          variant.cost_price.should == 1599.99
+          expect(variant.cost_price).to eq(1599.99)
         end
       end
     end
@@ -303,13 +311,13 @@ describe Spree::Variant do
 
   context "#currency" do
     it "returns the globally configured currency" do
-      variant.currency.should == "USD"
+      expect(variant.currency).to eq("USD")
     end
   end
 
   context "#display_amount" do
     it "returns a Spree::Money" do
-      variant.display_amount.to_s.should == "$0.00"
+      expect(variant.display_amount.to_s).to eq("$0.00")
     end
   end
 
@@ -318,7 +326,7 @@ describe Spree::Variant do
       before { variant.cost_currency = nil }
       it "populates cost currency with the default value on save" do
         variant.save!
-        variant.cost_currency.should == "USD"
+        expect(variant.cost_currency).to eq("USD")
       end
     end
   end
@@ -334,7 +342,7 @@ describe Spree::Variant do
       let(:currency) { nil }
 
       it "returns 0" do
-        subject.to_s.should == "$19.99"
+        expect(subject.to_s).to eq("$19.99")
       end
     end
 
@@ -342,7 +350,7 @@ describe Spree::Variant do
       let(:currency) { 'EUR' }
 
       it "returns the value in the EUR" do
-        subject.to_s.should == "€33.33"
+        expect(subject.to_s).to eq("€33.33")
       end
     end
 
@@ -350,7 +358,7 @@ describe Spree::Variant do
       let(:currency) { 'USD' }
 
       it "returns the value in the USD" do
-        subject.to_s.should == "$19.99"
+        expect(subject.to_s).to eq("$19.99")
       end
     end
   end
@@ -367,7 +375,7 @@ describe Spree::Variant do
       let(:currency) { nil }
 
       it "returns nil" do
-        subject.should be_nil
+        expect(subject).to be_nil
       end
     end
 
@@ -375,7 +383,7 @@ describe Spree::Variant do
       let(:currency) { 'EUR' }
 
       it "returns the value in the EUR" do
-        subject.should == 33.33
+        expect(subject).to eq(33.33)
       end
     end
 
@@ -383,7 +391,7 @@ describe Spree::Variant do
       let(:currency) { 'USD' }
 
       it "returns the value in the USD" do
-        subject.should == 19.99
+        expect(subject).to eq(19.99)
       end
     end
   end
@@ -399,7 +407,7 @@ describe Spree::Variant do
     end
 
     it 'should order by bar than foo' do
-      variant.options_text.should == 'Bar Type: Bar, Foo Type: Foo'
+      expect(variant.options_text).to eq('Bar Type: Bar, Foo Type: Foo')
     end
   end
 
@@ -407,7 +415,7 @@ describe Spree::Variant do
   describe "set_position" do
     it "sets variant position after creation" do
       variant = create(:variant)
-      variant.position.should_not be_nil
+      expect(variant.position).not_to be_nil
     end
   end
 
@@ -418,7 +426,7 @@ describe Spree::Variant do
 
     context 'when stock_items are not backorderable' do
       before do
-        Spree::StockItem.any_instance.stub(backorderable: false)
+        allow_any_instance_of(Spree::StockItem).to receive_messages(backorderable: false)
       end
 
       context 'when stock_items in stock' do
@@ -428,38 +436,38 @@ describe Spree::Variant do
         end
 
         it 'returns true if stock_items in stock' do
-          variant.in_stock?.should be true
+          expect(variant.in_stock?).to be true
         end
       end
 
       context 'when stock_items out of stock' do
         before do
-          Spree::StockItem.any_instance.stub(backorderable: false)
-          Spree::StockItem.any_instance.stub(count_on_hand: 0)
+          allow_any_instance_of(Spree::StockItem).to receive_messages(backorderable: false)
+          allow_any_instance_of(Spree::StockItem).to receive_messages(count_on_hand: 0)
         end
 
         it 'return false if stock_items out of stock' do
-          variant.in_stock?.should be false
+          expect(variant.in_stock?).to be false
         end
       end
     end
 
     describe "#can_supply?" do
       it "calls out to quantifier" do
-        Spree::Stock::Quantifier.should_receive(:new).and_return(quantifier = double)
-        quantifier.should_receive(:can_supply?).with(10)
+        expect(Spree::Stock::Quantifier).to receive(:new).and_return(quantifier = double)
+        expect(quantifier).to receive(:can_supply?).with(10)
         variant.can_supply?(10)
       end
     end
 
     context 'when stock_items are backorderable' do
       before do
-        Spree::StockItem.any_instance.stub(backorderable: true)
+        allow_any_instance_of(Spree::StockItem).to receive_messages(backorderable: true)
       end
 
       context 'when stock_items out of stock' do
         before do
-          Spree::StockItem.any_instance.stub(count_on_hand: 0)
+          allow_any_instance_of(Spree::StockItem).to receive_messages(count_on_hand: 0)
         end
 
         it 'in_stock? returns false' do
@@ -479,14 +487,17 @@ describe Spree::Variant do
         subject.tags = tags
       end
 
-      its(:tag_names) { should eq(tags.map(&:value)) }
+      describe '#tag_names' do
+        subject { super().tag_names }
+        it { is_expected.to eq(tags.map(&:value)) }
+      end
     end
   end
 
   describe '#total_on_hand' do
     it 'should be infinite if track_inventory_levels is false' do
       Spree::Config[:track_inventory_levels] = false
-      build(:variant).total_on_hand.should eql(Float::INFINITY)
+      expect(build(:variant).total_on_hand).to eql(Float::INFINITY)
     end
 
     it 'should match quantifier total_on_hand' do
@@ -517,11 +528,11 @@ describe Spree::Variant do
     it "updates a product" do
       variant.product.update_column(:updated_at, 1.day.ago)
       variant.touch
-      variant.product.reload.updated_at.should be_within(3.seconds).of(Time.now)
+      expect(variant.product.reload.updated_at).to be_within(3.seconds).of(Time.now)
     end
 
     it "clears the in_stock cache key" do
-      Rails.cache.should_receive(:delete).with(variant.send(:in_stock_cache_key))
+      expect(Rails.cache).to receive(:delete).with(variant.send(:in_stock_cache_key))
       variant.touch
     end
   end
@@ -531,19 +542,19 @@ describe Spree::Variant do
     it 'should not track inventory when global setting is off' do
       Spree::Config[:track_inventory_levels] = false
 
-      build(:variant).should_track_inventory?.should eq(false)
+      expect(build(:variant).should_track_inventory?).to eq(false)
     end
 
     it 'should not track inventory when variant is turned off' do
       Spree::Config[:track_inventory_levels] = true
 
-      build(:on_demand_variant).should_track_inventory?.should eq(false)
+      expect(build(:on_demand_variant).should_track_inventory?).to eq(false)
     end
 
     it 'should track inventory when global and variant are on' do
       Spree::Config[:track_inventory_levels] = true
 
-      build(:variant).should_track_inventory?.should eq(true)
+      expect(build(:variant).should_track_inventory?).to eq(true)
     end
   end
 
@@ -584,7 +595,7 @@ describe Spree::Variant do
     let!(:variant_in_stock)  { create(:variant_with_stock_items, product: base_product, target: women, option_values: [pink,small] ) }
 
     before do
-      Spree::StockItem.any_instance.stub(backorderable: false)
+      allow_any_instance_of(Spree::StockItem).to receive_messages(backorderable: false)
     end
 
     context "#option_types_and_values" do
@@ -624,7 +635,7 @@ describe Spree::Variant do
     it "updates a product" do
       variant.product.update_column(:updated_at, 1.day.ago)
       variant.touch
-      variant.product.reload.updated_at.should be_within(3.seconds).of(Time.now)
+      expect(variant.product.reload.updated_at).to be_within(3.seconds).of(Time.now)
     end
 
     context "assembly_definition_variants" do
@@ -654,8 +665,8 @@ describe Spree::Variant do
       ap.update_column(:updated_at, 1.day.ago)
       variant.update_column(:updated_at, 1.day.ago)
       part.touch
-      ap.reload.updated_at.should be_within(3.seconds).of(Time.now)
-      variant.reload.updated_at.should be_within(3.seconds).of(Time.now)
+      expect(ap.reload.updated_at).to be_within(3.seconds).of(Time.now)
+      expect(variant.reload.updated_at).to be_within(3.seconds).of(Time.now)
     end
 
     context "Assembly Definition" do
@@ -688,19 +699,19 @@ describe Spree::Variant do
     it 'should not track inventory when global setting is off' do
       Spree::Config[:track_inventory_levels] = false
 
-      build(:variant).should_track_inventory?.should eq(false)
+      expect(build(:variant).should_track_inventory?).to eq(false)
     end
 
     it 'should not track inventory when variant is turned off' do
       Spree::Config[:track_inventory_levels] = true
 
-      build(:on_demand_variant).should_track_inventory?.should eq(false)
+      expect(build(:on_demand_variant).should_track_inventory?).to eq(false)
     end
 
     it 'should track inventory when global and variant are on' do
       Spree::Config[:track_inventory_levels] = true
 
-      build(:variant).should_track_inventory?.should eq(true)
+      expect(build(:variant).should_track_inventory?).to eq(true)
     end
   end
 

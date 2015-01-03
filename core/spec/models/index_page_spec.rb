@@ -5,7 +5,10 @@ describe Spree::IndexPage do
   describe "permalink" do
     subject { create(:index_page, name: "Fever pitch", permalink: nil) }
 
-    its(:permalink) { should eql('fever-pitch') }
+    describe '#permalink' do
+      subject { super().permalink }
+      it { is_expected.to eql('fever-pitch') }
+    end
 
     it "raises validation error with illegal charecters" do
       index_page = build(:index_page, permalink: "wacky,' day")

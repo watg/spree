@@ -44,7 +44,7 @@ describe Spree::StockCheckJob do
       subject  { Spree::StockCheckJob.new(part) }
 
       before do 
-        Spree::StockItem.any_instance.stub(backorderable: false)
+        allow_any_instance_of(Spree::StockItem).to receive_messages(backorderable: false)
       end
 
       context "kit with 1 part in stock" do

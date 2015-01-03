@@ -9,10 +9,10 @@ describe Spree::Order do
 
     it "should boxes weight should be added to the order" do
       variants_weight = order_with_weight.line_items.map{ |li| li.variant.weight * li.quantity }.sum.to_f
-      order_with_weight.weight.round(2).should == (variants_weight.round(2) + 0.6).round(2)
+      expect(order_with_weight.weight.round(2)).to eq((variants_weight.round(2) + 0.6).round(2))
     end
     it "should have max_dimension" do
-      order_with_weight.max_dimension.should ==  40.0
+      expect(order_with_weight.max_dimension).to eq(40.0)
     end
   end
 
@@ -124,7 +124,11 @@ describe Spree::Order do
 
   describe "#has_gift_card?" do
     subject { create(:order_with_line_items) }
-    its(:has_gift_card?) { should be_false }
+
+    describe '#has_gift_card?' do
+      subject { super().has_gift_card? }
+      it { is_expected.to be_falsey }
+    end
 
     it "returns ture when order has at least one gift card" do
       gift_line_item = create(:line_item, quantity: 1, variant: create(:product, product_type: product_type_gift_card).master, order: subject)

@@ -32,7 +32,7 @@ describe Spree::ProductGroup do
       pg.product_pages = [product_page]
       product_page.update_column(:updated_at, 1.day.ago)
       pg.touch
-      product_page.reload.updated_at.should be_within(3.seconds).of(Time.now)
+      expect(product_page.reload.updated_at).to be_within(3.seconds).of(Time.now)
     end
 
   end

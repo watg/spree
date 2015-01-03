@@ -6,7 +6,7 @@ describe Spree::StockMovement do
   subject { build(:stock_movement, stock_item: stock_item) }
 
   it 'should belong to a stock item' do
-    subject.should respond_to(:stock_item)
+    expect(subject).to respond_to(:stock_item)
   end
 
   it 'is readonly unless new' do
@@ -21,7 +21,7 @@ describe Spree::StockMovement do
     subject.quantity = 1
     subject.save
     stock_item.reload
-    stock_item.count_on_hand.should == 10
+    expect(stock_item.count_on_hand).to eq(10)
   end
 
   it 'does not update count on hand when variant inventory tracking is off' do
@@ -29,7 +29,7 @@ describe Spree::StockMovement do
     subject.quantity = 1
     subject.save
     stock_item.reload
-    stock_item.count_on_hand.should == 10
+    expect(stock_item.count_on_hand).to eq(10)
   end
 
   context "when quantity is negative" do
@@ -38,7 +38,7 @@ describe Spree::StockMovement do
         subject.quantity = -1
         subject.save
         stock_item.reload
-        stock_item.count_on_hand.should == 9
+        expect(stock_item.count_on_hand).to eq(9)
       end
     end
   end
@@ -49,7 +49,7 @@ describe Spree::StockMovement do
         subject.quantity = 1
         subject.save
         stock_item.reload
-        stock_item.count_on_hand.should == 11
+        expect(stock_item.count_on_hand).to eq(11)
       end
     end
   end

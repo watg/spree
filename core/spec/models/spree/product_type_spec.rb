@@ -12,7 +12,7 @@ describe Spree::ProductType do
     end
 
     context "is_operational" do
-      before { Spree::ProductType.any_instance.stub is_operational?: true }
+      before { allow_any_instance_of(Spree::ProductType).to receive_messages is_operational?: true }
 
       it "is false" do
         expect(subject.requires_supplier?).to be false
@@ -21,7 +21,7 @@ describe Spree::ProductType do
     end
 
     context "is_digital" do
-      before { Spree::ProductType.any_instance.stub is_digital?: true }
+      before { allow_any_instance_of(Spree::ProductType).to receive_messages is_digital?: true }
 
       it "is false" do
         expect(subject.requires_supplier?).to be false
@@ -30,7 +30,7 @@ describe Spree::ProductType do
     end
 
     context "has an assembly definition" do
-      before { Spree::ProductType.any_instance.stub is_assembly?: true }
+      before { allow_any_instance_of(Spree::ProductType).to receive_messages is_assembly?: true }
 
       it "is false" do
         expect(subject.requires_supplier?).to be false

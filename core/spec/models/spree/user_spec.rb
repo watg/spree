@@ -13,7 +13,7 @@ describe Spree::LegacyUser do
     let!(:order_3) { create(:order, :user => user, :created_by => create(:user)) }
 
     it "returns correct order" do
-      user.last_incomplete_spree_order.should == order_2
+      expect(user.last_incomplete_spree_order).to eq(order_2)
     end
 
     context "persists order address" do
@@ -69,12 +69,12 @@ describe Spree.user_class do
     let(:orders) { Array.new(order_count, double(total: order_value)) }
 
     before do
-      orders.stub(:pluck).with(:total).and_return(orders.map(&:total))
-      orders.stub(:count).and_return(orders.length)
+      allow(orders).to receive(:pluck).with(:total).and_return(orders.map(&:total))
+      allow(orders).to receive(:count).and_return(orders.length)
     end
 
     def load_orders
-      subject.stub(:spree_orders).and_return(double(complete: orders))
+      allow(subject).to receive(:spree_orders).and_return(double(complete: orders))
     end
 
     describe "#lifetime_value" do
@@ -94,7 +94,7 @@ describe Spree.user_class do
     describe "#display_lifetime_value" do
       it "returns a Spree::Money version of lifetime_value" do
         value = BigDecimal("500.05")
-        subject.stub(:lifetime_value).and_return(value)
+        allow(subject).to receive(:lifetime_value).and_return(value)
         expect(subject.display_lifetime_value).to eq Spree::Money.new(value)
       end
     end
@@ -124,7 +124,7 @@ describe Spree.user_class do
       before { load_orders }
       it "returns a Spree::Money version of average_order_value" do
         value = BigDecimal("500.05")
-        subject.stub(:average_order_value).and_return(value)
+        allow(subject).to receive(:average_order_value).and_return(value)
         expect(subject.display_average_order_value).to eq Spree::Money.new(value)
       end
     end

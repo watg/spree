@@ -9,9 +9,21 @@ describe Spree::AssetsBackupJob do
     ENV['AWS_ACCESS_KEY_ID'] = 'FAKE_ID'
   end
   subject { Spree::AssetsBackupJob.new(:capture) }
-  its(:s3s3mirror)    { should include('vendor/s3s3mirror/s3s3mirror.sh')}
-  its(:source)        { should match_array(['bucket1', 'bucket2']) }
-  its(:destination)   { should eq 'dest-buck'}
+
+  describe '#s3s3mirror' do
+    subject { super().s3s3mirror }
+    it { is_expected.to include('vendor/s3s3mirror/s3s3mirror.sh')}
+  end
+
+  describe '#source' do
+    subject { super().source }
+    it { is_expected.to match_array(['bucket1', 'bucket2']) }
+  end
+
+  describe '#destination' do
+    subject { super().destination }
+    it { is_expected.to eq 'dest-buck'}
+  end
 
   # removing the most annoying spec output ever
   # it "performs without error" do
