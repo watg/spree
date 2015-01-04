@@ -27,53 +27,31 @@ describe Spree::SuiteTab do
   end
 
   describe "#presentation" do
-    describe '#presentation' do
-      subject { super().presentation }
-      it { is_expected.to eq 'MADE BY THE GANG' }
-    end
+    its(:presentation) { should eq 'MADE BY THE GANG' }
 
     context "knit-your-own" do
       before { subject.tab_type = 'knit-your-own' }
-
-      describe '#presentation' do
-        subject { super().presentation }
-        it { is_expected.to eq 'KNIT YOUR OWN' }
-      end
+      its(:presentation) { should eq 'KNIT YOUR OWN' }
     end
 
     context "default" do
       before { subject.tab_type = 'default' }
-
-      describe '#presentation' do
-        subject { super().presentation }
-        it { is_expected.to eq 'GET IT!' }
-      end
+      its(:presentation) { should eq 'GET IT!' }
     end
 
   end
 
   describe "#partial" do
-    describe '#partial' do
-      subject { super().partial }
-      it { is_expected.to eq 'default' }
-    end
+    its(:partial) { should eq 'default' }
 
     context "knit-your-own" do
       before { subject.tab_type = 'knit-your-own' }
-
-      describe '#partial' do
-        subject { super().partial }
-        it { is_expected.to eq 'knit_your_own' }
-      end
+      its(:partial) { should eq 'knit_your_own' }
     end
 
     context "default" do
       before { subject.tab_type = 'default' }
-
-      describe '#partial' do
-        subject { super().partial }
-        it { is_expected.to eq 'default' }
-      end
+      its(:partial) { should eq 'default' }
     end
 
   end

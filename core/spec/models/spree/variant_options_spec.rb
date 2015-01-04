@@ -118,7 +118,7 @@ describe Spree::VariantOptions do
           expect(tree["colour"]["blue"]["size"]["small"]["variant"]["in_stock"]).to be true
           expect(tree["colour"]["pink"]["size"]["big"]["variant"]["in_stock"]).to be true
           expect(tree["colour"]["blue"]["size"]["big"]["variant"]["in_stock"]).to be true
-          expect(tree["language"]["english"]["in_stock"]).to be false
+          expect(tree["language"]["english"]["variant"]["in_stock"]).to be false
         end
       end
 

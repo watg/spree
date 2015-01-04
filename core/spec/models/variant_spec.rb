@@ -22,8 +22,7 @@ describe Spree::Variant do
     end
 
     describe '#tag_names' do
-      subject { super().tag_names }
-      it { is_expected.to eq(tags.map(&:value)) }
+      its(:tag_names) { should eq(tags.map(&:value)) }
     end
   end
 
