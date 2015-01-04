@@ -7,7 +7,7 @@ describe Metapack::Config do
     before do
       allow(ENV).to receive(:[]).with("METAPACK_ACTIVE").and_return("false")
     end
-    its(:active) { should be_false }
+    its(:active) { should be false }
   end
  
   context "when there is no heroku config" do
@@ -15,7 +15,7 @@ describe Metapack::Config do
     its(:service_base_url) { should eq('/dm/services') }
     its(:username) { should eq('test_username') }
     its(:password) { should eq('test_password') }
-    its(:active)   { should be_true }
+    its(:active)   { should be true }
   end
 
   context "when the metapack details are set in heroku" do

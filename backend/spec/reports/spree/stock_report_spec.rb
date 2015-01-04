@@ -17,7 +17,7 @@ describe Spree::StockReport do
   context "#retrieve_data" do
     before { pending }
 
-    it "should return no data if none exists" do
+    xit "should return no data if none exists" do
       report.retrieve_data.should == []
     end
 

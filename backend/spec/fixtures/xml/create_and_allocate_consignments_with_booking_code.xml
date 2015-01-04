@@ -48,7 +48,7 @@
             <line1 xsi:type="soapenc:string">10 Lovely &amp; Wonderful Street</line1>
             <line2 xsi:type="soapenc:string">Northwest</line2>
             <line3 xsi:type="soapenc:string">Herdon</line3>
-            <postCode xsi:type="soapenc:string">20170</postCode>
+            <postCode xsi:type="soapenc:string">35005</postCode>
             <type xsi:type="soapenc:string">Residential</type>
           </recipientAddress>
           <recipientContactPhone xsi:type="soapenc:string">123-456-7890</recipientContactPhone>
