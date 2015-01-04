@@ -165,6 +165,10 @@ describe Spree::Product do
     context "#display_price" do
       before { product.price_normal_in('USD').amount = 10.55 }
       before { product.save }
+      before do 
+        Spree::Money.options_cache = nil
+        Spree::Money.enable_options_cache = false
+      end
 
       context "with display_currency set to true" do
         before { Spree::Config[:display_currency] = true }
@@ -175,7 +179,9 @@ describe Spree::Product do
       end
 
       context "with display_currency set to false" do
-        before { Spree::Config[:display_currency] = false }
+        before do
+          Spree::Config[:display_currency] = false 
+        end
 
         it "does not include the currency" do
           expect(product.display_price.to_s).to eq("$10.55")
@@ -517,12 +523,6 @@ describe Spree::Product do
       product_group.update_column(:updated_at, 1.day.ago)
       kit.touch
       expect(product_group.reload.updated_at).to be_within(3.seconds).of(Time.now)
-    end
-
-    it "updates a product_tab" do
-      product_page_tab.update_column(:updated_at, 1.day.ago)
-      kit.reload.save
-      expect(product_page_tab.reload.updated_at).to be_within(3.seconds).of(Time.now)
     end
 
     context "Assembly Definition" do

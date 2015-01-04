@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 describe Spree::State do
-#  before(:all) do
-#    Spree::State.destroy_all
-#  end
+  before(:all) do
+    Spree::State.destroy_all
+  end
 
   it "can find a state by name or abbr" do
     state = create(:state, :name => "California", :abbr => "CA")

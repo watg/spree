@@ -520,10 +520,6 @@ describe Spree::Order do
       out_of_stock_lines = order.insufficient_stock_lines
       expect(out_of_stock_lines.size).to eq 1
       expect(out_of_stock_lines).to include line_item
-      it "should return line_item that has insufficient stock on hand" do
-        expect(order.insufficient_stock_lines.size).to eq 1
-        expect(order.insufficient_stock_lines.include?(line_item)).to be true
-      end
     end
   end
 
