@@ -7,10 +7,5 @@ FactoryGirl.define do
     variant
     product_page
     product_page_tab
-
-    after(:build) do |line_item, e|
-      e.order.line_items << line_item unless e.order.line_items.include?(line_item)
-    end
-
   end
 end
