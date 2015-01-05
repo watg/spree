@@ -11,7 +11,7 @@ module Spree
       let(:zone) { create :zone }
 
       context "when no zones exist" do
-#        before { Spree::Zone.destroy_all }
+        before { Spree::Zone.destroy_all }
 
         it "should return nil" do
           expect(order.tax_zone).to be_nil

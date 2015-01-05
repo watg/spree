@@ -3,6 +3,10 @@ require 'spec_helper'
 describe Spree::Payment do
   let(:order) { Spree::Order.create }
 
+  before do
+    Spree::Payment.destroy_all # Fix leaky database
+  end
+
   let(:gateway) do
     gateway = Spree::Gateway::Bogus.new(:environment => 'test', :active => true)
     gateway.stub :source_required => true
@@ -86,6 +90,7 @@ describe Spree::Payment do
 
   # Regression test for https://github.com/spree/spree/pull/2224
   context 'failure' do
+
     it 'should transition to failed from pending state' do
       payment.state = 'pending'
       payment.failure
