@@ -33,20 +33,20 @@ describe Spree::UpdateVariantService do
 
     it "should invoke success callback when all is good" do
       outcome = subject.run(variant: variant, details: valid_params, prices: prices)
-      expect(outcome.valid?).to be true
+      expect(outcome.valid?).to be_truthy
     end
 
     it "should invoke failure callback on any error" do
       outcome = subject.run(variant: variant, details: "wrong params!", prices: prices)
-      expect(outcome.valid?).to be false
       expect(outcome.errors.full_messages.to_sentence).to eq 'Details is not a valid hash'
+      expect(outcome.valid?).to be_falsey
     end
 
     it "should return validate_prices failures" do
       bad_prices = prices.dup
       bad_prices[:normal]['GBP'] = '£0'
       outcome = subject.run(variant: variant, details: valid_params, prices: bad_prices)
-      expect(outcome.valid?).to be false
+      expect(outcome.valid?).to be_falsey
       expect(outcome.errors.full_messages.to_sentence).to eq 'Variant amount can not be <= 0 for currency: GBP and normal price'
     end
 

@@ -105,11 +105,11 @@ describe Spree::SuiteUpdateService do
           it "should not be affected" do
             expect(subject.valid?).to be true
             expect(taxon.suites.count).to eq 1
-            expect(taxon.suites.detect {|s| s == suite_2}).to be true
+            expect(taxon.suites.include?(suite_2)).to be true
             expect(taxon_child.suites.count).to eq 1
-            expect(taxon_child.suites.detect {|s| s == suite_2}).to be true
+            expect(taxon_child.suites.include?(suite_2)).to be true
             expect(taxon_childs_child.suites.count).to eq 1
-            expect(taxon_childs_child.suites.detect {|s| s == suite_2}).to be true
+            expect(taxon_childs_child.suites.include?(suite_2)).to be true
           end
 
         end
@@ -167,11 +167,11 @@ describe Spree::SuiteUpdateService do
           it "should not be affected" do
             expect(subject.valid?).to be true
             expect(taxon.suites.count).to eq 1
-            expect(taxon.suites.detect {|s| s == suite_2}).to be true
+            expect(taxon.suites.include?(suite_2)).to be true
             expect(taxon_child.suites.count).to eq 1
-            expect(taxon_child.suites.detect {|s| s == suite_2}).to be true
+            expect(taxon_child.suites.include?(suite_2)).to be true
             expect(taxon_childs_child.suites.count).to eq 1
-            expect(taxon_childs_child.suites.detect {|s| s == suite_2}).to be true
+            expect(taxon_childs_child.suites.include?(suite_2)).to be true
           end
 
         end
