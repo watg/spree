@@ -34,9 +34,12 @@ module Spree
       order_zone = order.tax_zone
       return [] unless order_zone
       rates = includes(zone: { zone_members: :zoneable }).load.select do |rate|
-    		# Apply only the rates for the set currency
-        # REmoved as not sure if it adds any value
-    		# next unless order.currency == rate.currency
+
+    		# Apply only the rates for the set currency, this is not for performance
+        # but because vanilla spree does not deal with currencies and different
+        # tax rates well
+    		next unless order.currency == rate.currency
+
         # Why "potentially"?
         # Go see the documentation for that method.
         rate.potentially_applicable?(order)
