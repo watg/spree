@@ -360,9 +360,6 @@ describe Spree::Promotion do
       other_line_item = order.contents.add(variant, 1, currency: order.currency)
 
       expect(other_line_item).not_to eq line_item
-      d { variant.prices }
-      d { other_line_item }
-      d { other_line_item.adjustments }
       expect(other_line_item.adjustments.size).to eq(1)
       expect(order.adjustment_total).to eq -10
     end
