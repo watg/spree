@@ -33,7 +33,7 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
         product_page.displayed_variants << create(:variant_with_stock_items)
       end
 
-      its(:made_by_the_gang_link?) { should be_true }
+      its(:made_by_the_gang_link?) { should be true }
     end
 
     context "with displayed_variants without stock on the product page" do
@@ -43,11 +43,11 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
         product_page.displayed_variants << variant
       end
 
-      its(:made_by_the_gang_link?) { should be_false }
+      its(:made_by_the_gang_link?) { should be false }
     end
 
     context "without displayed_variants on the product page" do
-      its(:made_by_the_gang_link?) { should be_false }
+      its(:made_by_the_gang_link?) { should be false }
     end
 
   end
@@ -120,18 +120,18 @@ describe Spree::IndexPageItemDecorator, type: :decorator do
       end
 
       context "has_stock" do
-        its(:knit_your_own_link?) { should be_true }
+        its(:knit_your_own_link?) { should be true }
       end
 
       context "has_no_stock" do
         before { kit.variants.each { |v| v.in_stock_cache = false; v.save } }
-        its(:knit_your_own_link?) { should be_false }
+        its(:knit_your_own_link?) { should be false }
       end
 
     end
 
     context "without a kit product on the product page" do
-      its(:knit_your_own_link?) { should be_false }
+      its(:knit_your_own_link?) { should be false }
     end
 
   end

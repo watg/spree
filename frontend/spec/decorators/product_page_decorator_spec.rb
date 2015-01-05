@@ -171,7 +171,7 @@ describe Spree::ProductPageDecorator, type: :decorator do
         allow(tab).to receive(:banner_url).and_return(nil)
       end
 
-      its(:made_by_the_gang_banner?) { should be_false }
+      its(:made_by_the_gang_banner?) { should be false }
       its(:made_by_the_gang_banner_url) { should be_nil }
     end
 
@@ -181,7 +181,7 @@ describe Spree::ProductPageDecorator, type: :decorator do
         allow(tab).to receive(:banner_url).and_return("made-by-the-gang-banner-url")
       end
 
-      its(:made_by_the_gang_banner?) { should be_true }
+      its(:made_by_the_gang_banner?) { should be true }
       its(:made_by_the_gang_banner_url) { should eq("made-by-the-gang-banner-url") }
     end
 
@@ -191,7 +191,7 @@ describe Spree::ProductPageDecorator, type: :decorator do
         allow(tab).to receive(:banner_url).and_return(nil)
       end
 
-      its(:knit_your_own_banner?) { should be_false }
+      its(:knit_your_own_banner?) { should be false }
       its(:knit_your_own_banner_url) { should be_nil }
     end
 
@@ -201,7 +201,7 @@ describe Spree::ProductPageDecorator, type: :decorator do
         allow(tab).to receive(:banner_url).and_return("knit_your_own-banner-url")
       end
 
-      its(:knit_your_own_banner?) { should be_true }
+      its(:knit_your_own_banner?) { should be true }
       its(:knit_your_own_banner_url) { should eq("knit_your_own-banner-url") }
     end
   end

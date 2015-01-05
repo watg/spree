@@ -82,13 +82,13 @@ describe Spree::VariantDecorator do
 
 
   its(:price) { should eq(variant.price_normal_in(currency)) }
-  its(:in_sale?) { should be_false }
+  its(:in_sale?) { should be false }
 
   context "with sale prices" do
     let(:variant) { create(:variant_in_sale) }
 
     its(:sale_price) { should eq(variant.price_normal_sale_in(currency)) }
-    its(:in_sale?) { should be_true }
+    its(:in_sale?) { should be true }
   end
 
   context "master variant" do
