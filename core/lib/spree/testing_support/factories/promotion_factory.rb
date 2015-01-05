@@ -37,9 +37,10 @@ FactoryGirl.define do
       end
 
       after(:create) do |promotion, evaluator|
+        zone = Spree::Zone.where(name: "GlobalZone").first || create(:global_zone)
         rule = Spree::Promotion::Rules::ItemTotal.create!(
-          #preferred_operator: 'gte',
-          preferred_attributes: {Spree::Zone.first.id => { 'USD' => { 'amount' => evaluator.item_total_threshold_amount, 'enabled' => 'true' } }}        )
+          preferred_attributes: {zone.id => { 'USD' => { 'amount' => evaluator.item_total_threshold_amount, 'enabled' => 'true' }}}
+        )
         promotion.rules << rule
         promotion.save!
       end

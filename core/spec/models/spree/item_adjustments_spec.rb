@@ -147,13 +147,13 @@ module Spree
       end
 
       context "when previously ineligible promotions become available" do
+        let!(:order) { create(:order_with_line_items, line_items_count: 1) }
         let(:order_promo1) { create(:promotion, :with_order_adjustment, :with_item_total_rule, order_adjustment_amount: 5, item_total_threshold_amount: 10) }
         let(:order_promo2) { create(:promotion, :with_order_adjustment, :with_item_total_rule, order_adjustment_amount: 10, item_total_threshold_amount: 20) }
         let(:order_promos) { [ order_promo1, order_promo2 ] }
         let(:line_item_promo1) { create(:promotion, :with_line_item_adjustment, :with_item_total_rule, adjustment_rate: 2.5, item_total_threshold_amount: 10) }
         let(:line_item_promo2) { create(:promotion, :with_line_item_adjustment, :with_item_total_rule, adjustment_rate: 5, item_total_threshold_amount: 20) }
         let(:line_item_promos) { [ line_item_promo1, line_item_promo2 ] }
-        let(:order) { create(:order_with_line_items, line_items_count: 1) }
 
         # Apply promotions in different sequences. Results should be the same.
         promo_sequences = [
@@ -169,10 +169,11 @@ module Spree
 
             order.reload
             expect(order.all_adjustments.count).to eq(2), "Expected two adjustments (using sequence #{promo_sequence})"
+            promo = Spree::PromotionAction.find order.all_adjustments.first.source_id
             expect(order.all_adjustments.eligible.count).to eq(1), "Expected one elegible adjustment (using sequence #{promo_sequence})"
             expect(order.all_adjustments.eligible.first.source.promotion).to eq(order_promo1), "Expected promo1 to be used (using sequence #{promo_sequence})"
 
-            order.contents.add create(:variant, price: 10), 1
+            order.contents.add create(:variant, amount: 10), 1
             order.save
 
             order.reload
@@ -195,7 +196,7 @@ module Spree
             # to be selected; however, all of the rules are currently completely broken for line-item-
             # level promos. To make this spec work for now we just roll with current behavior.
 
-            order.contents.add create(:variant, price: 10), 1
+            order.contents.add create(:variant, amount: 10), 1
             order.save
 
             order.reload
