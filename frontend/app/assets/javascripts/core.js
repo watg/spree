@@ -115,12 +115,6 @@ core.signupCheck = function() {
     core.signupUser();
     $('.link-modal-signup').click();
     core.signupSetCookie();
-  } else { // Yes sign-up cookie
-    cookie = core.patternsGetCookie();
-    if (!cookie && !core.isMobileWidthOrLess()) { // Yes pattern cookie
-      $('.link-modal-patterns').click();
-      core.patternsSetCookie();
-    }
   }
 }
 
