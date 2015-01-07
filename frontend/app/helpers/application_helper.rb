@@ -4,6 +4,7 @@ module ApplicationHelper
   include Spree::BaseHelper
   include Spree::CdnHelper
   include Spree::OrdersHelper
+  include Spree::IframeFormHelper
 
   def present(object, options, klass = nil)
     klass ||= "#{object.class}Presenter".constantize
