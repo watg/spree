@@ -51,6 +51,7 @@ module Spree
       context 'with a single stock location/item' do
         describe "total_on_hand" do
           let(:variant) { stock_item.variant }
+          let(:order) { create(:order, state: :complete) }
 
           it 'matches stock_item' do
             subject.total_on_hand.should ==  stock_item.count_on_hand
@@ -58,7 +59,7 @@ module Spree
 
           it 'deducts awaiting_feed inventory units' do
             create_list(:inventory_unit, 2, state: "awaiting_feed", variant: variant, pending: false)
-            create_list(:inventory_unit, 2, state: "awaiting_feed", variant: variant, pending: true)
+            create_list(:inventory_unit, 2, state: "awaiting_feed", variant: variant, pending: true, order: order)
             expect(subject.total_on_hand).to eq(stock_item.count_on_hand - 2)
           end
 
