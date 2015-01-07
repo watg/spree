@@ -65,7 +65,9 @@ module Spree
     end
 
     def self.total_awaiting_feed_for(variant)
-      awaiting_feed.non_pending.where(variant: variant).count
+      #awaiting_feed.non_pending.where(variant: variant).count
+      # Temp fix until we can sort out the issue with awaiting feeds and pending state
+      awaiting_feed.where(variant: variant).joins(:order).merge(Spree::Order.shippable_state).count
     end
 
     def find_stock_item
