@@ -3,7 +3,6 @@ module Spree
     include BaseReport
 
     def initialize(params = nil)
-      @locations = Spree::StockLocation.select("id, name") 
     end
 
     def filename_uuid
@@ -27,63 +26,36 @@ module Spree
         USD_normal
         USD_part
         USD_sale
+        stock_location
+        on_hand_quantity
+        waiting_for_shippment
+        supplier_name
       )
-
-      locations = []
-      @locations.each do |l|
-        locations << l.name
-        locations << "waiting_for_shippment @" + l.name
-      end
-
-      header + locations + ['total']
     end
 
     def filters
       []
     end
 
-    def xretrieve_data
-      yield [1,2,3]
-    end
-
     # Retrieve the stock that is in the warehouses
     def retrieve_data
-      Spree::Variant.physical.each do |variant|
-        row = variant_details(variant)
-
-        count_on_location = {}
-        variant.stock_items.each do |si|
-          count_on_location[si.stock_location_id] = si.count_on_hand
-        end
-        
-        total = 0
-        
-        @locations.map(&:id).each do |location_id|
-          if count_on_location[location_id]
-            total += count_on_location[location_id]
-            row << count_on_location[location_id] # items at the location
-
-            waiting_for_shippment = variant.line_items.joins(order: :shipments). #.select('spree_orders.*, spree_line_items.*').
-            where('spree_orders.state' => :complete,
-              'spree_orders.shipment_state' => :ready,
-              'spree_orders.payment_state' => :paid,
-              'spree_shipments.stock_location_id' => location_id).
-            sum(:quantity)
-
-            total += waiting_for_shippment
-            row << waiting_for_shippment # items to be shipped at the location
-          else
-            row << 0 # items at the location
-            row << 0 # items to be shipped at the location
-          end
-        end
-      
-        row << total
+      loop_stock_items do |stock_item|
+        row = variant_details(stock_item.variant)
+        row << stock_item.stock_location.name
+        row << stock_item.count_on_hand
+        row << stock_item.number_of_shipments_pending
+        row << stock_item.supplier.try(:name)
         yield row
       end
     end
 
   private
+
+    def loop_stock_items(&block)
+      StockItem.joins(variant: [product: :product_type]).merge(ProductType.physical).find_each do |stock_item|
+        yield stock_item
+      end
+    end
 
     def variant_details(variant)
       prices = variant.prices.map { |p| [[ p.currency, p.is_kit, p.sale ].join('-'), p.amount.to_s] }.flatten
@@ -98,13 +70,13 @@ module Spree
         # Currency - kit? - sale ?
         prices['GBP-false-false'],
         prices['GBP-true-false'],
-        prices['GBP-true-true'],
+        prices['GBP-false-true'],
         prices['EUR-false-false'],
         prices['EUR-true-false'],
-        prices['EUR-true-true'],
+        prices['EUR-false-true'],
         prices['USD-false-false'],
         prices['USD-true-false'],
-        prices['USD-true-true'],
+        prices['USD-false-true'],
       ] 
     end
 

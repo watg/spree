@@ -1,58 +1,93 @@
 require 'spec_helper'
 
-describe Spree::StockReport do
-  let(:report) { Spree::StockReport.new }
+module Spree
+  describe StockReport do
 
-  context "#header" do
-    it "should return the correct header with no stock locations configured" do
-      report.header.should == ["product_name", "product_type", "product_sku", "variant_sku", "variant_options", "cost_price", "GBP_normal", "GBP_part", "GBP_sale", "EUR_normal", "EUR_part", "EUR_sale", "USD_normal", "USD_part", "USD_sale", "total"] 
-    end
-
-    it "should return the correct header with stock locations configured" do
-      location = FactoryGirl.create(:stock_location)
-      report.header.should == ["product_name", "product_type", "product_sku", "variant_sku", "variant_options", "cost_price", "GBP_normal", "GBP_part", "GBP_sale", "EUR_normal", "EUR_part", "EUR_sale", "USD_normal", "USD_part", "USD_sale", location.name, "waiting_for_shippment @" + location.name, "total"] 
-    end
-  end
-
-  context "#retrieve_data" do
-    before { pending }
-
-    it "should return no data if none exists" do
-      report.retrieve_data.should == []
-    end
-
-    xit "should return one row when creating a master product" do
-      p = FactoryGirl.create(:product_with_stock) # stock is 10 items
-      
-      row = [p.name, "ready_to_wear", p.sku, p.sku, "", nil, nil, nil, nil, nil, nil, nil, "12.0", nil, nil, 10, 0, 10]
-      report.retrieve_data do |data| 
-        data.should == row
+    describe "#header" do
+      it "should return the header" do
+        expect(subject.header).to be_kind_of Array
       end
     end
-    
-    xit "should return two rows when creating a variant" do
-      v = FactoryGirl.create(:variant_with_stock_items) # stock is 10 items
-            
-      row1 = [v.name, "ready_to_wear", v.product.sku, v.product.sku, "", nil, nil, nil, nil, nil, nil, nil, "12.0", nil, nil, 0, 0, 0]
-      row2 = [v.name, "ready_to_wear", v.product.sku, v.sku, "", nil, "12.0", nil, nil, nil, nil, nil, "12.0", nil, nil, 10, 0, 10]
-      data = []
-      report.retrieve_data do |d| 
-        data << d
-      end
-      data.should =~ [row1, row2]
-    end
 
-    xit "should handle waiting for shipment quantities with one variant" do
-      o = FactoryGirl.create(:order_ready_to_ship, line_items_count: 1) # ordered quantity is 1
-      row1 = [o.line_items.first.variant.name, "ready_to_wear", o.line_items.first.variant.product.sku, o.line_items.first.variant.product.sku, "", nil, nil, nil, nil, nil, nil, nil, "12.0", nil, nil, 0, 0, 0]
-      row2 = [o.line_items.first.variant.name, "ready_to_wear", o.line_items.first.variant.product.sku, o.line_items.first.variant.sku, "", nil, "12.0", nil, nil, nil, nil, nil, "12.0", nil, nil, 0, 1, 1]
-      data = []
-      report.retrieve_data do |d| 
-        data << d
-      end
-      data.should =~ [row1, row2]
-    end
+    describe "#retrieve_data" do
+      subject {
+        data = []
+        described_class.new.retrieve_data {|d| data << d}
+        data.flatten
+      }
 
+      it "should run fine without data (this tests the sql)" do
+        expect(subject).to eq []
+      end
+
+      context 'with data' do
+        let(:prices) { [
+          build(:price, :currency => 'GBP', :amount => 12),
+          build(:price, :currency => 'USD', :amount => 13),
+          build(:price, :currency => 'EUR', :amount => 14),
+          build(:price, :currency => 'GBP', :amount => 2, :sale => true),
+          build(:price, :currency => 'USD', :amount => 3, :sale => true),
+          build(:price, :currency => 'EUR', :amount => 4, :sale => true),
+          build(:price, :currency => 'GBP', :amount => 5, :is_kit => true),
+          build(:price, :currency => 'USD', :amount => 6, :is_kit => true),
+          build(:price, :currency => 'EUR', :amount => 7, :is_kit => true),
+        ] }
+
+        before do
+          @variant = Variant.new(sku: 'SKU1')
+          @variant.prices = prices
+
+          @marketing_type = build_stubbed(:marketing_type)
+          @product = Product.new(name: 'Product 1', marketing_type: @marketing_type)
+          @product.variants << @variant
+
+          @supplier = build(:supplier)
+          @stock_location = build_stubbed(:base_stock_location)
+          @stock_item = StockItem.new(variant: @variant, supplier: @supplier, stock_location: @stock_location)
+          @stock_item.send(:count_on_hand=, 67)
+          # stub out the db lookup
+          allow_any_instance_of(described_class).to receive(:loop_stock_items).and_yield @stock_item
+        end
+
+        context "its size should be the same as the header" do
+          its(:size) { should eq described_class.new.header.size }
+        end
+
+        [:name, :sku].each do |method|
+          it { should include @product.send(method) }
+        end
+
+        [:sku, :options_text, :cost_price].each do |method|
+          it { should include @variant.send(method) }
+        end
+
+        [:name].each do |method|
+          it { should include @marketing_type.send(method) }
+        end
+
+        [:name].each do |method|
+          it { should include @supplier.send(method) }
+        end
+
+        [:name].each do |method|
+          it { should include @stock_location.send(method) }
+        end
+
+        [:count_on_hand].each do |method|
+          it { should include @stock_item.send(method) }
+        end
+
+        context 'prices' do
+          ['USD', 'GBP', 'EUR'].each do |currency|
+            it { should include Spree::Price.find_normal_price(prices, currency).price.to_s }
+            it { should include Spree::Price.find_part_price(prices, currency).price.to_s }
+            it { should include Spree::Price.find_sale_price(prices, currency).price.to_s }
+          end
+        end
+
+      end
+
+    end
   end
 end
 
