@@ -45,7 +45,7 @@
   <a class="modal-close" href="#">Close</a>
   <h3>Contact Us</h3>
   <% if production_or_staging? %>
-    <iframe src="https://woolthegang.desk.com/customer/emails/new"></iframe>
+    <iframe src="<%= desk_iframe_url %>"></iframe>
   <% end %>
 </div>
 
