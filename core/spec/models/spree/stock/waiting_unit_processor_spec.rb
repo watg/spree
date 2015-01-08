@@ -31,7 +31,7 @@ describe Spree::Stock::WaitingUnitsProcessor do
 
     it "processes 1 inventory unit if quantity is 1" do
       expect(subject).to receive(:waiting_inventory_units).with(1).and_return([inventory_unit_1])
-      expect(inventory_unit_1).to receive(:fill_waiting_unit)
+      expect(inventory_unit_1).to receive(:fill_waiting_unit).and_return(true)
       expect(stock_allocator).to receive(:unstock_on_hand).with(stock_item.variant, [inventory_unit_1] )
       expect(order).to receive(:update!)
       subject.perform(1)
@@ -39,9 +39,18 @@ describe Spree::Stock::WaitingUnitsProcessor do
 
     it "processes 2 inventory unit if quantity is 2" do
       expect(subject).to receive(:waiting_inventory_units).with(2).and_return([inventory_unit_1, inventory_unit_2])
-      expect(inventory_unit_1).to receive(:fill_waiting_unit)
-      expect(inventory_unit_2).to receive(:fill_waiting_unit)
+      expect(inventory_unit_1).to receive(:fill_waiting_unit).and_return(true)
+      expect(inventory_unit_2).to receive(:fill_waiting_unit).and_return(true)
       expect(stock_allocator).to receive(:unstock_on_hand).with(stock_item.variant, [inventory_unit_1, inventory_unit_2] )
+      expect(order).to receive(:update!)
+      subject.perform(2)
+    end
+
+    it "processes 1 inventory unit if quantity is 2 and a unit is not transitioned e.g. it is somehow on_hand" do
+      expect(subject).to receive(:waiting_inventory_units).with(2).and_return([inventory_unit_1, inventory_unit_2])
+      expect(inventory_unit_1).to receive(:fill_waiting_unit).and_return(true)
+      expect(inventory_unit_2).to receive(:fill_waiting_unit).and_return(false)
+      expect(stock_allocator).to receive(:unstock_on_hand).with(stock_item.variant, [inventory_unit_1] )
       expect(order).to receive(:update!)
       subject.perform(2)
     end
@@ -59,8 +68,8 @@ describe Spree::Stock::WaitingUnitsProcessor do
 
       it "processes inventory units from different shipments" do
         expect(subject).to receive(:waiting_inventory_units).with(2).and_return([inventory_unit_1, inventory_unit_2])
-        expect(inventory_unit_1).to receive(:fill_waiting_unit)
-        expect(inventory_unit_2).to receive(:fill_waiting_unit)
+        expect(inventory_unit_1).to receive(:fill_waiting_unit).and_return(true)
+        expect(inventory_unit_2).to receive(:fill_waiting_unit).and_return(true)
         expect(stock_allocator).to receive(:unstock_on_hand).with(stock_item.variant, [inventory_unit_1] )
         expect(stock_allocator_2).to receive(:unstock_on_hand).with(stock_item.variant, [inventory_unit_2] )
         expect(order).to receive(:update!)

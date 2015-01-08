@@ -13,23 +13,13 @@ describe Spree::Stock::Allocator do
 
   describe "#restock" do
 
-    it "restocks on_hand inventory_units" do
-      expect(stock_location).to receive(:restock).with(variant, 3, shipment, supplier)
-      allow(inventory_units).to receive(:update_all)
-      subject.restock(variant, inventory_units)
-    end
-
-    it "does not restock backordered inventory_units" do
-      inventory_units.last.state = 'backordered'
-      expect(stock_location).to receive(:restock).with(variant, 2, shipment, supplier)
-      allow(inventory_units).to receive(:update_all)
-      subject.restock(variant, inventory_units)
-    end
-
-    it "does not restock the awaiting_feed inventory_units" do
-      inventory_units.last.state = 'awaiting_feed'
-      expect(stock_location).to receive(:restock).with(variant, 2, shipment, supplier)
-      allow(inventory_units).to receive(:update_all)
+    it "Calls save on each of the inventory units" do
+      allow(stock_location).to receive(:restock)
+      inventory_units.each do |iu|
+        expect(iu).to receive(:pending=).with(true)
+        expect(iu).to receive(:supplier_id=).with(nil)
+        expect(iu).to receive(:save)
+      end
       subject.restock(variant, inventory_units)
     end
 
@@ -45,27 +35,44 @@ describe Spree::Stock::Allocator do
       expect(order.inventory_units.pluck(:pending)).to eq [true, true, true]
     end
 
+    context "stock_location.restock is called with the correct parameters" do
+
+      before do
+        inventory_units.each do |iu|
+          allow(iu).to receive(:supplier_id=).with(nil)
+          allow(iu).to receive(:pending=).with(true)
+          allow(iu).to receive(:save)
+        end
+      end
+      it "restocks on_hand inventory_units" do
+        expect(stock_location).to receive(:restock).with(variant, 3, shipment, supplier)
+        subject.restock(variant, inventory_units)
+      end
+
+      it "does not restock backordered inventory_units" do
+        inventory_units.last.state = 'backordered'
+        expect(stock_location).to receive(:restock).with(variant, 2, shipment, supplier)
+        subject.restock(variant, inventory_units)
+      end
+
+      it "does not restock the awaiting_feed inventory_units" do
+        inventory_units.last.state = 'awaiting_feed'
+        expect(stock_location).to receive(:restock).with(variant, 2, shipment, supplier)
+        subject.restock(variant, inventory_units)
+      end
+
+    end
+
   end
 
   describe "#unstock" do
 
-    it "unstocks on_hand inventory_units" do
-      expect(subject).to receive(:unstock_on_hand).with(variant, inventory_units )
-      allow(inventory_units).to receive(:update_all)
-      subject.unstock(variant, inventory_units)
-    end
-
-    it "does not unstock backordered inventory_units" do
-      inventory_units.last.state = 'backordered'
-      expect(subject).to receive(:unstock_on_hand).with(variant, inventory_units.first(2) )
-      allow(inventory_units).to receive(:update_all)
-      subject.unstock(variant, inventory_units)
-    end
-
-    it "does not unstock the awaiting_feed inventory_units" do
-      inventory_units.last.state = 'awaiting_feed'
-      expect(subject).to receive(:unstock_on_hand).with(variant, inventory_units.first(2) )
-      allow(inventory_units).to receive(:update_all)
+    it "calls save on each of the inventory units" do
+      expect(subject).to receive(:unstock_on_hand)
+      inventory_units.each do |iu|
+        expect(iu).to receive(:pending=).with(false)
+        expect(iu).to receive(:save)
+      end
       subject.unstock(variant, inventory_units)
     end
 
@@ -77,10 +84,36 @@ describe Spree::Stock::Allocator do
       allow(subject).to receive(:unstock_on_hand)
 
       subject.unstock(variant, units)
-      expect(order.inventory_units.pluck(:supplier_id)).to match_array([1, 2, 3])
       expect(order.inventory_units.pluck(:pending)).to eq [false, false, false]
     end
 
+    context "unstock_on_hand is called with the correct parameters" do
+
+      before do
+        inventory_units.each do |iu|
+          allow(iu).to receive(:pending=).with(false)
+          allow(iu).to receive(:save)
+        end
+      end
+    
+      it "unstocks on_hand inventory_units" do
+        expect(subject).to receive(:unstock_on_hand).with(variant, inventory_units )
+        subject.unstock(variant, inventory_units)
+      end
+
+      it "does not unstock backordered inventory_units" do
+        inventory_units.last.state = 'backordered'
+        expect(subject).to receive(:unstock_on_hand).with(variant, inventory_units.first(2) )
+        subject.unstock(variant, inventory_units)
+      end
+
+      it "does not unstock the awaiting_feed inventory_units" do
+        inventory_units.last.state = 'awaiting_feed'
+        expect(subject).to receive(:unstock_on_hand).with(variant, inventory_units.first(2) )
+        subject.unstock(variant, inventory_units)
+      end
+
+    end
   end
 
   describe "#unstock_on_hand" do
@@ -90,9 +123,6 @@ describe Spree::Stock::Allocator do
     let(:stock_items) {  2.times.map { mock_model(Spree::StockItem, count_on_hand: count_on_hand, backorderable?: backorderable) }  }
 
     before do
-#      inventory_units.each_with_index do |iu, idx|
-#        allow(iu).to receive(:state).and_return(iu_states[idx])
-#      end
       allow(adjuster).to receive(:available_items).and_return(stock_items)
     end
 
@@ -203,11 +233,25 @@ describe Spree::Stock::Allocator do
       units << Spree::InventoryUnit.create(order: order, pending: true, supplier_id: nil)
     end
 
+    it "Calls save on each of the inventory units" do
+      stock_movements = double('StockMovement')
+      expect(stock_movements).to receive(:create!).once.with(quantity: -2, originator: shipment)
+      expect(stock_item).to receive(:stock_movements).once.and_return(stock_movements)
+
+      units.each do |iu|
+        expect(iu).to receive(:supplier=).with(supplier)
+        expect(iu).to receive(:save)
+      end
+
+      subject.send(:unstock_stock_item, stock_item, units)
+    end
+
     it "sets inventory unit attributes" do
       # Creates a stock movement
       stock_movements = double('StockMovement')
       expect(stock_movements).to receive(:create!).once.with(quantity: -2, originator: shipment)
       expect(stock_item).to receive(:stock_movements).once.and_return(stock_movements)
+
 
       subject.send(:unstock_stock_item, stock_item, units)
 

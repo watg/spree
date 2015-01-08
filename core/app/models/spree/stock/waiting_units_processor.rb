@@ -22,20 +22,26 @@ module Spree
       private
 
       def process_waiting_inventory_units(quantity)
-          waiting_units = waiting_inventory_units(quantity)
-          waiting_units.group_by(&:shipment).each do |shipment, units|
+        waiting_units = waiting_inventory_units(quantity)
+        waiting_units.group_by(&:shipment).each do |shipment, units|
 
-            # move all backordered or awaiting feed to on_hand
-            stock_item.with_lock do
-              units.map(&:fill_waiting_unit)
+          stock_item.with_lock do
 
-              stock_allocator = stock_allocator(shipment)
-              stock_allocator.unstock_on_hand(stock_item.variant, units)
-            end
+            # Only those that make the transition from 'backordered' or
+            # 'awaiting_feed' to on_hand will be returned.
+            # This deals with an edge case where between grabbing the units
+            # and processing them that something has changed
+            on_hand = units.select(&:fill_waiting_unit)
 
-            @orders_to_update << shipment.order
+            stock_allocator = stock_allocator(shipment)
+            stock_allocator.unstock_on_hand(stock_item.variant, on_hand)
+
           end
+
+          @orders_to_update << shipment.order
+        end
       end
+
 
       def update_orders
         @orders_to_update.each { |o| o.update! }

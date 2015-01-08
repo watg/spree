@@ -9,7 +9,13 @@ module Spree
 
     def restock(variant, inventory_units)
 
-      Spree::InventoryUnit.where(id: inventory_units.map(&:id)).update_all(supplier_id: nil, pending: true)
+      # Do not be tempted to do update_all, as this will not trigger the cache purge
+      # for the total_on_hand
+      inventory_units.each do |iu|
+        iu.supplier_id = nil
+        iu.pending = true
+        iu.save
+      end
 
       if restockable_inventory_units = inventory_units.select(&:on_hand?)
         restock_on_hand(variant, restockable_inventory_units)
@@ -19,7 +25,12 @@ module Spree
 
     def unstock(variant, inventory_units)
 
-      Spree::InventoryUnit.where(id: inventory_units.map(&:id)).update_all(pending: false)
+      # Do not be tempted to do update_all, as this will not trigger the cache purge
+      # for the total_on_hand
+      inventory_units.each do |iu|
+        iu.pending = false
+        iu.save
+      end
 
       if on_hand = inventory_units.select(&:on_hand?)
         unstock_on_hand(variant, on_hand)
@@ -118,15 +129,20 @@ module Spree
 
     def unstock_stock_item(stock_item, units)
 
-      supplier_id = stock_item.try(:supplier).try(:id)
-      if supplier_id.nil?
+      supplier = stock_item.try(:supplier)
+      if supplier.nil?
         Helpers::AirbrakeNotifier.notify(
           "Stock Item has no supplier",
           {stock_item_id: stock_item.id}
         )
       end
 
-      Spree::InventoryUnit.where(id: units.map(&:id)).update_all(supplier_id: supplier_id)
+      # Do not be tempted to do update_all, as this will not trigger the cache purge
+      # for the total_on_hand
+      units.each do |iu|
+        iu.supplier = supplier
+        iu.save
+      end
 
       adjust_quantity = units.size * -1
 
