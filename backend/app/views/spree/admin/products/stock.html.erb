@@ -35,6 +35,15 @@
               <%= image_tag variant.images.first.attachment.url(:mini) %>
             <% end %>
             <br/>
+              <strong>On Hand:</strong> <%= variant.total_on_hand %>
+            <br/>
+            <% unless variant.assembly_definition %>
+              <% variant.inventory_units.waiting_fill.group_by(&:state).each do |state, items| %>
+                <strong><%=state.humanize%>:</strong> <%= items.count %>
+                <br/>
+              <% end %>
+              <br/>
+            <% end %>
             <%= form_tag admin_product_variants_including_master_path(@product, variant, format: :js), method: :put, class: 'toggle_variant_track_inventory' do %>
                 <%= check_box_tag 'track_inventory', 1, variant.track_inventory?,
                                   class: 'track_inventory_checkbox' %>

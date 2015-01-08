@@ -306,11 +306,11 @@ module Spree
     private
 
       def manifest_unstock(item)
-        ShipmentStockAdjuster.new(self).unstock(item.variant, item.inventory_units)
+        Stock::Allocator.new(self).unstock(item.variant, item.inventory_units)
       end
 
       def manifest_restock(item)
-        ShipmentStockAdjuster.new(self).restock(item.variant, item.inventory_units)
+        Stock::Allocator.new(self).restock(item.variant, item.inventory_units)
       end
 
       def description_for_shipping_charge

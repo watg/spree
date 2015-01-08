@@ -1,5 +1,5 @@
 module Spree
-  class ShipmentStockAdjuster
+  class Stock::Allocator
     attr_accessor :shipment, :stock_location
 
     def initialize(shipment)
@@ -8,15 +8,32 @@ module Spree
     end
 
     def restock(variant, inventory_units)
-      restockable_inventory_units = inventory_units.reject(&:awaiting_feed?)
-      restockable_inventory_units.group_by(&:supplier).each do |supplier, supplier_units|
-        stock_location.restock(variant, supplier_units.count, shipment, supplier)
-      end
+
       Spree::InventoryUnit.where(id: inventory_units.map(&:id)).update_all(supplier_id: nil, pending: true)
+
+      if restockable_inventory_units = inventory_units.select(&:on_hand?)
+        restock_on_hand(variant, restockable_inventory_units)
+      end
+
     end
 
     def unstock(variant, inventory_units)
-      on_hand, backordered = inventory_units.reject(&:awaiting_feed?).partition { |iu| iu.state == 'on_hand' }
+
+      Spree::InventoryUnit.where(id: inventory_units.map(&:id)).update_all(pending: false)
+
+      if on_hand = inventory_units.select(&:on_hand?)
+        unstock_on_hand(variant, on_hand)
+      end
+
+    end
+
+    def restock_on_hand(variant, restockable_inventory_units)
+      restockable_inventory_units.group_by(&:supplier).each do |supplier, supplier_units|
+        stock_location.restock(variant, supplier_units.count, shipment, supplier)
+      end
+    end
+
+    def unstock_on_hand(variant, on_hand)
 
       # Deal with on_hand items.
       problem_on_hand = allocate_from_on_hand_stock(variant, on_hand)
@@ -40,31 +57,6 @@ module Spree
         unstock_stock_item(available_items(variant).first, problem_on_hand)
       end
 
-
-      # Deal with backordered items
-      problem_backordered = allocate_from_backorder(variant, backordered)
-
-      if problem_backordered.any?
-        # Something has gone wrong. Stock that was backorderable is no longer
-        # available. Try to allocate from on_hand instead.
-        problem_backordered = allocate_from_on_hand_stock(variant, problem_backordered)
-      end
-
-      if problem_backordered.any?
-        # This is getting worse. There is no stock backorderable or on hand.
-        # Maybe there is some in the feeders?
-        problem_backordered = allocate_from_feeder_stock(variant, problem_backordered)
-      end
-
-      if problem_backordered.any?
-        # Oh come one. This is stupid. Just allocate anything from anywhere. I
-        # don't even care any more.
-        unstock_stock_item(available_items(variant).first, problem_backordered)
-        problem_backordered.each do |iu|
-          iu.state = :on_hand
-          iu.save
-        end
-      end
     end
 
     private
@@ -75,12 +67,6 @@ module Spree
         break if units.empty?
         slice = units.shift(stock_item.count_on_hand)
         unstock_stock_item(stock_item, slice)
-        slice.each do |iu|
-          unless iu.on_hand?
-            iu.state = :on_hand
-            iu.save
-          end
-        end
       end
       units
     end
@@ -98,10 +84,8 @@ module Spree
 
     def allocate_from_backorder(variant, units)
       return units if units.empty?
-
       stock_item = backorderable_stock_item(variant)
       if stock_item
-        unstock_stock_item(stock_item, units)
         units.each do |iu|
           unless iu.backordered?
             iu.state = :backordered
@@ -142,7 +126,7 @@ module Spree
         )
       end
 
-      Spree::InventoryUnit.where(id: units.map(&:id)).update_all(supplier_id: supplier_id, pending: false)
+      Spree::InventoryUnit.where(id: units.map(&:id)).update_all(supplier_id: supplier_id)
 
       adjust_quantity = units.size * -1
 

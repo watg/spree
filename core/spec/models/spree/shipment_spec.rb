@@ -348,9 +348,9 @@ describe Spree::Shipment do
       supplier = double
       inventory_units = [mock_model(Spree::InventoryUnit, state: "on_hand", line_item: line_item, variant: variant, supplier: supplier)]
       allow(shipment).to receive(:inventory_units).and_return inventory_units
-      shipment_stock_adjuster = double('shipment_stock_adjuster')
-      expect(shipment_stock_adjuster).to receive(:restock).with(variant, inventory_units)
-      expect(Spree::ShipmentStockAdjuster).to receive(:new).with(shipment).and_return(shipment_stock_adjuster)
+      stock_allocator = double('stock_allocator')
+      expect(stock_allocator).to receive(:restock).with(variant, inventory_units)
+      expect(Spree::Stock::Allocator).to receive(:new).with(shipment).and_return(stock_allocator)
       shipment.after_cancel
     end
 
@@ -417,9 +417,9 @@ describe Spree::Shipment do
 
       allow(shipment).to receive(:inventory_units).and_return inventory_units
 
-      shipment_stock_adjuster = double('shipment_stock_adjuster')
-      expect(shipment_stock_adjuster).to receive(:unstock).with(variant, inventory_units)
-      expect(Spree::ShipmentStockAdjuster).to receive(:new).with(shipment).and_return(shipment_stock_adjuster)
+      stock_allocator = double('stock_allocator')
+      expect(stock_allocator).to receive(:unstock).with(variant, inventory_units)
+      expect(Spree::Stock::Allocator).to receive(:new).with(shipment).and_return(stock_allocator)
       shipment.after_resume
     end
 
