@@ -7,6 +7,9 @@ module Spree
     PACKAGING = 'packaging'
     DEFAULT   = NORMAL 
 
+
+    scope :physical, -> { where(is_digital: false) }
+
     def kit?
       name == KIT
     end

@@ -63,7 +63,18 @@ module Spree
       self.in_stock? || self.backorderable?
     end
 
-    private
+    def number_of_shipments_pending
+      pending =  Spree::InventoryUnit.where(variant_id: self.variant_id, state: :on_hand, pending: false).
+        joins(:order, :shipment).where('spree_orders.state in (?)', %w{resumed complete}).
+        where('spree_shipments.stock_location_id = ?', self.stock_location_id)
+      supplier_id = self.supplier ? self.supplier.id : nil
+      pending = pending.where(supplier_id: supplier_id)
+      pending.count
+    end
+
+
+  private
+
     def count_on_hand=(value)
       write_attribute(:count_on_hand, value)
     end
@@ -157,6 +168,8 @@ module Spree
     def stock_changed?
       @stock_chagned ||= (count_on_hand_changed? && count_on_hand_change.any?(&:zero?)) || variant_id_changed?
     end
+
+
 
   end
 end

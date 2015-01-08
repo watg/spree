@@ -106,7 +106,7 @@ module Spree
     class << self
 
       def physical
-        joins(product: [:product_type]).where('spree_product_types.is_digital = ?', false)
+        joins(product: [:product_type]).merge(ProductType.physical)
       end
 
       def active(currency = nil)
