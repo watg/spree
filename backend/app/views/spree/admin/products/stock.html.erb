@@ -38,7 +38,7 @@
               <strong>On Hand:</strong> <%= variant.total_on_hand %>
             <br/>
             <% unless variant.assembly_definition %>
-              <% variant.inventory_units.waiting_fill.group_by(&:state).each do |state, items| %>
+              <% variant.inventory_units.non_pending.waiting_fill.group_by(&:state).each do |state, items| %>
                 <strong><%=state.humanize%>:</strong> <%= items.count %>
                 <br/>
               <% end %>
