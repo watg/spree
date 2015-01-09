@@ -9,7 +9,6 @@ module Spree
         @orders_to_update = Set.new
       end
 
-      # TODO: may be worth calling this every couple of hours with a scheduled task
       def perform(quantity)
 
         return unless quantity > 0
