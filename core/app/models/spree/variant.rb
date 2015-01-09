@@ -129,6 +129,14 @@ module Spree
 
     end
 
+    def backordered
+      inventory_units.non_pending.backordered
+    end
+
+    def awaiting_feed
+      inventory_units.non_pending.awaiting_feed
+    end
+
     def memoized_images
       @_memoized_images ||= images
     end

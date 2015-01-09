@@ -58,6 +58,32 @@ describe Spree::Variant do
     end
   end
 
+  describe "#backordered" do
+
+    it "calls the correct method chain" do
+      non_pending = double
+      inventory_units = double
+      expect(non_pending).to receive(:backordered)
+      expect(inventory_units).to receive(:non_pending).and_return(non_pending)
+      expect(variant).to receive(:inventory_units).and_return(inventory_units)
+      variant.backordered
+    end
+
+  end
+
+  describe "awaiting_feed" do
+
+    it "calls the correct method chain" do
+      non_pending = double
+      inventory_units = double
+      expect(non_pending).to receive(:awaiting_feed)
+      expect(inventory_units).to receive(:non_pending).and_return(non_pending)
+      expect(variant).to receive(:inventory_units).and_return(inventory_units)
+      variant.awaiting_feed
+    end
+    
+  end
+
   describe "#images_for" do
     let(:variant) { create(:variant) }
     let!(:variant_images) { create_list(:image, 1, viewable: variant, position: 2) }
