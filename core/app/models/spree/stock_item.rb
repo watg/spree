@@ -26,10 +26,6 @@ module Spree
        Spree::StockItem.joins(:stock_location).merge(StockLocation.available)
     end
 
-    def waiting_inventory_units
-      Spree::InventoryUnit.waiting_for_stock_item(self)
-    end
-
     def waiting_inventory_unit_count
       variant.total_awaiting_feed
     end
@@ -41,17 +37,16 @@ module Spree
     def adjust_count_on_hand(value)
       self.with_lock do
         self.count_on_hand = self.count_on_hand + value
-        awaiting_feed = process_waiting(count_on_hand - count_on_hand_was)
-        self.count_on_hand = self.count_on_hand - awaiting_feed
         self.save!
       end
+      process_waiting_inventory_units(value)
     end
 
     def set_count_on_hand(value)
       self.count_on_hand = value
-      process_waiting(count_on_hand - count_on_hand_was)
-
+      delta = count_on_hand - count_on_hand_was
       self.save!
+      process_waiting_inventory_units(delta)
     end
 
     def in_stock?
@@ -63,7 +58,17 @@ module Spree
       self.in_stock? || self.backorderable?
     end
 
-    private
+    def number_of_shipments_pending
+      pending =  Spree::InventoryUnit.where(variant_id: self.variant_id, state: :on_hand, pending: false).
+        joins(:order, :shipment).where('spree_orders.state in (?)', %w{resumed complete}).
+        where('spree_shipments.stock_location_id = ?', self.stock_location_id)
+      supplier_id = self.supplier ? self.supplier.id : nil
+      pending = pending.where(supplier_id: supplier_id)
+      pending.count
+    end
+
+  private
+
     def count_on_hand=(value)
       write_attribute(:count_on_hand, value)
     end
@@ -71,28 +76,14 @@ module Spree
     # Process backorders based on amount of stock received
     # If stock was -20 and is now -15 (increase of 5 units), then we should process 5 inventory orders.
     # If stock was -20 but then was -25 (decrease of 5 units), do nothing.
-    def process_waiting(number)
-      awaiting_feed = 0
-      orders_to_update = Set.new
-
-      if number > 0
-        waiting_inventory_units.first(number).each do |unit|
-          if unit.backordered?
-            unit.fill_backorder
-          elsif unit.awaiting_feed?
-            unit.supplier_id = self.supplier_id
-            unit.fill_awaiting_feed
-
-            # Remember the order so we can update it at the end
-            orders_to_update << unit.order
-            awaiting_feed += 1
-          end
-        end
+    def process_waiting_inventory_units(quantity)
+      if quantity > 0
+        waiting_units_processor.perform(quantity)
       end
+    end
 
-      orders_to_update.each { |o| o.update! }
-
-      awaiting_feed
+    def waiting_units_processor
+      Spree::Stock::WaitingUnitsProcessor.new(self)
     end
 
     # There is a potential race condition here that could be triggered if you
@@ -158,5 +149,9 @@ module Spree
       @stock_chagned ||= (count_on_hand_changed? && count_on_hand_change.any?(&:zero?)) || variant_id_changed?
     end
 
+
+
   end
+
+
 end

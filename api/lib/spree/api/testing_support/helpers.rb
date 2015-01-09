@@ -3,7 +3,7 @@ module Spree
     module TestingSupport
       module Helpers
         def json_response
-          JSON.parse(response.body)
+          JSON.parse(response.body, :allow_nan => true)
         end
 
         def assert_not_found!

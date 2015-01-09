@@ -57,10 +57,12 @@ module Spree
             subject.total_on_hand.should ==  stock_item.count_on_hand
           end
 
-          it 'deducts awaiting_feed inventory units' do
+          it 'deducts waiting_fill inventory units' do
+            create_list(:inventory_unit, 2, state: "awaiting_feed", variant: variant, pending: true)
             create_list(:inventory_unit, 2, state: "awaiting_feed", variant: variant, pending: false)
-            create_list(:inventory_unit, 2, state: "awaiting_feed", variant: variant, pending: true, order: order)
-            expect(subject.total_on_hand).to eq(stock_item.count_on_hand - 2)
+            create_list(:inventory_unit, 2, state: "backordered", variant: variant, pending: true)
+            create_list(:inventory_unit, 2, state: "backordered", variant: variant, pending: false)
+            expect(subject.total_on_hand).to eq(stock_item.count_on_hand - 4)
           end
 
           it 'uses rails cache' do
