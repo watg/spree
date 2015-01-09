@@ -81,7 +81,7 @@
                 <th class="actions"></th>
               </thead>
               <tbody>
-                <% variant.stock_items.each do |item| %>
+                <% variant.stock_items.includes(:stock_location).order('spree_stock_locations.id').each do |item| %>
                   <% next unless @stock_locations.include?(item.stock_location) %>
 
                   <tr id="stock-item-<%= item.id %>" class="<%= cycle('odd', 'even', :name => 'stock_locations')%>">
