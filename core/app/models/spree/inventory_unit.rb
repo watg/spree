@@ -11,6 +11,7 @@ module Spree
     scope :non_pending, -> { where pending: false }
     scope :backordered, -> { where state: 'backordered' }
     scope :awaiting_feed, -> { where state: 'awaiting_feed' }
+    scope :waiting_fill, -> { where state: ['awaiting_feed','backordered'] }
     scope :shipped, -> { where state: 'shipped' }
     scope :backordered_per_variant, ->(stock_item) do
       includes(:shipment, :order)
@@ -43,6 +44,14 @@ module Spree
       end
     end
 
+    def fill_waiting_unit
+      if backordered?
+        fill_backorder
+      elsif awaiting_feed?
+        fill_awaiting_feed 
+      end
+    end
+
     # This was refactored from a simpler query because the previous implementation
     # lead to issues once users tried to modify the objects returned. That's due
     # to ActiveRecord `joins(shipment: :stock_location)` only return readonly
@@ -65,9 +74,7 @@ module Spree
     end
 
     def self.total_awaiting_feed_for(variant)
-      #awaiting_feed.non_pending.where(variant: variant).count
-      # Temp fix until we can sort out the issue with awaiting feeds and pending state
-      awaiting_feed.where(variant: variant).joins(:order).merge(Spree::Order.shippable_state).count
+      waiting_fill.non_pending.where(variant: variant).count
     end
 
     def find_stock_item

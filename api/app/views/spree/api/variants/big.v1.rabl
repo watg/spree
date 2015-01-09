@@ -12,6 +12,7 @@ child(:stock_items => :stock_items) do
   glue(:stock_location) do
     attribute :name => :stock_location_name
   end
+
 end
 
 child(Spree::Admin::AssemblyDefinitionPartDecorator.decorate_collection(@object.assembly_definition_parts) => :assembly_definition_parts) do
