@@ -465,6 +465,7 @@ describe Spree::StockItem do
       shipment.stock_location = stock_location
       shipment.shipping_methods << create(:shipping_method)
       shipment.order = order
+      shipment.state = 'ready'
       # We don't care about this in this test
       shipment.stub(:ensure_correct_adjustment)
       shipment.tap(&:save!)
@@ -494,6 +495,12 @@ describe Spree::StockItem do
       expect(stock_item.number_of_shipments_pending).to eq 0
       order.resume!
       expect(stock_item.number_of_shipments_pending).to eq 1
+    end
+
+    it "is influenced by shipments states" do
+      shipment.state = 'shipped'
+      shipment.save
+      expect(stock_item.number_of_shipments_pending).to eq 0
     end
 
     context "supplier" do
