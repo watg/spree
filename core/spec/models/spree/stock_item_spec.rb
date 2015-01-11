@@ -490,17 +490,20 @@ describe Spree::StockItem do
       expect(stock_item.number_of_shipments_pending).to eq 0
     end
 
-    it "is influenced by order states" do
-      order.cancel!
-      expect(stock_item.number_of_shipments_pending).to eq 0
-      order.resume!
-      expect(stock_item.number_of_shipments_pending).to eq 1
+    it "is influenced by order states (cancel)" do
+      order.update_column(:state, 'cancel')
+      expect(stock_item.reload.number_of_shipments_pending).to eq 0
+    end
+
+    it "is influenced by order states (resumed)" do
+      shipment.update_column(:state, 'ready')
+      order.update_column(:state, 'resumed')
+      expect(stock_item.reload.number_of_shipments_pending).to eq 1
     end
 
     it "is influenced by shipments states" do
-      shipment.state = 'shipped'
-      shipment.save
-      expect(stock_item.number_of_shipments_pending).to eq 0
+      shipment.update_column(:state, 'shipped')
+      expect(stock_item.reload.number_of_shipments_pending).to eq 0
     end
 
     context "supplier" do
