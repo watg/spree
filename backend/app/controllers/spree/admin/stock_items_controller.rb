@@ -32,7 +32,9 @@ module Spree
           flash[:error] = outcome.errors.full_messages.to_sentence
         end
 
-        respond_with(@stock_item) do |format|
+        # Reload @stock_item after the stock_movement save, so that it is fresh for
+        # the JS
+        respond_with(@stock_item.reload) do |format|
           format.html { redirect_to :back }
           format.js
         end

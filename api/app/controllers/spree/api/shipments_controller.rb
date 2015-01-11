@@ -15,7 +15,7 @@ module Spree
         unless stock_location_id = params[:stock_location_id] 
           stock_location_id = Spree::StockLocation.active.first.id
         end
-        @shipment = @order.shipments.create(stock_location_id)
+        @shipment = @order.shipments.create(stock_location_id: stock_location_id)
 
         @order.contents.add(variant, quantity, options)
         @shipment.refresh_rates

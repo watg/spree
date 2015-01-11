@@ -51,6 +51,7 @@ module Spree
       context 'with a single stock location/item' do
         describe "total_on_hand" do
           let(:variant) { stock_item.variant }
+          let(:order) { create(:order, state: :complete) }
 
           it 'matches stock_item' do
             subject.total_on_hand.should ==  stock_item.count_on_hand

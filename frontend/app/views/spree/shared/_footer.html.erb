@@ -59,7 +59,7 @@
 </div>
 
 <!-- Alpaca -->
-<% unless mobile_device? %>
+<% unless true # disabeld for the time being due to an ssl issue mobile_device? %>
   <img class="alpaca-attack" src="<%= image_path("alpaca-attack.gif") %>" alt="THE ALPACAS ARE ATTACKING" />
 <% end %>
 
