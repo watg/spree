@@ -45,7 +45,8 @@ module Spree
     end
 
     def image_alt
-      image.try(:alt)
+      alt = image.try(:alt)
+      alt.blank? ? title : alt
     end
 
     def header_style

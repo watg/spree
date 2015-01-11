@@ -165,7 +165,18 @@ describe Spree::SuitePresenter do
     end
 
     context "#image_alt" do
+
       its(:image_alt) { should eq 'wooo' }
+
+      context "no image.alt" do
+
+        let!(:image) { double(attachment: attachment, alt: '') }
+
+        it "should use the title" do
+          expect(subject.image_alt).to eq subject.title
+        end
+      end
+
     end
 
     describe "#image_url" do
