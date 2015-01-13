@@ -92,7 +92,7 @@ module Spree
     class_attribute :update_hooks
     self.update_hooks = Set.new
 
-    SHIPPABLE_STATES = %w(complete resumed awaiting_return returned)
+    SHIPPABLE_STATES = %w(complete resumed awaiting_return returned warehouse_on_hold customer_service_on_hold)
 
     class << self
       def by_number(number)

@@ -202,7 +202,7 @@ describe Spree::Order do
 
   describe "#can_ship?" do
     let(:order) { build(:order) }
-    let(:valid_states) { %w(complete resumed awaiting_return returned) }
+    let(:valid_states) { %w(complete resumed awaiting_return returned warehouse_on_hold customer_service_on_hold) }
 
     it "is true for shippable states" do
       valid_states.each do |state|
