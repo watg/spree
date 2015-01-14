@@ -3,7 +3,7 @@ core.Static = {}; // Extend from this core object
 $(document).ready(function() {
   if (!$('body').hasClass('static')) return false;
   
-  core.readyAccordions();
+  core.Static.readyAccordions();
   
   if ($('body').hasClass('knit-party')) {
     core.Static.readyscrolltoForm();
@@ -17,6 +17,9 @@ $(document).ready(function() {
 	if ($('body').hasClass('careers')) {
 		core.Static.showJobFromHash();
 	};
+
+  core.Static.readycarousel();
+
 });
 
 $(window).bind('load', function() {
@@ -57,10 +60,27 @@ core.Static.showJobFromHash = function() {
 	}
 }
 
-core.readyAccordions = function() {
+core.Static.readyAccordions = function() {
   $('.accordion-content').hide();
   $('.accordion-title').on('click', function() {
     $(this).children().children().toggleClass('purple');
     $(this).next().slideToggle();
+  });
+}
+
+core.Static.readycarousel = function() {
+   $(".owl-carousel").owlCarousel({
+    loop:true,
+    responsiveClass:true,
+    responsive:{
+      0:{
+        items:1,
+        nav:true
+      },
+      700:{
+        items:3,
+        nav:true,
+      }
+    }
   });
 }
