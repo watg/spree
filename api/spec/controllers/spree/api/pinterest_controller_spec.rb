@@ -2,8 +2,8 @@ require 'spec_helper'
   describe Spree::Api::PinterestController, type: :controller do
     render_views
 
-    let(:suite)   { Spree::Suite.new(target: target) }
-    let(:tab)     { Spree::SuiteTab.new(tab_type: 'some-tab-permalink', product: product) }
+    let(:suite)   { Spree::Suite.new(target: target, permalink: 'real-suite-permalink') }
+    let(:tab)     { Spree::SuiteTab.new(tab_type: 'made-by-the-gang', product: product) }
     let(:product) { Spree::Product.new(name: "My Product", description: "Descipt") }
     let(:variant) { Spree::Variant.new(in_stock_cache: true, number: "V1234") }
     let(:target)  { Spree::Target.new(name: "Women") }
@@ -29,7 +29,7 @@ require 'spec_helper'
         expect(json_response["product_id"]).to eq "V1234"
         expect(json_response["provider_name"]).to eq "Wool and the Gang"
         expect(json_response["title"]).to eq "My Product #madeunique by The Gang"
-        expect(json_response["url"]).to eq "http://www.example.com/product/suite-perma/made-by-the-gang/V1234"
+        expect(json_response["url"]).to eq "http://www.example.com/product/real-suite-permalink/made-by-the-gang/V1234"
       end
     end
   end

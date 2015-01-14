@@ -173,8 +173,8 @@
     <div class="field">
       <label>Product Pages</label>
       <span class="info">
-        <% Spree::ProductPageTab.where(product: @product).each do |tab| %>
-          <%= link_to_with_icon 'icon-external-link', "Jump to " + tab.product_page.name, edit_admin_product_page_path(tab.product_page), target: :blank %>
+        <% Spree::SuiteTab.where(product: @product).each do |tab| %>
+          <%= link_to_with_icon 'icon-external-link', "Jump to " + tab.suite.name, edit_admin_suite_path(tab.suite), target: :blank %>
           <br>
         <% end %>
       </span>

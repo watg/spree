@@ -60,9 +60,6 @@ Spree::Core::Engine.add_routes do
 
 
   scope path: 'shop' do
-    # Product pages
-    get '/items/:id(/:tab)(/:variant_id)', :to => 'product_pages#show', :as => :product_page
-
     # Top-level navigation to static pages
     get '/knitwear/whats-new', :to => 'navigation#product_top_whats_new'
     get '/knitwear/women', :to => 'navigation#product_top_women'

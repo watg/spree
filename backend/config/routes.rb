@@ -36,20 +36,6 @@ Spree::Core::Engine.add_routes do
 
     resources :gift_cards
 
-    resources :product_pages do
-      member do
-        post :s3_callback
-      end
-      resources :variants, controller: "product_page_variants" do
-        collection do
-          post :update_positions
-        end
-        member do
-          post :move_stock
-        end
-      end
-    end
-
     resources :suites do
       member do
         post :s3_callback

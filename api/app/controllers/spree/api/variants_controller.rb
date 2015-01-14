@@ -4,7 +4,6 @@ module Spree
       respond_to :xml, :atom, only: :index
 
       before_filter :product
-      before_filter :product_page, :only => [:index]
 
       def create
         authorize! :create, Variant
@@ -57,12 +56,6 @@ module Spree
           @product ||= Spree::Product.accessible_by(current_ability, :read).friendly.find(params[:product_id]) if params[:product_id]
         end
 
-        def product_page
-          if params[:product_page_id]
-            @product_page ||= Spree::ProductPage.accessible_by(current_ability, :read).find(params[:product_page_id])
-          end
-        end
-
         def scope
           if @product
             unless current_api_user.has_spree_role?('admin') || params[:show_deleted]
@@ -70,8 +63,6 @@ module Spree
             else
               variants = @product.variants_including_master.with_deleted.accessible_by(current_ability, :read)
             end
-          elsif @product_page
-            variants = @product_page.displayed_variants.accessible_by(current_ability, :read)
           else
             variants = Variant.accessible_by(current_ability, :read)
             if current_api_user.has_spree_role?('admin')

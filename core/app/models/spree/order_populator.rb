@@ -23,8 +23,6 @@ module Spree
     #  :products => { product_id => variant_id, product_id => variant_id, pp_ids = [] },
     #  :quantity => quantity+,
     #  :target_id => 2,
-    #  :product_page_tab_id => 1,
-    #  :product_page_id => 2,
     #  :suite_id => 2,
     #  :suite_tab_id => 1,
     #  :options => [56, 34] # array of variant_ids

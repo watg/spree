@@ -103,8 +103,6 @@ module Spree
         variant: variant,
         currency: currency,
         target_id: options[:target_id],
-        product_page_id: options[:product_page_id],
-        product_page_tab_id: options[:product_page_tab_id],
         suite_id: options[:suite_id],
         suite_tab_id: options[:suite_tab_id],
         price:  variant.current_price_in(currency).amount,

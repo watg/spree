@@ -36,9 +36,6 @@ Spree::Core::Engine.add_routes do
     resources :product_groups, :only => [:index]
 
     resources :suite, :only => [:index]
-    resources :product_pages, :only => [:index] do
-      resources :variants, :only => [:index]
-    end
 
     order_routes = lambda {
       member do

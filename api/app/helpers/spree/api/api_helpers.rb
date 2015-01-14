@@ -31,7 +31,6 @@ module Spree
         :stock_movement_attributes,
         :stock_item_attributes,
         :product_group_attributes,
-        :product_page_attributes,
         :suite_attributes,
         :target_attributes,
         :tag_attributes
@@ -154,8 +153,6 @@ module Spree
       @@supplier_attributes = [ :id, :permalink, :firstname, :lastname ]
 
 	    @@product_group_attributes = [:id, :name]
-
-      @@product_page_attributes = [:id, :name]
 
       @@suite_attributes = [:id, :name, :title, :permalink]
 

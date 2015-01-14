@@ -34,12 +34,10 @@
 //= require spree/frontend/cart
 //= require spree/frontend/currency
 
-// Persist vertical scroll when navigating with turbolinks
-//= require spree/frontend/scroll-persister
+// Persist vertical scroll when navigating with turbolinks. Not used currently.
+// require spree/frontend/turbolinks-scroll-persister
 
 //= require spree/frontend/core.product-top
-//= require spree/frontend/core.product-index
-//= require spree/frontend/core.product-group
 //= require spree/frontend/core.suite
 //= require spree/frontend/core.suites-index
 //= require spree/frontend/core.olapic-gallery
@@ -47,9 +45,6 @@
 //= require spree/frontend/product-option-values
 //= require spree/frontend/kit-option-values
 //= require spree/frontend/spree_paypal_express
-
-// this is so we are backward compatible with the old product pages, we should delete it when we no longer need them
-//= require spree/frontend/old_product
 
 // Refer-a-friend module
 //= require spree/frontend/spree_raf

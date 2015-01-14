@@ -9,13 +9,13 @@
 #   let!(:payment_method) { create(:payment_method) }
 #   let!(:zone) { Spree::Zone.first || create(:zone) }
   
-#   let!(:product_page) { create(:product_page) }
+#   let!(:suite) { create(:suite) }
 #   let!(:mug) { create(:product_with_stock_and_prices, :name => "RoR Mug") }
 
 #   before do
-#     mug.variants_including_master.each { |v| v.targets << product_page.target }
-#     product_page.displayed_variants = mug.variants_including_master
-#     product_page.save!
+#     mug.variants_including_master.each { |v| v.targets << suite.target }
+#     suite.displayed_variants = mug.variants_including_master
+#     suite.save!
 #   end
 
 #   context "visitor makes checkout as guest without registration" do
@@ -386,20 +386,20 @@
 #   end
 
 #   def add_mug_to_cart
-#     visit spree.product_page_path(id: product_page.permalink)
+#     visit spree.suite_path(id: suite.permalink)
 #     # we don't click, because the cart with the first variant is already opened
 #     # click_link mug.name
 #     click_button "Add To My Bag"
 #   end
 
 #   def create_and_add_bag_to_cart
-#     product_page2 = create(:product_page)
+#     suite2 = create(:suite)
 #     bag = create(:product_with_stock_and_prices, :name => "RoR Bag")
-#     bag.variants_including_master.each { |v| v.targets << product_page2.target }
-#     product_page2.displayed_variants = bag.variants_including_master
-#     product_page2.save!
+#     bag.variants_including_master.each { |v| v.targets << suite2.target }
+#     suite2.displayed_variants = bag.variants_including_master
+#     suite2.save!
 
-#     visit spree.product_page_path(id: product_page2.permalink)
+#     visit spree.suite_path(id: suite2.permalink)
 #     # we don't click, because the cart with the first variant is already opened
 #     # click_link bag.name
 #     click_button "Add To My Bag"

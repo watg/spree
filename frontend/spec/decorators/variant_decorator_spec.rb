@@ -11,12 +11,6 @@ describe Spree::VariantDecorator do
   its(:name) { should eq(variant.name) }
   its(:product) { should eq(variant.product) }
 
-  let(:women)         { create(:target, name: 'women') }
-  let(:product_group) { create(:product_group) }
-  let(:product_page_tab) { create(:product_page_tab)}
-  let(:product_page_tab_kit) { create(:product_page_tab_kit)}
-  let(:product_page) { create(:product_page, product_groups: [product_group], target: women, tabs: [ product_page_tab, product_page_tab_kit]) }
-
   context "with no images" do
     its(:first_image) { should be_nil }
 
@@ -25,34 +19,6 @@ describe Spree::VariantDecorator do
     end
   end
 
-  context "url_encode_tab_name" do
-
-    it "returns made-by-the-gang" do
-      expect(subject.url_encode_tab_name(product_page, product_page_tab)).to eq('made-by-the-gang')
-    end
-
-
-    it "returns knit-your-own" do
-      expect(subject.url_encode_tab_name(product_page, product_page_tab_kit)).to eq('knit-your-own')
-    end
-
-  end
-
-  context "url_encoded_product_page_url" do
-
-    it "returns made-by-the-gang" do
-      expected =  "http://www.example.com//shop/items/#{product_page.permalink}/made-by-the-gang/#{variant.number}"
-      actual =  URI.unescape(subject.url_encoded_product_page_url(product_page, product_page_tab))
-      expect(actual).to eq(expected)
-    end
-
-    it "returns knit-your-own" do
-      expected =  "http://www.example.com//shop/items/#{product_page.permalink}/knit-your-own/#{variant.number}"
-      actual =  URI.unescape(subject.url_encoded_product_page_url(product_page, product_page_tab_kit))
-      expect(actual).to eq(expected)
-    end
-
-  end
 
   context "images" do
     let(:images) { create_list(:image, 2) }

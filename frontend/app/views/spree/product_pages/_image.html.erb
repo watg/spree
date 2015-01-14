@@ -1,6 +1,0 @@
-<% placeholder = 'product-group/placeholder-470x600.gif' %>
-<% if image %>
-	<%= image_tag(placeholder, :itemprop => 'image', :class => 'lazy-load', :data => { :original => image.attachment.url(:product) }) %>		
-<% else %>
-	<%= image_tag(placeholder, :itemprop => 'image', :class => 'lazy-load', :data => { :original => image_url(product, :product) }) %>
-<% end %>
