@@ -171,6 +171,23 @@ describe Spree::VariantOptions do
 
         end
 
+        context "variant has many images" do
+
+          let(:image_2) { build(:image, position: 2) }
+
+          before do
+            image.position = 3
+            variant_in_stock1.images << image_2
+          end
+
+          it "returns the first image ordered by position" do
+            tree = subject.tree
+            image_url = image.attachment.url(:mini)
+            expect(tree["size"]["small"]["colour"]["pink"]["variant"]["image_url"]).to eq image_url
+          end
+
+        end
+
       end
 
       context "sale price" do
