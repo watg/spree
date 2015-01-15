@@ -14,7 +14,8 @@ module Spree
     delegate :weight, :should_track_inventory?, to: :variant
 
     after_save :conditional_variant_touch
-    after_save :clear_total_on_hand_cache
+    after_save :conditional_clear_total_on_hand_cache
+    after_destroy :clear_total_on_hand_cache
     after_save :clear_backorderable_cache
 
     after_touch { variant.touch }
@@ -133,10 +134,14 @@ module Spree
       Spree::Stock::Quantifier.new(self.variant)
     end
 
-    def clear_total_on_hand_cache
+    def conditional_clear_total_on_hand_cache
       if count_on_hand_changed? || variant_id_changed?
-        stock_quantifier.clear_total_on_hand_cache
+        clear_total_on_hand_cache
       end
+    end
+
+    def clear_total_on_hand_cache
+      stock_quantifier.clear_total_on_hand_cache
     end
 
     def clear_backorderable_cache
