@@ -61,7 +61,7 @@ module Spree
 
     def number_of_shipments_pending
       pending =  Spree::InventoryUnit.where(variant_id: self.variant_id, state: :on_hand, pending: false).
-        joins(:order, :shipment).where('spree_orders.state in (?)', %w{resumed complete}).
+        joins(:order, :shipment).merge(Spree::Order.shippable_state).
         where('spree_shipments.state in (?)', %w{ready}).
         where('spree_shipments.stock_location_id = ?', self.stock_location_id)
       supplier_id = self.supplier ? self.supplier.id : nil
