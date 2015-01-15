@@ -61,7 +61,6 @@ module Spree
         can [:index, :read], ProductGroup
         can [:index, :read], ProductPage
         can [:index, :read], Suite
-        can [:index, :read], IndexPage
         can [:index, :read], Taxonomy
         can [:index, :read], Variant
         can [:index, :read], Zone

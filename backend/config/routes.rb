@@ -34,17 +34,6 @@ Spree::Core::Engine.add_routes do
       end
     end
 
-    resources :index_pages do
-      resources :items, controller: "index_page_items" do
-        member do
-          post :s3_callback
-        end
-        collection do
-          post :update_positions
-        end
-      end
-    end
-
     resources :gift_cards
 
     resources :product_pages do

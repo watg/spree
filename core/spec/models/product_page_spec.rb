@@ -223,24 +223,4 @@ describe Spree::ProductPage do
 
   end
 
-
-  describe "touching" do
-    let!(:index_page_item) { create(:index_page_item, product_page: subject, updated_at: 1.month.ago) }
-
-    before { Timecop.freeze }
-    after { Timecop.return }
-
-    it "touches any index page items after a touch" do
-      subject.reload # reload to pick up the product_page has_many
-      subject.touch
-      expect(index_page_item.reload.updated_at).to be_within(1.seconds).of(Time.now)
-    end
-
-    it "touches any index page items after a save" do
-      subject.reload # reload to pick up the product_page has_many
-      subject.title = 'ffff'
-      subject.save
-      expect(index_page_item.reload.updated_at).to be_within(1.seconds).of(Time.now)
-    end
-  end
 end

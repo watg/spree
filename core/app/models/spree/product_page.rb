@@ -10,7 +10,6 @@ module Spree
     has_many :products, through: :product_groups
     has_many :variants, through: :products, source: :all_variants_unscoped
     has_many :taxons, as: :page
-    has_many :index_page_items
 
     has_many :available_tags, -> { uniq }, through: :variants, class_name: "Spree::Tag", source: :tags
     has_many :taggings, as: :taggable
@@ -23,9 +22,6 @@ module Spree
     belongs_to :target
 
     after_create :create_tabs
-
-    after_save :touch_index_page_items
-    after_touch :touch_index_page_items
 
     accepts_nested_attributes_for :tabs, allow_destroy: true
 
@@ -125,10 +121,6 @@ module Spree
       selector = selector.where('spree_variants.in_sale = ?', in_sale) if in_sale == true
 
       selector.reorder('amount')
-    end
-
-    def touch_index_page_items
-      index_page_items.each { |item| item.touch }
     end
 
   end

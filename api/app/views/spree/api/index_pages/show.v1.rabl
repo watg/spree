@@ -1,2 +1,0 @@
-object @index_page
-attributes *index_page_attributes
