@@ -453,7 +453,6 @@ describe Spree::Product do
 
     let(:product_group) { create(:product_group) }
     let(:kit) { create(:product, product_group: product_group, product_type: create(:product_type_kit)) }
-    let!(:product_page_tab) { create(:product_page_tab, product: kit) }
 
     before { Delayed::Worker.delay_jobs = false }
     after { Delayed::Worker.delay_jobs = true }
@@ -462,12 +461,6 @@ describe Spree::Product do
       product_group.update_column(:updated_at, 1.day.ago)
       kit.touch
       product_group.reload.updated_at.should be_within(3.seconds).of(Time.now)
-    end
-
-    it "updates a product_tab" do
-      product_page_tab.update_column(:updated_at, 1.day.ago)
-      kit.reload.save
-      product_page_tab.reload.updated_at.should be_within(3.seconds).of(Time.now)
     end
 
     context "Assembly Definition" do

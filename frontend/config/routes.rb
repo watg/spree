@@ -60,9 +60,6 @@ Spree::Core::Engine.add_routes do
 
 
   scope path: 'shop' do
-    # Product pages
-    get '/items/:id(/:tab)(/:variant_id)', :to => 'product_pages#show', :as => :product_page
-
     # Top-level navigation to static pages
     get '/knitwear/whats-new', :to => 'navigation#product_top_whats_new'
     get '/knitwear/women', :to => 'navigation#product_top_women'
@@ -74,6 +71,5 @@ Spree::Core::Engine.add_routes do
     get '/knitwear/knitting/men', :to => 'navigation#product_top_knitting_men'
     get '/knitwear/knitting/kids', :to => 'navigation#product_top_knitting_kids'
 
-    get '/knitwear/*id', :to => 'index_pages#show', :as => :index_page
   end # end scope 'shop'
 end

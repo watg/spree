@@ -39,31 +39,6 @@ describe Spree::Suite do
   end
 
 
-
-  # TODO: touching
-  # describe "touching" do
-  #   let!(:index_page_item) { create(:index_page_item, suite: subject, updated_at: 1.month.ago) }
-
-  #   before { Timecop.freeze }
-  #   after { Timecop.return }
-
-  #   it "touches any index page items after a touch" do
-  #     subject.reload # reload to pick up the suite has_many
-  #     subject.touch
-  #     expect(index_page_item.reload.updated_at).to be_within(1.seconds).of(Time.now)
-  #   end
-
-  #   it "touches any index page items after a save" do
-  #     subject.reload # reload to pick up the suite has_many
-  #     subject.title = 'ffff'
-  #     subject.save
-  #     expect(index_page_item.reload.updated_at).to be_within(1.seconds).of(Time.now)
-  #   end
-  # end
-
-
-
-
   # Regression tests for #2352
   context "classifications and taxons" do
     it "is joined through classifications" do

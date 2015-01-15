@@ -4,7 +4,7 @@ module Spree
 
     # Commented out until we get a response from pinterest about 
     # how they will deal with redirects
-    before_filter :redirect_to_product_pages, :only => :show
+    before_filter :redirect_to_suite_pages, :only => :show
     before_filter :load_selected_variant, :only => :show
 
     rescue_from ActiveRecord::RecordNotFound, :with => :render_404
@@ -27,7 +27,7 @@ module Spree
     end
 
     private
-    def redirect_to_product_pages
+    def redirect_to_suite_pages
       outcome = Spree::ProductRedirectionService.run(product: @product, variant: @selected_variant)
       redirect_to outcome.result[:url], status: outcome.result[:http_code]
     end

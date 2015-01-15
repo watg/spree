@@ -4,8 +4,7 @@ describe Spree::AddParcelToOrderService do
 
   context "#run" do
     let(:subject)   { Spree::AddParcelToOrderService }
-    let(:box_group) { FactoryGirl.create(:product_group, name: 'box')}
-    let(:small_box) { FactoryGirl.create(:product, product_type: create(:product_type_packaging), individual_sale: false, product_group_id: box_group.id, weight: 5.0, depth: 30.0, width: 34.0, height: 20.0) }
+    let(:small_box) { FactoryGirl.create(:product, product_type: create(:product_type_packaging), individual_sale: false, weight: 5.0, depth: 30.0, width: 34.0, height: 20.0) }
     let(:order)     { FactoryGirl.create(:order) }
 
     it "should invoke success callback when all is good" do

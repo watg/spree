@@ -3,84 +3,13 @@ include Spree::Api::TestingSupport::Helpers
 
 describe Spree::PinterestService do
 
-  context 'product_page style url' do
-    let!(:product_page_tab) { create(:product_page_tab, product: product) }
-    let(:target) { create(:target, name: 'female' ) }
-    let(:product_page) { product_page_tab.product_page }
-    let(:product) {create(:product_with_variants, number_of_variants: 1)}
-    let(:variant) { product.variants.first }
-    let(:variant_slug) { variant.option_values.first.name }
-    let(:variant_target) { create(:variant_target, variant: variant, target: target ) }
-    let(:context) { {context: {tab: product_page_tab.tab_type}} }
-    let!(:kit_context) { {context: {tab: product_page.knit_your_own }} }
-
-    before do
-      product_page.target = target
-      product_page.save
-      variant.in_stock_cache = true
-      variant.save
-    end
-
-
-    let(:url) { variant.decorate( context ).url_encoded_product_page_url(product_page.decorate( context )) }
-    let(:kit_url) { variant.decorate( kit_context ).url_encoded_product_page_url(product_page.decorate( kit_context ), product_page.knit_your_own) }
-
-    context "variant missing from url" do
-
-      let(:url) { "http://www.example.com/shop/items/#{product_page.permalink}/made-by-the-gang" }
-
-      it "returns the first variant" do
-        outcome = Spree::PinterestService.run({url: url})
-        outcome.result.product_id.should == variant.number
-      end
-
-    end
-
-    context "tab missing from url" do
-      let(:url) { "http://www.example.com/shop/items/#{product_page.permalink}" }
-
-      it "returns the first variant" do
-        outcome = Spree::PinterestService.run({url: url})
-        outcome.result.product_id.should == variant.number
-      end
-
-    end
-
-    it "returns a correct OpenStruct response with a product" do
-      outcome = Spree::PinterestService.run({url: url})
-
-      outcome.valid?.should be_true
-      outcome.result.product_id.should == variant.number
-      outcome.result.title.should == product.name.to_s + " #madeunique by The Gang"
-      outcome.result.gender.should == "female"
-
-      outcome.result.price.should == variant.current_price_in("GBP").amount
-      outcome.result.currency_code.should == "GBP"
-      outcome.result.availability.should == "in stock"
-    end
-
-    it "returns a correct OpenStruct response with a kit" do
-      outcome = Spree::PinterestService.run({url: kit_url})
-
-      outcome.valid?.should be_true
-      outcome.result.product_id.should == variant.number
-      outcome.result.title.should == product.name.to_s + " Knit Kit"
-      outcome.result.gender.should == "female"
-
-      outcome.result.price.should == variant.current_price_in("GBP").amount
-      outcome.result.currency_code.should == "GBP"
-      outcome.result.availability.should == "in stock"
-    end
-
-  end # end product_page_url test
+  let(:suite)   { Spree::Suite.new(target: target) }
+  let(:tab)     { Spree::SuiteTab.new(tab_type: 'some-tab-permalink', product: product) }
+  let(:product) { Spree::Product.new(name: "My Product", description: "Descipt") }
+  let(:variant) { Spree::Variant.new(in_stock_cache: true, number: "V1234") }
+  let(:target)  { Spree::Target.new(name: "Women") }
 
   context 'suites_url' do
-    let(:suite)   { Spree::Suite.new(target: target) }
-    let(:tab)     { Spree::SuiteTab.new(tab_type: 'some-tab-permalink', product: product) }
-    let(:product) { Spree::Product.new(name: "My Product", description: "Descipt") }
-    let(:variant) { Spree::Variant.new(in_stock_cache: true, number: "V1234") }
-    let(:target)  { Spree::Target.new(name: "Women") }
-
     let(:url) { Spree::Core::Engine.routes.url_helpers.suite_url(id: 'suite-perma', tab: 'made-by-the-gang', variant_id: 'V1234') }
     let(:kit_url) { Spree::Core::Engine.routes.url_helpers.suite_url(id: 'suite-perma', tab: 'knit-your-own', variant_id: 'V1234') }
 
@@ -92,25 +21,20 @@ describe Spree::PinterestService do
       allow(Spree::Suite).to receive(:find_by).with(permalink: 'suite-perma').and_return suite
     end
 
-    it "returns a correct OpenStruct response with a normal product" do
+    it "returns a correct OpenStruct" do
       outcome = Spree::PinterestService.run({url: url})
 
       expect(outcome).to be_valid
 
       result = outcome.result
       expect(result.product_id).to eq "V1234"
-      expect(result.title).to eq "My Product #madeunique by The Gang"
+      expect(result.title).to eq "My Product"
       expect(result.gender).to eq "women"
 
       expect(result.price).to eq 15.55
       expect(result.description).to eq "Descipt"
       expect(result.currency_code).to eq "GBP"
       expect(result.availability).to eq "in stock"
-    end
-
-    it "returns a correct OpenStruct response with a kit" do
-      outcome = Spree::PinterestService.run({url: kit_url})
-      expect(outcome.result.title).to eq product.name.to_s + " Knit Kit"
     end
   end
 
@@ -181,7 +105,7 @@ describe Spree::PinterestService do
   end
 
 
-  context '#gender' do
+  describe '#gender' do
     it "returns male when target name is Male" do
       expect(subject.send(:gender, Spree::Target.new(name: 'male'))).to eq "male"
     end
@@ -191,6 +115,32 @@ describe Spree::PinterestService do
     end
   end
 
+
+  describe '#fancy_title' do
+    it "returns product name when tab type is not knit-your-own or made-by-the-gang" do
+      expect(subject.send(:fancy_title, "My Product", 'something-else')).to eq "My Product"
+    end
+
+    it "adds Knit Kit to product name when product is a kit" do
+      expect(subject.send(:fancy_title, "My Product", 'knit-your-own')).to eq "My Product Knit Kit"
+    end
+
+    it "adds #madeunique by The Gang to product name when product is gang made" do
+      expect(subject.send(:fancy_title, "My Product", 'made-by-the-gang')).to eq "My Product #madeunique by The Gang"
+    end
+  end
+
+  describe "#variant_url" do
+    before do
+      tab.tab_type = 'made-by-the-gang'
+      suite.permalink = 'rainbow-sweater'
+    end
+
+    it "fin4ds the suite url" do
+      expect(subject.send(:variant_url, suite, tab, variant)).
+        to eq 'http://www.example.com/product/rainbow-sweater/made-by-the-gang/V1234'
+    end
+  end
 
   context 'validations' do
     it "returns a could_not_parse_url error" do

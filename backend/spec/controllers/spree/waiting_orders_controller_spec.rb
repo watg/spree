@@ -2,8 +2,7 @@ require 'spec_helper'
 
 describe Spree::Admin::WaitingOrdersController, type: :controller do
   stub_authorization!
-  let(:box_group) { create(:product_group, name: 'box')}
-  let(:small_box) { create(:product, product_type: create(:product_type_packaging), individual_sale: false, product_group_id: box_group.id) }
+  let(:small_box) { create(:product, product_type: create(:product_type_packaging), individual_sale: false) }
   let(:params) { build_valid_params }
   let(:outcome)   { OpenStruct.new(:valid? => true) }
 

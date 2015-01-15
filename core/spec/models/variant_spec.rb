@@ -125,17 +125,6 @@ describe Spree::Variant do
         variant.product.reload.updated_at.should be_within(1.seconds).of(Time.now)
       end
     end
-
-    context "index_page_items" do
-      let!(:index_page_item) { create(:index_page_item, variant: variant, updated_at: 1.month.ago) }
-
-      it "is updated" do
-        variant.reload # reload to pick up the index_page_item has_many
-        variant.touch
-        expect(index_page_item.reload.updated_at).to be_within(1.seconds).of(Time.now)
-      end
-    end
-
   end
 
   describe "#add_to_all_assembly_definitions" do

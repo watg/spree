@@ -20,14 +20,14 @@ describe Spree::OrderPopulator do
 
       let!(:options) { {
         target_id: target_id,
-        product_page_tab_id: 2,
-        product_page_id: 1,
+        suite_tab_id: 2,
+        suite_id: 1,
         parts: []
       }}
 
       it "can take a list of products and add them to the order" do
         expect(order.contents).to receive(:add).with(variant, 2, options).and_return double.as_null_object
-        subject.populate(:variants => { variant.id => 2 }, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
+        subject.populate(:variants => { variant.id => 2 }, :target_id => 45, :suite_id => 1, :suite_tab_id => 2)
       end
 
       context "with parts" do
@@ -49,7 +49,7 @@ describe Spree::OrderPopulator do
           expect(order.contents).to receive(:add).with(variant, 2, options).and_return double.as_null_object
           part_params = {adp1.id => adv1.id, adp2.id => adv2.id}
           expect(subject.options_parser).to receive(:dynamic_kit_parts).with(variant, part_params).and_return [lip1, lip2]
-          subject.populate(:variants => { variant.id => 2 }, :parts => part_params, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
+          subject.populate(:variants => { variant.id => 2 }, :parts => part_params, :target_id => 45, :suite_id => 1, :suite_tab_id => 2)
         end
 
 
@@ -63,7 +63,7 @@ describe Spree::OrderPopulator do
           it "adds error on order when some assembly definition parts are missing" do
             expect(order.contents).to_not receive(:add)
             part_params = {adp1.id => adv1.id, adp2.id => adv2.id}
-            subject.populate(:variants => { variant.id => 2 }, :parts => part_params, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
+            subject.populate(:variants => { variant.id => 2 }, :parts => part_params, :target_id => 45, :suite_id => 1, :suite_tab_id => 2)
             expect(subject.errors.full_messages.join("")).to eq 'Some required parts are missing'
           end
 
@@ -73,8 +73,8 @@ describe Spree::OrderPopulator do
             notifier = double
             notification_params = {
               :target_id           => options[:target_id],
-              :product_page_id     => options[:product_page_id],
-              :product_page_tab_id => options[:product_page_tab_id],
+              :suite_id     => options[:suite_id],
+              :suite_tab_id => options[:suite_tab_id],
               :order_id            => order.id,
               :missing_parts_and_variants => {part.id => variant.id}
             }
@@ -82,7 +82,7 @@ describe Spree::OrderPopulator do
             #expect(Helpers::AirbrakeNotifier).to receive(:delay).and_return(notifier)
             #Comment out the below and uncomment the above if we want to get this working async
             expect(Helpers::AirbrakeNotifier).to receive(:notify).with("Some required parts are missing", notification_params)
-            subject.populate(:variants => { variant.id => 2 }, :parts => part_params, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
+            subject.populate(:variants => { variant.id => 2 }, :parts => part_params, :target_id => 45, :suite_id => 1, :suite_tab_id => 2)
           end
         end
       end
@@ -94,14 +94,14 @@ describe Spree::OrderPopulator do
       let!(:options) { {
         personalisations: [],
         target_id: target_id,
-        product_page_tab_id: 2,
-        product_page_id: 1,
+        suite_tab_id: 2,
+        suite_id: 1,
         parts: []
       }}
 
       it "can take a list of products and add them to the order" do
         expect(order.contents).to receive(:add).with(variant, 1, options).and_return double.as_null_object
-        subject.populate(:products => { product.id => variant.id }, :quantity => 1, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
+        subject.populate(:products => { product.id => variant.id }, :quantity => 1, :target_id => 45, :suite_id => 1, :suite_tab_id => 2)
       end
 
       context "with required_parts" do
@@ -117,7 +117,7 @@ describe Spree::OrderPopulator do
           expect(order.contents).to receive(:add).with(variant, 1, options).and_return double.as_null_object
           expect(subject.options_parser).to receive(:static_kit_required_parts).with(variant).and_return [lip1, lip2]
           expect(subject.options_parser).to receive(:static_kit_optional_parts).with(variant,[]).and_return []
-          subject.populate(:products => { product.id => variant.id, :options => [] }, :quantity => 1, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
+          subject.populate(:products => { product.id => variant.id, :options => [] }, :quantity => 1, :target_id => 45, :suite_id => 1, :suite_tab_id => 2)
         end
 
       end
@@ -138,7 +138,7 @@ describe Spree::OrderPopulator do
           expect(order.contents).to receive(:add).with(variant, 1, options).and_return double.as_null_object
           expect(subject.options_parser).to receive(:static_kit_required_parts).with(variant).and_return []
           expect(subject.options_parser).to receive(:static_kit_optional_parts).with(variant,[variant1.id, variant2.id]).and_return [lip1, lip2]
-          subject.populate(:products => { product.id => variant.id, :options => [variant1.id, variant2.id] }, :quantity => 1, :target_id => 45, :product_page_id => 1, :product_page_tab_id => 2)
+          subject.populate(:products => { product.id => variant.id, :options => [variant1.id, variant2.id] }, :quantity => 1, :target_id => 45, :suite_id => 1, :suite_tab_id => 2)
         end
 
       end
@@ -172,8 +172,8 @@ describe Spree::OrderPopulator do
               "colour" => monogram.colours.first.id,
               "initials" => "XXX"}}
           }, 
-          :product_page_tab_id=>2, 
-          :product_page_id=>1,
+          :suite_tab_id=>2,
+          :suite_id=>1,
           :quantity => 1, :target_id => 45)
         end
 
