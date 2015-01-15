@@ -290,12 +290,12 @@ describe Spree::StockItem do
 
     context "clear_total_on_hand_cache" do
       it "gets called" do
-        expect(subject).to receive(:clear_total_on_hand_cache)
+        expect(subject).to receive(:conditional_clear_total_on_hand_cache)
         subject.save
       end
     end
 
-    context "clear_backorderable_cache" do
+    context "conditional_clear_backorderable_cache" do
       it "gets called" do
         expect(subject).to receive(:clear_backorderable_cache)
         subject.save
@@ -348,6 +348,22 @@ describe Spree::StockItem do
     end
   end
 
+  describe "#after_destroy" do
+    before do
+      Delayed::Worker.delay_jobs = false
+    end
+
+    after { Delayed::Worker.delay_jobs = true }
+
+    context "clear_total_on_hand_cache" do
+      it "gets called" do
+        expect(subject).to receive(:clear_total_on_hand_cache)
+        subject.destroy
+      end
+    end
+  end
+
+
   describe "stock_quantifier" do
 
     it "returns an instance of the stock Quantifier" do
@@ -364,28 +380,42 @@ describe Spree::StockItem do
 
     before { allow(subject).to receive(:stock_quantifier).and_return(stock_quantifier) }
 
+    it "is calls the stock quantifier" do
+      expect(stock_quantifier).to receive(:clear_total_on_hand_cache)
+      subject.send(:clear_total_on_hand_cache)
+    end
+
+  end
+
+  describe "conditional_clear_total_on_hand_cache" do
+
+    let(:variant) { build_stubbed(:base_variant)}
+    let(:stock_quantifier) { Spree::Stock::Quantifier.new(variant)}
+
+    before { allow(subject).to receive(:stock_quantifier).and_return(stock_quantifier) }
+
     it "is called if count_on_hand_changed? is true" do
       allow(subject).to receive(:count_on_hand_changed?).and_return(true)
       expect(stock_quantifier).to receive(:clear_total_on_hand_cache)
-      subject.send(:clear_total_on_hand_cache)
+      subject.send(:conditional_clear_total_on_hand_cache)
     end
 
     it "is not called if count_on_hand_changed? is false" do
       allow(subject).to receive(:count_on_hand_changed?).and_return(false)
       expect(stock_quantifier).to_not receive(:clear_total_on_hand_cache)
-      subject.send(:clear_total_on_hand_cache)
+      subject.send(:conditional_clear_total_on_hand_cache)
     end
 
     it "is called if variant_id_changed? is true" do
       allow(subject).to receive(:variant_id_changed?).and_return(true)
       expect(stock_quantifier).to receive(:clear_total_on_hand_cache)
-      subject.send(:clear_total_on_hand_cache)
+      subject.send(:conditional_clear_total_on_hand_cache)
     end
 
     it "is not called if variant_id_changed? is false" do
       allow(subject).to receive(:variant_id_changed?).and_return(false)
       expect(stock_quantifier).to_not receive(:clear_total_on_hand_cache)
-      subject.send(:clear_total_on_hand_cache)
+      subject.send(:conditional_clear_total_on_hand_cache)
     end
 
   end
