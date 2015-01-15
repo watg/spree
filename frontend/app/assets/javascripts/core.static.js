@@ -3,8 +3,6 @@ core.Static = {}; // Extend from this core object
 $(document).ready(function() {
   if (!$('body').hasClass('static')) return false;
   
-  core.Static.readyAccordions();
-  
   if ($('body').hasClass('knit-party')) {
     core.Static.readyscrolltoForm();
     core.Static.readyscrolltoInfo();
@@ -18,8 +16,17 @@ $(document).ready(function() {
 		core.Static.showJobFromHash();
 	};
 
-  core.Static.readycarousel();
+  if ($('body').hasClass('carousel')) {
+    core.Static.readyCarousel();
+  };
 
+  if ($('body').hasClass('signup-carousel')) {
+    core.Static.readySignupCarousel();
+  };
+
+  if ($('body').hasClass('fancyboxmodal')) {
+    core.Static.fancyboxModal();
+  };
 });
 
 $(window).bind('load', function() {
@@ -60,15 +67,7 @@ core.Static.showJobFromHash = function() {
 	}
 }
 
-core.Static.readyAccordions = function() {
-  $('.accordion-content').hide();
-  $('.accordion-title').on('click', function() {
-    $(this).children().children().toggleClass('purple');
-    $(this).next().slideToggle();
-  });
-}
-
-core.Static.readycarousel = function() {
+core.Static.readyCarousel = function() {
    $(".owl-carousel").owlCarousel({
     loop:true,
     responsiveClass:true,
@@ -81,6 +80,53 @@ core.Static.readycarousel = function() {
         items:3,
         nav:true,
       }
+    }
+  });
+}
+
+core.Static.readySignupCarousel = function() {
+  // sets correct arrow images
+  var left_owl = document.getElementsByClassName("owl-prev");
+  var left = new Image();
+  var right_owl = document.getElementsByClassName("owl-next");
+  var right = new Image();
+  left.onload = function() {
+    left_owl[0].appendChild(left);
+  };
+  right.onload = function() {
+    right_owl[0].appendChild(right);
+  };
+  left.src = 'https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/free-knitting-patterns/free-patterns-arrow-left-thin.jpg';
+  left.id = 'correct-left';
+  right.src = 'https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/free-knitting-patterns/free-patterns-arrow-right-thin.jpg';
+  right.id = 'correct-right';
+
+  // carousel settings
+  $(".owl-carousel").owlCarousel({
+    loop:true,
+    responsiveClass:true,
+    responsive:{
+      0:{
+        items:1,
+        nav:true
+      },
+      700:{
+        items:5,
+        nav:true,
+      }
+    }
+  });
+
+}
+
+core.Static.fancyboxModal = function() {
+  $('.fancybox').fancybox();
+    $('.fancybox-media')
+    .fancybox({
+      openEffect : 'none',
+      closeEffect : 'none',
+      helpers : {
+      media : {}
     }
   });
 }
