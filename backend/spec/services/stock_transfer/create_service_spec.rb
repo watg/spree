@@ -9,6 +9,7 @@ describe Spree::StockTransferService::Create do
     let(:quantity) { 1 }
     let(:reference) { 'test' }
     let(:stock_location_1) {create(:stock_location)}
+    let!(:stock_item_1) {create(:stock_item, stock_location: stock_location_1, variant: variant, supplier: supplier )}
     let(:stock_location_2) {create(:stock_location)}
     let(:transfer_source_location_id) { stock_location_1.id }
     let(:transfer_destination_location_id) { stock_location_2.id }

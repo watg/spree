@@ -27,7 +27,7 @@ module Spree
       @options[:symbol_position] = @options[:symbol_position].to_sym
     end
 
-	def self.default_options
+    def self.default_options
       {
         with_currency:       Spree::Config[:display_currency],
         symbol_position:     Spree::Config[:currency_symbol_position].to_sym,
@@ -40,6 +40,14 @@ module Spree
 
     def to_s
       @money.format(@options)
+    end
+
+    def to_s_with_USD
+      if money.currency.iso_code == 'USD'
+        'USD ' + to_s
+      else
+        to_s
+      end
     end
 
     def to_html(options = { html: true })

@@ -28,23 +28,17 @@ FactoryGirl.define do
     #after(:create) do |p|
     #  p.variants_including_master.each { |v| v.save! }
     #end
-    factory :custom_product do
-      name 'Custom Product'
-      amount 17.99
-	  tax_category { |r| Spree::TaxCategory.first || r.association(:tax_category) }
-    end
 
     factory :product, aliases: [:rtw, :kit, :virtual_product] do
+
+      transient do
+        amount 19.99
+      end
+
       tax_category { |r| Spree::TaxCategory.first || r.association(:tax_category) }
 
       # ensure stock item will be created for this products master
       before(:create) { create(:stock_location) if Spree::StockLocation.count == 0 }
-
-      factory :product_in_stock do
-        after :create do |product|
-          product.master.stock_items.first.adjust_count_on_hand(10)
-        end
-      end
 
       factory :product_with_option_types do
         after(:create) { |product| create(:product_option_type, product: product) }

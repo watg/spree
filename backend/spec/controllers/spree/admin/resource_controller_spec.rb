@@ -3,7 +3,7 @@ require 'spec_helper'
 module Spree
   module Admin
     class WidgetsController < Spree::Admin::ResourceController
-      prepend_view_path('spec/test_views')
+      prepend_view_path(Rails.root + 'backend/spec/test_views')
 
       def model_class
         Widget
@@ -161,11 +161,5 @@ describe Spree::Admin::WidgetsController, :type => :controller do
       expect { subject }.to change { widget_1.reload.updated_at }
     end
 
-    it "touches updated_at" do
-      expect {
-        spree_post :update_positions, id: variant.id, positions: { variant.id => "2" }, format: "js"
-        variant.reload
-      }.to change(variant, :updated_at)
-    end
   end
 end

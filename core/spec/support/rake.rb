@@ -7,7 +7,7 @@ shared_context "rake" do
 
   before do
     Rake::Task.define_task(:environment)
-    load File.expand_path(Rails.root + "../../#{task_path}.rake")
+    load File.expand_path(Rails.root + "vendor/spree/core/#{task_path}.rake")
     subject.reenable
   end
 end

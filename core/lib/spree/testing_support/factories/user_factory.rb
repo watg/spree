@@ -18,10 +18,5 @@ FactoryGirl.define do
       ship_address
       bill_address
     end
-
-    factory :user_with_addreses do
-      ship_address
-      bill_address
-    end
   end
 end

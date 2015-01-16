@@ -230,6 +230,11 @@ describe Spree::Shipment, :type => :model do
   end
 
   context "#update!" do
+    before do
+      # custom change
+      allow(shipment).to receive(:check_for_only_digital_and_ship)
+    end
+
     shared_examples_for "immutable once shipped" do
       it "should remain in shipped state once shipped" do
         shipment.state = 'shipped'
@@ -500,8 +505,14 @@ describe Spree::Shipment, :type => :model do
 
   context "#ship" do
     context "when the shipment is canceled" do
+      # Note this has been heavily refactored to work with the way we unstock and restock
       let(:shipment_with_inventory_units) { create(:shipment, order: create(:order_with_line_items), state: 'canceled') }
+      let(:inventory_units) { shipment_with_inventory_units.inventory_units }
       let(:subject) { shipment_with_inventory_units.ship! }
+      let(:variant) {shipment_with_inventory_units.inventory_units.first.variant }
+      let(:stock_location) { shipment_with_inventory_units.stock_location }
+      let!(:stock_item) {create(:stock_item, variant: variant, stock_location: stock_location) }
+      let!(:count_on_hand) { stock_item.count_on_hand }
       before do
         allow(order).to receive(:update!)
         allow(shipment_with_inventory_units).to receive_messages(require_inventory: false, update_order: true)
@@ -510,9 +521,9 @@ describe Spree::Shipment, :type => :model do
       it 'unstocks them items' do
         allow_any_instance_of(Spree::ShipmentHandler).to receive(:update_order_shipment_state)
         allow_any_instance_of(Spree::ShipmentHandler).to receive(:send_shipped_email)
-
-        expect(shipment_with_inventory_units.stock_location).to receive(:unstock)
+        # expect(stock_location).to receive(:unstock)
         subject
+        expect(stock_item.reload.count_on_hand).to eq count_on_hand - inventory_units.size
       end
     end
 
@@ -751,42 +762,6 @@ describe Spree::Shipment, :type => :model do
   end
 
 
-  context "sends emails" do
-
-      before { Delayed::Worker.delay_jobs = false }
-
-      after { Delayed::Worker.delay_jobs = true }
-
-      it "should send a shipment email" do
-        mail_message = double 'Mail::Message'
-        shipment_id = nil
-        expect(Spree::ShipmentMailer).to receive(:shipped_email) { |*args|
-          shipment_id = args[0]
-          mail_message
-        }
-        expect(mail_message).to receive :deliver
-        allow(shipment).to receive(:send_survey_email)
-        allow(shipment).to receive(:update_order_shipment_state)
-        shipment.ship!
-        expect(shipment_id).to eq(shipment.id)
-      end
-
-      it "should an invitation email to do the survey" do
-        allow(order).to receive(:number).and_return("R123")
-        allow(order).to receive(:bill_address).and_return(build(:bill_address))
-        allow(shipment).to receive(:send_shipped_email)
-        allow(shipment).to receive(:update_order_shipment_state)
-
-        expect {
-          shipment.ship!
-        }.to change { ActionMailer::Base.deliveries.size }.by(1)
-
-        last_email = ActionMailer::Base.deliveries.last
-        expect(last_email.subject).to include('How did we do')
-      end
-    end
-
-
   # Regression test for #4072 (kinda)
   # The need for this was discovered in the research for #4702
   context "state changes" do
@@ -794,6 +769,7 @@ describe Spree::Shipment, :type => :model do
       # Must be stubbed so transition can succeed
       allow(order).to receive_messages :paid? => true
       allow(order).to receive_messages physical_line_items: [double('Non-digital item')]
+      allow(shipment).to receive(:check_for_only_digital_and_ship)
     end
 
     it "are logged to the database" do
@@ -811,6 +787,7 @@ describe Spree::Shipment, :type => :model do
       allow(order).to receive_messages :paid? => true
       allow(shipment).to receive :after_ship
       allow(order).to receive_messages physical_line_items: []
+      allow(order).to receive_messages line_items: [line_item]
     end
 
     it "ultising state machine call backs" do
@@ -829,8 +806,9 @@ describe Spree::Shipment, :type => :model do
   context "shipment contains non digital items does not automatically ship" do
     before do
       allow(order).to receive_messages physical_line_items: [double('Non-digital item')]
+      allow(order).to receive_messages line_items: [line_item]
       allow(order).to receive_messages :paid? => true
-      allow(shipment).to receive :after_ship
+      allow(shipment).to receive(:check_for_only_digital_and_ship)
     end
 
     it "ultising state machine call backs" do

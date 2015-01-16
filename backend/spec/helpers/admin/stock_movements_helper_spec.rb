@@ -12,7 +12,7 @@ describe Spree::Admin::StockMovementsHelper, :type => :helper do
         allow(stock_movement).to receive(:stock_item).and_return double.as_null_object
         stock_movement.save!(validate: false)
 
-        expect(helper.pretty_originator(@stock_transfer.stock_movements.last)).to eq @stock_transfer.number
+        expect(helper.pretty_originator(stock_transfer.stock_movements.last)).to eq stock_transfer.number
       end
     end
   end

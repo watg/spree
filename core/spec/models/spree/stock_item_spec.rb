@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe Spree::StockItem, :type => :model do
   let(:stock_location) { create(:stock_location_with_items) }
+  let!(:stock_item) { stock_location.stock_items.first }
 
   subject { stock_location.stock_items.order(:id).first }
 
@@ -118,16 +119,18 @@ describe Spree::StockItem, :type => :model do
 
       # Regression test for #3755
       it "processes existing backorders, even with negative stock" do
-        expect(inventory_unit).to receive(:fill_backorder)
-        expect(inventory_unit_2).not_to receive(:fill_backorder)
+     # The WaitingUnitsProcessor takes care of this
+     #   expect(inventory_unit).to receive(:fill_backorder)
+     #   expect(inventory_unit_2).not_to receive(:fill_backorder)
         subject.adjust_count_on_hand(1)
         expect(subject.count_on_hand).to eq(-1)
       end
 
       # Test for #3755
       it "does not process backorders when stock is adjusted negatively" do
-        expect(inventory_unit).not_to receive(:fill_backorder)
-        expect(inventory_unit_2).not_to receive(:fill_backorder)
+     # The WaitingUnitsProcessor takes care of this
+     #   expect(inventory_unit).not_to receive(:fill_backorder)
+     #   expect(inventory_unit_2).not_to receive(:fill_backorder)
         subject.adjust_count_on_hand(-1)
         expect(subject.count_on_hand).to eq(-3)
       end

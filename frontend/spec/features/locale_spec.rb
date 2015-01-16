@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "setting locale" , :type => :featuredo
+describe "setting locale" , :type => :feature do
   before do
     pending "to fix"
     I18n.locale = I18n.default_locale

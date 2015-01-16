@@ -19,10 +19,11 @@ module Spree
 
         let(:product) { create(:product, option_types: [color_option_type, waist_option_type, inseam_option_type]) }
 
-        let!(:variant) { create(:variant, product: product, option_values: [blue_option_value, three_two_waist_option_value, three_zero_inseam_option_value]) }
-        let!(:same_option_values_variant) { create(:variant, product: product, option_values: [blue_option_value, three_two_waist_option_value, three_one_inseam_option_value]) }
-        let!(:different_color_option_value_variant) { create(:variant, product: product, option_values: [red_option_value, three_two_waist_option_value, three_one_inseam_option_value]) }
-        let!(:different_waist_option_value_variant) { create(:variant, product: product, option_values: [blue_option_value, three_four_waist_option_value, three_one_inseam_option_value]) }
+        let!(:variant) { create(:variant, product: product, in_stock_cache: true, option_values: [blue_option_value, three_two_waist_option_value, three_zero_inseam_option_value]) }
+        let!(:same_option_values_variant) { create(:variant, product: product, in_stock_cache: true, option_values: [blue_option_value, three_two_waist_option_value, three_one_inseam_option_value]) }
+        let!(:different_color_option_value_variant) { create(:variant, product: product, in_stock_cache: true, option_values: [red_option_value, three_two_waist_option_value, three_one_inseam_option_value]) }
+        let!(:different_waist_option_value_variant) { create(:variant, product: product, in_stock_cache: true, option_values: [blue_option_value, three_four_waist_option_value, three_one_inseam_option_value]) }
+
 
         before do
           @original_option_type_restrictions = SameOptionValue.option_type_restrictions
@@ -34,8 +35,8 @@ module Spree
         subject { SameOptionValue.eligible_variants(variant.reload) }
 
         it "returns all other variants for the same product with the same option value for the specified option type" do
-          Spree::StockItem.update_all(count_on_hand: 10)
-
+          # Does nothing, as in_stock_cache is used to determine stock
+          #Spree::StockItem.update_all(count_on_hand: 10)
           expect(subject.sort).to eq [variant, same_option_values_variant].sort
         end
 

@@ -101,8 +101,9 @@ module Spree
     end
 
     def update_item_total
-      order.item_normal_total = line_items.sum(&:normal_amount)
-      order.item_total = line_items.sum(&:amount)
+      # Do not be tempted to do line_items.sum(:normal_amount) this will not work
+      order.item_normal_total = line_items.map(&:normal_amount).sum
+      order.item_total = line_items.sum('price * quantity')
       update_order_total
     end
 

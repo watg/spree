@@ -35,24 +35,40 @@ module Spree
     end
 
     def retrieve_data
-      Spree::Order.where( :state => 'complete', :completed_at => @from..@to ).find_each do |o| 
-        o.line_items.each do |line_item|
+      for_each_order do |order|
+        order.line_items.each do |line_item|
+          product = line_item.product
           variant = line_item.variant
-          if search_variants.include?(variant)
-            yield [variant.name, variant.sku, line_item.currency, line_item.normal_price, line_item.price, o.completed_at, o.number]
+
+          if search_products.include?(product)
+            yield [
+              variant.name,
+              variant.sku,
+              line_item.currency,
+              line_item.normal_price,
+              line_item.price,
+              order.completed_at,
+              order.number
+            ]
           end
         end
       end
     end
 
-    private
+  private
 
-    def search_variants
+    def for_each_order
+      Spree::Order.where( :state => 'complete', :completed_at => @from..@to ).find_each do |order|
+        yield order
+      end
+    end
+
+    def search_products
       found_products = []
       @search_names.each do |name|
         found_products << Spree::Product.where("name ILIKE ?", '%' + name + '%')
       end
-      found_products.empty? ? [] : found_products.flatten.uniq.map(&:variants).flatten
+      found_products.flatten.uniq
     end
 
 

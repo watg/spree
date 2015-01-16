@@ -3,9 +3,11 @@ module Spree
     belongs_to :option_type, class_name: 'Spree::OptionType', touch: true, inverse_of: :option_values
     acts_as_list scope: :option_type
     has_and_belongs_to_many :variants, join_table: 'spree_option_values_variants', class_name: "Spree::Variant"
-
+    has_many :option_values_variants, inverse_of: :option_value
     validates :name, presence: true, uniqueness: { scope: :option_type_id }
-    validates :presentation, presence: true
+
+# Disabled as we set this automatically when created
+#    validates :presentation, presence: true
   
     validates_uniqueness_of :sku_part, :scope => [:option_type_id]
 
@@ -39,7 +41,7 @@ module Spree
     }
 
     def url_safe_name
-      name.downcase.parameterize
+      name.to_s.downcase.parameterize
     end
 
     private

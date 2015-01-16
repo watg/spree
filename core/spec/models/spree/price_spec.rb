@@ -5,10 +5,11 @@ describe Spree::Price, :type => :model do
     let(:variant) { stub_model Spree::Variant }
     subject { Spree::Price.new variant: variant, amount: amount }
 
-    context 'when the amount is nil' do
-      let(:amount) { nil }
-      it { is_expected.to be_valid }
-    end
+    # Disabled as in our case price amount should never be nil
+    #context 'when the amount is nil' do
+    #  let(:amount) { nil }
+    #  it { is_expected.to be_valid }
+    #end
 
     context 'when the amount is less than 0' do
       let(:amount) { -1 }

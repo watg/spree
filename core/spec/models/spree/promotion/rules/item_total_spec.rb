@@ -30,23 +30,25 @@ describe Spree::Promotion::Rules::ItemTotal, :type => :model do
   context "uk zone" do
 
     it "should be eligible when zone-country is enabled - currency GBP" do
-      allow(order).to receive_messages :line_items => [double(:line_item, :amount => 30, :currency => 'GBP'), double(:line_item, :amount => 21, :currency => 'GBP')]
+      order.item_total = 51
+      order.currency = 'GBP'
       expect(rule).to be_eligible(order)
     end
 
     it "should be eligible when zone-country is enabled - currency EUR" do
-      allow(order).to receive_messages :line_items => [double(:line_item, :amount => 10, :currency => 'EUR'), double(:line_item, :amount => 10, :currency => 'EUR')]
-      allow(another_order).to receive_messages :currency => 'EUR' 
+      order.item_total = 20
+      order.currency = 'EUR'
+      another_order.currency = 'EUR'
       expect(rule).to be_eligible(order)
     end
 
     it "should not be eligible when currency / zone is disabled" do
-      allow(order_currency_usd).to receive_messages :line_items => [double(:line_item, :amount => 30, :currency => 'USD'), double(:line_item, :amount => 21, :currency => 'USD')]
+      order_currency_usd.item_total = 51
       expect(rule).not_to be_eligible(order_currency_usd)
     end
 
     it "should not be eligible when amount is to small" do
-      allow(order).to receive_messages :line_items => [double(:line_item, :amount => 5, :currency => 'GBP'), double(:line_item, :amount => 4, :currency => 'GBP')]
+      order.item_total = 9
       expect(rule).not_to be_eligible(order)
     end
 
@@ -55,18 +57,18 @@ describe Spree::Promotion::Rules::ItemTotal, :type => :model do
   context "other zone" do
 
     it "should be eligible when zone-country is enabled - currency GBP" do
-      allow(another_order).to receive_messages :line_items => [double(:line_item, :amount => 30, :currency => 'GBP'), double(:line_item, :amount => 21, :currency => 'GBP')]
+      another_order.item_total = 51
       expect(rule).to be_eligible(another_order)
     end
 
     it "should not be eligible when zone-country does not exist - currency EUR" do
-      allow(another_order).to receive_messages :line_items => [double(:line_item, :amount => 10, :currency => 'EUR'), double(:line_item, :amount => 10, :currency => 'EUR')]
-      allow(another_order).to receive_messages :currency => 'EUR' 
+      another_order.item_total = 20
+      another_order.currency = 'EUR'
       expect(rule).not_to be_eligible(another_order)
     end
 
     it "should not be eligible when amount is to small" do
-      allow(another_order).to receive_messages :line_items => [double(:line_item, :amount => 5, :currency => 'GBP'), double(:line_item, :amount => 4, :currency => 'GBP')]
+      another_order.item_total = 9
       expect(rule).not_to be_eligible(another_order)
     end
 
@@ -75,19 +77,19 @@ describe Spree::Promotion::Rules::ItemTotal, :type => :model do
   context "user has not entered their address" do
 
     it "should be eligible if the amounts are correct regardless of currency" do
-      allow(order_no_address).to receive_messages :line_items => [double(:line_item, :amount => 30, :currency => 'GBP'), double(:line_item, :amount => 21, :currency => 'GBP')]
+      order_no_address.item_total = 51
       expect(rule).to be_eligible(order_no_address)
     end
 
     it "should be eligible when zone-country does not exist - currency EUR" do
-      allow(order_no_address).to receive_messages :line_items => [double(:line_item, :amount => 10, :currency => 'EUR'), double(:line_item, :amount => 10, :currency => 'EUR')]
-      allow(order_no_address).to receive_messages :currency => 'EUR' 
+      order_no_address.item_total = 20
+      order_no_address.currency = 'EUR'
       expect(rule).to be_eligible(order_no_address)
     end
 
     it "should not be eligible when amount is to small" do
-      allow(order_no_address).to receive_messages :line_items => [double(:line_item, :amount => 5, :currency => 'GBP'), double(:line_item, :amount => 4, :currency => 'GBP')]
-      allow(order_no_address).to receive_messages :currency => 'GBP' 
+      order_no_address.item_total = 9
+      order_no_address.currency = 'GBP'
       expect(rule).not_to be_eligible(order_no_address)
     end
 

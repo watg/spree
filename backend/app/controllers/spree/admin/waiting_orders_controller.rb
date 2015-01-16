@@ -6,8 +6,8 @@ module Spree
       def index
         @all_boxes = Spree::Parcel.find_boxes
         @batch_size = Spree::BulkOrderPrintingService::BATCH_SIZE
-        @unprinted_invoice_count = Spree::Order.unprinted_invoices.count
-        @unprinted_image_count = Spree::Order.unprinted_image_stickers.count
+        @unprinted_invoice_count = Spree::Order.unprinted_invoices.size
+        @unprinted_image_count = Spree::Order.unprinted_image_stickers.size
 
         @orders = Spree::Order.to_be_packed_and_shipped
         # @search needs to be defined as this is passed to search_form_for

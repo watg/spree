@@ -14,12 +14,12 @@ describe Spree::TaxRate, :type => :model do
 
     context "when no rate zones match the tax zone" do
       before do
-        Spree::TaxRate.create(:amount => 1, :zone => create(:zone))
+        Spree::TaxRate.create(:amount => 1, :zone => create(:zone, :currency => 'USD'))
       end
       
       context "when there is no default tax zone" do
         before do
-          @zone = create(:zone, :name => "Country Zone", :default_tax => false, :zone_members => [])
+          @zone = create(:zone, :name => "Country Zone", :default_tax => false, :zone_members => [], :currency => 'USD')
           @zone.zone_members.create(:zoneable => country)
         end
 
@@ -77,7 +77,7 @@ describe Spree::TaxRate, :type => :model do
 
         context "when the tax_zone is contained within a rate zone" do
           before do
-            sub_zone = create(:zone, :name => "State Zone", :zone_members => [])
+            sub_zone = create(:zone, :name => "State Zone", :zone_members => [], :currency => 'USD')
             sub_zone.zone_members.create(:zoneable => create(:state, :country => country))
             allow(order).to receive_messages :tax_zone => sub_zone
             @rate = Spree::TaxRate.create(
@@ -97,7 +97,7 @@ describe Spree::TaxRate, :type => :model do
 
       context "when there is a default tax zone" do
         before do
-          @zone = create(:zone, :name => "Country Zone", :default_tax => true, :zone_members => [])
+          @zone = create(:zone, :name => "Country Zone", :default_tax => true, :zone_members => [], :currency => 'USD')
           @zone.zone_members.create(:zoneable => country)
         end
 
@@ -133,7 +133,7 @@ describe Spree::TaxRate, :type => :model do
 
         context "when the order has a different tax zone" do
           before do
-            allow(order).to receive_messages :tax_zone => create(:zone, :name => "Other Zone")
+            allow(order).to receive_messages :tax_zone => create(:zone, :name => "Other Zone", :currency => 'USD')
             allow(order).to receive_messages :tax_address => tax_address
           end
 
@@ -224,7 +224,7 @@ describe Spree::TaxRate, :type => :model do
   context "#adjust" do
     before do
       @country = create(:country)
-      @zone = create(:zone, :name => "Country Zone", :default_tax => true, :zone_members => [])
+      @zone = create(:zone, :name => "Country Zone", :default_tax => true, :zone_members => [], :currency => 'USD')
       @zone.zone_members.create(:zoneable => @country)
       @category    = Spree::TaxCategory.create :name => "Taxable Foo"
       @category2   = Spree::TaxCategory.create(:name => "Non Taxable")
@@ -306,7 +306,7 @@ describe Spree::TaxRate, :type => :model do
 
         context "when order's zone does not match default zone, is not included in the default zone, AND does not match the rate's zone" do
           before do
-            @new_zone = create(:zone, :name => "New Zone", :default_tax => false)
+            @new_zone = create(:zone, :name => "New Zone", :default_tax => false, :currency => 'USD')
             @new_country = create(:country, :name => "New Country")
             @new_zone.zone_members.create(:zoneable => @new_country)
             @order.ship_address = create(:address, :country => @new_country)

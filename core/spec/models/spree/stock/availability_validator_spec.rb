@@ -77,6 +77,25 @@ module Spree
             expect(subject.validate(line_item)).to eq true
           end
         end
+
+        context "The line item exists already and the quantity changes" do
+          let!(:line_item) { create(:line_item, quantity: 2) }
+          let(:variant) { line_item.variant }
+          let(:order) {line_item.order}
+
+          before do
+            order.reload
+          end
+
+          it "validates the new updated object, and not the old one with a quantity of 2" do
+            expect(Stock::Quantifier).to receive(:new).with(variant).and_return quantifier
+            expect(quantifier).to receive(:can_supply?).with(3).once.and_return true
+            line_item.quantity = 3
+            expect(subject.validate(line_item)).to eq true
+          end
+
+        end
+
       end
 
     end

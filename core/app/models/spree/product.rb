@@ -88,7 +88,7 @@ module Spree
     has_many :line_items, through: :variants_including_master
     has_many :orders, through: :line_items
 
-    delegate_belongs_to :master, :sku, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :amount_in
+    delegate_belongs_to :master, :sku, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :amount_in, :price_normal_in
 
     delegate_belongs_to :master, :cost_price
 
@@ -108,7 +108,7 @@ module Spree
     after_save :save_master
     after_save :run_touch_callbacks, if: :anything_changed?
     after_save :reset_nested_changes
-    after_touch :touch_taxons
+#    after_touch :touch_taxons
 
     before_validation :normalize_slug, on: :update
     before_validation :validate_master
@@ -392,7 +392,8 @@ module Spree
           product_properties.create(property: property)
         end
         self.option_types = prototype.option_types
-        self.taxons = prototype.taxons
+        # Taxons are now part of suites
+        #self.taxons = prototype.taxons
       end
     end
 
@@ -412,16 +413,18 @@ module Spree
 
       values.each do |ids|
         variant = variants.create(
-          option_value_ids: ids,
-          price: master.price
+          option_value_ids: ids#,
+          # Not part of vanilla spree 
+          # price: master.price
         )
+        variant.prices = master.prices
       end
       save
     end
 
     def ensure_master
       return unless new_record?
-      self.master ||= Variant.new
+      self.master ||= build_master
     end
 
     def normalize_slug
@@ -479,14 +482,14 @@ module Spree
       run_callbacks(:touch)
     end
 
-    # Iterate through this products taxons and taxonomies and touch their timestamps in a batch
-    def touch_taxons
-      taxons_to_touch = taxons.map(&:self_and_ancestors).flatten.uniq
-      Spree::Taxon.where(id: taxons_to_touch.map(&:id)).update_all(updated_at: Time.current)
-
-      taxonomy_ids_to_touch = taxons_to_touch.map(&:taxonomy_id).flatten.uniq
-      Spree::Taxonomy.where(id: taxonomy_ids_to_touch).update_all(updated_at: Time.current)
-    end
+#    # Iterate through this products taxons and taxonomies and touch their timestamps in a batch
+#    def touch_taxons
+#      taxons_to_touch = taxons.map(&:self_and_ancestors).flatten.uniq
+#      Spree::Taxon.where(id: taxons_to_touch.map(&:id)).update_all(updated_at: Time.current)
+#
+#      taxonomy_ids_to_touch = taxons_to_touch.map(&:taxonomy_id).flatten.uniq
+#      Spree::Taxonomy.where(id: taxonomy_ids_to_touch).update_all(updated_at: Time.current)
+#    end
 
   end
 end

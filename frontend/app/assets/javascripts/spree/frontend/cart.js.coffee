@@ -2,7 +2,7 @@ Spree.ready ($) ->
   if ($ 'form#update-cart').is('*')
     ($ 'form#update-cart a.delete').show().one 'click', ->
       $('a.delete').hide()
-	  ($ this).parents('.line-item').first().find('input.line_item_quantity').val 0
+      ($ this).parents('.line-item').first().find('input.line_item_quantity').val 0
       ($ this).parents('form').first().submit()
       false
 

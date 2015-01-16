@@ -2,8 +2,8 @@ require 'spec_helper'
 
 # In this file, we want to test that the controller helpers function correctly
 # So we need to use one of the controllers inside Spree.
-# ProductsController is good.
-describe Spree::ProductsController, :type => :controller do
+# SuitesController is good.
+describe Spree::SuitesController, :type => :controller do
 
   before do
     I18n.enforce_available_locales = false
@@ -20,7 +20,7 @@ describe Spree::ProductsController, :type => :controller do
   # Regression test for #1184
   it "sets the default locale based off Spree::Frontend::Config[:locale]" do
     expect(I18n.locale).to eq(:en)
-    spree_get :index
+    spree_get :show
     expect(I18n.locale).to eq(:de)
   end
 

@@ -214,14 +214,14 @@ describe Spree::Api::ShipmentsController, :type => :controller do
           it 'adds a line_item to a shipment' do
             api_put :add_by_line_item, { line_item_id: line_item.id, quantity: 2  }
             expect(response.status).to eq(200)
-            expect(json_response['manifest'].detect { |h| h['variant']['id'] == line_item.variant.id }["quantity"]).to be_nil
+            expect(json_response['manifest'].detect { |h| h['variant']['id'] == line_item.variant.id }).to be_nil
             expect(json_response['manifest'].detect { |h| h['variant']['id'] == variant_part.id }["quantity"]).to eq(16)
           end
 
           it 'removes a line_item to a shipment' do
             api_put :remove_by_line_item, { line_item_id: line_item.id, quantity: 1  }
             expect(response.status).to eq(200)
-            expect(json_response['manifest'].detect { |h| h['variant']['id'] == line_item.variant.id }["quantity"]).to be_nil
+            expect(json_response['manifest'].detect { |h| h['variant']['id'] == line_item.variant.id }).to be_nil
             expect(json_response['manifest'].detect { |h| h['variant']['id'] == variant_part.id }["quantity"]).to eq(4)
           end
 

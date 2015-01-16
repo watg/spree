@@ -92,7 +92,7 @@ RSpec.configure do |config|
   end
 
   # Ensure presenters works
-  config.include ActionView::TestCase::Behavior, example_group: {file_path: %r{spec/presenters}}
+  config.include ActionView::TestCase::Behavior, file_path: %r{spec/presenters}
 
   config.before(:each) do
     WebMock.disable!

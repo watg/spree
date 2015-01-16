@@ -30,7 +30,7 @@ module Spree
         :stock_movement_attributes,
         :stock_item_attributes,
         :promotion_attributes,
-        :store_attributes
+        :store_attributes,
         :product_group_attributes,
         :product_page_attributes,
         :suite_attributes,
@@ -65,7 +65,7 @@ module Spree
 
       @@variant_attributes = [
         :id, :name, :sku, :weight, :height, :width, :depth, :is_master,
-        :cost_price, :slug, :description, :track_inventory
+        :slug, :description, :track_inventory
       ]
 
       @@image_attributes = [
@@ -169,7 +169,7 @@ module Spree
      
       @@supplier_attributes = [ :id, :permalink, :firstname, :lastname ]
 
-	  @@product_group_attributes = [:id, :name]
+	    @@product_group_attributes = [:id, :name]
 
       @@product_page_attributes = [:id, :name]
 

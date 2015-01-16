@@ -89,8 +89,8 @@ module Spree
     end
 
     private
- 
-	def trigger_suite_tab_cache_rebuilder
+
+    def trigger_suite_tab_cache_rebuilder
       Spree::SuiteTabCacheRebuilder.rebuild_from_variant_async(self.variant)
     end
 

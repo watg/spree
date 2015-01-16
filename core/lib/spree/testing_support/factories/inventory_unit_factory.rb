@@ -8,7 +8,6 @@ FactoryGirl.define do
   end
 
   factory :inventory_unit, class: Spree::InventoryUnit do
-    line_item
     variant
     order
     line_item

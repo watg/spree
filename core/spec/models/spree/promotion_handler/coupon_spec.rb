@@ -244,15 +244,15 @@ module Spree
         context "for an order with taxable line items" do
           before(:each) do
             @country = create(:country)
-            @zone = create(:zone, :name => "Country Zone", :default_tax => true, :zone_members => [])
+            @zone = create(:zone, :name => "Country Zone", :default_tax => true, :zone_members => [], :currency => 'USD')
             @zone.zone_members.create(:zoneable => @country)
             @category = Spree::TaxCategory.create :name => "Taxable Foo"
             @rate1 = Spree::TaxRate.create(
-                :amount => 0.10,
-                :calculator => Spree::Calculator::DefaultTax.create,
-                :tax_category => @category,
-                :zone => @zone,
-				:currency => "USD"
+              :amount => 0.10,
+              :calculator => Spree::Calculator::DefaultTax.create,
+              :tax_category => @category,
+              :zone => @zone,
+              :currency => "USD"
             )
 
             @order = Spree::Order.create!
@@ -263,7 +263,7 @@ module Spree
               3.times do |i|
                 taxable = create(:product, :tax_category => @category)
                 taxable.master.price_normal_in('USD').amount = 9.0
-				@order.contents.add(taxable.master, 1)
+                @order.contents.add(taxable.master, 1)
               end
             end
             it "successfully applies the promo" do
@@ -299,7 +299,7 @@ module Spree
           context "and multiple quantity per line item" do
             before(:each) do
               twnty_off = Promotion.create name: "promo", :code => "20off"
-              twnty_off_calc = Calculator::FlatRate.new(preferred_amount: [{type: :integer, name: "USD", value: 20}]))
+              twnty_off_calc = Calculator::FlatRate.new(preferred_amount: [{type: :integer, name: "USD", value: 20}])
               Promotion::Actions::CreateItemAdjustments.create(promotion: twnty_off,
                                                                calculator: twnty_off_calc)
 

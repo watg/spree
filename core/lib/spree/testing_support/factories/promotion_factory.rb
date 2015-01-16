@@ -22,7 +22,7 @@ FactoryGirl.define do
 
       after(:create) do |promotion, evaluator|
         calculator = Spree::Calculator::FlatRate.new
-        calculator.preferred_amount = evaluator.weighted_order_adjustment_amount
+        calculator.preferred_amount = [{type: :integer, name: "USD", value: evaluator.weighted_order_adjustment_amount}]
         action = Spree::Promotion::Actions::CreateAdjustment.create!(:calculator => calculator)
         promotion.actions << action
         promotion.save!
@@ -36,6 +36,8 @@ FactoryGirl.define do
 
       after(:create) do |promotion, evaluator|
         zone = Spree::Zone.where(name: "GlobalZone").first || create(:global_zone)
+        united_states = create(:country, :name => "United States")
+        zone.members.create(zoneable: united_states)
         rule = Spree::Promotion::Rules::ItemTotal.create!(
           preferred_attributes: {zone.id => { 'USD' => { 'amount' => evaluator.item_total_threshold_amount, 'enabled' => 'true' }}}
         )

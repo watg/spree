@@ -1,7 +1,7 @@
 # encoding: utf-8
 require 'spec_helper'
 
-describe Spree::VariantOptions do
+describe Spree::VariantOptions, type: :model do
   let(:currency) { 'USD' }
   let(:product) { build_stubbed(:base_product) }
   let(:variants) { [] }

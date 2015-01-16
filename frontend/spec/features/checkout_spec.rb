@@ -64,41 +64,41 @@
 #         add_mug_to_cart
 #         click_button "Checkout"
 
-        click_button "Save and Continue"
-        page.should_not have_content("undefined method `promotion'")
-        click_button "Save and Continue"
-        page.should have_content("Shipping total: $10.00")
-      end
-    end
-
+#        click_button "Save and Continue"
+#        page.should_not have_content("undefined method `promotion'")
+#        click_button "Save and Continue"
+#        page.should have_content("Shipping total: $10.00")
+#      end
+#    end
+#
 #         click_button "Save and Continue"
 #         page.should_not have_content("undefined method `promotion'")
 #         click_button "Save and Continue"
 #         page.should have_content(shipping_method.adjustment_label)
 #       end
 
-      it "should not show 'Free Shipping' when there are no shipments" do
-        within("#checkout-summary") do
-          expect(page).to_not have_content('Free Shipping')
-        end
-      end
-    end
-
-    # Regression test for #4190
-    it "updates state_lock_version on form submission", js: true do
-      add_mug_to_cart
-      click_button "Checkout"
-
-      expect(find('input#order_state_lock_version', visible: false).value).to eq "0"
-
-      fill_in "order_email", with: "test@example.com"
-      fill_in_address
-      click_button "Save and Continue"
-
-      expect(find('input#order_state_lock_version', visible: false).value).to eq "1"
-    end
-  end
-
+#      it "should not show 'Free Shipping' when there are no shipments" do
+#        within("#checkout-summary") do
+#          expect(page).to_not have_content('Free Shipping')
+#        end
+#      end
+#    end
+#
+#    # Regression test for #4190
+#    it "updates state_lock_version on form submission", js: true do
+#      add_mug_to_cart
+#      click_button "Checkout"
+#
+#      expect(find('input#order_state_lock_version', visible: false).value).to eq "0"
+#
+#      fill_in "order_email", with: "test@example.com"
+#      fill_in_address
+#      click_button "Save and Continue"
+#
+#      expect(find('input#order_state_lock_version', visible: false).value).to eq "1"
+#    end
+#  end
+#
 #         fill_in "order_email", :with => "test@example.com"
 #         fill_in_address
 
@@ -141,13 +141,13 @@
 #       order.user = user
 #       order.update!
 
-  context "and likes to double click buttons" do
-    let!(:user) { create(:user) }
-
-    let!(:order) do
-      order = OrderWalkthrough.up_to(:delivery)
-      order.stub :confirmation_required? => true
-
+#  context "and likes to double click buttons" do
+#    let!(:user) { create(:user) }
+#
+#    let!(:order) do
+#      order = OrderWalkthrough.up_to(:delivery)
+#      order.stub :confirmation_required? => true
+#
 #     it "redirects to payment page", inaccessible: true do
 #       visit spree.checkout_state_path(:delivery)
 #       click_button "Save and Continue"
@@ -242,10 +242,10 @@
 #   # regression for #2921
 #   context "goes back from payment to add another item", js: true do
 
-      Spree::CheckoutController.any_instance.stub(current_order: order)
-      Spree::CheckoutController.any_instance.stub(try_spree_current_user: user)
-      Spree::OrdersController.any_instance.stub(try_spree_current_user: user)
-
+#      Spree::CheckoutController.any_instance.stub(current_order: order)
+#      Spree::CheckoutController.any_instance.stub(try_spree_current_user: user)
+#      Spree::OrdersController.any_instance.stub(try_spree_current_user: user)
+#
 #       create_and_add_bag_to_cart
 
 #       click_on "Checkout"
@@ -418,95 +418,95 @@
 #     product_page2.displayed_variants = bag.variants_including_master
 #     product_page2.save!
 
-    context "doesn't fill in coupon code input" do
-      it "advances just fine" do
-        click_on "Save and Continue"
-        expect(current_path).to eql(spree.order_path(Spree::Order.last))
-      end
-    end
-  end
-
-  context "order has only payment step" do
-    before do
-      create(:credit_card_payment_method)
-      @old_checkout_flow = Spree::Order.checkout_flow
-      Spree::Order.class_eval do
-        checkout_flow do
-          go_to_state :payment
-          go_to_state :confirm
-        end
-      end
-
-      Spree::Order.any_instance.stub email: "spree@commerce.com"
-
-      add_mug_to_cart
-      click_on "Checkout"
-    end
-
-    after do
-      Spree::Order.checkout_flow(&@old_checkout_flow)
-    end
-
-    it "goes right payment step and place order just fine" do
-      expect(current_path).to eq spree.checkout_state_path('payment')
-
-      choose "Credit Card"
-      fill_in "Name on card", :with => 'Spree Commerce'
-      fill_in "Card Number", :with => '4111111111111111'
-      fill_in "card_expiry", :with => '04 / 20'
-      fill_in "Card Code", :with => '123'
-      click_button "Save and Continue"
-
-      expect(current_path).to eq spree.checkout_state_path('confirm')
-      click_button "Place Order"
-    end
-  end
-
-
-  context "save my address" do
-    before do
-      stock_location.stock_items.update_all(count_on_hand: 1)
-      add_mug_to_cart
-    end
-
-    context 'as a guest' do
-      before do
-        Spree::Order.last.update_column(:email, "test@example.com")
-        click_button "Checkout"
-      end
-
-      it 'should not be displayed' do
-        expect(page).to_not have_css("[data-hook=save_user_address]")
-      end
-    end
-
-    context 'as a User' do
-      before do
-        Spree::CheckoutController.any_instance.stub(:try_spree_current_user => create(:user))
-        click_button "Checkout"
-      end
-
-      it 'should be displayed' do
-        expect(page).to have_css("[data-hook=save_user_address]")
-      end
-    end
-  end
-
-  def fill_in_address
-    address = "order_bill_address_attributes"
-    fill_in "#{address}_firstname", with: "Ryan"
-    fill_in "#{address}_lastname", with: "Bigg"
-    fill_in "#{address}_address1", with: "143 Swan Street"
-    fill_in "#{address}_city", with: "Richmond"
-    select "United States of America", from: "#{address}_country_id"
-    select "Alabama", from: "#{address}_state_id"
-    fill_in "#{address}_zipcode", with: "12345"
-    fill_in "#{address}_phone", with: "(555) 555-5555"
-  end
-
-  def add_mug_to_cart
-    visit spree.root_path
-    click_link mug.name
-    click_button "add-to-cart-button"
-  end
-end
+#    context "doesn't fill in coupon code input" do
+#      it "advances just fine" do
+#        click_on "Save and Continue"
+#        expect(current_path).to eql(spree.order_path(Spree::Order.last))
+#      end
+#    end
+#  end
+#
+#  context "order has only payment step" do
+#    before do
+#      create(:credit_card_payment_method)
+#      @old_checkout_flow = Spree::Order.checkout_flow
+#      Spree::Order.class_eval do
+#        checkout_flow do
+#          go_to_state :payment
+#          go_to_state :confirm
+#        end
+#      end
+#
+#      Spree::Order.any_instance.stub email: "spree@commerce.com"
+#
+#      add_mug_to_cart
+#      click_on "Checkout"
+#    end
+#
+#    after do
+#      Spree::Order.checkout_flow(&@old_checkout_flow)
+#    end
+#
+#    it "goes right payment step and place order just fine" do
+#      expect(current_path).to eq spree.checkout_state_path('payment')
+#
+#      choose "Credit Card"
+#      fill_in "Name on card", :with => 'Spree Commerce'
+#      fill_in "Card Number", :with => '4111111111111111'
+#      fill_in "card_expiry", :with => '04 / 20'
+#      fill_in "Card Code", :with => '123'
+#      click_button "Save and Continue"
+#
+#      expect(current_path).to eq spree.checkout_state_path('confirm')
+#      click_button "Place Order"
+#    end
+#  end
+#
+#
+#  context "save my address" do
+#    before do
+#      stock_location.stock_items.update_all(count_on_hand: 1)
+#      add_mug_to_cart
+#    end
+#
+#    context 'as a guest' do
+#      before do
+#        Spree::Order.last.update_column(:email, "test@example.com")
+#        click_button "Checkout"
+#      end
+#
+#      it 'should not be displayed' do
+#        expect(page).to_not have_css("[data-hook=save_user_address]")
+#      end
+#    end
+#
+#    context 'as a User' do
+#      before do
+#        Spree::CheckoutController.any_instance.stub(:try_spree_current_user => create(:user))
+#        click_button "Checkout"
+#      end
+#
+#      it 'should be displayed' do
+#        expect(page).to have_css("[data-hook=save_user_address]")
+#      end
+#    end
+#  end
+#
+#  def fill_in_address
+#    address = "order_bill_address_attributes"
+#    fill_in "#{address}_firstname", with: "Ryan"
+#    fill_in "#{address}_lastname", with: "Bigg"
+#    fill_in "#{address}_address1", with: "143 Swan Street"
+#    fill_in "#{address}_city", with: "Richmond"
+#    select "United States of America", from: "#{address}_country_id"
+#    select "Alabama", from: "#{address}_state_id"
+#    fill_in "#{address}_zipcode", with: "12345"
+#    fill_in "#{address}_phone", with: "(555) 555-5555"
+#  end
+#
+#  def add_mug_to_cart
+#    visit spree.root_path
+#    click_link mug.name
+#    click_button "add-to-cart-button"
+#  end
+#end

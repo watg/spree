@@ -32,7 +32,7 @@ describe Spree::Personalisation do
   context "#max_initials" do
     subject { pm.max_initials }
     it "returns textual description of the personalisation" do
-      expect(subject).to eq(2)
+      expect(subject).to eq("2")
     end
   end
 

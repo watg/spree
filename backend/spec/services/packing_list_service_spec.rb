@@ -101,6 +101,7 @@ describe Spree::PackingListService do
     let(:part1) { create(:line_item_part, optional: false, line_item: line_item_1, quantity: 2, variant: variant_2, price: 8.0) }
 
     before do
+      line_item_1.parts << part1
       line_item_1.quantity.times do
         part1.quantity.times do
           create(:base_inventory_unit, line_item: part1.line_item, order: order, variant: part1.variant, supplier: supplier_2)
@@ -138,6 +139,7 @@ describe Spree::PackingListService do
         part1.assembled = true
         part1.main_part = true
         part1.save!
+        line_item_1.parts << container_part
       end
 
       it "includes any part containers and uses a CUSTOM prefix" do

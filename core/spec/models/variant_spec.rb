@@ -14,18 +14,6 @@ describe Spree::Variant do
 
   end
 
-  describe "with tags" do
-    let(:tags) { 2.times.map { FactoryGirl.create(:tag) } }
-
-    before :each do
-      subject.tags = tags
-    end
-
-    describe '#tag_names' do
-      its(:tag_names) { should eq(tags.map(&:value)) }
-    end
-  end
-
   context '#part_prices' do
 
     before do
@@ -99,16 +87,6 @@ describe Spree::Variant do
         variant.product.update_column(:updated_at, 1.day.ago)
         variant.touch
         expect(variant.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
-      end
-    end
-
-    context "index_page_items" do
-      let!(:index_page_item) { create(:index_page_item, variant: variant, updated_at: 1.month.ago) }
-
-      it "is updated" do
-        variant.reload # reload to pick up the index_page_item has_many
-        variant.touch
-        expect(index_page_item.reload.updated_at).to be_within(1.seconds).of(Time.now)
       end
     end
 

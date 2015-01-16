@@ -416,21 +416,8 @@ describe Spree::OrderContents do
     end
 
     it "increases the quantity on the line_item" do
-      subject.add_by_line_item(line_item, 2, nil)
+      subject.add_by_line_item(line_item, 2, {})
       expect(order.reload.line_items.first.quantity).to eq 3
-    end
-  end
-
-  context "#delete_line_item" do
-    let(:line_item) { create(:line_item, order: order, quantity: 1)}
-
-    before do
-      allow(subject).to receive(:eager_load).with(line_item).and_return(line_item)
-    end
-
-    it "removes a line_item" do
-      subject.delete_line_item(line_item)
-      expect(order.reload.line_items.first).to be_nil
     end
   end
 
@@ -442,12 +429,12 @@ describe Spree::OrderContents do
     let(:line_item) { create(:line_item, order: order, quantity: 1)}
 
     it "decreases the quantity on the line_item" do
-      subject.remove_by_line_item(line_item, 1, nil)
+      subject.remove_by_line_item(line_item, 1, {})
       expect(order.reload.line_items.first).to be_nil
     end
 
     it "removes a line_item if quanity is 0" do
-      subject.remove_by_line_item(line_item, 2, nil)
+      subject.remove_by_line_item(line_item, 2, {})
       expect(order.reload.line_items.first).to be_nil
     end
   end

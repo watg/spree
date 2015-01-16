@@ -68,7 +68,9 @@ module Spree
         it "can delete an image" do
           api_delete :destroy, :id => product_image.id, :product_id => product.id
           expect(response.status).to eq(204)
-          expect { product_image.reload }.to raise_error(ActiveRecord::RecordNotFound)
+          # we use act_as_paranoid
+          #expect { product_image.reload }.to raise_error(ActiveRecord::RecordNotFound)
+          expect(product_image.reload.deleted_at).to be_present
         end
       end
     end

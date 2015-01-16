@@ -50,7 +50,7 @@ describe Spree::Reimbursement, :type => :model do
     let!(:adjustments)            { [] } # placeholder to ensure it gets run prior the "before" at this level
 
     let!(:tax_rate)               { nil }
-    let!(:tax_zone)               { create(:zone, default_tax: true) }
+    let!(:tax_zone)               { create(:zone, default_tax: true, currency: 'USD') }
 
     let(:order)                   { create(:order_with_line_items, state: 'payment', line_items_count: 1, line_items_price: line_items_price, shipment_cost: 0) }
     let(:line_items_price)        { BigDecimal.new(10) }
@@ -68,6 +68,12 @@ describe Spree::Reimbursement, :type => :model do
     subject { reimbursement.perform! }
 
     before do
+      # Not part of vanilla spree, although this spec is such a hack
+      # we have to put this in place, as the shipment stock adjuster will
+      # correctly set the inventory_unit state to backordered otherwise
+      # IDIOTS !!!!
+      allow_any_instance_of(Spree::ShipmentStockAdjuster).to receive(:unstock)
+
       order.shipments.each do |shipment|
         shipment.inventory_units.update_all state: 'shipped'
         shipment.update_column('state', 'shipped')

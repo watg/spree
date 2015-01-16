@@ -8,7 +8,6 @@ module Spree
     end
 
     def add(variant, quantity=1, options = {})
-
       uuid = Spree::VariantUuid.fetch(variant, options[:parts], options[:personalisations]).number
       line_item = grab_line_item(variant, uuid, options[:target_id], false)
 
@@ -19,10 +18,13 @@ module Spree
       add_by_line_item(line_item, quantity, options)
     end
 
-    def add_by_line_item(line_item, quantity, options)
+    def add_by_line_item(line_item, quantity, options={})
       line_item = eager_load(line_item)
       line_item.quantity += quantity
+      line_item.target_shipment = options[:shipment] if options.has_key? :shipment
+      line_item.save
       after_add_or_remove(line_item, options)
+      line_item
     end
 
     # Remove variant qty from line_item
@@ -33,10 +35,6 @@ module Spree
       line_item = grab_line_item(variant, uuid, options[:target_id], true)
 
       remove_by_line_item(line_item, quantity, options)
-    end
-
-    def delete_line_item(line_item, options)
-      remove_by_line_item(line_item, line_item.quantity, options)
     end
 
     def remove_by_line_item(line_item, quantity, options)
@@ -111,7 +109,9 @@ module Spree
     end
 
     def build_line_item(variant, uuid, options)
-  
+      opts = { currency: order.currency }.merge ActionController::Parameters.new(options).
+                                          permit(PermittedAttributes.line_item_attributes)
+
       line_item = order.line_items.new(
         quantity: 0,
         variant: variant,
@@ -124,7 +124,8 @@ module Spree
         price:  variant.current_price_in(currency).amount,
         normal_price:  variant.price_normal_in(currency).amount,
         in_sale: variant.in_sale,
-        item_uuid: uuid
+        item_uuid: uuid,
+        options: opts
       )
 
       line_item.line_item_parts = options[:parts] || []

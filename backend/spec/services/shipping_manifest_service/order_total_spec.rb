@@ -9,7 +9,7 @@ describe Spree::ShippingManifestService::OrderTotal do
   its("result") { should eq(BigDecimal.new(110)) }
 
   context "with gift card adjustment" do
-    let!(:adjustment) { create(:gift_card_adjustment, adjustable: order, amount: 10) }
+    let!(:adjustment) { create(:gift_card_adjustment, adjustable: order, amount: 10, order: order) }
 
     it "will add the gift card adjustment to the total" do
       expect(subject.result).to eq(BigDecimal.new(120))

@@ -84,7 +84,9 @@ module Spree
       end
 
       it "returns the count of waiting inventory units with the stock item" do
-        expect(Spree::InventoryUnit).to receive(:total_awaiting_feed_for).
+        # This is called twice, once by stock_item rabl and also by the variant rabl
+        # which the stock_item rabl includes
+        expect(Spree::InventoryUnit).to receive(:total_awaiting_feed_for).twice.
           with(stock_item.variant).and_return(3)
 
         api_get :show, stock_location_id: stock_location.to_param, id: stock_item.to_param

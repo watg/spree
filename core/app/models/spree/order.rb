@@ -1,6 +1,5 @@
 require 'spree/core/validators/email'
 require 'spree/order/checkout'
-require  File.join(Rails.root,'vendor/spree/core/app/jobs/spree/issue_gift_card_job.rb')
 
 module Spree
   class Order < Spree::Base
@@ -57,6 +56,7 @@ module Spree
     has_many :products, through: :variants
     has_many :variants, through: :line_items
     has_many :refunds, through: :payments
+    has_many :suites, through: :line_items
 
     has_and_belongs_to_many :promotions, join_table: 'spree_orders_promotions'
 
@@ -223,14 +223,6 @@ module Spree
     # For compatiblity with Calculator::PriceSack
     def amount
       line_items.inject(0.0) { |sum, li| sum + li.amount }
-    end
-
-    def item_normal_total
-      if @item_normal_total.blank?
-        line_items.map(&:normal_amount).sum
-      else
-        @item_normal_total
-      end
     end
 
     def value_in_gbp
@@ -571,7 +563,7 @@ module Spree
     end
 
     def item_total_without_gift_cards
-      line_items_without_gift_cards.sum(&:amount)
+      item_total - gift_card_line_items.to_a.sum(&:amount)
     end
 
     def deliver_order_confirmation_email
@@ -601,7 +593,8 @@ module Spree
     end
 
     def insufficient_stock_lines
-      line_items.select(&:insufficient_stock?)
+      Spree::Stock::AvailabilityValidator.new.validate_order(self)
+      line_items.select {|line| line.errors.any? }
     end
 
     def product_groups
@@ -635,13 +628,6 @@ module Spree
       end
     end
 
-    def ensure_line_items_are_in_stock
-      if insufficient_stock_lines.present?
-        errors.add(:base, Spree.t(:insufficient_stock_lines_present)) and return false
-      end
-    end
-
-
     def merge!(order, user = nil)
       order.line_items.each do |other_order_line_item|
         next unless other_order_line_item.currency == currency
@@ -650,17 +636,24 @@ module Spree
         # Make sure you allow any extensions to chime in on whether or
         # not the extension-specific parts of the line item match
         current_line_item = self.line_items.detect { |my_li|
-                      my_li.variant == other_order_line_item.variant &&
-                      self.line_item_comparison_hooks.all? { |hook|
-                        self.send(hook, my_li, other_order_line_item.serializable_hash)
-                      }
-                    }
+          my_li.variant == other_order_line_item.variant &&
+            self.line_item_comparison_hooks.all? { |hook|
+            self.send(hook, my_li, other_order_line_item.serializable_hash)
+          }
+        }
         if current_line_item
           current_line_item.quantity += other_order_line_item.quantity
-          current_line_item.save!
+          if current_line_item.valid?
+            current_line_item.save!
+          end
+          other_order_line_item.delete
         else
-          other_order_line_item.order_id = self.id
-          other_order_line_item.save!
+          if other_order_line_item.valid?
+            other_order_line_item.order_id = self.id
+            other_order_line_item.save!
+          else
+            other_order_line_item.delete
+          end
         end
       end
 
@@ -851,16 +844,17 @@ module Spree
       %(warehouse_on_hold customer_service_on_hold).include?(state)
     end
 
-    def prune_line_items
-      if self.completed?
-        Rails.logger.error "Can not prune line items from a compelted order: #{self.id}"
-      else
-        line_items_to_delete = self.line_items.select {|li| li.variant.deleted? }
-        line_items_to_delete.map do |li|
-          OrderContents.new(self).delete_line_item(li)
-        end
-      end
-    end
+    # Removing as this is not default spree behaviour
+    #def prune_line_items
+    #  if self.completed?
+    #    Rails.logger.error "Can not prune line items from a compelted order: #{self.id}"
+    #  else
+    #    line_items_to_delete = self.line_items.select {|li| li.variant.deleted? }
+    #    line_items_to_delete.map do |li|
+    #      OrderContents.new(self).delete_line_item(li,{})
+    #    end
+    #  end
+    #end
 
     private
 
@@ -903,7 +897,9 @@ module Spree
     end
 
     def send_cancel_email
-      OrderMailer.cancel_email(self.id).deliver
+      unless internal?
+        OrderMailer.cancel_email(self.id).deliver
+      end
     end
 
     def after_resume

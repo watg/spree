@@ -38,7 +38,10 @@ module Spree
       class_name: 'Spree::StockThreshold',
       dependent: :destroy
 
-	has_one :assembly_definition
+    has_one :assembly_definition
+
+    has_many :taggings, as: :taggable
+    has_many :tags, -> { order(:value) }, through: :taggings
 
     delegate_belongs_to :default_price, :display_price, :display_amount, :currency
 
@@ -58,8 +61,7 @@ module Spree
     validates :weight, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
     validates_uniqueness_of :sku, allow_blank: true, conditions: -> { where(deleted_at: nil) }
 
-
-	before_create :create_sku_if_not_present
+    before_create :create_sku_if_not_present
 
     after_create :create_stock_items
     after_create :set_position
@@ -404,7 +406,8 @@ module Spree
 
     def in_stock?
       Rails.cache.fetch(in_stock_cache_key) do
-        total_on_hand > 0
+        in_stock_cache
+        #total_on_hand > 0
       end
     end
 
@@ -474,8 +477,17 @@ module Spree
 
     def set_master_out_of_stock
       if product.master && product.master.in_stock?
-        product.master.stock_items.update_all(:backorderable => false)
-        product.master.stock_items.each { |item| item.reduce_count_on_hand_to_zero }
+        #  Becuase we use the in_stock_cache attribute we need to go
+        #  about reseting and purging the cache arount that, instead
+        #  of vanilla spree which just updates the stock_items
+        product.master.update_column(:in_stock_cache, false)
+        product.master.touch
+
+        #product.master.stock_items.update_all(:backorderable => false)
+        product.master.stock_items.each do |item|
+          item.backorderable = false
+          item.reduce_count_on_hand_to_zero
+        end
       end
     end
 

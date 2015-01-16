@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Admin::RootController do
+describe Spree::Admin::RootController, type: :controller do
 
   context "unauthorized request" do
 

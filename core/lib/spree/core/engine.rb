@@ -4,7 +4,7 @@ module Spree
       isolate_namespace Spree
       engine_name 'spree'
 
-      config.autoload_paths += %W(#{config.root}/lib #{config.root}/app/jobs/*)
+      config.autoload_paths += %W(#{config.root}/lib #{config.root}/app/jobs/spree/*)
       
       rake_tasks do
         load File.join(root, "lib", "tasks", "exchanges.rake")

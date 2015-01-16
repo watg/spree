@@ -1,5 +1,6 @@
 module Spree
   class Taxon < Spree::Base
+    acts_as_paranoid
     acts_as_nested_set dependent: :destroy
 
     belongs_to :taxonomy, class_name: 'Spree::Taxonomy', inverse_of: :taxons
@@ -21,7 +22,7 @@ module Spree
 
     after_touch :touch_ancestors_and_taxonomy
 
-	scope :displayable, -> { where(hidden: [false,nil]) }
+    scope :displayable, -> { where(hidden: [false,nil]) }
 
     has_attached_file :icon,
       styles: { mini: '32x32>', normal: '128x128>' },
@@ -38,12 +39,12 @@ module Spree
       # fs << ProductFilters.taxons_below(self)
       ## unless it's a root taxon? left open for demo purposes
 
-      fs << Spree::Core::ProductFilters.price_filter if Spree::Core::ProductFilters.respond_to?(:price_filter)
-      fs << Spree::Core::ProductFilters.brand_filter if Spree::Core::ProductFilters.respond_to?(:brand_filter)
+      #fs << Spree::Core::ProductFilters.price_filter if Spree::Core::ProductFilters.respond_to?(:price_filter)
+      #fs << Spree::Core::ProductFilters.brand_filter if Spree::Core::ProductFilters.respond_to?(:brand_filter)
       fs
     end
 
-   
+
     # We use this instead of self_and_ancesors as this gives us gaurentees about the
     # order of the parents, we would like to walk up the tree
     def self_and_parents

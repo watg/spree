@@ -61,13 +61,6 @@ module Spree
         rate.included_in_price? &&
         (rates - [rate]).map(&:tax_category).include?(rate.tax_category)
       end
-      non_relevant_items.each do |item|
-        if item.adjustments.tax.present?
-          item.adjustments.tax.delete_all
-          item.update_column(:pre_tax_amount, nil)
-          Spree::ItemAdjustments.new(item).update
-        end
-      end
     end
 
     # Pre-tax amounts must be stored so that we can calculate

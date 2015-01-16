@@ -41,9 +41,13 @@ FactoryGirl.define do
       factory :completed_order_with_totals do
         state 'complete'
 
-        after(:create) do |order|
+        transient do
+          completed_at Time.now
+        end
+
+        after(:create) do |order, evaluator|
           order.refresh_shipment_rates
-          order.update_column(:completed_at, Time.now)
+          order.update_column(:completed_at, evaluator.completed_at)
         end
 
         factory :completed_order_with_pending_payment do
@@ -64,24 +68,28 @@ FactoryGirl.define do
             end
             order.reload
           end
+        end
 
-          factory :shipped_order do
-            after(:create) do |order|
-              order.shipments.each do |shipment|
-                shipment.inventory_units.update_all state: 'shipped'
-                shipment.update_column('state', 'shipped')
-              end
-              order.reload
+        factory :shipped_order do
+          payment_state 'paid'
+          shipment_state 'shipped'
+
+          after(:create) do |order|
+            create(:payment, amount: order.total, order: order, state: 'completed')
+            order.shipments.each do |shipment|
+              shipment.inventory_units.update_all state: 'shipped'
+              shipment.update_column('state', 'shipped')
             end
+            order.reload
           end
+        end
 
-          factory :order_ready_to_be_consigned_and_allocated do
+        factory :order_ready_to_be_consigned_and_allocated do
           payment_state 'paid'
           shipment_state 'ready'
           after(:create) do |order|
             create(:parcel, order: order, box_id: create(:box).id)
             create(:parcel, order: order, box_id: create(:box).id)
-            create(:payment, amount: order.total, order: order, state: 'completed')
             order.shipments.each do |shipment|
               shipment.inventory_units.each do |u|
                 u.update_columns(state: 'on_hand', supplier_id: create(:supplier))
@@ -90,9 +98,6 @@ FactoryGirl.define do
             end
             order.reload
           end
-
-        end
-
 
         end
       end

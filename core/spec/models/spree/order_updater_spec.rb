@@ -10,7 +10,7 @@ module Spree
         2.times do
           create(:line_item, :order => order, price: 10)
         end
-        #order.line_items.reload # before 2.4
+        order.line_items.reload # before 2.4
       end
 
       it "updates payment totals" do
@@ -72,6 +72,7 @@ module Spree
     context "updating shipment state" do
       before do
         allow(order).to receive_messages :backordered? => false
+        allow(order).to receive_messages :awaiting_feed? => false
         allow(order).to receive_message_chain(:shipments, :shipped, :count).and_return(0)
         allow(order).to receive_message_chain(:shipments, :ready, :count).and_return(0)
         allow(order).to receive_message_chain(:shipments, :pending, :count).and_return(0)

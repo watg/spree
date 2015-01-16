@@ -18,7 +18,7 @@ module Spree
     def compute(object)
       sum = 0
       max = self.preferred_max_items.to_i
-      items_count = object.quantity_without_gift_cards
+      items_count = object.line_items_without_gift_cards.sum(&:quantity)
       items_count.times do |i|
         if i == 0
           sum += self.preferred_first_item.to_f

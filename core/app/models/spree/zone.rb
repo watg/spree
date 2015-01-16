@@ -7,7 +7,6 @@ module Spree
     validates :name, presence: true, uniqueness: { allow_blank: true }
     after_save :remove_defunct_members
     after_save :remove_previous_default
-    after_save :clean_cache
 
     alias :members :zone_members
     accepts_nested_attributes_for :zone_members, allow_destroy: true, reject_if: proc { |a| a['zoneable_id'].blank? }

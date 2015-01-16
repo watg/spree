@@ -49,6 +49,7 @@ describe Spree::Variant, :type => :model do
     let(:variant) { build(:base_variant, sku: 'asdasd') }
 
     it "builds the correct sku" do
+      variant.product.master.sku = 'ABC'
       variant.create_sku
       expect(variant.sku).to match "ABC-COL-HO_PI"
     end
@@ -59,6 +60,7 @@ describe Spree::Variant, :type => :model do
     let(:variant) { build(:base_variant, sku: nil) }
 
     it "calls create_sku on a save" do
+      variant.product.master.sku = 'ABC'
       expect(variant.sku).to be_nil
       variant.create_sku
       expect(variant.sku).to match "ABC-COL-HO_PI"
@@ -184,18 +186,21 @@ describe Spree::Variant, :type => :model do
     end
 
     describe 'mark_master_out_of_stock' do
+      before { Delayed::Worker.delay_jobs = false }
+      after { Delayed::Worker.delay_jobs = true }
+
       before do
-        product.master.stock_items.first.set_count_on_hand(5)
+        product.master.update_column(:in_stock_cache, true)
       end
       context 'when product is created without variants but with stock' do
         it { expect(product.master).to be_in_stock }
       end
 
       context 'when a variant is created' do
+
         before(:each) do
           product.variants.create!(:name => 'any-name')
         end
-
         it { expect(product.master).to_not be_in_stock }
       end
     end
@@ -319,7 +324,7 @@ describe Spree::Variant, :type => :model do
 
   context "#display_amount" do
     it "returns a Spree::Money" do
-      expect(variant.display_amount.to_s).to eq("$0.00")
+      expect(variant.display_amount.to_s).to eq("$19.99")
     end
   end
 
@@ -482,17 +487,6 @@ describe Spree::Variant, :type => :model do
       end
     end
 
-    describe "with tags" do
-      let(:tags) { 2.times.map { FactoryGirl.create(:tag) } }
-
-      before :each do
-        subject.tags = tags
-      end
-
-      describe '#tag_names' do
-        its(:tag_names) { should eq(tags.map(&:value)) }
-      end
-    end
   end
 
   describe '#is_backorderable' do
@@ -765,7 +759,7 @@ describe Spree::Variant, :type => :model do
       in_stock_variant = create(:variant)
       out_of_stock_variant = create(:variant)
 
-      in_stock_variant.stock_items.first.update_column(:count_on_hand, 10)
+      in_stock_variant.update_column(:in_stock_cache, true)
 
       expect(Spree::Variant.in_stock).to eq [in_stock_variant]
     end

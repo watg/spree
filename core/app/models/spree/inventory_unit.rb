@@ -11,6 +11,7 @@ module Spree
     has_many :return_items, inverse_of: :inventory_unit
     has_one :original_return_item, class_name: "Spree::ReturnItem", foreign_key: :exchange_inventory_unit_id
 
+    scope :non_pending, -> { where pending: false }
     scope :backordered, -> { where state: 'backordered' }
     scope :awaiting_feed, -> { where state: 'awaiting_feed' }
     scope :on_hand, -> { where state: 'on_hand' }
@@ -66,7 +67,7 @@ module Spree
         .where("spree_shipments.stock_location_id = ?", stock_item.stock_location_id)
         .where('spree_orders.completed_at is not null')
         .order("spree_orders.completed_at ASC")
-	end
+    end
 
     def self.finalize_units!(inventory_units)
       inventory_units.map do |iu|
@@ -83,7 +84,7 @@ module Spree
 
     def find_stock_item
       Spree::StockItem.where(stock_location_id: shipment.stock_location_id,
-        variant_id: variant_id).first
+                             variant_id: variant_id).first
     end
 
     # Remove variant default_scope `deleted_at: nil`
@@ -106,7 +107,7 @@ module Spree
     private
 
     def allow_ship?
-       self.on_hand?
+      self.on_hand?
     end
 
     def update_order
@@ -128,11 +129,11 @@ module Spree
       end
     end
 
-     
+
     def percentage_of_line_item
       1 / BigDecimal.new(line_item.quantity)
     end
-     
+
     def current_return_item
       return_items.not_cancelled.first
     end

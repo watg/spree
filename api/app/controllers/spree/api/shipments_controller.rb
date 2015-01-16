@@ -2,7 +2,7 @@ module Spree
   module Api
     class ShipmentsController < Spree::Api::BaseController
 
-      before_action :find_and_update_shipment, only: [:ship, :ready, :add, :remove]
+      before_action :find_and_update_shipment, only: [:ship, :ready, :add, :remove, :add_by_line_item, :remove_by_line_item]
       before_action :load_transfer_params, only: [:transfer_to_location, :transfer_to_shipment]
 
       def mine
@@ -65,7 +65,7 @@ module Spree
 
       def add_by_line_item
         quantity = params[:quantity].to_i
-        returned_line_item = @shipment.order.contents.add_by_line_item(line_item, quantity, @shipment)
+        returned_line_item = @shipment.order.contents.add_by_line_item(line_item, quantity, { shipment: @shipment})
         if returned_line_item.errors.any?
           invalid_resource!(returned_line_item)
         else
@@ -82,7 +82,7 @@ module Spree
       
       def remove_by_line_item
         quantity = params[:quantity].to_i
-        returned_line_item = @shipment.order.contents.remove_by_line_item(line_item, quantity, @shipment)
+        returned_line_item = @shipment.order.contents.remove_by_line_item(line_item, quantity, { shipment: @shipment})
         if returned_line_item.errors.any?
           invalid_resource!(returned_line_item)
         else

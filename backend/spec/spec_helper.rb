@@ -44,6 +44,13 @@ require 'paperclip/matchers'
 require 'capybara/poltergeist'
 Capybara.javascript_driver = :poltergeist
 
+# Comment in the following to debug the feature specs
+# Chrome - for testing locally
+#Capybara.register_driver :chrome do |app|
+#  Capybara::Selenium::Driver.new(app, :browser => :chrome)
+#end
+# Capybara.javascript_driver = :chrome
+
 RSpec.configure do |config|
   config.color = true
   config.infer_spec_type_from_file_location!
@@ -128,8 +135,8 @@ RSpec.configure do |config|
   # TODO Not sure we need this hook in every single spec within the backend build
   # it sounds like most of the times it will just make tests slower and confusing
   # when one wants to test something regarding authorizations
-  config.before(:each) do
-    current_user = create(:admin_user, :spree_api_key => SecureRandom.hex(24))
-    Spree::Admin::BaseController.any_instance.stub(:spree_current_user).and_return(current_user)
-  end
+#  config.before(:each) do
+#    current_user = create(:admin_user, :spree_api_key => SecureRandom.hex(24))
+#    Spree::Admin::BaseController.any_instance.stub(:spree_current_user).and_return(current_user)
+#  end
 end

@@ -36,8 +36,8 @@ module Spree
     validates_with Stock::AvailabilityValidator
 
     validate :ensure_proper_currency
+    before_destroy :set_quantity_to_zero
     before_destroy :update_inventory
-
     after_destroy :destroy_line_item_parts
 
     def destroy_line_item_parts
@@ -215,21 +215,43 @@ module Spree
 
       opts = options.dup # we will be deleting from the hash, so leave the caller's copy intact
 
-      currency = opts.delete(:currency) || order.try(:currency)
+      # Not currently used. Price & currency assignment happens in OrderContents
+      # currency = opts.delete(:currency) || order.try(:currency)
 
-      if currency
-        self.currency = currency
-        self.price    = variant.price_in(currency).amount +
-                        variant.price_modifier_amount_in(currency, opts)
-      else
-        self.price    = variant.price +
-                        variant.price_modifier_amount(opts)
-      end
+      # if currency
+      #   self.currency = currency
+      #   self.price    = variant.price_in(currency).amount +
+      #                   variant.price_modifier_amount_in(currency, opts)
+      # else
+      #   self.price    = variant.price +
+      #                   variant.price_modifier_amount(opts)
+      # end
 
       self.assign_attributes opts
     end
 
     private
+
+      def value_for(attribute)
+        (self.variant.send(attribute).to_f + options_value_for(attribute)) * self.quantity
+      end
+
+      def options_value_for(attribute)
+        self.line_item_parts.reduce(0.0) do |w, o|
+          value = o.variant.send(attribute)
+          if value.blank?
+            Rails.logger.warn("The #{attribute} of variant id: #{o.variant.id} is nil for line_item_part: #{o.id}")
+            value = BigDecimal.new(0,2)
+          end
+          w + ( value.to_f * o.quantity )
+        end
+      end
+
+      # This will trigger inventory units to be deleted via update_inventory 
+      def set_quantity_to_zero
+        self.quantity = 0 unless self.quantity == 0
+      end
+
       def update_inventory
       #There is a quirk where the after_create hook which run's before after_save is saving the
       #line_item in a nested model callback, hence by the time changed? is evaluated it is false

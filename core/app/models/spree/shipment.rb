@@ -48,7 +48,10 @@ module Spree
       event :ship do
         transition from: [:ready, :canceled], to: :shipped
       end
-      after_transition to: :shipped, do: :after_ship
+      # This was refactored due to the way we unstock an restock
+      #after_transition to: :shipped, do: :after_ship
+      after_transition from: :ready, to: :shipped, do: :after_ship
+      after_transition from: :canceled, to: :shipped, do: [:after_resume, :after_ship]
 
       event :cancel do
         transition to: :canceled, from: [:pending, :ready, :awaiting_feed]
@@ -72,7 +75,9 @@ module Spree
         transition from: :canceled, to: :pending
         transition from: :pending, to: :pending
       end
-      after_transition from: :canceled, to: [:pending, :ready, :shipped], do: :after_resume
+      # This was refactored due to the way we unstock an restock
+      #after_transition from: :canceled, to: [:pending, :ready, canceled], do: :after_resume
+      after_transition from: :canceled, to: [:pending, :ready], do: :after_resume
 
       after_transition do |shipment, transition|
         shipment.state_changes.create!(
@@ -171,7 +176,10 @@ module Spree
     end
 
     def inventory_units_for_item(line_item, variant = nil)
-      inventory_units.where(line_item_id: line_item.id, variant_id: line_item.variant.id || variant.id)
+      # Vanilla spree has line_item.variant.id evaled first, this does not work for when we have 
+      # parts
+      # inventory_units.where(line_item_id: line_item.id, variant_id: line_item.variant.id || variant.id)
+      inventory_units.where(line_item_id: line_item.id, variant_id: variant.id || line_item.variant.id)
     end
 
     def item_cost
@@ -195,7 +203,7 @@ module Spree
 
           line_item = units.first.line_item
           variant = units.first.variant
-          ManifestItem.new(line_item, variant, units.length, states)
+          ManifestItem.new(line_item, variant, units.length, states, units)
         end
       end.flatten
     end
@@ -414,7 +422,6 @@ module Spree
 
       def after_ship
         ShipmentHandler.factory(self).perform
-  
         # set job to send survey 10 days later
         send_survey_email
       end
@@ -436,7 +443,7 @@ module Spree
       end
 
       def check_for_only_digital_and_ship
-        if order.physical_line_items.empty?
+        if order.line_items.any? && order.physical_line_items.empty?
           self.ship!
         end
       end

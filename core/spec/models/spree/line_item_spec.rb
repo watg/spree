@@ -85,21 +85,26 @@ describe Spree::LineItem, :type => :model do
 
     it "inherits parts master cost_price if any parts variant has nil cost_price" do
       line_item.variant = kit_variant
-      variant10.cost_price = nil
-      variant10.save
+      variant10.update_column(:cost_price, nil)
       line_item.line_item_parts.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
       line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
       line_item.line_item_parts.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
-      expect(line_item.cost_price).to eq 25.0
+      # 2 * 17 ( variant10.product.master.cost_price ) 
+      # 1 * 7 ( variant7.cost_price ) 
+      # 1 * 3 ( variant3.cost_price ) 
+      # => 44
+      # 1 * 2 ( line_item.variant.cost_price )
+      # => 46
+      # * 2 ( quantity of 2 )
+      # => 92
+      expect(line_item.cost_price).to eq 92.0
     end
 
 
     it "notifies if both part variant and master cost_price is nil and defaults to 0" do
       line_item.variant = kit_variant
-      variant10.cost_price = nil
-      variant10.product.master.cost_price = nil
-      variant10.save
-      variant10.product.master.save
+      variant10.update_column(:cost_price, nil)
+      variant10.product.master.update_column(:cost_price, nil)
       lio = line_item.line_item_parts.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
       line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
       line_item.line_item_parts.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
@@ -141,8 +146,7 @@ describe Spree::LineItem, :type => :model do
 
     it "inherits parts master weight if any parts variant has nil weight" do
       line_item.variant = kit_variant
-      variant10.weight = nil
-      variant10.save
+      variant10.update_column(:weight, nil)
       line_item.line_item_parts.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
       line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
       line_item.line_item_parts.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
@@ -152,10 +156,8 @@ describe Spree::LineItem, :type => :model do
 
     it "notifies if both part variant and master weight is nil and defaults to 0" do
       line_item.variant = kit_variant
-      variant10.weight = nil
-      variant10.product.master.weight = nil
-      variant10.save
-      variant10.product.master.save
+      variant10.update_column(:weight, nil)
+      variant10.product.master.update_column(:weight, nil)
       lio = line_item.line_item_parts.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
       line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
       line_item.line_item_parts.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
@@ -194,6 +196,7 @@ describe Spree::LineItem, :type => :model do
     end
 
     it "deletes inventory units" do
+      allow(line_item.order).to receive(:completed?).and_return true
       expect { line_item.destroy }.to change { line_item.inventory_units.count }.from(1).to(0)
     end
   end
@@ -565,11 +568,14 @@ describe Spree::LineItem, :type => :model do
       expect(line_item.price).to eq 123
     end
 
-    it "updates the price based on the options provided" do
-      expect(line_item).to receive(:gift_wrap=).with(true)
-      expect(line_item.variant).to receive(:gift_wrap_price_modifier_amount_in).with("USD", true).and_return 1.99
-      line_item.options = { gift_wrap: true }
-      expect(line_item.price).to eq 21.98
-    end
+    # This is disabled for the time being, as we set the price
+    # in the order_contents model for line item options
+    #
+    #it "updates the price based on the options provided" do
+    #  expect(line_item).to receive(:gift_wrap=).with(true)
+    #  expect(line_item.variant).to receive(:gift_wrap_price_modifier_amount_in).with("USD", true).and_return 1.99
+    #  line_item.options = { gift_wrap: true }
+    #  expect(line_item.price).to eq 21.98
+    #end
   end
 end

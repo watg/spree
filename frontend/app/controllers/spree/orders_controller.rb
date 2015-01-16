@@ -41,8 +41,8 @@ module Spree
     # Shows the current incomplete order from the session
     def edit
       @order = current_order || Order.incomplete.find_or_initialize_by(guest_token: cookies.signed[:guest_token])
-	  # Remove any line_items which have been deleted
-      @order.prune_line_items # I would love to delete this
+      # Remove any line_items which have been deleted
+      #@order.prune_line_items # I would love to delete this
       associate_user
     end
 
@@ -97,14 +97,13 @@ module Spree
       end
     end
 
-      def assign_order_with_lock
-        @order = current_order(lock: true)
-        unless @order
-          flash[:error] = Spree.t(:order_not_found)
-          redirect_to root_path and return
-        end
+    def assign_order_with_lock
+      @order = current_order(lock: true)
+      unless @order
+        flash[:error] = Spree.t(:order_not_found)
+        redirect_to root_path and return
       end
     end
-
   end
+
 end
