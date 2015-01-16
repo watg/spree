@@ -3,7 +3,7 @@ require 'spec_helper'
 module Spree
   module Stock
     module Splitter
-      describe Weight do
+      describe Weight, :type => :model do
         let(:packer) { build(:stock_packer) }
         let(:variant) { build(:base_variant, :weight => 100) }
 

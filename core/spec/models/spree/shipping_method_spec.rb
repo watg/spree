@@ -3,7 +3,7 @@ require 'spec_helper'
 class DummyShippingCalculator < Spree::ShippingCalculator
 end
 
-describe Spree::ShippingMethod do
+describe Spree::ShippingMethod, :type => :model do
   let(:shipping_method){ create(:shipping_method) }
 
   context 'calculators' do
@@ -38,12 +38,12 @@ describe Spree::ShippingMethod do
     before { subject.valid? }
 
     it "validates presence of name" do
-      expect(subject.errors[:name].size).to eq(1)
+      expect(subject.error_on(:name).size).to eq(1)
     end
 
     context "shipping category" do
       it "validates presence of at least one" do
-        expect(subject.errors[:base].size).to eq(1)
+        expect(subject.error_on(:base).size).to eq(1)
       end
 
       context "one associated" do
@@ -83,24 +83,6 @@ describe Spree::ShippingMethod do
     it "soft-deletes when destroy is called" do
       shipping_method.destroy
       expect(shipping_method.deleted_at).not_to be_blank
-    end
-  end
-
-  context "generating tracking URLs" do
-    context "shipping method has a tracking URL mask on file" do
-      let(:tracking_url) { "https://track-o-matic.com/:tracking" }
-      before { allow(subject).to receive(:tracking_url) { tracking_url } }
-
-      context 'tracking number has spaces' do
-        let(:tracking_numbers) { ["1234 5678 9012 3456", "a bcdef"] }
-        let(:expectations) { %w[https://track-o-matic.com/1234%205678%209012%203456 https://track-o-matic.com/a%20bcdef] }
-
-        it "should return a single URL with '%20' in lieu of spaces" do
-          tracking_numbers.each_with_index do |num, i|
-            expect(subject.build_tracking_url(num)).to eq(expectations[i])
-          end
-        end
-      end
     end
   end
 end

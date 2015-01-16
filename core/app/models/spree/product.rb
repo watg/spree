@@ -18,9 +18,9 @@
 # Sum of on_hand each variant's inventory level determine "on_hand" level for the product.
 
 module Spree
-  class Product < ActiveRecord::Base
+  class Product < Spree::Base
     extend FriendlyId
-    friendly_id :slug_candidates, use: :slugged
+    friendly_id :slug_candidates, use: :history
 
     acts_as_paranoid
 
@@ -69,7 +69,7 @@ module Spree
       -> { where is_master: true },
       inverse_of: :product,
       class_name: 'Spree::Variant'
-      
+
     has_many :variants,
       -> { where(is_master: false).order("#{::Spree::Variant.quoted_table_name}.position ASC") },
       inverse_of: :product,
@@ -85,19 +85,33 @@ module Spree
 
     has_many :stock_items, through: :variants_including_master
 
-    delegate_belongs_to :master, :sku, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :price_normal_in, :amount_in
+    has_many :line_items, through: :variants_including_master
+    has_many :orders, through: :line_items
+
+    delegate_belongs_to :master, :sku, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :amount_in
 
     delegate_belongs_to :master, :cost_price
 
+    delegate :images, to: :master, prefix: true
+    alias_method :images, :master_images
+
+    has_many :variant_images, -> { order(:position) }, source: :images, through: :variants_including_master
+
     after_create :set_master_variant_defaults
-    after_create :add_properties_and_option_types_from_prototype
+    after_create :add_associations_from_prototype
     after_create :build_variants_from_option_values_hash, if: :option_values_hash
+
+    after_destroy :punch_slug
+
+    after_initialize :ensure_master
+
     after_save :save_master
     after_save :run_touch_callbacks, if: :anything_changed?
     after_save :reset_nested_changes
+    after_touch :touch_taxons
 
-    delegate :images, to: :master, prefix: true
-    alias_method :images, :master_images
+    before_validation :normalize_slug, on: :update
+    before_validation :validate_master
 
     delegate :assembly_definition, to: :master
 
@@ -107,22 +121,17 @@ module Spree
     accepts_nested_attributes_for :variants, allow_destroy: true
     accepts_nested_attributes_for :product_targets, allow_destroy: true
 
+    validates :meta_keywords, length: { maximum: 255 }
+    validates :meta_title, length: { maximum: 255 }
     validates :name, presence: true
     validates :shipping_category_id, presence: true
-    validates :slug, length: { minimum: 3 }
-    validates :slug, uniqueness: true
-
-    before_validation :normalize_slug, on: :update
-
-    after_destroy :punch_slug
+    validates :slug, length: { minimum: 3 }, uniqueness: { allow_blank: true }
 
     attr_accessor :option_values_hash
 
     accepts_nested_attributes_for :product_properties, allow_destroy: true, reject_if: lambda { |pp| pp[:property_name].blank? }
 
     alias :options :product_option_types
-
-    after_initialize :ensure_master
 
     # Grab each set of products that have parts, then
     scope :not_assembly, lambda {
@@ -364,11 +373,8 @@ module Spree
     end
 
     private
-    def normalize_slug
-      self.slug = normalize_friendly_id(slug)
-    end
 
-    def touch_assembly_products
+	def touch_assembly_products
       assembly_products.uniq.map(&:touch)
     end
 
@@ -380,6 +386,24 @@ module Spree
       suite_tabs.uniq.map(&:touch)
     end
 
+    def add_associations_from_prototype
+      if prototype_id && prototype = Spree::Prototype.find_by(id: prototype_id)
+        prototype.properties.each do |property|
+          product_properties.create(property: property)
+        end
+        self.option_types = prototype.option_types
+        self.taxons = prototype.taxons
+      end
+    end
+
+    def any_variants_not_track_inventory?
+      if variants_including_master.loaded?
+        variants_including_master.any? { |v| !v.should_track_inventory? }
+      else
+        !Spree::Config.track_inventory_levels || variants_including_master.where(track_inventory: false).any?
+      end
+    end
+
     # Builds variants from a hash of option types & values
     def build_variants_from_option_values_hash
       ensure_option_types_exist_for_values_hash
@@ -387,45 +411,19 @@ module Spree
       values = values.inject(values.shift) { |memo, value| memo.product(value).map(&:flatten) }
 
       values.each do |ids|
-        attrs = { option_value_ids: ids, prices: master.prices, label: master.name }
-        # fix if needed
-        # attrs.merge!(kit_price: master.kit_price) if master.kit_price
-        variants.create(attrs)
+        variant = variants.create(
+          option_value_ids: ids,
+          price: master.price
+        )
       end
       save
     end
 
-    def add_properties_and_option_types_from_prototype
-      if prototype_id && prototype = Spree::Prototype.find_by(id: prototype_id)
-        prototype.properties.each do |property|
-          product_properties.create(property: property)
-        end
-        self.option_types = prototype.option_types
-      end
-    end
-
-    def any_variants_not_track_inventory?
-      if variants_including_master.loaded?
-        variants_including_master.any? { |v| !v.should_track_inventory? }
-      else
-        !Spree::Config.track_inventory_levels || variants_including_master.where(track_inventory: false).any?
-      end
-    end
-
-    def any_variants_not_track_inventory?
-      if variants_including_master.loaded?
-        variants_including_master.any? { |v| !v.should_track_inventory? }
-      else
-        !Spree::Config.track_inventory_levels || variants_including_master.where(track_inventory: false).any?
-      end
-    end
-
-    # ensures the master variant is flagged as such
     def ensure_master
       return unless new_record?
       self.master ||= Variant.new
     end
-     
+
     def normalize_slug
       self.slug = normalize_friendly_id(slug)
     end
@@ -443,7 +441,8 @@ module Spree
     end
 
     # there's a weird quirk with the delegate stuff that does not automatically save the delegate object
-    # when saving so we force a save using a hook.
+    # when saving so we force a save using a hook
+    # Fix for issue #5306
     def save_master
       if master && (master.changed? || master.new_record? || (master.default_price && (master.default_price.changed? || master.default_price.new_record?)))
         master.save!
@@ -451,6 +450,19 @@ module Spree
       end
     end
 
+    # If the master cannot be saved, the Product object will get its errors
+    # and will be destroyed
+    def validate_master
+      # We call master.default_price here to ensure price is initialized.
+      # Required to avoid Variant#check_price validation failing on create.
+      unless master.default_price && master.valid?
+        master.errors.each do |att, error|
+          self.errors.add(att, error)
+        end
+      end
+    end
+
+    # ensures the master variant is flagged as such
     def set_master_variant_defaults
       master.is_master = true
     end
@@ -458,8 +470,8 @@ module Spree
     # Try building a slug based on the following fields in increasing order of specificity.
     def slug_candidates
       [
-          :name,
-          [:name, :sku]
+        :name,
+        [:name, :sku]
       ]
     end
 

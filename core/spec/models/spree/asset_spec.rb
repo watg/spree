@@ -1,12 +1,10 @@
 require 'spec_helper'
 
-describe Spree::Asset do
+describe Spree::Asset, :type => :model do
   describe "#viewable" do
     it "touches association" do
       product = create(:custom_product)
       asset = Spree::Asset.create! { |a| a.viewable = product.master }
-
-      product.update_column(:updated_at,  1.day.ago)
 
       expect do
         asset.save

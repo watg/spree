@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Spree::ShippingRate do
+describe Spree::ShippingRate, :type => :model do
   let(:shipment) { create(:shipment) }
   let(:shipping_method) { create(:shipping_method) }
   let(:shipping_rate) { Spree::ShippingRate.new(:shipment => shipment,
@@ -126,6 +126,16 @@ describe Spree::ShippingRate do
       shipping_rate.save
       shipping_rate.reload
       expect(shipping_rate.tax_rate).to eq(tax_rate)
+    end
+  end
+
+  context "#shipping_method_code" do
+    before do
+      shipping_method.code = "THE_CODE"
+    end
+
+    it 'should be shipping_method.code' do
+      expect(shipping_rate.shipping_method_code).to eq("THE_CODE")
     end
   end
 end

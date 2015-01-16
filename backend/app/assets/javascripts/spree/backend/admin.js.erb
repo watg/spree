@@ -50,7 +50,7 @@ jQuery(function($) {
   setTimeout('$(".flash").fadeOut()', 5000);
 
   // Highlight hovered table column
-  $('table tbody tr td.actions a').hover(function(){
+  $('table tbody tr td.actions').find('a, button').hover(function(){
     var tr = $(this).closest('tr');
     var klass = 'highlight action-' + $(this).data('action')
     tr.addClass(klass)
@@ -130,24 +130,21 @@ $(document).ready(function(){
   handle_date_picker_fields();
   $(".observe_field").on('change', function() {
     target = $(this).data("update");
-    ajax_indicator = $(this).data("ajax-indicator") || '#busy_indicator';
     $(target).hide();
-    $(ajax_indicator).show();
     $.ajax({ dataType: 'html',
              url: $(this).data("base-url")+encodeURIComponent($(this).val()),
              type: 'get',
              success: function(data){
                $(target).html(data);
-               $(ajax_indicator).hide();
                $(target).show();
              }
     });
   });
-
+  var uniqueId = 1;
   $('.spree_add_fields').click(function() {
     var target = $(this).data("target");
     var new_table_row = $(target + ' tr:visible:last').clone();
-    var new_id = new Date().getTime();
+    var new_id = new Date().getTime() + (uniqueId++);
     new_table_row.find("input, select").each(function () {
       var el = $(this);
       el.val("");
@@ -176,9 +173,7 @@ $(document).ready(function(){
         },
         dataType: 'script',
         success: function(response) {
-          var tr = el.parents("tr");
-          tr.next('input[type=hidden]').remove(); // remove the hidden id attribute, which Rails adds
-          tr.fadeOut('hide', function() {
+          el.parents("tr").fadeOut('hide', function() {
             $(this).remove();
           });
         },
@@ -279,4 +274,14 @@ $(document).ready(function(){
   $('a.dismiss').click(function() {
     $(this).parent().fadeOut();
   });
+
+  window.Spree.advanceOrder = function() {
+      $.ajax({
+          type: "PUT",
+          async: false,
+          url: Spree.url(Spree.routes.checkouts_api + "/" + order_number + "/advance")
+      }).done(function() {
+          window.location.reload();
+      });
+  }
 });

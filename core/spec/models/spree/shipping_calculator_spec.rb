@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Spree
-  describe ShippingCalculator do
+  describe ShippingCalculator, :type => :model do
     let(:variant1) { build(:variant) }
     let(:variant2) { build(:variant) }
 

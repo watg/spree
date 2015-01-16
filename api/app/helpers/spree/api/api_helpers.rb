@@ -15,8 +15,6 @@ module Spree
         :shipment_attributes,
         :taxonomy_attributes,
         :taxon_attributes,
-        :inventory_unit_attributes,
-        :return_authorization_attributes,
         :address_attributes,
         :country_attributes,
         :state_attributes,
@@ -24,12 +22,15 @@ module Spree
         :inventory_unit_attributes,
         :return_authorization_attributes,
         :creditcard_attributes,
+        :payment_source_attributes,
         :user_attributes,
         :property_attributes,
         :supplier_attributes,
         :stock_location_attributes,
         :stock_movement_attributes,
         :stock_item_attributes,
+        :promotion_attributes,
+        :store_attributes
         :product_group_attributes,
         :product_page_attributes,
         :suite_attributes,
@@ -112,8 +113,7 @@ module Spree
       ]
 
       @@return_authorization_attributes = [
-        :id, :number, :state, :amount, :order_id, :reason, :created_at,
-        :updated_at
+        :id, :number, :state, :order_id, :memo, :created_at, :updated_at
       ]
 
       @@address_attributes = [
@@ -137,6 +137,10 @@ module Spree
         :gateway_customer_profile_id, :gateway_payment_profile_id
       ]
 
+      @@payment_source_attributes = [
+        :id, :month, :year, :cc_type, :last_digits, :name
+      ]
+
       @@user_attributes = [:id, :email, :created_at, :updated_at]
 
       @@property_attributes = [:id, :name, :presentation]
@@ -153,9 +157,19 @@ module Spree
         :variant_id, :waiting_inventory_unit_count
       ]
 
+      @@promotion_attributes = [
+        :id, :name, :description, :expires_at, :starts_at, :type, :usage_limit,
+        :match_policy, :code, :advertise, :path
+      ]
+
+      @@store_attributes = [
+        :id, :name, :url, :meta_description, :meta_keywords, :seo_title,
+        :mail_from_address, :default_currency, :code, :default
+      ]
+     
       @@supplier_attributes = [ :id, :permalink, :firstname, :lastname ]
 
-	    @@product_group_attributes = [:id, :name]
+	  @@product_group_attributes = [:id, :name]
 
       @@product_page_attributes = [:id, :name]
 
@@ -166,6 +180,15 @@ module Spree
       @@target_attributes = [:id, :name]
 
       @@tag_attributes = [:id, :value]
+
+      def variant_attributes
+        if @current_user_roles && @current_user_roles.include?("admin")
+          @@variant_attributes + [:cost_price]
+        else
+          @@variant_attributes
+        end
+      end
+
     end
   end
 end

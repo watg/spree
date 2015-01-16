@@ -1,5 +1,5 @@
 module Spree
-  class Payment < ActiveRecord::Base
+  class Payment < Spree::Base
     include Spree::Payment::Processing
 
     IDENTIFIER_CHARS    = (('A'..'Z').to_a + ('0'..'9').to_a - %w(0 1 I O)).freeze
@@ -10,11 +10,11 @@ module Spree
     belongs_to :source, polymorphic: true
     belongs_to :payment_method, class_name: 'Spree::PaymentMethod', inverse_of: :payments
 
-    has_many :offsets, -> { where("source_type = 'Spree::Payment' AND amount < 0 AND state = 'completed'") },
-      class_name: "Spree::Payment", foreign_key: :source_id
+    has_many :offsets, -> { offset_payment }, class_name: "Spree::Payment", foreign_key: :source_id
     has_many :log_entries, as: :source
     has_many :state_changes, as: :stateful
     has_many :capture_events, :class_name => 'Spree::PaymentCaptureEvent'
+    has_many :refunds, inverse_of: :payment
 
     before_validation :validate_source
     before_create :set_unique_identifier
@@ -23,23 +23,37 @@ module Spree
 
     # update the order totals, etc.
     after_save :update_order
+
     # invalidate previously entered payments
     after_create :invalidate_old_payments
 
-    attr_accessor :source_attributes
+    attr_accessor :source_attributes, :request_env
+
     after_initialize :build_source
-
-    scope :from_credit_card, -> { where(source_type: 'Spree::CreditCard') }
-    scope :with_state, ->(s) { where(state: s.to_s) }
-    scope :completed, -> { with_state('completed') }
-    scope :pending, -> { with_state('pending') }
-    scope :failed, -> { with_state('failed') }
-    scope :risky, -> { where("avs_response IN (?) OR (cvv_response_code IS NOT NULL and cvv_response_code != 'M') OR state = 'failed'", RISKY_AVS_CODES) }
-    scope :valid, -> { where.not(state: %w(failed invalid)) }
-
     after_rollback :persist_invalid
 
     validates :amount, numericality: true
+
+    default_scope -> { order("#{self.table_name}.created_at") }
+
+    scope :from_credit_card, -> { where(source_type: 'Spree::CreditCard') }
+    scope :with_state, ->(s) { where(state: s.to_s) }
+    # "offset" is reserved by activerecord
+    scope :offset_payment, -> { where("source_type = 'Spree::Payment' AND amount < 0 AND state = 'completed'") }
+
+    scope :checkout, -> { with_state('checkout') }
+    scope :completed, -> { with_state('completed') }
+    scope :pending, -> { with_state('pending') }
+    scope :processing, -> { with_state('processing') }
+    scope :failed, -> { with_state('failed') }
+
+    scope :risky, -> { where("avs_response IN (?) OR (cvv_response_code IS NOT NULL and cvv_response_code != 'M') OR state = 'failed'", RISKY_AVS_CODES) }
+    scope :valid, -> { where.not(state: %w(failed invalid)) }
+
+    # transaction_id is much easier to understand
+    def transaction_id
+      response_code
+    end
 
     def persist_invalid
       # This fixes an issue where after the tests run, the database will be rolled back
@@ -54,6 +68,10 @@ module Spree
     # order state machine (see http://github.com/pluginaweek/state_machine/tree/master for details)
     state_machine initial: :checkout do
       # With card payments, happens before purchase or authorization happens
+      #
+      # Setting it after creating a profile and authorizing a full amount will
+      # prevent the payment from being authorized again once Order transitions
+      # to complete
       event :started_processing do
         transition from: [:checkout, :pending, :completed, :processing], to: :processing
       end
@@ -70,7 +88,7 @@ module Spree
         transition from: [:processing, :pending, :checkout], to: :completed
       end
       event :void do
-        transition from: [:pending, :completed, :checkout], to: :void
+        transition from: [:pending, :processing, :completed, :checkout], to: :void
       end
       # when the card brand isnt supported
       event :invalidate do
@@ -110,7 +128,7 @@ module Spree
     end
 
     def credit_allowed
-      amount - offsets_total.abs
+      amount - (offsets_total.abs + refunds.sum(:amount))
     end
 
     def can_credit?
@@ -170,8 +188,12 @@ module Spree
       end
 
       def create_payment_profile
-        return unless source.respond_to?(:has_payment_profile?) && !source.has_payment_profile? &&
-          state != 'invalid' && state != 'failed'
+        # Don't attempt to create on bad payments.
+        return if %w(invalid failed).include?(state)
+        # Payment profile cannot be created without source
+        return unless source
+        # Imported payments shouldn't create a payment profile.
+        return if source.imported
 
         payment_method.create_profile(self)
       rescue ActiveMerchant::ConnectionError => e
@@ -187,8 +209,19 @@ module Spree
       end
 
       def update_order
-        order.payments.reload
-        order.update!
+        if completed? || void?
+          order.updater.update_payment_total
+        end
+
+        if order.completed?
+          order.updater.update_payment_state
+          order.updater.update_shipments
+          order.updater.update_shipment_state
+        end
+
+        if self.completed? || order.completed?
+          order.persist_totals
+        end
       end
 
       # Necessary because some payment gateways will refuse payments with

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::OptionType do
+describe Spree::OptionType, :type => :model do
 
   let(:option_type) { build(:option_type, name: 'color', sku_part: nil, presentation: nil) }
 

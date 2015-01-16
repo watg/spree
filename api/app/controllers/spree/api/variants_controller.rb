@@ -1,10 +1,7 @@
 module Spree
   module Api
     class VariantsController < Spree::Api::BaseController
-      respond_to :xml, :atom, only: :index
-
-      before_filter :product
-      before_filter :product_page, :only => [:index]
+      before_action :product
 
       def create
         authorize! :create, Variant
@@ -22,15 +19,12 @@ module Spree
         respond_with(@variant, status: 204)
       end
 
+      # The lazyloaded associations here are pretty much attached to which nodes
+      # we render on the view so we better update it any time a node is included
+      # or removed from the views.
       def index
-        if params[:id]
-          @variants = Spree::Variant.accessible_by(current_ability, :read).where(id: params[:id])
-        else
-          @variants = scope.includes(:option_values).ransack(params[:q]).result
-        end
-
-        @variants = @variants.page(params[:page]).per(params[:per_page])
-
+        @variants = scope.includes({ option_values: :option_type }, :product, :images, { stock_items: :stock_location })
+          .ransack(params[:q]).result.page(params[:page]).per(params[:per_page])
         respond_with(@variants)
       end
 
@@ -38,7 +32,8 @@ module Spree
       end
 
       def show
-        @variant = scope.includes(:option_values).find(params[:id])
+        @variant = scope.includes({ option_values: :option_type }, :option_values, :product, :images, { stock_items: :stock_location })
+          .find(params[:id])
         respond_with(@variant)
       end
 
@@ -52,7 +47,6 @@ module Spree
       end
 
       private
-
         def product
           @product ||= Spree::Product.accessible_by(current_ability, :read).friendly.find(params[:product_id]) if params[:product_id]
         end
@@ -65,24 +59,16 @@ module Spree
 
         def scope
           if @product
-            unless current_api_user.has_spree_role?('admin') || params[:show_deleted]
-              variants = @product.variants_including_master.accessible_by(current_ability, :read)
-            else
-              variants = @product.variants_including_master.with_deleted.accessible_by(current_ability, :read)
-            end
-          elsif @product_page
-            variants = @product_page.displayed_variants.accessible_by(current_ability, :read)
+            variants = @product.variants_including_master
           else
-            variants = Variant.accessible_by(current_ability, :read)
-            if current_api_user.has_spree_role?('admin')
-              unless params[:show_deleted]
-                variants = Variant.accessible_by(current_ability, :read).active
-              end
-            else
-              variants = variants.active
-            end
+            variants = Variant
           end
-          variants
+
+          if current_ability.can?(:manage, Variant) && params[:show_deleted]
+            variants = variants.with_deleted
+          end
+
+          variants.accessible_by(current_ability, :read)
         end
 
         def variant_params

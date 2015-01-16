@@ -7,6 +7,7 @@ if ENV["COVERAGE"]
     add_group 'Mailers', 'app/mailers'
     add_group 'Models', 'app/models'
     add_group 'Views', 'app/views'
+    add_group 'Jobs', 'app/jobs'
     add_group 'Libraries', 'lib'
   end
 end
@@ -55,7 +56,7 @@ RSpec.configure do |config|
   # instead of true.
   config.use_transactional_fixtures = true
 
-  config.before(:each) do
+  config.before :each do
     Rails.cache.clear
     reset_spree_preferences
   end

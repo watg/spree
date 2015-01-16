@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Calculator::DefaultTax do
+describe Spree::Calculator::DefaultTax, :type => :model do
   let!(:country) { create(:country) }
   let!(:zone) { create(:zone, :name => "Country Zone", :default_tax => true, :zone_members => []) }
   let!(:tax_category) { create(:tax_category, :tax_rates => []) }
@@ -76,7 +76,6 @@ describe Spree::Calculator::DefaultTax do
 
     context "when tax is included in price" do
       let(:included_in_price) { true }
-
       context "when the variant matches the tax category" do
 
         context "when line item is discounted" do

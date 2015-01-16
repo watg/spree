@@ -1,11 +1,12 @@
 module Spree
-  class Taxon < ActiveRecord::Base
-    acts_as_paranoid
+  class Taxon < Spree::Base
+    acts_as_nested_set dependent: :destroy
 
-    belongs_to :taxonomy, class_name: 'Spree::Taxonomy', touch: true, inverse_of: :taxons
-
-  	has_many :classifications, -> { order(:position) }, dependent: :destroy, inverse_of: :taxon
+    belongs_to :taxonomy, class_name: 'Spree::Taxonomy', inverse_of: :taxons
+    has_many :classifications, -> { order(:position) }, dependent: :delete_all, inverse_of: :taxon
     has_many :suites, through: :classifications
+
+    #has_and_belongs_to_many :prototypes, join_table: :spree_taxons_prototypes
 
     # Please do not move this above the has_many classification and suites as it will break
     # the after_destroy callback in classification .... yep dependency and magic !!!
@@ -14,10 +15,13 @@ module Spree
     before_create :set_permalink
 
     validates :name, presence: true
+    validates :meta_keywords, length: { maximum: 255 }
+    validates :meta_description, length: { maximum: 255 }
+    validates :meta_title, length: { maximum: 255 }
 
-    after_touch :touch_parent
+    after_touch :touch_ancestors_and_taxonomy
 
-    scope :displayable, -> { where(hidden: [false,nil]) }
+	scope :displayable, -> { where(hidden: [false,nil]) }
 
     has_attached_file :icon,
       styles: { mini: '32x32>', normal: '128x128>' },
@@ -26,8 +30,6 @@ module Spree
 
     validates_attachment :icon,
       content_type: { content_type: ["image/jpg", "image/jpeg", "image/png", "image/gif"] }
-
-    include Spree::Core::ProductFilters  # for detailed defs of filters
 
     # indicate which filters should be used for a taxon
     # this method should be customized to your own site
@@ -56,7 +58,7 @@ module Spree
 
     # Return meta_title if set otherwise generates from root name and/or taxon name
     def seo_title
-      if meta_title
+      unless meta_title.blank?
         meta_title
       else
         root? ? name : "#{root.name} - #{name}"
@@ -103,13 +105,13 @@ module Spree
       move_to_child_with_index(parent, idx.to_i) unless self.new_record?
     end
 
-    # TODO: if we delete a taxon we need to ensure all the classifications down
-    # streem get deleted
-    
     private
 
-    def touch_parent
-      parent.touch if parent
+    def touch_ancestors_and_taxonomy
+      # Touches all ancestors at once to avoid recursive taxonomy touch, and reduce queries.
+      self.class.where(id: ancestors.pluck(:id)).update_all(updated_at: Time.now)
+      # Have taxonomy touch happen in #touch_ancestors_and_taxonomy rather than association option in order for imports to override.
+      taxonomy.touch
     end
   end
 end

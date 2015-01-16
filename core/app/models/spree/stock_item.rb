@@ -1,10 +1,10 @@
 module Spree
-  class StockItem < ActiveRecord::Base
+  class StockItem < Spree::Base
     acts_as_paranoid
 
     belongs_to :stock_location, class_name: 'Spree::StockLocation', inverse_of: :stock_items
-    belongs_to :supplier, class_name: 'Spree::Supplier'
-    belongs_to :variant, class_name: 'Spree::Variant', inverse_of: :stock_items
+    belongs_to :variant, class_name: 'Spree::Variant', inverse_of: :stock_items, counter_cache: true
+    belongs_to :supplier, class_name: 'Spree::Supplier', inverse_of: :stock_items
     has_many :stock_movements, inverse_of: :stock_item
 
     validates_presence_of :stock_location, :variant
@@ -31,6 +31,10 @@ module Spree
 
     def waiting_inventory_unit_count
       variant.total_awaiting_feed
+    end
+
+	def backordered_inventory_units
+      Spree::InventoryUnit.backordered_for_stock_item(self)
     end
 
     def variant_name
@@ -64,6 +68,10 @@ module Spree
 
     def variant
       Spree::Variant.unscoped { super }
+    end
+
+    def reduce_count_on_hand_to_zero
+      self.set_count_on_hand(0) if count_on_hand > 0
     end
 
     private

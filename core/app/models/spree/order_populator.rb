@@ -1,6 +1,6 @@
 module Spree
   class OrderPopulator
-    attr_accessor :order, :currency, :options_parser
+    attr_accessor :order, :currency
     attr_reader :errors
 
     def initialize(order, _currency)

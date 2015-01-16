@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Spree
-  describe OrderUpdater do
+  describe OrderUpdater, :type => :model do
     let(:order) { Spree::Order.create }
     let(:updater) { Spree::OrderUpdater.new(order) }
 
@@ -10,7 +10,7 @@ module Spree
         2.times do
           create(:line_item, :order => order, price: 10)
         end
-        order.line_items.reload
+        #order.line_items.reload # before 2.4
       end
 
       it "updates payment totals" do
@@ -44,7 +44,7 @@ module Spree
 
         before do
           updater.update
-          create(:adjustment, :source => promotion_action, :adjustable => order)
+          create(:adjustment, source: promotion_action, adjustable: order, order: order)
           create(:line_item, :order => order, price: 10) # in addition to the two already created
           updater.update
         end
@@ -72,7 +72,6 @@ module Spree
     context "updating shipment state" do
       before do
         allow(order).to receive_messages :backordered? => false
-        allow(order).to receive_messages :awaiting_feed? => false
         allow(order).to receive_message_chain(:shipments, :shipped, :count).and_return(0)
         allow(order).to receive_message_chain(:shipments, :ready, :count).and_return(0)
         allow(order).to receive_message_chain(:shipments, :pending, :count).and_return(0)

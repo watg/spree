@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Gateway do
+describe Spree::Gateway, :type => :model do
   class Provider
     def initialize(options)
     end

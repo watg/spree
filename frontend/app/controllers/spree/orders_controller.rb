@@ -2,15 +2,15 @@ module Spree
   class OrdersController < Spree::StoreController
     ssl_required :show
 
-    before_filter :check_authorization
+    before_action :check_authorization
     rescue_from ActiveRecord::RecordNotFound, :with => :render_404
     helper 'spree/products', 'spree/orders'
 
     respond_to :html
 
-    before_filter :assign_order_with_lock, only: :update
-    before_filter :apply_coupon_code, only: :update
-    skip_before_filter :verify_authenticity_token
+    before_action :assign_order_with_lock, only: :update
+    before_action :apply_coupon_code, only: :update
+    skip_before_action :verify_authenticity_token, only: [:populate]
 
     def index
       redirect_to root_path and return unless try_spree_current_user
@@ -40,10 +40,9 @@ module Spree
 
     # Shows the current incomplete order from the session
     def edit
-      @order = current_order || Order.new
-      @order.insufficient_stock_lines
-      # Remove any line_items which have been deleted
-      @order.prune_line_items
+      @order = current_order || Order.incomplete.find_or_initialize_by(guest_token: cookies.signed[:guest_token])
+	  # Remove any line_items which have been deleted
+      @order.prune_line_items # I would love to delete this
       associate_user
     end
 
@@ -78,11 +77,11 @@ module Spree
     end
 
     def check_authorization
-      session[:access_token] = params[:token] if params[:token]
+      cookies.permanent.signed[:guest_token] = params[:token] if params[:token]
       order = Spree::Order.find_by_number(params[:id]) || current_order
 
       if order
-        authorize! :edit, order, session[:access_token]
+        authorize! :edit, order, cookies.signed[:guest_token]
       else
         authorize! :create, Spree::Order
       end
@@ -98,11 +97,12 @@ module Spree
       end
     end
 
-    def assign_order_with_lock
-      @order = current_order(lock: true)
-      unless @order
-        flash[:error] = Spree.t(:order_not_found)
-        redirect_to root_path and return
+      def assign_order_with_lock
+        @order = current_order(lock: true)
+        unless @order
+          flash[:error] = Spree.t(:order_not_found)
+          redirect_to root_path and return
+        end
       end
     end
 

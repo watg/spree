@@ -6,13 +6,13 @@ module Spree
 
       config.autoload_paths += %W(#{config.root}/lib #{config.root}/app/jobs/*)
       
+      rake_tasks do
+        load File.join(root, "lib", "tasks", "exchanges.rake")
+      end
+
       initializer "spree.environment", :before => :load_config_initializers do |app|
         app.config.spree = Spree::Core::Environment.new
         Spree::Config = app.config.spree.preferences #legacy access
-      end
-
-      initializer "spree.load_preferences", :before => "spree.environment" do
-        ::ActiveRecord::Base.send :include, Spree::Preferences::Preferable
       end
 
       initializer "spree.register.calculators" do |app|
@@ -41,12 +41,6 @@ module Spree
             Spree::PaymentMethod::Check ]
       end
 
-      initializer "spree.mail.settings" do |app|
-        ActionMailer::Base.add_delivery_method :spree, Spree::Core::MailMethod
-        Spree::Core::MailSettings.init
-        Mail.register_interceptor(Spree::Core::MailInterceptor)
-      end
-
       # We need to define promotions rules here so extensions and existing apps
       # can add their custom classes on their initializer files
       initializer 'spree.promo.environment' do |app|
@@ -60,12 +54,16 @@ module Spree
         app.config.spree.calculators.promotion_actions_create_adjustments = [
           Spree::Calculator::FlatPercentItemTotal,
           Spree::Calculator::FlatRate,
-          Spree::Calculator::FlexiRate
+          Spree::Calculator::FlexiRate,
+          Spree::Calculator::TieredPercent,
+          Spree::Calculator::TieredFlatRate
         ]
 
         app.config.spree.calculators.add_class('promotion_actions_create_item_adjustments')
         app.config.spree.calculators.promotion_actions_create_item_adjustments = [
-          Spree::Calculator::PercentOnLineItem
+          Spree::Calculator::PercentOnLineItem,
+          Spree::Calculator::FlatRate,
+          Spree::Calculator::FlexiRate
         ]
       end
 
@@ -83,7 +81,10 @@ module Spree
           Spree::Promotion::Rules::User,
           Spree::Promotion::Rules::Country,
           Spree::Promotion::Rules::FirstOrder,
-          Spree::Promotion::Rules::UserLoggedIn]
+          Spree::Promotion::Rules::UserLoggedIn,
+          Spree::Promotion::Rules::OneUsePerUser,
+          Spree::Promotion::Rules::Taxon,
+        ]
       end
 
       initializer 'spree.promo.register.promotions.actions' do |app|

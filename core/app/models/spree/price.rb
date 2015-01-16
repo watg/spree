@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 module Spree
-  class Price < ActiveRecord::Base
+  class Price < Spree::Base
     acts_as_paranoid
+    belongs_to :variant, class_name: 'Spree::Variant', inverse_of: :prices, touch: true
 
     CURRENCY_SYMBOL = {'USD' => '$', 'GBP' => '£', 'EUR' => '€'}
     TYPES = [:normal,:normal_sale,:part,:part_sale]
 
-    belongs_to :variant, class_name: 'Spree::Variant', inverse_of: :prices, touch: true
 
     validate :check_price
     validates :amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: false
+    validate :validate_amount_maximum
 
     after_save :trigger_suite_tab_cache_rebuilder
 
@@ -79,7 +80,7 @@ module Spree
     end
 
     def price=(price)
-      self[:amount] = parse_price(price)
+      self[:amount] = Spree::LocalizedNumber.parse(price)
     end
 
     # Remove variant default_scope `deleted_at: nil`
@@ -87,34 +88,24 @@ module Spree
       Spree::Variant.unscoped { super }
     end
 
-  private
-
-    def trigger_suite_tab_cache_rebuilder
+    private
+ 
+	def trigger_suite_tab_cache_rebuilder
       Spree::SuiteTabCacheRebuilder.rebuild_from_variant_async(self.variant)
     end
 
     def check_price
-      raise "Price must belong to a variant" if variant.nil?
+      self.currency ||= Spree::Config[:currency]
+    end
 
-      if currency.nil?
-        self.currency = Spree::Config[:currency]
+    def maximum_amount
+      BigDecimal '999999.99'
+    end
+
+    def validate_amount_maximum
+      if amount && amount > maximum_amount
+        errors.add :amount, I18n.t('errors.messages.less_than_or_equal_to', count: maximum_amount)
       end
-    end
-
-    def parse_price(price)
-      self.class.parse_price(price)
-    end
-
-    # strips all non-price-like characters from the price, taking into account locale settings
-    def self.parse_price(price)
-      return price unless price.is_a?(String)
-
-      separator, delimiter = I18n.t([:'number.currency.format.separator', :'number.currency.format.delimiter'])
-      non_price_characters = /[^0-9\-#{separator}]/
-      price.gsub!(non_price_characters, '') # strip everything else first
-      price.gsub!(separator, '.') unless separator == '.' # then replace the locale-specific decimal separator with the standard separator if necessary
-
-      price.to_d
     end
   end
 end

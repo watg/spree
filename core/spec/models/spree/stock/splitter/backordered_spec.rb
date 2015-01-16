@@ -3,8 +3,9 @@ require 'spec_helper'
 module Spree
   module Stock
     module Splitter
-      describe Backordered do
+      describe Backordered, :type => :model do
         let(:variant) { build(:variant) }
+
         let(:packer) { build(:stock_packer) }
 
         subject { Backordered.new(packer) }

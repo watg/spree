@@ -110,7 +110,7 @@ describe Spree::Order, :type => :model do
       2.times do
         create(:line_item, :order => order, price: 10)
       end
-      order.reload
+	  # order.reload # removed as part of the 2.4 upgrade
 
       allow(order.line_items).to receive_messages :find_by_variant_id => order.line_items.first
 

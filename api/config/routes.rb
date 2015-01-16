@@ -28,6 +28,7 @@ Spree::Core::Engine.add_routes do
     resources :tags
     resources :targets
 
+    resources :promotions, only: [:show]
     resources :products do
       resources :images
       resources :variants
@@ -41,7 +42,7 @@ Spree::Core::Engine.add_routes do
       resources :variants, :only => [:index]
     end
 
-    order_routes = lambda {
+    concern  :order_routes do
       member do
         put :cancel
         put :empty
@@ -58,19 +59,8 @@ Spree::Core::Engine.add_routes do
           put :credit
         end
       end
-      # TODO Remove after shipment api is no longer handled through order nesting.
-      resources :shipments, :only => [:create, :update] do
-        member do
-          put :ready
-          put :ship
-          put :add
-          put :remove
-          put :add_by_line_item
-          put :remove_by_line_item
-        end
-      end
 
-      resources :addresses, :only => [:show, :update]
+      resources :addresses, only: [:show, :update]
 
       resources :return_authorizations do
         member do
@@ -79,17 +69,16 @@ Spree::Core::Engine.add_routes do
           put :receive
         end
       end
-    }
+    end
 
-    resources :checkouts do
+    resources :checkouts, only: [:update], concerns: :order_routes do
       member do
         put :next
         put :advance
       end
-      order_routes.call
     end
 
-    resources :variants, :only => [:index, :show] do
+    resources :variants, only: [:index, :show] do
       resources :images
     end
 
@@ -97,23 +86,33 @@ Spree::Core::Engine.add_routes do
       resources :option_values
     end
 
-    get '/orders/mine', :to => 'orders#mine', :as => 'my_orders'
+    get '/orders/mine', to: 'orders#mine', as: 'my_orders'
+    get "/orders/current", to: "orders#current", to: "orders#current", as: "current_order"
 
-    resources :orders, &order_routes
+    resources :orders, concerns: :order_routes
 
     resources :zones
-    resources :countries, :only => [:index, :show] do
-      resources :states, :only => [:index, :show]
+    resources :countries, only: [:index, :show] do
+      resources :states, only: [:index, :show]
     end
-    resources :shipments, :only => [:create, :update] do
+
+    resources :shipments, only: [:create, :update] do
+      collection do
+        post 'transfer_to_location'
+        post 'transfer_to_shipment'
+        get :mine
+      end
+
       member do
         put :ready
         put :ship
         put :add
         put :remove
+        put :add_by_line_item
+        put :remove_by_line_item
       end
     end
-    resources :states,    :only => [:index, :show]
+    resources :states, only: [:index, :show]
 
     resources :taxonomies do
       member do
@@ -126,22 +125,27 @@ Spree::Core::Engine.add_routes do
       end
     end
 
-    resources :taxons, :only => [:index]
+    resources :taxons, only: [:index]
 
-    resources :inventory_units, :only => [:show, :update]
-    resources :users
+    resources :inventory_units, only: [:show, :update]
+
+    resources :users do
+      resources :credit_cards, only: [:index]
+    end
+
     resources :properties
     resources :stock_locations do
       resources :stock_movements
       resources :stock_items
     end
 
-    get '/config/money', :to => 'config#money'
-    get '/config', :to => 'config#show'
+    resources :stores
 
-    put '/classifications', :to => 'classifications#update', :as => :classifications
-    get '/taxons/products', :to => 'taxons#products', :as => :taxon_products
+    get '/config/money', to: 'config#money'
+    get '/config', to: 'config#show'
+
+    put '/classifications', to: 'classifications#update', as: :classifications
+    #get '/taxons/products', to: 'taxons#products', as: :taxon_products
     get '/taxons/suites', :to => 'taxons#suites', :as => :taxon_suites
   end
-
 end

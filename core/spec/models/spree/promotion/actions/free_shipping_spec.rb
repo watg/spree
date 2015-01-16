@@ -1,9 +1,10 @@
 require 'spec_helper'
 
-describe Spree::Promotion::Actions::FreeShipping do
+describe Spree::Promotion::Actions::FreeShipping, :type => :model do
   let(:order) { create(:completed_order_with_totals) }
   let(:promotion) { create(:promotion) }
   let(:action) { Spree::Promotion::Actions::FreeShipping.create }
+  let(:payload) { { order: order } }
 
   # From promotion spec:
   context "#perform" do
@@ -16,7 +17,7 @@ describe Spree::Promotion::Actions::FreeShipping do
       expect(order.shipments.count).to eq(2)
       expect(order.shipments.first.cost).to eq(100)
       expect(order.shipments.last.cost).to eq(100)
-      expect(action.perform(:order => order)).to be true
+      expect(action.perform(payload)).to be true
       expect(promotion.credits_count).to eq(2)
       expect(order.shipment_adjustments.count).to eq(2)
       expect(order.shipment_adjustments.first.amount.to_i).to eq(-100)
@@ -24,8 +25,8 @@ describe Spree::Promotion::Actions::FreeShipping do
     end
 
     it "should not create a discount when order already has one from this promotion" do
-      expect(action.perform(:order => order)).to be true
-      expect(action.perform(:order => order)).to be false
+      expect(action.perform(payload)).to be true
+      expect(action.perform(payload)).to be false
       expect(promotion.credits_count).to eq(2)
       expect(order.shipment_adjustments.count).to eq(2)
     end

@@ -1,5 +1,5 @@
 module Spree
-  class StockLocation < ActiveRecord::Base
+  class StockLocation < Spree::Base
     has_many :shipments
     has_many :stock_items, dependent: :delete_all, inverse_of: :stock_location
     has_many :stock_movements, through: :stock_items
@@ -20,10 +20,12 @@ module Spree
     validate :only_feed_into_active_locations
 
     scope :active, -> { where(active: true) }
+    scope :order_default, -> { order(default: :desc, name: :asc) }
     scope :available, -> { where("active = ? OR feed_into_id IS NOT NULL", true) }
     scope :with_feeders, -> { joins(:feeders).uniq }
 
     after_create :create_stock_items, :if => "self.propagate_all_variants?"
+    after_save :ensure_one_default
 
     def self.valid_feed_into_locations_for(location)
       active.where.not(id: location.id)
@@ -147,6 +149,15 @@ module Spree
     def only_feed_into_active_locations
       unless feed_into.nil? || feed_into.active?
         errors.add(:feed_into, "can only feed into active locations")
+      end
+    end
+
+    def ensure_one_default
+      if self.default
+        StockLocation.where(default: true).where.not(id: self.id).each do |stock_location|
+          stock_location.default = false
+          stock_location.save!
+        end
       end
     end
   end

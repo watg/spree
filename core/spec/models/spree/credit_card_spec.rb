@@ -1,11 +1,13 @@
 require 'spec_helper'
 
-describe Spree::CreditCard do
+describe Spree::CreditCard, type: :model do
   let(:valid_credit_card_attributes) do
-    { :number => '4111111111111111',
-      :verification_value => '123',
-      :expiry => "12 / 19",
-      :name => "Spree Commerce" }
+    {
+      number: '4111111111111111',
+      verification_value: '123',
+      expiry: "12 / #{(Time.now.year + 1).to_s.last(2)}",
+      name: 'Spree Commerce'
+    }
   end
 
   def self.payment_states
@@ -64,11 +66,6 @@ describe Spree::CreditCard do
       expect(credit_card.can_credit?(payment)).to be false
     end
 
-    it "should be false when order payment_state is not 'credit_owed'" do
-      payment = mock_model(Spree::Payment, completed?: true, order: mock_model(Spree::Order, payment_state: 'paid'))
-      expect(credit_card.can_credit?(payment)).to be false
-    end
-
     it "should be false when credit_allowed is zero" do
       payment = mock_model(Spree::Payment, completed?: true, credit_allowed: 0, order: mock_model(Spree::Order, payment_state: 'credit_owed'))
       expect(credit_card.can_credit?(payment)).to be false
@@ -90,7 +87,7 @@ describe Spree::CreditCard do
 
     it "validates name presence" do
       credit_card.valid?
-      expect(credit_card.errors[:name].size).to eq(1)
+      expect(credit_card.error_on(:name).size).to eq(1)
     end
 
     # Regression spec for #4971
@@ -164,6 +161,15 @@ describe Spree::CreditCard do
         expect(credit_card.errors[:verification_value]).to be_empty
       end
     end
+
+    context "imported is true" do
+      it "does not validate presence of number or cvv" do
+        credit_card.imported = true
+        credit_card.valid?
+        expect(credit_card.errors[:number]).to be_empty
+        expect(credit_card.errors[:verification_value]).to be_empty
+      end
+    end
   end
 
   context "#save" do
@@ -201,27 +207,27 @@ describe Spree::CreditCard do
   # Regression test for #3847 & #3896
   context "#expiry=" do
     it "can set with a 2-digit month and year" do
-      credit_card.expiry = '04 / 19'
+      credit_card.expiry = '04 / 14'
       expect(credit_card.month).to eq(4)
-      expect(credit_card.year).to eq(2019)
+      expect(credit_card.year).to eq(2014)
     end
 
     it "can set with a 2-digit month and 4-digit year" do
-      credit_card.expiry = '04 / 2019'
+      credit_card.expiry = '04 / 2014'
       expect(credit_card.month).to eq(4)
-      expect(credit_card.year).to eq(2019)
+      expect(credit_card.year).to eq(2014)
     end
 
     it "can set with a 2-digit month and 4-digit year without whitespace" do
-      credit_card.expiry = '04/19'
+      credit_card.expiry = '04/14'
       expect(credit_card.month).to eq(4)
-      expect(credit_card.year).to eq(2019)
+      expect(credit_card.year).to eq(2014)
     end
 
     it "can set with a 2-digit month and 4-digit year without whitespace" do
-      credit_card.expiry = '04/2019'
+      credit_card.expiry = '04/2014'
       expect(credit_card.month).to eq(4)
-      expect(credit_card.year).to eq(2019)
+      expect(credit_card.year).to eq(2014)
     end
 
     it "can set with a 2-digit month and 4-digit year without whitespace and slash" do
@@ -327,8 +333,7 @@ describe Spree::CreditCard do
       credit_card.number = "4111111111111111"
       credit_card.year = Time.now.year
       credit_card.month = Time.now.month
-      credit_card.first_name = "Bob"
-      credit_card.last_name = "Boblaw"
+      credit_card.name = "Ludwig van Beethoven"
       credit_card.verification_value = 123
     end
 
@@ -337,22 +342,41 @@ describe Spree::CreditCard do
       expect(am_card.number).to eq("4111111111111111")
       expect(am_card.year).to eq(Time.now.year)
       expect(am_card.month).to eq(Time.now.month)
-      expect(am_card.first_name).to eq("Bob")
-      am_card.last_name = "Boblaw"
+      expect(am_card.first_name).to eq("Ludwig")
+      expect(am_card.last_name).to eq("van Beethoven")
       expect(am_card.verification_value).to eq(123)
     end
+  end
 
-    context "provides name instead of first and last" do
-      before do
-        credit_card.first_name = credit_card.last_name = nil
-        credit_card.name = "Ludwig van Beethoven"
-      end
+  it 'ensures only one credit card per user is default at a time' do
+    user = FactoryGirl.create(:user)
+    first = FactoryGirl.create(:credit_card, user: user, default: true)
+    second = FactoryGirl.create(:credit_card, user: user, default: true)
 
-      it "falls back to split first and last" do
-        am_card = credit_card.to_active_merchant
-        expect(am_card.first_name).to eq "Ludwig"
-        expect(am_card.last_name).to eq "van Beethoven"
-      end
-    end
+    expect(first.reload.default).to eq false
+    expect(second.reload.default).to eq true
+
+    first.default = true
+    first.save!
+
+    expect(first.reload.default).to eq true
+    expect(second.reload.default).to eq false
+  end
+
+  it 'allows default credit cards for different users' do
+    first = FactoryGirl.create(:credit_card, user: FactoryGirl.create(:user), default: true)
+    second = FactoryGirl.create(:credit_card, user: FactoryGirl.create(:user), default: true)
+
+    expect(first.reload.default).to eq true
+    expect(second.reload.default).to eq true
+  end
+
+  it 'allows this card to save even if the previously default card has expired' do
+    user = FactoryGirl.create(:user)
+    first = FactoryGirl.create(:credit_card, user: user, default: true)
+    second = FactoryGirl.create(:credit_card, user: user, default: false)
+    first.update_columns(year: DateTime.now.year, month: 1.month.ago.month)
+
+    expect { second.update_attributes!(default: true) }.not_to raise_error
   end
 end

@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'email_spec'
 
-describe Spree::OrderMailer do
+describe Spree::OrderMailer, :type => :mailer do
   include EmailSpec::Helpers
   include EmailSpec::Matchers
 
@@ -66,15 +66,15 @@ describe Spree::OrderMailer do
     # Tests mailer view spree/order_mailer/confirm_email.text.erb
     specify do
       confirmation_email = Spree::OrderMailer.confirm_email(order)
-      expect(confirmation_email.body).to include("4.99")
-      expect(confirmation_email.body).not_to include("5.00")
+      expect(confirmation_email).to have_body_text("4.99")
+      expect(confirmation_email).to_not have_body_text("5.00")
     end
 
     # Tests mailer view spree/order_mailer/cancel_email.text.erb
     specify do
       cancel_email = Spree::OrderMailer.cancel_email(order)
-      expect(cancel_email.body).to include("4.99")
-      expect(cancel_email.body).not_to include("5.00")
+      expect(cancel_email).to have_body_text("4.99")
+      expect(cancel_email).to_not have_body_text("5.00")
     end
   end
 
@@ -82,6 +82,7 @@ describe Spree::OrderMailer do
 
     context "pt-BR locale" do
       before do
+        I18n.enforce_available_locales = false
         pt_br_confirm_mail = { :spree => { :order_mailer => { :confirm_email => { :dear_customer => 'Caro Cliente,' } } } }
         pt_br_cancel_mail = { :spree => { :order_mailer => { :cancel_email => { :order_summary_canceled => 'Resumo da Pedido [CANCELADA]' } } } }
         I18n.backend.store_translations :'pt-BR', pt_br_confirm_mail
@@ -91,19 +92,20 @@ describe Spree::OrderMailer do
 
       after do
         I18n.locale = I18n.default_locale
+        I18n.enforce_available_locales = true
       end
 
       context "confirm_email" do
         specify do
           confirmation_email = Spree::OrderMailer.confirm_email(order)
-          expect(confirmation_email.body).to include("Caro Cliente,")
+          expect(confirmation_email).to have_body_text("Caro Cliente,")
         end
       end
 
       context "cancel_email" do
         specify do
           cancel_email = Spree::OrderMailer.cancel_email(order)
-          expect(cancel_email.body).to include("Resumo da Pedido [CANCELADA]")
+          expect(cancel_email).to have_body_text("Resumo da Pedido [CANCELADA]")
         end
       end
     end

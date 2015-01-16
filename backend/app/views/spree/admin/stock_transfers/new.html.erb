@@ -79,8 +79,8 @@
       </div>
       <div class="two columns">
         <div class="field" id="stock_movement_quantity_field">
-          <%= label_tag 'quantity', Spree.t(:quantity) %>
-          <%= number_field_tag 'transfer_variant_quantity', 1, class: 'fullwidth', min: 0 %>
+          <%= label_tag :transfer_variant_quantity, Spree.t(:quantity) %>
+          <%= number_field_tag :transfer_variant_quantity, 1, class: 'fullwidth', min: 0 %>
         </div>
       </div>
       <div class="two columns omega">
@@ -92,7 +92,7 @@
     </fieldset>
 
     <div class="alpha twelve columns no-objects-found">
-      <%= Spree.t(:no_resource_found, resource: I18n.t(:other, scope: 'activerecord.models.spree/stock_transfer')) %>
+      <%= Spree.t(:no_resource_found, resource: I18n.t(:other, scope: 'activerecord.models.spree/variant')) %>.
     </div>
 
     <div id="transfer-variants-table" class="twelve columns alpha" style="display:none">

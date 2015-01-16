@@ -2,8 +2,8 @@ module Spree
   module Api
     class PaymentsController < Spree::Api::BaseController
 
-      before_filter :find_order
-      before_filter :find_payment, only: [:update, :show, :authorize, :purchase, :capture, :void, :credit]
+      before_action :find_order
+      before_action :find_payment, only: [:update, :show, :authorize, :purchase, :capture, :void]
 
       def index
         @payments = @order.payments.ransack(params[:q]).result.page(params[:page]).per(params[:per_page])
@@ -55,14 +55,6 @@ module Spree
         perform_payment_action(:void_transaction)
       end
 
-      def credit
-        if params[:amount].to_f > @payment.credit_allowed
-          render 'credit_over_limit', status: 422
-        else
-          perform_payment_action(:credit, params[:amount])
-        end
-      end
-
       private
 
         def find_order
@@ -76,14 +68,8 @@ module Spree
 
         def perform_payment_action(action, *args)
           authorize! action, Payment
-
-          begin
-            @payment.send("#{action}!", *args)
-            respond_with(@payment, :default_template => :show)
-          rescue Spree::Core::GatewayError => e
-            @error = e.message
-            render 'spree/api/errors/gateway_error', status: 422
-          end
+          @payment.send("#{action}!", *args)
+          respond_with(@payment, default_template: :show)
         end
 
         def payment_params

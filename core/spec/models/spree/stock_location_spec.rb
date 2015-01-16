@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Spree
-  describe StockLocation do
+  describe StockLocation, :type => :model do
     subject { create(:stock_location_with_items, backorderable_default: true) }
     let(:stock_item) { subject.stock_items.order(:id).first }
     let(:variant) { stock_item.variant }
@@ -238,6 +238,20 @@ module Spree
       expect(Spree::StockLocation.active.count).to eq 1
     end
 
+    it 'ensures only one stock location is default at a time' do
+      first = create(:stock_location, :active => true, :default => true)
+      second = create(:stock_location, :active => true, :default => true)
+
+      expect(first.reload.default).to eq false
+      expect(second.reload.default).to eq true
+
+      first.default = true
+      first.save!
+
+      expect(first.reload.default).to eq true
+      expect(second.reload.default).to eq false
+    end
+
     context 'fill_status' do
 
       it 'all on_hand with no backordered' do
@@ -395,7 +409,7 @@ module Spree
         end
       end
     end
-    
+
     context '#state_text' do
       context 'state is blank' do
         subject { StockLocation.create(name: "testing", state: nil, state_name: 'virginia') }

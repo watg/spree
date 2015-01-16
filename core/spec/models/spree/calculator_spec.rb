@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Calculator do
+describe Spree::Calculator, :type => :model do
 
   let(:order) { create(:order) }
   let!(:line_item) { create(:line_item, :order => order) }

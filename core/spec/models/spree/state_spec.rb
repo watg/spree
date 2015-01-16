@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::State do
+describe Spree::State, :type => :model do
   before(:all) do
     Spree::State.destroy_all
   end

@@ -1,11 +1,12 @@
 require 'spec_helper'
 
-describe Spree::Promotion::Actions::CreateLineItems do
+describe Spree::Promotion::Actions::CreateLineItems, :type => :model do
   let(:order) { create(:order) }
   let(:action) { Spree::Promotion::Actions::CreateLineItems.create }
   let(:promotion) { stub_model(Spree::Promotion) }
   let(:shirt) { create(:variant) }
   let(:mug) { create(:variant) }
+  let(:payload) { { order: order } }
 
   context "#perform" do
     before do
@@ -26,7 +27,7 @@ describe Spree::Promotion::Actions::CreateLineItems do
       end
 
       it "adds line items to order with correct variant and quantity" do
-        action.perform(:order => order)
+        action.perform(payload)
         expect(order.line_items.count).to eq(2)
         line_item = order.line_items.find_by_variant_id(mug.id)
         expect(line_item).not_to be_nil
@@ -35,7 +36,7 @@ describe Spree::Promotion::Actions::CreateLineItems do
 
       it "only adds the delta of quantity to an order" do
         order.contents.add(shirt, 1)
-        action.perform(:order => order)
+        action.perform(payload)
         line_item = order.line_items.find_by_variant_id(shirt.id)
         expect(line_item).not_to be_nil
         expect(line_item.quantity).to eq(2)
@@ -43,7 +44,7 @@ describe Spree::Promotion::Actions::CreateLineItems do
 
       it "doesn't add if the quantity is greater" do
         order.contents.add(shirt, 3)
-        action.perform(:order => order)
+        action.perform(payload)
         line_item = order.line_items.find_by_variant_id(shirt.id)
         expect(line_item).not_to be_nil
         expect(line_item.quantity).to eq(3)

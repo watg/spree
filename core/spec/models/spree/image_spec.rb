@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Image do
+describe Spree::Image, :type => :model do
 
   context "touching" do
     it "should touch a variant" do

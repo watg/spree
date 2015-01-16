@@ -52,7 +52,7 @@ $(document).ready(function () {
   });
 
   //handle delete click
-  $('a.delete-item').click(function(){
+  $('a.delete-item').click(function(event){
     if (confirm(Spree.translations.are_you_sure_delete)) {
       var del = $(this);
       var shipment_number = del.data('shipment-number');
@@ -86,7 +86,9 @@ $(document).ready(function () {
   $('a.cancel-method').click(toggleMethodEdit);
 
   // handle shipping method save
-  $('[data-hook=admin_shipment_form] a.save-method').on('click', function () {
+  $('[data-hook=admin_shipment_form] a.save-method').on('click', function (event) {
+    event.preventDefault();
+
     var link = $(this);
     var shipment_number = link.data('shipment-number');
     var selected_shipping_rate_id = link.parents('tbody').find("select#selected_shipping_rate_id[data-shipment-number='" + shipment_number + "']").val();
@@ -109,12 +111,22 @@ $(document).ready(function () {
     });
   });
 
+  var toggleTrackingEdit = function(event) {
+    event.preventDefault();
+
+    var link = $(this);
+    link.parents('tbody').find('tr.edit-tracking').toggle();
+    link.parents('tbody').find('tr.show-tracking').toggle();
+  }
+
   // handle tracking edit click
-  $('a.edit-tracking').on('click', toggleTrackingEdit);
-  $('a.cancel-tracking').on('click', toggleTrackingEdit);
+  $('a.edit-tracking').click(toggleTrackingEdit);
+  $('a.cancel-tracking').click(toggleTrackingEdit);
 
   // handle tracking save
-  $('[data-hook=admin_shipment_form] a.save-tracking').on('click', function () {
+  $('[data-hook=admin_shipment_form] a.save-tracking').on('click', function (event) {
+    event.preventDefault();
+
     var link = $(this);
     var shipment_number = link.data('shipment-number');
     var tracking = link.parents('tbody').find('input#tracking').val();
@@ -128,10 +140,12 @@ $(document).ready(function () {
           tracking: tracking
         }
       }
-    }).done(function () {
-      window.location.reload();
-    }).error(function (msg) {
-      console.log(msg);
+    }).done(function (data) {
+      link.parents('tbody').find('tr.edit-tracking').toggle();
+
+      var show = link.parents('tbody').find('tr.show-tracking');
+      show.toggle();
+      show.find('.tracking-value').html($("<strong>").html("<%= Spree.t(:tracking) %>: ")).append(data.tracking);
     });
   });
 });
@@ -202,6 +216,7 @@ toggleMethodEdit = function(){
   var link = $(this);
   link.parents('tbody').find('tr.edit-method').toggle();
   link.parents('tbody').find('tr.show-method').toggle();
+
   return false;
 }
 
@@ -257,13 +272,18 @@ startItemSplit = function(event){
     fadeOutTime: 50,
     intentPollInterval: 300
   });
-  $('#item_stock_location').select2({ width: 'resolve', placeholder: 'Choose Location' });
+  $('#item_stock_location').select2({ width: 'resolve', placeholder: Spree.translations.item_stock_placeholder });
 }
 
 completeItemSplit = function(event) {
   event.preventDefault();
+
+  if($('#item_stock_location').val() === ""){
+      alert('Please select the split destination.');
+      return false;
+  }
+
   var link = $(this);
-  var order_number = link.closest('tbody').data('order-number');
   var stock_item_row = link.closest('tr');
   var variant_id = stock_item_row.data('variant-id');
   var quantity = stock_item_row.find('#item_quantity').val();
@@ -276,44 +296,42 @@ completeItemSplit = function(event) {
   var new_shipment = selected_shipment.data('new-shipment');
 
   if (stock_location_id != 'new_shipment') {
-    // first remove item(s) from original shipment
-    $.ajax({
-      type: "PUT",
-      async: false,
-      url: Spree.url(Spree.routes.shipments_api + "/" + original_shipment_number + "/remove.json"),
-      data: { variant_id: variant_id, quantity: quantity }
-    });
-
     if (new_shipment != undefined) {
+      // TRANSFER TO A NEW LOCATION
       $.ajax({
         type: "POST",
         async: false,
-        url: Spree.url(Spree.routes.shipments_api + "?shipment[order_id]=" + order_number),
-        data: { variant_id: variant_id, quantity: quantity, stock_location_id: stock_location_id }
+        url: Spree.url(Spree.routes.shipments_api + "/transfer_to_location"),
+        data: {
+            original_shipment_number: original_shipment_number,
+            variant_id: variant_id,
+            quantity: quantity,
+            stock_location_id: stock_location_id
+        }
+      }).error(function(msg) {
+          alert(msg.responseJSON['message']);
       }).done(function(msg) {
-        advanceOrder();
+        window.Spree.advanceOrder();
       });
     } else {
-      $.ajax({
-        type: "PUT",
-        async: false,
-        url: Spree.url(Spree.routes.shipments_api + "/" + target_shipment_number + "/add.json"),
-        data: { variant_id: variant_id, quantity: quantity, selected_variants: selected_variants(stock_item_row) }
-      }).done(function(msg) {
-        advanceOrder();
-      });
+        // TRANSFER TO AN EXISTING SHIPMENT
+        $.ajax({
+            type: "POST",
+            async: false,
+            url: Spree.url(Spree.routes.shipments_api + "/transfer_to_shipment"),
+            data: {
+                original_shipment_number: original_shipment_number,
+                target_shipment_number: target_shipment_number,
+                variant_id: variant_id,
+                quantity: quantity
+            }
+        }).error(function(msg) {
+            alert(msg.responseJSON['message']);
+        }).done(function(msg) {
+            window.Spree.advanceOrder();
+        });
     }
   }
-}
-
-advanceOrder = function() {
-  $.ajax({
-    type: "PUT",
-    async: false,
-    url: Spree.url(Spree.routes.checkouts_api + "/" + order_number + "/advance")
-  }).done(function() {
-    window.location.reload();
-  });
 }
 
 cancelItemSplit = function(event) {
@@ -346,6 +364,7 @@ selected_variants = function(lineItem) {
 }
 
 addVariantFromStockLocation = function() {
+  event.preventDefault();
   $('#stock_details').hide();
 
   var variant_id = $('input.variant_autocomplete').val();

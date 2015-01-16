@@ -1,13 +1,13 @@
 FactoryGirl.define do
   factory :base_product, class: Spree::Product do
-    sequence(:name) { |n| "Tala Tank product #{n}" }
-    sku 'ABC'
-
-    available_on { 1.day.ago }
+    sequence(:name) { |n| "Product ##{n} - #{Kernel.rand(9999)}" }
+    description { generate(:random_description) }
+    cost_price 17.00
+    sku { generate(:sku) }
+    available_on { 1.year.ago }
     deleted_at nil
     individual_sale true
     weight 0.25
-    cost_price 0.25
 
     association :product_group, factory: :product_group, strategy: :build
     association :product_type, factory: :product_type, strategy: :build
@@ -28,12 +28,23 @@ FactoryGirl.define do
     #after(:create) do |p|
     #  p.variants_including_master.each { |v| v.save! }
     #end
+    factory :custom_product do
+      name 'Custom Product'
+      amount 17.99
+	  tax_category { |r| Spree::TaxCategory.first || r.association(:tax_category) }
+    end
 
     factory :product, aliases: [:rtw, :kit, :virtual_product] do
       tax_category { |r| Spree::TaxCategory.first || r.association(:tax_category) }
 
       # ensure stock item will be created for this products master
       before(:create) { create(:stock_location) if Spree::StockLocation.count == 0 }
+
+      factory :product_in_stock do
+        after :create do |product|
+          product.master.stock_items.first.adjust_count_on_hand(10)
+        end
+      end
 
       factory :product_with_option_types do
         after(:create) { |product| create(:product_option_type, product: product) }
@@ -90,6 +101,13 @@ FactoryGirl.define do
     end
 
     factory :product_with_stock do
+      after :create do |object, evaluator|
+        object.master.in_stock_cache = true
+        object.stock_items.each { |si| si.adjust_count_on_hand(10) }
+      end
+    end
+
+	factory :product_in_stock do
       after :create do |object, evaluator|
         object.master.in_stock_cache = true
         object.stock_items.each { |si| si.adjust_count_on_hand(10) }

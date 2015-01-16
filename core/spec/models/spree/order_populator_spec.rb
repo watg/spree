@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::OrderPopulator do
+describe Spree::OrderPopulator, :type => :model do
 
   let(:order) { mock_model(Spree::Order, currency: 'USD') }
   subject { Spree::OrderPopulator.new(order, "USD") }

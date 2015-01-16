@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Promotion::Rules::User do
+describe Spree::Promotion::Rules::User, :type => :model do
   let(:rule) { Spree::Promotion::Rules::User.new }
 
   context "#eligible?(order)" do

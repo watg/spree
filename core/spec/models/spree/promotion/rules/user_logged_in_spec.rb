@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Promotion::Rules::UserLoggedIn do
+describe Spree::Promotion::Rules::UserLoggedIn, :type => :model do
   let(:rule) { Spree::Promotion::Rules::UserLoggedIn.new }
 
   context "#eligible?(order)" do
@@ -13,9 +13,14 @@ describe Spree::Promotion::Rules::UserLoggedIn do
       expect(rule).to be_eligible(order)
     end
 
-    it "should not be eligible if user is not logged in" do
-      allow(order).to receive_messages(:user => nil) # better to be explicit here
-      expect(rule).not_to be_eligible(order)
+    context "when user is not logged in" do
+      before { allow(order).to receive_messages(:user => nil) } # better to be explicit here
+      it { expect(rule).not_to be_eligible(order) }
+      it "sets an error message" do
+        rule.eligible?(order)
+        expect(rule.eligibility_errors.full_messages.first).
+          to eq "You need to login before applying this coupon code."
+      end
     end
   end
 end

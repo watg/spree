@@ -3,14 +3,14 @@ module Spree
     class ProductsController < ResourceController
       helper 'spree/products'
 
-      before_filter :load_data, :except => :index
+      before_action :load_data, except: :index
       create.before :create_before
       update.before :update_before
       helper_method :clone_object_url
 
       def show
         session[:return_to] ||= request.referer
-        redirect_to( :action => :edit )
+        redirect_to action: :edit
       end
 
       def index
@@ -61,7 +61,7 @@ module Spree
       end
 
       def stock
-        @variants = @product.variants
+        @variants = @product.variants.includes(*variant_stock_includes)
         @variants = [@product.master] if @variants.empty?
         @stock_locations = StockLocation.accessible_by(current_ability, :read)
         if @stock_locations.empty?
@@ -83,13 +83,13 @@ module Spree
 
       protected
 
-        def find_resource
-          Product.with_deleted.friendly.find(params[:id])
-        end
+      def find_resource
+        Product.with_deleted.friendly.find(params[:id])
+      end
 
-        def location_after_save
-          spree.edit_admin_product_url(@product)
-        end
+      def location_after_save
+        spree.edit_admin_product_url(@product)
+      end
 
         def load_data
           @taxons = Taxon.order(:name)
@@ -131,7 +131,7 @@ module Spree
         end
 
         def product_includes
-          [{ :variants => [:images, { :option_values => :option_type }], :master => [:images, :default_price]}]
+          [{ variants: [:images, { :option_values: :option_type }], master: [:images, :default_price] }]
         end
 
         def clone_object_url resource
@@ -144,6 +144,10 @@ module Spree
 
 
       private
+
+      def variant_stock_includes
+        [:images, stock_items: :stock_location, option_values: :option_type]
+      end
 
       def update_success(product)
         flash[:success] = flash_message_for(product, :successfully_updated)

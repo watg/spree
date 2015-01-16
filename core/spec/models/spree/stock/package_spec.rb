@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Spree
   module Stock
-    describe Package do
+    describe Package, :type => :model do
       let(:variant) { build(:variant, weight: 25.0) }
       let(:stock_location) { build(:stock_location) }
       let(:order) { build(:order) }
@@ -145,6 +145,25 @@ module Spree
         context "there is no content item for the inventory unit" do
           it "doesn't change the set of content items" do
             expect { subject.remove(unit) }.not_to change { subject.quantity }
+          end
+        end
+      end
+
+      describe "#order" do
+        let(:unit) { build_inventory_unit }
+        context "there is an inventory unit" do
+
+          before { subject.add unit }
+
+          it "returns an order" do
+            expect(subject.order).to be_a_kind_of Spree::Order
+            expect(subject.order).to eq unit.order
+          end
+        end
+
+        context "there is no inventory unit" do
+          it "returns nil" do
+            expect(subject.order).to eq nil
           end
         end
       end

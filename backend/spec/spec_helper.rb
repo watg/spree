@@ -80,6 +80,7 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do
+    Rails.cache.clear
     WebMock.disable!
     if RSpec.current_example.metadata[:js]
       DatabaseCleaner.strategy = :truncation
@@ -103,10 +104,9 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end
 
-  config.after(:each, :type => :feature) do
+  config.after(:each, :type => :feature) do |example|
     missing_translations = page.body.scan(/translation missing: #{I18n.locale}\.(.*?)[\s<\"&]/)
     if missing_translations.any?
-      #binding.pry
       puts "Found missing translations: #{missing_translations.inspect}"
       puts "In spec: #{example.location}"
     end
@@ -120,6 +120,8 @@ RSpec.configure do |config|
   config.include Spree::TestingSupport::Flash
 
   config.include Paperclip::Shoulda::Matchers
+
+  config.extend WithModel
 
   config.fail_fast = ENV['FAIL_FAST'] || false
 

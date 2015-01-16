@@ -60,6 +60,21 @@ Spree.ready ($) ->
             }
           )
 
+          coupon_status.removeClass();
+          $.ajax({
+            async: false,
+            method: "PUT",
+            url: url,
+            success: (data) ->
+              coupon_code_field.val('')
+              coupon_status.addClass("success").html("Coupon code applied successfully.")
+              return true
+            error: (xhr) ->
+              handler = JSON.parse(xhr.responseText)
+              coupon_status.addClass("error").html(handler["error"])
+              $('.continue').attr('disabled', false)
+              return false
+          })
   Spree.paymentMethods = () ->
     $('.payment-method-tab').click -> 
       input = $(this).find('input')
@@ -71,3 +86,4 @@ Spree.ready ($) ->
 
   Spree.onPayment()
   Spree.paymentMethods()
+

@@ -1,7 +1,7 @@
 module Spree
   module Admin
     class StockTransfersController < Admin::BaseController
-      before_filter :load_stock_locations, :only => :index
+      before_action :load_stock_locations, only: :index
 
       def index
         @q = StockTransfer.ransack(params[:q])
@@ -38,7 +38,7 @@ module Spree
      
 
       def load_stock_locations
-        @stock_locations = Spree::StockLocation.active.order('name ASC')
+        @stock_locations = Spree::StockLocation.active.order_default
       end
 
     end

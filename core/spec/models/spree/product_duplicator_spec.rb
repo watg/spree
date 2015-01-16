@@ -2,70 +2,66 @@ require 'spec_helper'
 
 module Spree
 
-  describe Spree::ProductDuplicator do
+  describe Spree::ProductDuplicator, :type => :model do
 
     let(:product) { create(:product, properties: [create(:property, name: "MyProperty")])}
     let!(:duplicator) { Spree::ProductDuplicator.new(product)}
+
+    let(:image) { File.open(File.expand_path('../../../fixtures/thinking-cat.jpg', __FILE__)) }
+    let(:params) { {:viewable_id => product.master.id, :viewable_type => 'Spree::Variant', :attachment => image, :alt => "position 1", :position => 1} }
+
+    before do
+      Spree::Image.create(params)
+    end
 
     it "will duplicate the product" do
       expect{duplicator.duplicate}.to change{Spree::Product.count}.by(1)
     end
 
-    context "images" do
+    context 'when image duplication enabled' do
 
-      let(:image) { File.open(File.expand_path('../../../fixtures/thinking-cat.jpg', __FILE__)) }
-      let(:params) { {:viewable_id => product.master.id, :viewable_type => 'Spree::Variant', :attachment => image, :alt => "position 1", :position => 1} }
-
-      before do
-        allow_any_instance_of(Spree::Image).to receive(:save_attached_files).and_call_original
-        Spree::Image.create(params)
+      it "will duplicate the product images" do
+        expect{duplicator.duplicate}.to change{Spree::Image.count}.by(1)
       end
 
-      context 'when image duplication enabled' do
+    end
 
-        it "will duplicate the product images" do
+    context 'when image duplication disabled' do
+
+      let!(:duplicator) { Spree::ProductDuplicator.new(product, false) }
+
+      it "will not duplicate the product images" do
+        expect{duplicator.duplicate}.to change{Spree::Image.count}.by(0)
+      end
+
+    end
+
+    context 'image duplication default' do
+
+      context 'when default is set to true' do
+
+        it 'clones images if no flag passed to initializer' do
           expect{duplicator.duplicate}.to change{Spree::Image.count}.by(1)
         end
 
       end
 
-      context 'when image duplication disabled' do
+      context 'when default is set to false' do
 
-        let!(:duplicator) { Spree::ProductDuplicator.new(product, false) }
+        before do
+          ProductDuplicator.clone_images_default = false
+        end
 
-        it "will not duplicate the product images" do
-          expect{duplicator.duplicate}.to change{Spree::Image.count}.by(0)
+        after do
+          ProductDuplicator.clone_images_default = true
+        end
+
+        it 'does not clone images if no flag passed to initializer' do
+          expect{ProductDuplicator.new(product).duplicate}.to change{Spree::Image.count}.by(0)
         end
 
       end
 
-      context 'image duplication default' do
-
-        context 'when default is set to true' do
-
-          it 'clones images if no flag passed to initializer' do
-            expect{duplicator.duplicate}.to change{Spree::Image.count}.by(1)
-          end
-
-        end
-
-        context 'when default is set to false' do
-
-          before do
-            ProductDuplicator.clone_images_default = false
-          end
-
-          after do
-            ProductDuplicator.clone_images_default = true
-          end
-
-          it 'does not clone images if no flag passed to initializer' do
-            expect{ProductDuplicator.new(product).duplicate}.to change{Spree::Image.count}.by(0)
-          end
-
-        end
-
-      end
     end
 
     context "product attributes" do
@@ -76,17 +72,12 @@ module Spree
       end
 
       it "will set an unique sku" do
-        expect(new_product.sku).to eql "COPY OF ABC"
+        expect(new_product.sku).to include "COPY OF SKU"
       end
 
       it "copied the properties" do
         expect(new_product.product_properties.count).to be 1
         expect(new_product.product_properties.first.property.name).to eql "MyProperty"
-      end
-
-      it "assigns the product group and product type to be the same" do
-        expect(new_product.product_group).to eql product.product_group
-        expect(new_product.product_type).to eql product.product_type
       end
     end
 
@@ -106,10 +97,9 @@ module Spree
       it "will not duplicate the option values" do
         expect{duplicator.duplicate}.to change{Spree::OptionValue.count}.by(0)
       end
-
     end
 
-    context "prices" do
+     context "prices" do
       let(:variant1) { create(:variant, product: product) }
       let(:price) { build(:price, is_kit: true, amount: 5) }
 
@@ -125,7 +115,7 @@ module Spree
         # One for master, and 2 for variant
         expect{duplicator.duplicate}.to change{Spree::Price.count}.by(3)
       end
-
     end
+
   end
 end

@@ -3,7 +3,7 @@ module Spree
     class Coordinator
       attr_reader :order, :inventory_units
 
-      def initialize(order)
+      def initialize(order, inventory_units = nil)
         @order = order
         @inventory_units = inventory_units || InventoryUnitBuilder.new(order).units
       end
@@ -18,7 +18,6 @@ module Spree
         packages = build_packages
         packages = prioritize_packages(packages)
         packages = estimate_packages(packages)
-        packages
       end
 
       # Build packages as per stock location
@@ -42,7 +41,8 @@ module Spree
 
       private
       def prioritize_packages(packages)
-        Prioritizer.new(inventory_units, packages).prioritized_packages
+        prioritizer = Prioritizer.new(inventory_units, packages)
+        prioritizer.prioritized_packages
       end
 
       def estimate_packages(packages)

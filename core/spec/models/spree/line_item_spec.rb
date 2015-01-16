@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::LineItem, type: :model do
+describe Spree::LineItem, :type => :model do
   let(:order) { create :order_with_line_items, line_items_count: 1 }
   let(:line_item) { order.line_items.first }
 
@@ -189,10 +189,13 @@ describe Spree::LineItem, type: :model do
     end
 
     it "returns inventory when a line item is destroyed" do
-      expect_any_instance_of(Spree::OrderInventory).to receive(:verify).with(nil)
+      expect_any_instance_of(Spree::OrderInventory).to receive(:verify)
       line_item.destroy
     end
 
+    it "deletes inventory units" do
+      expect { line_item.destroy }.to change { line_item.inventory_units.count }.from(1).to(0)
+    end
   end
 
   context "updates bundle product line item" do
@@ -259,6 +262,13 @@ describe Spree::LineItem, type: :model do
       end
     end
 
+    context "target_shipment is provided" do
+      it "verifies inventory" do
+        line_item.target_shipment = Spree::Shipment.new
+        expect_any_instance_of(Spree::OrderInventory).to receive(:verify)
+        line_item.save
+      end
+    end
   end
 
   context "#create" do
@@ -333,6 +343,12 @@ describe Spree::LineItem, type: :model do
       line_item.quantity = 2
       line_item.promo_total = -5
       expect(line_item.discounted_amount).to eq(15)
+    end
+  end
+
+  describe "#discounted_money" do
+    it "should return a money object with the discounted amount" do
+      expect(line_item.discounted_money.to_s).to eq "$10.00"
     end
   end
 
@@ -419,7 +435,7 @@ describe Spree::LineItem, type: :model do
   end
 
   context "has inventory (completed order so items were already unstocked)" do
-    let(:order) { Spree::Order.create }
+    let(:order) { Spree::Order.create(email: 'spree@example.com') }
     let(:variant) { create(:variant) }
     let(:supplier) { create(:supplier) }
 
@@ -476,7 +492,7 @@ describe Spree::LineItem, type: :model do
         line_item.target_shipment = order.shipments.first
 
         line_item.save
-        expect(line_item.errors[:quantity].size).to eq(0)
+        expect(line_item.errors_on(:quantity).size).to eq(0)
       end
 
       it "doesnt allow to increase item quantity" do
@@ -485,7 +501,7 @@ describe Spree::LineItem, type: :model do
         line_item.target_shipment = order.shipments.first
 
         line_item.save
-        expect(line_item.errors[:quantity].size).to eq(1)
+        expect(line_item.errors_on(:quantity).size).to eq(1)
       end
     end
 
@@ -503,7 +519,7 @@ describe Spree::LineItem, type: :model do
         line_item.target_shipment = order.shipments.first
 
         line_item.save
-        expect(line_item.errors[:quantity].size).to eq(0)
+        expect(line_item.errors_on(:quantity).size).to eq(0)
       end
 
       it "doesnt allow to increase quantity over stock availability" do
@@ -512,7 +528,7 @@ describe Spree::LineItem, type: :model do
         line_item.target_shipment = order.shipments.first
 
         line_item.save
-        expect(line_item.errors[:quantity].size).to eq(1)
+        expect(line_item.errors_on(:quantity).size).to eq(1)
       end
     end
 
@@ -525,7 +541,7 @@ describe Spree::LineItem, type: :model do
       line_item.currency = order.currency
       line_item.valid?
 
-      expect(line_item.errors[:currency].size).to eq(0)
+      expect(line_item.error_on(:currency).size).to eq(0)
     end
   end
 
@@ -535,8 +551,25 @@ describe Spree::LineItem, type: :model do
       line_item.currency = "no currency"
       line_item.valid?
 
-      expect(line_item.errors[:currency].size).to eq(1)
+      expect(line_item.error_on(:currency).size).to eq(1)
     end
   end
 
+  describe "#options=" do
+    it "can handle updating a blank line item with no order" do
+      line_item.options = { price: 123 }
+    end
+
+    it "updates the data provided in the options" do
+      line_item.options = { price: 123 }
+      expect(line_item.price).to eq 123
+    end
+
+    it "updates the price based on the options provided" do
+      expect(line_item).to receive(:gift_wrap=).with(true)
+      expect(line_item.variant).to receive(:gift_wrap_price_modifier_amount_in).with("USD", true).and_return 1.99
+      line_item.options = { gift_wrap: true }
+      expect(line_item.price).to eq 21.98
+    end
+  end
 end

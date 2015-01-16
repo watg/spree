@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Spree
   module Stock
-    describe Estimator do
+    describe Estimator, :type => :model do
       let!(:shipping_method) { create(:shipping_method) }
       let(:package) { build(:stock_package, contents: inventory_units.map { |i| ContentItem.new(inventory_unit) }) }
       let(:order) { build(:order_with_line_items) }
@@ -15,44 +15,67 @@ module Spree
           shipping_method.zones.first.members.create(:zoneable => order.ship_address.country)
           allow_any_instance_of(ShippingMethod).to receive_message_chain(:calculator, :available?).and_return(true)
           allow_any_instance_of(ShippingMethod).to receive_message_chain(:calculator, :compute).and_return(4.00)
-          allow_any_instance_of(ShippingMethod).to receive_message_chain(:calculator, :preferences).and_return({:currency => "USD"})
+          allow_any_instance_of(ShippingMethod).to receive_message_chain(:calculator, :preferences).and_return({:currency => currency})
           allow_any_instance_of(ShippingMethod).to receive_message_chain(:calculator, :marked_for_destruction?)
 
           allow(package).to receive_messages(:shipping_methods => [shipping_method])
         end
 
-        it "returns shipping rates from a shipping method if the order's ship address is in the same zone" do
-          shipping_rates = subject.shipping_rates(package)
-          expect(shipping_rates.first.cost).to eq 4.00
+        let(:currency) { "USD" }
+
+        shared_examples_for "shipping rate matches" do
+          it "returns shipping rates" do
+            shipping_rates = subject.shipping_rates(package)
+            expect(shipping_rates.first.cost).to eq 4.00
+          end
         end
 
-        it "does not return shipping rates from a shipping method if the order's ship address is in a different zone" do
-          shipping_method.zones.each{|z| z.members.delete_all}
-          shipping_rates = subject.shipping_rates(package)
-          expect(shipping_rates).to eq([])
+        shared_examples_for "shipping rate doesn't match" do
+          it "does not return shipping rates" do
+            shipping_rates = subject.shipping_rates(package)
+            expect(shipping_rates).to eq([])
+          end
         end
 
-        it "does not return shipping rates from a shipping method if the calculator is not available for that order" do
-          allow_any_instance_of(ShippingMethod).to receive_message_chain(:calculator, :available?).and_return(false)
-          shipping_rates = subject.shipping_rates(package)
-          expect(shipping_rates).to eq([])
+        context "when the order's ship address is in the same zone" do
+          it_should_behave_like "shipping rate matches"
         end
 
-        it "returns shipping rates from a shipping method if the currency matches the order's currency" do
-          shipping_rates = subject.shipping_rates(package)
-          expect(shipping_rates.first.cost).to eq 4.00
+        context "when the order's ship address is in a different zone" do
+          before { shipping_method.zones.each{|z| z.members.delete_all} }
+          it_should_behave_like "shipping rate doesn't match"
         end
 
-        it "does not return shipping rates from a shipping method if the currency is different than the order's currency" do
-          order.currency = "GBP"
-          shipping_rates = subject.shipping_rates(package)
-          expect(shipping_rates).to eq([])
+        context "when the calculator is not available for that order" do
+          before { allow_any_instance_of(ShippingMethod).to receive_message_chain(:calculator, :available?).and_return(false) }
+          it_should_behave_like "shipping rate doesn't match"
         end
 
-        it "does not return shipping rates if the shipping method's calculator raises an exception" do
-          allow_any_instance_of(ShippingMethod).to receive_message_chain(:calculator, :available?).and_raise(Exception, "Something went wrong!")
-          expect(subject).to receive(:log_calculator_exception)
-          expect { subject.shipping_rates(package) }.not_to raise_error
+        context "when the currency is nil" do
+          let(:currency) { nil }
+          it_should_behave_like "shipping rate matches"
+        end
+
+        context "when the currency is an empty string" do
+          let(:currency) { "" }
+          it_should_behave_like "shipping rate matches"
+        end
+
+        context "when the current matches the order's currency" do
+          it_should_behave_like "shipping rate matches"
+        end
+
+        context "if the currency is different than the order's currency" do
+          let(:currency) { "GBP" }
+          it_should_behave_like "shipping rate doesn't match"
+        end
+
+        context "when the shipping method's calculator raises an exception" do
+          before do
+            allow_any_instance_of(ShippingMethod).to receive_message_chain(:calculator, :available?).and_raise(Exception, "Something went wrong!")
+            expect(subject).to receive(:log_calculator_exception)
+          end
+          it_should_behave_like "shipping rate doesn't match"
         end
 
         it "sorts shipping rates by cost" do

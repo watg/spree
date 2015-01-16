@@ -19,7 +19,7 @@
     <%= search_form_for [:admin, @search] do |f| %>
       <div class="field-block alpha four columns">
         <div class="date-range-filter field">
-          <%= label_tag nil, Spree.t(:date_range) %>
+          <%= label_tag :q_created_at_gt, Spree.t(:date_range) %>
           <div class="date-range-fields">
             <%= f.text_field :created_at_gt, :class => 'datepicker datepicker-from', :value => params[:q][:created_at_gt], :placeholder => Spree.t(:start) %>
 
@@ -32,39 +32,50 @@
         </div>
 
         <div class="field">
-          <%= label_tag nil, Spree.t(:order_number, :number => '') %>
-          <%= f.text_field :number_cont %>
-        </div>
-        <div class="field">
-          <%= label_tag nil, Spree.t(:email) %>
-          <%= f.text_field :email_cont %>
-        </div>
-      </div>
-
-      <div class="four columns">
-        <div class="field">
-          <%= label_tag nil, Spree.t(:order_status) %>
+          <%= label_tag :q_state_eq, Spree.t(:status) %>
           <%= f.select :state_eq, Spree::Order.state_machines[:state].states.collect {|s| [Spree.t("order_state.#{s.name}"), s.value]}, {:include_blank => true}, :class => 'select2' %>
         </div>
 
-        <div class="field">
-          <%= label_tag nil, Spree.t(:shipment_status) %>
+         <div class="field">
+          <%= label_tag q_shipment_state_eq, Spree.t(:shipment_status) %>
           <%= f.select :shipment_state_eq, Spree::OrderUpdater.shipment_states.map {|s| [s.humanize, s]}, {:include_blank => true}, :class => 'select2' %>
         </div>
 
         <div class="field">
-          <%= label_tag nil, Spree.t(:payment_status) %>
+          <%= label_tag q_payment_state_eq, Spree.t(:payment_status) %>
           <%= f.select :payment_state_eq, Spree::OrderUpdater.payment_states.map {|s| [s.humanize, s]}, {:include_blank => true}, :class => 'select2' %>
+        </div>
+
+        <div class="field">
+          <%= label_tag :q_promotions_id_in, Spree.t(:promotion) %>
+          <%= f.select :promotions_id_in, Spree::Promotion.applied.pluck(:name, :id), {:include_blank => true}, :class => 'select2' %>
         </div>
       </div>
 
       <div class="four columns">
         <div class="field">
-          <%= label_tag nil, Spree.t(:first_name_begins_with) %>
+          <%= label_tag :q_number_cont, Spree.t(:order_number, :number => '') %>
+          <%= f.text_field :number_cont %>
+        </div>
+
+        <div class="field">
+          <%= label_tag :q_email_cont, Spree.t(:email) %>
+          <%= f.text_field :email_cont %>
+        </div>
+
+        <div class="field">
+          <%= label_tag :q_line_items_variant_id_in, Spree.t(:sku) %>
+          <%= f.select :line_items_variant_id_in, Spree::Variant.pluck(:sku, :id), {:include_blank => true}, :class => 'select2' %>
+        </div>
+      </div>
+
+      <div class="four columns">
+        <div class="field">
+          <%= label_tag :q_bill_address_firstname_start, Spree.t(:first_name_begins_with) %>
           <%= f.text_field :bill_address_firstname_start, :size => 25 %>
         </div>
         <div class="field">
-          <%= label_tag nil, Spree.t(:last_name_begins_with) %>
+          <%= label_tag :q_bill_address_lastname_start, Spree.t(:last_name_begins_with) %>
           <%= f.text_field :bill_address_lastname_start, :size => 25%>
         </div>
       </div>
@@ -75,10 +86,10 @@
             <%= f.check_box :completed_at_not_null, {:checked => @show_only_completed}, '1', '0' %>
             <%= Spree.t(:show_only_complete_orders) %>
           </label>
-        </div>
-        <div class="field">
-          <%= label_tag nil, Spree.t(:promotion) %>
-          <%= f.select :promotions_id_in, Spree::Promotion.all.collect {|p| [p.name, p.id]}, {:include_blank => true}, :class => 'select2' %>
+          <label>
+            <%= f.check_box :considered_risky_eq, {:checked => (params[:q][:considered_risky_eq] == '1')}, '1', '' %>
+            <%= Spree.t(:show_only_considered_risky) %>
+          </label>
         </div>
       </div>
 
@@ -114,18 +125,19 @@
     <thead>
       <tr data-hook="admin_orders_index_headers">
         <% if @show_only_completed %>
-          <th><%= sort_link @search, :completed_at, I18n.t(:completed_at, :scope => 'activerecord.attributes.spree/order') %></th>
+          <th><%= sort_link @search, :completed_at,   I18n.t(:completed_at, :scope => 'activerecord.attributes.spree/order') %></th>
         <% else %>
-          <th><%= sort_link @search, :created_at,   I18n.t(:created_at, :scope => 'activerecord.attributes.spree/order') %></th>
+          <th><%= sort_link @search, :created_at,     I18n.t(:created_at, :scope => 'activerecord.attributes.spree/order') %></th>
         <% end %>
-        <th><%= sort_link @search, :number,         I18n.t(:number, :scope => 'activerecord.attributes.spree/order') %></th>
-        <th><%= sort_link @search, :state,          I18n.t(:state, :scope => 'activerecord.attributes.spree/order') %></th>
-        <th><%= sort_link @search, :payment_state,  I18n.t(:payment_state, :scope => 'activerecord.attributes.spree/order') %></th>
+        <th><%= sort_link @search, :number,           I18n.t(:number, :scope => 'activerecord.attributes.spree/order') %></th>
+        <th><%= sort_link @search, :considered_risky, I18n.t(:considered_risky, :scope => 'activerecord.attributes.spree/order') %></th>
+        <th><%= sort_link @search, :state,            I18n.t(:state, :scope => 'activerecord.attributes.spree/order') %></th>
+        <th><%= sort_link @search, :payment_state,    I18n.t(:payment_state, :scope => 'activerecord.attributes.spree/order') %></th>
          <% if Spree::Order.checkout_step_names.include?(:delivery) %>
           <th><%= sort_link @search, :shipment_state, I18n.t(:shipment_state, :scope => 'activerecord.attributes.spree/order') %></th>
          <% end %>
-        <th><%= sort_link @search, :email,          I18n.t(:email, :scope => 'activerecord.attributes.spree/order') %></th>
-        <th><%= sort_link @search, :total,          I18n.t(:total, :scope => 'activerecord.attributes.spree/order') %></th>
+        <th><%= sort_link @search, :email,            I18n.t(:email, :scope => 'activerecord.attributes.spree/order') %></th>
+        <th><%= sort_link @search, :total,            I18n.t(:total, :scope => 'activerecord.attributes.spree/order') %></th>
         <th data-hook="admin_orders_index_header_actions" class="actions"></th>
       </tr>
     </thead>
@@ -134,6 +146,7 @@
       <tr data-hook="admin_orders_index_rows" class="state-<%= order.state.downcase %> <%= cycle('odd', 'even') %>">
         <td class="align-center"><%= l (@show_only_completed ? order.completed_at : order.created_at).to_datetime %></td>
         <td class="align-center"><%= link_to order.number, edit_admin_order_path(order) %></td>
+        <td class="align-center"><span class="state <%= order.considered_risky ? 'considered_risky' : 'considered_safe' %>"></span></td>
         <td class="align-center"><span class="state <%= order.state.downcase %>"><%= Spree.t("order_state.#{order.state.downcase}") %></span></td>
         <td class="align-center"><span class="state <%= order.payment_state %>"><%= link_to Spree.t("payment_states.#{order.payment_state}"), admin_order_payments_path(order) if order.payment_state %></span></td>
           <% if Spree::Order.checkout_step_names.include?(:delivery) %>

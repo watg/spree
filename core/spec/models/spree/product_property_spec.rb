@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::ProductProperty do
+describe Spree::ProductProperty, :type => :model do
 
   context "validations" do
     it "should validate length of value" do

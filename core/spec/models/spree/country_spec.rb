@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Country do
+describe Spree::Country, :type => :model do
   it "can find all countries group by states required" do
     country_states_required= Spree::Country.create({:name => "Canada", :iso_name => "CAN", :states_required => true})
     country_states_not_required= Spree::Country.create({:name => "France", :iso_name => "FR", :states_required => false})

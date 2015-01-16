@@ -17,7 +17,7 @@ class FooAbility
   end
 end
 
-describe Spree::Ability do
+describe Spree::Ability, :type => :model do
   let(:user) { create(:user) }
   let(:ability) { Spree::Ability.new(user) }
   let(:token) { nil }
@@ -161,14 +161,14 @@ describe Spree::Ability do
 
       context 'requested with proper token' do
         let(:token) { 'TOKEN123' }
-        before(:each) { allow(resource).to receive_messages :token => 'TOKEN123' }
+        before(:each) { allow(resource).to receive_messages guest_token: 'TOKEN123' }
         it_should_behave_like 'access granted'
         it_should_behave_like 'no index allowed'
       end
 
       context 'requested with inproper token' do
         let(:token) { 'FAIL' }
-        before(:each) { allow(resource).to receive_messages :token => 'TOKEN123' }
+        before(:each) { allow(resource).to receive_messages guest_token: 'TOKEN123' }
         it_should_behave_like 'create only'
       end
     end

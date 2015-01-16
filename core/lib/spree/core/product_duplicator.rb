@@ -36,9 +36,7 @@ module Spree
         new_product.updated_at = nil
         new_product.product_properties = reset_properties
         new_product.master = duplicate_master
-        new_product.variants = product.variants.map do |variant|
-        duplicate_variant variant
-        end
+        new_product.variants = product.variants.map { |variant| duplicate_variant variant }
       end
     end
 

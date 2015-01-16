@@ -10,7 +10,7 @@ end
 
 module Spree
   module Stock
-    describe Quantifier do
+    describe Quantifier, :type => :model do
 
       before(:all) { Spree::StockLocation.destroy_all } #FIXME leaky database
 

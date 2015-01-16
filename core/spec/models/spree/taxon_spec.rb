@@ -2,41 +2,46 @@
 
 require 'spec_helper'
 
-describe Spree::Taxon do
+describe Spree::Taxon, :type => :model do
   let(:taxon) { FactoryGirl.build(:taxon, :name => "Ruby on Rails") }
+
+  describe '#to_param' do
+    subject { super().to_param }
+    it { is_expected.to eql taxon.permalink }
+  end
 
   context "set_permalink" do
 
     it "should set permalink correctly when no parent present" do
       taxon.set_permalink
-      expect(taxon.permalink).to eq("ruby-on-rails")
+      expect(taxon.permalink).to eql "ruby-on-rails"
     end
 
     it "should support Chinese characters" do
       taxon.name = "你好"
       taxon.set_permalink
-      expect(taxon.permalink).to eq('ni-hao')
+      expect(taxon.permalink).to eql 'ni-hao'
     end
 
     context "with parent taxon" do
       let(:parent) { FactoryGirl.build(:taxon, :permalink => "brands") }
-      before       { allow(taxon).to receive_messages :parent => parent }
+      before       { allow(taxon).to receive_messages parent: parent }
 
       it "should set permalink correctly when taxon has parent" do
         taxon.set_permalink
-        expect(taxon.permalink).to eq("brands/ruby-on-rails")
+        expect(taxon.permalink).to eql "brands/ruby-on-rails"
       end
 
       it "should set permalink correctly with existing permalink present" do
         taxon.permalink = "b/rubyonrails"
         taxon.set_permalink
-        expect(taxon.permalink).to eq("brands/rubyonrails")
+        expect(taxon.permalink).to eql "brands/rubyonrails"
       end
 
       it "should support Chinese characters" do
         taxon.name = "我"
         taxon.set_permalink
-        expect(taxon.permalink).to eq("brands/wo")
+        expect(taxon.permalink).to eql "brands/wo"
       end
 
       # Regression test for #3390

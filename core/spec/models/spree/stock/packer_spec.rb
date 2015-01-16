@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Spree
   module Stock
-    describe Packer do
+    describe Packer, :type => :model do
 
       let(:variant) { build(:base_variant) }
       let(:order) { build(:order) }

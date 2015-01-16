@@ -3,9 +3,15 @@ require 'spree/order/checkout'
 require  File.join(Rails.root,'vendor/spree/core/app/jobs/spree/issue_gift_card_job.rb')
 
 module Spree
-  class Order < ActiveRecord::Base
+  class Order < Spree::Base
+
+    ORDER_NUMBER_LENGTH  = 9
+    ORDER_NUMBER_LETTERS = false
+    ORDER_NUMBER_PREFIX  = 'R'
+
     include Spree::Order::Checkout
     include Spree::Order::CurrencyUpdater
+    include Spree::Order::Payments
 
     checkout_flow do
       go_to_state :address
@@ -16,18 +22,19 @@ module Spree
       remove_transition from: :delivery, to: :confirm
     end
 
-    token_resource
-
     attr_reader :coupon_code
+    attr_accessor :temporary_address, :temporary_credit_card
 
     if Spree.user_class
       belongs_to :user, class_name: Spree.user_class.to_s
       belongs_to :created_by, class_name: Spree.user_class.to_s
       belongs_to :approver, class_name: Spree.user_class.to_s
+      belongs_to :canceler, class_name: Spree.user_class.to_s
     else
-      belongs_to :user, class_name: "Spree::User"
-      belongs_to :created_by, class_name: "Spree::User"
+      belongs_to :user
+      belongs_to :created_by
       belongs_to :approver
+      belongs_to :canceler
     end
 
     belongs_to :bill_address, foreign_key: :bill_address_id, class_name: 'Spree::Address'
@@ -40,14 +47,16 @@ module Spree
 
     has_many :state_changes, as: :stateful
     has_many :line_items, -> { order("#{LineItem.table_name}.created_at ASC") }, dependent: :destroy, inverse_of: :order
-    has_many :payments, -> { order('created_at ASC') }, dependent: :destroy
+    has_many :payments, dependent: :destroy
     has_many :return_authorizations, dependent: :destroy, inverse_of: :order
+    has_many :reimbursements, inverse_of: :order
     has_many :adjustments, -> { order("#{Adjustment.table_name}.created_at ASC") }, as: :adjustable, dependent: :destroy
     has_many :line_item_adjustments, through: :line_items, source: :adjustments
     has_many :shipment_adjustments, through: :shipments, source: :adjustments
     has_many :inventory_units, inverse_of: :order
     has_many :products, through: :variants
     has_many :variants, through: :line_items
+    has_many :refunds, through: :payments
 
     has_and_belongs_to_many :promotions, join_table: 'spree_orders_promotions'
 
@@ -77,12 +86,14 @@ module Spree
     before_validation :clone_billing_address, if: :use_billing?
     attr_accessor :use_billing
 
+
+    before_create :create_token
     before_create :link_by_email
     before_update :homogenize_line_item_currencies, if: :currency_changed?
 
     validates :email, presence: true, if: :require_email
     validates :email, email: true, if: :require_email, allow_blank: true
-    validates :number, uniqueness: true
+    validates :number, presence: true, uniqueness: { allow_blank: true }
     validate :has_available_shipment
 
     make_permalink field: :number
@@ -94,15 +105,15 @@ module Spree
 
     SHIPPABLE_STATES = %w(complete resumed awaiting_return returned)
 
+    class_attribute :line_item_comparison_hooks
+    self.line_item_comparison_hooks = Set.new
+
+
     scope :created_between, ->(start_date, end_date) { where(created_at: start_date..end_date) }
     scope :completed_between, ->(start_date, end_date) { where(completed_at: start_date..end_date) }
+
     # shows completed orders first, by their completed_at date, then uncompleted orders by their created_at
     scope :reverse_chronological, -> { order('spree_orders.completed_at IS NULL', completed_at: :desc, created_at: :desc) }
-
-    def self.between(start_date, end_date)
-      ActiveSupport::Deprecation.warn("Order#between will be deprecated in Spree 2.3, please use either Order#created_between or Order#completed_between instead.")
-      self.created_between(start_date, end_date)
-    end
 
     class << self
       def by_number(number)
@@ -190,12 +201,18 @@ module Spree
     end
 
 
-    def item_normal_total
-      if @item_normal_total.blank?
-        line_items.map(&:normal_amount).sum
-      else
-        @item_normal_total
-      end
+    
+
+    # Use this method in other gems that wish to register their own custom logic
+    # that should be called after Order#update
+    def self.register_update_hook(hook)
+      self.update_hooks.add(hook)
+    end
+
+    # Use this method in other gems that wish to register their own custom logic
+    # that should be called when determining if two line items are equal.
+    def self.register_line_item_comparison_hook(hook)
+      self.line_item_comparison_hooks.add(hook)
     end
 
     def all_adjustments
@@ -206,6 +223,14 @@ module Spree
     # For compatiblity with Calculator::PriceSack
     def amount
       line_items.inject(0.0) { |sum, li| sum + li.amount }
+    end
+
+    def item_normal_total
+      if @item_normal_total.blank?
+        line_items.map(&:normal_amount).sum
+      else
+        @item_normal_total
+      end
     end
 
     def value_in_gbp
@@ -221,6 +246,11 @@ module Spree
 
     def cost_price_total
       line_items.inject(0.0) { |sum, li| sum + li.cost_price.to_f }
+    end
+
+    # Sum of all line item amounts pre-tax
+    def pre_tax_item_amount
+      line_items.to_a.sum(&:pre_tax_amount)
     end
 
     def currency
@@ -248,7 +278,7 @@ module Spree
     end
 
     def display_tax_total
-      Spree::Money.new(included_tax_total + additional_tax_total, { currency: currency })
+      Spree::Money.new(tax_total, { currency: currency })
     end
 
     def display_shipment_total
@@ -309,14 +339,6 @@ module Spree
       @tax_zone ||= Zone.match(tax_address) || Zone.default_tax
     end
 
-    # Indicates whether tax should be backed out of the price calcualtions in
-    # cases where prices include tax but the customer is not required to pay
-    # taxes in that case.
-    def exclude_tax?
-      return false unless Spree::Config[:prices_inc_tax]
-      tax_zone != Zone.default_tax
-    end
-
     # Returns the address for taxation based on configuration
     def tax_address
       Spree::Config[:tax_using_ship_address] ? ship_address : bill_address
@@ -347,8 +369,8 @@ module Spree
       allow_cancel?
     end
 
-    def awaiting_returns?
-      return_authorizations.any? { |return_authorization| return_authorization.authorized? }
+    def all_inventory_units_returned?
+      inventory_units.all? { |inventory_unit| inventory_unit.returned? }
     end
 
     def contents
@@ -369,14 +391,21 @@ module Spree
       end
     end
 
-    def generate_order_number(digits = 9)
+    def generate_order_number(options = {})
+      options[:length]  ||= ORDER_NUMBER_LENGTH
+      options[:letters] ||= ORDER_NUMBER_LETTERS
+      options[:prefix]  ||= ORDER_NUMBER_PREFIX
+
+      possible = (0..9).to_a
+      possible += ('A'..'Z').to_a if options[:letters]
+
       self.number ||= loop do
         # Make a random number.
-        random = "R#{Array.new(digits){rand(10)}.join}"
+        random = "#{options[:prefix]}#{(0...options[:length]).map { possible.shuffle.first }.join}"
         # Use the random  number if no other order exists with it.
         if self.class.exists?(number: random)
           # If over half of all possible options are taken add another digit.
-          digits += 1 if self.class.count > (10 ** digits / 2)
+          options[:length] += 1 if self.class.count > (10 ** options[:length] / 2)
         else
           break random
         end
@@ -387,24 +416,46 @@ module Spree
       shipments.shipped
     end
 
-    def contains?(variant)
-      find_line_item_by_variant(variant).present?
+    def contains?(variant, options = {})
+      find_line_item_by_variant(variant, options).present?
     end
 
-    def quantity_of(variant)
-      line_item = find_line_item_by_variant(variant)
+    def quantity_of(variant, options = {})
+      line_item = find_line_item_by_variant(variant, options)
       line_item ? line_item.quantity : 0
     end
 
-    def find_line_item_by_variant(variant)
-      line_items.detect { |line_item| line_item.variant_id == variant.id }
+    def find_line_item_by_variant(variant, options = {})
+      line_items.detect { |line_item|
+                    line_item.variant_id == variant.id &&
+                    line_item_options_match(line_item, options)
+                  }
+    end
+
+    # This method enables extensions to participate in the
+    # "Are these line items equal" decision.
+    #
+    # When adding to cart, an extension would send something like:
+    # params[:product_customizations]={...}
+    #
+    # and would provide:
+    #
+    # def product_customizations_match
+    def line_item_options_match(line_item, options)
+      return true unless options
+
+      self.line_item_comparison_hooks.all? { |hook|
+        self.send(hook, line_item, options)
+      }
     end
 
     # Creates new tax charges if there are any applicable rates. If prices already
     # include taxes then price adjustments are created instead.
     def create_tax_charge!
-      Spree::TaxRate.adjust(self, line_items)
-      Spree::TaxRate.adjust(self, shipments) if shipments.any?
+      # We want to only look up the applicable tax zone once and pass it to TaxRate calculation to avoid duplicated lookups.
+      order_tax_zone = self.tax_zone
+      Spree::TaxRate.adjust(order_tax_zone, line_items)
+      Spree::TaxRate.adjust(order_tax_zone, shipments) if shipments.any?
     end
 
     def outstanding_balance
@@ -434,6 +485,11 @@ module Spree
       CreditCard.where(id: credit_card_ids)
     end
 
+    def valid_credit_cards
+      credit_card_ids = payments.from_credit_card.valid.pluck(:source_id).uniq
+      CreditCard.where(id: credit_card_ids)
+    end
+
     # Finalizes an in progress order after checkout is complete.
     # Called after transition to complete state when payments will have been processed
     def finalize!
@@ -448,7 +504,7 @@ module Spree
       end
 
       updater.update_shipment_state
-      save
+      save!
       updater.run_hooks
 
       touch :completed_at
@@ -519,13 +575,8 @@ module Spree
     end
 
     def deliver_order_confirmation_email
-      begin
-        OrderMailer.confirm_email(self.id).deliver
-        update_column(:confirmation_delivered, true)
-      rescue Exception => e
-        logger.error("#{e.class.name}: #{e.message}")
-        logger.error(e.backtrace * "\n")
-      end
+      OrderMailer.confirm_email(self.id).deliver
+      update_column(:confirmation_delivered, true)
     end
 
     # Helper methods for checkout steps
@@ -535,42 +586,6 @@ module Spree
 
     def available_payment_methods
       @available_payment_methods ||= (PaymentMethod.available(:front_end) + PaymentMethod.available(:both)).uniq
-    end
-
-    def pending_payments
-      payments.select { |payment| payment.checkout? || payment.pending? }
-    end
-
-    # processes any pending payments and must return a boolean as it's
-    # return value is used by the checkout state_machine to determine
-    # success or failure of the 'complete' event for the order
-    #
-    # Returns:
-    # - true if all pending_payments processed successfully
-    # - true if a payment failed, ie. raised a GatewayError
-    #   which gets rescued and converted to TRUE when
-    #   :allow_checkout_gateway_error is set to true
-    # - false if a payment failed, ie. raised a GatewayError
-    #   which gets rescued and converted to FALSE when
-    #   :allow_checkout_on_gateway_error is set to false
-    #
-    def process_payments!
-      if pending_payments.empty?
-        raise Core::GatewayError.new Spree.t(:no_pending_payments)
-      else
-        pending_payments.each do |payment|
-          break if payment_total >= total
-
-          payment.process!
-
-          if payment.completed?
-            self.payment_total += payment.amount
-          end
-        end
-      end
-    rescue Core::GatewayError => e
-      result = !!Spree::Config[:allow_checkout_on_gateway_error]
-      errors.add(:base, e.message) and return result
     end
 
     def billing_firstname
@@ -585,6 +600,10 @@ module Spree
       line_items.map(&:product)
     end
 
+    def insufficient_stock_lines
+      line_items.select(&:insufficient_stock?)
+    end
+
     def product_groups
       line_items.map(&:product).map(&:product_group)
     end
@@ -593,9 +612,27 @@ module Spree
       line_items.map(&:variant)
     end
 
-    def insufficient_stock_lines
-      Spree::Stock::AvailabilityValidator.new.validate_order(self)
-      line_items.select {|line| line.errors.any? }
+    ##
+    # Check to see if any line item variants are soft, deleted.
+    # If so add error and restart checkout.
+    def ensure_line_item_variants_are_not_deleted
+      if line_items.select{ |li| li.variant.destroyed? }.present?
+        errors.add(:base, Spree.t(:deleted_variants_present))
+        restart_checkout_flow
+        false
+      else
+        true
+      end
+    end
+
+    def ensure_line_items_are_in_stock
+      if insufficient_stock_lines.present?
+        errors.add(:base, Spree.t(:insufficient_stock_lines_present))
+        restart_checkout_flow
+        false
+      else
+        true
+      end
     end
 
     def ensure_line_items_are_in_stock
@@ -606,16 +643,24 @@ module Spree
 
 
     def merge!(order, user = nil)
-      order.line_items.each do |line_item|
-        next unless line_item.currency == currency
-        current_line_item = self.line_items.find_by(variant: line_item.variant)
+      order.line_items.each do |other_order_line_item|
+        next unless other_order_line_item.currency == currency
 
+        # Compare the line items of the other order with mine.
+        # Make sure you allow any extensions to chime in on whether or
+        # not the extension-specific parts of the line item match
+        current_line_item = self.line_items.detect { |my_li|
+                      my_li.variant == other_order_line_item.variant &&
+                      self.line_item_comparison_hooks.all? { |hook|
+                        self.send(hook, my_li, other_order_line_item.serializable_hash)
+                      }
+                    }
         if current_line_item
-          current_line_item.quantity += line_item.quantity
-          current_line_item.save
+          current_line_item.quantity += other_order_line_item.quantity
+          current_line_item.save!
         else
-          line_item.order_id = self.id
-          line_item.save
+          other_order_line_item.order_id = self.id
+          other_order_line_item.save!
         end
       end
 
@@ -676,7 +721,6 @@ module Spree
     def create_proposed_shipments
       adjustments.shipping.delete_all
       shipments.destroy_all
-
       self.shipments = Spree::Stock::Coordinator.new(self).shipments
     end
 
@@ -702,9 +746,10 @@ module Spree
 
     def restart_checkout_flow
       self.update_columns(
-        state: checkout_steps.first,
+        state: 'cart',
         updated_at: Time.now,
       )
+      self.next! if self.line_items.size > 0
     end
 
     def refresh_shipment_rates
@@ -725,13 +770,22 @@ module Spree
       self.payments.risky.count > 0
     end
 
+    def canceled_by(user)
+      self.transaction do
+        cancel!
+        self.update_columns(
+          canceler_id: user.id,
+          canceled_at: Time.now,
+        )
+      end
+    end
+
     def approved_by(user)
       self.transaction do
         approve!
         self.update_columns(
           approver_id: user.id,
           approved_at: Time.now,
-          considered_risky: false,
         )
       end
     end
@@ -771,6 +825,32 @@ module Spree
       self.ensure_updated_shipments
     end
 
+    def reload(options=nil)
+      remove_instance_variable(:@tax_zone) if defined?(@tax_zone)
+      super
+    end
+
+    def tax_total
+      included_tax_total + additional_tax_total
+    end
+
+    def quantity
+      line_items.sum(:quantity)
+    end
+
+    def has_non_reimbursement_related_refunds?
+      refunds.non_reimbursement.exists? ||
+        payments.offset_payment.exists? # how old versions of spree stored refunds
+    end
+    
+    def active_hold_note
+      order_notes.last if on_hold?
+    end
+
+    def on_hold?
+      %(warehouse_on_hold customer_service_on_hold).include?(state)
+    end
+
     def prune_line_items
       if self.completed?
         Rails.logger.error "Can not prune line items from a compelted order: #{self.id}"
@@ -780,20 +860,6 @@ module Spree
           OrderContents.new(self).delete_line_item(li)
         end
       end
-    end
-
-    def active_hold_note
-      order_notes.last if on_hold?
-    end
-
-    def on_hold?
-      %(warehouse_on_hold customer_service_on_hold).include?(state)
-    end
-
-
-    def reload(options=nil)
-      remove_instance_variable(:@tax_zone) if defined?(@tax_zone)
-      super
     end
 
     private
@@ -815,13 +881,16 @@ module Spree
 
     def has_available_shipment
       return unless has_step?("delivery")
-      return unless address?
+      return unless has_step?(:address) && address?
       return unless ship_address && ship_address.valid?
       # errors.add(:base, :no_shipping_methods_available) if available_shipping_methods.empty?
     end
 
     def ensure_available_shipping_rates
       if shipments.empty? || shipments.any? { |shipment| shipment.shipping_rates.blank? }
+        # After this point, order redirects back to 'address' state and asks user to pick a proper address
+        # Therefore, shipments are not necessary at this point.
+        shipments.delete_all
         errors.add(:base, Spree.t(:items_cannot_be_shipped)) and return false
       end
     end
@@ -834,7 +903,7 @@ module Spree
     end
 
     def send_cancel_email
-      OrderMailer.cancel_email(self.id).deliver unless internal?
+      OrderMailer.cancel_email(self.id).deliver
     end
 
     def after_resume
@@ -850,5 +919,11 @@ module Spree
       self.currency = Spree::Config[:currency] if self[:currency].nil?
     end
 
+    def create_token
+      self.guest_token ||= loop do
+        random_token = SecureRandom.urlsafe_base64(nil, false)
+        break random_token unless self.class.exists?(guest_token: random_token)
+      end
+    end
   end
 end

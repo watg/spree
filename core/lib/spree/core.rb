@@ -3,15 +3,16 @@ require 'active_merchant'
 require 'acts_as_list'
 require 'awesome_nested_set'
 require 'cancan'
+require 'friendly_id'
+require 'font-awesome-rails'
 require 'kaminari'
 require 'mail'
 require 'monetize'
 require 'paperclip'
 require 'paranoia'
+require 'premailer/rails'
 require 'ransack'
 require 'state_machine'
-require 'friendly_id'
-require 'font-awesome-rails'
 
 module Spree
 
@@ -30,7 +31,7 @@ module Spree
   # Example:
   #
   #   Spree.config do |config|
-  #     config.site_name = "An awesome Spree site"
+  #     config.track_inventory_levels = false
   #   end
   #
   # This method is defined within the core gem on purpose.
@@ -49,9 +50,6 @@ end
 
 require 'spree/core/version'
 
-require 'spree/core/mail_interceptor'
-require 'spree/core/mail_method'
-require 'spree/core/mail_settings'
 require 'spree/core/environment_extension'
 require 'spree/core/environment/calculators'
 require 'spree/core/environment'
@@ -60,24 +58,28 @@ require 'spree/migrations'
 require 'spree/core/engine'
 
 require 'spree/i18n'
+require 'spree/localized_number'
 require 'spree/money'
-
 require 'spree/permitted_attributes'
-require 'spree/core/user_address'
-require 'spree/core/user_payment_source'
+
 require 'spree/core/delegate_belongs_to'
-require 'spree/core/permalinks'
-require 'spree/core/token_resource'
-require 'spree/core/calculated_adjustments'
-require 'spree/core/adjustment_source'
-require 'spree/core/product_duplicator'
-require 'spree/core/variant_duplicator'
-require 'spree/core/controller_helpers'
-require 'spree/core/controller_helpers/strong_parameters'
-require 'spree/core/controller_helpers/ssl'
-require 'spree/core/controller_helpers/search'
-require 'spree/core/mail_method'
-require 'spree/core/mail_settings'
-
-
 require 'spree/core/importer'
+require 'spree/core/permalinks'
+require 'spree/core/product_duplicator'
+require 'spree/core/controller_helpers/auth'
+require 'spree/core/controller_helpers/common'
+require 'spree/core/controller_helpers/order'
+require 'spree/core/controller_helpers/respond_with'
+require 'spree/core/controller_helpers/search'
+require 'spree/core/controller_helpers/ssl'
+require 'spree/core/controller_helpers/store'
+require 'spree/core/controller_helpers/strong_parameters'
+
+# Hack waiting on https://github.com/pluginaweek/state_machine/pull/275
+module StateMachine
+  module Integrations
+    module ActiveModel
+      public :around_validation
+    end
+  end
+end

@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 require 'spec_helper'
 
 class FakeCalculator < Spree::Calculator
@@ -8,7 +6,7 @@ class FakeCalculator < Spree::Calculator
   end
 end
 
-describe Spree::Order do
+describe Spree::Order, :type => :model do
   let(:user) { stub_model(Spree::LegacyUser, :email => "spree@example.com") }
   let(:order) { stub_model(Spree::Order, :user => user) }
 
@@ -49,188 +47,48 @@ describe Spree::Order do
     end
   end
 
-  context "#cost_price_total" do
-    let!(:line_item1) { create(:line_item, :order => order, :quantity => 3 ) }
 
-    it "returns total price of all line_items" do
-      order.line_items.reload
-      expect(order.cost_price_total).to eq 30
-    end
-  end
 
-  context "#internal?" do
-    it "returns true when order is marked as such" do
-      order = build(:order, internal: true)
-      expect(order.internal?).to be true
+  context "#canceled_by" do
+    let(:admin_user) { create :admin_user }
+    let(:order) { create :order }
+
+    before do
+      allow(order).to receive(:cancel!)
     end
 
-    it "return false by default" do
-      order = build(:order)
-      expect(order.internal?).to be false
-    end
-  end
+    subject { order.canceled_by(admin_user) }
 
-  context "#products" do
-    before :each do
-      @variant1 = mock_model(Spree::Variant, :product => "product1")
-      @variant2 = mock_model(Spree::Variant, :product => "product2")
-      @line_items = [mock_model(Spree::LineItem, :product => "product1", :variant => @variant1, :variant_id => @variant1.id, :quantity => 1),
-                     mock_model(Spree::LineItem, :product => "product2", :variant => @variant2, :variant_id => @variant2.id, :quantity => 2)]
-      allow(order).to receive_messages(:line_items => @line_items)
+    it 'should cancel the order' do
+      expect(order).to receive(:cancel!)
+      subject
     end
 
-    it "should return ordered products" do
-      expect(order.products).to eq(['product1', 'product2'])
+    it 'should save canceler_id' do
+      subject
+      expect(order.reload.canceler_id).to eq(admin_user.id)
     end
 
-    it "contains?" do
-      expect(order.contains?(@variant1)).to be true
+    it 'should save canceled_at' do
+      subject
+      expect(order.reload.canceled_at).to_not be_nil
     end
 
-    it "gets the quantity of a given variant" do
-      expect(order.quantity_of(@variant1)).to eq(1)
-
-      @variant3 = mock_model(Spree::Variant, :product => "product3")
-      expect(order.quantity_of(@variant3)).to eq(0)
-    end
-
-    it "can find a line item matching a given variant" do
-      expect(order.find_line_item_by_variant(@variant1)).not_to be_nil
-      expect(order.find_line_item_by_variant(mock_model(Spree::Variant))).to be_nil
-    end
-  end
-
-  context "#payments" do
-    # For the reason of this test, please see spree/spree_gateway#132
-    it "does not have inverse_of defined" do
-      expect(Spree::Order.reflections[:payments].options[:inverse_of]).to be_nil
-    end
-
-    it "keeps source attributes after updating" do
-      persisted_order = Spree::Order.create
-      credit_card_payment_method = create(:credit_card_payment_method)
-      attributes = {
-        :payments_attributes => [
-          {
-            :payment_method_id => credit_card_payment_method.id,
-            :source_attributes => {
-              :name => "Ryan Bigg",
-              :number => "41111111111111111111",
-              :expiry => "01 / 15",
-              :verification_value => "123"
-            }
-          }
-        ]
-      }
-
-      persisted_order.update_attributes(attributes)
-      expect(persisted_order.pending_payments.last.source.number).to be_present
-    end
-  end
-
-  context "#generate_order_number" do
-    it "should generate a random string" do
-      expect(order.generate_order_number.is_a?(String)).to be true
-      expect(order.generate_order_number.to_s.length > 0).to be true
-    end
-  end
-
-  context "#associate_user!" do
-    it "should associate a user with a persisted order" do
-      order = FactoryGirl.create(:order_with_line_items, created_by: nil)
-      user = FactoryGirl.create(:user)
-
-      order.user = nil
-      order.email = nil
-      order.associate_user!(user)
-      expect(order.user).to eq(user)
-      expect(order.email).to eq(user.email)
-      expect(order.created_by).to eq(user)
-
-      # verify that the changes we made were persisted
-      order.reload
-      expect(order.user).to eq(user)
-      expect(order.email).to eq(user.email)
-      expect(order.created_by).to eq(user)
-    end
-
-    it "should not overwrite the created_by if it already is set" do
-      creator = create(:user)
-      order = FactoryGirl.create(:order_with_line_items, created_by: creator)
-      user = FactoryGirl.create(:user)
-
-      order.user = nil
-      order.email = nil
-      order.associate_user!(user)
-      expect(order.user).to eq(user)
-      expect(order.email).to eq(user.email)
-      expect(order.created_by).to eq(creator)
-
-      # verify that the changes we made were persisted
-      order.reload
-      expect(order.user).to eq(user)
-      expect(order.email).to eq(user.email)
-      expect(order.created_by).to eq(creator)
-    end
-
-
-    it "should associate a user with a non-persisted order" do
-      order = Spree::Order.new
-
-      expect do
-        order.associate_user!(user)
-      end.to change { [order.user, order.email] }.from([nil, nil]).to([user, user.email])
-    end
-
-    it "should not persist an invalid address" do
-      address = Spree::Address.new
-      order.user = nil
-      order.email = nil
-      order.ship_address = address
-      expect do
-        order.associate_user!(user)
-      end.not_to change { address.persisted? }.from(false)
+    it 'should have canceler' do
+      subject
+      expect(order.reload.canceler).to eq(admin_user)
     end
   end
 
   context "#create" do
+    let(:order) { Spree::Order.create }
+
     it "should assign an order number" do
-      order = Spree::Order.create
       expect(order.number).not_to be_nil
     end
-  end
 
-  describe "#can_ship?" do
-    let(:order) { build(:order) }
-    let(:valid_states) { %w(complete resumed awaiting_return returned) }
-
-    it "is true for shippable states" do
-      valid_states.each do |state|
-        order.state = state
-        expect(order.can_ship?).to be true
-      end
-    end
-
-    it "is false for all other states" do
-      other_states = Spree::Order.state_machine.states.map(&:name) -
-        valid_states
-
-      other_states.each do |state|
-        order.state = state
-        expect(order.can_ship?).to be false
-      end
-    end
-  end
-
-  context "checking if order is paid" do
-    context "payment_state is paid" do
-      before { allow(order).to receive_messages payment_state: 'paid' }
-      it { expect(order).to be_paid }
-    end
-
-    context "payment_state is credit_owned" do
-      before { allow(order).to receive_messages payment_state: 'credit_owed' }
-      it { expect(order).to be_paid }
+    it 'should create a randomized 22 character token' do
+      expect(order.guest_token.size).to eq(22)
     end
   end
 
@@ -279,7 +137,7 @@ describe Spree::Order do
       Spree::Shipment.create(order: order)
       order.shipments.reload
 
-      allow(order).to receive_messages(:paid? => true, :complete? => true, :physical_line_items => [double])
+      allow(order).to receive_messages(:paid? => true, :complete? => true)
       order.finalize!
       order.reload # reload so we're sure the changes are persisted
       expect(order.shipment_state).to eq('ready')
@@ -299,13 +157,6 @@ describe Spree::Order do
       order.finalize!
     end
 
-    it "does not send a confirmation email for internal orders" do
-      order.internal = true
-      allow(Spree::OrderMailer).to receive(:confirm_email)
-      order.finalize!
-      expect(Spree::OrderMailer).not_to have_received(:confirm_email)
-    end
-
     it "sets confirmation delivered when finalizing" do
       expect(order.confirmation_delivered?).to be false
       order.finalize!
@@ -318,6 +169,13 @@ describe Spree::Order do
       order.finalize!
     end
 
+	it "does not send a confirmation email for internal orders" do
+      order.internal = true
+      allow(Spree::OrderMailer).to receive(:confirm_email)
+      order.finalize!
+      expect(Spree::OrderMailer).not_to have_received(:confirm_email)
+    end
+
     it "should freeze all adjustments" do
       # Stub this method as it's called due to a callback
       # and it's irrelevant to this test
@@ -326,7 +184,7 @@ describe Spree::Order do
       adjustments = [double]
       expect(order).to receive(:all_adjustments).and_return(adjustments)
       adjustments.each do |adj|
-        expect(adj).to receive(:close)
+	      expect(adj).to receive(:close)
       end
       order.finalize!
     end
@@ -350,141 +208,81 @@ describe Spree::Order do
           order.finalize!
           expect(order.state).to eq 'complete'
         end
-
       end
     end
+  end
 
-    context "order is not considered risky" do
+  context "insufficient_stock_lines" do
+    let(:line_item) { mock_model Spree::LineItem, :insufficient_stock? => true }
+
+    before { allow(order).to receive_messages(:line_items => [line_item]) }
+
+    it "should return line_item that has insufficient stock on hand" do
+      expect(order.insufficient_stock_lines.size).to eq(1)
+      expect(order.insufficient_stock_lines.include?(line_item)).to be true
+    end
+  end
+
+  describe '#ensure_line_item_variants_are_not_deleted' do
+    subject { order.ensure_line_item_variants_are_not_deleted }
+
+    let(:order) { create :order_with_line_items }
+
+    context 'when variant is destroyed' do
       before do
-        allow(order).to receive_messages :is_risky? => false
+        allow(order).to receive(:restart_checkout_flow)
+        order.line_items.first.variant.destroy
       end
 
-      it "should set completed_at" do
-        order.finalize!
-        expect(order.completed_at).to be_present
+      it 'should restart checkout flow' do
+        expect(order).to receive(:restart_checkout_flow).once
+        subject
+      end
+
+      it 'should have error message' do
+        subject
+        expect(order.errors[:base]).to include(Spree.t(:deleted_variants_present))
+      end
+
+      it 'should be false' do
+        expect(subject).to be_falsey
+      end
+    end
+
+    context 'when no variants are destroyed' do
+      it 'should not restart checkout' do
+        expect(order).to receive(:restart_checkout_flow).never
+        subject
+      end
+
+      it 'should be true' do
+        expect(subject).to be_truthy
       end
     end
   end
 
-  context "#process_payments!" do
-    let(:payment) { stub_model(Spree::Payment) }
-    before { allow(order).to receive_messages :pending_payments => [payment], :total => 10 }
+  describe '#ensure_line_items_are_in_stock' do
+    subject { order.ensure_line_items_are_in_stock }
 
-    it "should process the payments" do
-      expect(payment).to receive(:process!)
-      expect(order.process_payments!).to be_truthy
-    end
+    let(:line_item) { mock_model Spree::LineItem, :insufficient_stock? => true }
 
-    it "should return false if no pending_payments available" do
-      allow(order).to receive_messages :pending_payments => []
-      expect(order.process_payments!).to be false
-    end
-
-    context "when a payment raises a GatewayError" do
-      before { expect(payment).to receive(:process!).and_raise(Spree::Core::GatewayError) }
-
-      it "should return true when configured to allow checkout on gateway failures" do
-        Spree::Config.set :allow_checkout_on_gateway_error => true
-        expect(order.process_payments!).to be true
-      end
-
-      it "should return false when not configured to allow checkout on gateway failures" do
-        Spree::Config.set :allow_checkout_on_gateway_error => false
-        expect(order.process_payments!).to be false
-      end
-
-    end
-  end
-
-  context "#outstanding_balance" do
-    it "should return positive amount when payment_total is less than total" do
-      order.payment_total = 20.20
-      order.total = 30.30
-      expect(order.outstanding_balance).to eq(10.10)
-    end
-    it "should return negative amount when payment_total is greater than total" do
-      order.total = 8.20
-      order.payment_total = 10.20
-      expect(order.outstanding_balance).to be_within(0.001).of(-2.00)
-    end
-
-  end
-
-  context "#outstanding_balance?" do
-    it "should be true when total greater than payment_total" do
-      order.total = 10.10
-      order.payment_total = 9.50
-      expect(order.outstanding_balance?).to be true
-    end
-    it "should be true when total less than payment_total" do
-      order.total = 8.25
-      order.payment_total = 10.44
-      expect(order.outstanding_balance?).to be true
-    end
-    it "should be false when total equals payment_total" do
-      order.total = 10.10
-      order.payment_total = 10.10
-      expect(order.outstanding_balance?).to be false
-    end
-  end
-
-  context "#completed?" do
-    it "should indicate if order is completed" do
-      order.completed_at = nil
-      expect(order.completed?).to be false
-
-      order.completed_at = Time.now
-      expect(order.completed?).to be true
-    end
-  end
-
-  it 'is backordered if one of the shipments is backordered' do
-    allow(order).to receive_messages(:shipments => [mock_model(Spree::Shipment, :backordered? => false),
-                              mock_model(Spree::Shipment, :backordered? => true)])
-    expect(order).to be_backordered
-  end
-
-  it 'is awaiting_feed if one of the shipments is awaiting_feed' do
-    allow(order).to receive_messages(:shipments => [mock_model(Spree::Shipment, :awaiting_feed? => false),
-                              mock_model(Spree::Shipment, :awaiting_feed? => true)])
-    expect(order).to be_awaiting_feed
-  end
-
-  context "#allow_checkout?" do
-    it "should be true if there are line_items in the order" do
-      allow(order).to receive_message_chain(:line_items, :count => 1)
-      expect(order.checkout_allowed?).to be true
-    end
-    it "should be false if there are no line_items in the order" do
-      allow(order).to receive_message_chain(:line_items, :count => 0)
-      expect(order.checkout_allowed?).to be false
-    end
-  end
-
-  context "#amount" do
     before do
-      @order = create(:order, :user => user)
-      @order.line_items = [create(:line_item, :price => 1.0, :quantity => 2),
-                           create(:line_item, :price => 1.0, :quantity => 1)]
-    end
-    it "should return the correct lum sum of items" do
-      expect(@order.amount).to eq(3.0)
-    end
-  end
-
-  context "#can_cancel?" do
-    it "should be false for completed order in the canceled state" do
-      order.state = 'canceled'
-      order.shipment_state = 'ready'
-      order.completed_at = Time.now
-      expect(order.can_cancel?).to be false
+      allow(order).to receive(:restart_checkout_flow)
+      allow(order).to receive_messages(:line_items => [line_item])
     end
 
-    it "should be true for completed order with no shipment" do
-      order.state = 'complete'
-      order.shipment_state = nil
-      order.completed_at = Time.now
-      expect(order.can_cancel?).to be true
+    it 'should restart checkout flow' do
+      expect(order).to receive(:restart_checkout_flow).once
+      subject
+    end
+
+    it 'should have error message' do
+      subject
+      expect(order.errors[:base]).to include(Spree.t(:insufficient_stock_lines_present))
+    end
+
+    it 'should be false' do
+      expect(subject).to be_falsey
     end
   end
 
@@ -615,12 +413,63 @@ describe Spree::Order do
 
       specify do
         order_1.merge!(order_2)
-        order_1.line_items.reload
         expect(order_1.line_items.count).to eq(1)
 
         line_item = order_1.line_items.first
         expect(line_item.quantity).to eq(2)
         expect(line_item.variant_id).to eq(variant.id)
+      end
+
+    end
+
+    context "merging using extension-specific line_item_comparison_hooks" do
+      before do
+        Spree::Order.register_line_item_comparison_hook(:foos_match)
+        allow(Spree::Variant).to receive(:price_modifier_amount).and_return(0.00)
+      end
+
+      after do
+        # reset to avoid test pollution
+        Spree::Order.line_item_comparison_hooks = Set.new
+      end
+
+      context "2 equal line items" do
+        before do
+          @line_item_1 = order_1.contents.add(variant, 1, {foos: {}})
+          @line_item_2 = order_2.contents.add(variant, 1, {foos: {}})
+        end
+
+        specify do
+          expect(order_1).to receive(:foos_match).with(@line_item_1, kind_of(Hash)).and_return(true)
+          order_1.merge!(order_2)
+          expect(order_1.line_items.count).to eq(1)
+
+          line_item = order_1.line_items.first
+          expect(line_item.quantity).to eq(2)
+          expect(line_item.variant_id).to eq(variant.id)
+        end
+      end
+
+      context "2 different line items" do
+        before do
+          allow(order_1).to receive(:foos_match).and_return(false)
+
+          order_1.contents.add(variant, 1, {foos: {}})
+          order_2.contents.add(variant, 1, {foos: {bar: :zoo}})
+        end
+
+        specify do
+          order_1.merge!(order_2)
+          expect(order_1.line_items.count).to eq(2)
+
+          line_item = order_1.line_items.first
+          expect(line_item.quantity).to eq(1)
+          expect(line_item.variant_id).to eq(variant.id)
+
+          line_item = order_1.line_items.last
+          expect(line_item.quantity).to eq(1)
+          expect(line_item.variant_id).to eq(variant.id)
+        end
       end
     end
 
@@ -634,7 +483,7 @@ describe Spree::Order do
 
       specify do
         order_1.merge!(order_2)
-        line_items = order_1.line_items
+        line_items = order_1.line_items.reload
         expect(line_items.count).to eq(2)
 
         expect(order_1.item_count).to eq 2
@@ -684,45 +533,6 @@ describe Spree::Order do
     end
   end
 
-  # Regression test for #2191
-  context "when an order has an adjustment that zeroes the total, but another adjustment for shipping that raises it above zero" do
-    let!(:persisted_order) { create(:order) }
-    let!(:line_item) { create(:line_item) }
-    let!(:shipping_method) do
-      sm = create(:shipping_method)
-      sm.calculator.preferred_amount = [{type: :integer, name: "USD", value: 10}]
-      sm.save
-      sm
-    end
-
-    before do
-      # Don't care about available payment methods in this test
-      allow(persisted_order).to receive_messages(:has_available_payment => false)
-      persisted_order.line_items << line_item
-      create(:adjustment, :amount => -line_item.amount, :label => "Promotion", :adjustable => line_item)
-      persisted_order.state = 'delivery'
-      persisted_order.save # To ensure new state_change event
-    end
-
-    it "transitions from delivery to payment" do
-      allow(persisted_order).to receive_messages(payment_required?: true)
-      persisted_order.next!
-      expect(persisted_order.state).to eq("payment")
-    end
-  end
-
-  context "payment required?" do
-    let(:order) { Spree::Order.new }
-
-    context "total is zero" do
-      it { expect(order.payment_required?).to be false }
-    end
-
-    context "total > zero" do
-      before { allow(order).to receive_messages(total: 1) }
-      it { expect(order.payment_required?).to be true }
-    end
-  end
 
   context "add_update_hook" do
     before do
@@ -748,47 +558,7 @@ describe Spree::Order do
     end
   end
 
-  context "ensure shipments will be updated" do
-    before { Spree::Shipment.create!(order: order) }
-
-    it "destroys current shipments" do
-      order.ensure_updated_shipments
-      expect(order.shipments).to be_empty
-    end
-
-    it "puts order back in address state" do
-      order.ensure_updated_shipments
-      expect(order.state).to eql "address"
-    end
-
-    it "resets shipment_total" do
-      order.update_column(:shipment_total, 5)
-      order.ensure_updated_shipments
-      expect(order.shipment_total).to eq(0)
-    end
-
-    context "except when order is completed, that's OrderInventory job" do
-      it "doesn't touch anything" do
-        allow(order).to receive_messages completed?: true
-        order.update_column(:shipment_total, 5)
-        order.shipments.create!
-
-        expect {
-          order.ensure_updated_shipments
-        }.not_to change { order.shipment_total }
-
-        expect {
-          order.ensure_updated_shipments
-        }.not_to change { order.shipments }
-
-        expect {
-          order.ensure_updated_shipments
-        }.not_to change { order.state }
-      end
-    end
-  end
-
-  describe ".tax_address" do
+  describe "#tax_address" do
     before { Spree::Config[:tax_using_ship_address] = tax_using_ship_address }
     subject { order.tax_address }
 
@@ -809,101 +579,20 @@ describe Spree::Order do
     end
   end
 
-  describe ".restart_checkout_flow" do
+  describe "#restart_checkout_flow" do
     it "updates the state column to the first checkout_steps value" do
-      order = create(:order, :state => "delivery")
+      order = create(:order_with_totals, state: "delivery")
       expect(order.checkout_steps).to eql ["address", "delivery", "complete"]
       expect{ order.restart_checkout_flow }.to change{order.state}.from("delivery").to("address")
     end
 
-    context "with custom checkout_steps" do
-      it "updates the state column to the first checkout_steps value" do
-        order = create(:order, :state => "delivery")
-        expect(order).to receive(:checkout_steps).and_return ["custom_step", "address", "delivery", "complete"]
-        expect{ order.restart_checkout_flow }.to change{order.state}.from("delivery").to("custom_step")
+    context "without line items" do
+      it "updates the state column to cart" do
+        order = create(:order, state: "delivery")
+        expect{ order.restart_checkout_flow }.to change{order.state}.from("delivery").to("cart")
       end
     end
   end
-
-  describe ".is_risky?" do
-    context "Not risky order" do
-      let(:order) { FactoryGirl.create(:order, payments: [payment]) }
-      context "with avs_response == D" do
-        let(:payment) { FactoryGirl.create(:payment, avs_response: "D") }
-        it "is not considered risky" do
-          expect(order.is_risky?).to eq(false)
-        end
-      end
-
-      context "with avs_response == M" do
-        let(:payment) { FactoryGirl.create(:payment, avs_response: "M") }
-        it "is not considered risky" do
-          expect(order.is_risky?).to eq(false)
-        end
-      end
-
-      context "with avs_response == ''" do
-        let(:payment) { FactoryGirl.create(:payment, avs_response: "") }
-        it "is not considered risky" do
-          expect(order.is_risky?).to eq(false)
-        end
-      end
-
-      context "with cvv_response_code == M" do
-        let(:payment) { FactoryGirl.create(:payment, cvv_response_code: "M") }
-        it "is not considered risky" do
-          expect(order.is_risky?).to eq(false)
-        end
-      end
-
-      context "with cvv_response_message == ''" do
-        let(:payment) { FactoryGirl.create(:payment, cvv_response_message: "") }
-        it "is not considered risky" do
-          expect(order.is_risky?).to eq(false)
-        end
-      end
-    end
-
-    context "Risky order" do
-      context "AVS response message" do
-        let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, avs_response: "A")]) }
-        it "returns true if the order has an avs_response" do
-          expect(order.is_risky?).to eq(true)
-        end
-      end
-
-      context "CVV response code" do
-        let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, cvv_response_code: "N")]) }
-        it "returns true if the order has an cvv_response_code" do
-          expect(order.is_risky?).to eq(true)
-        end
-      end
-
-      context "state == 'failed'" do
-        let(:order) { FactoryGirl.create(:order, payments: [FactoryGirl.create(:payment, state: 'failed')]) }
-        it "returns true if the order has state == 'failed'" do
-          expect(order.is_risky?).to eq(true)
-        end
-      end
-    end
-  end
-
-  context "is considered risky" do
-    let(:order) do
-      order = FactoryGirl.create(:completed_order_with_pending_payment)
-      order.considered_risky!
-      order
-    end
-
-    it "can be approved by a user" do
-      expect(order).to receive(:approve!)
-      order.approved_by(stub_model(Spree::LegacyUser, id: 1))
-      expect(order.approver_id).to eq(1)
-      expect(order.approved_at).to be_present
-      expect(order.approved?).to be true
-    end
-  end
-
 
   # Regression tests for #4072
   context "#state_changed" do
@@ -950,11 +639,11 @@ describe Spree::Order do
     end
 
     it "does not include a payment method twice if display_on is blank" do
-      Spree::PaymentMethod.delete_all
+      #Spree::PaymentMethod.delete_all before 2.4
       payment_method = Spree::PaymentMethod.create!({
         :name => "Fake",
         :active => true,
-        :display_on => "",
+        :display_on => "both", # this was "" before the 2.4
         :environment => Rails.env
       })
       expect(order.available_payment_methods.count).to eq(1)
@@ -978,12 +667,350 @@ describe Spree::Order do
     end
   end
 
+
+  context "#products" do
+    before :each do
+      @variant1 = mock_model(Spree::Variant, :product => "product1")
+      @variant2 = mock_model(Spree::Variant, :product => "product2")
+      @line_items = [mock_model(Spree::LineItem, :product => "product1", :variant => @variant1, :variant_id => @variant1.id, :quantity => 1),
+                     mock_model(Spree::LineItem, :product => "product2", :variant => @variant2, :variant_id => @variant2.id, :quantity => 2)]
+      allow(order).to receive_messages(:line_items => @line_items)
+    end
+
+    it "contains?" do
+      expect(order.contains?(@variant1)).to be true
+    end
+
+    it "gets the quantity of a given variant" do
+      expect(order.quantity_of(@variant1)).to eq(1)
+
+      @variant3 = mock_model(Spree::Variant, :product => "product3")
+      expect(order.quantity_of(@variant3)).to eq(0)
+    end
+
+    it "can find a line item matching a given variant" do
+      expect(order.find_line_item_by_variant(@variant1)).not_to be_nil
+      expect(order.find_line_item_by_variant(mock_model(Spree::Variant))).to be_nil
+    end
+
+    context "match line item with options" do
+      before do
+        Spree::Order.register_line_item_comparison_hook(:foos_match)
+      end
+
+      after do
+        # reset to avoid test pollution
+        Spree::Order.line_item_comparison_hooks = Set.new
+      end
+
+      it "matches line item when options match" do
+        allow(order).to receive(:foos_match).and_return(true)
+        expect(order.line_item_options_match(@line_items.first, {foos: {bar: :zoo}})).to be true
+      end
+
+      it "does not match line item without options" do
+        allow(order).to receive(:foos_match).and_return(false)
+        expect(order.line_item_options_match(@line_items.first, {})).to be false
+      end
+    end
+  end
+
+  context "#generate_order_number" do
+    context "when no configure" do
+      let(:default_length) { Spree::Order::ORDER_NUMBER_LENGTH + Spree::Order::ORDER_NUMBER_PREFIX.length }
+      subject(:order_number) { order.generate_order_number }
+
+      describe '#class' do
+        subject { super().class }
+        it { is_expected.to eq String }
+      end
+
+      describe '#length' do
+        subject { super().length }
+        it { is_expected.to eq default_length }
+      end
+      it { is_expected.to match /^#{Spree::Order::ORDER_NUMBER_PREFIX}/ }
+    end
+
+    context "when length option is 5" do
+      let(:option_length) { 5 + Spree::Order::ORDER_NUMBER_PREFIX.length }
+      it "should be option length for order number" do
+        expect(order.generate_order_number(length: 5).length).to eq option_length
+      end
+    end
+
+    context "when letters option is true" do
+      it "generates order number include letter" do
+        expect(order.generate_order_number(length: 100, letters: true)).to match /[A-Z]/
+      end
+    end
+
+    context "when prefix option is 'P'" do
+      it "generates order number and it prefix is 'P'" do
+        expect(order.generate_order_number(prefix: 'P')).to match /^P/
+      end
+    end
+  end
+
+  context "#associate_user!" do
+    let!(:user) { FactoryGirl.create(:user) }
+
+    it "should associate a user with a persisted order" do
+      order = FactoryGirl.create(:order_with_line_items, created_by: nil)
+      order.user = nil
+      order.email = nil
+      order.associate_user!(user)
+      expect(order.user).to eq(user)
+      expect(order.email).to eq(user.email)
+      expect(order.created_by).to eq(user)
+
+      # verify that the changes we made were persisted
+      order.reload
+      expect(order.user).to eq(user)
+      expect(order.email).to eq(user.email)
+      expect(order.created_by).to eq(user)
+    end
+
+    it "should not overwrite the created_by if it already is set" do
+      creator = create(:user)
+      order = FactoryGirl.create(:order_with_line_items, created_by: creator)
+
+      order.user = nil
+      order.email = nil
+      order.associate_user!(user)
+      expect(order.user).to eq(user)
+      expect(order.email).to eq(user.email)
+      expect(order.created_by).to eq(creator)
+
+      # verify that the changes we made were persisted
+      order.reload
+      expect(order.user).to eq(user)
+      expect(order.email).to eq(user.email)
+      expect(order.created_by).to eq(creator)
+    end
+
+    it "should associate a user with a non-persisted order" do
+      order = Spree::Order.new
+
+      expect do
+        order.associate_user!(user)
+      end.to change { [order.user, order.email] }.from([nil, nil]).to([user, user.email])
+    end
+
+    it "should not persist an invalid address" do
+      address = Spree::Address.new
+      order.user = nil
+      order.email = nil
+      order.ship_address = address
+      expect do
+        order.associate_user!(user)
+      end.not_to change { address.persisted? }.from(false)
+    end
+  end
+
+  context "#can_ship?" do
+    let(:order) { Spree::Order.create }
+
+    it "should be true for order in the 'complete' state" do
+      allow(order).to receive_messages(:complete? => true)
+      expect(order.can_ship?).to be true
+    end
+
+    it "should be true for order in the 'resumed' state" do
+      allow(order).to receive_messages(:resumed? => true)
+      expect(order.can_ship?).to be true
+    end
+
+    it "should be true for an order in the 'awaiting return' state" do
+      allow(order).to receive_messages(:awaiting_return? => true)
+      expect(order.can_ship?).to be true
+    end
+
+    it "should be true for an order in the 'returned' state" do
+      allow(order).to receive_messages(:returned? => true)
+      expect(order.can_ship?).to be true
+    end
+
+    it "should be false if the order is neither in the 'complete' nor 'resumed' state" do
+      allow(order).to receive_messages(:resumed? => false, :complete? => false)
+      expect(order.can_ship?).to be false
+    end
+  end
+
+  context "#completed?" do
+    it "should indicate if order is completed" do
+      order.completed_at = nil
+      expect(order.completed?).to be false
+
+      order.completed_at = Time.now
+      expect(order.completed?).to be true
+    end
+  end
+
+  context "#allow_checkout?" do
+    it "should be true if there are line_items in the order" do
+      allow(order).to receive_message_chain(:line_items, :count => 1)
+      expect(order.checkout_allowed?).to be true
+    end
+    it "should be false if there are no line_items in the order" do
+      allow(order).to receive_message_chain(:line_items, :count => 0)
+      expect(order.checkout_allowed?).to be false
+    end
+  end
+
+  context "#amount" do
+    before do
+      @order = create(:order, :user => user)
+      @order.line_items = [create(:line_item, :price => 1.0, :quantity => 2),
+                           create(:line_item, :price => 1.0, :quantity => 1)]
+    end
+    it "should return the correct lum sum of items" do
+      expect(@order.amount).to eq(3.0)
+    end
+  end
+
+  context "#backordered?" do
+    it 'is backordered if one of the shipments is backordered' do
+      allow(order).to receive_messages(:shipments => [mock_model(Spree::Shipment, :backordered? => false),
+                                mock_model(Spree::Shipment, :backordered? => true)])
+      expect(order).to be_backordered
+    end
+  end
+
+  context "#awaiting_feed?" do
+    it 'is awaiting_feed if one of the shipments is awaiting_feed' do
+      allow(order).to receive_messages(:shipments => [mock_model(Spree::Shipment, :awaiting_feed? => false),
+                              mock_model(Spree::Shipment, :awaiting_feed? => true)])
+     expect(order).to be_awaiting_feed    
+    end
+  end
+
+  context "#can_cancel?" do
+    it "should be false for completed order in the canceled state" do
+      order.state = 'canceled'
+      order.shipment_state = 'ready'
+      order.completed_at = Time.now
+      expect(order.can_cancel?).to be false
+    end
+
+    it "should be true for completed order with no shipment" do
+      order.state = 'complete'
+      order.shipment_state = nil
+      order.completed_at = Time.now
+      expect(order.can_cancel?).to be true
+    end
+  end
+
+  context "#tax_total" do
+    it "adds included tax and additional tax" do
+      allow(order).to receive_messages(:additional_tax_total => 10, :included_tax_total => 20)
+
+      expect(order.tax_total).to eq 30
+    end
+  end
+
   # Regression test for #4923
   context "locking" do
     let(:order) { Spree::Order.create } # need a persisted in order to test locking
 
     it 'can lock' do
       expect { order.with_lock {} }.to_not raise_error
+    end
+  end
+
+  describe "#pre_tax_item_amount" do
+    it "sums all of the line items' pre tax amounts" do
+      subject.line_items = [
+        Spree::LineItem.new(price: 10, quantity: 2, pre_tax_amount: 5.0),
+        Spree::LineItem.new(price: 30, quantity: 1, pre_tax_amount: 14.0),
+      ]
+
+      expect(subject.pre_tax_item_amount).to eq 19.0
+    end
+  end
+
+  describe '#quantity' do
+    # Uses a persisted record, as the quantity is retrieved via a DB count
+    let(:order) { create :order_with_line_items, line_items_count: 3 }
+
+    it 'sums the quantity of all line items' do
+      expect(order.quantity).to eq 3
+    end
+  end
+
+  describe '#has_non_reimbursement_related_refunds?' do
+    subject do
+      order.has_non_reimbursement_related_refunds?
+    end
+
+    context 'no refunds exist' do
+      it { is_expected.to eq false }
+    end
+
+    context 'a non-reimbursement related refund exists' do
+      let(:order) { refund.payment.order }
+      let(:refund) { create(:refund, reimbursement_id: nil, amount: 5) }
+
+      it { is_expected.to eq true }
+    end
+
+    context 'an old-style refund exists' do
+      let(:order) { create(:order_ready_to_ship) }
+      let(:payment) { order.payments.first.tap { |p| allow(p).to receive_messages(profiles_supported: false) } }
+      let!(:refund_payment) {
+        build(:payment, amount: -1, order: order, state: 'completed', source: payment).tap do |p|
+          allow(p).to receive_messages(profiles_supported?: false)
+          p.save!
+        end
+      }
+
+      it { is_expected.to eq true }
+    end
+
+    context 'a reimbursement related refund exists' do
+      let(:order) { refund.payment.order }
+      let(:refund) { create(:refund, reimbursement_id: 123, amount: 5)}
+
+      it { is_expected.to eq false }
+    end
+  end
+
+  describe "#create_proposed_shipments" do
+    it "assigns the coordinator returned shipments to its shipments" do
+      shipment = build(:shipment)
+      allow_any_instance_of(Spree::Stock::Coordinator).to receive(:shipments).and_return([shipment])
+      subject.create_proposed_shipments
+      expect(subject.shipments).to eq [shipment]
+    end
+  end
+
+  describe "#all_inventory_units_returned?" do
+    let(:order) { create(:order_with_line_items, line_items_count: 3) }
+
+    subject { order.all_inventory_units_returned? }
+
+    context "all inventory units are returned" do
+      before { order.inventory_units.update_all(state: 'returned') }
+
+      it "is true" do
+        expect(subject).to eq true
+      end
+    end
+
+    context "some inventory units are returned" do
+      before do
+        order.inventory_units.first.update_attribute(:state, 'returned')
+      end
+
+      it "is false" do
+        expect(subject).to eq false
+      end
+    end
+
+    context "no inventory units are returned" do
+      it "is false" do
+        expect(subject).to eq false
+      end
     end
   end
 end

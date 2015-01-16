@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Spree
   module PromotionHandler
-    describe Coupon do
+    describe Coupon, :type => :model do
       let(:order) { double("Order", coupon_code: "10off").as_null_object }
 
       subject { Coupon.new(order) }
@@ -10,7 +10,6 @@ module Spree
       it "returns self in apply" do
         expect(subject.apply).to be_a Coupon
       end
-
 
       context "with valid gift card" do
         let(:gift_card) { create(:gift_card, value: 10) }
@@ -26,6 +25,42 @@ module Spree
 
           giftcard_coupon.apply
           expect(order_with_giftcard.reload.total).to eq original_order_total - gift_card.value
+        end
+      end
+
+
+      context 'status messages' do
+        let(:coupon) { Coupon.new(order) }
+
+        describe "#set_success_code" do
+          let(:status) { :coupon_code_applied }
+          subject { coupon.set_success_code status }
+
+          it 'should have status_code' do
+            subject
+            expect(coupon.status_code).to eq(status)
+          end
+
+          it 'should have success message' do
+            subject
+            expect(coupon.success).to eq(Spree.t(status))
+          end
+        end
+
+        describe "#set_error_code" do
+          let(:status) { :coupon_code_not_found }
+
+          subject { coupon.set_error_code status }
+
+          it 'should have status_code' do
+            subject
+            expect(coupon.status_code).to eq(status)
+          end
+
+          it 'should have error message' do
+            subject
+            expect(coupon.error).to eq(Spree.t(status))
+          end
         end
       end
 
@@ -217,7 +252,7 @@ module Spree
                 :calculator => Spree::Calculator::DefaultTax.create,
                 :tax_category => @category,
                 :zone => @zone,
-                :currency => "USD"
+				:currency => "USD"
             )
 
             @order = Spree::Order.create!
@@ -228,7 +263,7 @@ module Spree
               3.times do |i|
                 taxable = create(:product, :tax_category => @category)
                 taxable.master.price_normal_in('USD').amount = 9.0
-                @order.contents.add(taxable.master, 1)
+				@order.contents.add(taxable.master, 1)
               end
             end
             it "successfully applies the promo" do
@@ -264,7 +299,7 @@ module Spree
           context "and multiple quantity per line item" do
             before(:each) do
               twnty_off = Promotion.create name: "promo", :code => "20off"
-              twnty_off_calc = Calculator::FlatRate.new(preferred_amount: [{type: :integer, name: "USD", value: 20}])
+              twnty_off_calc = Calculator::FlatRate.new(preferred_amount: [{type: :integer, name: "USD", value: 20}]))
               Promotion::Actions::CreateItemAdjustments.create(promotion: twnty_off,
                                                                calculator: twnty_off_calc)
 

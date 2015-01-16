@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 module Spree
-  describe ProductsHelper do
+  describe ProductsHelper, :type => :helper do
     include ProductsHelper
 
     let(:product) { create(:product) }

@@ -48,22 +48,26 @@ module Spree
       end
     end
 
-
-    def accurate_title
-      @product ? @product.name : super
-    end
-
-    def load_product
-      if try_spree_current_user.try(:has_spree_role?, "admin")
-        @products = Product.with_deleted
-      else
-        @products = Product.active(current_currency)
+    private
+      def accurate_title
+        if @product
+          @product.meta_title.blank? ? @product.name : @product.meta_title
+        else
+          super
+        end
       end
-      @product = @products.friendly.find(params[:product_id] || params[:id])
-    end
 
-    def load_taxon
-      @taxon = Spree::Taxon.find(params[:taxon]) if params[:taxon].present?
-    end
+      def load_product
+        if try_spree_current_user.try(:has_spree_role?, "admin")
+          @products = Product.with_deleted
+        else
+          @products = Product.active(current_currency)
+        end
+        @product = @products.friendly.find(params[:id])
+      end
+
+      def load_taxon
+        @taxon = Spree::Taxon.find(params[:taxon]) if params[:taxon].present?
+      end
   end
 end

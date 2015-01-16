@@ -1,7 +1,6 @@
 module Spree
-  class LineItem < ActiveRecord::Base
-    before_validation :adjust_quantity
-
+  class LineItem < Spree::Base
+    before_validation :invalid_quantity_check
     belongs_to :order, class_name: "Spree::Order", inverse_of: :line_items, touch: true
     belongs_to :variant, class_name: "Spree::Variant", inverse_of: :line_items
     belongs_to :tax_category, class_name: "Spree::TaxCategory"
@@ -58,7 +57,8 @@ module Spree
 
     after_create :update_tax_charge
 
-    delegate :name, :description, :should_track_inventory?, to: :variant
+    
+    delegate :name, :description, :sku, :should_track_inventory?, to: :variant
 
     attr_accessor :options_with_qty
     attr_accessor :target_shipment
@@ -111,8 +111,12 @@ module Spree
       amount + promo_total
     end
 
+    def discounted_money
+      Spree::Money.new(discounted_amount, { currency: currency })
+    end
+
     def final_amount
-      amount + adjustment_total.to_f
+      amount + adjustment_total
     end
     alias total final_amount
 
@@ -169,7 +173,7 @@ module Spree
       end
     end
 
-    def adjust_quantity
+    def invalid_quantity_check
       self.quantity = 0 if quantity.nil? || quantity < 0
     end
 
@@ -180,10 +184,6 @@ module Spree
 
     def insufficient_stock?
       !sufficient_stock?
-    end
-
-    def assign_stock_changes_to=(shipment)
-      @preferred_shipment = shipment
     end
 
     # Remove product default_scope `deleted_at: nil`
@@ -210,51 +210,59 @@ module Spree
       value_for(:cost_price)
     end
 
+    def options=(options={})
+      return unless options.present?
+
+      opts = options.dup # we will be deleting from the hash, so leave the caller's copy intact
+
+      currency = opts.delete(:currency) || order.try(:currency)
+
+      if currency
+        self.currency = currency
+        self.price    = variant.price_in(currency).amount +
+                        variant.price_modifier_amount_in(currency, opts)
+      else
+        self.price    = variant.price +
+                        variant.price_modifier_amount(opts)
+      end
+
+      self.assign_attributes opts
+    end
+
     private
-
-    def value_for(attribute)
-      (self.variant.send(attribute).to_f + options_value_for(attribute)) * self.quantity
-    end
-
-    def options_value_for(attribute)
-      self.line_item_parts.reduce(0.0) do |w, o|
-        value = o.variant.send(attribute)
-        if value.blank?
-          Rails.logger.warn("The #{attribute} of variant id: #{o.variant.id} is nil for line_item_part: #{o.id}")
-          value = BigDecimal.new(0,2)
-        end
-        w + ( value.to_f * o.quantity )
-      end
-    end
-
-    def update_adjustments
-      if quantity_changed?
-        update_tax_charge # Called to ensure pre_tax_amount is updated.
-        recalculate_adjustments
-      end
-    end
-
-    def update_inventory
+      def update_inventory
       #There is a quirk where the after_create hook which run's before after_save is saving the
       #line_item in a nested model callback, hence by the time changed? is evaluated it is false
-      #if changed?
-      Spree::OrderInventory.new(self.order, self).verify(target_shipment)
-      #end
-    end
-
-    def recalculate_adjustments
-      Spree::ItemAdjustments.new(self).update
-    end
-
-    def update_tax_charge
-      Spree::TaxRate.adjust(order, [self])
-    end
-
-    def ensure_proper_currency
-      unless currency == order.currency
-        errors.add(:currency, :must_match_order_currency)
+      # if (changed? || target_shipment.present?)
+        if self.order.has_checkout_step?("delivery")
+          Spree::OrderInventory.new(self.order, self).verify(target_shipment)
+        end
+      # end
       end
-    end
 
+      def destroy_inventory_units
+        inventory_units.destroy_all
+      end
+
+      def update_adjustments
+        if quantity_changed?
+          update_tax_charge # Called to ensure pre_tax_amount is updated.
+          recalculate_adjustments
+        end
+      end
+
+      def recalculate_adjustments
+        Spree::ItemAdjustments.new(self).update
+      end
+
+      def update_tax_charge
+        Spree::TaxRate.adjust(order.tax_zone, [self])
+      end
+
+      def ensure_proper_currency
+        unless currency == order.currency
+          errors.add(:currency, :must_match_order_currency)
+        end
+      end
   end
 end

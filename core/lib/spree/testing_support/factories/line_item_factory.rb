@@ -2,10 +2,12 @@ FactoryGirl.define do
   factory :line_item, class: Spree::LineItem do
     quantity 1
     price { BigDecimal.new('10.00') }
-    order
+    pre_tax_amount { price }
     currency 'USD'
-    variant
-    product_page
-    product_page_tab
+    order
+    transient do
+      association :product
+    end
+    variant{ product.master }
   end
 end

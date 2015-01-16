@@ -3,15 +3,16 @@ module Spree
     class PaymentsController < Spree::Admin::BaseController
       include Spree::Backend::Callbacks
 
-      before_filter :load_order, :only => [:create, :new, :index, :fire]
-      before_filter :load_payment, :except => [:create, :new, :index]
-      before_filter :load_data
-      before_filter :can_transition_to_payment
+      before_action :load_order, only: [:create, :new, :index, :fire]
+      before_action :load_payment, except: [:create, :new, :index]
+      before_action :load_data
+      before_action :can_not_transition_without_customer_info
 
       respond_to :html
 
       def index
-        @payments = @order.payments
+        @payments = @order.payments.includes(:refunds => :reason)
+        @refunds = @payments.flat_map(&:refunds)
         redirect_to new_admin_order_payment_url(@order) if @payments.empty?
       end
 
@@ -81,13 +82,6 @@ module Spree
           @payment_method = @payment.payment_method
         else
           @payment_method = @payment_methods.first
-        end
-      end
-
-      def can_transition_to_payment
-        unless @order.billing_address.present?
-          flash[:notice] = Spree.t(:fill_in_customer_info)
-          redirect_to edit_admin_order_customer_url(@order)
         end
       end
 

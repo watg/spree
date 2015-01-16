@@ -8,11 +8,11 @@ module Spree
       let!(:state) { country.states.first || create(:state, :country => country) }
       let!(:stock_location) { create(:stock_location, admin_name: 'Admin Name') }
 
-      let(:user) { stub_model(LegacyUser, :email => 'fox@mulder.com') }
+      let(:user) { stub_model(LegacyUser, :email => 'fox@mudler.com') }
       let(:shipping_method) { create(:shipping_method) }
       let(:payment_method) { create(:check_payment_method) }
 
-      let(:product) { product = create(:base_product, :name => 'Test',
+      let(:product) { product = Spree::Product.create(:name => 'Test',
                                              :sku => 'TEST-1',
                                              :amount => 33.22)
                       product.shipping_category = create(:shipping_category)
@@ -34,7 +34,7 @@ module Spree
          :city => 'Washington',
          :country_id => country.id,
          :state_id => state.id,
-         :zipcode => '666',
+         :zipcode => '66666',
          :phone => '666-666-6666'
       }}
 
@@ -66,10 +66,13 @@ module Spree
         context "as an admin" do
           before { allow(user).to receive_messages :has_spree_role? => true }
 
-          it "permits the user to be assigned" do
-            params = { user_id: other_user.id }
-            order = Importer::Order.import(user, params)
-            expect(order.user_id).to eq(other_user.id)
+          context "a user's id is not provided" do
+            # this is a regression spec for an issue we ran into at Bonobos
+            it "doesn't unassociate the admin from the order" do
+              params = { }
+              order = Importer::Order.import(user, params)
+              expect(order.user_id).to eq(user.id)
+            end
           end
         end
 
@@ -101,6 +104,15 @@ module Spree
         expect {
           order = Importer::Order.import(user,params)
         }.to raise_error /XXX/
+      end
+
+      it 'handles line_item updating exceptions' do
+        line_items['0'][:currency] = 'GBP'
+        params = { :line_items_attributes => line_items }
+
+        expect {
+          order = Importer::Order.import(user, params)
+        }.to raise_error /Validation failed/
       end
 
       it 'can build an order from API with variant sku' do
@@ -161,6 +173,30 @@ module Spree
         expect(order.ship_address.state.name).to eq 'Alabama'
       end
 
+      context "with a different currency" do
+        before { variant.price_in("GBP").update_attribute(:price, 18.99) }
+
+        it "sets the order currency" do
+          params = {
+            currency: "GBP"
+          }
+          order = Importer::Order.import(user,params)
+          expect(order.currency).to eq "GBP"
+        end
+
+        it "can handle it when a line order price is specified" do
+          params = {
+            currency: "GBP",
+            line_items_attributes: line_items
+          }
+          line_items["0"].merge! currency: "GBP", price: 1.99
+          order = Importer::Order.import(user, params)
+          expect(order.currency).to eq "GBP"
+          expect(order.line_items.first.price).to eq 1.99
+          expect(order.line_items.first.currency).to eq "GBP"
+        end
+      end
+
       context "state passed is not associated with country" do
         let(:params) do
           params = { :ship_address_attributes => ship_address,
@@ -210,7 +246,7 @@ module Spree
 
       it 'ensures_country_id for country fields' do
         [:name, :iso, :iso_name, :iso3].each do |field|
-          address = { :country => { field.to_s => country.send(field) }}
+          address = { :country => { field => country.send(field) }}
           Importer::Order.ensure_country_id_from_params(address)
           expect(address[:country_id]).to eq country.id
         end
@@ -258,7 +294,6 @@ module Spree
           expect(shipment.shipping_rates.first.cost).to eq 14.99
           expect(shipment.selected_shipping_rate).to eq(shipment.shipping_rates.first)
           expect(shipment.stock_location).to eq stock_location
-
           expect(order.shipment_total.to_f).to eq 14.99
         end
 
@@ -305,6 +340,7 @@ module Spree
             expect(shipment.selected_shipping_rate).to eq(shipment.shipping_rates.first)
             expect(shipment.stock_location).to eq stock_location
             expect(shipment.state).to eq('shipped')
+            expect(shipment.inventory_units.all?(&:shipped?)).to be true
             expect(order.shipment_state).to eq('shipped')
             expect(order.shipment_total.to_f).to eq 4.99
           end
@@ -382,8 +418,43 @@ module Spree
         params = { :payments_attributes => [{ amount: '4.99',
                                               payment_method: 'XXX' }] }
         expect {
-          order = Importer::Order.import(user,params)
+          order = Importer::Order.import(user, params)
         }.to raise_error /XXX/
+      end
+
+      it 'build a source payment using years and month' do
+        params = { :payments_attributes => [{
+                                              amount: '4.99',
+                                              payment_method: payment_method.name,
+                                              status: 'completed',
+                                              source: {
+                                                name: 'Fox',
+                                                last_digits: "7424",
+                                                cc_type: "visa",
+                                                year: '2022',
+                                                month: "5"
+                                              }
+                                            }]}
+
+        order = Importer::Order.import(user, params)
+        expect(order.payments.first.source.last_digits).to eq '7424'
+      end
+
+      it 'handles source building exceptions when do not have years and month' do
+        params = { :payments_attributes => [{
+                                              amount: '4.99',
+                                              payment_method: payment_method.name,
+                                              status: 'completed',
+                                              source: {
+                                                name: 'Fox',
+                                                last_digits: "7424",
+                                                cc_type: "visa"
+                                              }
+                                            }]}
+
+        expect {
+          order = Importer::Order.import(user, params)
+        }.to raise_error /Validation failed: Credit card Month is not a number, Credit card Year is not a number/
       end
 
       context "raises error" do

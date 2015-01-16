@@ -48,9 +48,9 @@ module Spree
       end
 
       meta.reverse_merge!({
-        keywords: Spree::Config[:default_meta_keywords],
-        description: Spree::Config[:default_meta_description]
-      })
+        keywords: current_store.meta_keywords,
+        description: current_store.meta_description,
+      }) if meta[:keywords].blank? or meta[:description].blank?
       meta
     end
 
@@ -70,29 +70,40 @@ module Spree
     end
 
     def flash_messages(opts = {})
-      opts[:ignore_types] = [:order_completed].concat(Array(opts[:ignore_types]) || [])
+      ignore_types = ["order_completed"].concat(Array(opts[:ignore_types]).map(&:to_s) || [])
 
       flash.each do |msg_type, text|
-        unless opts[:ignore_types].include?(msg_type)
+        unless ignore_types.include?(msg_type)
           concat(content_tag :div, text, class: "flash #{msg_type}")
         end
       end
       nil
     end
 
-    def breadcrumbs(taxon, separator="&nbsp;&raquo;&nbsp;")
+    def breadcrumbs(taxon, separator="&nbsp;&raquo;&nbsp;", breadcrumb_class="inline")
       return "" if current_page?("/") || taxon.nil?
-      separator = raw(separator)
-      crumbs = [content_tag(:li, link_to(Spree.t(:home), spree.root_path) + separator)]
+
+      crumbs = [[Spree.t(:home), spree.root_path]]
+
       if taxon
-        crumbs << content_tag(:li, link_to(Spree.t(:products), products_path) + separator)
-        crumbs << taxon.ancestors.collect { |ancestor| content_tag(:li, link_to(ancestor.name , seo_url(ancestor)) + separator) } unless taxon.ancestors.empty?
-        crumbs << content_tag(:li, content_tag(:span, link_to(taxon.name , seo_url(taxon))))
+        crumbs << [Spree.t(:products), products_path]
+        crumbs += taxon.ancestors.collect { |a| [a.name, spree.nested_taxons_path(a.permalink)] } unless taxon.ancestors.empty?
+        crumbs << [taxon.name, spree.nested_taxons_path(taxon.permalink)]
       else
-        crumbs << content_tag(:li, content_tag(:span, Spree.t(:products)))
+        crumbs << [Spree.t(:products), products_path]
       end
-      crumb_list = content_tag(:ul, raw(crumbs.flatten.map{|li| li.mb_chars}.join), class: 'inline')
-      content_tag(:nav, crumb_list, id: 'breadcrumbs', class: 'sixteen columns')
+
+      separator = raw(separator)
+
+      crumbs.map! do |crumb|
+        content_tag(:li, itemscope:"itemscope", itemtype:"http://data-vocabulary.org/Breadcrumb") do
+          link_to(crumb.last, itemprop: "url") do
+            content_tag(:span, crumb.first, itemprop: "title")
+          end + (crumb == crumbs.last ? '' : separator)
+        end
+      end
+
+      content_tag(:nav, content_tag(:ul, raw(crumbs.map(&:mb_chars).join), class: breadcrumb_class), id: 'breadcrumbs', class: 'sixteen columns')
     end
 
     def taxons_tree(root_taxon, current_taxon, max_level = 1)
@@ -167,7 +178,7 @@ module Spree
     end
 
     def link_to_tracking(shipment, options = {})
-      return unless shipment.tracking
+      return unless shipment.tracking && shipment.shipping_method
 
       if shipment.tracking_url
         link_to(shipment.tracking, shipment.tracking_url, options)

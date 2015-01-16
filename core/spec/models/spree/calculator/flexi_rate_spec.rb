@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Calculator::FlexiRate do
+describe Spree::Calculator::FlexiRate, :type => :model do
   let(:calculator) { Spree::Calculator::FlexiRate.new }
 
   let(:order) do

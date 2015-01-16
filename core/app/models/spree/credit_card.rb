@@ -1,20 +1,27 @@
 module Spree
-  class CreditCard < ActiveRecord::Base
+  class CreditCard < Spree::Base
     belongs_to :payment_method
+    belongs_to :user, class_name: Spree.user_class, foreign_key: 'user_id'
     has_many :payments, as: :source
 
     before_save :set_last_digits
 
-    attr_accessor :number, :verification_value, :encrypted_data
+    after_save :ensure_one_default
+
+    attr_accessor :encrypted_data,
+                    :number,
+                    :imported,
+                    :verification_value
 
     validates :month, :year, numericality: { only_integer: true }, if: :require_card_numbers?, on: :create
-    validates :number, presence: true, if: :require_card_numbers?, on: :create
+    validates :number, presence: true, if: :require_card_numbers?, on: :create, unless: :imported
     validates :name, presence: true, if: :require_card_numbers?, on: :create
-    validates :verification_value, presence: true, if: :require_card_numbers?, on: :create
+    validates :verification_value, presence: true, if: :require_card_numbers?, on: :create, unless: :imported
 
     validate :expiry_not_in_the_past
 
     scope :with_payment_profile, -> { where('gateway_customer_profile_id IS NOT NULL') }
+    scope :default, -> { where(default: true) }
 
     # needed for some of the ActiveMerchant gateways (eg. SagePay)
     alias_attribute :brand, :cc_type
@@ -32,7 +39,7 @@ module Spree
       return unless expiry.present?
 
       self[:month], self[:year] =
-      if expiry.match(/\d\s?\/\s?\d/) # will match mm/yy and mm / yyyy
+      if expiry.match(/\d{2}\s?\/\s?\d{2,4}/) # will match mm/yy and mm / yyyy
         expiry.delete(' ').split('/')
       elsif match = expiry.match(/(\d{2})(\d{2,4})/) # will match mmyy and mmyyyy
         [match[1], match[2]]
@@ -41,7 +48,7 @@ module Spree
         self[:year] = "20" + self[:year] if self[:year].length == 2
         self[:year] = self[:year].to_i
       end
-      self[:month] = self[:month].to_i
+      self[:month] = self[:month].to_i if self[:month]
     end
 
     def number=(num)
@@ -91,15 +98,13 @@ module Spree
 
     # Indicates whether its possible to void the payment.
     def can_void?(payment)
-      !payment.void?
+      !payment.failed? && !payment.void?
     end
 
     # Indicates whether its possible to credit the payment.  Note that most gateways require that the
     # payment be settled first which generally happens within 12-24 hours of the transaction.
     def can_credit?(payment)
-      return false unless payment.completed?
-      return false unless payment.order.payment_state == 'credit_owed'
-      payment.credit_allowed > 0
+      payment.completed? && payment.credit_allowed > 0
     end
 
     def has_payment_profile?
@@ -110,11 +115,11 @@ module Spree
     # Looking at the ActiveMerchant source code we should probably be calling #to_active_merchant before passing
     # the object to ActiveMerchant but this should do for now.
     def first_name
-      super || name.to_s.split(/[[:space:]]/, 2)[0]
+      name.to_s.split(/[[:space:]]/, 2)[0]
     end
 
     def last_name
-      super || name.to_s.split(/[[:space:]]/, 2)[1]
+      name.to_s.split(/[[:space:]]/, 2)[1]
     end
 
     def to_active_merchant
@@ -123,8 +128,8 @@ module Spree
         :month => month,
         :year => year,
         :verification_value => verification_value,
-        :first_name => first_name || name.to_s.split(/[[:space:]]/, 2)[0],
-        :last_name => last_name || name.to_s.split(/[[:space:]]/, 2)[1]
+        :first_name => first_name,
+        :last_name => last_name,
       )
     end
 
@@ -145,6 +150,14 @@ module Spree
 
     def require_card_numbers?
       !self.encrypted_data.present? && !self.has_payment_profile?
+    end
+
+    def ensure_one_default
+      if self.user_id && self.default
+        CreditCard.where(default: true).where.not(id: self.id).where(user_id: self.user_id).each do |ucc|
+          ucc.update_columns(default: false)
+        end
+      end
     end
   end
 end

@@ -4,16 +4,36 @@ describe Spree::Core::Search::Base do
 
   before do
     include Spree::Core::ProductFilters
-   Spree::Product.delete_all # FIXME product leaks
+    Spree::Product.delete_all # FIXME product leaks
+    Spree::Taxon.destroy_all
 
-    @product1 = create(:product, :name => "RoR Mug", :amount => 9.00)
-    @product2 = create(:product, :name => "RoR Shirt", :amount => 11.00)
+    @taxon = create(:taxon, name: "Ruby on Rails")
+
+    @product1 = create(:product, name: "RoR Mug", amount: 9.00)
+    @product1.taxons << @taxon
+    @product2 = create(:product, name: "RoR Shirt", amount: 11.00)
   end
 
   it "returns all products by default" do
     params = { :per_page => "" }
     searcher = Spree::Core::Search::Base.new(params)
     expect(searcher.retrieve_products.count).to eq(2)
+  end
+
+  context "when include_images is included in the initalization params" do
+    let(:params) { { include_images: true, keyword: @product1.name, taxon: @taxon.id } }
+    subject { described_class.new(params).retrieve_products }
+
+    before do
+      @product1.master.images.create(attachment_file_name: "Test", position: 2)
+      @product1.master.images.create(attachment_file_name: "Test1", position: 1)
+      @product1.reload
+    end
+
+    it "returns images in correct order" do
+      expect(subject.first).to eq @product1
+      expect(subject.first.images).to eq @product1.master.images
+    end
   end
 
   it "switches to next page according to the page parameter" do

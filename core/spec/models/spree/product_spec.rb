@@ -3,13 +3,13 @@
 require 'spec_helper'
 
 module ThirdParty
-  class Extension < ActiveRecord::Base
+  class Extension < Spree::Base
     # nasty hack so we don't have to create a table to back this fake model
     self.table_name = 'spree_products'
   end
 end
 
-describe Spree::Product do
+describe Spree::Product, :type => :model do
 
   context 'product instance' do
     let(:product) { create(:product) }
@@ -73,6 +73,7 @@ describe Spree::Product do
     end
 
     context "master variant" do
+
       context "when master variant changed" do
         before do
           product.master.sku = "Something changed"
@@ -84,29 +85,10 @@ describe Spree::Product do
         end
       end
 
-      context "when master default price is a new record" do
-        before do
-          @price = product.master.build_default_price
-          @price.price = 12
-        end
-
-        it "saves the master" do
-          expect(product.master).to receive(:save!)
-          product.save
-        end
-
-        it "saves the default price" do
-          expect do
-            product.save
-          end.to change{ @price.new_record? }.from(true).to(false)
-        end
-
-      end
-
       context "when master default price changed" do
         before do
           master = product.master
-          master.default_price = build(:price, :variant => master)
+          master.default_price.price = 11
           master.save!
           product.master.default_price.price = 12
         end
@@ -124,7 +106,7 @@ describe Spree::Product do
 
       context "when master variant and price haven't changed" do
         it "does not save the master" do
-          expect(product.master).not_to receive(:save)
+          expect(product.master).not_to receive(:save!)
           product.save
         end
       end
@@ -179,9 +161,7 @@ describe Spree::Product do
       end
 
       context "with display_currency set to false" do
-        before do
-          Spree::Config[:display_currency] = false 
-        end
+        before { Spree::Config[:display_currency] = false }
 
         it "does not include the currency" do
           expect(product.display_price.to_s).to eq("$10.55")
@@ -277,7 +257,7 @@ describe Spree::Product do
     # Regression test for #3737
     context "has stock items" do
       let(:product) { create(:product) }
-      it "can retreive stock items" do
+      it "can retrieve stock items" do
         expect(product.master.stock_items.first).not_to be_nil
         expect(product.stock_items.first).not_to be_nil
       end
@@ -378,14 +358,14 @@ describe Spree::Product do
 
   context '#create' do
     let!(:prototype) { create(:prototype) }
-    let!(:product) { build(:base_product, name: "Foo") }
+    let!(:product) { Spree::Product.new(name: "Foo", amount: 1.99, shipping_category_id: create(:shipping_category).id) }
 
     before { product.prototype_id = prototype.id }
 
     context "when prototype is supplied" do
       it "should create properties based on the prototype" do
         product.save
-        expect(product.reload.properties.count).to eq(1)
+        expect(product.properties.count).to eq(1)
       end
     end
 
@@ -551,5 +531,15 @@ describe Spree::Product do
     end
 
   end
+   
+  # Regression spec for https://github.com/spree/spree/issues/5588
+  context '#validate_master when duplicate SKUs entered' do
+    let!(:first_product) { create(:product, sku: 'a-sku') }
+    let(:second_product) { build(:product, sku: 'a-sku') }
+
+    subject { second_product }
+    it { is_expected.to be_invalid }
+  end
+
 
 end

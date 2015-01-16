@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Spree
   module Stock
-    describe InventoryUnitBuilder do
+    describe InventoryUnitBuilder, :type => :model do
       let(:line_item_1) { build(:line_item) }
       let(:line_item_2) { build(:line_item, quantity: 2) }
       let(:order) { build(:order, line_items: [line_item_1, line_item_2]) }
@@ -27,6 +27,9 @@ module Spree
           expect(subject.units.map(&:pending).uniq).to eq [true]
         end
 
+        it "associates the inventory units to the order" do
+          expect(subject.units.map(&:order).uniq).to eq [order]
+        end
 
         context "with parts" do
 
@@ -50,6 +53,7 @@ module Spree
           end
 
         end
+
       end
 
     end

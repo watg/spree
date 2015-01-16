@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Promotion::Rules::ItemTotal do
+describe Spree::Promotion::Rules::ItemTotal, :type => :model do
   let(:rule) { Spree::Promotion::Rules::ItemTotal.new }
   let(:united_kingdom) { create(:country, :name => "United Kingdom") }
   let(:ship_address) { create(:address, :country => united_kingdom, :first_name => "Rumpelstiltskin") }

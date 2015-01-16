@@ -1,19 +1,17 @@
 require 'spec_helper'
 
-module Spree
-  describe OrderInventory do
-    let(:order) { create :completed_order_with_totals }
-    let(:line_item) { order.line_items.first }
+describe Spree::OrderInventory, :type => :model do
+  let(:order) { create :completed_order_with_totals }
+  let(:line_item) { order.line_items.first }
 
     subject { described_class.new(order, line_item) }
 
     context "when order is missing inventory units" do
       before { line_item.update_column(:quantity, 2) }
 
-      it 'creates the proper number of inventory units' do
-        subject.verify
-        expect(subject.inventory_units.count).to eq 2
-      end
+    it 'creates the proper number of inventory units' do
+      subject.verify
+      expect(subject.inventory_units.count).to eq 2
     end
 
     context "#add_to_shipment" do

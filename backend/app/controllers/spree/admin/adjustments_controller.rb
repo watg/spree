@@ -8,7 +8,7 @@ module Spree
       destroy.after :update_totals
       update.after :update_totals
 
-      skip_before_filter :load_resource, only: [:toggle_state, :edit, :update, :destroy]
+      skip_before_action :load_resource, only: [:toggle_state, :edit, :update, :destroy]
 
       before_action :find_adjustment, only: [:destroy, :edit, :update]
 
@@ -25,6 +25,12 @@ module Spree
 
       def update_totals
         @order.reload.update!
+      end
+
+      # Override method used to create a new instance to correctly
+      # associate adjustment with order
+      def build_resource
+        parent.adjustments.build(order: parent)
       end
 
     end

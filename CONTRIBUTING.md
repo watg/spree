@@ -8,8 +8,7 @@ When filing an issue on the Spree project, please provide these details:
 
 * A comprehensive list of steps to reproduce the issue.
 * What you're *expecting* to happen compared with what's *actually* happening.
-* The version of Spree *and* the version of Rails.
-* Your application's complete Gemfile, as text (*not as an image*)
+* Your application's complete `Gemfile.lock`, and `Gemfile.lock` as text in a [Gist](https://gist.github.com) (*not as an image*)
 * Any relevant stack traces ("Full trace" preferred)
 
 In 99% of cases, this information is enough to determine the cause and solution
@@ -24,8 +23,8 @@ the information requested is provided.
 
 ## Pull requests
 
-We gladly accept pull requests to fix bugs and, in some circumstances, add new
-features to Spree.
+We gladly accept pull requests to add documentation, fix bugs and, in some circumstances,
+add new features to Spree.
 
 Here's a quick guide:
 
@@ -69,6 +68,7 @@ Syntax:
 * `a_method { |block| ... }` and not `a_method { | block | ... }`
 * Follow the conventions you see used in the source already.
 * -> symbol over lambda
-* Ruby 1.9 hash syntax over Ruby 1.8 hash syntax
+* Ruby 1.9 hash syntax `{ key: value }` over Ruby 1.8 hash syntax `{ :key => value }`
+* Alphabetize the class methods to keep them organized
 
 And in case we didn't emphasize it enough: we love tests!

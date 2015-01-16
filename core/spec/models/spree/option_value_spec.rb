@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::OptionValue do
+describe Spree::OptionValue, :type => :model do
 
   context "update_presentation_and_sku_part" do
 

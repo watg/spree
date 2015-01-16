@@ -3,7 +3,12 @@ module Spree
     module TestingSupport
       module Helpers
         def json_response
-          JSON.parse(response.body)
+          case body = JSON.parse(response.body)
+          when Hash
+            body.with_indifferent_access
+          when Array
+            body
+          end
         end
 
         def assert_not_found!
@@ -31,7 +36,7 @@ module Spree
         end
 
         def upload_image(filename)
-          fixture_file_upload(image(filename).path)
+          fixture_file_upload(image(filename).path, 'image/jpg')
         end
       end
     end

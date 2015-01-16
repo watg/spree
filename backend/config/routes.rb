@@ -4,7 +4,7 @@ Spree::Core::Engine.add_routes do
   get '/admin', :to => 'admin/orders#index', :as => :admin
 
   namespace :admin do
-    get '/search/users', :to => "search#users", :as => :search_users
+    get '/search/users', to: "search#users", as: :search_users
 
     get '/products_overview', :to => 'products_overview#index'
     post '/products_overview', :to => 'products_overview#update'
@@ -84,6 +84,8 @@ Spree::Core::Engine.add_routes do
 
     resources :targets
 
+    resources :promotion_categories, except: [:show]
+
     resources :zones
 
     resources :countries do
@@ -125,8 +127,10 @@ Spree::Core::Engine.add_routes do
           post :update_positions
         end
       end
-      resources :variants_including_master, :only => [:update]
+      resources :variants_including_master,   only: [:update]
     end
+
+    get '/variants/search', to: "variants#search", as: :search_variants
 
     resources :variants do
       resources :images, controller: "variant_images" do
@@ -137,7 +141,6 @@ Spree::Core::Engine.add_routes do
       end
     end
 
-    get '/variants/search', :to => "variants#search", :as => :search_variants
 
     resources :option_types do
       collection do
@@ -146,7 +149,7 @@ Spree::Core::Engine.add_routes do
       end
     end
 
-    delete '/option_values/:id', :to => "option_values#destroy", :as => :option_value
+    delete '/option_values/:id', to: "option_values#destroy", as: :option_value
 
     resources :properties do
       collection do
@@ -154,7 +157,7 @@ Spree::Core::Engine.add_routes do
       end
     end
 
-    delete '/product_properties/:id', :to => "product_properties#destroy", :as => :product_property
+    delete '/product_properties/:id', to: "product_properties#destroy", as: :product_property
 
     resources :prototypes do
       member do
@@ -180,8 +183,9 @@ Spree::Core::Engine.add_routes do
 
     resources :shipping_manifests
 
-    resources :orders do
+     resources :orders, except: [:show] do
       member do
+        get :cart
         post :internal
         post :important
         post :refresh
@@ -194,7 +198,12 @@ Spree::Core::Engine.add_routes do
         put :resume
       end
 
-      resource :customer, :controller => "orders/customer_details"
+      resource :customer, controller: "orders/customer_details"
+      resources :customer_returns, only: [:index, :new, :edit, :create, :update] do
+        member do
+          put :refund
+        end
+      end
 
       resources :adjustments
       resources :line_items
@@ -209,16 +218,26 @@ Spree::Core::Engine.add_routes do
         end
 
         resources :log_entries
+        resources :refunds, only: [:new, :create, :edit, :update]
       end
 
       resources :holds, :controller => "orders/holds"
+
+      resources :reimbursements, only: [:create, :show, :edit, :update] do
+        member do
+          post :perform
+        end
+      end
     end
 
     resource :general_settings do
       collection do
         post :dismiss_alert
+        post :clear_cache
       end
     end
+
+    resources :return_items, only: [:update]
 
     resources :taxonomies do
       collection do
@@ -230,7 +249,7 @@ Spree::Core::Engine.add_routes do
       resources :taxons
     end
 
-    resources :taxons, :only => [:index, :show] do
+    resources :taxons, only: [:index, :show] do
       collection do
         get :search
       end
@@ -245,19 +264,22 @@ Spree::Core::Engine.add_routes do
       end
     end
 
+    resources :reimbursement_types, only: [:index]
+    resources :refund_reasons, except: [:show, :destroy]
+    resources :return_authorization_reasons, except: [:show, :destroy]
+
     resources :shipping_methods
     resources :shipping_categories
-    resources :stock_transfers, :only => [:index, :show, :new, :create]
+    resources :stock_transfers, only: [:index, :show, :new, :create]
     resources :stock_locations do
-      resources :stock_movements, :except => [:edit, :update, :destroy]
+      resources :stock_movements, except: [:edit, :update, :destroy]
       collection do
         post :transfer_stock
       end
     end
 
-    resources :stock_items, :only => [:create, :update, :destroy]
+    resources :stock_items, only: [:create, :update, :destroy]
     resources :tax_rates
-    resource  :tax_settings
 
     resources :trackers
     resources :payment_methods

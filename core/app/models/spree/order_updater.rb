@@ -1,7 +1,7 @@
 module Spree
   class OrderUpdater
     attr_reader :order
-    delegate :payments, :line_items, :adjustments, :all_adjustments, :shipments, :update_hooks, to: :order
+    delegate :payments, :line_items, :adjustments, :all_adjustments, :shipments, :update_hooks, :quantity, to: :order
 
     class << self
       def shipment_states
@@ -51,7 +51,7 @@ module Spree
     # +promo_total+        The total value of all promotion adjustments
     # +total+              The so-called "order total."  This is equivalent to +item_total+ plus +adjustment_total+.
     def update_totals
-      order.payment_total = payments.completed.sum(:amount)
+      update_payment_total
       update_item_total
       update_shipment_total
       update_adjustment_total
@@ -66,6 +66,10 @@ module Spree
         shipment.refresh_rates
         shipment.update_amounts
       end
+    end
+
+    def update_payment_total
+      order.payment_total = payments.completed.sum(:amount)
     end
 
     def update_shipment_total
@@ -93,12 +97,12 @@ module Spree
     end
 
     def update_item_count
-      order.item_count = line_items.sum(:quantity)
+      order.item_count = quantity
     end
 
     def update_item_total
-      order.item_normal_total = line_items.map(&:normal_amount).sum
-      order.item_total = line_items.map(&:amount).sum
+      order.item_normal_total = line_items.sum(&:normal_amount)
+      order.item_total = line_items.sum(&:amount)
       update_order_total
     end
 
@@ -188,7 +192,6 @@ module Spree
 
 
     private
-
       def round_money(n)
         (n * 100).round / 100.0
       end

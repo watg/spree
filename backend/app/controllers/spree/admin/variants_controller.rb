@@ -3,7 +3,7 @@ module Spree
     class VariantsController < ResourceController
       belongs_to 'spree/product', :find_by => :slug
       new_action.before :new_before
-      before_filter :load_data, :only => [:new, :create, :edit, :update]
+      before_action :load_data, only: [:new, :create, :edit, :update]
 
       def create
         invoke_callbacks(:create, :before)

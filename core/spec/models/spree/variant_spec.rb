@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Spree::Variant do
+describe Spree::Variant, :type => :model do
   let!(:variant) { create(:variant) }
 
   context "variant navigation" do
@@ -182,6 +182,23 @@ describe Spree::Variant do
         product.variants.create(:name => "Foobar", weight: 10, cost_price: 10)
       end
     end
+
+    describe 'mark_master_out_of_stock' do
+      before do
+        product.master.stock_items.first.set_count_on_hand(5)
+      end
+      context 'when product is created without variants but with stock' do
+        it { expect(product.master).to be_in_stock }
+      end
+
+      context 'when a variant is created' do
+        before(:each) do
+          product.variants.create!(:name => 'any-name')
+        end
+
+        it { expect(product.master).to_not be_in_stock }
+      end
+    end
   end
 
   context "product has other variants" do
@@ -197,10 +214,10 @@ describe Spree::Variant do
         expect(multi_variant.option_value('media_type')).to be_nil
 
         multi_variant.set_option_value('media_type', 'DVD')
-        expect(multi_variant.option_value('media_type')).to eq('DVD')
+        expect(multi_variant.option_value('media_type')).to eql 'DVD'
 
         multi_variant.set_option_value('media_type', 'CD')
-        expect(multi_variant.option_value('media_type')).to eq('CD')
+        expect(multi_variant.option_value('media_type')).to eql 'CD'
       end
 
       it "should not duplicate associated option values when set multiple times" do
@@ -229,10 +246,10 @@ describe Spree::Variant do
           expect(multi_variant.option_value('media_type')).to be_nil
 
           multi_variant.set_option_value('media_type', 'DVD')
-          expect(multi_variant.option_value('media_type')).to eq('DVD')
+          expect(multi_variant.option_value('media_type')).to eql 'DVD'
 
           multi_variant.set_option_value('media_type', 'CD')
-          expect(multi_variant.option_value('media_type')).to eq('CD')
+          expect(multi_variant.option_value('media_type')).to eql 'CD'
         end
 
         it "should not duplicate associated option values when set multiple times" do
@@ -250,7 +267,7 @@ describe Spree::Variant do
     end
   end
 
-  context "::options_by_product" do
+   context "::options_by_product" do
     let(:product) { FactoryGirl.create(:product_with_variants) }
     let(:option_value) { product.variants.first.option_values.first.name }
 
@@ -273,45 +290,30 @@ describe Spree::Variant do
     end
   end
 
-  context "price parsing" do
-    before(:each) do
-      I18n.locale = I18n.default_locale
-      I18n.backend.store_translations(:de, { :number => { :currency => { :format => { :delimiter => '.', :separator => ',' } } } })
+  context "#cost_price=" do
+    it "should use LocalizedNumber.parse" do
+      expect(Spree::LocalizedNumber).to receive(:parse).with('1,599.99')
+      subject.cost_price = '1,599.99'
     end
+  end
 
-    after do
-      I18n.locale = I18n.default_locale
+  context "#price=" do
+    it "should use LocalizedNumber.parse" do
+      expect(Spree::LocalizedNumber).to receive(:parse).with('1,599.99')
+      subject.price = '1,599.99'
     end
+  end
 
-    context "cost_price=" do
-      context "with decimal point" do
-        it "captures the proper amount for a formatted price" do
-          variant.cost_price = '1,599.99'
-          expect(variant.cost_price).to eq(1599.99)
-        end
-      end
-
-      context "with decimal comma" do
-        it "captures the proper amount for a formatted price" do
-          I18n.locale = :de
-          variant.cost_price = '1.599,99'
-          expect(variant.cost_price).to eq(1599.99)
-        end
-      end
-
-      context "with a numeric price" do
-        it "uses the price as is" do
-          I18n.locale = :de
-          variant.cost_price = 1599.99
-          expect(variant.cost_price).to eq(1599.99)
-        end
-      end
+  context "#weight=" do
+    it "should use LocalizedNumber.parse" do
+      expect(Spree::LocalizedNumber).to receive(:parse).with('1,599.99')
+      subject.weight = '1,599.99'
     end
   end
 
   context "#currency" do
     it "returns the globally configured currency" do
-      expect(variant.currency).to eq("USD")
+      expect(variant.currency).to eql "USD"
     end
   end
 
@@ -326,7 +328,7 @@ describe Spree::Variant do
       before { variant.cost_currency = nil }
       it "populates cost currency with the default value on save" do
         variant.save!
-        expect(variant.cost_currency).to eq("USD")
+        expect(variant.cost_currency).to eql "USD"
       end
     end
   end
@@ -342,7 +344,7 @@ describe Spree::Variant do
       let(:currency) { nil }
 
       it "returns 0" do
-        expect(subject.to_s).to eq("$19.99")
+        expect(subject.to_s).to eql "$19.99"
       end
     end
 
@@ -350,7 +352,7 @@ describe Spree::Variant do
       let(:currency) { 'EUR' }
 
       it "returns the value in the EUR" do
-        expect(subject.to_s).to eq("€33.33")
+        expect(subject.to_s).to eql "€33.33"
       end
     end
 
@@ -358,7 +360,7 @@ describe Spree::Variant do
       let(:currency) { 'USD' }
 
       it "returns the value in the USD" do
-        expect(subject.to_s).to eq("$19.99")
+        expect(subject.to_s).to eql "$19.99"
       end
     end
   end
@@ -383,7 +385,7 @@ describe Spree::Variant do
       let(:currency) { 'EUR' }
 
       it "returns the value in the EUR" do
-        expect(subject).to eq(33.33)
+        expect(subject).to eql 33.33
       end
     end
 
@@ -391,7 +393,7 @@ describe Spree::Variant do
       let(:currency) { 'USD' }
 
       it "returns the value in the USD" do
-        expect(subject).to eq(19.99)
+        expect(subject).to eql 19.99
       end
     end
   end
@@ -407,7 +409,7 @@ describe Spree::Variant do
     end
 
     it 'should order by bar than foo' do
-      expect(variant.options_text).to eq('Bar Type: Bar, Foo Type: Foo')
+      expect(variant.options_text).to eql 'Bar Type: Bar, Foo Type: Foo'
     end
   end
 
@@ -415,7 +417,7 @@ describe Spree::Variant do
   describe "set_position" do
     it "sets variant position after creation" do
       variant = create(:variant)
-      expect(variant.position).not_to be_nil
+      expect(variant.position).to_not be_nil
     end
   end
 
@@ -490,6 +492,16 @@ describe Spree::Variant do
       describe '#tag_names' do
         its(:tag_names) { should eq(tags.map(&:value)) }
       end
+    end
+  end
+
+  describe '#is_backorderable' do
+    let(:variant) { build(:variant) }
+    subject { variant.is_backorderable? }
+
+    it 'should invoke Spree::Stock::Quantifier' do
+      expect_any_instance_of(Spree::Stock::Quantifier).to receive(:backorderable?) { true }
+      subject
     end
   end
 
@@ -739,4 +751,23 @@ describe Spree::Variant do
     end
   end
 
+
+  describe "stock movements" do
+    let!(:movement) { create(:stock_movement, stock_item: variant.stock_items.first) }
+
+    it "builds out collection just fine through stock items" do
+      expect(variant.stock_movements.to_a).not_to be_empty
+    end
+  end
+
+  describe "in_stock scope" do
+    it "returns all in stock variants" do
+      in_stock_variant = create(:variant)
+      out_of_stock_variant = create(:variant)
+
+      in_stock_variant.stock_items.first.update_column(:count_on_hand, 10)
+
+      expect(Spree::Variant.in_stock).to eq [in_stock_variant]
+    end
+  end
 end

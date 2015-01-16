@@ -1,8 +1,7 @@
 require 'spec_helper'
 
-describe Spree::StockItem do
-  let!(:stock_location) { create(:stock_location_with_items) }
-  let!(:stock_item) { stock_location.stock_items.first }
+describe Spree::StockItem, :type => :model do
+  let(:stock_location) { create(:stock_location_with_items) }
 
   subject { stock_location.stock_items.order(:id).first }
 
@@ -63,6 +62,27 @@ describe Spree::StockItem do
     end
   end
 
+  describe 'reduce_count_on_hand_to_zero' do
+    context 'when count_on_hand > 0' do
+      before(:each) do
+        subject.update_column('count_on_hand', 4)
+         subject.reduce_count_on_hand_to_zero
+       end
+
+       it { expect(subject.count_on_hand).to eq(0) }
+     end
+
+     context 'when count_on_hand > 0' do
+       before(:each) do
+         subject.update_column('count_on_hand', -4)
+         @count_on_hand = subject.count_on_hand
+         subject.reduce_count_on_hand_to_zero
+       end
+
+       it { expect(subject.count_on_hand).to eq(@count_on_hand) }
+     end
+  end
+
   context "adjust count_on_hand" do
     let!(:current_on_hand) { subject.count_on_hand }
 
@@ -92,7 +112,7 @@ describe Spree::StockItem do
       let(:inventory_unit_2) { double('InventoryUnit2', fill_backorder: true, backordered?: true) }
 
       before do
-        allow(subject).to receive_messages(:waiting_inventory_units => [inventory_unit, inventory_unit_2])
+        allow(subject).to receive_messages(:backordered_inventory_units => [inventory_unit, inventory_unit_2])
         subject.update_column(:count_on_hand, -2)
       end
 

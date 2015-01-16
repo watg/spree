@@ -10,21 +10,19 @@ FactoryGirl.define do
       after(:create) do |promotion, evaluator|
         calculator = Spree::Calculator::FlatRate.new
         calculator.preferred_amount = [{type: :integer, name: "USD", value: evaluator.adjustment_rate}]
-        action = Spree::Promotion::Actions::CreateItemAdjustments.create(:calculator => calculator)
-        promotion.actions << action
-        promotion.save
+        Spree::Promotion::Actions::CreateItemAdjustments.create!(calculator: calculator, promotion: promotion)
       end
     end
     factory :promotion_with_item_adjustment, traits: [:with_line_item_adjustment]
 
     trait :with_order_adjustment do
       transient do
-        order_adjustment_amount 10
+        weighted_order_adjustment_amount 10
       end
 
       after(:create) do |promotion, evaluator|
         calculator = Spree::Calculator::FlatRate.new
-        calculator.preferred_amount = [{type: :integer, name: "USD", value: evaluator.order_adjustment_amount}]
+        calculator.preferred_amount = evaluator.weighted_order_adjustment_amount
         action = Spree::Promotion::Actions::CreateAdjustment.create!(:calculator => calculator)
         promotion.actions << action
         promotion.save!

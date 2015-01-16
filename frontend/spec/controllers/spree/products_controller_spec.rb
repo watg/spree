@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe Spree::ProductPagesController do
-  #let!(:product) { create(:product, :available_on => 1.year.from_now) }
+describe Spree::ProductsController, :type => :controller do
+  let!(:product) { create(:product, :available_on => 1.year.from_now) }
 
   # not any more relevant due to the new product pages
   # it "should provide the current user to the searcher class" do
