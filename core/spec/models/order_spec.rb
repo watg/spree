@@ -184,4 +184,19 @@ describe Spree::Order do
     end
   end
 
+  describe "reactivate_gift_cards" do
+
+    let!(:gift_card_1) { create(:gift_card, beneficiary_order: order, state: 'redeemed')}
+    let!(:gift_card_2) { create(:gift_card, beneficiary_order: order, state: 'cancelled')}
+
+    it "reactivate all redemmed gift cards redeemed against an order" do
+      order.reactivate_gift_cards
+      expect(gift_card_1.reload.state).to eq('not_redeemed')
+      expect(gift_card_1.beneficiary_order).to be_nil
+      expect(gift_card_2.reload.state).to eq('cancelled')
+      expect(gift_card_2.beneficiary_order).to eq order
+    end
+    
+  end
+
 end

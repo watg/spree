@@ -602,6 +602,14 @@ module Spree
       order.destroy
     end
 
+    def reactivate_gift_cards
+      # Another way we could achieve the same effect
+      #adjustments.gift_card.map(&:source).select(&:redeemed?).each do |gift_card|
+      Spree::GiftCard.redeemed.where(beneficiary_order: self).each do |gift_card|
+        gift_card.reactivate
+      end
+    end
+
     def empty!
       line_items.destroy_all
       updater.update_item_count

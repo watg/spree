@@ -70,6 +70,9 @@ module Spree
             if session[:order_id].nil? && last_incomplete_order
               session[:order_id] = last_incomplete_order.id
             elsif current_order && last_incomplete_order && current_order != last_incomplete_order
+              # This will ensure that any redeemed gift cards that are not on completed orders
+              # will be reactivated
+              last_incomplete_order.reactivate_gift_cards
               current_order.merge!(last_incomplete_order, user)
             end
           end
