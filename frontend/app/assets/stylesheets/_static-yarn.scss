@@ -1,6 +1,11 @@
-
 // Yarn Pages!!
 // please note, the base styles of yarn can be found in static, lines 588
+
+/* -- MENU -- */
+// Default page - 6
+// Yarn variants - 210
+// Mobile - 310
+// landing page - 430
 
 
 // Default, page
@@ -428,3 +433,97 @@
 }
 
 
+.meet-our-yarn {
+  h2 {
+    font-size: emCalc(40px) !important;
+    margin: 0;
+    padding-bottom: 30px;
+  }
+
+  .row-meet-our-yarn {
+    padding-top: 10%;
+    height: 600px;
+    background: cdn-url('static/yarn/meet_hero_DESKTOP_1.jpg') center no-repeat;
+  }
+  .column-info {
+    padding: 175px 40px;
+
+    p {
+      font-size: enCalc(20px);
+      padding-bottom: 30px;
+    }
+    .shop {
+      padding-right: 10px;
+      font-size: 20px;
+      text-transform: uppercase;
+    }
+    .read {
+      padding-left: 10px;
+      font-size: 20px;
+      text-transform: uppercase;
+    }
+  }
+  .column-crazy {
+    background: cdn-url('static/yarn/meet_csw_DESKTOP.jpg') center center no-repeat;
+  }
+  .column-sheepaca {
+    background: cdn-url('static/yarn/meet_she_DESKTOP.jpg') center center no-repeat;
+  }
+  .column-sugar {
+    background: cdn-url('static/yarn/meet_sugar_DESKTOP.jpg') center center no-repeat;
+  }
+  .column-jersey {
+    background: cdn-url('static/yarn/meet_jersey_DESKTOP.jpg') center center no-repeat;
+  }
+  .column-wooly {
+    background: cdn-url('static/yarn/meet_wooly_DESKTOP.jpg') center center no-repeat;
+  }
+  .column-cotton {
+    background: cdn-url('static/yarn/meet_shiny_DESKTOP.jpg') center center no-repeat;
+  }
+  .column-mixtape {
+    background: cdn-url('static/yarn/meet_mixtape_DESKTOP.jpg') center center no-repeat;
+  }
+
+}
+
+.meet-our-yarn.mobile {
+  .wrapper-meet-our-yarn {
+    .column-image, .row-meet-our-yarn {
+      padding: 0;
+      height: 300px;
+    }
+    .column-info {
+      padding: 30px 10px;
+      height: 100%;
+    }
+    .row-meet-our-yarn {
+      background: cdn-url('static/yarn/meet_hero_MOBILE_1.jpg') center center no-repeat;
+      h1 {
+        margin: 0;
+        padding-top: 20%;
+      }
+    }
+    .column-crazy {
+      background: cdn-url('static/yarn/meet_csw_MOBILE.jpg') center center no-repeat;
+    }
+    .column-sheepaca {
+      background: cdn-url('static/yarn/meet_she_MOBILE.jpg') center center no-repeat;
+    }
+    .column-jersey {
+      background: cdn-url('static/yarn/meet_jersey_MOBILE.jpg') center center no-repeat;
+    }
+    .column-wooly {
+      background: cdn-url('static/yarn/meet_wooly_MOBILE.jpg') center center no-repeat;
+    }
+    .column-cotton {
+      background: cdn-url('static/yarn/meet_shiny_MOBILE.jpg') center center no-repeat;
+    }
+    .column-mixtape {
+      background: cdn-url('static/yarn/meet_mixtape_MOBILE.jpg') center center no-repeat;
+    }
+    .column-sugar {
+      background: cdn-url('static/yarn/meet_sugar_MOBILE.jpg') center center no-repeat;
+    }
+  }
+}
