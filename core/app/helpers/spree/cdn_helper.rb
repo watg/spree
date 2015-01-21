@@ -37,10 +37,12 @@ module Spree
 
       u_source = parse_source_for_environment(source)
 
+      u_source_query =  u_source.query ? "?#{u_source.query}" : ''
+
       if u_source.path[0] == '/'
-        [cdn_prefix, u_source.path].join + "?#{u_source.query}"
+        [cdn_prefix, u_source.path].join + u_source_query
       else
-        [cdn_prefix, "/", u_source.path].join + "?#{u_source.query}"
+        [cdn_prefix, "/", u_source.path].join + u_source_query
       end
     end
 
