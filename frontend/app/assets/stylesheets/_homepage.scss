@@ -51,7 +51,7 @@ body.homepage {
 
 .home-main .leader-multiple-ctas {
 	/* Small screen background */
-	background: #fff cdn-url("/homepage/2015-01-22/Homepage_Tote_Bag_MOBILE_V1.jpg") top center no-repeat;
+	background: #fff cdn-url("/homepage/2015-01-25/Homepage_Tote_Bag_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
@@ -85,7 +85,7 @@ body.homepage {
 	// }
 	/* Large screen background */
 	@media only screen and (min-width: 56em) {
-		background: #fff cdn-url("/homepage/2015-01-22/Homepage_Tote_Bag_DESKTOP_V1.jpg") top center no-repeat;
+		background: #fff cdn-url("/homepage/2015-01-25/Homepage_Tote_Bag_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
