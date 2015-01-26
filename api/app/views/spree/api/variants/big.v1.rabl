@@ -17,4 +17,5 @@ child(:stock_items => :stock_items) do
   glue(:stock_location) do
     attribute :name => :stock_location_name
   end
+
 end

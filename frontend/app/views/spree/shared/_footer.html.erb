@@ -45,7 +45,7 @@
   <a class="modal-close" href="#">Close</a>
   <h3>Contact Us</h3>
   <% if production_or_staging? %>
-    <iframe src="https://woolthegang.desk.com/customer/emails/new"></iframe>
+    <iframe src="<%= desk_iframe_url %>"></iframe>
   <% end %>
 </div>
 
@@ -59,9 +59,11 @@
 </div>
 
 <!-- Alpaca -->
-<% unless mobile_device? %>
+<% unless true # disabeld for the time being due to an ssl issue mobile_device? %>
   <img class="alpaca-attack" src="<%= image_path("alpaca-attack.gif") %>" alt="THE ALPACAS ARE ATTACKING" />
 <% end %>
 
-<%= yield :modals %>
+
 <% end %>
+<%= yield :modals %>
+

@@ -6,7 +6,7 @@ describe Spree::SuitePageRedirectionService do
 
   let(:target) { mock_model(Spree::Target) }
 
-  let(:product_page) { create(:product_page, name: 'Lil Foxy Roxy Women', target: target, permalink: 'lil-foxy-roxy-women') }
+  let(:permalink) { 'lil-foxy-roxy-women' }
 
   describe "#run" do
 
@@ -14,7 +14,7 @@ describe Spree::SuitePageRedirectionService do
       let!(:suite) { create(:suite, name: 'Lil Foxy Roxy Women', target: target, permalink: 'lil-foxy-roxy-women') }
 
       it "returns a suite url and a permanent redirect code" do
-        outcome = subject.run(permalink: product_page.permalink, params: { tab:'knit-your-own'} ).result
+        outcome = subject.run(permalink: permalink, params: { tab:'knit-your-own'} ).result
 
         expect(outcome).to be_kind_of Hash
         expect(outcome[:url]).to eq spree.suite_path(suite, tab: 'knit-your-own')
@@ -24,7 +24,7 @@ describe Spree::SuitePageRedirectionService do
       context "Arbitary params are passed on e.g. for referalls" do
 
         it "returns to root_url with a temporary redirect" do
-          outcome = subject.run(permalink: product_page.permalink, params: { tab: 'knit-your-own', foo: 'bar'} ).result
+          outcome = subject.run(permalink: permalink, params: { tab: 'knit-your-own', foo: 'bar'} ).result
 
           expect(outcome).to be_kind_of Hash
           expect(outcome[:url]).to eq spree.suite_path(suite, tab: 'knit-your-own', foo: 'bar')
@@ -37,7 +37,7 @@ describe Spree::SuitePageRedirectionService do
     context "when a matching suite is not found" do
 
       it "returns to root_url with a temporary redirect" do
-        outcome = subject.run(permalink: product_page.permalink, params: { tab:'knit-your-own'} ).result
+        outcome = subject.run(permalink: permalink, params: { tab:'knit-your-own'} ).result
 
         expect(outcome).to be_kind_of Hash
         expect(outcome[:url]).to eq spree.root_path

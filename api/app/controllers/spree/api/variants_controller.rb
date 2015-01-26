@@ -1,6 +1,7 @@
 module Spree
   module Api
     class VariantsController < Spree::Api::BaseController
+      respond_to :xml, :atom, only: :index
       before_action :product
 
       def create
@@ -49,12 +50,6 @@ module Spree
       private
         def product
           @product ||= Spree::Product.accessible_by(current_ability, :read).friendly.find(params[:product_id]) if params[:product_id]
-        end
-
-        def product_page
-          if params[:product_page_id]
-            @product_page ||= Spree::ProductPage.accessible_by(current_ability, :read).find(params[:product_page_id])
-          end
         end
 
         def scope

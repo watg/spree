@@ -3,10 +3,12 @@ module Spree
     module TestingSupport
       module Helpers
         def json_response
-          case body = JSON.parse(response.body)
+          case body = JSON.parse(response.body, :allow_nan => true)
           when Hash
             body.with_indifferent_access
           when Array
+            body
+          else 
             body
           end
         end

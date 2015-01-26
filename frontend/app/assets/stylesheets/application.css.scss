@@ -74,9 +74,7 @@
 @import "_navigation";
 // Products
 @import "_product-top";
-@import "_product-index";
 @import "_suites-index";
-@import "_product-group";
 @import "_suite";
 // Variant Options plugin style overrides
 @import "_variant-options";
@@ -85,6 +83,8 @@
 @import "_static";
 // Static competition and free pattern styles
 @import "_static-signups";
+// Static yarn pages
+@import "_static-yarn";
 // Homepage styles
 @import "_homepage";
 // Tooltipster plugin styles
@@ -95,6 +95,8 @@
 @import "_olapic";
 // Flipclock plugin styles
 @import "_flipclock";
+// Owlcarousel plugin styles
+@import "_owlcarousel";
 
 // Refer-a-friend module
 @import "spree/frontend/spree_raf";

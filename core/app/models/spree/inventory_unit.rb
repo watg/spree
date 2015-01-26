@@ -15,6 +15,7 @@ module Spree
     scope :backordered, -> { where state: 'backordered' }
     scope :awaiting_feed, -> { where state: 'awaiting_feed' }
     scope :on_hand, -> { where state: 'on_hand' }
+    scope :waiting_fill, -> { where state: ['awaiting_feed','backordered'] }
     scope :shipped, -> { where state: 'shipped' }
     scope :returned, -> { where state: 'returned' }
     scope :backordered_per_variant, ->(stock_item) do
@@ -48,6 +49,14 @@ module Spree
       end
     end
 
+    def fill_waiting_unit
+      if backordered?
+        fill_backorder
+      elsif awaiting_feed?
+        fill_awaiting_feed 
+      end
+    end
+
     # This was refactored from a simpler query because the previous implementation
     # led to issues once users tried to modify the objects returned. That's due
     # to ActiveRecord `joins(shipment: :stock_location)` only returning readonly
@@ -69,22 +78,13 @@ module Spree
         .order("spree_orders.completed_at ASC")
     end
 
-    def self.finalize_units!(inventory_units)
-      inventory_units.map do |iu|
-        iu.update_columns(
-          pending: false,
-          updated_at: Time.now,
-        )
-      end
-    end
-
     def self.total_awaiting_feed_for(variant)
-      awaiting_feed.non_pending.where(variant: variant).count
+      waiting_fill.non_pending.where(variant: variant).count
     end
 
     def find_stock_item
       Spree::StockItem.where(stock_location_id: shipment.stock_location_id,
-                             variant_id: variant_id).first
+        variant_id: variant_id).first
     end
 
     # Remove variant default_scope `deleted_at: nil`

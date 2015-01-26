@@ -9,13 +9,13 @@
 #   let!(:payment_method) { create(:payment_method) }
 #   let!(:zone) { Spree::Zone.first || create(:zone) }
   
-#   let!(:product_page) { create(:product_page) }
+#   let!(:suite) { create(:suite) }
 #   let!(:mug) { create(:product_with_stock_and_prices, :name => "RoR Mug") }
 
 #   before do
-#     mug.variants_including_master.each { |v| v.targets << product_page.target }
-#     product_page.displayed_variants = mug.variants_including_master
-#     product_page.save!
+#     mug.variants_including_master.each { |v| v.targets << suite.target }
+#     suite.displayed_variants = mug.variants_including_master
+#     suite.save!
 #   end
 
 #   context "visitor makes checkout as guest without registration" do
@@ -405,108 +405,22 @@
 #   end
 
 #   def add_mug_to_cart
-#     visit spree.product_page_path(id: product_page.permalink)
+#     visit spree.suite_path(id: suite.permalink)
 #     # we don't click, because the cart with the first variant is already opened
 #     # click_link mug.name
 #     click_button "Add To My Bag"
 #   end
 
 #   def create_and_add_bag_to_cart
-#     product_page2 = create(:product_page)
+#     suite2 = create(:suite)
 #     bag = create(:product_with_stock_and_prices, :name => "RoR Bag")
-#     bag.variants_including_master.each { |v| v.targets << product_page2.target }
-#     product_page2.displayed_variants = bag.variants_including_master
-#     product_page2.save!
+#     bag.variants_including_master.each { |v| v.targets << suite2.target }
+#     suite2.displayed_variants = bag.variants_including_master
+#     suite2.save!
 
-#    context "doesn't fill in coupon code input" do
-#      it "advances just fine" do
-#        click_on "Save and Continue"
-#        expect(current_path).to eql(spree.order_path(Spree::Order.last))
-#      end
-#    end
-#  end
-#
-#  context "order has only payment step" do
-#    before do
-#      create(:credit_card_payment_method)
-#      @old_checkout_flow = Spree::Order.checkout_flow
-#      Spree::Order.class_eval do
-#        checkout_flow do
-#          go_to_state :payment
-#          go_to_state :confirm
-#        end
-#      end
-#
-#      Spree::Order.any_instance.stub email: "spree@commerce.com"
-#
-#      add_mug_to_cart
-#      click_on "Checkout"
-#    end
-#
-#    after do
-#      Spree::Order.checkout_flow(&@old_checkout_flow)
-#    end
-#
-#    it "goes right payment step and place order just fine" do
-#      expect(current_path).to eq spree.checkout_state_path('payment')
-#
-#      choose "Credit Card"
-#      fill_in "Name on card", :with => 'Spree Commerce'
-#      fill_in "Card Number", :with => '4111111111111111'
-#      fill_in "card_expiry", :with => '04 / 20'
-#      fill_in "Card Code", :with => '123'
-#      click_button "Save and Continue"
-#
-#      expect(current_path).to eq spree.checkout_state_path('confirm')
-#      click_button "Place Order"
-#    end
-#  end
-#
-#
-#  context "save my address" do
-#    before do
-#      stock_location.stock_items.update_all(count_on_hand: 1)
-#      add_mug_to_cart
-#    end
-#
-#    context 'as a guest' do
-#      before do
-#        Spree::Order.last.update_column(:email, "test@example.com")
-#        click_button "Checkout"
-#      end
-#
-#      it 'should not be displayed' do
-#        expect(page).to_not have_css("[data-hook=save_user_address]")
-#      end
-#    end
-#
-#    context 'as a User' do
-#      before do
-#        Spree::CheckoutController.any_instance.stub(:try_spree_current_user => create(:user))
-#        click_button "Checkout"
-#      end
-#
-#      it 'should be displayed' do
-#        expect(page).to have_css("[data-hook=save_user_address]")
-#      end
-#    end
-#  end
-#
-#  def fill_in_address
-#    address = "order_bill_address_attributes"
-#    fill_in "#{address}_firstname", with: "Ryan"
-#    fill_in "#{address}_lastname", with: "Bigg"
-#    fill_in "#{address}_address1", with: "143 Swan Street"
-#    fill_in "#{address}_city", with: "Richmond"
-#    select "United States of America", from: "#{address}_country_id"
-#    select "Alabama", from: "#{address}_state_id"
-#    fill_in "#{address}_zipcode", with: "12345"
-#    fill_in "#{address}_phone", with: "(555) 555-5555"
-#  end
-#
-#  def add_mug_to_cart
-#    visit spree.root_path
-#    click_link mug.name
-#    click_button "add-to-cart-button"
-#  end
-#end
+#     visit spree.suite_path(id: suite2.permalink)
+#     # we don't click, because the cart with the first variant is already opened
+#     # click_link bag.name
+#     click_button "Add To My Bag"
+#   end
+# end

@@ -12,7 +12,7 @@
     <% if order_just_completed?(@order) %>
       <%= render :partial => 'linkshare_conversion_tag' %>
       <%= render :partial => 'google_adword_tag' %>
-      <%= render :partial => 'adroll_conversion_tag' %>
+      <%#= render :partial => 'adroll_conversion_tag' %>
       <%= render :partial => 'facebook_conversion_tag', :locals => { :order => @order } %>
       <%= render :partial => 'olapic_conversion_tag', :locals => { :order => @order } %>
       <%= render :partial => 'polyvore_conversion_pixel', :locals => { :order => @order } %>

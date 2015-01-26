@@ -23,7 +23,15 @@ module Spree
         authorize! :read, @order
         authorize! :create, Shipment
         quantity = params[:quantity].to_i
-        @shipment = @order.shipments.create(stock_location_id: params.fetch(:stock_location_id))
+
+        #@shipment = @order.shipments.create(stock_location_id: params.fetch(:stock_location_id))
+        # Below is a hack, as we no longer pass in stock location, this needs to be reworked at some point
+		
+        unless stock_location_id = params[:stock_location_id] 
+          stock_location_id = Spree::StockLocation.active.first.id
+        end
+        @shipment = @order.shipments.create(stock_location_id: stock_location_id)
+
         @order.contents.add(variant, quantity, options)
 
         @shipment.save!

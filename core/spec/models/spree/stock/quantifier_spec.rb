@@ -51,15 +51,18 @@ module Spree
       context 'with a single stock location/item' do
         describe "total_on_hand" do
           let(:variant) { stock_item.variant }
+          let(:order) { create(:order, state: :complete) }
 
           it 'matches stock_item' do
             expect(subject.total_on_hand).to eq(stock_item.count_on_hand)
           end
 
-          it 'deducts awaiting_feed inventory units' do
-            create_list(:inventory_unit, 2, state: "awaiting_feed", variant: variant, pending: false)
+          it 'deducts waiting_fill inventory units' do
             create_list(:inventory_unit, 2, state: "awaiting_feed", variant: variant, pending: true)
-            expect(subject.total_on_hand).to eq(stock_item.count_on_hand - 2)
+            create_list(:inventory_unit, 2, state: "awaiting_feed", variant: variant, pending: false)
+            create_list(:inventory_unit, 2, state: "backordered", variant: variant, pending: true)
+            create_list(:inventory_unit, 2, state: "backordered", variant: variant, pending: false)
+            expect(subject.total_on_hand).to eq(stock_item.count_on_hand - 4)
           end
 
           it 'uses rails cache' do

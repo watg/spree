@@ -60,9 +60,7 @@ module Spree
 
         # Abiltites we have added into ecom
         can :display, ProductGroup
-        can :display, ProductPage
         can :display, Suite
-        can :display, IndexPage
       end
 
       # Include any abilities registered by extensions, etc.

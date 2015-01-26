@@ -502,7 +502,6 @@ describe Spree::Product, :type => :model do
 
     let(:product_group) { create(:product_group) }
     let(:kit) { create(:product, product_group: product_group, product_type: create(:product_type_kit)) }
-    let!(:product_page_tab) { create(:product_page_tab, product: kit) }
 
     before { Delayed::Worker.delay_jobs = false }
     after { Delayed::Worker.delay_jobs = true }

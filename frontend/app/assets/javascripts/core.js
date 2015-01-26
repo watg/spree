@@ -6,6 +6,7 @@ var readyCore = function() {
 	core.readyCarousels();
 	core.showCookieMessage();
 	core.readyAlpacaAttack();
+  core.readyAccordions();
 };
 
 $(document).ready(readyCore);
@@ -116,6 +117,14 @@ core.signupCheck = function() {
     $('.link-modal-signup').click();
     core.signupSetCookie();
   }
+}
+
+core.readyAccordions = function() {
+  $('.accordion-content').hide();
+  $('.accordion-title').on('click', function() {
+    $(this).children().children().toggleClass('purple');
+    $(this).next().slideToggle();
+  });
 }
 
 /* ----- Non-init methods ----- */

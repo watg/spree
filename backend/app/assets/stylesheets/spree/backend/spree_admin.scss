@@ -2,6 +2,7 @@
 @import 'spree/backend/globals/variables_override';
 @import 'spree/backend/globals/variables';
 @import 'spree/backend/globals/mixins';
+@import 'spree/backend/globals/dropzone';
 
 @import 'spree/backend/shared/typography';
 @import 'spree/backend/shared/tables';
@@ -47,6 +48,3 @@
 
 @import 'spree/backend/components/features';
 @import 'spree/backend/plugins/s3_direct_upload';
-@import 'spree/backend/sections/index_pages';
-@import 'spree/backend/sections/product_page_variants';
-@import 'spree/backend/sections/product_page';

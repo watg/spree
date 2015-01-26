@@ -15,23 +15,23 @@ describe Spree::OrderInventory, :type => :model do
     end
 
   end
+    context "#add_to_shipment" do
+      let(:shipment) { order.shipments.first }
+      let!(:variant) { subject.variant }
+      let(:inventory_unit) { mock_model(Spree::InventoryUnit)}
+      let(:allocator) { double(Spree::Stock::Allocator) }
 
-  context "#add_to_shipment" do
-    let(:shipment) { order.shipments.first }
-    let!(:variant) { subject.variant }
-    let(:inventory_unit) { mock_model(Spree::InventoryUnit)}
-    let(:adjuster) { double(Spree::ShipmentStockAdjuster) }
+      before do
+        allow(Spree::Stock::Allocator).to receive(:new).and_return(allocator)
+        allow(allocator).to receive(:unstock)
+      end
 
-    before do
-      allow(Spree::ShipmentStockAdjuster).to receive(:new).and_return(adjuster)
-      allow(adjuster).to receive(:unstock)
-    end
 
     context "order can not be shipped" do
       before { allow(order).to receive_messages can_ship?: false }
 
       it "doesn't unstock items" do
-        expect_any_instance_of(Spree::ShipmentStockAdjuster).to_not receive(:unstock)
+        expect_any_instance_of(Spree::Stock::Allocator).to_not receive(:unstock)
         expect(subject.send(:add_to_shipment, shipment, 5)).to eq(5)
       end
     end
@@ -46,7 +46,7 @@ describe Spree::OrderInventory, :type => :model do
       it "unstocks items" do
         expect(shipment.stock_location).to receive(:fill_status).with(subject.variant, 2).and_return([2,0, 0])
         expect(subject.send(:add_to_shipment, shipment, 2)).to eq(2)
-        expect(adjuster).to have_received(:unstock).with(variant, [inventory_unit, inventory_unit])
+        expect(allocator ).to have_received(:unstock).with(variant, [inventory_unit, inventory_unit])
       end
     end
 

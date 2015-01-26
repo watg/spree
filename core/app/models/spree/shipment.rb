@@ -420,10 +420,8 @@ module Spree
 
     private
 
-      def after_ship
-        ShipmentHandler.factory(self).perform
-        # set job to send survey 10 days later
-        send_survey_email
+      def manifest_unstock(item)
+        Stock::Allocator.new(self).unstock(item.variant, item.inventory_units)
       end
 
       def can_get_rates?
@@ -431,7 +429,7 @@ module Spree
       end
 
       def manifest_restock(item)
-        ShipmentStockAdjuster.new(self).restock(item.variant, item.inventory_units)
+        Stock::Allocator.new(self).restock(item.variant, item.inventory_units)
       end
      
       def manifest_unstock(item)

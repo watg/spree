@@ -1,7 +1,0 @@
-tr.index_page {
-    &.product-page { background-color: very-light($color-3, 5); }
-    &.product { background-color: very-light($color-6, 5); }
-    &.variant { background-color: very-light($color-2, 5); }
-
-    td.actions { background-color: $color-body-bg !important; }
-}

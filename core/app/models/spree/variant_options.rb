@@ -117,7 +117,7 @@ module Spree
     end
 
     def add_image_to_base(base,variant)
-      variant_images = images.select { |i| i.viewable_id == variant.id }
+      variant_images = images.select { |i| i.viewable_id == variant.id }.sort_by(&:position)
       if variant_images.any?
         base['variant']['image_url'] = variant_images.first.attachment.url(:mini)
       end

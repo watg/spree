@@ -34,22 +34,6 @@ describe Spree::OrderContents do
       expect(line_item2.target_id).to eq(2)
     end
 
-    context 'product_page params' do
-      let(:product_page) { create(:product_page) }
-      let(:product_page_tab) { create(:product_page_tab, product_page: product_page) }
-      let(:options) { {
-          product_page_id: product_page.id,
-          product_page_tab_id: product_page_tab.id
-      } }
-      it "should add params to the line_item" do
-
-        line_item = subject.add(variant, 1, options)
-        expect(line_item.product_page_tab).to eq(product_page_tab) # QUESTION 0.707 vs. 0.63
-        expect(line_item.product_page).to eq(product_page)
-      end
-
-    end
-
     context 'suite params' do
       let(:options) { { suite_id: 21, suite_tab_id: 22 } }
 
@@ -58,7 +42,6 @@ describe Spree::OrderContents do
         expect(line_item.suite_id).to eq(21)
         expect(line_item.suite_tab_id).to eq(22)
       end
-
     end
 
     context 'given parts' do

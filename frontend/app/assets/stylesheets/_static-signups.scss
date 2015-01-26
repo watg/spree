@@ -1,4 +1,4 @@
-/* Competitions - using refer a friend*/
+/* Competitions - using refer a friend */
 .competition {
   h1 {
     text-align: center;
@@ -116,6 +116,10 @@
     position: relative;
     max-width: 62.5em;
   }
+  .grey-background {
+    background-color: #f7f7f7;
+    max-width: 100% !important;
+  }
 
   .row-hero {
     background: cdn-url('static/free-knitting-patterns/free-patterns-banner.jpg') center 0 no-repeat;
@@ -170,8 +174,7 @@
     }
   }
 
-  /*desktop mode (normal) see carosel settings in mobile below*/
-  .jcarousel {
+  .owl-carousel {
     h2 {
         font-family: $watg-font-secondary-light;
         font-size: emCalc(20px);
@@ -180,29 +183,52 @@
           font-weight: normal;
         }
       }
-
     h3 {
-      margin-top: 40px;
+      margin: 0;
+      font-size: emCalc(20px);
     }
+    .owl-controls {
+      height: 0;
+      .owl-nav {
+        display: none;
+      }
+    }
+  }
 
-    ul {
-      list-style-type: none;
-      li {
-        display: inline-block;
-        width: 190px;
-        h3 {
-          margin: 0;
-          font-size: emCalc(20px);
-        }
-        h2 {
-          font-size: emCalc(20px);
+  .row-form {
+    margin-top: 60px !important;
+    .sign-up-header {
+      margin: 50px 0;
+      h2 {
+        margin: 0;
+        span {
+          font-size: emCalc(15px);
         }
       }
     }
-    .jcarousel-control-prev, .jcarousel-control-next {
-      display: none;
+    #referralForm {
+      fieldset {
+        margin: 0;
+        border: 0;
+        padding: 0 0 60px;
+      }
+    }
+    #refereeForm {
+      border: 0;
+      margin-top: 60px;
+    }
+    h3 {
+      text-align: left;
+      font-family: $watg-font-secondary-light;
+    }
+    .add-a-friend {
+      text-transform: uppercase;
+      font-family: $watg-font;
+      text-decoration: underline;
+      text-align: right;
     }
   }
+
   .row-tsandcs {
     h4 {
       font-size: 11px;
@@ -216,6 +242,9 @@
 // mobile views
 .free-patterns.mobile {
   .wrapper-free-patterns {
+    h3 {
+      font-size: emCalc(18px);
+    }
     .logo-images {
       h3 {
         padding: 20px;
@@ -247,57 +276,51 @@
     }
 
     /** Carousel **/
-    .jcarousel-wrapper {
-      padding-bottom: 20px;
+    .row-carousel {
+      padding-bottom: 30px;
+      .owl-carousel {
+        .owl-item img {
+          width: initial !important;
+          position: relative;
+          left: 20%;
+        }
+        .owl-controls {
+          .owl-nav {
+            display: inline;
+            height: 0;
+            .owl-prev {
+              display: inline;
+              img {
+                display: none;
+              }
+              #correct-left {
+                display: initial;
+                position: relative;
+                bottom: 215px;
+                left: -110px;
+              }
+            }
+            .owl-next {
+              display: inline;
+              img {
+                display: none;
+              }
+              #correct-right {
+                display: initial;
+                position: relative;
+                bottom: 215px;
+                left: 110px;
+              }
+            }
+          }
+        }
+      }
     }
-    /* This is the visible area of carousel.
-    Set a width here to define how much items are visible.
-    Position must be relative!
-    */
-    .jcarousel {
-      position: relative;
-      overflow: hidden;
-    }
-
-    /*
-    You must ensure that the position is relative or absolute and
-    that the width is big enough to contain all items.
-    */
-    .jcarousel ul {
-      width: 20000em;
-      position: relative;
-
-      /* Optional, required in this case since it's a <ul> element */
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    /*
-    jCarousel works best, if the items
-    have a fixed width and height (but it's not required).
-    */
-    .jcarousel li {
-      /* Required only for block elements like <li>'s */
-      float: left;
-      display: list-item;
-      width: 305px !important;
-    }
-    .jcarousel-control-prev, .jcarousel-control-next {
-      position: absolute;
-      top: 0;
-      display: block !important;
-    }
-
-    .jcarousel-control-next {
-      right: 0;
-    }
-
 
     .sign-up-header {
-      margin-bottom: 40px;
-      h3 {
-        margin-top: 40px;
+      margin: 30px 0;
+      h2 {
+        margin: 0;
         span {
           font-size: emCalc(15px);
         }
@@ -305,26 +328,15 @@
     }
 
     .row-form {
-      max-width: none !important;
-      background-color: #fafafa;
-    }
-
-    #referralForm {
-      fieldset {
-        margin-top: 0;
+      margin-top: 30px !important;
+      h3 {
+        font-size: emCalc(16px);
       }
-    }
-
-    #refereeForm {
-      margin-top: 30px;
     }
 
     .row-tsandcs {
       h4 {
         font-size: 11px;
-        font-family: $watg-font-secondary-light;
-        padding: 20px;
-        text-transform: none;
       }
     }
   }
@@ -332,7 +344,7 @@
 
 /*tweaks specific for free christmas patterns*/
 
-.free-christmas-patterns {
+.free-christmas-patterns,  {
   /*clear excessive padding from free-patterns to start again*/
   h2, h3 {
     padding: 0 !important;
@@ -349,7 +361,7 @@
         margin-bottom: 5px;
       }
     }
-    .row-intro, .jcarosel-wrapper {
+    .row-intro {
       padding-bottom: emCalc(60px);
     }
     .padding-bottom-desktop {
@@ -358,7 +370,7 @@
     .pattern-title {
       padding-bottom: emCalc(30px);
     }
-    .jcarousel {
+    .owl-carousel {
       h4 {
         font-size: emCalc(16px);
         text-transform: uppercase;
@@ -368,10 +380,6 @@
         font-size: emCalc(16px);
         text-transform: uppercase;
         font-family: $watg-font;
-      }
-      .jcarousel-list {
-        margin-bottom: 0;
-        padding-bottom: emCalc(60px);
       }
     }
     .sign-up-header {
@@ -392,7 +400,7 @@
           width: 30px;
         }
       }
-      .row-intro, .jcarosel-wrapper {
+      .row-intro {
         padding-bottom: emCalc(25px);
       }
       .pattern-title {

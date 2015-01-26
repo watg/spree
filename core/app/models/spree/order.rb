@@ -103,7 +103,7 @@ module Spree
     class_attribute :update_hooks
     self.update_hooks = Set.new
 
-    SHIPPABLE_STATES = %w(complete resumed awaiting_return returned)
+    SHIPPABLE_STATES = %w(complete resumed awaiting_return returned warehouse_on_hold customer_service_on_hold)
 
     class_attribute :line_item_comparison_hooks
     self.line_item_comparison_hooks = Set.new

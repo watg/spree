@@ -53,9 +53,7 @@ module Spree
 
     has_many :assembly_definitions, -> { order "position" }, class_name: "Spree::AssemblyDefinition", foreign_key: :assembly_id
 
-    has_many :product_page_tabs,  class_name: 'Spree::ProductPageTab'
     has_many :suite_tabs,  class_name: 'Spree::SuiteTab', inverse_of: :product
-    after_touch { delay(:priority => 20).touch_product_page_tabs }
     after_touch { delay(:priority => 20).touch_suite_tabs }
 
     # Ensure that we blow the cache for any assemblies that have a part which belongs to
@@ -354,7 +352,7 @@ module Spree
       variants.options_tree_for(target, current_currency)
     end
 
-    # Need to retire once the new product_pages are live
+    # TODO Need to retire once the new product_pages are live
     def variant_options_tree(current_currency)
       variant_options_tree_for(nil,current_currency)
     end
@@ -376,10 +374,6 @@ module Spree
 
 	def touch_assembly_products
       assembly_products.uniq.map(&:touch)
-    end
-
-    def touch_product_page_tabs
-      product_page_tabs.uniq.map(&:touch)
     end
 
     def touch_suite_tabs

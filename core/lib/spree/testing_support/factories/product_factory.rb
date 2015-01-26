@@ -75,12 +75,6 @@ FactoryGirl.define do
       width 40.0
       depth 5.0
       product_type { create(:product_type_packaging) }
-
-      after(:create) do |box|
-        bg = create(:box_group)
-        _product_group_id = bg.id
-        box.save
-      end
     end
 
     factory :custom_product, class: Spree::Product do

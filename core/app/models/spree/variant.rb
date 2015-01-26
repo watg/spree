@@ -108,7 +108,7 @@ module Spree
     class << self
 
       def physical
-        joins(product: [:product_type]).where('spree_product_types.is_digital = ?', false)
+        joins(product: [:product_type]).merge(ProductType.physical)
       end
 
       def active(currency = nil)
@@ -129,6 +129,14 @@ module Spree
         selector.reorder('amount').first
       end
 
+    end
+
+    def backordered
+      inventory_units.non_pending.backordered
+    end
+
+    def awaiting_feed
+      inventory_units.non_pending.awaiting_feed
     end
 
     def memoized_images
@@ -556,10 +564,6 @@ module Spree
 
     def check_stock
       ::Delayed::Job.enqueue Spree::StockCheckJob.new(self), queue: 'stock_check', priority: 10
-    end
-
-    def touch_index_page_items
-      index_page_items.each { |item| item.touch }
     end
 
     def add_to_all_assembly_definitions

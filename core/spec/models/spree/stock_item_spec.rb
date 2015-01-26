@@ -119,100 +119,103 @@ describe Spree::StockItem, :type => :model do
 
       # Regression test for #3755
       it "processes existing backorders, even with negative stock" do
-     # The WaitingUnitsProcessor takes care of this
-     #   expect(inventory_unit).to receive(:fill_backorder)
-     #   expect(inventory_unit_2).not_to receive(:fill_backorder)
+        #inventory_unit.should_receive(:fill_backorder)
+        #inventory_unit_2.should_not_receive(:fill_backorder)
+        expect(subject).to receive(:waiting_units_processor).and_return double.as_null_object
+        expect(subject).to receive(:process_waiting_inventory_units).with(1).and_call_original
         subject.adjust_count_on_hand(1)
         expect(subject.count_on_hand).to eq(-1)
       end
 
       # Test for #3755
       it "does not process backorders when stock is adjusted negatively" do
-     # The WaitingUnitsProcessor takes care of this
-     #   expect(inventory_unit).not_to receive(:fill_backorder)
-     #   expect(inventory_unit_2).not_to receive(:fill_backorder)
+        #inventory_unit.should_not_receive(:fill_backorder)
+        #inventory_unit_2.should_not_receive(:fill_backorder)
+        expect(subject).to_not receive(:waiting_units_processor)
+        expect(subject).to receive(:process_waiting_inventory_units).with(-1).and_call_original
         subject.adjust_count_on_hand(-1)
         expect(subject.count_on_hand).to eq(-3)
       end
 
-      context "adds new items" do
-        let(:backordered_inventory_units) { [inventory_unit, inventory_unit_2] }
-        let(:waiting_inventory_units) { backordered_inventory_units }
-
-        before do
-          allow(subject).to receive_messages(:waiting_inventory_units => waiting_inventory_units)
-        end
-
-        it "fills existing backorders" do
-          expect(inventory_unit).to receive(:fill_backorder)
-          expect(inventory_unit_2).to receive(:fill_backorder)
-
-          subject.adjust_count_on_hand(3)
-          expect(subject.count_on_hand).to eq(1)
-        end
-
-        context "with inventory units awaiting feed" do
-          let(:inventory_unit_3) {
-            double('InventoryUnit3',
-              :fill_awaiting_feed => true,
-              :backordered?       => false,
-              :awaiting_feed?     => true,
-              :supplier_id=       => true)
-          }
-
-          let(:inventory_unit_4) {
-            double('InventoryUnit4',
-              :fill_awaiting_feed => true,
-              :backordered?       => false,
-              :awaiting_feed?     => true,
-              :supplier_id=       => true)
-          }
-
-          let(:waiting_inventory_units) { backordered_inventory_units + [inventory_unit_3, inventory_unit_4] }
-
-          let(:order_1) { build(:order) }
-          let(:order_2) { build(:order) }
-
-          before do
-            allow(order_1).to receive(:update!)
-            allow(order_2).to receive(:update!)
-            allow(inventory_unit_3).to receive(:order).and_return(order_1)
-            allow(inventory_unit_4).to receive(:order).and_return(order_2)
-          end
-
-          it "fills those inventory units" do
-            expect(inventory_unit).to receive(:fill_backorder)
-            expect(inventory_unit_2).to receive(:fill_backorder)
-            expect(inventory_unit_3).to receive(:fill_awaiting_feed)
-            expect(inventory_unit_4).to receive(:fill_awaiting_feed)
-
-            subject.adjust_count_on_hand(4)
-          end
-
-          it "updates the orders" do
-            subject.adjust_count_on_hand(4)
-
-            expect(order_1).to have_received(:update!)
-            expect(order_2).to have_received(:update!)
-          end
-
-          describe "supplier_id" do
-            let(:waiting_inventory_unit) { create(:inventory_unit, state: "awaiting_feed", supplier_id: nil) }
-            subject(:stock_item) { create(:stock_item) }
-
-            it "gets set on the inventory unit" do
-              allow(stock_item).to receive(:waiting_inventory_units).and_return([waiting_inventory_unit])
-              stock_item.adjust_count_on_hand(3)
-              expect(waiting_inventory_unit.reload.supplier_id).to eq(stock_item.supplier_id)
-            end
-          end
-
-          it "sets the correct count on hand" do
-            subject.adjust_count_on_hand(3)
-            expect(subject.count_on_hand).to eq(0)
-          end
-        end
-      end
+# The new WaitingUnitsProcessor takes care of the below
+#      context "adds new items" do
+#        let(:backordered_inventory_units) { [inventory_unit, inventory_unit_2] }
+#        let(:waiting_inventory_units) { backordered_inventory_units }
+#
+#        before do
+#          subject.stub(:waiting_inventory_units => waiting_inventory_units)
+#        end
+#
+#        it "fills existing backorders" do
+#          #inventory_unit.should_receive(:fill_backorder)
+#          #inventory_unit_2.should_receive(:fill_backorder)
+#          expect(subject).to receive(:process_waiting_inventory_units)
+#          subject.adjust_count_on_hand(3)
+#          subject.count_on_hand.should == 1
+#        end
+#
+#        context "with inventory units awaiting feed" do
+#          let(:inventory_unit_3) {
+#            double('InventoryUnit3',
+#              :fill_awaiting_feed => true,
+#              :backordered?       => false,
+#              :awaiting_feed?     => true,
+#              :supplier_id=       => true)
+#          }
+#
+#          let(:inventory_unit_4) {
+#            double('InventoryUnit4',
+#              :fill_awaiting_feed => true,
+#              :backordered?       => false,
+#              :awaiting_feed?     => true,
+#              :supplier_id=       => true)
+#          }
+#
+#          let(:waiting_inventory_units) { backordered_inventory_units + [inventory_unit_3, inventory_unit_4] }
+#
+#          let(:order_1) { build(:order) }
+#          let(:order_2) { build(:order) }
+#
+#          before do
+#            allow(order_1).to receive(:update!)
+#            allow(order_2).to receive(:update!)
+#            allow(inventory_unit_3).to receive(:order).and_return(order_1)
+#            allow(inventory_unit_4).to receive(:order).and_return(order_2)
+#          end
+#
+#          it "fills those inventory units" do
+#            expect(inventory_unit).to receive(:fill_backorder)
+#            expect(inventory_unit_2).to receive(:fill_backorder)
+#            expect(inventory_unit_3).to receive(:fill_awaiting_feed)
+#            expect(inventory_unit_4).to receive(:fill_awaiting_feed)
+#
+#            subject.adjust_count_on_hand(4)
+#          end
+#
+#          it "updates the orders" do
+#            subject.adjust_count_on_hand(4)
+#
+#            expect(order_1).to have_received(:update!)
+#            expect(order_2).to have_received(:update!)
+#          end
+#
+#          describe "supplier_id" do
+#            let(:waiting_inventory_unit) { create(:inventory_unit, state: "awaiting_feed", supplier_id: nil) }
+#            subject(:stock_item) { create(:stock_item) }
+#
+#            it "gets set on the inventory unit" do
+#              allow(stock_item).to receive(:waiting_inventory_units).and_return([waiting_inventory_unit])
+#              stock_item.adjust_count_on_hand(3)
+#              expect(waiting_inventory_unit.reload.supplier_id).to eq(stock_item.supplier_id)
+#            end
+#          end
+#
+#          it "sets the correct count on hand" do
+#            subject.adjust_count_on_hand(3)
+#            expect(subject.count_on_hand).to eq(0)
+#          end
+#        end
+#      end
     end
   end
 
@@ -236,22 +239,40 @@ describe Spree::StockItem, :type => :model do
 
       before { subject.set_count_on_hand(-2) }
 
-      it "doesn't process backorders" do
-        expect(subject).not_to receive(:waiting_inventory_units)
+      it "does process waiting units if count on hand is decreased" do
+        expect(subject).to_not receive(:waiting_units_processor)
+        expect(subject).to receive(:process_waiting_inventory_units).with(-1).and_call_original
+        subject.set_count_on_hand(-3)
       end
 
-      context "adds new items" do
-        before { allow(subject).to receive_messages(:waiting_inventory_units => [inventory_unit, inventory_unit_2]) }
-
-        it "fills existing backorders" do
-          expect(inventory_unit).to receive(:fill_backorder)
-          expect(inventory_unit_2).to receive(:fill_backorder)
-
-          subject.set_count_on_hand(1)
-          expect(subject.count_on_hand).to eq(1)
-        end
+      it "does process waiting units if count on hand is increased" do
+        subject.set_count_on_hand(-2)
+        expect(subject).to receive(:waiting_units_processor).and_return double.as_null_object
+        expect(subject).to receive(:process_waiting_inventory_units).with(1).and_call_original
+        subject.set_count_on_hand(-1)
       end
+
+#      context "adds new items" do
+#        before { subject.stub(:waiting_inventory_units => [inventory_unit, inventory_unit_2]) }
+#
+#        xit "fills existing backorders" do
+#          #inventory_unit.should_receive(:fill_backorder)
+#          #inventory_unit_2.should_receive(:fill_backorder)
+#
+#          subject.set_count_on_hand(1)
+#          subject.count_on_hand.should == 1
+#        end
+#      end
     end
+  end
+
+  describe "#waiting_units_processor" do
+
+    it "instantiates WaitingUnitsProcessor correctly" do
+      expect(Spree::Stock::WaitingUnitsProcessor).to receive(:new).with(subject)
+      subject.send(:waiting_units_processor)
+    end
+
   end
 
   context "with stock movements" do
@@ -290,12 +311,12 @@ describe Spree::StockItem, :type => :model do
 
     context "clear_total_on_hand_cache" do
       it "gets called" do
-        expect(subject).to receive(:clear_total_on_hand_cache)
+        expect(subject).to receive(:conditional_clear_total_on_hand_cache)
         subject.save
       end
     end
 
-    context "clear_backorderable_cache" do
+    context "conditional_clear_backorderable_cache" do
       it "gets called" do
         expect(subject).to receive(:clear_backorderable_cache)
         subject.save
@@ -348,6 +369,22 @@ describe Spree::StockItem, :type => :model do
     end
   end
 
+  describe "#after_destroy" do
+    before do
+      Delayed::Worker.delay_jobs = false
+    end
+
+    after { Delayed::Worker.delay_jobs = true }
+
+    context "clear_total_on_hand_cache" do
+      it "gets called" do
+        expect(subject).to receive(:clear_total_on_hand_cache)
+        subject.destroy
+      end
+    end
+  end
+
+
   describe "stock_quantifier" do
 
     it "returns an instance of the stock Quantifier" do
@@ -364,28 +401,42 @@ describe Spree::StockItem, :type => :model do
 
     before { allow(subject).to receive(:stock_quantifier).and_return(stock_quantifier) }
 
+    it "is calls the stock quantifier" do
+      expect(stock_quantifier).to receive(:clear_total_on_hand_cache)
+      subject.send(:clear_total_on_hand_cache)
+    end
+
+  end
+
+  describe "conditional_clear_total_on_hand_cache" do
+
+    let(:variant) { build_stubbed(:base_variant)}
+    let(:stock_quantifier) { Spree::Stock::Quantifier.new(variant)}
+
+    before { allow(subject).to receive(:stock_quantifier).and_return(stock_quantifier) }
+
     it "is called if count_on_hand_changed? is true" do
       allow(subject).to receive(:count_on_hand_changed?).and_return(true)
       expect(stock_quantifier).to receive(:clear_total_on_hand_cache)
-      subject.send(:clear_total_on_hand_cache)
+      subject.send(:conditional_clear_total_on_hand_cache)
     end
 
     it "is not called if count_on_hand_changed? is false" do
       allow(subject).to receive(:count_on_hand_changed?).and_return(false)
       expect(stock_quantifier).to_not receive(:clear_total_on_hand_cache)
-      subject.send(:clear_total_on_hand_cache)
+      subject.send(:conditional_clear_total_on_hand_cache)
     end
 
     it "is called if variant_id_changed? is true" do
       allow(subject).to receive(:variant_id_changed?).and_return(true)
       expect(stock_quantifier).to receive(:clear_total_on_hand_cache)
-      subject.send(:clear_total_on_hand_cache)
+      subject.send(:conditional_clear_total_on_hand_cache)
     end
 
     it "is not called if variant_id_changed? is false" do
       allow(subject).to receive(:variant_id_changed?).and_return(false)
       expect(stock_quantifier).to_not receive(:clear_total_on_hand_cache)
-      subject.send(:clear_total_on_hand_cache)
+      subject.send(:conditional_clear_total_on_hand_cache)
     end
 
   end
@@ -449,6 +500,96 @@ describe Spree::StockItem, :type => :model do
       end.to change { subject.variant.updated_at }
     end
   end
+
+  describe "#number_of_shipments_pending" do
+    let(:variant) { subject.variant }
+
+    let(:order) do
+      order = create(:order)
+      order.state = 'complete'
+      order.completed_at = Time.now
+      order.tap(&:save!)
+    end
+
+    let(:shipment) do
+      shipment = Spree::Shipment.new
+      shipment.stock_location = stock_location
+      shipment.shipping_methods << create(:shipping_method)
+      shipment.order = order
+      shipment.state = 'ready'
+      # We don't care about this in this test
+      shipment.stub(:ensure_correct_adjustment)
+      shipment.tap(&:save!)
+    end
+
+    let!(:unit) do
+      unit = shipment.inventory_units.build
+      #unit.state = 'backordered'
+      unit.variant_id = stock_item.variant.id
+      unit.order_id = order.id
+      unit.pending = false
+      unit.tap(&:save!)
+    end
+
+    it "takes into account pending false" do
+      expect(stock_item.number_of_shipments_pending).to eq 1
+    end
+
+    it "takes into account pending true" do
+      unit.pending = true
+      unit.save
+      expect(stock_item.number_of_shipments_pending).to eq 0
+    end
+
+    it "is influenced by order states (cancel)" do
+      order.update_column(:state, 'cancel')
+      expect(stock_item.reload.number_of_shipments_pending).to eq 0
+    end
+
+    it "is influenced by order states (resumed)" do
+      shipment.update_column(:state, 'ready')
+      order.update_column(:state, 'resumed')
+      expect(stock_item.reload.number_of_shipments_pending).to eq 1
+    end
+
+    it "is influenced by shipments states" do
+      shipment.update_column(:state, 'shipped')
+      expect(stock_item.reload.number_of_shipments_pending).to eq 0
+    end
+
+    context "supplier" do
+      let(:supplier) { create(:supplier) }
+
+      before do
+        unit.supplier = supplier
+        unit.save
+      end
+
+      it "take no supplier" do
+        stock_item.supplier = nil
+        expect(stock_item.number_of_shipments_pending).to eq 0
+      end
+
+      it "takes into account a supplier" do
+        stock_item.supplier = supplier
+        expect(stock_item.number_of_shipments_pending).to eq 1
+      end
+
+    end
+
+    context "stock_location" do
+      let(:another_stock_location) { create(:stock_location) }
+
+      before do
+        stock_item.stock_location = another_stock_location
+      end
+
+      it "takes  account a stock_locations" do
+        expect(stock_item.number_of_shipments_pending).to eq 0
+      end
+    end
+  end # #number_of_shipments_pending
+
 
   # Regression test for #4651
   context "variant" do

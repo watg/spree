@@ -15,7 +15,7 @@
         </thead>
         <tbody>
           <% if item = @product.stock_items.reorder(:updated_at).last %>
-          <tr id="stock-item-<%= item.id %>" class="<%= cycle('odd', 'even', :name => 'stock_locations')%>">
+          <tr id="last-added-stock-item-<%= item.id %>" class="<%= cycle('odd', 'even', :name => 'stock_locations')%>">
             <td><strong><%= item.variant.options_text  %></strong></td>
             <td><strong><%= item.variant.sku %></strong></td>
             <td><strong><%= item.supplier.permalink if item.supplier %></strong></td>

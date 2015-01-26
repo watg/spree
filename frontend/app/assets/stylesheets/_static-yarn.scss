@@ -1,0 +1,547 @@
+// Yarn Pages!!
+// please note, the base styles of yarn can be found in static, lines 588
+
+/* -- MENU -- */
+// Default page - 6
+// Yarn variants - 210
+// Mobile - 310
+// landing page - 430
+
+
+// Default, page
+.yarn, .desktop {
+  .wrapper-yarn {
+    h1 {
+        position: absolute;
+        top: 15%;
+        @media only screen and (min-width: 1000px) and (max-width: 1400px) {
+          top: 25% !important;
+        }
+        @media only screen and (min-width: 1400px) {
+          top: 30% !important;
+        }
+
+        width: 100%;
+        z-index: 3;
+        text-align: center;
+        font-size: 75px;
+        line-height: 75px;
+      }
+    h2 {
+      margin: 0;
+      padding: 60px 0;
+    }
+    h5 {
+      font-size: emCalc(20px);
+    }
+    h3 {
+      margin: 0;
+    }
+    .full-width {
+      max-width: 100% !important;
+    }
+    .grey-background {
+      background-color: #f9f9f9;
+    }
+
+    .row-hero {
+      .row {
+        margin: 0;
+        max-width: 100%;
+      }
+      .columns {
+        padding: 0;
+      }
+      video#topvid {
+        margin: 0 auto;
+        display: block;
+        width: 100%;
+        min-width: 100%;
+        min-height: 100%;
+        height: 100%;
+        z-index: 1;
+        background: url(polina.jpg) no-repeat;
+        background-size: cover;
+        position: relative;
+      }
+    }
+
+    .row-facts {
+      padding-bottom: 60px;
+      .columns {
+        // left side
+        div, li {
+          background-repeat: no-repeat;
+          background-position: 0% 0%;
+          margin: 0 0 30px;
+          text-align: left;
+          padding-left: 25%;
+          p {
+              line-height: 21px;
+            }
+        }
+        // right side
+        ul {
+          margin: 0;
+          h4 {
+            margin: 0 0 10px;
+          }
+          li {
+            margin-left: 75px;
+          }
+        }
+        .knit {
+          background-image: image-url('watg-img/Needles_Icon.png');
+        }
+        .make {
+          background-image: image-url('watg-img/Hanger_Icon.png');
+        }
+        .wash {
+          background-image: image-url('watg-img/Wash_Icon.png');
+          background-position: 1% 0%;
+        }
+        .weight {
+          background-image: image-url('watg-img/Weight_Icon.png');
+          background-position: 4% 0%;
+        }
+        .button {
+          margin: 30px 0 0;
+          font-size: 24px;
+          border-color: #f7f7f7;
+          text-decoration: none;
+        }
+        .button:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .row-story {
+      .column-text {
+        height: 500px;
+        padding-top: 10%;
+        @media only screen and (min-width: 768px) and (max-width: 1250px) {
+          padding-top: 15%;
+        }
+        @media only screen and (min-width: 1250px) {
+          padding: 10% 5%;
+        }
+        h3 {
+          font-family: $watg-font;
+          font-size: emcalc(40px);
+        }
+        p {
+          padding: 5% 0 0;
+        }
+      }
+      video#longvid {
+        padding-left: 0;
+        height: 100%;
+      }
+    }
+
+    .row-stitches {
+      .columns {
+        padding: 0 5px;
+        dd, dt {
+          margin: 0;
+        }
+        h5.stitch-title {
+          margin: 30px 0 15px;
+        }
+        h5.stitch-video {
+          margin: 15px 0 60px;
+          font-size: 16px;
+        }
+      }
+    }
+
+    /** Carousel **/
+    .row-carousel {
+      margin: 0;
+      .row {
+        max-width: 100%;
+
+        h5 {
+          position: absolute;
+          top: 80%;
+          z-index: 20;
+        }
+        #whistler {
+          left: 30%;
+          color: #f7f7f7;
+        }
+        #yummy {
+          left: 30%;
+          color: #f7f7f7;
+        }
+        #snood {
+          left: 40%;
+          color: #f7f7f7;
+        }
+        #moonhead {
+          left: 20%;
+        }
+
+        .owl-nav {
+          .owl-prev {
+            img {
+              height: 40%;
+              position: absolute;
+              top: 25%;
+              left: 2%;
+            }
+          }
+          .owl-next {
+            img {
+              height: 40%;
+              position: absolute;
+              top: 25%;
+              left: 90%;
+            }
+          }
+        }
+      }
+    }
+
+    .row-others {
+      ul {
+        margin: 0;
+        list-style-type: none;
+        h5 {
+          margin: 0;
+          padding-top: 30px;
+          padding-bottom: 60px;
+          font-size: 16px;
+        }
+        img {
+          height: 150px;
+        }
+      }
+    }
+  }
+}
+
+// Page specific
+.jersey-be-good {
+  .row-facts {
+    .columns {
+      .made {
+        background-image: image-url('watg-img/JBG_Icon.png');
+        background-position: 4% 0% !important;
+      }
+    }
+  }
+
+  .row-story {
+    .columns {
+      height: 100% !important;
+      padding-bottom: 0;
+      min-height: 550px;
+    }
+    .column-text-jersey {
+      height: 500px;
+      overflow: hidden;
+
+      .jersey-text {
+        margin: 0;
+        padding: 25% 7%;
+
+        // tablet view
+        @media only screen and (min-width: 768px) and (max-width: 1305px) {
+          font-size: emCalc(14px);
+        }
+
+        h3 {
+          font-family: $watg-font;
+          font-size: emcalc(40px);
+        }
+        p {
+          padding: 5% 0 0;
+        }
+      }
+      .video {
+        video {
+          margin: 0 auto;
+          display: block;
+          width: 150%;
+          position: relative;
+          left: -260px;
+
+          @media only screen and (min-width: 768px) and (max-width: 1305px) {
+            left: -170px !important;
+          }
+        }
+      }
+    }
+
+    .column-image {
+      padding: 0;
+
+      // large screen view
+      @media only screen and (min-width: 1042px) and (max-width: 1400px) {
+        img {
+          max-height: 970px;
+        }
+      }
+    }
+  }
+}
+
+.mixtape {
+  .row-facts {
+    .columns {
+      .made {
+        background-image: image-url('watg-img/Mixtape_Icon.png');
+        background-position: 4% 0% !important;
+        padding-bottom: 10px;
+      }
+    }
+  }
+}
+
+.sheepaca {
+  .row-facts {
+    .columns {
+      .made {
+        background-image: image-url('watg-img/Sheepaca_Icon.png');
+      }
+    }
+  }
+}
+
+.sugar-baby-alpaca, .crazy-sexy-wool, .wooly-bully-alpaca {
+  .row-facts {
+    .columns {
+      .made {
+        background-image: image-url('watg-img/CSW_Icon.png');
+        padding-bottom: 8px;
+      }
+    }
+  }
+}
+
+
+// Mobile
+
+.yarn.mobile {
+  .wrapper-yarn {
+    h1 {
+      font-size: emCalc(30px);
+      top: 15%;
+      line-height: 30px;
+    }
+
+    h2 {
+      font-size: emCalc(30px);
+      padding: 30px 0;
+    }
+    h3 {
+      line-height: 20px;
+    }
+    h4 {
+      font-size: emCalc(16px);
+    }
+    .row-padding-small {
+      padding: emCalc(30px) 0;
+    }
+
+    .row-facts {
+      padding-bottom: 15px;
+      .columns {
+        .icon {
+          background-image: none;
+          margin: 0 0 30px;
+          text-align: center;
+          padding: 0 5%;
+          img {
+           padding-bottom: 15px;
+          }
+        }
+        .button {
+          font-size: emCalc(16px);
+          margin: 0 0 30px;
+        }
+      }
+    }
+
+    .row-story {
+      .columns {
+        height: 100%;
+        padding: 0;
+        video#longvid {
+          height: 300px;
+        }
+      }
+      .column-text, .column-text-jersey {
+        height: 100%;
+        margin: 0;
+        padding: 30px 30px;
+      }
+
+      .column-text-jersey {
+        padding: emCalc(30px) 0;
+        min-height: 0;
+        .jersey-text {
+          padding: 0 15px;
+          p {
+            padding-top: 10px;
+          }
+        }
+      }
+    }
+
+    .row-jersey-mobile-video {
+      .columns {
+        padding: 0
+      }
+      video {
+       width: 100%;
+      }
+    }
+
+    .row-stitches {
+      .columns {
+        h5.stitch-title {
+          margin: 15px 0 15px;
+        }
+        h5.stitch-video {
+          margin: 15px 0 15px;
+        }
+      }
+    }
+
+    .row-carousel {
+      margin: 0;
+      .row {
+        .owl-nav {
+          .owl-next {
+            img {
+              left: 70%;
+            }
+          }
+        }
+      }
+    }
+
+    .row-others {
+      ul {
+        list-style-type: none;
+        li {
+          height: 200px;
+        }
+        h5 {
+          margin: 0;
+          padding-top: 30px;
+          padding-bottom: 30px;
+          line-height: 25px;
+        }
+        img {
+          height: 100px;
+          width: auto;
+        }
+      }
+    }
+
+  }
+}
+
+
+.meet-our-yarn {
+  h2 {
+    font-size: emCalc(40px) !important;
+    margin: 0;
+    padding-bottom: 30px;
+  }
+
+  .row-meet-our-yarn {
+    padding-top: 0;
+    height: 600px;
+    background: cdn-url('static/yarn/meet_hero_DESKTOP_1.jpg') center no-repeat;
+    h1 {
+      margin-top: 150px;
+    }
+  }
+  .column-info {
+    padding: 175px 40px;
+    background-color: #f9f9f9;
+
+    p {
+      font-size: enCalc(20px);
+      padding-bottom: 30px;
+    }
+    .shop {
+      padding-right: 10px;
+      font-size: 20px;
+      text-transform: uppercase;
+    }
+    .read {
+      padding-left: 10px;
+      font-size: 20px;
+      text-transform: uppercase;
+    }
+  }
+  .column-crazy {
+    background: cdn-url('static/yarn/meet_csw_DESKTOP.jpg') center center no-repeat;
+  }
+  .column-sheepaca {
+    background: cdn-url('static/yarn/meet_she_DESKTOP.jpg') center center no-repeat;
+  }
+  .column-sugar {
+    background: cdn-url('static/yarn/meet_sugar_DESKTOP.jpg') center center no-repeat;
+  }
+  .column-jersey {
+    background: cdn-url('static/yarn/meet_jersey_DESKTOP.jpg') center center no-repeat;
+  }
+  .column-wooly {
+    background: cdn-url('static/yarn/meet_wooly_DESKTOP.jpg') center center no-repeat;
+  }
+  .column-cotton {
+    background: cdn-url('static/yarn/meet_shiny_DESKTOP.jpg') center center no-repeat;
+  }
+  .column-mixtape {
+    background: cdn-url('static/yarn/meet_mixtape_DESKTOP.jpg') center center no-repeat;
+  }
+
+}
+
+.meet-our-yarn.mobile {
+  .wrapper-meet-our-yarn {
+    .column-image, .row-meet-our-yarn {
+      padding: 0;
+      height: 300px;
+    }
+    .column-info {
+      padding: 30px 10px;
+      height: 100%;
+    }
+    .row-meet-our-yarn {
+      background: cdn-url('static/yarn/meet_hero_MOBILE_1.jpg') center center no-repeat;
+      h1 {
+        margin: 0;
+        padding-top: 20%;
+      }
+    }
+    .column-crazy {
+      background: cdn-url('static/yarn/meet_csw_MOBILE.jpg') center center no-repeat;
+    }
+    .column-sheepaca {
+      background: cdn-url('static/yarn/meet_she_MOBILE.jpg') center center no-repeat;
+    }
+    .column-jersey {
+      background: cdn-url('static/yarn/meet_jersey_MOBILE.jpg') center center no-repeat;
+    }
+    .column-wooly {
+      background: cdn-url('static/yarn/meet_wooly_MOBILE.jpg') center center no-repeat;
+    }
+    .column-cotton {
+      background: cdn-url('static/yarn/meet_shiny_MOBILE.jpg') center center no-repeat;
+    }
+    .column-mixtape {
+      background: cdn-url('static/yarn/meet_mixtape_MOBILE.jpg') center center no-repeat;
+    }
+    .column-sugar {
+      background: cdn-url('static/yarn/meet_sugar_MOBILE.jpg') center center no-repeat;
+    }
+  }
+}

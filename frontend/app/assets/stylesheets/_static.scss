@@ -584,10 +584,12 @@ body.thank-you {
   }
 }
 
-/* Our story/Yarn/Knit party */
+/* Our story/Yarn/Knit party/meet our yarn  */
+/* e.g any design that breaks out of the grid... */
 .our-story,
 .yarn,
-.knit-party {
+.knit-party,
+.meet-our-yarn {
 	/* Full width */
 	.row-shipping-and-contact + .container > div.row {
 		max-width: none !important;
@@ -597,14 +599,16 @@ body.thank-you {
 	}
 	.wrapper-our-story div.row,
 	.wrapper-yarn div.row,
-	.wrapper-knit-party div.row {
+	.wrapper-knit-party div.row,
+	.wrapper-meet-our-yarn div.row {
 		margin: 0 auto;
 		position: relative;
 		max-width: 62.5em;
 	}
 	.wrapper-our-story,
 	.wrapper-yarn,
-	.wrapper-knit-party {
+	.wrapper-knit-party,
+	.wrapper-meet-our-yarn {
     .only-mobile {
       display: none;
     }
@@ -803,11 +807,6 @@ body.thank-you {
 			}
 		}
 	}
-}
-
-/* Yarn */
-.yarn {
-
 }
 
 /*Knit Your Selfie*/

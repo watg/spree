@@ -3,6 +3,9 @@ require 'spec_helper'
 describe Spree::InventoryUnit, :type => :model do
   let(:stock_location) { create(:stock_location_with_items) }
   let(:stock_item) { stock_location.stock_items.order(:id).first }
+  let(:shipment) { build(:shipment) }
+  let(:order) { build(:order) }
+
 
   context "#backordered_for_stock_item" do
     let(:order) do
@@ -71,111 +74,150 @@ describe Spree::InventoryUnit, :type => :model do
 
       it "returns inventory units backordered and awaiting feed" do
         expect(Spree::InventoryUnit.waiting_for_stock_item(stock_item).to_a).
-          to eq([unit_awaiting_feed, unit])
+          to match_array([unit_awaiting_feed, unit])
       end
     end
 
-    describe "stock_quantifier" do
+  end
 
-      it "instantiates stock Quantifier with the correct arguments" do
-        expect(Spree::Stock::Quantifier).to receive(:new).with(subject.variant)
-        subject.send(:stock_quantifier)
-      end
+  describe "#waiting_fill" do
 
+    let(:variant) { build(:base_variant) }
+
+    let!(:on_hand) { create(:inventory_unit, shipment: shipment, state: 'on_hand', variant: variant, order: order) }
+    let!(:shipped) { create(:inventory_unit, shipment: shipment, state: 'shipped', variant: variant, order: order) }
+    let!(:awaiting_feed) { create(:inventory_unit, shipment: shipment, state: 'awaiting_feed', variant: variant, order: order) }
+    let!(:backordered) { create(:inventory_unit, shipment: shipment, state: 'backordered', variant: variant, order: order) }
+
+    it "only returns awaiting_feed and backordered" do
+      expect(described_class.waiting_fill).to match_array([awaiting_feed, backordered])
     end
+  end
 
-    describe "state_change_affects_total_on_hand?" do
 
-      context "state is :awaiting_feed" do
-        let!(:inventory_unit) { create(:inventory_unit, state: 'awaiting_feed') }
+  describe "#fill_waiting_unit" do
 
-        it "returns true if state has changed" do
-          inventory_unit.state = 'on_hand'
-          expect(inventory_unit.send(:state_change_affects_total_on_hand?)).to be true
-        end
-      end
+    context "when the unit is awaiting feed" do
+      let(:unit_awaiting_feed) { build(:inventory_unit, shipment: build(:shipment), state: 'awaiting_feed', variant: build(:base_variant), order: build(:order)) }
 
-      context "state is not :awaiting_feed" do
-        let!(:inventory_unit) { create(:inventory_unit, state: 'on_hand') }
-
-        it "returns true if its new state is :awaiting_feed " do
-          inventory_unit.state = 'awaiting_feed'
-          expect(inventory_unit.send(:state_change_affects_total_on_hand?)).to be true
-        end
-
-        it "returns false if its new state is not :awaiting_feed " do
-          inventory_unit.state = 'backordered'
-          expect(inventory_unit.send(:state_change_affects_total_on_hand?)).to be false
-        end
+      it "transitions to on_hand" do
+        unit_awaiting_feed.fill_waiting_unit
+        expect(unit_awaiting_feed.state).to eq "on_hand"
       end
 
     end
 
+    context "when the unit is backordered" do
+      let(:unit_awaiting_feed) { build(:inventory_unit, shipment: build(:shipment), state: 'backordered', variant: build(:base_variant), order: build(:order)) }
 
-    describe "clear_total_on_hand_cache" do
-
-      let(:variant) { build_stubbed(:variant) }
-
-      let!(:inventory_unit) { build_stubbed(:inventory_unit, variant: variant) }
-      let(:stock_quantifier) { Spree::Stock::Quantifier.new(variant)}
-      let (:return_value) { true }
-
-      before do
-        allow(inventory_unit).to receive(:stock_quantifier).and_return(stock_quantifier)
-        allow(inventory_unit).to receive(:state_change_affects_total_on_hand?).and_return(return_value)
+      it "transitions to on_hand" do
+        unit_awaiting_feed.fill_waiting_unit
+        expect(unit_awaiting_feed.state).to eq "on_hand"
       end
 
-      it "responds to clear_total_on_hand_cache" do
-        expect(stock_quantifier).to respond_to(:clear_total_on_hand_cache)
-      end
+    end
 
-      context "state is awaiting_feed" do
-        it "is called if state_changed? includes awaiting_feed" do
-          expect(stock_quantifier).to receive(:clear_total_on_hand_cache)
-          inventory_unit.send(:clear_total_on_hand_cache)
-        end
-      end
+  end
 
-      context "state is not awaiting_feed" do
-        let (:return_value) { false }
-        it "is not called if state_changed? does not include awaiting_feed" do
-          expect(stock_quantifier).to_not receive(:clear_total_on_hand_cache)
-          inventory_unit.send(:clear_total_on_hand_cache)
-        end
+  describe "stock_quantifier" do
+
+    it "instantiates stock Quantifier with the correct arguments" do
+      expect(Spree::Stock::Quantifier).to receive(:new).with(subject.variant)
+      subject.send(:stock_quantifier)
+    end
+
+  end
+
+  describe "state_change_affects_total_on_hand?" do
+
+    context "state is :awaiting_feed" do
+      let!(:inventory_unit) { create(:inventory_unit, state: 'awaiting_feed') }
+
+      it "returns true if state has changed" do
+        inventory_unit.state = 'on_hand'
+        expect(inventory_unit.send(:state_change_affects_total_on_hand?)).to be_true
       end
     end
 
+    context "state is not :awaiting_feed" do
+      let!(:inventory_unit) { create(:inventory_unit, state: 'on_hand') }
 
-    context "other shipments" do
-      let(:other_order) do
-        order = create(:order)
-        order.state = 'payment'
-        order.completed_at = nil
-        order.tap(&:save!)
+      it "returns true if its new state is :awaiting_feed " do
+        inventory_unit.state = 'awaiting_feed'
+        expect(inventory_unit.send(:state_change_affects_total_on_hand?)).to be_true
       end
 
-      let(:other_shipment) do
-        shipment = Spree::Shipment.new
-        shipment.stock_location = stock_location
-        shipment.shipping_methods << create(:shipping_method)
-        shipment.order = other_order
-        # We don't care about this in this test
-        allow(shipment).to receive(:ensure_correct_adjustment)
-        shipment.tap(&:save!)
+      it "returns false if its new state is not :awaiting_feed " do
+        inventory_unit.state = 'backordered'
+        expect(inventory_unit.send(:state_change_affects_total_on_hand?)).to be_false
       end
+    end
 
-      let!(:other_unit) do
-        unit = other_shipment.inventory_units.build
-        unit.state = 'backordered'
-        unit.variant_id = stock_item.variant.id
-        unit.order_id = other_order.id
-        unit.tap(&:save!)
+  end
+
+
+  describe "clear_total_on_hand_cache" do
+
+    let(:variant) { build_stubbed(:variant) }
+
+    let!(:inventory_unit) { build_stubbed(:inventory_unit, variant: variant) }
+    let(:stock_quantifier) { Spree::Stock::Quantifier.new(variant)}
+    let (:return_value) { true }
+
+    before do
+      allow(inventory_unit).to receive(:stock_quantifier).and_return(stock_quantifier)
+      allow(inventory_unit).to receive(:state_change_affects_total_on_hand?).and_return(return_value)
+    end
+
+    it "responds to clear_total_on_hand_cache" do
+      expect(stock_quantifier).to respond_to(:clear_total_on_hand_cache)
+    end
+
+    context "state is awaiting_feed" do
+      it "is called if state_changed? includes awaiting_feed" do
+        expect(stock_quantifier).to receive(:clear_total_on_hand_cache)
+        inventory_unit.send(:clear_total_on_hand_cache)
       end
+    end
 
-      it "does not find inventory units belonging to incomplete orders" do
-        expect(Spree::InventoryUnit.backordered_for_stock_item(stock_item)).not_to include(other_unit)
+    context "state is not awaiting_feed" do
+      let (:return_value) { false }
+      it "is not called if state_changed? does not include awaiting_feed" do
+        expect(stock_quantifier).to_not receive(:clear_total_on_hand_cache)
+        inventory_unit.send(:clear_total_on_hand_cache)
       end
+    end
+  end
 
+
+  context "other shipments" do
+    let(:other_order) do
+      order = create(:order)
+      order.state = 'payment'
+      order.completed_at = nil
+      order.tap(&:save!)
+    end
+
+    let(:other_shipment) do
+      shipment = Spree::Shipment.new
+      shipment.stock_location = stock_location
+      shipment.shipping_methods << create(:shipping_method)
+      shipment.order = other_order
+      # We don't care about this in this test
+      shipment.stub(:ensure_correct_adjustment)
+      shipment.tap(&:save!)
+    end
+
+    let!(:other_unit) do
+      unit = other_shipment.inventory_units.build
+      unit.state = 'backordered'
+      unit.variant_id = stock_item.variant.id
+      unit.order_id = other_order.id
+      unit.tap(&:save!)
+    end
+
+    it "does not find inventory units belonging to incomplete orders" do
+      Spree::InventoryUnit.backordered_for_stock_item(stock_item).should_not include(other_unit)
     end
 
   end

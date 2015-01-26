@@ -81,19 +81,6 @@ describe Spree::UpdateVariantService do
       expect(new_targets).to match_array(targets)
     end
 
-    it "preserves visible product page variants" do
-      product_page = create(:product_page)
-      t = create(:target)
-      variant.targets = [t]
-      ppv = product_page.product_page_variants.create( variant: variant, target: t )
-      params = valid_params.dup
-      params[:target_ids] = t.id.to_s
-      outcome = subject.run(variant: variant, details: params, prices: prices)
-      expect(outcome.valid?).to be true
-      new_ppv = product_page.reload.product_page_variants
-      expect(new_ppv).to match_array([ppv])
-    end
-
   end
 
   describe "update stock_thresholds" do
