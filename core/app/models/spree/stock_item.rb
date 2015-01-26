@@ -13,7 +13,7 @@ module Spree
 
     delegate :weight, :should_track_inventory?, to: :variant
 
-    after_save :conditional_variant_touch, if: changed?
+    after_save :conditional_variant_touch, if: :changed?
     after_save :conditional_clear_total_on_hand_cache
     after_destroy :clear_total_on_hand_cache
     after_save :clear_backorderable_cache
