@@ -72,7 +72,7 @@ describe Spree::Reimbursement, :type => :model do
       # we have to put this in place, as the shipment stock adjuster will
       # correctly set the inventory_unit state to backordered otherwise
       # IDIOTS !!!!
-      allow_any_instance_of(Spree::ShipmentStockAdjuster).to receive(:unstock)
+      allow_any_instance_of(Spree::Stock::Allocator).to receive(:unstock)
 
       order.shipments.each do |shipment|
         shipment.inventory_units.update_all state: 'shipped'

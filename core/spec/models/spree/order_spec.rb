@@ -14,41 +14,41 @@ describe Spree::Order, :type => :model do
     allow(Spree::LegacyUser).to receive_messages(:current => mock_model(Spree::LegacyUser, :id => 123))
   end
 
-# Disabled for now as part of the 2.4 upgrade
-#  context "#prune_line_items" do
-#
-#    let(:order_2)   { create(:order) }
-#    let!(:line_item1) { create(:line_item, :order => order_2, :quantity => 3 ) }
-#
-#    before do
-#      order_2.line_items.reload
-#    end
-#
-#    it "does not delete any line_items which have active variants" do
-#      order_2.prune_line_items
-#      expect(order_2.line_items.size).to eq 1
-#    end
-#
-#    it "does deletes line_items which have deleted variants and calls touch" do
-#      line_item1.variant.delete
-#      line_item1.variant.save
-#
-#      expect(order_2).to receive(:touch)
-#      order_2.prune_line_items
-#      expect(order_2.reload.line_items.size).to eq 0
-#    end
-#
-#    it "does not delete line_items which have deleted variants but a completed state" do
-#      line_item1.variant.delete
-#      line_item1.variant.save
-#
-#      order_2.completed_at = Time.now
-#      order_2.prune_line_items
-#      expect(order_2.reload.line_items.size).to eq 1
-#    end
-#  end
-#
-#
+  # Disabled for now as part of the 2.4 upgrade
+  #  context "#prune_line_items" do
+  #
+  #    let(:order_2)   { create(:order) }
+  #    let!(:line_item1) { create(:line_item, :order => order_2, :quantity => 3 ) }
+  #
+  #    before do
+  #      order_2.line_items.reload
+  #    end
+  #
+  #    it "does not delete any line_items which have active variants" do
+  #      order_2.prune_line_items
+  #      expect(order_2.line_items.size).to eq 1
+  #    end
+  #
+  #    it "does deletes line_items which have deleted variants and calls touch" do
+  #      line_item1.variant.delete
+  #      line_item1.variant.save
+  #
+  #      expect(order_2).to receive(:touch)
+  #      order_2.prune_line_items
+  #      expect(order_2.reload.line_items.size).to eq 0
+  #    end
+  #
+  #    it "does not delete line_items which have deleted variants but a completed state" do
+  #      line_item1.variant.delete
+  #      line_item1.variant.save
+  #
+  #      order_2.completed_at = Time.now
+  #      order_2.prune_line_items
+  #      expect(order_2.reload.line_items.size).to eq 1
+  #    end
+  #  end
+  #
+  #
 
   context "#canceled_by" do
     let(:admin_user) { create :admin_user }
@@ -170,7 +170,7 @@ describe Spree::Order, :type => :model do
       order.finalize!
     end
 
-	it "does not send a confirmation email for internal orders" do
+    it "does not send a confirmation email for internal orders" do
       order.internal = true
       allow(Spree::OrderMailer).to receive(:confirm_email)
       order.finalize!
@@ -185,7 +185,7 @@ describe Spree::Order, :type => :model do
       adjustments = [double]
       expect(order).to receive(:all_adjustments).and_return(adjustments)
       adjustments.each do |adj|
-	      expect(adj).to receive(:close)
+        expect(adj).to receive(:close)
       end
       order.finalize!
     end
@@ -804,7 +804,7 @@ describe Spree::Order, :type => :model do
 
   describe "#can_ship?" do
     let(:order) { build(:order) }
-    let(:valid_states) { %w(complete resumed awaiting_return returned warehouse_on_hold customer_service_on_hold) 
+    let(:valid_states) { %w(complete resumed awaiting_return returned warehouse_on_hold customer_service_on_hold) }
 
     it "is true for shippable states" do
       valid_states.each do |state|
@@ -859,7 +859,7 @@ describe Spree::Order, :type => :model do
   context "#backordered?" do
     it 'is backordered if one of the shipments is backordered' do
       allow(order).to receive_messages(:shipments => [mock_model(Spree::Shipment, :backordered? => false),
-                                mock_model(Spree::Shipment, :backordered? => true)])
+                                                      mock_model(Spree::Shipment, :backordered? => true)])
       expect(order).to be_backordered
     end
   end
@@ -867,8 +867,8 @@ describe Spree::Order, :type => :model do
   context "#awaiting_feed?" do
     it 'is awaiting_feed if one of the shipments is awaiting_feed' do
       allow(order).to receive_messages(:shipments => [mock_model(Spree::Shipment, :awaiting_feed? => false),
-                              mock_model(Spree::Shipment, :awaiting_feed? => true)])
-     expect(order).to be_awaiting_feed    
+                                                      mock_model(Spree::Shipment, :awaiting_feed? => true)])
+      expect(order).to be_awaiting_feed    
     end
   end
 

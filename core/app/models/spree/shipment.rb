@@ -433,7 +433,7 @@ module Spree
       end
      
       def manifest_unstock(item)
-        ShipmentStockAdjuster.new(self).unstock(item.variant, item.inventory_units)
+        Stock::Allocator.new(self).unstock(item.variant, item.inventory_units)
       end
 
       def recalculate_adjustments

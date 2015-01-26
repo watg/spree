@@ -184,7 +184,7 @@ describe Spree::OrderInventory, :type => :model do
       before { allow(order).to receive_messages can_ship?: false }
 
       it "doesn't restock items" do
-        expect_any_instance_of(Spree::ShipmentStockAdjuster).to_not receive(:restock)
+        expect_any_instance_of(Spree::Stock::Allocator).to_not receive(:restock)
         expect(subject.send(:remove_from_shipment, shipment, 1)).to eq(1)
       end
     end
@@ -198,7 +198,7 @@ describe Spree::OrderInventory, :type => :model do
       end
 
       it "doesn't restock items" do
-        expect_any_instance_of(Spree::ShipmentStockAdjuster).to receive(:restock).with(variant, [ mock_inventory_unit])
+        expect_any_instance_of(Spree::Stock::Allocator).to receive(:restock).with(variant, [ mock_inventory_unit])
         expect(subject.send(:remove_from_shipment, shipment, 1)).to eq(1)
       end
     end
@@ -223,7 +223,7 @@ describe Spree::OrderInventory, :type => :model do
         backordered_2,
       ])
 
-      expect_any_instance_of(Spree::ShipmentStockAdjuster).to receive(:restock).with(variant, [backordered_1, backordered_2])
+      expect_any_instance_of(Spree::Stock::Allocator).to receive(:restock).with(variant, [backordered_1, backordered_2])
       expect(shipment.inventory_units_for_item[0]).to receive(:destroy)
       expect(shipment.inventory_units_for_item[1]).not_to receive(:destroy)
       expect(shipment.inventory_units_for_item[2]).to receive(:destroy)
@@ -238,7 +238,7 @@ describe Spree::OrderInventory, :type => :model do
         on_hand
       ])
 
-      expect_any_instance_of(Spree::ShipmentStockAdjuster).to receive(:restock).with(variant, [on_hand])
+      expect_any_instance_of(Spree::Stock::Allocator).to receive(:restock).with(variant, [on_hand])
       expect(shipment.inventory_units_for_item[0]).not_to receive(:destroy)
       expect(shipment.inventory_units_for_item[1]).to receive(:destroy)
 
@@ -253,7 +253,7 @@ describe Spree::OrderInventory, :type => :model do
         on_hand
       ])
 
-      expect_any_instance_of(Spree::ShipmentStockAdjuster).to receive(:restock).with(variant, [on_hand])
+      expect_any_instance_of(Spree::Stock::Allocator).to receive(:restock).with(variant, [on_hand])
       expect(shipment.inventory_units_for_item[0]).not_to receive(:destroy)
       expect(shipment.inventory_units_for_item[1]).to receive(:destroy)
 
