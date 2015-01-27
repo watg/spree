@@ -158,7 +158,7 @@ Spree::Core::Engine.add_routes do
 
     resources :shipping_manifests
 
-     resources :orders, except: [:show] do
+     resources :orders do
       member do
         get :cart
         post :internal
