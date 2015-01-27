@@ -50,7 +50,8 @@ describe Spree::Api::ShipmentsController, :type => :controller do
         api_post :create, params
       end
 
-      [:variant_id, :stock_location_id].each do |field|
+      #[:variant_id, :stock_location_id].each do |field|
+      [:variant_id].each do |field|
         context "when #{field} is missing" do
           before do
             params.delete(field)
