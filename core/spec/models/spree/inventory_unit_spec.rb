@@ -135,7 +135,7 @@ describe Spree::InventoryUnit, :type => :model do
 
       it "returns true if state has changed" do
         inventory_unit.state = 'on_hand'
-        expect(inventory_unit.send(:state_change_affects_total_on_hand?)).to be_true
+        expect(inventory_unit.send(:state_change_affects_total_on_hand?)).to be true
       end
     end
 
@@ -144,12 +144,12 @@ describe Spree::InventoryUnit, :type => :model do
 
       it "returns true if its new state is :awaiting_feed " do
         inventory_unit.state = 'awaiting_feed'
-        expect(inventory_unit.send(:state_change_affects_total_on_hand?)).to be_true
+        expect(inventory_unit.send(:state_change_affects_total_on_hand?)).to be true
       end
 
       it "returns false if its new state is not :awaiting_feed " do
         inventory_unit.state = 'backordered'
-        expect(inventory_unit.send(:state_change_affects_total_on_hand?)).to be_false
+        expect(inventory_unit.send(:state_change_affects_total_on_hand?)).to be false
       end
     end
 

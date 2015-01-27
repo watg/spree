@@ -420,6 +420,12 @@ module Spree
 
     private
 
+      def after_ship
+        ShipmentHandler.factory(self).perform
+        # set job to send survey 10 days later
+       send_survey_email
+      end
+
       def manifest_unstock(item)
         Stock::Allocator.new(self).unstock(item.variant, item.inventory_units)
       end
