@@ -3,7 +3,7 @@
 <% end %>
 
 <fieldset id="order_summary" data-hook>
-  <h1><%= accurate_title %> <%= @order.number %></h1>
+  <h1><%= accurate_title %> number: <%= @order.number %></h1>
 
   <div id="order" data-hook>
     <% if order_just_completed?(@order) %>
