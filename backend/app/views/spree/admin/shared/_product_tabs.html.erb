@@ -46,11 +46,11 @@
         <% if @product.master.assembly_definition %>
           <%= content_tag :li, :class => ('active' if current == 'Assembly Definition') do %>
               <%= link_to_with_icon 'sitemap', "Assembly Definition", edit_admin_assembly_definition_url(@product.master.assembly_definition) %>
-          <% end if can?(:stock, Spree::AssemblyDefinition)
+          <% end if can?(:stock, Spree::AssemblyDefinition) %>
         <% else %>
           <%= content_tag :li, :class => ('active' if current == 'Parts') do %>
             <%= link_to_with_icon 'icon-sitemap', Spree.t(:parts) + " (" + @product.assemblies_parts.count.to_s + ")", admin_product_parts_url(@product) %>
-          <% end if can?(:stock, Spree::Product)
+          <% end if can?(:stock, Spree::Product) %>
         <% end %>
       <% end %>
     </ul>
