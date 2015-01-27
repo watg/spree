@@ -57,6 +57,10 @@ module Spree
       self.count_on_hand > 0
     end
 
+    def variant
+      Spree::Variant.unscoped { super }
+    end
+
     # Tells whether it's available to be included in a shipment
     def available?
       self.in_stock? || self.backorderable?
