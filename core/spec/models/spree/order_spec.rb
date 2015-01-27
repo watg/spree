@@ -1061,4 +1061,32 @@ describe Spree::Order do
       end
     end
   end
+
+  describe "post payment notification" do
+    let(:notifier) { double(Spree::OrderPostPaymentNotifier, process: true) }
+    subject(:order) { build(:order) }
+
+    before do
+      allow(Spree::OrderPostPaymentNotifier).to receive(:new).with(order).and_return(notifier)
+    end
+
+    it "is triggered when the payment_state changes to 'paid'" do
+      order.payment_state = 'paid'
+      order.save!
+      expect(notifier).to have_received(:process)
+    end
+
+    it "is not triggered when the new payment_state is not 'paid'" do
+      order.payment_state = 'balance_due'
+      order.save!
+      expect(notifier).not_to have_received(:process)
+    end
+
+    it "is not triggered when the payment_state was already 'paid'" do
+      order.save!
+      order.update_columns(payment_state: 'paid') # skip the callbacks
+      order.payment_state = 'paid'
+      expect(notifier).not_to have_received(:process)
+    end
+  end
 end

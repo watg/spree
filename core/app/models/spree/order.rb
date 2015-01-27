@@ -92,6 +92,8 @@ module Spree
     class_attribute :update_hooks
     self.update_hooks = Set.new
 
+    after_save :run_post_payment_tasks, if: -> (order) { order.payment_state_changed? && order.payment_state == 'paid' }
+
     SHIPPABLE_STATES = %w(complete resumed awaiting_return returned warehouse_on_hold customer_service_on_hold)
 
     class << self
@@ -162,6 +164,10 @@ module Spree
       def register_update_hook(hook)
         self.update_hooks.add(hook)
       end
+    end
+
+    def run_post_payment_tasks
+      OrderPostPaymentNotifier.new(self).process
     end
 
     def max_dimension
@@ -437,7 +443,6 @@ module Spree
 
       touch :completed_at
 
-      deliver_gift_card_emails
       unless confirmation_delivered? || internal?
         deliver_order_confirmation_email
       end
@@ -446,15 +451,6 @@ module Spree
 
       # temporary notification until we implement the Assembly State Machine
       mark_as_internal_and_send_email_if_assembled
-    end
-
-    def deliver_gift_card_emails
-      self.gift_card_line_items.each do |item|
-        item.quantity.times {|position|
-          job = Spree::IssueGiftCardJob.new(self, item, position)
-          ::Delayed::Job.enqueue job, :queue => 'gift_card'
-        }
-      end
     end
 
     # temporary notification until we implement the Assembly State Machine

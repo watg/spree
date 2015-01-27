@@ -27,6 +27,10 @@
         <% end %>
       <% end %>
 
+      <% if item.any_downloaded? %>
+      <small><strong><p>Digital items downloaded</p></strong></small>
+      <% end %>
+
       <% if item.line_item_parts.required.any? %>
         <h6>Parts</h6>
         <ul class='assembly_parts' style="list-style:none;">

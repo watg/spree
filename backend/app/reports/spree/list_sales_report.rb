@@ -55,11 +55,11 @@ module Spree
           yield csv_array( li, o, shipped_at, variant, li.quantity, previous_users )
 
           li.line_item_parts.required.each do |p|
-            yield csv_array( li, o, shipped_at, p.variant, p.quantity, 'required_part', previous_users )
+            yield csv_array( li, o, shipped_at, p.variant, p.quantity * li.quantity, 'required_part', previous_users )
           end
 
           li.line_item_parts.optional.each do |p|
-            yield csv_array( li, o, shipped_at, p.variant, p.quantity, 'optional_part', previous_users )
+            yield csv_array( li, o, shipped_at, p.variant, p.quantity * li.quantity, 'optional_part', previous_users )
           end
 
         end
