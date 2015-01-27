@@ -51,7 +51,7 @@ body.homepage {
 
 .home-main .leader-multiple-ctas {
 	/* Small screen background */
-	background: #fff cdn-url("/homepage/") top center no-repeat;
+	background: #fff cdn-url("/homepage/2015-01-25/Homepage_Tote_Bag_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
@@ -65,50 +65,50 @@ body.homepage {
 		width: 100%;
 		height: 100%;
 	}
-	.link-two {
-		width: 100%;
-		height: 30px;
-		// Positioning
-		bottom: 108px;
-	}
-	.link-three {
-		width: 100%;
-		height: 30px;
-		// Positioning
-		bottom: 70px;
-	}
-	.link-four {
-		width: 100%;
-		height: 30px;
-		// Positioning
-		bottom: 30px;
-	}
+	// .link-two {
+	// 	width: 100%;
+	// 	height: 30px;
+	// 	// Positioning
+	// 	bottom: 108px;
+	// }
+	// .link-three {
+	// 	width: 100%;
+	// 	height: 30px;
+	// 	// Positioning
+	// 	bottom: 70px;
+	// }
+	// .link-four {
+	// 	width: 100%;
+	// 	height: 100%;
+	// 	// Positioning
+	// 	bottom: 30px;
+	// }
 	/* Large screen background */
 	@media only screen and (min-width: 56em) {
-		background: #fff cdn-url("/homepage/2015-01-02/Homepage_Fresh_DESKTOP_V2.jpg") top center no-repeat;
+		background: #fff cdn-url("/homepage/2015-01-25/Homepage_Tote_Bag_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
-		.link-easy {
+		.link-two {
 			width: 86px;
 			height: 30px;
 			// Positioning
-			bottom: 45px;
-			left: 368px;
+			bottom: 160px;
+			left: 770px;
 		}
-		.link-intermediate {
+		.link-three {
 			width: 146px;
 			height: 30px;
 			// Positioning
-			bottom: 45px;
-			left: 478px;
+			bottom: 123px;
+			left: 600px;
 		}
-		.link-advanced {
+		.link-four {
 			width: 120px;
 			height: 30px;
 			// Positioning
-			bottom: 45px;
-			right: 230px;
+			bottom: 123px;
+			right: 125px;
 		}
 	}
 }
