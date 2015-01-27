@@ -38,7 +38,7 @@
       <% end if can?(:stock, Spree::Price) %>
 
       <%= content_tag :li, :class => ('active' if current == 'Personalisations') do %>
-        <%= link_to_with_icon 'icon-edit', t(:Personalisations),  admin_product_personalisations_url(@product) %>
+        <%= link_to_with_icon 'edit', t(:Personalisations),  admin_product_personalisations_url(@product) %>
       <% end if can?(:stock, Spree::Personalisation) %>
 
       <% if @product.product_type.kit? %>
