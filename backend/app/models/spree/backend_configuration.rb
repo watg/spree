@@ -7,14 +7,15 @@ module Spree
                             :customer_returns, :adjustments, :customer_details]
     PRODUCT_TABS       ||= [:products, :option_types, :properties, :prototypes,
                             :variants, :product_properties, :taxonomies,
-                            :taxons]
+                            :taxons, :suites, :suppliers, :product_groups]
     REPORT_TABS        ||= [:reports]
     CONFIGURATION_TABS ||= [:configurations, :general_settings, :tax_categories,
                             :tax_rates, :zones, :countries, :states,
                             :payment_methods, :shipping_methods,
                             :shipping_categories, :stock_transfers,
                             :stock_locations, :trackers, :refund_reasons,
-                            :reimbursement_types, :return_authorization_reasons]
+                            :reimbursement_types, :return_authorization_reasons,
+                            :hosts]
     PROMOTION_TABS     ||= [:promotions, :promotion_categories, :raf_settings, :gift_cards]
     USER_TABS          ||= [:users]
   end
