@@ -166,6 +166,10 @@ module Spree
       end
     end
 
+    def run_post_payment_tasks
+      OrderPostPaymentNotifier.new(self).process
+    end
+
     def max_dimension
       parcels_grouped_by_box.map(&:longest_edge).sort{ |a,b| b <=> a }.first
     end
@@ -811,10 +815,6 @@ module Spree
 
     def set_currency
       self.currency = Spree::Config[:currency] if self[:currency].nil?
-    end
-
-    def run_post_payment_tasks
-      OrderPostPaymentNotifier.new(self).process
     end
 
   end
