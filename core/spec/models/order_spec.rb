@@ -94,16 +94,6 @@ describe Spree::Order do
     end
   end
 
-  describe "#deliver_gift_card_emails" do
-    subject { create(:order_with_line_items) }
-    let(:li_gc) { create(:line_item, quantity: 1, variant: create(:product, product_type: product_type_gift_card).master, order: subject) }
-
-    it "creates a gift card issuance job" do
-      expect(Spree::IssueGiftCardJob).to receive(:new).with(subject, li_gc, anything).and_return(Spree::IssueGiftCardJob.new(subject, li_gc, 0))
-      subject.deliver_gift_card_emails
-    end
-  end
-
   describe "#line_items_without_gift_cards" do
     subject { create(:order_with_line_items, line_items_count: 1) }
     let!(:li_gc) { create(:line_item, quantity: 1, variant: create(:product, product_type: product_type_gift_card).master, order: subject) }
@@ -129,22 +119,6 @@ describe Spree::Order do
     it "returns ture when order has at least one gift card" do
       gift_line_item = create(:line_item, quantity: 1, variant: create(:product, product_type: product_type_gift_card).master, order: subject)
       expect(subject.reload.has_gift_card?).to be_true
-    end
-
-    it "creates gift card job when purchased" do
-      gift_line_item = create(:line_item, quantity: 2, variant: create(:product, product_type: product_type_gift_card).master, order: subject)
-
-      expect(Spree::IssueGiftCardJob).
-        to receive(:new).
-        with(subject.reload, gift_line_item, 0).
-        and_return(double('job', perform: true))
-
-      expect(Spree::IssueGiftCardJob).
-        to receive(:new).
-        with(subject.reload, gift_line_item, 1).
-        and_return(double('job', perform: true))
-
-      subject.finalize!
     end
   end
 
