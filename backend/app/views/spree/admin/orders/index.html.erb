@@ -40,16 +40,6 @@
           <%= label_tag :q_shipment_state_eq, Spree.t(:shipment_status) %>
           <%= f.select :shipment_state_eq, Spree::OrderUpdater.shipment_states.map {|s| [s.humanize, s]}, {:include_blank => true}, :class => 'select2' %>
         </div>
-
-        <div class="field">
-          <%= label_tag :q_payment_state_eq, Spree.t(:payment_status) %>
-          <%= f.select :payment_state_eq, Spree::OrderUpdater.payment_states.map {|s| [s.humanize, s]}, {:include_blank => true}, :class => 'select2' %>
-        </div>
-
-        <div class="field">
-          <%= label_tag :q_promotions_id_in, Spree.t(:promotion) %>
-          <%= f.select :promotions_id_in, Spree::Promotion.applied.pluck(:name, :id), {:include_blank => true}, :class => 'select2' %>
-        </div>
       </div>
 
       <div class="four columns">
@@ -78,6 +68,11 @@
           <%= label_tag :q_bill_address_lastname_start, Spree.t(:last_name_begins_with) %>
           <%= f.text_field :bill_address_lastname_start, :size => 25%>
         </div>
+
+        <div class="field">
+          <%= label_tag :q_payment_state_eq, Spree.t(:payment_status) %>
+          <%= f.select :payment_state_eq, Spree::OrderUpdater.payment_states.map {|s| [s.humanize, s]}, {:include_blank => true}, :class => 'select2' %>
+        </div>
       </div>
 
       <div class="omega four columns">
@@ -86,10 +81,18 @@
             <%= f.check_box :completed_at_not_null, {:checked => @show_only_completed}, '1', '0' %>
             <%= Spree.t(:show_only_complete_orders) %>
           </label>
+        </div>
+        <div class="field checkbox">
           <label>
             <%= f.check_box :considered_risky_eq, {:checked => (params[:q][:considered_risky_eq] == '1')}, '1', '' %>
             <%= Spree.t(:show_only_considered_risky) %>
           </label>
+        </div>
+
+
+        <div class="field">
+          <%= label_tag :q_promotions_id_in, Spree.t(:promotion) %>
+          <%= f.select :promotions_id_in, Spree::Promotion.applied.pluck(:name, :id), {:include_blank => true}, :class => 'select2' %>
         </div>
       </div>
 
@@ -113,14 +116,15 @@
     <colgroup>
        <col style="width: 13%;">
        <col style="width: 10%;">
-       <col style="width: 10%;">
+       <col style="width: 5%;">
        <col style="width: 12%;">
        <% if Spree::Order.checkout_step_names.include?(:delivery) %>
          <col style="width: 12%;">
        <% end %>
-       <col style="width: 25%;">
+       <col style="width: 15%;">
        <col style="width: 10%;">
-       <col style="width: 8%;">
+       <col style="width: 13%;">
+       <col style="width: 10%;">
     </colgroup>
     <thead>
       <tr data-hook="admin_orders_index_headers">
@@ -162,7 +166,7 @@
         <td class="align-center"><%= order.display_total.to_html %></td>
         <td class='actions align-center' data-hook="admin_orders_index_row_actions">
           <%= link_to_edit_url edit_admin_order_path(order), :title => "admin_edit_#{dom_id(order)}", :no_text => true %>
-          <%= link_to_with_icon 'envelope-alt', Spree.t(:invoice), admin_order_path(order, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
+          <%= link_to_with_icon 'envelope', Spree.t(:invoice), admin_order_path(order, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
           <%= link_to_with_icon 'barcode', 'sticker', admin_order_path(order, :type =>:sticker, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
           <%= link_to_with_icon 'file', 'Packing List', admin_order_path(order, :type =>:packing_list, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
         </td>
