@@ -72,8 +72,6 @@ module Spree
       pending.count
     end
 
-  private
-
     def count_on_hand=(value)
       write_attribute(:count_on_hand, value)
     end
@@ -83,13 +81,9 @@ module Spree
     end
 
     private
-      def verify_count_on_hand?
-        count_on_hand_changed? && !backorderable? && (count_on_hand < count_on_hand_was) && (count_on_hand < 0)
-      end
-
-      def count_on_hand=(value)
-        write_attribute(:count_on_hand, value)
-      end
+    def verify_count_on_hand?
+      count_on_hand_changed? && !backorderable? && (count_on_hand < count_on_hand_was) && (count_on_hand < 0)
+    end
 
     # Process backorders based on amount of stock received
     # If stock was -20 and is now -15 (increase of 5 units), then we should process 5 inventory orders.
@@ -171,9 +165,5 @@ module Spree
       @stock_chagned ||= (count_on_hand_changed? && count_on_hand_change.any?(&:zero?)) || variant_id_changed?
     end
 
-
-
   end
-
-
 end
