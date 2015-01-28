@@ -405,7 +405,7 @@ describe Spree::Order, :type => :model do
         order_2.contents.add(variant, 1)
       end
 
-      specify do
+      it "merges when the resulting line item is valid" do
         order_1.merge!(order_2)
         expect(order_1.line_items.count).to eq(1)
 
@@ -414,6 +414,18 @@ describe Spree::Order, :type => :model do
         expect(line_item.variant_id).to eq(variant.id)
       end
 
+      it "does not merge when the resulting line item is not valid" do
+        allow_any_instance_of(Spree::LineItem).to receive(:valid?).and_return false
+
+        order_1.merge!(order_2)
+        expect(order_1.line_items.count).to eq(1)
+
+        line_item = order_1.line_items.first.reload
+        expect(line_item.quantity).to eq(1)
+        expect(line_item.variant_id).to eq(variant.id)
+
+        expect(order_2.line_items.reload.first).to be_nil
+      end
     end
 
     context "merging using extension-specific line_item_comparison_hooks" do
@@ -475,7 +487,7 @@ describe Spree::Order, :type => :model do
         order_2.contents.add(variant_2, 1)
       end
 
-      specify do
+      it "adds to order when the other line item is valid" do
         order_1.merge!(order_2)
         line_items = order_1.line_items.reload
         expect(line_items.count).to eq(2)
@@ -486,6 +498,16 @@ describe Spree::Order, :type => :model do
         # No guarantee on ordering of line items, so we do this:
         expect(line_items.pluck(:quantity)).to match_array([1, 1])
         expect(line_items.pluck(:variant_id)).to match_array([variant.id, variant_2.id])
+      end
+
+      it "does not add other line item to order and destroys it when the other line item is not valid" do
+        allow_any_instance_of(Spree::LineItem).to receive(:valid?).and_return false
+        order_1.merge!(order_2)
+        line_items = order_1.line_items.reload
+        expect(line_items.count).to eq(1)
+
+        expect(order_1.item_count).to eq 1
+        expect(order_2.line_items.reload.first).to be_nil
       end
     end
   end
