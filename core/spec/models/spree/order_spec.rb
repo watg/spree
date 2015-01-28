@@ -729,6 +729,37 @@ describe Spree::Order, :type => :model do
         expect(order.line_item_options_match(@line_items.first, {})).to be false
       end
     end
+
+    describe "#item_uuid_match" do
+      let(:options) { {item_uuid: 'I2121'} }
+      let(:line_item) { Spree::LineItem.new(item_uuid: 'I2121') }
+
+      before do
+        Spree::Order.register_line_item_comparison_hook(:item_uuid_match)
+        order.line_items << line_item
+      end
+
+      after do
+        # reset to avoid test pollution
+        Spree::Order.line_item_comparison_hooks = Set.new
+      end
+
+      it "matches line item when item uuids matche" do
+        expect(order.line_item_options_match(line_item, options)).to be true
+      end
+
+      it "does not match line item when item uuids do not match" do
+        options[:item_uuid] = 'I4141'
+        expect(order.line_item_options_match(line_item, options)).to be false
+      end
+
+      it "performs a match with options` keys and values being both symbols and strings" do
+        options.stringify_keys!
+        expect(options.keys.first).to be_kind_of String
+        expect(order.line_item_options_match(line_item, options)).to be true
+        expect(order.line_item_options_match(line_item, options.symbolize_keys)).to be true
+      end
+    end
   end
 
   context "#generate_order_number" do

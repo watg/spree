@@ -216,6 +216,13 @@ module Spree
       self.line_item_comparison_hooks.add(hook)
     end
 
+    register_line_item_comparison_hook :item_uuid_match
+
+    def item_uuid_match(line_item, options)
+      opts = options.symbolize_keys
+      line_item.item_uuid == opts[:item_uuid]
+    end
+
     def all_adjustments
       Adjustment.where("order_id = :order_id OR (adjustable_id = :order_id AND adjustable_type = 'Spree::Order')",
                        order_id: self.id)
