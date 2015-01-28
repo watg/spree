@@ -1,12 +1,14 @@
 # maybe require the file in an engine instead
 require 'spree/core/controller_helpers/currency_helpers'
+require 'spree/core/controller_helpers/store'
 
 module Spree
   module Core
     module ControllerHelpers
       module Order
         extend ActiveSupport::Concern
-		include CurrencyHelpers
+        include CurrencyHelpers
+        include Store
 
         included do
           before_filter :set_current_order
@@ -62,7 +64,7 @@ module Spree
 
         def set_current_order
           if try_spree_current_user && current_order
-            try_spree_current_user.orders.incomplete.where('id != ?', current_order.id).each do |order|
+            try_spree_current_user.orders.incomplete.in_currency(current_currency).where('id != ?', current_order.id).each do |order|
               current_order.merge!(order, try_spree_current_user)
             end
           end
@@ -87,7 +89,7 @@ module Spree
         private
 
         def last_incomplete_order
-          @last_incomplete_order ||= try_spree_current_user.last_incomplete_spree_order
+          @last_incomplete_order ||= try_spree_current_user.last_incomplete_spree_order(current_currency)
         end
 
         def current_order_params

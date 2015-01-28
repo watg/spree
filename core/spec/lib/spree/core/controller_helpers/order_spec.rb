@@ -13,12 +13,22 @@ describe Spree::Core::ControllerHelpers::Order, type: :controller do
 
   describe '#simple_current_order' do
     before { allow(controller).to receive_messages(try_spree_current_user: user) }
+
     it "returns an empty order" do
       expect(controller.simple_current_order.item_count).to eq 0
+      expect(controller.simple_current_order).not_to eq order
     end
+
     it 'returns Spree::Order instance' do
       allow(controller).to receive_messages(cookies: double(signed: { guest_token: order.guest_token }))
       expect(controller.simple_current_order).to eq order
+    end
+
+    it 'returns Spree::Order instance' do
+      allow(controller).to receive_messages(cookies: double(signed: { guest_token: order.guest_token }), current_currency: 'GBP')
+      received_order = controller.simple_current_order
+      expect(received_order).not_to eq order
+      expect(received_order).to be_a_new_record
     end
   end
 
@@ -72,11 +82,24 @@ describe Spree::Core::ControllerHelpers::Order, type: :controller do
     before { allow(controller).to receive_messages(try_spree_current_user: user) }
 
     context 'when current order not equal to users incomplete orders' do
-      before { allow(controller).to receive_messages(current_order: order, last_incomplete_order: incomplete_order, cookies: double(signed: { guest_token: 'guest_token' })) }
+      before { allow(controller).to receive_messages(
+                current_order: order,
+                last_incomplete_order: incomplete_order,
+                cookies: double(signed: { guest_token: 'guest_token' })
+              )}
 
-      it 'calls Spree::Order#merge! method' do
+      it 'calls Spree::Order#merge! method if currency is the same' do
         expect(order).to receive(:merge!).with(incomplete_order, user)
         controller.set_current_order
+      end
+
+      context "when order currencies differ" do
+        let(:incomplete_order) { create(:order, user: user, currency: 'GBP') }
+
+        it 'does not call Spree::Order#merge! method' do
+          expect(order).not_to receive(:merge!).with(incomplete_order, user)
+          controller.set_current_order
+        end
       end
     end
   end

@@ -20,8 +20,10 @@ Spree::Core::Engine.config.to_prepare do
         spree_roles.where(name: role_in_question.to_s).any?
       end
 
-      def last_incomplete_spree_order
-        spree_orders.incomplete.where(user_id: self.id).order('created_at DESC').first
+      def last_incomplete_spree_order(currency=nil)
+        selector = spree_orders.incomplete
+        selector = selector.in_currency(currency) if currency
+        selector.where(:user_id => self.id).order('created_at DESC').first
       end
 
       def self.find_or_create_unenrolled(email, tracking_cookie = nil)

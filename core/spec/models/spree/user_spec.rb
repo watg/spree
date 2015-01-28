@@ -10,8 +10,15 @@ describe Spree::LegacyUser, :type => :model do
     let!(:order_2) { create(:order, :user => user, :created_by => user) }
     let!(:order_3) { create(:order, :user => user, :created_by => create(:user)) }
 
-    it "returns correct order" do
-      expect(user.last_incomplete_spree_order).to eq order_3
+    describe "#last_incomplete_spree_order" do
+      it "returns correct order" do
+        expect(user.last_incomplete_spree_order).to eq order_3
+      end
+
+      it "scopes by currency" do
+        expect(user.last_incomplete_spree_order(order_3.currency)).to eq order_3
+        expect(user.last_incomplete_spree_order(order_3.currency.reverse)).to be_nil
+      end
     end
 
     context "persists order address" do
