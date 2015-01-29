@@ -20,7 +20,7 @@ module Spree
 
     def add_by_line_item(line_item, quantity, options={})
       line_item = eager_load(line_item)
-      line_item.quantity += quantity
+      line_item.quantity += quantity.to_i
       line_item.target_shipment = options[:shipment] if options.has_key? :shipment
       line_item.save
       after_add_or_remove(line_item, options)
@@ -97,7 +97,7 @@ module Spree
 
     def remove_from_line_item(line_item, quantity, options)
 
-      line_item.quantity -= quantity
+      line_item.quantity -= quantity.to_i
       line_item.target_shipment = options[:shipment]
 
       if line_item.quantity <= 0

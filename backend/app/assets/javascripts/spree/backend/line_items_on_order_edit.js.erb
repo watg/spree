@@ -10,6 +10,7 @@ $(document).ready(function () {
             return variant.id == variant_id
         })
         $('#stock_details').html(variantLineItemTemplate({variant: variant}));
+        $(".part-options",'#stock_details').trigger("assemblyDefinition.parts.update");
         $('#stock_details').show();
 
         $('button.add_variant').click(addVariant);

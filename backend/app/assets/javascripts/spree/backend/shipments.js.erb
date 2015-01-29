@@ -14,8 +14,7 @@ $(document).ready(function () {
     $(".part-options",'#stock_details').trigger("assemblyDefinition.parts.update");
     $('#stock_details').show();
 
-    //$('button.add_variant').click(addVariantFromStockLocation);
-    $('button.add_variant').click(addVariant);
+    $('button.add_variant').click(addVariantFromStockLocation);
 
     // Add some tips
     $('.with-tip').powerTip({
@@ -364,8 +363,7 @@ selected_variants = function(lineItem) {
   return hsh;
 }
 
-//addVariantFromStockLocation = function() {
-addVariant = function() {
+addVariantFromStockLocation = function() {
   event.preventDefault();
   $('#stock_details').hide();
 
@@ -379,8 +377,8 @@ addVariant = function() {
   if(shipment==undefined){
     $.ajax({
       type: "POST",
-      url: Spree.url(Spree.routes.orders_api + "/" + order_number + "/shipments.json"),
-      data: { variant_id: variant_id, quantity: quantity, stock_location_id: stock_location_id, selected_variants: selected_variants(stock_item_row) }
+      url: Spree.url(Spree.routes.shipments_api + "?shipment[order_id]=" + order_number),
+      data: { variant_id: variant_id, quantity: quantity, selected_variants: selected_variants() }
     }).done(function( msg ) {
       window.location.reload();
     }).error(function( msg ) {
