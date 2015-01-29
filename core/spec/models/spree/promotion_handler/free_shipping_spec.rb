@@ -18,7 +18,6 @@ module Spree
       end
 
       context "activates in Shipment level" do
-
         it "creates the adjustment" do
           expect { subject.activate }.to change { shipping_rate.adjustments.count }.by(1)
         end
