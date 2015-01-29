@@ -32,20 +32,39 @@ addVariant = function() {
     var variant_id = $('input.variant_autocomplete').val();
     var quantity = $("input.quantity[data-variant-id='" + variant_id + "']").val();
 
-    adjustLineItems(order_number, variant_id, quantity);
+    adjustLineItems(order_number, variant_id, quantity, selectedParts());
     return 1
 }
 
-adjustLineItems = function(order_number, variant_id, quantity){
+adjustLineItems = function(order_number, variant_id, quantity, parts){
     var url = Spree.routes.orders_api + "/" + order_number + '/line_items';
 
     $.ajax({
         type: "POST",
         url: Spree.url(url),
-        data: { line_item: {variant_id: variant_id, quantity: quantity }}
+        data: { line_item: {variant_id: variant_id, quantity: quantity, options: { parts: parts} } }
     }).done(function( msg ) {
         window.Spree.advanceOrder();
         window.location.reload();
     });
 
 }
+
+selectedParts = function(lineItem){
+  // TODO: At the moment this does not support multiple stock_locations
+  var hsh;
+  hsh = $(lineItem).data('selected-variants');
+  if (hsh != null && hsh != 'undefined'){
+    // nothing to do
+  }
+  else {
+    hsh = {};
+    $.map($('#stock_details').find(':input.part-options'), function(e) {
+      var i = $(e);
+      var k= i.data('key');
+      if(k != null && k != "undefined"){ hsh[k] = i.val(); }
+    });
+  }
+  return hsh;
+}
+

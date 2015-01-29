@@ -47,6 +47,7 @@ module Spree
     end
 
     context "as the order owner" do
+      let(:line_item) { create(:line_item) }
       before do
         allow(controller).to receive_messages :try_spree_current_user => current_api_user
         allow_any_instance_of(Order).to receive_messages :user => current_api_user
@@ -62,12 +63,12 @@ module Spree
       it "can add a new line item to an existing order with options" do
         expect_any_instance_of(LineItem).to receive(:some_option=).with(4)
         api_post :create,
-                 line_item: {
-                   variant_id: product.master.to_param,
-                   quantity: 1,
-                   options: { some_option: 4 }
-                 }
-        expect(response.status).to eq(201)
+          line_item: {
+          variant_id: product.master.to_param,
+          quantity: 1,
+          options: { some_option: 4 }
+        }
+          expect(response.status).to eq(201)
       end
 
       it "default quantity to 1 if none is given" do
@@ -101,8 +102,8 @@ module Spree
         expect_any_instance_of(LineItem).to receive(:some_option=).with(12)
         line_item = order.line_items.first
         api_put :update,
-                id: line_item.id,
-                line_item: { quantity: 1, options: { some_option: 12 } }
+          id: line_item.id,
+          line_item: { quantity: 1, options: { some_option: 12 } }
         expect(response.status).to eq(200)
       end
 
@@ -179,5 +180,70 @@ module Spree
         expect { line_item.reload }.not_to raise_error
       end
     end
+
+    context "creating a new assembly" do
+      before do
+        allow(controller).to receive_messages :try_spree_current_user => current_api_user
+        allow_any_instance_of(Order).to receive_messages :user => current_api_user
+      end
+
+      context "Dynamic" do
+        # TODO: turn this into a factory
+
+        let(:product) { create(:base_product, name: "My Product", description: "Product Description") }
+        let(:variant) { create(:base_variant, product: product, in_stock_cache: true, number: "V1234", updated_at: 1.day.ago) }
+
+        let!(:product_part)  { create(:base_product) }
+        let!(:variant_part)  { create(:base_variant, number: "V5678", product: product_part, in_stock_cache: true, updated_at: 2.days.ago) }
+
+        let!(:assembly_definition) { create(:assembly_definition, variant: variant) }
+        let!(:adp) { Spree::AssemblyDefinitionPart.create(assembly_definition: assembly_definition, product: product_part, optional: false) }
+        let!(:adv) { Spree::AssemblyDefinitionVariant.create(assembly_definition_part: adp, variant: variant_part) }
+
+        it "can add a new line item to an existing order with options" do
+
+          options = { :parts => {adp.id.to_s => variant_part.id} }
+          api_post :create,
+            line_item: {
+            variant_id: variant.to_param,
+            quantity: 1,
+            options: options
+          }
+            expect(response.status).to eq(201)
+            line_items = order.reload.line_items.select { |li| li.variant_id == variant.id }
+            expect(line_items.size).to eq 1
+            expect(line_items.first.line_item_parts.size).to eq 1
+            expect(line_items.first.line_item_parts.first.variant_id).to eq variant_part.id
+        end
+      end
+
+      context "Static" do
+        # TODO: turn this into a factory
+
+        let(:variant) { create(:variant, amount: 60.00) }
+        let(:product) { variant.product }
+        let!(:required_part1) { create(:variant) }
+
+        before do
+          product.add_part(required_part1, 2, false)
+        end
+
+        it "can add a new line item to an existing order with options" do
+
+          api_post :create,
+            line_item: {
+            variant_id: variant.to_param,
+            quantity: 1,
+            options: {}
+          }
+            expect(response.status).to eq(201)
+            line_items = order.reload.line_items.select { |li| li.variant_id == variant.id }
+            expect(line_items.size).to eq 1
+            expect(line_items.first.line_item_parts.size).to eq 1
+            expect(line_items.first.line_item_parts.first.variant_id).to eq required_part1.id
+        end
+      end
+    end
+
   end
 end
