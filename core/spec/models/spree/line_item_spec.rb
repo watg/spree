@@ -293,8 +293,7 @@ describe Spree::LineItem, :type => :model do
       end
 
       it "creates a tax adjustment" do
-        order.contents.add(variant)
-        line_item = order.find_line_item_by_variant(variant)
+        line_item = order.contents.add(variant)
         expect(line_item.adjustments.tax.count).to eq(1)
       end
     end
@@ -308,8 +307,7 @@ describe Spree::LineItem, :type => :model do
       end
 
       it "does not create a tax adjustment" do
-        order.contents.add(variant)
-        line_item = order.find_line_item_by_variant(variant)
+        line_item = order.contents.add(variant)
         expect(line_item.adjustments.tax.count).to eq(0)
       end
 
