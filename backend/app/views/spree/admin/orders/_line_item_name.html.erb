@@ -10,16 +10,18 @@
 <small><strong>SKU:</strong> <%= item.variant.sku %></small><br>
 
 <% unless item.line_item_parts.any? # The following is a hack for the time being %>
-  <% item.inventory_units.group_by(&:state).each do |state, items| %>
+  <% units = inventory_units.select {|iu| iu.line_item == item} %>
+  <% units.group_by(&:state).each do |state, items| %>
     <small><strong><%=state%>:</strong> <%= items.count %></small>
   <% end %>
 <% end %>
 <% if item.line_item_parts.required.any? %>
   <h6>Parts</h6>
   <ul class='assembly_parts' style="list-style:none;">
-    <% item.line_item_parts.required.each do |o| %>
-      <li><%= link_to "#{o.quantity} x #{o.variant.name} (#{o.variant.options_text})" , edit_admin_product_variant_path(o.variant.product, o.variant) %></li>
-      <% o.inventory_units.group_by(&:state).each do |state, items| %>
+    <% item.line_item_parts.required.each do |part| %>
+      <li><%= link_to "#{part.quantity} x #{part.variant.name} (#{part.variant.options_text})" , edit_admin_product_variant_path(part.variant.product, part.variant) %></li>
+      <% part_units = inventory_units.select {|iu| iu.line_item_part == part} %>
+      <% part_units.group_by(&:state).each do |state, items| %>
         <small><strong><%=state%>:</strong> <%= items.count %></small>
       <% end %>
     <% end %> 
@@ -29,9 +31,10 @@
 <% if item.line_item_parts.optional.any? %>
   <h6>Optional Parts</h6>
   <ul class='assembly_parts' style="list-style:none;">
-  <% item.line_item_parts.optional.each do |o| %>
-    <li><%= link_to "#{o.quantity} x #{o.variant.name} (#{o.variant.options_text})" , edit_admin_product_variant_path(o.variant.product, o.variant) %></li>
-    <% o.inventory_units.group_by(&:state).each do |state, items| %>
+  <% item.line_item_parts.optional.each do |part| %>
+    <li><%= link_to "#{part.quantity} x #{part.variant.name} (#{part.variant.options_text})" , edit_admin_product_variant_path(part.variant.product, part.variant) %></li>
+    <% part_units = inventory_units.select {|iu| iu.line_item_part == part} %>
+    <% part_units.group_by(&:state).each do |state, items| %>
       <small><strong><%=state%>:</strong> <%= items.count %></small>
     <% end %>
   <% end %>

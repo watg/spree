@@ -1,81 +1,28 @@
-<%# shipment.manifest.each do |manifest_item| %>
-<% order.line_items.each do |item| %>
-  <%# item = manifest_item.line_item %>
-  <% manifest_item = item %>
-
-  <tr class="stock-item" data-item-quantity="<%= manifest_item.quantity %>" data-selected-variants="<%= item.assembly_selected_variants.to_json %>">
-    <td class="item-type">
-      <%= item.variant.product.marketing_type.name %>
-    </td>
-    <td class="item-image">
-	    <%= mini_image(item.variant) %>
-    </td>
-    <td class="item-name">
-      <strong>
-        <div class="field">
-          <%= link_to item.variant.product.name, edit_admin_product_variant_path(item.variant.product, item.variant) %>
-        </div>
-        <% if item.variant.option_values.present? %>
-          <%= item.variant.options_text %> <br>
-        <% end %>
-      </strong>
-      <small><strong>SKU:</strong> <%= item.variant.sku %></small><br>
-
-      <% unless item.line_item_parts.any? # The following is a hack for the time being %>
-        <% item.inventory_units.group_by(&:state).each do |state, items| %>
-          <small><strong><%=state%>:</strong> <%= items.count %></small>
-        <% end %>
-      <% end %>
-
-      <% if item.line_item_parts.required.any? %>
-        <h6>Parts</h6>
-        <ul class='assembly_parts' style="list-style:none;">
-          <% item.line_item_parts.required.each do |o| %>
-            <li><%= link_to "#{o.quantity} x #{o.variant.name} (#{o.variant.options_text})" , edit_admin_product_variant_path(o.variant.product, o.variant) %></li>
-            <% o.inventory_units.group_by(&:state).each do |state, items| %>
-              <small><strong><%=state%>:</strong> <%= items.count %></small>
-            <% end %>
-          <% end %>
-        </ul>
-      <% end %>
-
-      <% if item.line_item_parts.optional.any? %>
-        <h6>Optional Parts</h6>
-        <ul class='assembly_parts' style="list-style:none;">
-          <% item.line_item_parts.optional.each do |o| %>
-            <li><%= link_to "#{o.quantity} x #{o.variant.name} (#{o.variant.options_text})" , edit_admin_product_variant_path(o.variant.product, o.variant) %></li>
-            <% o.inventory_units.group_by(&:state).each do |state, items| %>
-              <small><strong><%=state%>:</strong> <%= items.count %></small>
-            <% end %>
-          <% end %>
-        </ul>
-      <% end %>
-
-      <% if !item.line_item_personalisations.blank? %>
-        <h6>Personalisations</h6>
-        <ul class="personalisations" style="list-style:none;">
-          <% item.line_item_personalisations.each do |p| %>
-            <li> <%= p.text %> </li>
-          <% end %>
-        </ul>
-      <% end %>
-
-    </td>
+<% shipment.line_items.sort_by(&:created_at).each do |item| %>
+  <% line_item_units = item.inventory_units.select { |iu| iu.shipment == shipment } %>
+  <% denominator = item.parts.any? ? item.line_item_parts.sum(:quantity) : 1 %>
+  <% quantity = line_item_units.count / denominator %>
+  <tr class="stock-item" data-item-quantity="<%= quantity %>">
+    <td class="item-type"> <%= item.variant.product.marketing_type.name %> </td>
+    <td class="item-image"> <%= mini_image(item.variant) %> </td>
+    <td class="line-item-name">
+      <%= render 'spree/admin/orders/line_item_name', item: item, inventory_units: shipment.inventory_units %>
+    </td> 
     <td class="item-price align-center"><%= item.single_money.to_html %></td>
     <td class="item-qty-show align-center">
-       <%= item.quantity %>
-        <!--
-      <%# manifest_item.states.each do |state,count| %>
+       <%= quantity %>
+        <!-- Because we have kits this does not make sense
+      <%# item.states.each do |state,count| %>
         <%#= count %> x <%#= Spree.t(state).downcase %>
       <%# end %>
         -->
     </td>
     <% unless shipment.shipped? %>
       <td class="item-qty-edit hidden">
-        <%= number_field_tag :quantity, manifest_item.quantity, :min => 0, :class => "line_item_quantity", :size => 5 %>
+        <%= number_field_tag :quantity, quantity, :min => 0, :class => "line_item_quantity", :size => 5 %>
       </td>
     <% end %>
-    <td class="item-total align-center"><%= line_item_shipment_price(item, item.quantity) %></td>
+    <td class="item-total align-center"><%= line_item_shipment_price(item, quantity) %></td>
     <% unless shipment.shipped? %>
       <td class="cart-item-delete actions" data-hook="cart_item_delete">
         <% if can? :update, item %>
