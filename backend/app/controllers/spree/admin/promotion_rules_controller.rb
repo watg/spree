@@ -9,7 +9,7 @@ class Spree::Admin::PromotionRulesController < Spree::Admin::BaseController
     # to set it when creating a new record, as this is raises
     # an error in ActiveRecord 3.2.
     promotion_rule_type = params[:promotion_rule].delete(:type)
-    @promotion_rule = promotion_rule_type.constantize.new(params[:promotion_rule])
+    @promotion_rule = promotion_rule_type.constantize.new(params[:promotion_rule].permit!)
     @promotion_rule.promotion = @promotion
     if @promotion_rule.save
       flash[:success] = Spree.t(:successfully_created, :resource => Spree.t(:promotion_rule))
