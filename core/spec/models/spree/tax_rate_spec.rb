@@ -9,7 +9,7 @@ describe Spree::TaxRate, :type => :model do
 
     it "should return an empty array when tax_zone is nil" do
       allow(order).to receive_messages :tax_zone => nil
-      expect(Spree::TaxRate.match(order.tax_zone)).to eq([])
+      expect(Spree::TaxRate.match(order.tax_zone, order.currency)).to eq([])
     end
 
     context "when no rate zones match the tax zone" do
@@ -25,7 +25,7 @@ describe Spree::TaxRate, :type => :model do
 
         it "should return an empty array" do
           allow(order).to receive_messages :tax_zone => @zone
-          expect(Spree::TaxRate.match(order.tax_zone)).to eq([])
+          expect(Spree::TaxRate.match(order.tax_zone, order.currency)).to eq([])
         end
 
         it "should return the rate that matches the rate zone when the order currency matches the rate currency" do
@@ -38,7 +38,7 @@ describe Spree::TaxRate, :type => :model do
           )
 
           allow(order).to receive_messages :tax_zone => @zone
-          expect(Spree::TaxRate.match(order.tax_zone)).to eq([rate])
+          expect(Spree::TaxRate.match(order.tax_zone, order.currency)).to eq([rate])
         end
 
         it "should return an empty array when the order currency does not matche the rate currency" do
@@ -51,7 +51,7 @@ describe Spree::TaxRate, :type => :model do
           )
 
           allow(order).to receive_messages :tax_zone => @zone
-          expect(Spree::TaxRate.match(order.tax_zone)).to eq([])
+          expect(Spree::TaxRate.match(order.tax_zone, order.currency)).to eq([])
         end
 
         it "should return all rates that match the rate zone" do
@@ -72,7 +72,7 @@ describe Spree::TaxRate, :type => :model do
           )
 
           allow(order).to receive_messages :tax_zone => @zone
-          expect(Spree::TaxRate.match(order.tax_zone)).to match_array([rate1, rate2])
+          expect(Spree::TaxRate.match(order.tax_zone, order.currency)).to match_array([rate1, rate2])
         end
 
         context "when the tax_zone is contained within a rate zone" do
@@ -90,7 +90,7 @@ describe Spree::TaxRate, :type => :model do
           end
 
           it "should return the rate zone" do
-            expect(Spree::TaxRate.match(order.tax_zone)).to eq([@rate])
+            expect(Spree::TaxRate.match(order.tax_zone, order.currency)).to eq([@rate])
           end
         end
       end
@@ -111,7 +111,7 @@ describe Spree::TaxRate, :type => :model do
                                 :currency => "USD")
         end
 
-        subject { Spree::TaxRate.match(order.tax_zone) }
+        subject { Spree::TaxRate.match(order.tax_zone, order.currency) }
 
         context "when the order has the same tax zone" do
           before do
@@ -189,7 +189,8 @@ describe Spree::TaxRate, :type => :model do
           :price => 10.0,
           :quantity => 1,
           :tax_category => tax_category_1,
-          :variant => stub_model(Spree::Variant)
+          :variant => stub_model(Spree::Variant),
+          :order => stub_model(Spree::Order, currency: 'USD')
         )
       end
 
@@ -207,7 +208,9 @@ describe Spree::TaxRate, :type => :model do
     end
 
     context "with shipments" do
-      let(:shipments) { [stub_model(Spree::Shipment, :cost => 10.0, :tax_category => tax_category_1)] }
+      let(:shipments) { [stub_model(Spree::Shipment, :cost => 10.0,
+                                                     :tax_category => tax_category_1,
+                                                     :order => stub_model(Spree::Order, currency: 'USD'))] }
 
       before do
         allow(Spree::TaxRate).to receive_messages :match => [rate_1, rate_2]
