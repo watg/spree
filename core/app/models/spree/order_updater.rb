@@ -33,9 +33,6 @@ module Spree
       end
       run_hooks
       persist_totals
-      if (order.payment_state_changed? && order.payment_state == 'paid')
-        order.run_post_payment_tasks  if (order.payment_state_changed? && order.payment_state == 'paid')
-      end
     end
 
     def run_hooks
@@ -177,6 +174,10 @@ module Spree
         order.payment_state = 'credit_owed'
       else
         order.payment_state = 'paid'
+      end
+
+      if (order.payment_state_changed? && order.payment_state == 'paid')
+        order.run_post_payment_tasks
       end
 
       order.state_changed('payment')

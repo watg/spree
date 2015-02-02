@@ -92,8 +92,6 @@ module Spree
     class_attribute :update_hooks
     self.update_hooks = Set.new
 
-    after_save :run_post_payment_tasks, if: -> (order) { order.payment_state_changed? && order.payment_state == 'paid' }
-
     SHIPPABLE_STATES = %w(complete resumed awaiting_return returned warehouse_on_hold customer_service_on_hold)
 
     class << self
