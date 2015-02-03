@@ -295,7 +295,15 @@ module Spree
 
       it 'returns the order' do
         api_put :advance, :id => order.to_param, :order_token => order.guest_token
+        expect(order.reload.state).to eq 'payment'
         expect(json_response['id']).to eq(order.id)
+      end
+
+      it 'does not advance if bill address is not present' do
+        order.update_column(:bill_address_id, nil)
+        expect(order.state).to eq 'cart'
+        api_put :advance, :id => order.to_param, :order_token => order.guest_token
+        expect(order.reload.state).to eq 'cart'
       end
     end
   end
