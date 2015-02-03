@@ -451,7 +451,7 @@ module Spree
     end
 
     def assembly_definition_parts
-      assembly_definition.try(:parts) || []
+      assembly_definition.try(:assembly_definition_parts) || []
     end
 
     def part_prices

@@ -24,8 +24,14 @@ module Spree
       # we render on the view so we better update it any time a node is included
       # or removed from the views.
       def index
-        @variants = scope.includes({ option_values: :option_type }, :product, :images, { stock_items: :stock_location })
-          .ransack(params[:q]).result.page(params[:page]).per(params[:per_page])
+        @variants = scope.includes(
+            { option_values: :option_type },
+            :product,
+            :images,
+            :prices,
+            { stock_items: :stock_location },
+            {assembly_definition: :assembly_definition_parts}
+          ).ransack(params[:q]).result.page(params[:page]).per(params[:per_page])
         respond_with(@variants)
       end
 
