@@ -41,7 +41,7 @@ module Spree
       previous_users = CSV.read(File.join(File.dirname(__FILE__),"unique_previous_users.csv")).flatten
       previous_users = previous_users.to_set
 
-      Spree::Order.where( :state => 'complete', :completed_at => @from..@to ).each do |o| 
+      Spree::Order.where( :state => 'complete', :completed_at => @from..@to ).find_each do |o|
         o.line_items.each do |li|
 
           # A hack incase someone deletes the variant or product
