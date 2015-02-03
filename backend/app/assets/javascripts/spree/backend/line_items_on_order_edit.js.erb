@@ -46,6 +46,8 @@ adjustLineItems = function(order_number, variant_id, quantity, parts){
     }).done(function( msg ) {
         window.Spree.advanceOrder();
         window.location.reload();
+    }).error(function( msg ) {
+      show_flash('error', msg.responseText);
     });
 
 }
