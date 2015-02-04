@@ -21,6 +21,7 @@ module Spree
         restock_on_hand(variant, restockable_inventory_units)
       end
 
+      clear_total_on_hand_cache(variant)
     end
 
     def unstock(variant, inventory_units)
@@ -36,6 +37,7 @@ module Spree
         unstock_on_hand(variant, on_hand)
       end
 
+      clear_total_on_hand_cache(variant)
     end
 
     def restock_on_hand(variant, restockable_inventory_units)
@@ -71,6 +73,10 @@ module Spree
     end
 
     private
+
+    def clear_total_on_hand_cache(variant)
+      Spree::Stock::Quantifier.new(variant).clear_total_on_hand_cache
+    end
 
     def allocate_from_on_hand_stock(variant, inventory_units)
       units = inventory_units.dup
