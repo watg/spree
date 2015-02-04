@@ -19,7 +19,7 @@ module Spree
     def trigger_csv_generation(name, params)
       params ||= {}
       csv = Spree::Jobs::GenerateCsv.new({:report_instance => self, :name => name, :params => params})
-      job = Delayed::Job.enqueue csv
+      job = Delayed::Job.enqueue(csv, queue: 'reports')
       job_id = job.id
     end
 
