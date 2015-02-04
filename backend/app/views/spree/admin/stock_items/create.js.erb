@@ -1,20 +1,24 @@
-stock_item = $("#stock-item-<%= @stock_item.id %>")
-stock_item.fadeOut(100)
+<% if @stock_item %>
+  stock_item = $("#stock-item-<%= @stock_item.id %>");
+  stock_item.fadeOut(100);
 
-variant = $("#<%= spree_dom_id @stock_item.variant%>")
-variant.find('.states').fadeOut(100)
-stock_item.find('.count_on_hand').html("<%= @stock_item.count_on_hand %>")
-stock_item.find('.sku_to_be_shipped').html("<%= @stock_item.number_of_shipments_pending %>")
-stock_item.find('#stock_movement_quantity').val(0)
+  variant = $("#<%= spree_dom_id @stock_item.variant%>");
+  variant.find('.states').fadeOut(100);
+  stock_item.find('.count_on_hand').html("<%= @stock_item.count_on_hand %>");
+  stock_item.find('.sku_to_be_shipped').html("<%= @stock_item.number_of_shipments_pending %>");
+  stock_item.find('#stock_movement_quantity').val(0)
 
-variant.find('.on_hand').html("<%= @stock_item.variant.total_on_hand %>")
-variant.find('.backordered').html("<%= @stock_item.variant.backordered.count %>")
-variant.find('.awaiting_feed').html("<%= @stock_item.variant.awaiting_feed.count %>")
+  variant.find('.on_hand').html("<%= @stock_item.variant.total_on_hand %>");
+  variant.find('.backordered').html("<%= @stock_item.variant.backordered.count %>");
+  variant.find('.awaiting_feed').html("<%= @stock_item.variant.awaiting_feed.count %>");
 
-stock_item.fadeIn(100)
-variant.find('.states').fadeIn(100)
+  stock_item.fadeIn(100);
+  variant.find('.states').fadeIn(100);
 
-<% success = flash.discard(:success)
-if success %>
-  show_flash('success', "<%= success %>")
+  <% if success = flash.discard(:success)  %>
+    show_flash('success', "<%= success %>")
+  <% end %>
+
+<% else %>
+  show_flash('error', "<%= flash[:error] %>");
 <% end %>
