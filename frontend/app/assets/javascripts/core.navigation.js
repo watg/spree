@@ -4,6 +4,7 @@ $(document).ready(function() {
   core.Navigation.readyNavigation();
   core.Navigation.readyNavigationMobile();
   core.Navigation.readyFooterMobile();
+  core.Navigation.readyTracking();
 });
 
 
@@ -114,4 +115,25 @@ core.Navigation.showSubFooterMobile = function(e) {
   };
 
   $.scrollTo($('.mobile-raf'), 500, {axis: 'y', easing: 'swing'});
+}
+
+core.Navigation.readyTracking = function() {
+  var links = $('.nav-primary, .nav-primary-sub').find('a');
+  links.on({
+    click: function(e) {
+      // Stop
+      e.preventDefault();
+      // Do we need to append a sub label to the tracking value?
+      var sub_label = '';
+      var sub_name = $(this).closest('ul[class*=-sub]').attr('class');
+      if (sub_name != undefined) {
+        sub_label = ' (' + sub_name + ')';
+      }
+      // Track
+      var _gaq = _gaq || [];
+      _gaq.push(['_trackEvent', 'navigation', 'click', $(this).text().toLowerCase() + sub_label]);
+      // Continue
+      location.href = $(this).attr('href');
+    }
+  });
 }
