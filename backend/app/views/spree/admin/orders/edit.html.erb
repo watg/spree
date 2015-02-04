@@ -55,9 +55,7 @@
 </p>
 <% end %>
 
-<%= render :partial => 'add_product' if can?(:update, @order) %>
-
-<%= render partial: 'add_product' if @order.shipment_state != 'shipped' && can?(:update, @order) %>
+<%#= render partial: 'add_product' if @order.shipment_state != 'shipped' && can?(:update, @order) %>
 
 <% if @order.line_items.empty? %>
   <div class="no-objects-found">
