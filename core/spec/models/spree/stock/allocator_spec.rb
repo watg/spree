@@ -36,7 +36,6 @@ describe Spree::Stock::Allocator do
     end
 
     context "stock_location.restock is called with the correct parameters" do
-
       before do
         inventory_units.each do |iu|
           allow(iu).to receive(:supplier_id=).with(nil)
@@ -44,6 +43,7 @@ describe Spree::Stock::Allocator do
           allow(iu).to receive(:save)
         end
       end
+
       it "restocks on_hand inventory_units" do
         expect(stock_location).to receive(:restock).with(variant, 3, shipment, supplier)
         subject.restock(variant, inventory_units)
@@ -60,9 +60,18 @@ describe Spree::Stock::Allocator do
         expect(stock_location).to receive(:restock).with(variant, 2, shipment, supplier)
         subject.restock(variant, inventory_units)
       end
-
     end
 
+    context "with stubbed out #restock" do
+      before do
+        allow(stock_location).to receive(:restock)
+      end
+
+      it "calls #clear_total_on_hand_cache" do
+        expect(subject).to receive(:clear_total_on_hand_cache).with(variant)
+        subject.restock(variant, inventory_units)
+      end
+    end
   end
 
   describe "#unstock" do
@@ -88,7 +97,6 @@ describe Spree::Stock::Allocator do
     end
 
     context "unstock_on_hand is called with the correct parameters" do
-
       before do
         inventory_units.each do |iu|
           allow(iu).to receive(:pending=).with(false)
@@ -112,7 +120,17 @@ describe Spree::Stock::Allocator do
         expect(subject).to receive(:unstock_on_hand).with(variant, inventory_units.first(2) )
         subject.unstock(variant, inventory_units)
       end
+    end
 
+    context "with stubbed out #unstock_on_hand" do
+      before do
+        allow(subject).to receive(:unstock_on_hand)
+      end
+
+      it "calls #clear_total_on_hand_cache" do
+        expect(subject).to receive(:clear_total_on_hand_cache).with(variant)
+        subject.unstock(variant, inventory_units)
+      end
     end
   end
 
@@ -286,6 +304,16 @@ describe Spree::Stock::Allocator do
         expect(Helpers::AirbrakeNotifier).to receive(:notify).with("Stock Item has no supplier", notification_params)
         adjuster.send(:unstock_stock_item, stock_item, units)
       end
+    end
+  end
+
+
+  describe "#clear_total_on_hand_cache" do
+    it "should call #clear_total_on_hand_cache on Stock Quantifier" do
+      expect(Spree::Stock::Quantifier).to receive(:new).with(variant).and_call_original
+      expect_any_instance_of(Spree::Stock::Quantifier).to receive(:clear_total_on_hand_cache)
+
+      subject.send(:clear_total_on_hand_cache, variant)
     end
   end
 
