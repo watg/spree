@@ -209,29 +209,27 @@ module Spree
 
       describe "post payment notification" do
         it "is triggered when the payment_state changes to 'paid'" do
-          order.stub_chain(:line_items, :empty?).and_return(false)
-          order.stub :payment_total => 30
-          order.stub :total => 30
+          allow(order).to receive_message_chain(:payments, :valid, :size).and_return(1)
+          allow(order).to receive(:outstanding_balance?).and_return(false)
 
           updater.update_payment_state
-
-          order.payment_state = 'paid'
           expect(order).to have_received(:run_post_payment_tasks)
         end
 
         it "is not triggered when the new payment_state is not 'paid'" do
-          order.stub_chain(:payments, :last, :state).and_return('pending')
+          allow(order).to receive_message_chain(:payments, :valid, :size).and_return(1)
+          allow(order).to receive(:outstanding_balance?).and_return(true)
 
           updater.update_payment_state
           expect(order).not_to have_received(:run_post_payment_tasks)
         end
 
         it "is not triggered when the payment_state was already 'paid'" do
-          order.stub_chain(:line_items, :empty?).and_return(false)
-          order.stub :payment_total => 30
-          order.stub :total => 30
+          order.payment_state = 'paid'
+          order.save!
 
-          order.update_columns(payment_state: 'paid') # skip the callbacks
+          allow(order).to receive_message_chain(:payments, :valid, :size).and_return(1)
+          allow(order).to receive(:outstanding_balance?).and_return(false)
 
           updater.update_payment_state
           expect(order).not_to have_received(:run_post_payment_tasks)
