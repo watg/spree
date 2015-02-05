@@ -10,7 +10,7 @@
  * Table of contents
  *
  * Pagewide
- * Class specific
+ * Row specific
  */
 
 /**
@@ -19,6 +19,75 @@
  * @section pagewide
  */
 
- .video-tutorial {
+.video-tutorial {
+  /* Break the grid */
+  .row-shipping-and-contact + .container > div.row {
+    max-width: none !important;
+  }
+  .row-shipping-and-contact + .container > div.row > .columns {
+    padding: 0;
+  }
+  .wrapper-video-tutorial {
+    .row {
+      margin: 0 auto;
+      position: relative;
+      max-width: 62.5em;
+    }
+  }
+}
 
- }
+ /**
+ * Row specific
+ *
+ * @section row specific
+ */
+
+.video-tutorial {
+  .row-hero {
+    padding: emCalc(30px) 0;
+    text-align: center;
+    h1 {
+      margin-bottom: 20px;
+      font-size: emCalc(60px);
+    }
+    h2 {
+      margin-bottom: 0;
+      font-family: $watg-font-secondary-light;
+      font-size: emCalc(30px);
+    }
+    img {
+      margin-top: emCalc(30px);
+    }
+  }
+  .row-description {
+    padding-bottom: emCalc(30px);
+  }
+  .row-other-tutorials {
+    padding: emCalc(30px) 0;
+    text-align: center;
+    background-color: #f9f9f9;
+    h3 {
+      font-size: emCalc(40px);
+    }
+    h4 {
+      margin-bottom: emCalc(5px);
+      a {
+        text-decoration: underline;
+      }
+    }
+    p {
+      font-size: emCalc(20px);
+    }
+    img {
+      margin: emCalc(20px) 0;
+    }
+    .button {
+      margin-top: emCalc(30px);
+      font-size: emCalc(20px);
+    }
+  }
+  .row-olapic {
+    padding: emCalc(30px) 0;
+    text-align: center;
+  }
+}
