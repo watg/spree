@@ -89,5 +89,18 @@
   .row-olapic {
     padding: emCalc(30px) 0;
     text-align: center;
+    h3 {
+      font-size: emCalc(40px);
+    }
+    p {
+      font-family: $watg-font-secondary-light;
+      font-size: emCalc(20px);
+      text-transform: uppercase;
+      line-height: 1.25em;
+      strong {
+        font-family: $watg-font-secondary;
+        font-weight: normal;
+      }
+    }
   }
 }
