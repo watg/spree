@@ -32,7 +32,7 @@
         <td class="align-center"><%= print_job.job_type %></td>
         <td class="align-center"><%= print_job.orders.count %></td>
         <td class='actions align-center' data-hook="admin_print_jobs_index_row_actions">
-          <%= link_to_with_icon 'icon-print', "Reprint", admin_print_job_path(print_job), :title => "Reprint", :no_text => true, :class => 'print', :target => "_blank" %>
+          <%= link_to_with_icon 'print', "Reprint", admin_print_job_path(print_job), :title => "Reprint", :no_text => true, :class => 'print', :target => "_blank" %>
         </td>
       </tr>
     <% end %>

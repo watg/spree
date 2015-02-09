@@ -5,7 +5,7 @@
       <%= f.text_field :name, :class => 'fullwidth title' %>
       <%= f.error_message_on :name %>
       <span class="info">
-        <%= link_to_with_icon 'icon-external-link', "Jump to frontpage", suite_path(id: @suite.permalink), target: :blank %>
+        <%= link_to_with_icon 'external-link', "Jump to frontpage", suite_path(id: @suite.permalink), target: :blank %>
       </span>
     <% end %>
 

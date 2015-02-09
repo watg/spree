@@ -12,7 +12,7 @@
       <%= f.hidden_field :product_id, :class => "product_autocomplete fullwidth" %>
       <span class="info">
         <% if f.object.product %>
-          <%= link_to_with_icon 'icon-external-link', "Jump to product", edit_admin_product_path(id: f.object.product), target: :blank %>
+          <%= link_to_with_icon 'external-link', "Jump to product", edit_admin_product_path(id: f.object.product), target: :blank %>
         <% end %>
       </span>
     </div>

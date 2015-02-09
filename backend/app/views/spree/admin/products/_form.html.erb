@@ -216,10 +216,10 @@
 
   <div class="twelve columns alpha omega">
     <div class="field">
-      <label>Product Pages</label>
+      <label>Suite Pages</label>
       <span class="info">
         <% Spree::SuiteTab.where(product: @product).each do |tab| %>
-          <%= link_to_with_icon 'icon-external-link', "Jump to " + tab.suite.name, edit_admin_suite_path(tab.suite), target: :blank %>
+          <%= link_to_with_icon 'external-link', "Jump to " + tab.suite.name, edit_admin_suite_path(tab.suite), target: :blank %>
           <br>
         <% end %>
       </span>

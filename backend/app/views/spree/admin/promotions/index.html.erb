@@ -45,18 +45,13 @@
         </div>
       </div>
 
-      <div class="five columns">
+      <div class="four columns omega">
         <div class="field">
-          <%= label_tag nil, Spree.t(:path) %>
-          <%= f.text_field :path_cont, tabindex: 1 %>
-          <br>
-          <br>
           <label>
             <%= f.check_box :dynamic_null, {checked: @hide_dynamic}, '1', '0' %>
             Hide dynamic promotions
           </label>
         </div>
-
       </div>
 
 
