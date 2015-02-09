@@ -4,7 +4,7 @@
 <meta name="description" content="What's it like to knit in Stocking Stitch?" />
 <% end %>
 
-<% @body_class = 'video-tutorial stocking-stitch' %>
+<% @body_class = 'video-tutorial stocking-stitch static-olapic' %>
 
 <div class="wrapper-video-tutorial">
 
@@ -63,12 +63,20 @@
     </div>
   </div>
 
-  <div class="row row-olapic">
+  <div class="row row-follow">
       <div class="large-12 columns">
         <h3>We'd [HEART] to see <br/>your work Gang!</h3>
         <p>Follow @WATG on [ICON] [ICON] [ICON] and hashtag <br/>your pics using <strong>#shareyourknits</strong></p>
-        [OLAPIC]
       </div>
   </div>
+
+  <% unless mobile_device? %>
+  <div class="row row-olapic">
+    <div class="large-12 columns">
+      <div id="olapic_specific_widget"></div>
+      <script type="text/javascript" src="http://widgets.photorank.me/render?element_id=olapic_specific_widget&amp;customer_id=216176&amp;widget_config=886168101" async="async"></script>
+    </div>
+  </div>
+  <% end %>
 
 </div><!-- /wrapper -->
