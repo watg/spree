@@ -130,7 +130,9 @@ core.Navigation.readyTracking = function() {
         sub_label = ' (' + sub_name + ')';
       }
       // Track
-      ga('send', 'event', 'navigation', 'click', $(this).text().toLowerCase() + sub_label);
+      if (typeof ga !== 'undefined') {
+        ga('send', 'event', 'navigation', 'click', $(this).text().toLowerCase() + sub_label);
+      }
       // Continue
       location.href = $(this).attr('href');
     }
