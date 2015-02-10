@@ -35,6 +35,7 @@ module Spree
         email: @order.email,
         items: htmlify(:line_items),
         items_total: @order.item_total.to_s,
+        shipment_total: @order.shipment_total.to_s,
         adjustments: htmlify(:adjustements),
         adjustments_total: @order.adjustment_total.to_s,
         currency: @order.currency,
