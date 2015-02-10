@@ -1,4 +1,4 @@
-/* Competitions - using refer a friend */
+/* Competitions - using spree-chimpy refer a friend */
 .competition {
   h1 {
     text-align: center;
@@ -14,80 +14,81 @@
   .row-referral {
     /*min-height: 654px;*/
     margin: -3em 0 3em;
+    form {
+      h3 {
+        font-family: "Gill Sans W01 Light";
+        font-size: 1.25em;
+      }
+      .error {
+        margin: 2.75em 0 -1.75em;
+      }
+      // .wait, p.thanks {
+      //   margin: 2.75em 0 3em;
+      //   font-family: "Gill Sans W01 Light";
+      //   font-size: 1.5em;
+      //   line-height: 1.25em;
+      //   text-align: center;
+      //   text-transform: uppercase;
+      // }
+      fieldset:nth-child(0) {
+        margin-top: 2em;
+      }
+      fieldset {
+        margin-top: 3em;
+        padding: 0;
+        background: none;
+        border: 0;
+        p {
+          margin: 0;
+        }
+      }
 
-    h3 {
-      font-family: "Gill Sans W01 Light";
-      font-size: 1.25em;
-    }
-
-    .text-center {
-      font-size: 0.75em;
-      a {
-        text-decoration: underline;
+      #referrerForm {
+        fieldset {
+          margin-top: 3em;
+          p {
+            margin: 0;
+          }
+          small {
+            font-size: 0.75em;
+            color: #999;
+          }
+        }
+        input {
+          margin-bottom: 0;
+        }
+      }
+      #refereeForm {
+        text-align: center;
+        fieldset {
+          margin-top: 0;
+          margin-bottom: 3em;
+        }
+        p {
+          margin-bottom: 1.25em;
+          text-transform: uppercase;
+          text-align: right;
+          font-size: 0.875em;
+          a {
+            font-family: "Trade Gothic W01 Bold";
+            font-size: 1.125em;
+            line-height: 1em;
+            text-transform: uppercase;
+            text-decoration: underline;
+          }
+        }
+        p:before {
+          content: '+ ';
+        }
       }
     }
-    .error {
-      margin: 2.75em 0 -1.75em;
-    }
-    .wait, .thanks {
+    .wait, p.thanks {
       margin: 2.75em 0 3em;
       font-family: "Gill Sans W01 Light";
       font-size: 1.5em;
       line-height: 1.25em;
       text-align: center;
       text-transform: uppercase;
-    }
-    fieldset:nth-child(0) {
-      margin-top: 2em;
-    }
-    fieldset {
-      margin-top: 3em;
-      padding: 0;
-      background: none;
-      border: 0;
-      p {
-        margin: 0;
-      }
-    }
-  }
-  #referrerForm {
-    fieldset {
-      margin-top: 3em;
-      p {
-        margin: 0;
-      }
-      small {
-        font-size: 0.75em;
-        color: #999;
-      }
-    }
-    input {
-      margin-bottom: 0;
-    }
-  }
-  #refereeForm {
-    fieldset {
-      margin-top: 0;
-      margin-bottom: 3em;
-    }
-    p {
-      margin-bottom: 1.25em;
-      text-transform: uppercase;
-      text-align: right;
-      font-size: 0.875em;
-      a {
-        font-family: "Trade Gothic W01 Bold";
-        font-size: 1.125em;
-        line-height: 1em;
-        text-transform: uppercase;
-        text-decoration: underline;
-      }
-    }
-    p:before {
-      content: '+ ';
-    }
-    button {
-      float: right;
     }
   }
   .terms {
