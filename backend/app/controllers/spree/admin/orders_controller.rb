@@ -2,7 +2,7 @@ module Spree
   module Admin
     class OrdersController < Spree::Admin::BaseController
       before_filter :initialize_order_events
-      before_filter :load_order, :only => [:edit, :update, :cancel, :resume, :approve, :resend, :open_adjustments, :close_adjustments, :important]
+      before_filter :load_order, :only => [:edit, :update, :cancel, :resume, :approve, :resend, :open_adjustments, :close_adjustments, :important, :gift_card_reissue]
 
       respond_to :html
 
@@ -79,7 +79,7 @@ module Spree
       end
 
       def gift_card_reissue
-        @order.deliver_gift_card_emails
+        Spree::GiftCardJobCreator.new(@order).run
         flash[:success] = "All gift cards will be re-issued for order #{@order.number}"
         redirect_to edit_admin_order_url(@order)
       end

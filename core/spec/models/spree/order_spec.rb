@@ -1061,4 +1061,18 @@ describe Spree::Order do
       end
     end
   end
+
+  describe "#run_post_payment_tasks" do
+    let(:notifier) { double(Spree::OrderPostPaymentNotifier, process: true) }
+    subject(:order) { build(:order) }
+
+    before do
+      allow(Spree::OrderPostPaymentNotifier).to receive(:new).with(order).and_return(notifier)
+    end
+
+    it "runs the OrderPostPaymentNotifier" do
+      order.run_post_payment_tasks
+      expect(notifier).to have_received(:process)
+    end
+  end
 end

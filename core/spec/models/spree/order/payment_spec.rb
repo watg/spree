@@ -11,6 +11,9 @@ module Spree
 
       order.stub_chain(:line_items, :empty?).and_return(false)
       order.stub :total => 100
+
+      notifier = double(Spree::OrderPostPaymentNotifier, process: true)
+      allow(Spree::OrderPostPaymentNotifier).to receive(:new).and_return(notifier)
     end
 
     it 'processes all payments' do

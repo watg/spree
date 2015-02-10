@@ -164,6 +164,10 @@ module Spree
       end
     end
 
+    def run_post_payment_tasks
+      OrderPostPaymentNotifier.new(self).process
+    end
+
     def max_dimension
       parcels_grouped_by_box.map(&:longest_edge).sort{ |a,b| b <=> a }.first
     end
@@ -437,7 +441,6 @@ module Spree
 
       touch :completed_at
 
-      deliver_gift_card_emails
       unless confirmation_delivered? || internal?
         deliver_order_confirmation_email
       end
@@ -446,15 +449,6 @@ module Spree
 
       # temporary notification until we implement the Assembly State Machine
       mark_as_internal_and_send_email_if_assembled
-    end
-
-    def deliver_gift_card_emails
-      self.gift_card_line_items.each do |item|
-        item.quantity.times {|position|
-          job = Spree::IssueGiftCardJob.new(self, item, position)
-          ::Delayed::Job.enqueue job, :queue => 'gift_card'
-        }
-      end
     end
 
     # temporary notification until we implement the Assembly State Machine

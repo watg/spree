@@ -99,6 +99,7 @@ module Spree
       base['variant']['id'] = variant.id
       base['variant']['in_stock'] = variant.in_stock_cache
       base['variant']['number'] = variant.number
+      base['variant']['is_digital'] = variant.digital?
     end
 
     def add_prices_to_base(base, variant)

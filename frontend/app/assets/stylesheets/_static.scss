@@ -584,10 +584,12 @@ body.thank-you {
   }
 }
 
-/* Our story/Yarn/Knit party */
+/* Our story/Yarn/Knit party/meet our yarn  */
+/* e.g any design that breaks out of the grid... */
 .our-story,
 .yarn,
-.knit-party {
+.knit-party-landing,
+.meet-our-yarn {
 	/* Full width */
 	.row-shipping-and-contact + .container > div.row {
 		max-width: none !important;
@@ -597,14 +599,16 @@ body.thank-you {
 	}
 	.wrapper-our-story div.row,
 	.wrapper-yarn div.row,
-	.wrapper-knit-party div.row {
+	.wrapper-knit-party div.row,
+	.wrapper-meet-our-yarn div.row {
 		margin: 0 auto;
 		position: relative;
 		max-width: 62.5em;
 	}
 	.wrapper-our-story,
 	.wrapper-yarn,
-	.wrapper-knit-party {
+	.wrapper-knit-party,
+	.wrapper-meet-our-yarn {
     .only-mobile {
       display: none;
     }
@@ -903,158 +907,6 @@ body.thank-you {
   .inner-list {
     list-style-type: none;
   }
-}
-
-/* Knit party cont...*/
-.knit-party {
-	.wrapper-knit-party {
-		.row-halves {
-			overflow: hidden;
-			.columns {
-				height: 600px;
-				@media only screen and (max-width: 520px) {
-					height: inherit;
-				}
-			}
-		}
-		/* Row specific */
-		.row-map {
-			background: cdn-url('/party/KnitParty_Hero_DESKTOP.jpg') center 0 no-repeat;
-			h1 {
-				margin-top: emCalc(85px);
-				/*padding-top: emCalc(30px);*/
-			}
-			@media only screen and (max-width: 520px) {
-				background: cdn-url('/party/KnitParty_Hero_MOBILE.jpg') center center no-repeat;
-				h1 {
-					margin: emCalc(37px) 0 emCalc(37px) 0;
-				}
-			}
-		}
-		.description {
-			padding: 0;
-			margin: 0;
-			.smaller {
-				font-size: 0.9em;
-			}
-			h3 {
-				padding: 0;
-				margin: 0;
-			}
-			@media only screen and (max-width: 520px) {
-				padding: 0 0 20px 0;
-				margin: 0;
-			}
-		}
-		.button {
-			text-decoration: none;
-			margin: emCalc(20px);
-		}
-		.column-why-host {
-			background: cdn-url('/party/Why_Host_2_DESKTOP.jpg') center center no-repeat;
-			@media only screen and (max-width: 520px) {
-				background: cdn-url('/party/Why_Host_2_MOBILE.jpg') center center no-repeat;
-			}
-		}
-		.column-free-goodies {
-			background: cdn-url('/party/snood-desktop.jpg') center center no-repeat;
-			@media only screen and (max-width: 520px) {
-				background: cdn-url('/party/snood-mobile.jpg') center center no-repeat;
-
-			}
-		}
-		.column-how-it-works {
-			background: cdn-url('/party/Why_Host_DESKTOP.jpg') center center no-repeat;
-			@media only screen and (max-width: 520px) {
-				background: cdn-url('/party/Why_Host_MOBILE.jpg') center center no-repeat;
-			}
-		}
-		.column-sum {
-			.illustration {
-				margin-top: 70px;
-			}
-			p {
-				font-family: $watg-font;
-				text-transform: uppercase;
-				line-height: 1em;
-				float: left;
-				width: 35%;
-				margin-left: 10%;
-			}
-			p:last-child {
-				float: right;
-				margin-left: 0;
-				margin-right: 10%;
-			}
-			@media only screen and (max-width: 520px) {
-				p {
-					padding-bottom: emCalc(40px);
-				}
-			}
-		}
-		.column-party-info {
-			background-color: #f9f9f9;
-			padding: emCalc(40px) 0 emCalc(60px) 0;
-			font-size: emCalc(20px);
-			span {
-				font-size: emCalc(10px);
-			}
-			@media only screen and (max-width: 520px) {
-				p {
-					padding: emCalc(40px) emCalc(20px) emCalc(40px);
-				}
-			}
-		}
-		.info-first {
-			padding: emCalc(85px);
-			@media only screen and (max-width: 520px) {
-				padding: emCalc(40px) emCalc(10px) emCalc(40px);
-			}
-		}
-		.heading {
-			h2 {
-				padding-top:80px;
-				@media only screen and (max-width: 520px) {
-					padding: emCalc(30px);
-					line-height: 1.1em;
-				}
-				@media only screen and (max-width: 320px) {
-					padding: emCalc(10px);
-				}
-			}
-		}
-		.row-cta {
-			@media only screen and (max-width: 48em) {
-				h2 {
-					margin: 30px 0 0 0 !important;
-					float: none;
-				}
-			}
-		}
-		.submit-button {
-			text-align: center;
-		}
-	}
-	form {
-		text-transform: uppercase;
-		.dropdown
-		 {
-			padding-bottom: 27px !important;
-		}
-	}
-	/*mail chimp form hackage*/
-	#mc_embed_signup #mce-success-response {
-		color: #5b06aa !important;
-		text-align: center !important;
-	}
-
-	#mc_embed_signup .button {
-		background-color: #242021;
-	}
-
-	#mc_embed_signup .button:hover {
-		background-color: #242021;
-	}
 }
 
 .whistles-landing {

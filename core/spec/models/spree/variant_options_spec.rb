@@ -237,8 +237,22 @@ describe Spree::VariantOptions do
           attributes['part_price'].should == 0
         end
 
-
       end
+
+       context "digital"
+        let(:digital) { Spree::Digital.new variant: variant_in_stock1 }
+
+        it "should have is_digital is download available" do
+          variant_in_stock1.digitals = [digital]
+
+          tree = subject.tree
+          variant_1 = tree["size"]["small"]["colour"]["pink"]["variant"]
+          variant_1['is_digital'].should == true
+
+          variant_2 = tree["size"]["big"]["colour"]["pink"]["variant"]
+          variant_2['is_digital'].should == false
+        end
+
 
     end
 

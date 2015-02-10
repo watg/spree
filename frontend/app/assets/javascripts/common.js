@@ -182,10 +182,7 @@ WATG.referral = {
 
 	showThanks: function() {
 		$('p.wait').remove();
-		// allows for different messages between competitions
-		var message = this.referralForm.find('#success-message').html()
-		$(message).hide().insertBefore(this.referralForm).fadeIn('slow').focus();
-
+		document.getElementById("success-message").className = "show";
 	},
 
 	showError: function() {

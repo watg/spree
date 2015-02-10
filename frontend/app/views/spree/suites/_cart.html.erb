@@ -29,7 +29,8 @@
         <div class="large-6 small-12 columns">
           <h1><%= product_presenter.name %></h1>
           <p class="stock-level">Low stock <span class="stock-value"></span></p>
-    
+          <p class="digital-available">PDF + Printed Pattern</p>
+
           <div class="cart-form" data-hook="cart_form">
             <%= form_for :order, :url => populate_orders_path do |f| %>
               <%= hidden_field_tag "suite_id", suite_presenter.id %>
