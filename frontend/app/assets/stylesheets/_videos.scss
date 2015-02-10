@@ -34,6 +34,9 @@
       max-width: 62.5em;
     }
   }
+  a:hover {
+    text-decoration: none;
+  }
 }
 
  /**
@@ -101,6 +104,9 @@
         font-family: $watg-font-secondary;
         font-weight: normal;
       }
+    }
+    .icon-heart {
+      color: #2e3192;
     }
   }
 }
