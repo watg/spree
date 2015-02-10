@@ -13,6 +13,12 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
       expect(assigns[:all_boxes]).to eq(:boxes)
     end
 
+    it "should use filter params" do
+      filter_params={'first_filter'=> 'test1','second_filter'=>'test2'}
+      expect(Spree::Order).to receive(:ransack).with(filter_params).and_call_original
+      spree_get :index, { q: filter_params }
+    end
+
     it "assigns the print batch size, number of unprinted invoices and stickers" do
       expect(Spree::Order).to receive(:unprinted_invoices).and_return(["order1"])
       expect(Spree::Order).to receive(:unprinted_image_stickers).and_return(["order2", "order3"])
