@@ -207,7 +207,7 @@ module Spree
     end
 
 
-    
+
 
     # Use this method in other gems that wish to register their own custom logic
     # that should be called after Order#update
@@ -256,6 +256,10 @@ module Spree
     # Sum of all line item amounts pre-tax
     def pre_tax_item_amount
       line_items.to_a.sum(&:pre_tax_amount)
+    end
+
+    def delivery_time
+      self.shipments.first.shipping_method.duration
     end
 
     def currency
@@ -848,7 +852,7 @@ module Spree
       refunds.non_reimbursement.exists? ||
         payments.offset_payment.exists? # how old versions of spree stored refunds
     end
-    
+
     def active_hold_note
       order_notes.last if on_hold?
     end
