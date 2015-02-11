@@ -202,7 +202,7 @@ describe Spree::Order do
 
   describe "#can_ship?" do
     let(:order) { build(:order) }
-    let(:valid_states) { %w(complete resumed awaiting_return returned warehouse_on_hold customer_service_on_hold) }
+    let(:valid_states) { %w(complete resumed awaiting_return returned) }
 
     it "is true for shippable states" do
       valid_states.each do |state|
@@ -218,6 +218,28 @@ describe Spree::Order do
       other_states.each do |state|
         order.state = state
         expect(order.can_ship?).to be_false
+      end
+    end
+  end
+
+  describe "#can_allocate_stock?" do
+    let(:order) { build(:order) }
+    let(:valid_states) { %w(complete resumed awaiting_return returned warehouse_on_hold customer_service_on_hold) }
+
+    it "is true for stock allocatable states" do
+      valid_states.each do |state|
+        order.state = state
+        expect(order.can_allocate_stock?).to be_true
+      end
+    end
+
+    it "is false for all other states" do
+      other_states = Spree::Order.state_machine.states.map(&:name) -
+        valid_states
+
+      other_states.each do |state|
+        order.state = state
+        expect(order.can_allocate_stock?).to be_false
       end
     end
   end

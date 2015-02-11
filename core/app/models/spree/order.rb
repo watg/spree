@@ -92,7 +92,8 @@ module Spree
     class_attribute :update_hooks
     self.update_hooks = Set.new
 
-    SHIPPABLE_STATES = %w(complete resumed awaiting_return returned warehouse_on_hold customer_service_on_hold)
+    SHIPPABLE_STATES = %w(complete resumed awaiting_return returned)
+    STOCK_ALLOCATABLE_STATES = SHIPPABLE_STATES + %w(warehouse_on_hold customer_service_on_hold)
 
     class << self
       def by_number(number)
@@ -417,6 +418,10 @@ module Spree
       SHIPPABLE_STATES.include?(self.state)
     end
 
+    def can_allocate_stock?
+      STOCK_ALLOCATABLE_STATES.include?(self.state)
+    end
+
     def credit_cards
       credit_card_ids = payments.from_credit_card.pluck(:source_id).uniq
       CreditCard.where(id: credit_card_ids)
@@ -594,6 +599,14 @@ module Spree
       # So that the destroy doesn't take out line items which may have been re-assigned
       order.line_items.reload
       order.destroy
+    end
+
+    def reactivate_gift_cards!
+      # Another way we could achieve the same effect
+      #adjustments.gift_card.map(&:source).select(&:redeemed?).each do |gift_card|
+      Spree::GiftCard.redeemed.where(beneficiary_order: self).each do |gift_card|
+        gift_card.reactivate
+      end
     end
 
     def empty!

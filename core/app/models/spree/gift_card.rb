@@ -1,6 +1,8 @@
 module Spree
   class GiftCard < ActiveRecord::Base
-    STATES = %w(not_redeemed redeemed paused cancelled refunded)
+    NOT_REDEEMED = 'not_redeemed'
+    REDEEMED = 'redeemed'
+    STATES = [NOT_REDEEMED, REDEEMED] + %w(paused cancelled refunded)
     acts_as_paranoid
 
     belongs_to :buyer_order_line_item, class_name: "Spree::LineItem"
@@ -11,6 +13,8 @@ module Spree
     before_create     :generate_code
 
     validates :state, inclusion: { in: STATES }
+
+    scope :redeemed, -> { where(state: REDEEMED) }
 
     state_machine :state, initial: :not_redeemed do
       event :redeem do
@@ -86,9 +90,10 @@ module Spree
     def reactivate
       self.beneficiary_email = nil
       self.beneficiary_order = nil
-      self.state = STATES.first
+      self.state = NOT_REDEEMED
       self.save
     end
+
     private
     def set_beneficiary(order)
       self.beneficiary_order = order
@@ -107,7 +112,7 @@ module Spree
     def creation_setup
       self.expiry_date = 1.year.from_now        if self.expiry_date.blank?
       self.buyer_email = self.buyer_order.email if self.buyer_email.blank?
-      self.state = STATES.first                 if self.state.blank?
+      self.state = NOT_REDEEMED                 if self.state.blank?
     end
 
     def generate_code

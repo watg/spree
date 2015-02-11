@@ -182,7 +182,7 @@ WATG.referral = {
 
 	showThanks: function() {
 		$('p.wait').remove();
-		document.getElementById("success-message").className = "show";
+		$('.success-message').show();
 	},
 
 	showError: function() {
