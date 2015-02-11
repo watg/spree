@@ -46,12 +46,14 @@
       <% get_taxonomies.each do |taxonomy| %>
         <li><%= link_to( taxonomy.name, seo_url(taxonomy.root) ) %></li>
       <% end %>
+      <li><%= link_to('Meet Our Yarn', '/meet-our-yarn') %></li>
     <% else %>
       <li><%= link_to('Collections', '/shop/knitwear/collections') %></li>
       <li><%= link_to('Women', '/shop/knitwear/women') %></li>
       <li><%= link_to('Men', '/shop/knitwear/men') %></li>
       <li><%= link_to('Kids', '/shop/knitwear/kids') %></li>
       <li><%= link_to('Knitting', '/shop/knitwear/knitting') %></li>
+      <li><%= link_to('Meet Our Yarn', '/meet-our-yarn') %></li>
     <% end %>
   </ul>
 </section>

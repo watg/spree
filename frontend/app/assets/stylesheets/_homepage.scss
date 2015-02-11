@@ -115,15 +115,15 @@ body.homepage {
 
 .home-main .leader-party {
 	/* Small screen background */
-	background: #fff cdn-url("homepage/2015-02-10/homepage-party-mobile.jpg") top center no-repeat;
+	background: #fff cdn-url("homepage/2015-02-10/homepage-party-mobile-updated.jpg") top center no-repeat;
 	& > div {
-		height: 449px;
+		height: 489px;
 	}
 	/* Large screen background */
 	@media only screen and (min-width: 56em) {
-		background: #fff cdn-url("homepage/2015-02-10/homepage-party-desktop.jpg") top center no-repeat;
+		background: #fff cdn-url("homepage/2015-02-10/homepage-party-desktop-updated.jpg") top center no-repeat;
 		& > div {
-			height: 670px;
+			height: 696px;
 		}
 	}
 }
