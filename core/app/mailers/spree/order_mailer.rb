@@ -31,28 +31,59 @@ module Spree
 
     def order_data
       {
-        order_number: @order.number,
-        email: @order.email,
-        items: htmlify(:line_items),
-        items_total: @order.item_total.to_s,
-        shipment_total: @order.shipment_total.to_s,
-        adjustments: htmlify(:adjustements),
-        adjustments_total: @order.adjustment_total.to_s,
-        currency: @order.currency,
-        payment_total: @order.total.to_s
+          order_number: @order.number,
+          email: @order.email,
+          items: htmlify(:line_items),
+          items_total: items_total.to_html,
+          shipment_total: shipment_total.to_html,
+          adjustments: htmlify(:taxes),
+          promotions: htmlify(:promotions),
+          adjustments_total: adjustments_total.to_html,
+          delivery_time: @order.delivery_time,
+          currency: @order.currency,
+          payment_total: order_total.to_html
       }
     end
 
-    def adjustements_template
-      t =<<EOF
-<% @order.adjustments.eligible.each do |adjustment| %>
-<% next if (adjustment.source_type == 'Spree::TaxRate') and (adjustment.amount == 0) %>
-<tr>
-<td><%= adjustment.label %>: <%= adjustment.display_amount.to_html %></td>
-</tr>
-<% end %>
-EOF
-      t
+    def shipment_total
+      Spree::Money.new(@order.shipment_total, { currency: @order.currency })
+    end
+
+    def items_total
+      Spree::Money.new(@order.item_total, { currency: @order.currency })
+    end
+
+    def adjustments_total
+      Spree::Money.new(@order.adjustment_total, { currency: @order.currency })
+    end
+
+    def order_total
+      Spree::Money.new(@order.total, { currency: @order.currency })
+    end
+
+
+    def promotions_template
+      adjustments_template(@order.all_adjustments.promotion.eligible.group_by(&:label))
+    end
+
+    def taxes_template
+      adjustments_template( @order.all_adjustments.tax.eligible.group_by(&:label))
+    end
+
+    def adjustments_template(adjustments)
+      template=''
+      adjustments.each do |label, adjustments|
+        next if adjustments.sum(&:amount) == 0
+        template+='<tr>'+
+            '<td colspan=3 style="font-family:\'Helvetica Neue\', Helvetica, Arial, sans-serif; font-size:12px; border-top: dotted 1px; padding: 10px;" >'+
+            label+
+            '</td>'+
+            '<td style="font-family:\'Helvetica Neue\', Helvetica, Arial, sans-serif; font-size:12px; border-top: dotted 1px; padding: 10px;" >'+
+            Spree::Money.new(adjustments.sum(&:amount), { currency: @order.currency }).to_html +
+            '</td>'+
+            '</tr>'
+      end
+      template
     end
 
     def line_items_template
