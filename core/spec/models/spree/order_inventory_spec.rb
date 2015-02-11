@@ -27,7 +27,7 @@ module Spree
         allow(allocator).to receive(:unstock)
       end
 
-      context "order can not be shipped" do
+      context "order can not have stock allocated to it" do
         before { order.stub can_allocate_stock?: false }
 
         it "doesn't unstock items" do
@@ -36,7 +36,7 @@ module Spree
         end
       end
 
-      context "order can be shipped" do
+      context "order can have stock allocated to it" do
         before do
           order.stub can_allocate_stock?: true
           allow(shipment).to receive(:set_up_inventory).and_return(inventory_unit)
@@ -180,7 +180,7 @@ module Spree
       let(:shipment) { order.shipments.first }
       let(:variant) { subject.variant }
 
-      context "order can not be shippped" do
+      context "order can not have stock allocated to it" do
         before { order.stub can_allocate_stock?: false }
 
         it "doesn't restock items" do
@@ -189,7 +189,7 @@ module Spree
         end
       end
 
-      context "order can be shipped" do
+      context "order can have stock allocated to it" do
         let!(:mock_inventory_unit) { mock_model(Spree::InventoryUnit)}
 
         before do

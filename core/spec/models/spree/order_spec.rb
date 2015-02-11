@@ -226,7 +226,7 @@ describe Spree::Order do
     let(:order) { build(:order) }
     let(:valid_states) { %w(complete resumed awaiting_return returned warehouse_on_hold customer_service_on_hold) }
 
-    it "is true for shippable states" do
+    it "is true for stock allocatable states" do
       valid_states.each do |state|
         order.state = state
         expect(order.can_allocate_stock?).to be_true
