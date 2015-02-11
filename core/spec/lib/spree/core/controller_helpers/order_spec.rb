@@ -28,7 +28,7 @@ describe Spree::Core::ControllerHelpers::Order, type: :controller do
       end
 
       it 'calls Spree::Order#reactive_gift_cards method' do
-        expect(incomplete_order).to receive(:reactivate_gift_cards)
+        expect(incomplete_order).to receive(:reactivate_gift_cards!)
         controller.set_current_order
       end
 
