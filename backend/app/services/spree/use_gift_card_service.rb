@@ -10,7 +10,9 @@ module Spree
       if card
         card.redeem!
         card.create_adjustment(adjustment_label(card), order, order, true)
-        ::Delayed::Job.enqueue Spree::GiftCardOrderTTLJob.new(order, card), queue: 'gift_card', run_at: 2.hours.from_now
+        # Disabled as it was causing to many Customer care queries, there is also some logic which merges reactivates a used
+        # giftcard if is part of a incomplete order in the order_helper #set_current_order.
+        #::Delayed::Job.enqueue Spree::GiftCardOrderTTLJob.new(order, card), queue: 'gift_card', run_at: 2.hours.from_now
         return success_message(card)
       end
       card
