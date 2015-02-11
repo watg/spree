@@ -92,7 +92,8 @@ module Spree
     class_attribute :update_hooks
     self.update_hooks = Set.new
 
-    SHIPPABLE_STATES = %w(complete resumed awaiting_return returned warehouse_on_hold customer_service_on_hold)
+    SHIPPABLE_STATES = %w(complete resumed awaiting_return returned)
+    STOCK_ALLOCATABLE_STATES = SHIPPABLE_STATES + %w(warehouse_on_hold customer_service_on_hold)
 
     class << self
       def by_number(number)
@@ -415,6 +416,10 @@ module Spree
 
     def can_ship?
       SHIPPABLE_STATES.include?(self.state)
+    end
+
+    def can_allocate_stock?
+      STOCK_ALLOCATABLE_STATES.include?(self.state)
     end
 
     def credit_cards
