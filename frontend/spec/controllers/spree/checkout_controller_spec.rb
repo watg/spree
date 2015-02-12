@@ -64,6 +64,7 @@ describe Spree::CheckoutController, :type => :controller do
   end
 
   context "#update" do
+
     it 'should check if the user is authorized for :edit' do
       expect(controller).to receive(:authorize!).with(:edit, order, token)
       request.cookie_jar.signed[:guest_token] = token
@@ -168,6 +169,42 @@ describe Spree::CheckoutController, :type => :controller do
             expect(order.ship_address.id).to eq(@expected_ship_address_id)
           end
         end
+      end
+
+      context "when in the delivery state" do
+        before do
+          order.update_columns(ship_address_id: create(:address).id, state: "delivery")
+          allow(order).to receive_messages user: user
+        end
+
+        it "should advance the state" do
+        #  spree_post_address
+          spree_post :update, {:state => "delivery"}
+          expect(order.reload.state).to eq("complete")
+        end
+
+        it "should redirect the next state" do
+          spree_post :update, {:state => "delivery"}
+          expect(response).to redirect_to spree.order_path(order)
+        end
+
+        context "coupon code added" do
+
+          it "should redirect to the current state" do
+            spree_post :update, {:state => "delivery", :refresh_page => ''}
+            expect(response).to redirect_to spree.checkout_state_path("delivery")
+          end
+
+        end
+
+
+
+        #it "should redirect to the payment view" do
+        #  spree_post :update, {:state => "delivery"}
+        #  expect(response).to redirect_to spree.checkout_state_path("confirm")
+        #  #"refresh_page"=>""
+        #end
+
       end
 
       context "when in the confirm state" do
