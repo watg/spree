@@ -20,12 +20,12 @@ module Spree
     belongs_to :shipping_method_duration, :class_name => 'Spree::ShippingMethodDuration',
                               :foreign_key => 'shipping_method_duration_id'
 
-    validates :name,:shipping_method_duration_id, presence: true
+    validates :name, :shipping_method_duration_id, presence: true
 
     validate :at_least_one_shipping_category
 
-    def duration
-      self.shipping_method_duration.description
+    def duration_description
+      self.shipping_method_duration.description if self.shipping_method_duration.present?
     end
 
     def include?(address)
