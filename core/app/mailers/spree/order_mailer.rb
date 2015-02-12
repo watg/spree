@@ -46,19 +46,19 @@ module Spree
     end
 
     def shipment_total
-      Spree::Money.new(@order.shipment_total, { currency: @order.currency })
+      format_money @order.shipment_total
     end
 
     def items_total
-      Spree::Money.new(@order.item_total, { currency: @order.currency })
+      format_money @order.item_total
     end
 
     def adjustments_total
-      Spree::Money.new(@order.adjustment_total, { currency: @order.currency })
+      format_money @order.adjustment_total
     end
 
     def order_total
-      Spree::Money.new(@order.total, { currency: @order.currency })
+      format_money @order.total
     end
 
 
@@ -70,6 +70,10 @@ module Spree
       adjustments_template( @order.all_adjustments.tax.eligible.group_by(&:label))
     end
 
+    def format_money(amount)
+      Spree::Money.new(amount, { currency: @order.currency })
+    end
+
     def adjustments_template(adjustments)
       template=''
       adjustments.each do |label, adjustments|
@@ -79,7 +83,7 @@ module Spree
             label+
             '</td>'+
             '<td style="font-family:\'Helvetica Neue\', Helvetica, Arial, sans-serif; font-size:12px; border-top: dotted 1px; padding: 10px;" >'+
-            Spree::Money.new(adjustments.sum(&:amount), { currency: @order.currency }).to_html +
+            format_money(adjustments.sum(&:amount)).to_html +
             '</td>'+
             '</tr>'
       end
