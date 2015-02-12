@@ -1,13 +1,13 @@
 module Spree
-  class ShipmentMailer < BaseMailer
+  class ShipmentMailer < StatusMailer
     def shipped_email(shipment, resend = false)
       @shipment = shipment.respond_to?(:id) ? shipment : Spree::Shipment.find(shipment)
       subject = (resend ? "[#{Spree.t(:resend).upcase}] " : '')
       subject += "#{Spree::Store.current.name} #{Spree.t('shipment_mailer.shipped_email.subject')} ##{@shipment.order.number}"
       mail(to: @shipment.order.email, from: from_address, subject: subject)
-
-      mandrill_default_headers(tags: "shipment", template: "#{I18n.locale}_shipped_metapack_email")
-      headers['X-MC-MergeVars'] = shipment_data.to_json
+      
+      mandrill_default_headers(tags: "shipment", template: "test_en_shipped_metapack_email")
+      headers['X-MC-MergeVars'] = shipment_data(@shipment.order).to_json
     end
 
     def survey_email(order)
@@ -19,37 +19,29 @@ module Spree
 
       mandrill_default_headers(tags: "order survey", template: "#{I18n.locale}_survey_email")
       headers['X-MC-MergeVars'] = {
-          order_number: order_number,
-          email: email,
-          name: name
-        }.to_json
+        order_number: order_number,
+        email: email,
+        name: name
+      }.to_json
     end
 
     private
-    def shipment_data
-      {
-        manifest: htmlify(:manifest),
-        tracking_details: htmlify(:tracking)
-      }
+
+    def shipment_data(order)
+      order_data(order).merge(
+        {
+          parcel_details: tracking_details
+        })
     end
 
-    def manifest_template
-      t=<<EOF
-<% @shipment.manifest.each do |item| %>
-<tr><td><%= item.variant.product.name %>: <%= item.variant.options_text %></td></tr>
-<% end %>
-EOF
-      t
-    end
-
-
-    def tracking_template
-      t=<<EOF
-<% @shipment.order.parcels.each_with_index do |parcel, index| %>
-<tr><td>Parcel <%= index + 1 %> - <%= parcel.metapack_tracking_url %></td></tr>
-<% end %>
-EOF
-      t
+    def tracking_details
+      t = "<p>You can track your order here: </p>"
+        @shipment.order.parcels.each_with_index do |parcel, index|
+          t += "<p>Parcel " +
+            (index + 1).to_s +
+            ": " + parcel.metapack_tracking_url.to_s + "</p>"
+        end
+      t.to_html
     end
   end
 end
