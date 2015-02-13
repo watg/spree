@@ -142,6 +142,9 @@ module Spree
     end
 
     def before_address
+      # call explicitly here as the `callback` is called
+      # only when the order's `state` changes.
+      @order.assign_default_addresses!
       # if the user has a default address, a callback takes care of setting
       # that; but if he doesn't, we need to build an empty one here
       @order.bill_address ||= Address.build_default
