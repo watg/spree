@@ -40,10 +40,7 @@ module Metapack
 
       if !response.success?
         Rails.logger.info(response.body)
-        message =<<EOF
-/!\\ The request to Metapack failed /!\\
-#{response.find("faultstring")}
-EOF
+        message = "/!\\ #{response.find('faultstring')} /!\\"
         
         raise message
       end

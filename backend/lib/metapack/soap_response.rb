@@ -13,7 +13,7 @@ module Metapack
     end
 
     def find(css_selector)
-      doc.at_css(css_selector).text
+      doc.at_css(css_selector).try(:text)
     end
 
     def find_all(css_selector, children)

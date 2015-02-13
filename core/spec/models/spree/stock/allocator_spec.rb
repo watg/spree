@@ -293,15 +293,11 @@ describe Spree::Stock::Allocator do
       end
 
       it "sends an airbrake notification" do
-        notifier = double
-        notification_params = {
-          stock_item_id: stock_item.id
-        }
-
+        # notifier = double
         #expect(notifier).to receive(:notify).with("Stock Item has no supplier", notification_params)
         #expect(Helpers::AirbrakeNotifier).to receive(:delay).and_return(notifier)
         # async above sync below
-        expect(Helpers::AirbrakeNotifier).to receive(:notify).with("Stock Item has no supplier", notification_params)
+        expect(Helpers::AirbrakeNotifier).to receive(:notify).with("Stock Item has no supplier", kind_of(Hash)).and_call_original
         adjuster.send(:unstock_stock_item, stock_item, units)
       end
     end
