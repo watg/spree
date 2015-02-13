@@ -4,7 +4,7 @@
 
 <% content_for :page_actions do %>
   <li id="new_supplier">
-    <%= button_link_to Spree.t(:new_supplier), new_object_url, { :remote => true, :icon => 'icon-plus', :id => 'admin_new_supplier' } %>
+    <%= button_link_to Spree.t(:new_supplier), new_object_url, { :remote => true, :icon => 'fa fa-plus', :id => 'admin_new_supplier' } %>
   </li>
 <% end %>
 
@@ -68,7 +68,7 @@
         <div class="clear"></div>
 
         <div class="form-buttons actions filter-actions" data-hook="admin_suppliers_index_search_buttons">
-          <%= button Spree.t(:search), 'icon-search' %>
+          <%= button Spree.t(:search), 'fa fa-search' %>
         </div>
     <% end %>
   </div>

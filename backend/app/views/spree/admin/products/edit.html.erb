@@ -3,7 +3,7 @@
   <% if can?(:create, Spree::Product) %>
     <% if !@product.master.assembly_definition and @product.product_type.kit? %>
       <li>
-        <%= button_link_to "Create Assembly Definition", create_assembly_definition_admin_product_url(@product), { :icon => 'icon-sitemap'} %>
+        <%= button_link_to "Create Assembly Definition", create_assembly_definition_admin_product_url(@product), { :icon => 'fa fa-sitemap'} %>
       </li>
     <% end %>
     <li id="new_product_link">

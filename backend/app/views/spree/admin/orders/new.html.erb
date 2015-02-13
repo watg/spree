@@ -25,9 +25,9 @@
   <div class="clearfix"></div>
 
   <div class="actions filter-actions">
-    <%= button_link_to Spree.t('actions.create'), admin_orders_path(@order), :icon => 'icon-refresh', :method => :post  %>
+    <%= button_link_to Spree.t('actions.create'), admin_orders_path(@order), :icon => 'fa fa-refresh', :method => :post  %>
     <span class="or"><%= Spree.t(:or) %></span>
-    <%= button_link_to Spree.t('actions.cancel'), admin_orders_path, :icon => 'icon-remove' %>
+    <%= button_link_to Spree.t('actions.cancel'), admin_orders_path, :icon => 'fa fa-remove' %>
   </div>
 </fieldset>
 

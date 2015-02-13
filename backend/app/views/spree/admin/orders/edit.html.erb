@@ -24,17 +24,17 @@
 <div class="row">
   <div class="alpha three columns">
     <% button_title = @order.internal? ? "Use Metapack" : "Make Internal" %>
-    <%= button_link_to(button_title, internal_admin_order_url(@order), :icon => 'icon-arrow-right', :method => :post) %>
+    <%= button_link_to(button_title, internal_admin_order_url(@order), :icon => 'fa fa-arrow-right', :method => :post) %>
   </div>
 
   <div class="alpha three columns">
     <% button_title = @order.important? ? "Make normal" : "Make Important" %>
-    <% icon = @order.important? ? 'icon-hand-down' : 'icon-hand-up' %>
+    <% icon = @order.important? ? 'fa fa-hand-down' : 'fa fa-hand-up' %>
     <%= button_link_to(button_title, important_admin_order_url(@order), :icon => icon, :method => :post) %>
   </div>
 
   <div class="three columns">
-    <%= button_link_to("Refresh", refresh_admin_order_url(@order), :icon => 'icon-refresh', :method => :post  ) %>
+    <%= button_link_to("Refresh", refresh_admin_order_url(@order), :icon => 'fa fa-refresh', :method => :post  ) %>
   </div>
 
   <div class="three columns">

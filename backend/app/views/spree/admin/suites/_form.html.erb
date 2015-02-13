@@ -70,7 +70,7 @@
     <div class="field">
       <%= f.fields_for :image do |image_fields| %>
         <%= image_fields.hidden_field :_destroy %>
-        <%= link_to_with_icon 'icon-trash', "Delete Image", "#", class: "remove_image" %>
+        <%= link_to_with_icon 'fa fa-trash', "Delete Image", "#", class: "remove_image" %>
       <% end %>
     </div>
 

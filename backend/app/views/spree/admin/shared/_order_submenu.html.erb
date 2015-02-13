@@ -41,9 +41,9 @@
     <% if can? :update, @order %>
       <li<%== ' class="active"' if current == 'Hold' %>>
         <% if @order.on_hold? %>
-          <%= link_to_with_icon 'icon-exclamation-sign', Spree.t(:hold), admin_order_hold_url(@order, @order.active_hold_note) %>
+          <%= link_to_with_icon 'fa fa-exclamation-sign', Spree.t(:hold), admin_order_hold_url(@order, @order.active_hold_note) %>
         <% else %>
-          <%= link_to_with_icon 'icon-exclamation-sign', Spree.t(:hold), new_admin_order_hold_url(@order) %>
+          <%= link_to_with_icon 'fa fa-exclamation-sign', Spree.t(:hold), new_admin_order_hold_url(@order) %>
         <% end %>
       </li>
     <% end %>

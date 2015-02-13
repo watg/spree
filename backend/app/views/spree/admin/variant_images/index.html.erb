@@ -4,10 +4,10 @@
 
 <% content_for :page_actions do %>
   <% if previous_variant = @variant.previous %>
-    <li><%= link_to_with_icon('icon-arrow-left', Spree.t(:previous), admin_variant_images_url(previous_variant) , :class => 'button') %></li>
+    <li><%= link_to_with_icon('fa fa-arrow-left', Spree.t(:previous), admin_variant_images_url(previous_variant) , :class => 'button') %></li>
   <% end %>
   <% if next_variant = @variant.next %>
-    <li><%= link_to_with_icon('icon-arrow-right', Spree.t(:next),admin_variant_images_url(next_variant) , :class => 'button') %></li>
+    <li><%= link_to_with_icon('fa fa-arrow-right', Spree.t(:next),admin_variant_images_url(next_variant) , :class => 'button') %></li>
   <% end %>
 <% end %>
 
@@ -86,9 +86,9 @@
 
 <br>
 <div class="form-buttons filter-actions actions">
-  <%= link_to_with_icon('icon-refresh', Spree.t(:update), '#', :class => 'button update_all_images') %>
+  <%= link_to_with_icon('fa fa-refresh', Spree.t(:update), '#', :class => 'button update_all_images') %>
   <span class="or"><%= Spree.t(:or) %></span>
-  <%= button_link_to Spree.t('actions.cancel'), collection_url, :icon => 'icon-remove' %>
+  <%= button_link_to Spree.t('actions.cancel'), collection_url, :icon => 'fa fa-remove' %>
 </div>
 
 

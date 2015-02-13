@@ -28,13 +28,13 @@
     <div class="field alpha six columns">
       <%= f.fields_for :image do |image_fields| %>
         <%= image_fields.hidden_field :_destroy %>
-        <%= link_to_with_icon 'icon-trash', "Delete Image", "#", class: "remove_image" %>
+        <%= link_to_with_icon 'fa fa-trash', "Delete Image", "#", class: "remove_image" %>
       <% end %>
     </div>
 
     <div class="field omega two columns">
       <%= f.hidden_field :_destroy %>
-      <%= link_to_with_icon 'icon-trash', "Delete Tab", "#", class: "remove_tab" %>
+      <%= link_to_with_icon 'fa fa-trash', "Delete Tab", "#", class: "remove_tab" %>
     </div>
 
   </fieldset>
