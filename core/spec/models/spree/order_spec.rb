@@ -93,6 +93,28 @@ describe Spree::Order, :type => :model do
     end
   end
 
+  describe "#can_allocate_stock?" do
+    let(:order) { build(:order) }
+    let(:valid_states) { %w(complete resumed awaiting_return returned warehouse_on_hold customer_service_on_hold) }
+
+    it "is true for stock allocatable states" do
+      valid_states.each do |state|
+        order.state = state
+        expect(order.can_allocate_stock?).to be_true
+      end
+    end
+
+    it "is false for all other states" do
+      other_states = Spree::Order.state_machine.states.map(&:name) -
+        valid_states
+
+      other_states.each do |state|
+        order.state = state
+        expect(order.can_allocate_stock?).to be_false
+      end
+    end
+  end
+
   context "creates shipments cost" do
     let(:shipment) { double }
 
@@ -1051,6 +1073,20 @@ describe Spree::Order, :type => :model do
       it "is false" do
         expect(subject).to eq false
       end
+    end
+  end
+
+  describe "#run_post_payment_tasks" do
+    let(:notifier) { double(Spree::OrderPostPaymentNotifier, process: true) }
+    subject(:order) { build(:order) }
+
+    before do
+      allow(Spree::OrderPostPaymentNotifier).to receive(:new).with(order).and_return(notifier)
+    end
+
+    it "runs the OrderPostPaymentNotifier" do
+      order.run_post_payment_tasks
+      expect(notifier).to have_received(:process)
     end
   end
 end

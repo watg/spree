@@ -11,12 +11,13 @@ describe Spree::UseGiftCardService do
     expect(order.reload.adjustments.gift_card.first.source).to eq(gift_card)
   end
 
-  it "adds future job after updating order" do
-    mock_job = double('job')
-
-    expect(Spree::GiftCardOrderTTLJob).to receive(:new)
-    subject.run(order: order, code: gift_card.code)
-  end
+# Disabled due to customer care calls
+#  it "adds future job after updating order" do
+#    mock_job = double('job')
+#
+#    expect(Spree::GiftCardOrderTTLJob).to receive(:new)
+#    subject.run(order: order, code: gift_card.code)
+#  end
 
   context "validation" do
     let(:order_in_eur) { create(:order, currency: 'EUR') }

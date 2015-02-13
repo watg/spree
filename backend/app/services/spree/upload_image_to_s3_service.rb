@@ -34,7 +34,7 @@ module Spree
 
 
       job = Spree::UploadImage.new(image, DIRECT_UPLOAD_URL_FORMAT)
-      ::Delayed::Job.enqueue job
+      ::Delayed::Job.enqueue(job, queue: 'images')
       image
     end
 

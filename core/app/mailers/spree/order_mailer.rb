@@ -17,7 +17,7 @@ module Spree
       mail(to: @order.email, from: from_address, subject: subject)
 
       mandrill_default_headers(tags: "order, cancellation", template: "#{I18n.locale}_cancel_email")
-      headers['X-MC-MergeVars'] = cancel_data.to_json      
+      headers['X-MC-MergeVars'] = cancel_data.to_json
     end
 
     private
@@ -55,7 +55,7 @@ EOF
     end
 
     def line_items_template
- 
+
       t =<<EOF
 <% @order.line_items.map do |line_item| %>
 <tr>
@@ -66,6 +66,6 @@ EOF
 EOF
       t
     end
-    
+
   end
 end

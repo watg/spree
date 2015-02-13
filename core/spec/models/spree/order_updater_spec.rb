@@ -120,6 +120,10 @@ module Spree
       let(:order) { Order.new }
       let(:updater) { order.updater }
 
+      before do
+        allow(order).to receive(:run_post_payment_tasks)
+      end
+
       it "is failed if no valid payments" do
         allow(order).to receive_message_chain(:payments, :valid, :size).and_return(0)
 
@@ -200,6 +204,37 @@ module Spree
               updater.update_payment_state
             }.to change { order.payment_state }.to 'void'
           end
+        end
+      end
+
+      describe "post payment notification" do
+        it "is triggered when the payment_state changes to 'paid'" do
+          order.stub_chain(:line_items, :empty?).and_return(false)
+          order.stub :payment_total => 30
+          order.stub :total => 30
+
+          updater.update_payment_state
+
+          order.payment_state = 'paid'
+          expect(order).to have_received(:run_post_payment_tasks)
+        end
+
+        it "is not triggered when the new payment_state is not 'paid'" do
+          order.stub_chain(:payments, :last, :state).and_return('pending')
+
+          updater.update_payment_state
+          expect(order).not_to have_received(:run_post_payment_tasks)
+        end
+
+        it "is not triggered when the payment_state was already 'paid'" do
+          order.stub_chain(:line_items, :empty?).and_return(false)
+          order.stub :payment_total => 30
+          order.stub :total => 30
+
+          order.update_columns(payment_state: 'paid') # skip the callbacks
+
+          updater.update_payment_state
+          expect(order).not_to have_received(:run_post_payment_tasks)
         end
       end
 

@@ -12,6 +12,7 @@ core.suite.readyVariantOptions = (entity) ->
   if variant_details
     update_supplier_details(entity, variant_details['suppliers'])
     set_stock_level(entity, variants_total_on_hand, variant_details['number'])
+    set_is_digital(entity, variant_details['is_digital'])
     set_prices(entity, variant_details['id'], variant_details['normal_price'], variant_details['sale_price'], variant_details['in_sale'])
     entity.find('li.tmb-' + variant_details['id']).show()
 
@@ -57,6 +58,7 @@ core.suite.readyVariantOptions = (entity) ->
       update_url(entity, variant_details['number'])
       update_supplier_details(entity, variant_details['suppliers'])
       set_stock_level(entity, variants_total_on_hand, variant_details['number'])
+      set_is_digital(entity, variant_details['is_digital'])
       toggle_images(entity, variant_details['id'])
       set_prices(entity, variant_details['id'], variant_details['normal_price'], variant_details['sale_price'], variant_details['in_sale'])
 
@@ -183,6 +185,12 @@ set_stock_level = (entity, variants_total_on_hand, variant_number ) ->
     entity.find('.stock-value').text(total_on_hand + ' left')
   else
     entity.find('.stock-level').css('display', 'none')
+
+set_is_digital = (entity, is_digital) ->
+  if is_digital
+    entity.find('.digital-available').css('display', 'initial')
+  else
+    entity.find('.digital-available').css('display', 'none')
 
 update_url = (entity, number) ->
   if number.length > 1

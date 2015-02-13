@@ -152,6 +152,24 @@ describe Spree::Admin::OrdersController, :type => :controller do
       end
     end
 
+    describe "#gift_card_reissue" do
+      let(:job) { double(Spree::GiftCardJobCreator, run: true) }
+
+      before do
+        allow(Spree::GiftCardJobCreator).to receive(:new).with(order).and_return(job)
+      end
+
+      it "creates the gift card jobs" do
+        spree_post :gift_card_reissue, id: order.number
+        expect(job).to have_received(:run)
+      end
+
+      it "redirects to the order page" do
+        spree_post :gift_card_reissue, id: order.number
+        expect(response).to redirect_to([:edit, :admin, order])
+      end
+    end
+
     context "#open_adjustments" do
       let(:closed) { double('closed_adjustments') }
 

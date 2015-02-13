@@ -93,6 +93,11 @@ describe Spree::Core::ControllerHelpers::Order, type: :controller do
         controller.set_current_order
       end
 
+      it 'calls Spree::Order#reactive_gift_cards method' do
+        expect(incomplete_order).to receive(:reactivate_gift_cards!)
+        controller.set_current_order
+      end
+
       context "when order currencies differ" do
         let(:incomplete_order) { create(:order, user: user, currency: 'GBP') }
 

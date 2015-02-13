@@ -103,7 +103,8 @@ module Spree
     class_attribute :update_hooks
     self.update_hooks = Set.new
 
-    SHIPPABLE_STATES = %w(complete resumed awaiting_return returned warehouse_on_hold customer_service_on_hold)
+    SHIPPABLE_STATES = %w(complete resumed awaiting_return returned)
+    STOCK_ALLOCATABLE_STATES = SHIPPABLE_STATES + %w(warehouse_on_hold customer_service_on_hold)
 
     class_attribute :line_item_comparison_hooks
     self.line_item_comparison_hooks = Set.new
@@ -180,6 +181,10 @@ module Spree
       def register_update_hook(hook)
         self.update_hooks.add(hook)
       end
+    end
+
+    def run_post_payment_tasks
+      OrderPostPaymentNotifier.new(self).process
     end
 
     def max_dimension
@@ -480,6 +485,10 @@ module Spree
       SHIPPABLE_STATES.include?(self.state)
     end
 
+    def can_allocate_stock?
+      STOCK_ALLOCATABLE_STATES.include?(self.state)
+    end
+
     def credit_cards
       credit_card_ids = payments.from_credit_card.pluck(:source_id).uniq
       CreditCard.where(id: credit_card_ids)
@@ -509,7 +518,6 @@ module Spree
 
       touch :completed_at
 
-      deliver_gift_card_emails
       unless confirmation_delivered? || internal?
         deliver_order_confirmation_email
       end
@@ -518,15 +526,6 @@ module Spree
 
       # temporary notification until we implement the Assembly State Machine
       mark_as_internal_and_send_email_if_assembled
-    end
-
-    def deliver_gift_card_emails
-      self.gift_card_line_items.each do |item|
-        item.quantity.times {|position|
-          job = Spree::IssueGiftCardJob.new(self, item, position)
-          ::Delayed::Job.enqueue job, :queue => 'gift_card'
-        }
-      end
     end
 
     # temporary notification until we implement the Assembly State Machine
@@ -674,6 +673,14 @@ module Spree
       # So that the destroy doesn't take out line items which may have been re-assigned
       order.line_items.reload
       order.destroy
+    end
+
+    def reactivate_gift_cards!
+      # Another way we could achieve the same effect
+      #adjustments.gift_card.map(&:source).select(&:redeemed?).each do |gift_card|
+      Spree::GiftCard.redeemed.where(beneficiary_order: self).each do |gift_card|
+        gift_card.reactivate
+      end
     end
 
     def empty!

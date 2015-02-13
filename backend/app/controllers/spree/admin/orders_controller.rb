@@ -79,7 +79,7 @@ module Spree
       end
 
       def gift_card_reissue
-        @order.deliver_gift_card_emails
+        Spree::GiftCardJobCreator.new(@order).run
         flash[:success] = "All gift cards will be re-issued for order #{@order.number}"
         redirect_to edit_admin_order_url(@order)
       end

@@ -79,6 +79,8 @@ module Spree
       pending.count
     end
 
+  private
+
     def count_on_hand=(value)
       write_attribute(:count_on_hand, value)
     end
@@ -172,5 +174,9 @@ module Spree
       @stock_chagned ||= (count_on_hand_changed? && count_on_hand_change.any?(&:zero?)) || variant_id_changed?
     end
 
+
+
   end
+
+
 end

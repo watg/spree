@@ -12,6 +12,9 @@ module Spree
 
         allow(order).to receive_message_chain(:line_items, :empty?).and_return(false)
         allow(order).to receive_messages :total => 100
+
+		notifier = double(Spree::OrderPostPaymentNotifier, process: true)
+        allow(Spree::OrderPostPaymentNotifier).to receive(:new).and_return(notifier)
       end
 
       it 'processes all checkout payments' do

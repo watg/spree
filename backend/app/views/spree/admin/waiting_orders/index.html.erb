@@ -87,8 +87,13 @@
             <small><a href="#" id="exclude-unselected">Ignore all except selected</a></small>
           </div>
         </div>
+        <div class="alpha four columns">
+          <div class="field">
+            <%= f.label :shipments_address_country_id_in, "Countries" %>
+            <%= f.collection_select(:shipments_address_country_id_in, Spree::Country.all, :id, :name, {include_blank: true},  { class: 'select2 fullwidth', multiple: true}) %>
+          </div>
+        </div>
       </div>
-
       <div class="form-buttons actions filter-actions">
         <%= button Spree.t(:search), 'icon-search' %>
       </div>

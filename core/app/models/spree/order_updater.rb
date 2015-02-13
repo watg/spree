@@ -182,6 +182,11 @@ module Spree
         order.payment_state = 'credit_owed' if order.outstanding_balance < 0
         order.payment_state = 'paid' if !order.outstanding_balance?
       end
+
+      if (order.payment_state_changed? && order.payment_state == 'paid')
+        order.run_post_payment_tasks
+      end
+
       order.state_changed('payment') if last_state != order.payment_state
       order.payment_state
     end

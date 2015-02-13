@@ -15,7 +15,11 @@
 
 	<% if @order.has_step?("delivery") %>
 	<div class="row">
-		<div class="small-12 columns delivery-method">
+    <div class="large-6 columns delivery-method">
+      <h6>Delivery time</h6>
+      <p>UK/EU: 2&ndash;3 business days<br/>US: 3 business days<br/>ROW: 5&ndash;7 business days</p>
+    </div>
+		<div class="large-6 columns delivery-method">
 			<h6><%= Spree.t(:shipments) %> <%= link_to "(#{Spree.t(:edit)})", checkout_state_path(:delivery) unless @order.completed? %></h6>
 			<div class="delivery">
 				<% order.shipments.each do |shipment| %>

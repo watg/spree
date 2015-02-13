@@ -26,6 +26,7 @@ describe Spree::OrderInventory, :type => :model do
         allow(allocator).to receive(:unstock)
       end
 
+<<<<<<< HEAD
 
     context "order can not be shipped" do
       before { allow(order).to receive_messages can_ship?: false }
@@ -33,6 +34,29 @@ describe Spree::OrderInventory, :type => :model do
       it "doesn't unstock items" do
         expect_any_instance_of(Spree::Stock::Allocator).to_not receive(:unstock)
         expect(subject.send(:add_to_shipment, shipment, 5)).to eq(5)
+=======
+      context "order can not have stock allocated to it" do
+        before { order.stub can_allocate_stock?: false }
+
+        it "doesn't unstock items" do
+          expect_any_instance_of(Spree::Stock::Allocator).to_not receive(:unstock)
+          subject.send(:add_to_shipment, shipment, 5).should == 5
+        end
+      end
+
+      context "order can have stock allocated to it" do
+        before do
+          order.stub can_allocate_stock?: true
+          allow(shipment).to receive(:set_up_inventory).and_return(inventory_unit)
+          shipment.stub(:set_up_inventory).and_return(inventory_unit)
+        end
+
+        it "unstocks items" do
+          shipment.stock_location.should_receive(:fill_status).with(subject.variant, 2).and_return([2,0, 0])
+          subject.send(:add_to_shipment, shipment, 2).should == 2
+          expect(allocator).to have_received(:unstock).with(variant, [inventory_unit, inventory_unit])
+        end
+>>>>>>> master
       end
     end
 
@@ -156,6 +180,7 @@ describe Spree::OrderInventory, :type => :model do
     end
   end
 
+<<<<<<< HEAD
   context 'when order has too many inventory units' do
     before do
       line_item.quantity = 3
@@ -280,6 +305,117 @@ describe Spree::OrderInventory, :type => :model do
         it "removes only units that match both line item and variant" do
           subject.send(:remove_from_shipment, shipment, shipment.inventory_units.count)
           expect(different_inventory.reload).to be_persisted
+=======
+      it 'should decrease the number of inventory units' do
+        subject.verify
+        expect(subject.inventory_units.count).to eq 2
+      end
+    end
+
+    context '#remove_from_shipment' do
+      let(:shipment) { order.shipments.first }
+      let(:variant) { subject.variant }
+
+      context "order can not have stock allocated to it" do
+        before { order.stub can_allocate_stock?: false }
+
+        it "doesn't restock items" do
+          expect_any_instance_of(Spree::Stock::Allocator).to_not receive(:restock)
+          subject.send(:remove_from_shipment, shipment, 1).should == 1
+        end
+      end
+
+      context "order can have stock allocated to it" do
+        let!(:mock_inventory_unit) { mock_model(Spree::InventoryUnit)}
+
+        before do
+          order.stub can_allocate_stock?: true
+          allow(shipment).to receive(:inventory_units_for_item).and_return( [ mock_inventory_unit ] )
+        end
+
+        it "doesn't restock items" do
+          expect_any_instance_of(Spree::Stock::Allocator).to receive(:restock).with(variant, [ mock_inventory_unit])
+          subject.send(:remove_from_shipment, shipment, 1).should == 1
+        end
+      end
+
+      it 'should create stock_movement' do
+        subject.send(:remove_from_shipment, shipment, 1).should == 1
+        stock_item = shipment.stock_location.stock_item(variant)
+        movement = stock_item.stock_movements.last
+        movement.originator.should == shipment
+        movement.quantity.should == 1
+      end
+
+      it 'should destroy backordered units first' do
+
+        backordered_1 = mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'backordered', :supplier => nil)
+        backordered_2 = mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'backordered', :supplier => nil)
+        shipment.stub(inventory_units_for_item: [
+          backordered_1,
+          mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'on_hand', :supplier => nil),
+          backordered_2,
+        ])
+
+        expect_any_instance_of(Spree::Stock::Allocator).to receive(:restock).with(variant, [backordered_1, backordered_2])
+        shipment.inventory_units_for_item[0].should_receive(:destroy)
+        shipment.inventory_units_for_item[1].should_not_receive(:destroy)
+        shipment.inventory_units_for_item[2].should_receive(:destroy)
+
+        subject.send(:remove_from_shipment, shipment, 2).should == 2
+      end
+
+      it 'should destroy unshipped units first' do
+        on_hand = mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'on_hand', :supplier => nil)
+        shipment.stub(inventory_units_for_item: [
+          mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'shipped', :supplier => nil),
+          on_hand
+        ])
+
+        expect_any_instance_of(Spree::Stock::Allocator).to receive(:restock).with(variant, [on_hand])
+        shipment.inventory_units_for_item[0].should_not_receive(:destroy)
+        shipment.inventory_units_for_item[1].should_receive(:destroy)
+
+        subject.send(:remove_from_shipment, shipment, 1).should == 1
+      end
+
+      it 'only attempts to destroy as many units as are eligible, and return amount destroyed' do
+        on_hand = mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'on_hand', :supplier => nil)
+
+        shipment.stub(inventory_units_for_item: [
+          mock_model(Spree::InventoryUnit, :variant_id => variant.id, :state => 'shipped', :supplier => nil),
+          on_hand
+        ])
+
+        expect_any_instance_of(Spree::Stock::Allocator).to receive(:restock).with(variant, [on_hand])
+        shipment.inventory_units_for_item[0].should_not_receive(:destroy)
+        shipment.inventory_units_for_item[1].should_receive(:destroy)
+
+        subject.send(:remove_from_shipment, shipment, 1).should == 1
+      end
+
+      it 'should destroy self if not inventory units remain' do
+        shipment.inventory_units.stub(:count => 0)
+        shipment.should_receive(:destroy)
+
+        subject.send(:remove_from_shipment, shipment, 1).should == 1
+      end
+
+      context "inventory unit line item and variant points to different products" do
+        let(:different_line_item) { create(:line_item) }
+
+        let!(:different_inventory) do
+          shipment.set_up_inventory("on_hand", variant, order, different_line_item)
+        end
+
+        context "completed order" do
+          before { order.touch :completed_at }
+
+          it "removes only units that match both line item and variant" do
+            subject.send(:remove_from_shipment, shipment, shipment.inventory_units.count)
+            expect(different_inventory.reload).to be_persisted
+          end
+>>>>>>> master
         end
       end
     end

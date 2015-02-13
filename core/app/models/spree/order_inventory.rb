@@ -137,7 +137,7 @@ module Spree
       end
 
       # adding to this shipment, and removing from stock_location
-      if order.can_ship?
+      if order.can_allocate_stock?
         Stock::Allocator.new(shipment).unstock(variant, inventory)
       end
 
@@ -159,7 +159,7 @@ module Spree
       end
 
       # removing this from shipment, and adding to stock_location
-      if order.can_ship?
+      if order.can_allocate_stock?
         Stock::Allocator.new(shipment).restock(variant, remove_units)
       end
 

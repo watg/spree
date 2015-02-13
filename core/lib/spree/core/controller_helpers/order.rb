@@ -65,6 +65,9 @@ module Spree
         def set_current_order
           if try_spree_current_user && current_order
             try_spree_current_user.orders.incomplete.in_currency(current_currency).where('id != ?', current_order.id).each do |order|
+              # This will ensure that any redeemed gift cards that are not on completed orders
+              # will be reactivated
+              order.reactivate_gift_cards!
               current_order.merge!(order, try_spree_current_user)
             end
           end
