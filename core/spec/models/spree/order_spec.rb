@@ -100,7 +100,7 @@ describe Spree::Order, :type => :model do
     it "is true for stock allocatable states" do
       valid_states.each do |state|
         order.state = state
-        expect(order.can_allocate_stock?).to be_true
+        expect(order.can_allocate_stock?).to be true
       end
     end
 
@@ -110,7 +110,7 @@ describe Spree::Order, :type => :model do
 
       other_states.each do |state|
         order.state = state
-        expect(order.can_allocate_stock?).to be_false
+        expect(order.can_allocate_stock?).to be false
       end
     end
   end
@@ -879,7 +879,7 @@ describe Spree::Order, :type => :model do
 
   describe "#can_ship?" do
     let(:order) { build(:order) }
-    let(:valid_states) { %w(complete resumed awaiting_return returned warehouse_on_hold customer_service_on_hold) }
+    let(:valid_states) { %w(complete resumed awaiting_return returned) }
 
     it "is true for shippable states" do
       valid_states.each do |state|
