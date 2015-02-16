@@ -5,6 +5,7 @@ module Spree
     skip_before_action :set_current_order, only: :cart_link
 
     def unauthorized
+      flash[:error] = "Sorry, you are not authorized"
       render 'spree/shared/unauthorized', :layout => Spree::Config[:layout], :status => 401
     end
 
