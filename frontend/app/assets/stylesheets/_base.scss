@@ -161,6 +161,37 @@ table {
 	}
 }
 
+/* Order details table */
+table.order-item-listing{
+  width: 100%;
+  border-collapse: collapse;
+  border: none;
+  margin-bottom: 0;
+  thead{
+    tr th{
+      font-size: 1em;
+    }
+  }
+  tfoot{
+    h5{
+      margin: 0px;
+    }
+    th {
+      padding: 1em;
+      font-weight: normal;
+      background-color: $body-bg;
+    }
+    td {
+      padding: 1em;
+      border-top: 1px dotted $primary-color;
+      background-color: $body-bg;
+    }
+    tbody tr:first-child td {
+      border-top: none;
+    }
+  }
+}
+
 /*************************************************************************************/
 
 /* Email signup block */
