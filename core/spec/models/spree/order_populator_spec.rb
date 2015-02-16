@@ -76,7 +76,8 @@ describe Spree::OrderPopulator, :type => :model do
               :suite_id     => options[:suite_id],
               :suite_tab_id => options[:suite_tab_id],
               :order_id            => order.id,
-              :missing_parts_and_variants => {part.id => variant.id}
+              :parts               => part_params,
+              :missing_parts_and_variants => {part.id => variant.id},
             }
             #expect(notifier).to receive(:notify).with("Some required parts are missing", notification_params)
             #expect(Helpers::AirbrakeNotifier).to receive(:delay).and_return(notifier)
