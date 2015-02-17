@@ -1,5 +1,5 @@
 module Spree
-  class OrderMailer < StatusMailer
+  class OrderMailer < BaseMailer
     def confirm_email(order, resend = false)
       @order = order.respond_to?(:id) ? order : Spree::Order.find(order)
       subject = (resend ? "[#{Spree.t(:resend).upcase}] " : '')
@@ -23,7 +23,8 @@ module Spree
     private
 
     def order_data
-      super(@order)
+      @order_formatter ||= Spree::OrderFormatter.new(@order)
+      @order_formatter.order_data
     end
 
     def cancel_data

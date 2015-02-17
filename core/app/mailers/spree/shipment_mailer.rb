@@ -1,13 +1,14 @@
 module Spree
-  class ShipmentMailer < StatusMailer
+  class ShipmentMailer < BaseMailer
     def shipped_email(shipment, resend = false)
       @shipment = shipment.respond_to?(:id) ? shipment : Spree::Shipment.find(shipment)
       subject = (resend ? "[#{Spree.t(:resend).upcase}] " : '')
       subject += "#{Spree::Store.current.name} #{Spree.t('shipment_mailer.shipped_email.subject')} ##{@shipment.order.number}"
       mail(to: @shipment.order.email, from: from_address, subject: subject)
-      
-      mandrill_default_headers(tags: "shipment", template: "test_en_shipped_metapack_email")
-      headers['X-MC-MergeVars'] = shipment_data(@shipment.order).to_json
+
+      mandrill_default_headers(tags: "shipment", template: "#{I18n.locale}_shipped_metapack_email")
+
+      headers['X-MC-MergeVars'] = shipment_data.to_json
     end
 
     def survey_email(order)
@@ -27,8 +28,13 @@ module Spree
 
     private
 
-    def shipment_data(order)
-      order_data(order).merge(
+    def order_data
+      @order_formatter ||= Spree::OrderFormatter.new(@shipment.order)
+      @order_formatter.order_data
+    end
+
+    def shipment_data
+      order_data.merge(
         {
           parcel_details: tracking_details
         })
@@ -36,11 +42,11 @@ module Spree
 
     def tracking_details
       t = "<p>You can track your order here: </p>"
-        @shipment.order.parcels.each_with_index do |parcel, index|
-          t += "<p>Parcel " +
-            (index + 1).to_s +
-            ": " + parcel.metapack_tracking_url.to_s + "</p>"
-        end
+      @shipment.order.parcels.each_with_index do |parcel, index|
+        t += "<p>Parcel " +
+          (index + 1).to_s +
+          ": " + parcel.metapack_tracking_url.to_s + "</p>"
+      end
       t.to_html
     end
   end
