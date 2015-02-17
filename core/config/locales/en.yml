@@ -813,6 +813,7 @@ en:
     learn_more: Learn More
     lifetime_stats: Lifetime Stats
     line_item_adjustments: "Line item adjustments"
+    line_items_pruned: "%{items} have been removed from your order as they are not available any more."
     list: List
     listing_countries: Listing Countries
     listing_orders: Listing Orders

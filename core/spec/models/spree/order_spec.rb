@@ -14,41 +14,39 @@ describe Spree::Order, :type => :model do
     allow(Spree::LegacyUser).to receive_messages(:current => mock_model(Spree::LegacyUser, :id => 123))
   end
 
-  # Disabled for now as part of the 2.4 upgrade
-  #  context "#prune_line_items" do
-  #
-  #    let(:order_2)   { create(:order) }
-  #    let!(:line_item1) { create(:line_item, :order => order_2, :quantity => 3 ) }
-  #
-  #    before do
-  #      order_2.line_items.reload
-  #    end
-  #
-  #    it "does not delete any line_items which have active variants" do
-  #      order_2.prune_line_items
-  #      expect(order_2.line_items.size).to eq 1
-  #    end
-  #
-  #    it "does deletes line_items which have deleted variants and calls touch" do
-  #      line_item1.variant.delete
-  #      line_item1.variant.save
-  #
-  #      expect(order_2).to receive(:touch)
-  #      order_2.prune_line_items
-  #      expect(order_2.reload.line_items.size).to eq 0
-  #    end
-  #
-  #    it "does not delete line_items which have deleted variants but a completed state" do
-  #      line_item1.variant.delete
-  #      line_item1.variant.save
-  #
-  #      order_2.completed_at = Time.now
-  #      order_2.prune_line_items
-  #      expect(order_2.reload.line_items.size).to eq 1
-  #    end
-  #  end
-  #
-  #
+  describe "#prune_line_items!" do
+    let(:order_2)   { create(:order) }
+    let!(:line_item1) { create(:line_item, :order => order_2, :quantity => 3 ) }
+
+    before do
+      order_2.line_items.reload
+    end
+
+    it "does not delete any line_items which have active variants" do
+      order_2.prune_line_items!
+      expect(order_2.line_items.size).to eq 1
+    end
+
+    it "does deletes line_items which have deleted variants and calls touch" do
+      line_item1.variant.delete
+      line_item1.variant.save
+
+      expect(order_2).to receive(:touch)
+      order_2.prune_line_items!
+      expect(order_2.reload.line_items.size).to eq 0
+      expect(order_2.errors[:base]).to include(Spree.t(:line_items_pruned, items: "#{line_item1.variant.name}"))
+    end
+
+    it "does not delete line_items which have deleted variants but a completed state" do
+      line_item1.variant.delete
+      line_item1.variant.save
+
+      order_2.completed_at = Time.now
+      order_2.prune_line_items!
+      expect(order_2.reload.line_items.size).to eq 1
+    end
+  end
+
 
   context "#canceled_by" do
     let(:admin_user) { create :admin_user }
@@ -260,6 +258,7 @@ describe Spree::Order, :type => :model do
       before do
         allow(order).to receive(:restart_checkout_flow)
         order.line_items.first.variant.destroy
+        expect(order).to receive(:prune_line_items!)
       end
 
       it 'should restart checkout flow' do
@@ -300,6 +299,7 @@ describe Spree::Order, :type => :model do
       allow(order).to receive(:insufficient_stock_lines).and_return(line_item)
       allow(order).to receive(:restart_checkout_flow)
       allow(order).to receive_messages(:line_items => [line_item])
+      expect(order).to receive(:prune_line_items!)
     end
 
     it 'should restart checkout flow' do
