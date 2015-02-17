@@ -78,7 +78,7 @@ module Spree
     # from mulit currency extension
     preference :allow_currency_change, :boolean, :default => false
     preference :show_currency_selector, :boolean, :default => false
-    preference :supported_currencies, :string, :default => 'GBP'
+    preference :supported_currencies, :string, :default => 'GBP,USD,EUR'
     # end of multi currency extension
 
 
