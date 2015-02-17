@@ -2,10 +2,10 @@ require 'spec_helper'
 describe Spree::ShippingMethodDuration do
 
   context 'relations' do
-    it { should have_many(:shipping_methods) }
+    it { expect(subject).to have_many(:shipping_methods) }
   end
 
   context 'validations' do
-    it { should validate_presence_of(:description) }
+    it { expect(subject).to validate_presence_of(:description) }
   end
 end
