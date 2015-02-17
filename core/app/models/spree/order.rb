@@ -860,16 +860,28 @@ module Spree
     end
 
     # Removing as this is not default spree behaviour
-    #def prune_line_items
-    #  if self.completed?
-    #    Rails.logger.error "Can not prune line items from a compelted order: #{self.id}"
-    #  else
-    #    line_items_to_delete = self.line_items.select {|li| li.variant.deleted? }
-    #    line_items_to_delete.map do |li|
-    #      OrderContents.new(self).delete_line_item(li,{})
-    #    end
-    #  end
-    #end
+    def prune_line_items!
+      if self.completed?
+        Rails.logger.error "spree_order: Cannot prune line items from a completed order: #{self.id}"
+      else
+        line_items_to_delete = self.line_items.select {|li| li.variant.deleted? }
+        if line_items_to_delete
+          order_contents = OrderContents.new(self)
+          variant_names = []
+
+          line_items_to_delete.each do |line_item|
+            variant = line_item.variant
+            display_name = %Q{#{variant.name}}
+            display_name += %Q{ (#{variant.options_text})} unless variant.options_text.blank?
+            variant_names << display_name
+
+            order_contents.remove_by_line_item(line_item, line_item.quantity, {})
+          end
+
+          errors.add(:base, Spree.t(:line_items_pruned, :items => variant_names.to_sentence))
+        end
+      end
+    end
 
     private
 
