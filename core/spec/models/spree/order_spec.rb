@@ -258,6 +258,7 @@ describe Spree::Order, :type => :model do
       before do
         allow(order).to receive(:restart_checkout_flow)
         order.line_items.first.variant.destroy
+        expect(order).to receive(:prune_line_items!)
       end
 
       it 'should restart checkout flow' do
@@ -298,6 +299,7 @@ describe Spree::Order, :type => :model do
       allow(order).to receive(:insufficient_stock_lines).and_return(line_item)
       allow(order).to receive(:restart_checkout_flow)
       allow(order).to receive_messages(:line_items => [line_item])
+      expect(order).to receive(:prune_line_items!)
     end
 
     it 'should restart checkout flow' do
