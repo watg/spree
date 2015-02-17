@@ -43,7 +43,7 @@ Spree::Core::Engine.add_routes do
         get :last_bought_product
         get :today_sells
         get :today_orders
-        get :today_orders_by_type
+        get :today_sells_by_type
       end
     end
 
