@@ -1206,3 +1206,98 @@ body.thank-you {
   	}
   }
 }
+
+.wrapper-knit-party {
+	h2.spaced {
+		margin-top: emCalc(20px);
+		color: #fff;
+	}
+	.button {
+		font-size: 1.25em;
+	}
+	.row-hero {
+		padding: emCalc(30px) 0;
+		h1 {
+			font-size: emCalc(100px);
+			line-height: 0.95em;
+		}
+		img {
+			margin: emCalc(30px) 0;
+		}
+	}
+	.row-more {
+		padding: emCalc(30px) 0;
+		overflow: hidden;
+		h4 {
+			font-size: emCalc(30px)
+		}
+		form {
+			fieldset {
+				border: 0;
+			}
+		}
+		.pull-2 {
+			a {
+				position: relative;
+				top: emCalc(-30px);
+			}
+		}
+	}
+	.row-share {
+		padding: emCalc(40px) 0;
+		h2 {
+			font-size: emCalc(40px);
+		}
+	}
+	.column-text {
+		background: #f9f9f9;
+		p:after {
+			content: " \A — \A ";
+			white-space: pre;
+		}
+		p:last-child:after {
+			content: "";
+		}
+	}
+	.column-where + .column-text {
+		p {
+			margin-bottom: 1em;
+		}
+		p:after {
+			content: "";
+		}
+	}
+	.column-what {
+		background: cdn-url('party/2015-02-12/2_Whats_a_Knit_Party_DESKTOP.jpg') center center no-repeat;
+	}
+	.column-why {
+		background: cdn-url('party/2015-02-12/3_Why_Host_a_Party_DESKTOP.jpg') center center no-repeat;
+	}
+	.column-where {
+		background: cdn-url('party/2015-02-12/4_Host_at_home_or_work_DESKTOP.jpg') center center no-repeat;
+	}
+	@media only screen and (max-width: 28.75em) {
+		h2.spaced {
+			margin-top: emCalc(10px);
+		}
+		.row-hero {
+			h1 {
+				font-size: emCalc(50px);
+			}
+		}
+	.row-share {
+		h2 {
+			font-size: emCalc(20px);
+		}
+	}
+		.column-what {
+			background: cdn-url('party/2015-02-12/2_Whats_a_Knit_Party_MOBILE.jpg') center center no-repeat;
+		}
+		.column-why {
+			background: cdn-url('party/2015-02-12/3_Why_Host_a_Party_MOBILE.jpg') center center no-repeat;
+		}
+		.column-where {
+			background: cdn-url('party/2015-02-12/4_Host_at_home_or_work_MOBILE.jpg') center center no-repeat;
+		}
+	}
+}
