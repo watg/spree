@@ -1,34 +1,40 @@
 <% part = f.object %>
 <tr id="<%= spree_dom_id f.object %>">
   <td><span class="handle"></span></td>
-  <td><span class="auto-update-variant">
-    <%= f.label :add_all_available_variants, Spree.t(:add_all_available_variants) %>
-    <%= f.check_box :add_all_available_variants %></span>
-  </td>
   <td class="presentation">
-    <%= f.text_field :presentation %>
-    <br>
-    <span class="info">
-      <%= link_to_with_icon 'external-link', part.product.name, edit_admin_product_path(part.product), target: :blank %>
-    </span>
-    <br><br>
+    <div class="field">
+      <%= f.label :presentation %>
+      <%= f.text_field :presentation %>
+      <span class="info">
+        <%= link_to_with_icon 'external-link', part.product.name, edit_admin_product_path(part.product), target: :blank %>
+      </span>
+    </div>
 
-    <label>Displayable Type</label>
-    <%= f.collection_select(:displayable_option_type_id, part.product.option_types,:id, :name, {include_blank: true}, {:class => 'select2 fullwidth'}) %>
+    <div class="field">
+      <%= f.label :displayable_option_type_id, 'Displayable Type' %> <span class="required">*</span>
+      <%= f.collection_select(:displayable_option_type_id, part.product.option_types, :id, :name, {include_blank: true}, :class => 'select2 fullwidth', :required => true ) %>
+    </div
+
+    <br><br>
+    <div class="field">
+      <%= f.check_box :add_all_available_variants %></span>
+      <%= f.label :add_all_available_variants, "Auto update all available variants" %>
+    </div>
+
   </td>
   <td>
     <% if part.product.variants.any? %>
-      <%= f.select(:variant_ids, part.product.variants.collect { |v| [v.options_text, v.id] }, {}, multiple: true, class: 'select2 fullwidth') %>
+      <%= f.select(:variant_ids, part.product.variants.collect { |v| [v.options_text, v.id] }, {}, multiple: true, class: 'select2 fullwidth', required: true) %>
     <% else %>
-      <%= f.select(:variant_ids, [[ 'master', part.product.master.id]], {}, multiple: true, class: 'select2 fullwidth') %>
+      <%= f.select(:variant_ids, [[ 'master', part.product.master.id]], {}, multiple: true, class: 'select2 fullwidth', :required => true) %>
     <% end %>
     <span class="info alignright"><input type="checkbox" class="check_all" >Check all</span>
   </td>
   <td>
     <%= f.number_field :count %>
   </td>
-  <td><%= f.check_box :assembled %></td>
-  <td><%= f.check_box :optional %></td>
+  <td style="text-align: center;"><%= f.check_box :assembled %></td>
+  <td style="text-align: center;"><%= f.check_box :optional %></td>
   <td class="actions">
     <%= link_to_delete part, :url => admin_assembly_definition_part_path(@assembly_definition, f.object), :no_text => true %>
   </td>

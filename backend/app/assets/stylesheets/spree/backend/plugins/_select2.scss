@@ -196,3 +196,14 @@ label .select2-container {
     }
   }
 }
+
+// Keep original element in the same spot
+// So that HTML5 valiation message appear in the correct position
+.select2-container + select {
+    position:absolute;
+    display: block !important;
+    visibility: hidden;
+    height: 1px;
+    margin-left: 10px;
+    margin-top: -14px;
+}
