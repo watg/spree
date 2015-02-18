@@ -25,7 +25,8 @@ module Spree
 
         set_product_type_defaults(variant)
 
-        variant.update_attributes!(details)
+        variant.update_attributes(details)
+        return merge_errors_onto_base(variant.errors) if variant.invalid?
 
         update_tags(variant, split_params(tags).map(&:to_i) ) if tags
         assign_targets(variant, split_params(target_ids).map(&:to_i) ) if target_ids
