@@ -19,8 +19,13 @@ module Spree
 
 	# The URL parameter should be changed from 'products' to 'option_value' at some point
     has_attached_file :image,
-    :styles        => { :small => '18x18#', :medium => '40x30#', :large => '140x110#' },
-    :default_style => :small
+      :styles        => { :small => '18x18#', :medium => '40x30#', :large => '140x110#' },
+      :default_style => :small
+
+    validates_attachment :image,
+      :presence => true,
+      :content_type => { :content_type => %w(image/jpeg image/jpg image/png image/gif) }
+
 #    TODO: move options values in option_values folder on S3
     
     def has_image?
