@@ -36,6 +36,7 @@ Spree.routes.taxon_suites_api = Spree.pathFor('api/taxons/suites')
 Spree.routes.taxons_search = Spree.pathFor('api/taxons')
 Spree.routes.user_search = Spree.pathFor('admin/search/users')
 Spree.routes.variants_api = Spree.pathFor('api/variants')
+Spree.routes.targets_search = Spree.pathFor('api/targets')
 
 Spree.routes.payments_api = function(order_id) {
   return Spree.pathFor('api/orders/' + order_id + '/payments')
