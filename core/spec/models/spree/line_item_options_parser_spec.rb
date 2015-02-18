@@ -270,7 +270,7 @@ describe Spree::LineItemOptionsParser do
           variant_id: required_part1.id,
           quantity: 2,
           optional: false,
-          price: BigDecimal.new('0.00'),
+          price: BigDecimal.new('19.99'),
           currency: "USD",
           container: false,
           main_part: false
@@ -282,7 +282,7 @@ describe Spree::LineItemOptionsParser do
           variant_id: part1.id,
           quantity: 1,
           optional: true,
-          price: BigDecimal.new('0.00'),
+          price: BigDecimal.new('19.99'),
           currency: "USD",
           container: false,
           main_part: false

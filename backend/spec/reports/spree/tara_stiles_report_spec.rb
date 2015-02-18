@@ -20,7 +20,7 @@ describe Spree::TaraStilesReport do
     it "should return one row" do
       order = create(:completed_order_with_totals, line_items_count: 1)
       report.search_names = order.products.map(&:name)
-      
+
       data = []
       report.retrieve_data do |d|
         data << d

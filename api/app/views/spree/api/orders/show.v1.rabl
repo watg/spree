@@ -18,20 +18,31 @@ child :line_items => :line_items do
 end
 
 child :payments => :payments do
-  attributes :id, :amount, :state, :payment_method_id
+  attributes *payment_attributes
+
   child :payment_method => :payment_method do
     attributes :id, :name, :environment
+  end
+
+  child :source => :source do
+    attributes *payment_source_attributes
+    if @current_user_roles.include?('admin')
+      attributes *payment_source_attributes.concat([:gateway_customer_profile_id, :gateway_payment_profile_id])
+    else
+      attributes *payment_source_attributes
+    end
   end
 end
 
 child :shipments => :shipments do
-  extends "spree/api/shipments/show"
+  extends "spree/api/shipments/small"
 end
 
 child :adjustments => :adjustments do
   extends "spree/api/adjustments/show"
 end
 
-child :credit_cards => :credit_cards do
-  extends "spree/api/credit_cards/show"
+# Necessary for backend's order interface
+node :permissions do
+  { can_update: current_ability.can?(:update, root_object) }
 end

@@ -21,40 +21,40 @@ describe Spree::Promotion::Rules::ProductGroupAndType do
 
 
     it "should be eligible if there is no criteria" do
-      rule.stub(:eligible_product_groups => [])
-      rule.stub(:eligible_marketing_types => [])
-      rule.should be_eligible(order)
+      allow(rule).to receive_messages(:eligible_product_groups => [])
+      allow(rule).to receive_messages(:eligible_marketing_types => [])
+      expect(rule).to be_eligible(order)
     end
 
     context "one line item" do
 
       context "it is not eligible" do
         it "has no prodct group match and no product type match" do
-          rule.stub(:eligible_product_groups => [product_group_2.id])
-          rule.stub(:eligible_marketing_types => [marketing_type_2.id])
-          rule.should_not be_eligible(order)
+          allow(rule).to receive_messages(:eligible_product_groups => [product_group_2.id])
+          allow(rule).to receive_messages(:eligible_marketing_types => [marketing_type_2.id])
+          expect(rule).not_to be_eligible(order)
         end
 
         it "has a prodct group match and no product type match" do
-          rule.stub(:eligible_product_groups => [product_group_1.id])
-          rule.stub(:eligible_marketing_types => [marketing_type_2.id])
-          rule.should_not be_eligible(order)
+          allow(rule).to receive_messages(:eligible_product_groups => [product_group_1.id])
+          allow(rule).to receive_messages(:eligible_marketing_types => [marketing_type_2.id])
+          expect(rule).not_to be_eligible(order)
 
         end
 
         it "has no prodct group match and a product type match" do
-          rule.stub(:eligible_product_groups => [product_group_2.id])
-          rule.stub(:eligible_marketing_types => [marketing_type_1.id])
-          rule.should_not be_eligible(order)
+          allow(rule).to receive_messages(:eligible_product_groups => [product_group_2.id])
+          allow(rule).to receive_messages(:eligible_marketing_types => [marketing_type_1.id])
+          expect(rule).not_to be_eligible(order)
         end
       end
 
       
       context "it is eligible" do
         it "has a product group match and a marketing type match" do
-          rule.stub(:eligible_product_groups => [product_group_1.id])
-          rule.stub(:eligible_marketing_types => [marketing_type_1.id])
-          rule.should be_eligible(order)
+          allow(rule).to receive_messages(:eligible_product_groups => [product_group_1.id])
+          allow(rule).to receive_messages(:eligible_marketing_types => [marketing_type_1.id])
+          expect(rule).to be_eligible(order)
         end
       end
     end
@@ -73,9 +73,9 @@ describe Spree::Promotion::Rules::ProductGroupAndType do
       context "it is not eligible" do
 
         it "If the order satisfies the criteria but not the items" do
-          rule.stub(:eligible_product_groups => [product_group_1.id])
-          rule.stub(:eligible_marketing_types => [marketing_type_2.id])
-          rule.should_not be_eligible(order)
+          allow(rule).to receive_messages(:eligible_product_groups => [product_group_1.id])
+          allow(rule).to receive_messages(:eligible_marketing_types => [marketing_type_2.id])
+          expect(rule).not_to be_eligible(order)
         end
 
       end
@@ -83,9 +83,9 @@ describe Spree::Promotion::Rules::ProductGroupAndType do
       context "it is eligible" do
 
         it "If the 1 item in the order satisfies the criteria" do
-          rule.stub(:eligible_product_groups => [product_group_1.id, product_group_2.id])
-          rule.stub(:eligible_marketing_types => [marketing_type_1.id, marketing_type_2.id])
-          rule.should be_eligible(order)
+          allow(rule).to receive_messages(:eligible_product_groups => [product_group_1.id, product_group_2.id])
+          allow(rule).to receive_messages(:eligible_marketing_types => [marketing_type_1.id, marketing_type_2.id])
+          expect(rule).to be_eligible(order)
         end
 
       end

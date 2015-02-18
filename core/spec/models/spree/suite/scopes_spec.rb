@@ -26,7 +26,7 @@ describe "Suite scopes" do
     #end
 
     it "calling Suite.in_taxon should not return duplicate records" do
-      Spree::Suite.in_taxon(@parent_taxon).to_a.count.should == 1
+      expect(Spree::Suite.in_taxon(@parent_taxon).to_a.count).to eq(1)
     end
 
     it "orders suites based on their ordering within the classification" do
@@ -39,9 +39,9 @@ describe "Suite scopes" do
       suite_2_root_classification = Spree::Classification.find_by(:taxon => @parent_taxon, :suite => suite_2)
       suite_2_root_classification.update_column(:position, 2)
 
-      Spree::Suite.in_taxon(@parent_taxon).should == [suite, suite_2]
+      expect(Spree::Suite.in_taxon(@parent_taxon)).to eq([suite, suite_2])
       suite_2_root_classification.insert_at(1)
-      Spree::Suite.in_taxon(@parent_taxon).should == [suite_2, suite]
+      expect(Spree::Suite.in_taxon(@parent_taxon)).to eq([suite_2, suite])
     end
   end
 end

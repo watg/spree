@@ -3,6 +3,7 @@ module Spree
     ATTRIBUTES = [
       :address_attributes,
       :checkout_attributes,
+      :customer_return_attributes,
       :image_attributes,
       :inventory_unit_attributes,
       :line_item_attributes,
@@ -18,6 +19,7 @@ module Spree
       :stock_item_attributes,
       :stock_location_attributes,
       :stock_movement_attributes,
+      :store_attributes,
       :taxon_attributes,
       :taxonomy_attributes,
       :user_attributes,
@@ -27,17 +29,18 @@ module Spree
     mattr_reader *ATTRIBUTES
 
     @@address_attributes = [
-      :id, :firstname, :lastname, :address1, :address2,
-      :city, :country_id, :state_id, :zipcode, :phone,
-      :state_name, :alternative_phone, :company,
-      :country => [:iso, :name, :iso3, :iso_name],
-      :state => [:name, :abbr]
+      :id, :firstname, :lastname, :first_name, :last_name,
+      :address1, :address2, :city, :country_id, :state_id,
+      :zipcode, :phone, :state_name, :alternative_phone, :company,
+      country: [:iso, :name, :iso3, :iso_name],
+      state: [:name, :abbr]
     ]
 
     @@checkout_attributes = [
-      :coupon_code, :email, :shipping_method_id, :special_instructions,
-      :state_lock_version, :use_billing
+      :coupon_code, :email, :shipping_method_id, :special_instructions, :use_billing
     ]
+
+    @@customer_return_attributes = [:stock_location_id, return_items_attributes: [:id, :inventory_unit_id, :return_authorization_id, :returned, :pre_tax_amount, :acceptance_status, :exchange_variant_id]]
 
     @@image_attributes = [:alt, :attachment, :position, :viewable_type, :viewable_id]
 
@@ -63,7 +66,7 @@ module Spree
 
     @@property_attributes = [:name, :presentation]
 
-    @@return_authorization_attributes = [:amount, :reason, :stock_location_id]
+    @@return_authorization_attributes = [:amount, :memo, :stock_location_id, :inventory_units_attributes, :return_authorization_reason_id]
 
     @@shipment_attributes = [
       :order, :special_instructions, :stock_location_id, :id,
@@ -87,6 +90,9 @@ module Spree
     @@stock_movement_attributes = [
       :quantity, :stock_item, :stock_item_id, :originator, :action]
 
+    @@store_attributes = [:name, :url, :seo_title, :meta_keywords,
+                         :meta_description, :default_currency, :mail_from_address]
+
     @@taxonomy_attributes = [:name]
 
     @@taxon_attributes = [
@@ -98,7 +104,7 @@ module Spree
 
     @@variant_attributes = [
       :name, :presentation, :cost_price, :lock_version,
-      :position, :option_value_ids,
+      :position, :option_value_ids, :track_inventory,
       :product_id, :product, :option_values_attributes, :price,
       :weight, :height, :width, :depth, :sku, :cost_currency, options: [ :name, :value ]]
   end

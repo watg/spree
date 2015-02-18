@@ -4,16 +4,16 @@ module CapybaraExt
   end
 
   def click_icon(type)
-    find(".icon-#{type}").click
+    find(".fa-#{type}").click
   end
 
   def eventually_fill_in(field, options={})
-    page.should have_css('#' + field)
+    expect(page).to have_css('#' + field)
     fill_in field, options
   end
 
   def within_row(num, &block)
-    if example.metadata[:js]
+    if RSpec.current_example.metadata[:js]
       within("table.index tbody tr:nth-child(#{num})", &block)
     else
       within(:xpath, all("table.index tbody tr")[num-1].path, &block)
@@ -21,7 +21,7 @@ module CapybaraExt
   end
 
   def column_text(num)
-    if example.metadata[:js]
+    if RSpec.current_example.metadata[:js]
       find("td:nth-child(#{num})").text
     else
       all("td")[num-1].text
@@ -111,25 +111,15 @@ module CapybaraExt
   end
 
   def accept_alert
-    if page.driver === Capybara::Selenium::Driver
-      yield
-      page.driver.browser.switch_to.alert.accept
-    else
-      page.evaluate_script('window.confirm = function() { return true; }')
-      yield
-    end
+    page.evaluate_script('window.confirm = function() { return true; }')
+    yield
   end
-  def dismiss_alert
-    if page.driver === Capybara::Selenium::Driver
-      yield
-      page.driver.browser.switch_to.alert.dismiss
-    else
-      page.evaluate_script('window.confirm = function() { return false; }')
-      yield
 
-      # Restore existing default
-      page.evaluate_script('window.confirm = function() { return true; }')
-    end
+  def dismiss_alert
+    page.evaluate_script('window.confirm = function() { return false; }')
+    yield
+    # Restore existing default
+    page.evaluate_script('window.confirm = function() { return true; }')
   end
 end
 
@@ -143,7 +133,7 @@ RSpec::Matchers.define :have_meta do |name, expected|
     has_css?("meta[name='#{name}'][content='#{expected}']", visible: false)
   end
 
-  failure_message_for_should do |actual|
+  failure_message do |actual|
     actual = first("meta[name='#{name}']")
     if actual
       "expected that meta #{name} would have content='#{expected}' but was '#{actual[:content]}'"
@@ -155,10 +145,10 @@ end
 
 RSpec::Matchers.define :have_title do |expected|
   match do |actual|
-    has_css?("title", :text => expected, visible: false)
+    has_css?("title", text: expected, visible: false)
   end
 
-  failure_message_for_should do |actual|
+  failure_message do |actual|
     actual = first("title")
     if actual
       "expected that title would have been '#{expected}' but was '#{actual.text}'"

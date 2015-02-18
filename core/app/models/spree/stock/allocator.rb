@@ -139,7 +139,10 @@ module Spree
       if supplier.nil?
         Helpers::AirbrakeNotifier.notify(
           "Stock Item has no supplier",
-          {stock_item_id: stock_item.id}
+          {
+            stock_item: stock_item.inspect,
+            units: units.inspect
+          }
         )
       end
 

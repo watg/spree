@@ -1,17 +1,15 @@
 module Spree
-  class OptionValue < ActiveRecord::Base
-
+  class OptionValue < Spree::Base
     belongs_to :option_type, class_name: 'Spree::OptionType', touch: true, inverse_of: :option_values
     acts_as_list scope: :option_type
     has_and_belongs_to_many :variants, join_table: 'spree_option_values_variants', class_name: "Spree::Variant"
+    has_many :option_values_variants, inverse_of: :option_value
+    validates :name, presence: true, uniqueness: { scope: :option_type_id }
 
-    has_many :option_values_variants, class_name: 'Spree::OptionValuesVariant'
-
-    validates :name, presence: true
-    validates_uniqueness_of :name, :scope => [:option_type_id]
+# Disabled as we set this automatically when created
+#    validates :presentation, presence: true
+  
     validates_uniqueness_of :sku_part, :scope => [:option_type_id]
-
-    #validate :name_is_url_safe
 
     default_scope { order("#{quoted_table_name}.position") }
 
@@ -43,7 +41,7 @@ module Spree
     }
 
     def url_safe_name
-      name.downcase.parameterize
+      name.to_s.downcase.parameterize
     end
 
     private
@@ -85,12 +83,7 @@ module Spree
     end
 
     def touch_all_variants
-      # This can cause a cascade of products to be updated
-      # To disable it in Rails 4.1, we can do this:
-      # https://github.com/rails/rails/pull/12772
-      # Spree::Product.no_touching do
-        variants.find_each(&:touch)
-      # end
+      variants.update_all(updated_at: Time.current)
     end
     
   end

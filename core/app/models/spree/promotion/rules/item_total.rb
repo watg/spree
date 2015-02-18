@@ -5,7 +5,12 @@ module Spree
     module Rules
       class ItemTotal < PromotionRule
 
-        preference :_attributes, :string,  :default => "{}"
+        preference :attributes, :hash, default: {}
+
+        def initialize(params={})
+          params[:preferred_attributes] ||= default_data
+          super(params)
+        end
 
         def applicable?(promotable)
           promotable.is_a?(Spree::Order)
@@ -13,14 +18,14 @@ module Spree
 
         def eligible?(order, options = {})
 
-          hash = JSON.parse get_preference(:_attributes)
+          hash = preferred_attributes
           hash.each do |zone_id,currency_amount_enabled|
 
             currency_amount_enabled.each do |currency,amount_enabled|
 
               if order.currency == currency && amount_enabled['enabled'] == "true"
 
-                order_total = order.line_items.map(&:amount).sum
+                order_total = order.item_total
                 if order_total.send(:>=, BigDecimal.new(amount_enabled['amount'].to_s))
 
                   # If everything else is good but address as not been defined 
@@ -43,27 +48,19 @@ module Spree
           return false
         end
 
-        def self.currencies
-          Spree::Config.preferences[:supported_currencies].split(',')
-        end
-
-        def preferred_attributes
-          hash = JSON.parse get_preference(:_attributes)
-          Spree::Zone.order(:name).each do |preferred_zone|
-            Spree::Promotion::Rules::ItemTotal.currencies.each do |preferred_currency|
-              preferred_zone_id = preferred_zone.id.to_s
-              hash[preferred_zone_id] ||= {}
-              hash[preferred_zone_id][preferred_currency] ||= {}
-              hash[preferred_zone_id][preferred_currency]['amount'] ||= 0
-              hash[preferred_zone_id][preferred_currency]['enabled'] ||= false
+        private
+        def default_data
+          hash = {}
+          Spree::Zone.order(:name).each do |zone|
+            Spree::Config[:supported_currencies].split(',').each do |currency|
+              zone_id = zone.id.to_s
+              hash[zone_id] ||= {}
+              hash[zone_id][currency] ||= {}
+              hash[zone_id][currency]['amount'] ||= 0
+              hash[zone_id][currency]['enabled'] ||= false
             end
           end
           hash
-        end
-
-        def preferred_attributes=(hash)
-          set_preference(:_attributes, hash.to_json.to_s)
-          save
         end
 
       end

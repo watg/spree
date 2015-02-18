@@ -118,7 +118,7 @@ describe Spree::SuiteTab do
     it "updates a suite" do
       suite.update_column(:updated_at, 1.day.ago)
       suite_tab.reload.touch
-      suite.reload.updated_at.should be_within(3.seconds).of(Time.now)
+      expect(suite.reload.updated_at).to be_within(3.seconds).of(Time.now)
     end
 
   end

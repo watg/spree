@@ -1,5 +1,5 @@
 module Spree
-  class OptionType < ActiveRecord::Base
+  class OptionType < Spree::Base
     has_many :option_values, -> { order(:position) }, dependent: :destroy, inverse_of: :option_type
     has_many :product_option_types, dependent: :destroy, inverse_of: :option_type
     has_many :products, through: :product_option_types
@@ -18,9 +18,7 @@ module Spree
     SIZE = 'Size'
 
     def touch_all_products
-      products.find_each do |p|
-        p.delay.touch
-      end
+      products.update_all(updated_at: Time.current)
     end
 
     def url_safe_name

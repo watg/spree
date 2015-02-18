@@ -25,17 +25,18 @@ module Spree
         end
 
       rescue Exception => error
-        Helpers::AirbrakeNotifier.notify(error)
+        Helpers::AirbrakeNotifier.notify(error.message)
 
         Rails.logger.info '-'*80
-        Rails.logger.info error.inspect
-        Rails.logger.info error.backtrace
+        Rails.logger.info 'metapack: ' + error.message
+        Rails.logger.info error.backtrace[0..5].join("\n\t")
 
-        errors.add(:metapack, error.inspect)
+        errors.add(:metapack, error.message)
       end
     end
 
-    private
+  private
+
     def allocation_hash(order, shipping_manifest)
 
       consignment_value = shipping_manifest[:order_total]

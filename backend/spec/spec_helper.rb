@@ -44,8 +44,16 @@ require 'paperclip/matchers'
 require 'capybara/poltergeist'
 Capybara.javascript_driver = :poltergeist
 
+# Comment in the following to debug the feature specs
+# Chrome - for testing locally
+#Capybara.register_driver :chrome do |app|
+#  Capybara::Selenium::Driver.new(app, :browser => :chrome)
+#end
+# Capybara.javascript_driver = :chrome
+
 RSpec.configure do |config|
   config.color = true
+  config.infer_spec_type_from_file_location!
   config.mock_with :rspec
   config.backtrace_exclusion_patterns = [
     /\/lib\d*\/ruby\//,
@@ -63,14 +71,25 @@ RSpec.configure do |config|
   # instead of true.
   config.use_transactional_fixtures = false
 
+  # A workaround to deal with random failure caused by phantomjs. Turn it on
+  # by setting ENV['RSPEC_RETRY_COUNT']. Limit it to features tests where
+  # phantomjs is used.
+  config.before(:all, :type => :feature) do
+    if ENV['RSPEC_RETRY_COUNT']
+      config.verbose_retry       = true # show retry status in spec process
+      config.default_retry_count = ENV['RSPEC_RETRY_COUNT'].to_i
+    end
+  end
+
   config.before :suite do
     Capybara.match = :prefer_exact
     DatabaseCleaner.clean_with :truncation
   end
 
   config.before(:each) do
+    Rails.cache.clear
     WebMock.disable!
-    if example.metadata[:js]
+    if RSpec.current_example.metadata[:js]
       DatabaseCleaner.strategy = :truncation
     else
       DatabaseCleaner.strategy = :transaction
@@ -87,15 +106,14 @@ RSpec.configure do |config|
 
   config.after(:each) do
     # Ensure js requests finish processing before advancing to the next test
-    wait_for_ajax if example.metadata[:js]
+    wait_for_ajax if RSpec.current_example.metadata[:js]
 
     DatabaseCleaner.clean
   end
 
-  config.after(:each, :type => :feature) do
+  config.after(:each, :type => :feature) do |example|
     missing_translations = page.body.scan(/translation missing: #{I18n.locale}\.(.*?)[\s<\"&]/)
     if missing_translations.any?
-      #binding.pry
       puts "Found missing translations: #{missing_translations.inspect}"
       puts "In spec: #{example.location}"
     end
@@ -110,13 +128,15 @@ RSpec.configure do |config|
 
   config.include Paperclip::Shoulda::Matchers
 
+  config.extend WithModel
+
   config.fail_fast = ENV['FAIL_FAST'] || false
 
   # TODO Not sure we need this hook in every single spec within the backend build
   # it sounds like most of the times it will just make tests slower and confusing
   # when one wants to test something regarding authorizations
-  config.before(:each) do
-    current_user = create(:admin_user, :spree_api_key => SecureRandom.hex(24))
-    Spree::Admin::BaseController.any_instance.stub(:spree_current_user).and_return(current_user)
-  end
+#  config.before(:each) do
+#    current_user = create(:admin_user, :spree_api_key => SecureRandom.hex(24))
+#    Spree::Admin::BaseController.any_instance.stub(:spree_current_user).and_return(current_user)
+#  end
 end

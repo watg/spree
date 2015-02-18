@@ -1,6 +1,8 @@
 module Spree
   module BaseHelper
 
+    include CdnHelper
+
     # Defined because Rails' current_page? helper is not working when Spree is mounted at root.
     def current_spree_page?(url)
       path = request.fullpath.gsub(/^\/\//, '/')
@@ -20,11 +22,11 @@ module Spree
         text = "#{text}: (#{Spree.t('empty')})"
         css_class = 'empty'
       else
-        text = "#{text}: (#{simple_current_order.item_count})  <span class='amount'>#{simple_current_order.display_total.to_html}</span>".html_safe
+        text = "#{text}: (#{simple_current_order.item_count})  <span class='amount'>#{simple_current_order.display_total.to_html}</span>"
         css_class = 'full'
       end
 
-      link_to text, spree.cart_path, :class => "cart-info #{css_class}"
+      link_to text.html_safe, spree.cart_path, :class => "cart-info #{css_class}"
     end
 
     # human readable list of variant options
@@ -46,9 +48,9 @@ module Spree
       end
 
       meta.reverse_merge!({
-        keywords: Spree::Config[:default_meta_keywords],
-        description: Spree::Config[:default_meta_description]
-      })
+        keywords: current_store.meta_keywords,
+        description: current_store.meta_description,
+      }) if meta[:keywords].blank? or meta[:description].blank?
       meta
     end
 
@@ -68,29 +70,40 @@ module Spree
     end
 
     def flash_messages(opts = {})
-      opts[:ignore_types] = [:order_completed].concat(Array(opts[:ignore_types]) || [])
+      ignore_types = ["order_completed"].concat(Array(opts[:ignore_types]).map(&:to_s) || [])
 
       flash.each do |msg_type, text|
-        unless opts[:ignore_types].include?(msg_type)
+        unless ignore_types.include?(msg_type)
           concat(content_tag :div, text, class: "flash #{msg_type}")
         end
       end
       nil
     end
 
-    def breadcrumbs(taxon, separator="&nbsp;&raquo;&nbsp;")
+    def breadcrumbs(taxon, separator="&nbsp;&raquo;&nbsp;", breadcrumb_class="inline")
       return "" if current_page?("/") || taxon.nil?
-      separator = raw(separator)
-      crumbs = [content_tag(:li, link_to(Spree.t(:home), spree.root_path) + separator)]
+
+      crumbs = [[Spree.t(:home), spree.root_path]]
+
       if taxon
-        crumbs << content_tag(:li, link_to(Spree.t(:products), products_path) + separator)
-        crumbs << taxon.ancestors.collect { |ancestor| content_tag(:li, link_to(ancestor.name , seo_url(ancestor)) + separator) } unless taxon.ancestors.empty?
-        crumbs << content_tag(:li, content_tag(:span, link_to(taxon.name , seo_url(taxon))))
+        crumbs << [Spree.t(:products), products_path]
+        crumbs += taxon.ancestors.collect { |a| [a.name, spree.nested_taxons_path(a.permalink)] } unless taxon.ancestors.empty?
+        crumbs << [taxon.name, spree.nested_taxons_path(taxon.permalink)]
       else
-        crumbs << content_tag(:li, content_tag(:span, Spree.t(:products)))
+        crumbs << [Spree.t(:products), products_path]
       end
-      crumb_list = content_tag(:ul, raw(crumbs.flatten.map{|li| li.mb_chars}.join), class: 'inline')
-      content_tag(:nav, crumb_list, id: 'breadcrumbs', class: 'sixteen columns')
+
+      separator = raw(separator)
+
+      crumbs.map! do |crumb|
+        content_tag(:li, itemscope:"itemscope", itemtype:"http://data-vocabulary.org/Breadcrumb") do
+          link_to(crumb.last, itemprop: "url") do
+            content_tag(:span, crumb.first, itemprop: "title")
+          end + (crumb == crumbs.last ? '' : separator)
+        end
+      end
+
+      content_tag(:nav, content_tag(:ul, raw(crumbs.map(&:mb_chars).join), class: breadcrumb_class), id: 'breadcrumbs', class: 'sixteen columns')
     end
 
     def taxons_tree(root_taxon, current_taxon, max_level = 1)
@@ -131,7 +144,7 @@ module Spree
       countries.collect do |country|
         country.name = Spree.t(country.iso, scope: 'country_names', default: country.name)
         country
-      end.sort { |a, b| a.name.parameterize <=> b.name.parameterize }
+      end.sort_by { |c| c.name.parameterize }
     end
 
     def seo_url(taxon)
@@ -165,9 +178,9 @@ module Spree
     end
 
     def link_to_tracking(shipment, options = {})
-      return unless shipment.tracking
+      return unless shipment.tracking && shipment.shipping_method
 
-      if shipment.shipping_method && shipment.tracking_url
+      if shipment.tracking_url
         link_to(shipment.tracking, shipment.tracking_url, options)
       else
         content_tag(:span, shipment.tracking)
@@ -175,9 +188,10 @@ module Spree
     end
 
     private
+
     # Returns style of image or nil
     def image_style_from_method_name(method_name)
-      if style = method_name.to_s.sub(/_image$/, '')
+      if method_name.to_s.match(/_image$/) && style = method_name.to_s.sub(/_image$/, '')
         possible_styles = Spree::Image.attachment_definitions[:attachment][:styles]
         style if style.in? possible_styles.with_indifferent_access
       end

@@ -51,12 +51,14 @@ module Spree
       provider_class.supports?(source.brand)
     end
 
-    def credit(credit_cents, source, response_code, gateway_options = {})
-      Class.new do
-        def success?; true; end
-        def authorization; nil; end
-      end.new
-    end
+    # Disabled as part of the 2.4 upgrade may need to reanable it    
+    #def credit(credit_cents, source, response_code, gateway_options = {})
+    #  Class.new do
+    #    def success?; true; end
+    #    def authorization; nil; end
+    #  end.new
+    #end
+
 
     def disable_customer_profile(source)
       if source.is_a? CreditCard
@@ -82,8 +84,5 @@ module Spree
         end
       end
     end
-
-    # for backwards compatibility
-    alias_method :source_with_profiles, :reusable_sources
   end
 end

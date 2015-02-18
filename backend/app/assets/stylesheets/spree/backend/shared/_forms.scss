@@ -32,6 +32,45 @@ textarea {
   width: 100%;
 }
 
+.input-group {
+  position: relative;
+  display: table;
+  border-collapse: separate;
+
+  .form-control,
+  .input-group-addon {
+    display: table-cell;
+
+    &:first-child {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    &:last-child {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+
+  .form-control {
+    width: 100%;
+  }
+
+  .input-group-addon {
+    padding: 6px 10px;
+    border: 1px solid #cee1f4;
+    background: #eff5fc;
+    border-radius: 3px;
+
+    &:first-child {
+      border-right: none;
+    }
+
+    &:last-child {
+      border-left: none;
+    }
+  }
+}
+
 label {
   font-weight: 600;
   text-transform: uppercase;
@@ -232,8 +271,8 @@ fieldset {
     span.or {
       background-color: $color-1;
       border-width: 5px;
-      margin-left: 5px;
-      margin-right: 5px;
+      margin-left: 15px;
+      margin-right: 15px;
       position: relative;
 
       -webkit-box-shadow: 0 0 0 5px $color-1;

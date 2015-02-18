@@ -6,7 +6,7 @@
 
 <% content_for :page_actions do %>
   <li id="new_state_link">
-    <%= button_link_to Spree.t(:new_state), new_admin_country_state_url(@country), { :remote => true, :icon => 'icon-plus', :id => 'new_state_link' } %>
+    <%= button_link_to Spree.t(:new_state), new_admin_country_state_url(@country), { :remote => true, :icon => 'plus', :id => 'new_state_link' } %>
   </li>
 <% end %>
 
@@ -16,8 +16,6 @@
   <%= options_from_collection_for_select(@countries, :id, :name, @country.id) %>
   </select>
 </div>
-
-<%= image_tag 'select2-spinner.gif', :plugin => 'spree', :style => 'display:none;', :id => 'busy_indicator' %>
 
 <div id="state-list" data-hook>
   <%= render :partial => 'state_list'%>

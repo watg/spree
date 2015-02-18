@@ -1,5 +1,5 @@
 module Spree
-  class VariantDuplicator
+  class Spree::VariantDuplicator
     attr_accessor :variant
 
     def initialize(variant)

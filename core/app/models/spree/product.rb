@@ -18,9 +18,9 @@
 # Sum of on_hand each variant's inventory level determine "on_hand" level for the product.
 
 module Spree
-  class Product < ActiveRecord::Base
+  class Product < Spree::Base
     extend FriendlyId
-    friendly_id :name, use: :slugged
+    friendly_id :slug_candidates, use: :history
 
     acts_as_paranoid
 
@@ -66,8 +66,7 @@ module Spree
     has_one :master,
       -> { where is_master: true },
       inverse_of: :product,
-      class_name: 'Spree::Variant',
-      dependent: :destroy
+      class_name: 'Spree::Variant'
 
     has_many :variants,
       -> { where(is_master: false).order("#{::Spree::Variant.quoted_table_name}.position ASC") },
@@ -80,25 +79,37 @@ module Spree
       class_name: 'Spree::Variant',
       dependent: :destroy
 
-    has_many :all_variants_unscoped, class_name: 'Spree::Variant'
-
     has_many :prices, -> { order('spree_variants.position, spree_variants.id, currency') }, through: :variants
 
     has_many :stock_items, through: :variants_including_master
 
-    delegate_belongs_to :master, :sku, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :price_normal_in, :amount_in
+    has_many :line_items, through: :variants_including_master
+    has_many :orders, through: :line_items
+
+    delegate_belongs_to :master, :sku, :currency, :display_amount, :display_price, :weight, :height, :width, :depth, :is_master, :has_default_price?, :cost_currency, :price_in, :amount_in, :price_normal_in
 
     delegate_belongs_to :master, :cost_price
 
-    after_create :set_master_variant_defaults
-    after_create :add_properties_and_option_types_from_prototype
-    after_create :build_variants_from_option_values_hash, if: :option_values_hash
-    after_save :save_master
-    after_save :touch
-    # after_touch :touch_taxons
-
     delegate :images, to: :master, prefix: true
     alias_method :images, :master_images
+
+    has_many :variant_images, -> { order(:position) }, source: :images, through: :variants_including_master
+
+    after_create :set_master_variant_defaults
+    after_create :add_associations_from_prototype
+    after_create :build_variants_from_option_values_hash, if: :option_values_hash
+
+    after_destroy :punch_slug
+
+    after_initialize :ensure_master
+
+    after_save :save_master
+    after_save :run_touch_callbacks, if: :anything_changed?
+    after_save :reset_nested_changes
+#    after_touch :touch_taxons
+
+    before_validation :normalize_slug, on: :update
+    before_validation :validate_master
 
     delegate :assembly_definition, to: :master
 
@@ -108,19 +119,17 @@ module Spree
     accepts_nested_attributes_for :variants, allow_destroy: true
     accepts_nested_attributes_for :product_targets, allow_destroy: true
 
+    validates :meta_keywords, length: { maximum: 255 }
+    validates :meta_title, length: { maximum: 255 }
     validates :name, presence: true
     validates :shipping_category_id, presence: true
-    validates :slug, length: { minimum: 3 }
-
-    before_validation :normalize_slug, on: :update
+    validates :slug, length: { minimum: 3 }, uniqueness: { allow_blank: true }
 
     attr_accessor :option_values_hash
 
     accepts_nested_attributes_for :product_properties, allow_destroy: true, reject_if: lambda { |pp| pp[:property_name].blank? }
 
     alias :options :product_option_types
-
-    after_initialize :ensure_master
 
     # Grab each set of products that have parts, then
     scope :not_assembly, lambda {
@@ -317,12 +326,11 @@ module Spree
     end
 
     def total_on_hand
-      raise "DEPRECATED: this method does not take account of active stock locations. Use Variant or Quantifier total_on_hand instead."
-      # if self.variants_including_master.any? { |v| !v.should_track_inventory? }
-      #   Float::INFINITY
-      # else
-      #   self.stock_items.sum(&:count_on_hand)
-      # end
+      if any_variants_not_track_inventory?
+        Float::INFINITY
+      else
+        stock_items.sum(:count_on_hand)
+      end
     end
 
     # Master variant may be deleted (i.e. when the product is deleted)
@@ -363,16 +371,32 @@ module Spree
     end
 
     private
-    def normalize_slug
-      self.slug = normalize_friendly_id(slug)
-    end
 
-    def touch_assembly_products
+	def touch_assembly_products
       assembly_products.uniq.map(&:touch)
     end
 
     def touch_suite_tabs
       suite_tabs.uniq.map(&:touch)
+    end
+
+    def add_associations_from_prototype
+      if prototype_id && prototype = Spree::Prototype.find_by(id: prototype_id)
+        prototype.properties.each do |property|
+          product_properties.create(property: property)
+        end
+        self.option_types = prototype.option_types
+        # Taxons are now part of suites
+        #self.taxons = prototype.taxons
+      end
+    end
+
+    def any_variants_not_track_inventory?
+      if variants_including_master.loaded?
+        variants_including_master.any? { |v| !v.should_track_inventory? }
+      else
+        !Spree::Config.track_inventory_levels || variants_including_master.where(track_inventory: false).any?
+      end
     end
 
     # Builds variants from a hash of option types & values
@@ -382,21 +406,56 @@ module Spree
       values = values.inject(values.shift) { |memo, value| memo.product(value).map(&:flatten) }
 
       values.each do |ids|
-        attrs = { option_value_ids: ids, prices: master.prices, label: master.name }
-        # fix if needed
-        # attrs.merge!(kit_price: master.kit_price) if master.kit_price
-        variants.create(attrs)
+        variant = variants.create(
+          option_value_ids: ids#,
+          # Not part of vanilla spree 
+          # price: master.price
+        )
+        variant.prices = master.prices
       end
-
       save
     end
 
-    def add_properties_and_option_types_from_prototype
-      if prototype_id && prototype = Spree::Prototype.find_by(id: prototype_id)
-        prototype.properties.each do |property|
-          product_properties.create(property: property)
+    def ensure_master
+      return unless new_record?
+      self.master ||= build_master
+    end
+
+    def normalize_slug
+      self.slug = normalize_friendly_id(slug)
+    end
+
+    def punch_slug
+      update_column :slug, "#{Time.now.to_i}_#{slug}" # punch slug with date prefix to allow reuse of original
+    end
+
+    def anything_changed?
+      changed? || @nested_changes
+    end
+
+    def reset_nested_changes
+      @nested_changes = false
+    end
+
+    # there's a weird quirk with the delegate stuff that does not automatically save the delegate object
+    # when saving so we force a save using a hook
+    # Fix for issue #5306
+    def save_master
+      if master && (master.changed? || master.new_record? || (master.default_price && (master.default_price.changed? || master.default_price.new_record?)))
+        master.save!
+        @nested_changes = true
+      end
+    end
+
+    # If the master cannot be saved, the Product object will get its errors
+    # and will be destroyed
+    def validate_master
+      # We call master.default_price here to ensure price is initialized.
+      # Required to avoid Variant#check_price validation failing on create.
+      unless master.default_price && master.valid?
+        master.errors.each do |att, error|
+          self.errors.add(att, error)
         end
-        self.option_types = prototype.option_types
       end
     end
 
@@ -405,27 +464,27 @@ module Spree
       master.is_master = true
     end
 
-    # there's a weird quirk with the delegate stuff that does not automatically save the delegate object
-    # when saving so we force a save using a hook.
-    def save_master
-      if master && (master.changed? || master.new_record? || (master.default_price && (master.default_price.changed? || master.default_price.new_record?)))
-        master.save!
-        # Save with a bang as I want to know when this fails, and not have wishy washy errors
-        # that I have to hunt down for on certain models
-        #master.errors.each do |attr, message|
-        #  master.product.errors.add(attr, message)
-        #end
-      end
+    # Try building a slug based on the following fields in increasing order of specificity.
+    def slug_candidates
+      [
+        :name,
+        [:name, :sku]
+      ]
     end
 
-    def ensure_master
-      return unless new_record?
-      self.master ||= Variant.new
+    def run_touch_callbacks
+      run_callbacks(:touch)
     end
 
-      def touch_taxons
-        self.taxons.each(&:touch)
-      end
+#    # Iterate through this products taxons and taxonomies and touch their timestamps in a batch
+#    def touch_taxons
+#      taxons_to_touch = taxons.map(&:self_and_ancestors).flatten.uniq
+#      Spree::Taxon.where(id: taxons_to_touch.map(&:id)).update_all(updated_at: Time.current)
+#
+#      taxonomy_ids_to_touch = taxons_to_touch.map(&:taxonomy_id).flatten.uniq
+#      Spree::Taxonomy.where(id: taxonomy_ids_to_touch).update_all(updated_at: Time.current)
+#    end
+
   end
 end
 

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Calculator::DefaultTax do
+describe Spree::Calculator::DefaultTax, :type => :model do
   let!(:country) { create(:country) }
   let!(:zone) { create(:zone, :name => "Country Zone", :default_tax => true, :zone_members => []) }
   let!(:tax_category) { create(:tax_category, :tax_rates => []) }
@@ -17,7 +17,7 @@ describe Spree::Calculator::DefaultTax do
       let!(:line_item_2) { create(:line_item, :price => 10, :quantity => 3, :tax_category => tax_category) }
 
       before do
-        order.stub :line_items => [line_item_1, line_item_2]
+        allow(order).to receive_messages :line_items => [line_item_1, line_item_2]
       end
 
       context "when no line items match the tax category" do
@@ -27,7 +27,7 @@ describe Spree::Calculator::DefaultTax do
         end
 
         it "should be 0" do
-          calculator.compute(order).should == 0
+          expect(calculator.compute(order)).to eq(0)
         end
       end
 
@@ -38,7 +38,7 @@ describe Spree::Calculator::DefaultTax do
         end
 
         it "should be equal to the item total * rate" do
-          calculator.compute(order).should == 1.5
+          expect(calculator.compute(order)).to eq(1.5)
         end
 
         context "correctly rounds to within two decimal places" do
@@ -49,7 +49,7 @@ describe Spree::Calculator::DefaultTax do
 
           specify do
             # Amount is 0.51665, which will be rounded to...
-            calculator.compute(order).should == 0.52
+            expect(calculator.compute(order)).to eq(0.52)
           end
 
         end
@@ -57,7 +57,7 @@ describe Spree::Calculator::DefaultTax do
 
       context "when more than one item matches the tax category" do
         it "should be equal to the sum of the item totals * rate" do
-          calculator.compute(order).should == 3
+          expect(calculator.compute(order)).to eq(3)
         end
       end
 
@@ -66,7 +66,7 @@ describe Spree::Calculator::DefaultTax do
 
         it "will return the deducted amount from the totals" do
           # total price including 5% tax = $60
-          # ex tax = $57.14
+          # ex pre-tax = $57.14
           # 57.14 + %5 = 59.997 (or "close enough" to $60)
           # 60 - 57.14 = $2.86
           expect(calculator.compute(order).to_f).to eql 2.86
@@ -76,7 +76,6 @@ describe Spree::Calculator::DefaultTax do
 
     context "when tax is included in price" do
       let(:included_in_price) { true }
-
       context "when the variant matches the tax category" do
 
         context "when line item is discounted" do
@@ -86,13 +85,13 @@ describe Spree::Calculator::DefaultTax do
           end
 
           it "should be equal to the item's discounted total * rate" do
-            calculator.compute(line_item).should == 1.38
+            expect(calculator.compute(line_item)).to eql 1.38
           end
         end
 
         it "should be equal to the item's full price * rate" do
           Spree::TaxRate.store_pre_tax_amount(line_item, [rate])
-          calculator.compute(line_item).should == 1.43
+          expect(calculator.compute(line_item)).to eql 1.43
         end
       end
 
@@ -103,26 +102,26 @@ describe Spree::Calculator::DefaultTax do
         before { line_item.promo_total = -1 }
 
         it "should be equal to the item's pre-tax total * rate" do
-          calculator.compute(line_item).should == 1.45
+          expect(calculator.compute(line_item)).to eq(1.45)
         end
       end
 
       context "when the variant matches the tax category" do
         it "should be equal to the item pre-tax total * rate" do
-          calculator.compute(line_item).should == 1.50
+          expect(calculator.compute(line_item)).to eq(1.50)
         end
       end
     end
 
     context "when given a shipment" do
       it "should be 5% of 15" do
-        calculator.compute(shipment).should == 0.75
+        expect(calculator.compute(shipment)).to eq(0.75)
       end
 
       it "takes discounts into consideration" do
         shipment.promo_total = -1
         # 5% of 14
-        calculator.compute(shipment).should == 0.7
+        expect(calculator.compute(shipment)).to eq(0.7)
       end
     end
   end

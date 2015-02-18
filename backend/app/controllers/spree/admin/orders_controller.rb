@@ -1,8 +1,8 @@
 module Spree
   module Admin
     class OrdersController < Spree::Admin::BaseController
-      before_filter :initialize_order_events
-      before_filter :load_order, :only => [:edit, :update, :cancel, :resume, :approve, :resend, :open_adjustments, :close_adjustments, :important, :gift_card_reissue]
+      before_action :initialize_order_events
+      before_action :load_order, except: [:index, :new, :create]
 
       respond_to :html
 
@@ -20,11 +20,11 @@ module Spree
 
         params[:q].delete(:inventory_units_shipment_id_null) if params[:q][:inventory_units_shipment_id_null] == "0"
 
-        if !params[:q][:created_at_gt].blank?
+        if params[:q][:created_at_gt].present?
           params[:q][:created_at_gt] = Time.zone.parse(params[:q][:created_at_gt]).beginning_of_day rescue ""
         end
 
-        if !params[:q][:created_at_lt].blank?
+        if params[:q][:created_at_lt].present?
           params[:q][:created_at_lt] = Time.zone.parse(params[:q][:created_at_lt]).end_of_day rescue ""
         end
 
@@ -58,7 +58,7 @@ module Spree
         @order.internal = params[:order][:internal]
         @order.created_by = try_spree_current_user
         @order.save!
-        redirect_to edit_admin_order_url(@order)
+        redirect_to cart_admin_order_url(@order)
       end
 
       def internal
@@ -85,8 +85,19 @@ module Spree
       end
 
       def edit
-        unless @order.complete?
+        can_not_transition_without_customer_info
+
+        unless @order.completed?
           @order.refresh_shipment_rates
+        end
+      end
+ 
+      def cart
+        unless @order.completed?
+          @order.refresh_shipment_rates
+        end
+        if @order.shipped_shipments.count > 0
+          redirect_to edit_admin_order_url(@order)
         end
       end
 
@@ -110,8 +121,8 @@ module Spree
       def update
         if @order.update_attributes(params[:order]) && @order.line_items.present?
           @order.update!
-          unless @order.complete?
-            # Jump to next step if order is not complete.
+          unless @order.completed?
+            # Jump to next step if order is not completed.
             redirect_to admin_order_customer_path(@order) and return
           end
         else
@@ -123,7 +134,7 @@ module Spree
 
       def cancel
         if @order.can_cancel?
-          @order.cancel!
+          @order.canceled_by(try_spree_current_user)
           flash[:success] = Spree.t(:order_canceled)
         else
           flash[:notice] = "Order cannot be canceled"
@@ -154,16 +165,16 @@ module Spree
       end
 
       def open_adjustments
-        adjustments = @order.adjustments.where(:state => 'closed')
-        adjustments.update_all(:state => 'open')
+        adjustments = @order.all_adjustments.where(state: 'closed')
+        adjustments.update_all(state: 'open')
         flash[:success] = Spree.t(:all_adjustments_opened)
 
         respond_with(@order) { |format| format.html { redirect_to :back } }
       end
 
       def close_adjustments
-        adjustments = @order.adjustments.where(:state => 'open')
-        adjustments.update_all(:state => 'closed')
+        adjustments = @order.all_adjustments.where(state: 'open')
+        adjustments.update_all(state: 'closed')
         flash[:success] = Spree.t(:all_adjustments_closed)
 
         respond_with(@order) { |format| format.html { redirect_to :back } }
@@ -183,6 +194,11 @@ module Spree
           Spree::PDF::ImageSticker.new(order)
         end
       end
+      
+      def order_params
+        params[:created_by_id] = try_spree_current_user.try(:id)
+        params.permit(:created_by_id)
+      end
 
       def load_order
         # Spree auth calls load_order, hence you have no control over which actions
@@ -195,10 +211,10 @@ module Spree
         end
       end
 
-      # Used for extensions which need to provide their own custom event links on the order details view.
-      def initialize_order_events
-        @order_events = %w{approve cancel resume}
-      end
+        # Used for extensions which need to provide their own custom event links on the order details view.
+        def initialize_order_events
+          @order_events = %w{approve cancel resume}
+        end
 
       def model_class
         Spree::Order

@@ -38,7 +38,7 @@ describe Spree::AssemblyDefinition do
 
     it "should provide an error" do
       assembly_definition.reload.save
-      expect(assembly_definition.errors.any?).to be_true
+      expect(assembly_definition.errors.any?).to be true
     end
 
   end
@@ -56,7 +56,7 @@ describe Spree::AssemblyDefinition do
 
       it "should provide an error" do
         assembly_definition.save
-        expect(assembly_definition.errors.any?).to be_true
+        expect(assembly_definition.errors.any?).to be true
       end
 
     end
@@ -71,7 +71,7 @@ describe Spree::AssemblyDefinition do
 
       it "should provide an error" do
         assembly_definition.save
-        expect(assembly_definition.errors.any?).to be_true
+        expect(assembly_definition.errors.any?).to be true
       end
 
     end

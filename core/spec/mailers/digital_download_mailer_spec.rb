@@ -7,7 +7,8 @@ describe Spree::DigitalDownloadMailer do
     subject(:email) { Spree::DigitalDownloadMailer.send_links(order) }
 
     it "sets the subject" do
-      subject = "Spree Demo Site Digital Pattern Download ##{order.number}"
+      create(:store)
+      subject = "Spree Test Store Digital Pattern Download ##{order.number}"
       expect(email.subject).to eq(subject)
     end
 
@@ -54,7 +55,7 @@ describe Spree::DigitalDownloadMailer do
       it "sets 'multiple' to false" do
         Spree::DigitalLink.create!(line_item: line_item, digital: digital)
         multiple = merge_vars["multiple"]
-        expect(multiple).to be_false
+        expect(multiple).to eq false
       end
 
       context "when there is more than one digital download" do
@@ -66,7 +67,7 @@ describe Spree::DigitalDownloadMailer do
           Spree::DigitalLink.create!(line_item: other_line_item, digital: other_digital)
 
           multiple = merge_vars["multiple"]
-          expect(multiple).to be_true
+          expect(multiple).to eq true
         end
       end
     end

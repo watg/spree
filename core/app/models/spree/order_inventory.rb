@@ -18,7 +18,6 @@ module Spree
     #
     def verify(shipment = nil)
       if order.completed? || shipment.present?
-
         if line_item.parts.any?
           process_line_item_parts(@line_item, shipment)
         else

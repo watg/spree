@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Image do
+describe Spree::Image, :type => :model do
 
   context "touching" do
     it "should touch a variant" do
@@ -8,7 +8,7 @@ describe Spree::Image do
       variant = image.viewable
       variant.update_column(:updated_at, 1.day.ago)
       image.touch
-      variant.reload.updated_at.should be_within(3.seconds).of(Time.now)
+      expect(variant.reload.updated_at).to be_within(3.seconds).of(Time.now)
     end
   end
 

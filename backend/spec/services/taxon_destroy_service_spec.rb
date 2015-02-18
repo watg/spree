@@ -21,17 +21,17 @@ describe Spree::TaxonDestroyService do
   context "taxon to delete has a parent and child" do
 
     it "removes suite from ancestors" do
-      expect(subject.valid?).to be_true
+      expect(subject.valid?).to be true
       expect(taxon.suites.reload.select { |s| s == suite }.size).to eq 0
     end
 
     it "deletes the child taxons" do
-      expect(subject.valid?).to be_true
+      expect(subject.valid?).to be true
       expect(taxon_childs_child.reload.deleted_at).to_not be_nil
     end
 
     it "deletes suites associated with self and children" do
-      expect(subject.valid?).to be_true
+      expect(subject.valid?).to be true
       expect(taxon_child.suites.size).to eq 0
       expect(taxon_childs_child.suites.size).to eq 0
     end
@@ -47,7 +47,7 @@ describe Spree::TaxonDestroyService do
 
     it "does not removes suite from ancestors" do
       expect(taxon.suites.reload.select { |s| s == suite }.size).to eq 1
-      expect(subject.valid?).to be_true
+      expect(subject.valid?).to be true
       expect(taxon.suites.reload.select { |s| s == suite }.size).to eq 1
     end
 

@@ -1,10 +1,13 @@
 object @product
-cache [current_currency, root_object]
+cache [I18n.locale, @current_user_roles.include?('admin'), current_currency, root_object]
+
 attributes *product_attributes
+
 node(:display_price) { |p| p.display_price.to_s }
 node(:marketing_type) { |p| p.marketing_type.name }
 node(:product_type) { |p| p.product_type.name }
 node(:has_variants) { |p| p.has_variants? }
+
 child :master => :master do
   extends "spree/api/variants/small"
 end
@@ -20,3 +23,12 @@ end
 child :product_properties => :product_properties do
   attributes *product_property_attributes
 end
+
+# Taxon moved to suite
+#child :classifications => :classifications do
+#  attributes :taxon_id, :position
+#
+#  child(:taxon) do
+#    extends "spree/api/taxons/show"
+#  end
+#end

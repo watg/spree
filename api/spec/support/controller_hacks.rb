@@ -12,6 +12,10 @@ module ControllerHacks
     api_process(action, params, session, flash, "PUT")
   end
 
+  def api_patch(action, params={}, session=nil, flash=nil)
+    api_process(action, params, session, flash, "PATCH")
+  end
+
   def api_delete(action, params={}, session=nil, flash=nil)
     api_process(action, params, session, flash, "DELETE")
   end
@@ -23,5 +27,5 @@ module ControllerHacks
 end
 
 RSpec.configure do |config|
-  config.include ControllerHacks, :type => :controller
+  config.include ControllerHacks, type: :controller
 end

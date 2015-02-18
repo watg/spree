@@ -42,10 +42,6 @@ module Spree
     # or taxons), eg see the taxon model/controller.
 
     # See specific filters below for concrete examples.
-
-    # This module is included by Taxon. In development mode that inclusion does not
-    # happen until Taxon class is loaded. Ensure that Taxon class is loaded before
-    # you try something like Product.price_range_any
     module ProductFilters
       # Example: filtering by price
       #   The named scope just maps incoming labels onto their conditions, and builds the conjunction
@@ -147,8 +143,7 @@ module Spree
         brand_property = Spree::Property.find_by(name: 'brand')
         scope = Spree::ProductProperty.where(property: brand_property).
           joins(product: :taxons).
-          where("#{Spree::Taxon.table_name}.id" => [taxon] + taxon.descendants).
-          scoped
+          where("#{Spree::Taxon.table_name}.id" => [taxon] + taxon.descendants)
         brands = scope.pluck(:value).uniq
         {
           name:   'Applicable Brands',

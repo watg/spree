@@ -1,8 +1,6 @@
 require 'spec_helper'
 
-describe Spree::LegacyUser do
-  subject { create(:user) }
-
+describe Spree::LegacyUser, :type => :model do
   # Regression test for #2844 + #3346
   context "#last_incomplete_order" do
     let!(:user) { create(:user) }
@@ -10,10 +8,17 @@ describe Spree::LegacyUser do
 
     let!(:order_1) { create(:order, :created_at => 1.day.ago, :user => user, :created_by => user) }
     let!(:order_2) { create(:order, :user => user, :created_by => user) }
-    let!(:order_3) { create(:order, :user => user, :created_by => create(:user)) }
+    # let!(:order_3) { create(:order, :user => user, :created_by => create(:user)) }
 
-    it "returns correct order" do
-      user.last_incomplete_spree_order.should == order_2
+    describe "#last_incomplete_spree_order" do
+      it "returns correct order" do
+        expect(user.last_incomplete_spree_order).to eq order_2
+      end
+
+      it "scopes by currency" do
+        expect(user.last_incomplete_spree_order(order_2.currency)).to eq order_2
+        expect(user.last_incomplete_spree_order(order_2.currency.reverse)).to be_nil
+      end
     end
 
     context "persists order address" do
@@ -62,19 +67,19 @@ describe Spree::LegacyUser do
   end
 end
 
-describe Spree.user_class do
+describe Spree.user_class, :type => :model do
   context "reporting" do
     let(:order_value) { BigDecimal.new("80.94") }
     let(:order_count) { 4 }
     let(:orders) { Array.new(order_count, double(total: order_value)) }
 
     before do
-      orders.stub(:pluck).with(:total).and_return(orders.map(&:total))
-      orders.stub(:count).and_return(orders.length)
+      allow(orders).to receive(:pluck).with(:total).and_return(orders.map(&:total))
+      allow(orders).to receive(:count).and_return(orders.length)
     end
 
     def load_orders
-      subject.stub(:orders).and_return(double(complete: orders))
+      allow(subject).to receive(:spree_orders).and_return(double(complete: orders))
     end
 
     describe "#lifetime_value" do
@@ -94,7 +99,7 @@ describe Spree.user_class do
     describe "#display_lifetime_value" do
       it "returns a Spree::Money version of lifetime_value" do
         value = BigDecimal("500.05")
-        subject.stub(:lifetime_value).and_return(value)
+        allow(subject).to receive(:lifetime_value).and_return(value)
         expect(subject.display_lifetime_value).to eq Spree::Money.new(value)
       end
     end
@@ -124,13 +129,12 @@ describe Spree.user_class do
       before { load_orders }
       it "returns a Spree::Money version of average_order_value" do
         value = BigDecimal("500.05")
-        subject.stub(:average_order_value).and_return(value)
+        allow(subject).to receive(:average_order_value).and_return(value)
         expect(subject.display_average_order_value).to eq Spree::Money.new(value)
       end
     end
   end
 
-  
   context "#find_or_create_unenrolled" do
     let(:tracking_cookie) { 'random-string' }
     it "creates a new user if enrolled with the same tracking cookie exists" do
@@ -154,7 +158,9 @@ describe Spree.user_class do
     end
 
     it "#customer_has_subscribed?" do
-      expect(subject.customer_has_subscribed?('bob@sponge.net')).to be_true
+      expect(subject.customer_has_subscribed?('bob@sponge.net')).to be true
     end
   end
+
+
 end

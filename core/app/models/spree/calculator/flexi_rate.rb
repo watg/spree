@@ -5,7 +5,7 @@ module Spree
     preference :first_item,      :decimal, default: 0.0
     preference :additional_item, :decimal, default: 0.0
     preference :max_items,       :integer, default: 0
-    preference :currency,        :string,  default: Spree::Config[:currency]
+    preference :currency,        :string,  default: ->{ Spree::Config[:currency] }
 
     def self.description
       Spree.t(:flexible_rate)
@@ -18,7 +18,7 @@ module Spree
     def compute(object)
       sum = 0
       max = self.preferred_max_items.to_i
-      items_count = object.line_items_without_gift_cards.map(&:quantity).sum
+      items_count = object.line_items_without_gift_cards.sum(&:quantity)
       items_count.times do |i|
         if i == 0
           sum += self.preferred_first_item.to_f

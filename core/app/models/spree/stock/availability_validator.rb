@@ -6,7 +6,13 @@ module Spree
 
         order = line_item.order
 
-        item_builder = Spree::Stock::OrderItemBuilder.new(order)
+        # Get all current line_items, remove the one we want to validate, then add it back
+        # ( this covers the case the quantity has changed )
+        line_items_to_build = Spree::LineItem.where(order: order).to_a
+        line_items_to_build = line_items_to_build.reject { |li| li.id == line_item.id }
+        line_items_to_build << line_item
+
+        item_builder = Spree::Stock::OrderItemBuilder.new(line_items_to_build)
 
         # group the order's variants. Ex: {324=>3, 1405=>4, 321=>2, 323=>3, 322=>3}
         grouped_variants = item_builder.group_variants
@@ -38,14 +44,12 @@ module Spree
         end
       end
 
-      
-
       def validate_order(order)
-        ## Needs to be upgraded to the new syntax in rails 4.1
-        ## ActiveRecord::Associations::Preloader.new.preload(order, [line_items: :line_item_parts]).run
-        ActiveRecord::Associations::Preloader.new(order, [line_items: :line_item_parts]).run
+        preloader = ActiveRecord::Associations::Preloader.new
+        preloader.preload(order, [line_items: :line_item_parts])
 
-        item_builder = Spree::Stock::OrderItemBuilder.new(order)
+        line_items_to_build = Spree::LineItem.where(order: order).to_a
+        item_builder = Spree::Stock::OrderItemBuilder.new(line_items_to_build)
 
         # group the order's variants. Ex: {324=>3, 1405=>4, 321=>2, 323=>3, 322=>3}
         grouped_variants = item_builder.group_variants

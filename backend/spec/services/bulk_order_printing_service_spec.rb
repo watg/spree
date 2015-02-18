@@ -10,7 +10,7 @@ describe Spree::BulkOrderPrintingService do
 
     it "generates a PDF for each order that hasn't been printed and create a print job" do
       outcome = subject.print_invoices(@unprinted_invoices)
-      expect(outcome.valid?).to be_true
+      expect(outcome.valid?).to be true
       expect(outcome.result[0,4]).to eq('%PDF')
 
       job = @unprinted_invoices.first.invoice_print_job
@@ -40,7 +40,7 @@ describe Spree::BulkOrderPrintingService do
 
     it "generates image stickers and adds sticker print date" do
       outcome = subject.print_image_stickers(orders)
-      expect(outcome.valid?).to be_true
+      expect(outcome.valid?).to be true
       expect(outcome.result[0,4]).to eq('%PDF')
 
       expect(orders.first.batch_sticker_print_date).to eq(Date.today)

@@ -1,45 +1,65 @@
 module Spree
-  class Payment < ActiveRecord::Base
+  class Payment < Spree::Base
     include Spree::Payment::Processing
 
-    IDENTIFIER_CHARS = (('A'..'Z').to_a + ('0'..'9').to_a - %w(0 1 I O)).freeze
+    IDENTIFIER_CHARS    = (('A'..'Z').to_a + ('0'..'9').to_a - %w(0 1 I O)).freeze
+    NON_RISKY_AVS_CODES = ['B', 'D', 'H', 'J', 'M', 'Q', 'T', 'V', 'X', 'Y'].freeze
+    RISKY_AVS_CODES     = ['A', 'C', 'E', 'F', 'G', 'I', 'K', 'L', 'N', 'O', 'P', 'R', 'S', 'U', 'W', 'Z'].freeze
 
     belongs_to :order, class_name: 'Spree::Order', touch: true, inverse_of: :payments
     belongs_to :source, polymorphic: true
-    belongs_to :payment_method, class_name: 'Spree::PaymentMethod'
+    belongs_to :payment_method, class_name: 'Spree::PaymentMethod', inverse_of: :payments
 
-    has_many :offsets, -> { where("source_type = 'Spree::Payment' AND amount < 0 AND state = 'completed'") },
-      class_name: "Spree::Payment", foreign_key: :source_id
+    has_many :offsets, -> { offset_payment }, class_name: "Spree::Payment", foreign_key: :source_id
     has_many :log_entries, as: :source
     has_many :state_changes, as: :stateful
     has_many :capture_events, :class_name => 'Spree::PaymentCaptureEvent'
+    has_many :refunds, inverse_of: :payment
 
     before_validation :validate_source
     before_create :set_unique_identifier
-    before_save :update_uncaptured_amount
 
     after_save :create_payment_profile, if: :profiles_supported?
 
     # update the order totals, etc.
     after_save :update_order
+
     # invalidate previously entered payments
     after_create :invalidate_old_payments
 
-    attr_accessor :source_attributes
+    attr_accessor :source_attributes, :request_env
+
     after_initialize :build_source
-
-    scope :from_credit_card, -> { where(source_type: 'Spree::CreditCard') }
-    scope :with_state, ->(s) { where(state: s.to_s) }
-    scope :completed, -> { with_state('completed') }
-    scope :pending, -> { with_state('pending') }
-    scope :failed, -> { with_state('failed') }
-    scope :valid, -> { where.not(state: %w(failed invalid)) }
-
     after_rollback :persist_invalid
 
     validates :amount, numericality: true
 
+    default_scope -> { order("#{self.table_name}.created_at") }
+
+    scope :from_credit_card, -> { where(source_type: 'Spree::CreditCard') }
+    scope :with_state, ->(s) { where(state: s.to_s) }
+    # "offset" is reserved by activerecord
+    scope :offset_payment, -> { where("source_type = 'Spree::Payment' AND amount < 0 AND state = 'completed'") }
+
+    scope :checkout, -> { with_state('checkout') }
+    scope :completed, -> { with_state('completed') }
+    scope :pending, -> { with_state('pending') }
+    scope :processing, -> { with_state('processing') }
+    scope :failed, -> { with_state('failed') }
+
+    scope :risky, -> { where("avs_response IN (?) OR (cvv_response_code IS NOT NULL and cvv_response_code != 'M') OR state = 'failed'", RISKY_AVS_CODES) }
+    scope :valid, -> { where.not(state: %w(failed invalid)) }
+
+    # transaction_id is much easier to understand
+    def transaction_id
+      response_code
+    end
+
     def persist_invalid
+      # This fixes an issue where after the tests run, the database will be rolled back
+      # but saving the payment throws an exception becuase the order no longer exists
+      # ( it has been rolled backed ).
+      return if Rails.env.test?
       return unless ['failed', 'invalid'].include?(state)
       state_will_change!
       save
@@ -48,6 +68,10 @@ module Spree
     # order state machine (see http://github.com/pluginaweek/state_machine/tree/master for details)
     state_machine initial: :checkout do
       # With card payments, happens before purchase or authorization happens
+      #
+      # Setting it after creating a profile and authorizing a full amount will
+      # prevent the payment from being authorized again once Order transitions
+      # to complete
       event :started_processing do
         transition from: [:checkout, :pending, :completed, :processing], to: :processing
       end
@@ -64,7 +88,7 @@ module Spree
         transition from: [:processing, :pending, :checkout], to: :completed
       end
       event :void do
-        transition from: [:pending, :completed, :checkout], to: :void
+        transition from: [:pending, :processing, :completed, :checkout], to: :void
       end
       # when the card brand isnt supported
       event :invalidate do
@@ -94,7 +118,7 @@ module Spree
         case amount
         when String
           separator = I18n.t('number.currency.format.separator')
-          number    = amount.delete("^0-9-#{separator}").tr(separator, '.')
+          number    = amount.delete("^0-9-#{separator}\.").tr(separator, '.')
           number.to_d if number.present?
         end || amount
     end
@@ -104,7 +128,7 @@ module Spree
     end
 
     def credit_allowed
-      amount - offsets_total.abs
+      amount - (offsets_total.abs + refunds.sum(:amount))
     end
 
     def can_credit?
@@ -132,8 +156,7 @@ module Spree
     end
 
     def is_avs_risky?
-      return false if avs_response == "D"
-      return false if avs_response.blank?
+      return false if avs_response.blank? || NON_RISKY_AVS_CODES.include?(avs_response)
       return true
     end
 
@@ -142,6 +165,10 @@ module Spree
       return false if cvv_response_code.nil?
       return false if cvv_response_message.present?
       return true
+    end
+
+    def uncaptured_amount
+      amount - capture_events.sum(:amount)
     end
 
     private
@@ -161,7 +188,12 @@ module Spree
       end
 
       def create_payment_profile
-        return unless source.respond_to?(:has_payment_profile?) && !source.has_payment_profile?
+        # Don't attempt to create on bad payments.
+        return if %w(invalid failed).include?(state)
+        # Payment profile cannot be created without source
+        return unless source
+        # Imported payments shouldn't create a payment profile.
+        return if source.imported
 
         payment_method.create_profile(self)
       rescue ActiveMerchant::ConnectionError => e
@@ -169,14 +201,27 @@ module Spree
       end
 
       def invalidate_old_payments
-        order.payments.with_state('checkout').where("id != ?", self.id).each do |payment|
-          payment.invalidate!
+        if state != 'invalid' and state != 'failed'
+          order.payments.with_state('checkout').where("id != ?", self.id).each do |payment|
+            payment.invalidate!
+          end
         end
       end
 
       def update_order
-        order.payments.reload
-        order.update!
+        if completed? || void?
+          order.updater.update_payment_total
+        end
+
+        if order.completed?
+          order.updater.update_payment_state
+          order.updater.update_shipments
+          order.updater.update_shipment_state
+        end
+
+        if self.completed? || order.completed?
+          order.persist_totals
+        end
       end
 
       # Necessary because some payment gateways will refuse payments with
@@ -192,10 +237,6 @@ module Spree
 
       def generate_identifier
         Array.new(8){ IDENTIFIER_CHARS.sample }.join
-      end
-
-      def update_uncaptured_amount
-        self.uncaptured_amount = amount - capture_events.sum(:amount)
       end
   end
 end

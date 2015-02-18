@@ -3,7 +3,7 @@
 <% end %>
 
 <% content_for :page_actions do %>
-  <li><%= button_link_to Spree.t(:back_to_order), [:edit, :admin, @order], :icon => 'icon-arrow-left' %></li>
+  <li><%= button_link_to Spree.t(:back_to_order), [:edit, :admin, @order], :icon => 'fa fa-arrow-left' %></li>
 <% end %>
 
 <%= render :partial => 'spree/admin/shared/order_sub_menu' %>

@@ -7,7 +7,7 @@ describe Spree::UseGiftCardService do
 
   it "allows customer to use gift card" do
     outcome = subject.run(order: order, code: gift_card.code)
-    expect(outcome.valid?).to be_true
+    expect(outcome.valid?).to be true
     expect(order.reload.adjustments.gift_card.first.source).to eq(gift_card)
   end
 

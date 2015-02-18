@@ -8,7 +8,7 @@ module Spree
       headers['X-MC-MergeLanguage'] = "handlebars"
       headers['X-MC-MergeVars'] = merge_vars(order).to_json
 
-      subject = "#{Spree::Config[:site_name]} #{Spree.t('digital_download_mailer.send_links.subject')} ##{order.number}"
+      subject = "#{Spree::Store.default.name} #{Spree.t('digital_download_mailer.send_links.subject')} ##{order.number}"
       mail(to: order.email, from: from_address, subject: subject, body: "")
     end
 

@@ -18,7 +18,7 @@ module Spree
           if p.nil?
             add_error(:variant, :price, "price not set for type: normal, currency: #{currency}") 
           else
-            if Spree::Price.parse_price(p) <= 0
+            if Spree::LocalizedNumber.parse(p) <= 0
               add_error(:variant, :price, "amount can not be <= 0 for currency: #{currency} and normal price")
             end
           end

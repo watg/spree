@@ -1,7 +1,7 @@
 module Spree
   module Admin
     class StockItemsController < Spree::Admin::BaseController
-      before_filter :determine_backorderable, only: :update
+      before_action :determine_backorderable, only: :update
 
       def update
         stock_item.save
@@ -24,6 +24,7 @@ module Spree
 
           if stock_movement.save
             flash[:success] = flash_message_for(stock_movement, :successfully_created)
+            @stock_item.reload
           else
             flash[:error] = Spree.t(:could_not_create_stock_movement)
           end
@@ -34,7 +35,7 @@ module Spree
 
         # Reload @stock_item after the stock_movement save, so that it is fresh for
         # the JS
-        respond_with(@stock_item.reload) do |format|
+        respond_with(@stock_item) do |format|
           format.html { redirect_to :back }
           format.js
         end

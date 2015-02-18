@@ -27,6 +27,7 @@
 @import 'spree/backend/plugins/token-input';
 @import 'spree/backend/plugins/jstree';
 
+@import 'spree/backend/sections/adjustments_table';
 @import 'spree/backend/sections/alerts';
 @import 'spree/backend/sections/orders';
 @import 'spree/backend/sections/overview';
@@ -34,6 +35,7 @@
 @import 'spree/backend/sections/promotions';
 @import 'spree/backend/sections/edit_checkouts';
 @import 'spree/backend/sections/bulk_transfer';
+@import 'spree/backend/sections/return_authorizations';
 @import 'spree/backend/sections/tax_zones';
 @import 'spree/backend/sections/log_entries';
 @import 'spree/backend/sections/taxons';

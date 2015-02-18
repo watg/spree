@@ -9,6 +9,7 @@ describe Spree::StockTransferService::Create do
     let(:quantity) { 1 }
     let(:reference) { 'test' }
     let(:stock_location_1) {create(:stock_location)}
+    let!(:stock_item_1) {create(:stock_item, stock_location: stock_location_1, variant: variant, supplier: supplier )}
     let(:stock_location_2) {create(:stock_location)}
     let(:transfer_source_location_id) { stock_location_1.id }
     let(:transfer_destination_location_id) { stock_location_2.id }
@@ -27,7 +28,7 @@ describe Spree::StockTransferService::Create do
       expect {
         subject.run(params)
       }.to change(Spree::StockTransfer, :count).by 1
-      expect(outcome.valid?).to be_true
+      expect(outcome.valid?).to be true
       transfer = outcome.result
       expect(transfer).to be_kind_of Spree::StockTransfer
     end
@@ -37,42 +38,42 @@ describe Spree::StockTransferService::Create do
         params[:suppliers] = nil 
         outcome = subject.run(params)
         expect(outcome.errors.messages).to include(:suppliers => ["is required"])
-        expect(outcome.invalid?).to be_true
+        expect(outcome.invalid?).to be true
       end
 
       it "returns an error if variants not present" do
         params[:variants] = nil 
         outcome = subject.run(params)
         expect(outcome.errors.messages).to include(:variants => ["is required"])
-        expect(outcome.invalid?).to be_true
+        expect(outcome.invalid?).to be true
       end
 
       it "returns an error if quantities not present" do
         params[:quantities] = nil 
         outcome = subject.run(params)
         expect(outcome.errors.messages).to include(:quantities => ["is required"])
-        expect(outcome.invalid?).to be_true
+        expect(outcome.invalid?).to be true
       end
 
       it "returns an error if reference not present" do
         params[:reference] = nil 
         outcome = subject.run(params)
         expect(outcome.errors.messages).to include(:reference => ["is required"])
-        expect(outcome.invalid?).to be_true
+        expect(outcome.invalid?).to be true
       end
 
       it "returns an error if transfer_source_location_id is not present" do
         params[:transfer_source_location_id] = nil 
         outcome = subject.run(params)
         expect(outcome.errors.messages).to eq(:transfer_source_location_id => ["is required"])
-        expect(outcome.invalid?).to be_true
+        expect(outcome.invalid?).to be true
       end
 
       it "returns an error if transfer_destination_location_id is not present" do
         params[:transfer_destination_location_id] = nil 
         outcome = subject.run(params)
         expect(outcome.errors.messages).to eq(:transfer_destination_location_id => ["is required"])
-        expect(outcome.invalid?).to be_true
+        expect(outcome.invalid?).to be true
       end
     end
 
@@ -83,21 +84,21 @@ describe Spree::StockTransferService::Create do
         params[:suppliers] = [nil] 
         outcome = subject.run(params)
         expect(outcome.errors.messages).to include(:suppliers => ["is required"])
-        expect(outcome.invalid?).to be_true
+        expect(outcome.invalid?).to be true
       end
 
       it "returns an error if variants contains nil values" do
         params[:variants] = [nil] 
         outcome = subject.run(params)
         expect(outcome.errors.messages).to include(:variants => ["is required"])
-        expect(outcome.invalid?).to be_true
+        expect(outcome.invalid?).to be true
       end
 
       it "returns an error if quantities contains nil values" do
         params[:quantities] = [nil] 
         outcome = subject.run(params)
         expect(outcome.errors.messages).to include(:quantities => ["is required"])
-        expect(outcome.invalid?).to be_true
+        expect(outcome.invalid?).to be true
       end
     end
 

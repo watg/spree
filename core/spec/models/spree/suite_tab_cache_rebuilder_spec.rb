@@ -59,7 +59,7 @@ describe Spree::SuiteTabCacheRebuilder do
         it "sets in_stock to true if product variants have stock" do
           suite_tab.in_stock_cache = false
           subject.send(:rebuild_in_stock)
-          expect(suite_tab.in_stock_cache).to be_true
+          expect(suite_tab.in_stock_cache).to be true
         end
 
       end
@@ -71,7 +71,7 @@ describe Spree::SuiteTabCacheRebuilder do
         it "sets in_stock to false if product variants have no stock" do
           suite_tab.in_stock_cache = true
           subject.send(:rebuild_in_stock)
-          expect(suite_tab.in_stock_cache).to be_false
+          expect(suite_tab.in_stock_cache).to be false
         end
       end
 
@@ -83,7 +83,7 @@ describe Spree::SuiteTabCacheRebuilder do
         it "sets in_stock to false if there are not variants with the chosen target" do
           suite_tab.in_stock_cache = true
           subject.send(:rebuild_in_stock)
-          expect(suite_tab.in_stock_cache).to be_false
+          expect(suite_tab.in_stock_cache).to be false
         end
       end
     end
@@ -102,7 +102,7 @@ describe Spree::SuiteTabCacheRebuilder do
         it "sets in_stock to true if product variants have stock" do
           suite_tab.in_stock_cache = false
           subject.send(:rebuild_in_stock)
-          expect(suite_tab.in_stock_cache).to be_true
+          expect(suite_tab.in_stock_cache).to be true
         end
       end
 
@@ -115,7 +115,7 @@ describe Spree::SuiteTabCacheRebuilder do
         it "sets in_stock to true if product variants have stock" do
           suite_tab.in_stock_cache = true
           subject.send(:rebuild_in_stock)
-          expect(suite_tab.in_stock_cache).to be_false
+          expect(suite_tab.in_stock_cache).to be false
         end
       end
 

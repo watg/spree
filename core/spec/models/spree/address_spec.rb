@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Address do
+describe Spree::Address, :type => :model do
 
   subject { Spree::Address }
 
@@ -8,37 +8,37 @@ describe Spree::Address do
     it "creates a copy of the address with the exception of the id, updated_at and created_at attributes" do
       state = create(:state)
       original = create(:address,
-                         :address1 => 'address1',
-                         :address2 => 'address2',
-                         :alternative_phone => '123-456-7890',
-                         :city => 'city',
-                         :country => Spree::Country.first,
-                         :firstname => 'firstname',
-                         :lastname => 'lastname',
-                         :company => 'company',
-                         :phone => '123-456-7890',
-                         :state_id => state.id,
-                         :state_name => state.name,
-                         :zipcode => 'zip_code')
+                        :address1 => 'address1',
+                        :address2 => 'address2',
+                        :alternative_phone => '123-456-7890',
+                        :city => 'city',
+                        :country => Spree::Country.first,
+                        :firstname => 'firstname',
+                        :lastname => 'lastname',
+                        :company => 'company',
+                        :phone => '123-456-7890',
+                        :state_id => state.id,
+                        :state_name => state.name,
+                        :zipcode => '10001')
 
       cloned = original.clone
 
-      cloned.address1.should == original.address1
-      cloned.address2.should == original.address2
-      cloned.alternative_phone.should == original.alternative_phone
-      cloned.city.should == original.city
-      cloned.country_id.should == original.country_id
-      cloned.firstname.should == original.firstname
-      cloned.lastname.should == original.lastname
-      cloned.company.should == original.company
-      cloned.phone.should == original.phone
-      cloned.state_id.should == original.state_id
-      cloned.state_name.should == original.state_name
-      cloned.zipcode.should == original.zipcode
+      expect(cloned.address1).to eq(original.address1)
+      expect(cloned.address2).to eq(original.address2)
+      expect(cloned.alternative_phone).to eq(original.alternative_phone)
+      expect(cloned.city).to eq(original.city)
+      expect(cloned.country_id).to eq(original.country_id)
+      expect(cloned.firstname).to eq(original.firstname)
+      expect(cloned.lastname).to eq(original.lastname)
+      expect(cloned.company).to eq(original.company)
+      expect(cloned.phone).to eq(original.phone)
+      expect(cloned.state_id).to eq(original.state_id)
+      expect(cloned.state_name).to eq(original.state_name)
+      expect(cloned.zipcode).to eq(original.zipcode)
 
-      cloned.id.should_not == original.id
-      cloned.created_at.should_not == original.created_at
-      cloned.updated_at.should_not == original.updated_at
+      expect(cloned.id).not_to eq(original.id)
+      expect(cloned.created_at).not_to eq(original.created_at)
+      expect(cloned.updated_at).not_to eq(original.updated_at)
     end
   end
 
@@ -47,12 +47,12 @@ describe Spree::Address do
 
     it "first_name" do
       address.firstname = "Ryan"
-      address.first_name.should == "Ryan"
+      expect(address.first_name).to eq("Ryan")
     end
 
     it "last_name" do
       address.lastname = "Bigg"
-      address.last_name.should == "Bigg"
+      expect(address.last_name).to eq("Bigg")
     end
   end
 
@@ -68,102 +68,136 @@ describe Spree::Address do
     let(:address) { build(:address, :country => country) }
 
     before do
-      country.states.stub :find_all_by_name_or_abbr => [state]
+      allow(country.states).to receive_messages :find_all_by_name_or_abbr => [state]
     end
 
     it "state_name is not nil and country does not have any states" do
       address.state = nil
       address.state_name = 'alabama'
-      address.should be_valid
+      expect(address).to be_valid
     end
 
     it "errors when state_name is nil" do
       address.state_name = nil
       address.state = nil
-      address.should_not be_valid
+      expect(address).not_to be_valid
     end
 
     it "full state name is in state_name and country does contain that state" do
       address.state_name = 'alabama'
       # called by state_validate to set up state_id.
       # Perhaps this should be a before_validation instead?
-      address.should be_valid
-      address.state.should_not be_nil
-      address.state_name.should be_nil
+      expect(address).to be_valid
+      expect(address.state).not_to be_nil
+      expect(address.state_name).to be_nil
     end
 
     it "state abbr is in state_name and country does contain that state" do
       address.state_name = state.abbr
-      address.should be_valid
-      address.state_id.should_not be_nil
-      address.state_name.should be_nil
+      expect(address).to be_valid
+      expect(address.state_id).not_to be_nil
+      expect(address.state_name).to be_nil
     end
 
     it "state is entered but country does not contain that state" do
       address.state = state
       address.country = stub_model(Spree::Country, :states_required => true)
       address.valid?
-      address.errors["state"].should == ['is invalid']
+      expect(address.errors["state"]).to eq(['is invalid'])
     end
 
     it "both state and state_name are entered but country does not contain the state" do
       address.state = state
       address.state_name = 'maryland'
       address.country = stub_model(Spree::Country, :states_required => true)
-      address.should be_valid
-      address.state_id.should be_nil
+      expect(address).to be_valid
+      expect(address.state_id).to be_nil
     end
 
     it "both state and state_name are entered and country does contain the state" do
       address.state = state
       address.state_name = 'maryland'
-      address.should be_valid
-      address.state_name.should be_nil
+      expect(address).to be_valid
+      expect(address.state_name).to be_nil
     end
 
     it "address_requires_state preference is false" do
       Spree::Config.set :address_requires_state => false
       address.state = nil
       address.state_name = nil
-      address.should be_valid
+      expect(address).to be_valid
     end
 
     it "requires phone" do
       address.phone = ""
       address.valid?
-      address.errors["phone"].should == ["can't be blank", "is invalid"]
+      expect(address.errors["phone"]).to eq(["can't be blank", "is invalid"])
     end
 
     it "requires phone to be less than 20 chars" do
       address.phone = "12345 12345 12345 12345 1"
       address.valid?
-      address.errors["phone"].should == ["is too long (maximum is 20 characters)"]
+      expect(address.errors["phone"]).to eq(["is too long (maximum is 20 characters)"])
     end
 
     it "requires zipcode" do
       address.zipcode = ""
       address.valid?
-      address.should have(1).error_on(:zipcode)
+      expect(address.errors['zipcode']).to include("can't be blank")
     end
 
-    # 14 Apr - We have a non blank validation on phone. Martin Tomov
-    # context "phone not required" do
-    #   before { address.instance_eval{ self.stub :require_phone? => false } }
+    context "zipcode validation" do
+      it "validates the zipcode" do
+        allow(address.country).to receive(:iso).and_return('US')
+        address.zipcode = 'abc'
+        address.valid?
+        expect(address.errors['zipcode']).to include('is invalid')
+      end
 
-    #   it "shows no errors when phone is blank" do
-    #     address.phone = ""
-    #     address.valid?
-    #     address.should have(:no).errors_on(:phone)
-    #   end
-    # end
+      context 'does not validate' do
+        it 'does not have a country' do
+          address.country = nil
+          address.valid?
+          expect(address.errors['zipcode']).not_to include('is invalid')
+        end
+
+        it 'does not have an iso' do
+          allow(address.country).to receive(:iso).and_return(nil)
+          address.valid?
+          expect(address.errors['zipcode']).not_to include('is invalid')
+        end
+
+        it 'does not have a zipcode' do
+          address.zipcode = ""
+          address.valid?
+          expect(address.errors['zipcode']).not_to include('is invalid')
+        end
+
+        it 'does not have a supported country iso' do
+          allow(address.country).to receive(:iso).and_return('BO')
+          address.valid?
+          expect(address.errors['zipcode']).not_to include('is invalid')
+        end
+      end
+    end
+
+    context "phone not required" do
+      before { allow(address).to receive_messages require_phone?: false }
+
+      #   it "shows no errors when phone is blank" do
+      #     address.phone = ""
+      #     address.valid?
+      #     address.should have(:no).errors_on(:phone)
+      #   end
+    end
 
     context "zipcode not required" do
-      before { address.instance_eval{ self.stub :require_zipcode? => false } }
+      before { allow(address).to receive_messages require_zipcode?: false }
 
       it "shows no errors when phone is blank" do
         address.zipcode = ""
         address.valid?
-        address.should have(:no).errors_on(:zipcode)
+        expect(address.errors[:zipcode].size).to eq 0
       end
     end
   end
@@ -181,27 +215,27 @@ describe Spree::Address do
       end
 
       it "sets up a new record with Spree::Config[:default_country_id]" do
-        Spree::Address.default.country.should == Spree::Country.find(Spree::Config[:default_country_id])
+        expect(Spree::Address.default.country).to eq(Spree::Country.find(Spree::Config[:default_country_id]))
       end
 
       # Regression test for #1142
       it "uses the first available country if :default_country_id is set to an invalid value" do
         Spree::Config[:default_country_id] = "0"
-        Spree::Address.default.country.should == Spree::Country.first
+        expect(Spree::Address.default.country).to eq(Spree::Country.first)
       end
     end
 
     context "user given" do
       let(:bill_address) { Spree::Address.new(phone: Time.now.to_i) }
       let(:ship_address) { double("ShipAddress") }
-      let(:user) { double("User", bill_address: bill_address, ship_address: ship_address) }
+      let!(:user) { double("User", bill_address: bill_address, ship_address: ship_address) }
 
       it "returns a copy of that user bill address" do
         expect(subject.default(user).phone).to eq bill_address.phone
       end
 
       it "falls back to build default when user has no address" do
-        user.stub(bill_address: nil)
+        allow(user).to receive_messages(bill_address: nil)
         expect(subject.default(user)).to eq subject.build_default
       end
     end
@@ -210,22 +244,22 @@ describe Spree::Address do
   context '#full_name' do
     context 'both first and last names are present' do
       let(:address) { stub_model(Spree::Address, :firstname => 'Michael', :lastname => 'Jackson') }
-      specify { address.full_name.should == 'Michael Jackson' }
+      specify { expect(address.full_name).to eq('Michael Jackson') }
     end
 
     context 'first name is blank' do
       let(:address) { stub_model(Spree::Address, :firstname => nil, :lastname => 'Jackson') }
-      specify { address.full_name.should == 'Jackson' }
+      specify { expect(address.full_name).to eq('Jackson') }
     end
 
     context 'last name is blank' do
       let(:address) { stub_model(Spree::Address, :firstname => 'Michael', :lastname => nil) }
-      specify { address.full_name.should == 'Michael' }
+      specify { expect(address.full_name).to eq('Michael') }
     end
 
     context 'both first and last names are blank' do
       let(:address) { stub_model(Spree::Address, :firstname => nil, :lastname => nil) }
-      specify { address.full_name.should == '' }
+      specify { expect(address.full_name).to eq('') }
     end
 
   end
@@ -233,24 +267,24 @@ describe Spree::Address do
   context '#state_text' do
     context 'state is blank' do
       let(:address) { stub_model(Spree::Address, :state => nil, :state_name => 'virginia') }
-      specify { address.state_text.should == 'virginia' }
+      specify { expect(address.state_text).to eq('virginia') }
     end
 
     context 'both name and abbr is present' do
       let(:state) { stub_model(Spree::State, :name => 'virginia', :abbr => 'va') }
       let(:address) { stub_model(Spree::Address, :state => state) }
-      specify { address.state_text.should == 'va' }
+      specify { expect(address.state_text).to eq('va') }
     end
 
     context 'only name is present' do
       let(:state) { stub_model(Spree::State, :name => 'virginia', :abbr => nil) }
       let(:address) { stub_model(Spree::Address, :state => state) }
-      specify { address.state_text.should == 'virginia' }
+      specify { expect(address.state_text).to eq('virginia') }
     end
   end
 
   context "defines require_phone? helper method" do
     let(:address) { stub_model(Spree::Address) }
-    specify { address.instance_eval{ require_phone? }.should be_true}
+    specify { expect(address.instance_eval{ require_phone? }).to be true}
   end
 end

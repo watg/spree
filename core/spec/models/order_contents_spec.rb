@@ -10,7 +10,7 @@ describe Spree::OrderContents do
 
   before do
     variant.price_normal_in('USD').amount = 19.99
-    Spree::Variant.any_instance.stub(:price_part_in => price)
+    allow_any_instance_of(Spree::Variant).to receive_messages(:price_part_in => price)
   end
 
   context "#add" do
@@ -101,9 +101,9 @@ describe Spree::OrderContents do
         options = { parts: line_item_part_params }
         line_item = subject.add(variant,1, options)
 
-        line_item.quantity.should == 1
-        order.line_items.size.should == 1
-        line_item.line_item_parts.size.should == 1
+        expect(line_item.quantity).to eq(1)
+        expect(order.line_items.size).to eq(1)
+        expect(line_item.line_item_parts.size).to eq(1)
         line_item.line_item_parts.first.variant == variant_option1
         line_item.line_item_parts.first.quantity == 3
       end
@@ -114,10 +114,10 @@ describe Spree::OrderContents do
         line_item2 = subject.add(variant, 1, options)
         line_item.reload
 
-        line_item.quantity.should == 2
-        line_item.should == line_item2
-        order.line_items.size.should == 1
-        line_item.line_item_parts.size.should == 1
+        expect(line_item.quantity).to eq(2)
+        expect(line_item).to eq(line_item2)
+        expect(order.line_items.size).to eq(1)
+        expect(line_item.line_item_parts.size).to eq(1)
       end
 
       it 'should have multiple line items with different options' do
@@ -126,11 +126,11 @@ describe Spree::OrderContents do
         line_item = subject.add(variant, 1, options1)
         line_item2 = subject.add(variant, 1, options2)
 
-        line_item.quantity.should == 1
-        line_item2.quantity.should == 1
-        order.line_items.size.should == 2
-        line_item.line_item_parts.size.should == 1
-        line_item2.line_item_parts.size.should == 1
+        expect(line_item.quantity).to eq(1)
+        expect(line_item2.quantity).to eq(1)
+        expect(order.line_items.size).to eq(2)
+        expect(line_item.line_item_parts.size).to eq(1)
+        expect(line_item2.line_item_parts.size).to eq(1)
       end
 
       it 'should have multiple line items with different options' do
@@ -139,11 +139,11 @@ describe Spree::OrderContents do
         line_item = subject.add(variant, 1, options1)
         line_item2 = subject.add(variant, 1, options2)
 
-        line_item.quantity.should == 1
-        line_item2.quantity.should == 1
-        order.line_items.size.should == 2
-        line_item.line_item_parts.size.should == 1
-        line_item2.line_item_parts.size.should == 1
+        expect(line_item.quantity).to eq(1)
+        expect(line_item2.quantity).to eq(1)
+        expect(order.line_items.size).to eq(2)
+        expect(line_item.line_item_parts.size).to eq(1)
+        expect(line_item2.line_item_parts.size).to eq(1)
       end
 
       it 'should only have one line item with same option when multiple options' do
@@ -153,10 +153,10 @@ describe Spree::OrderContents do
         line_item2 = subject.add(variant, 1, options2)
 
         line_item.reload
-        line_item.quantity.should == 2
-        line_item.should == line_item2
-        order.line_items.size.should == 1
-        line_item.line_item_parts.size.should == 2
+        expect(line_item.quantity).to eq(2)
+        expect(line_item).to eq(line_item2)
+        expect(order.line_items.size).to eq(1)
+        expect(line_item.line_item_parts.size).to eq(2)
       end
 
       it "should update order totals" do
@@ -167,8 +167,8 @@ describe Spree::OrderContents do
         subject.add(variant, 1, options2)
 
         # 99.97 = 3 * 19.99 + 5*3 + 5*3 + 5*2
-        order.item_total.to_f.should == 99.97
-        order.total.to_f.should == 99.97
+        expect(order.item_total.to_f).to eq(99.97)
+        expect(order.total.to_f).to eq(99.97)
       end
     end
 
@@ -203,9 +203,9 @@ describe Spree::OrderContents do
         options = { personalisations: personalisation_params }
         line_item = subject.add(variant, 1, options)
 
-        line_item.quantity.should == 1
-        order.line_items.size.should == 1
-        line_item.line_item_personalisations.size.should == 1
+        expect(line_item.quantity).to eq(1)
+        expect(order.line_items.size).to eq(1)
+        expect(line_item.line_item_personalisations.size).to eq(1)
         line_item.line_item_personalisations.first.name == 'monogram'
         line_item.line_item_personalisations.first.amount == BigDecimal.new('1')
       end
@@ -216,10 +216,10 @@ describe Spree::OrderContents do
         line_item2 = subject.add(variant, 1, options)
 
         line_item.reload
-        line_item.quantity.should == 2
-        line_item.should == line_item2
-        order.line_items.size.should == 1
-        line_item.line_item_personalisations.size.should == 1
+        expect(line_item.quantity).to eq(2)
+        expect(line_item).to eq(line_item2)
+        expect(order.line_items.size).to eq(1)
+        expect(line_item.line_item_personalisations.size).to eq(1)
       end
 
       it 'should only have multiple line item with different personalisations' do
@@ -228,11 +228,11 @@ describe Spree::OrderContents do
         line_item = subject.add(variant, 1, options1)
         line_item2 = subject.add(variant, 1, options2)
 
-        line_item.quantity.should == 1
-        line_item2.quantity.should == 1
-        order.line_items.size.should == 2
-        line_item.line_item_personalisations.size.should == 1
-        line_item2.line_item_personalisations.size.should == 1
+        expect(line_item.quantity).to eq(1)
+        expect(line_item2.quantity).to eq(1)
+        expect(order.line_items.size).to eq(2)
+        expect(line_item.line_item_personalisations.size).to eq(1)
+        expect(line_item2.line_item_personalisations.size).to eq(1)
       end
 
       it 'should only have one line item with multiple personalisations in same line item' do
@@ -241,10 +241,10 @@ describe Spree::OrderContents do
         line_item2 = subject.add(variant, 1, options)
 
         line_item.reload
-        line_item.quantity.should == 2
-        line_item.should == line_item2
-        order.line_items.size.should == 1
-        line_item.line_item_personalisations.size.should == 2
+        expect(line_item.quantity).to eq(2)
+        expect(line_item).to eq(line_item2)
+        expect(order.line_items.size).to eq(1)
+        expect(line_item.line_item_personalisations.size).to eq(2)
       end
 
       it "should update order totals" do
@@ -255,8 +255,8 @@ describe Spree::OrderContents do
         line_item2 = subject.add(variant, 1, options2)
 
         # 62.97 = 3 * 19.99
-        order.item_total.to_f.should == 62.97
-        order.total.to_f.should == 62.97
+        expect(order.item_total.to_f).to eq(62.97)
+        expect(order.total.to_f).to eq(62.97)
       end
     end
 
@@ -289,11 +289,11 @@ describe Spree::OrderContents do
         line_item2 = subject.add(variant, 1, options)
 
         line_item.reload
-        line_item.quantity.should == 2
-        line_item.should == line_item2
-        order.line_items.size.should == 1
-        line_item.line_item_personalisations.size.should == 1
-        line_item.line_item_parts.size.should == 1
+        expect(line_item.quantity).to eq(2)
+        expect(line_item).to eq(line_item2)
+        expect(order.line_items.size).to eq(1)
+        expect(line_item.line_item_personalisations.size).to eq(1)
+        expect(line_item.line_item_parts.size).to eq(1)
       end
 
       it 'should only have multiple line item with different personalisations' do
@@ -302,11 +302,11 @@ describe Spree::OrderContents do
         line_item = subject.add(variant, 1, options1)
         line_item2 = subject.add(variant, 1, options2)
 
-        line_item.quantity.should == 1
-        line_item2.quantity.should == 1
-        order.line_items.size.should == 2
-        line_item.line_item_personalisations.size.should == 1
-        line_item2.line_item_parts.size.should == 1
+        expect(line_item.quantity).to eq(1)
+        expect(line_item2.quantity).to eq(1)
+        expect(order.line_items.size).to eq(2)
+        expect(line_item.line_item_personalisations.size).to eq(1)
+        expect(line_item2.line_item_parts.size).to eq(1)
       end
     end
   end
@@ -319,7 +319,7 @@ describe Spree::OrderContents do
       it "should use normal variant price by default" do
         line_item = subject.send(:build_line_item, variant, 'I123', {} )
 
-        expect(line_item.in_sale?).to be_false
+        expect(line_item.in_sale?).to be false
         expect(line_item.price).to eq(variant.price_normal_in(currency).amount)
         expect(line_item.normal_price).to eq(variant.price_normal_in(currency).amount)
       end
@@ -327,7 +327,7 @@ describe Spree::OrderContents do
       it "should use normal_sale variant price when variant is in sale" do
         line_item = subject.send(:build_line_item, variant_in_sale, 'I123', {} )
 
-        expect(line_item.in_sale?).to be_true
+        expect(line_item.in_sale?).to be true
         expect(line_item.price).to eq(variant_in_sale.price_normal_sale_in(currency).amount)
         expect(line_item.normal_price).to eq(variant_in_sale.price_normal_in(currency).amount)
       end
@@ -399,21 +399,8 @@ describe Spree::OrderContents do
     end
 
     it "increases the quantity on the line_item" do
-      subject.add_by_line_item(line_item, 2, nil)
+      subject.add_by_line_item(line_item, 2, {})
       expect(order.reload.line_items.first.quantity).to eq 3
-    end
-  end
-
-  context "#delete_line_item" do
-    let(:line_item) { create(:line_item, order: order, quantity: 1)}
-
-    before do
-      allow(subject).to receive(:eager_load).with(line_item).and_return(line_item)
-    end
-
-    it "removes a line_item" do
-      subject.delete_line_item(line_item)
-      expect(order.reload.line_items.first).to be_nil
     end
   end
 
@@ -425,12 +412,12 @@ describe Spree::OrderContents do
     let(:line_item) { create(:line_item, order: order, quantity: 1)}
 
     it "decreases the quantity on the line_item" do
-      subject.remove_by_line_item(line_item, 1, nil)
+      subject.remove_by_line_item(line_item, 1, {})
       expect(order.reload.line_items.first).to be_nil
     end
 
     it "removes a line_item if quanity is 0" do
-      subject.remove_by_line_item(line_item, 2, nil)
+      subject.remove_by_line_item(line_item, 2, {})
       expect(order.reload.line_items.first).to be_nil
     end
   end
@@ -467,10 +454,10 @@ describe Spree::OrderContents do
         line_item = subject.add(variant, 3, options)
         subject.remove(variant, 1, options)
 
-        line_item.reload.quantity.should == 2
+        expect(line_item.reload.quantity).to eq(2)
 
-        line_item.line_item_personalisations.size.should == 1
-        line_item.line_item_parts.size.should == 2
+        expect(line_item.line_item_personalisations.size).to eq(1)
+        expect(line_item.line_item_parts.size).to eq(2)
       end
 
       it 'should raise an error if line item does not exist' do
@@ -479,7 +466,7 @@ describe Spree::OrderContents do
 
         expect { subject.remove(variant, 1, {}) }.to raise_error
 
-        line_item.reload.quantity.should == 3
+        expect(line_item.reload.quantity).to eq(3)
       end
 
     end

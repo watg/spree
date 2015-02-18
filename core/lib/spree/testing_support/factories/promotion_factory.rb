@@ -3,28 +3,26 @@ FactoryGirl.define do
     name 'Promo'
 
     trait :with_line_item_adjustment do
-      ignore do
+      transient do
         adjustment_rate 10
       end
 
       after(:create) do |promotion, evaluator|
         calculator = Spree::Calculator::FlatRate.new
         calculator.preferred_amount = [{type: :integer, name: "USD", value: evaluator.adjustment_rate}]
-        action = Spree::Promotion::Actions::CreateItemAdjustments.create(:calculator => calculator)
-        promotion.actions << action
-        promotion.save
+        Spree::Promotion::Actions::CreateItemAdjustments.create!(calculator: calculator, promotion: promotion)
       end
     end
     factory :promotion_with_item_adjustment, traits: [:with_line_item_adjustment]
 
     trait :with_order_adjustment do
-      ignore do
-        order_adjustment_amount 10
+      transient do
+        weighted_order_adjustment_amount 10
       end
 
       after(:create) do |promotion, evaluator|
         calculator = Spree::Calculator::FlatRate.new
-        calculator.preferred_amount = [{type: :integer, name: "USD", value: evaluator.order_adjustment_amount}]
+        calculator.preferred_amount = [{type: :integer, name: "USD", value: evaluator.weighted_order_adjustment_amount}]
         action = Spree::Promotion::Actions::CreateAdjustment.create!(:calculator => calculator)
         promotion.actions << action
         promotion.save!
@@ -32,14 +30,16 @@ FactoryGirl.define do
     end
 
     trait :with_item_total_rule do
-      ignore do
+      transient do
         item_total_threshold_amount 10
       end
 
       after(:create) do |promotion, evaluator|
+        zone = Spree::Zone.where(name: "GlobalZone").first || create(:global_zone)
+        united_states = create(:country, :name => "United States")
+        zone.members.create(zoneable: united_states)
         rule = Spree::Promotion::Rules::ItemTotal.create!(
-          # preferred_operator: 'gte',
-          preferred_attributes: {Spree::Zone.first.id => { 'USD' => { 'amount' => evaluator.item_total_threshold_amount, 'enabled' => 'true' } }}
+          preferred_attributes: {zone.id => { 'USD' => { 'amount' => evaluator.item_total_threshold_amount, 'enabled' => 'true' }}}
         )
         promotion.rules << rule
         promotion.save!

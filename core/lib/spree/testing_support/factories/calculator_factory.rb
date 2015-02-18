@@ -9,4 +9,5 @@ FactoryGirl.define do
 
   factory :default_tax_calculator, class: Spree::Calculator::DefaultTax do
   end
+
 end

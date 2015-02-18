@@ -1,7 +1,7 @@
 module Spree
   class OrderUpdater
     attr_reader :order
-    delegate :payments, :line_items, :adjustments, :all_adjustments, :shipments, :update_hooks, to: :order
+    delegate :payments, :line_items, :adjustments, :all_adjustments, :shipments, :update_hooks, :quantity, to: :order
 
     class << self
       def shipment_states
@@ -48,9 +48,10 @@ module Spree
     # +payment_total+      The total value of all finalized Payments (NOTE: non-finalized Payments are excluded)
     # +item_total+         The total value of all LineItems
     # +adjustment_total+   The total value of all adjustments (promotions, credits, etc.)
+    # +promo_total+        The total value of all promotion adjustments
     # +total+              The so-called "order total."  This is equivalent to +item_total+ plus +adjustment_total+.
     def update_totals
-      order.payment_total = payments.completed.sum(:amount)
+      update_payment_total
       update_item_total
       update_shipment_total
       update_adjustment_total
@@ -59,7 +60,16 @@ module Spree
 
     # give each of the shipments a chance to update themselves
     def update_shipments
-      shipments.each { |shipment| shipment.update!(order) }
+      shipments.each do |shipment|
+        next unless shipment.persisted?
+        shipment.update!(order)
+        shipment.refresh_rates
+        shipment.update_amounts
+      end
+    end
+
+    def update_payment_total
+      order.payment_total = payments.completed.sum(:amount)
     end
 
     def update_shipment_total
@@ -79,16 +89,21 @@ module Spree
       order.included_tax_total = line_items.sum(:included_tax_total) + shipments.sum(:included_tax_total)
       order.additional_tax_total = line_items.sum(:additional_tax_total) + shipments.sum(:additional_tax_total)
 
+      order.promo_total = line_items.sum(:promo_total) +
+                          shipments.sum(:promo_total) +
+                          adjustments.promotion.eligible.sum(:amount)
+
       update_order_total
     end
 
     def update_item_count
-      order.item_count = line_items.sum(:quantity)
+      order.item_count = quantity
     end
 
     def update_item_total
+      # Do not be tempted to do line_items.sum(:normal_amount) this will not work
       order.item_normal_total = line_items.map(&:normal_amount).sum
-      order.item_total = line_items.map(&:amount).sum
+      order.item_total = line_items.sum('price * quantity')
       update_order_total
     end
 
@@ -104,6 +119,7 @@ module Spree
         additional_tax_total: order.additional_tax_total,
         payment_total: order.payment_total,
         shipment_total: order.shipment_total,
+        promo_total: order.promo_total,
         total: order.total,
         updated_at: Time.now,
       )
@@ -154,33 +170,25 @@ module Spree
     #
     # The +payment_state+ value helps with reporting, etc. since it provides a quick and easy way to locate Orders needing attention.
     def update_payment_state
-
-      # line_item are empty when user empties cart
-      if line_items.empty? || round_money(order.payment_total) < round_money(order.total)
-        if payments.present?
-          if payments.last.state == 'failed'
-            order.payment_state = 'failed'
-          elsif payments.last.state == 'checkout'
-            order.payment_state = 'pending'
-          elsif payments.last.state == 'completed'
-            order.payment_state = 'credit_owed'
-          else
-            order.payment_state = 'balance_due'
-          end
-        else
-          order.payment_state = 'balance_due'
-        end
-      elsif round_money(order.payment_total) > round_money(order.total)
-        order.payment_state = 'credit_owed'
+      last_state = order.payment_state
+      if payments.present? && payments.valid.size == 0
+        order.payment_state = 'failed'
+      elsif !payments.present? && order.state == 'canceled'
+        order.payment_state = 'void'
+      elsif order.state == 'canceled' && order.payment_total == 0 && payments.completed.size > 0
+        order.payment_state = 'void'
       else
-        order.payment_state = 'paid'
+        order.payment_state = 'balance_due' if order.outstanding_balance > 0
+        order.payment_state = 'credit_owed' if order.outstanding_balance < 0
+        order.payment_state = 'paid' if !order.outstanding_balance?
       end
 
       if (order.payment_state_changed? && order.payment_state == 'paid')
         order.run_post_payment_tasks
       end
 
-      order.state_changed('payment')
+      order.state_changed('payment') if last_state != order.payment_state
+      order.payment_state
     end
 
 	# gift card needs to be reviewed with the new adjustments
@@ -190,7 +198,6 @@ module Spree
 
 
     private
-
       def round_money(n)
         (n * 100).round / 100.0
       end

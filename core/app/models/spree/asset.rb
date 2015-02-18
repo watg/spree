@@ -1,5 +1,5 @@
 module Spree
-  class Asset < ActiveRecord::Base
+  class Asset < Spree::Base
     acts_as_paranoid
 
     belongs_to :viewable, polymorphic: true, touch: true

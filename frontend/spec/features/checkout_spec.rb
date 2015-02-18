@@ -64,20 +64,41 @@
 #         add_mug_to_cart
 #         click_button "Checkout"
 
-#         fill_in "order_email", :with => "test@example.com"
-#         fill_in_address
-
+#        click_button "Save and Continue"
+#        page.should_not have_content("undefined method `promotion'")
+#        click_button "Save and Continue"
+#        page.should have_content("Shipping total: $10.00")
+#      end
+#    end
+#
 #         click_button "Save and Continue"
 #         page.should_not have_content("undefined method `promotion'")
 #         click_button "Save and Continue"
 #         page.should have_content(shipping_method.adjustment_label)
 #       end
 
-#       # Regression test, no issue number
-#       xit "does not create a closed adjustment for an order's shipment upon reaching the delivery step", :js => true do
-#         add_mug_to_cart
-#         click_button "Checkout"
-
+#      it "should not show 'Free Shipping' when there are no shipments" do
+#        within("#checkout-summary") do
+#          expect(page).to_not have_content('Free Shipping')
+#        end
+#      end
+#    end
+#
+#    # Regression test for #4190
+#    it "updates state_lock_version on form submission", js: true do
+#      add_mug_to_cart
+#      click_button "Checkout"
+#
+#      expect(find('input#order_state_lock_version', visible: false).value).to eq "0"
+#
+#      fill_in "order_email", with: "test@example.com"
+#      fill_in_address
+#      click_button "Save and Continue"
+#
+#      expect(find('input#order_state_lock_version', visible: false).value).to eq "1"
+#    end
+#  end
+#
 #         fill_in "order_email", :with => "test@example.com"
 #         fill_in_address
 
@@ -120,10 +141,13 @@
 #       order.user = user
 #       order.update!
 
-#       Spree::CheckoutController.any_instance.stub(:current_order => order)
-#       Spree::CheckoutController.any_instance.stub(:try_spree_current_user => user)
-#     end
-
+#  context "and likes to double click buttons" do
+#    let!(:user) { create(:user) }
+#
+#    let!(:order) do
+#      order = OrderWalkthrough.up_to(:delivery)
+#      order.stub :confirmation_required? => true
+#
 #     it "redirects to payment page", inaccessible: true do
 #       visit spree.checkout_state_path(:delivery)
 #       click_button "Save and Continue"
@@ -218,15 +242,10 @@
 #   # regression for #2921
 #   context "goes back from payment to add another item", js: true do
 
-#     xit "transit nicely through checkout steps again" do
-#       add_mug_to_cart
-#       click_on "Checkout"
-#       fill_in "order_email", :with => "test@example.com"
-#       fill_in_address
-#       click_on "Save and Continue"
-#       click_on "Save and Continue"
-#       expect(current_path).to eql(spree.checkout_state_path("payment"))
-
+#      Spree::CheckoutController.any_instance.stub(current_order: order)
+#      Spree::CheckoutController.any_instance.stub(try_spree_current_user: user)
+#      Spree::OrdersController.any_instance.stub(try_spree_current_user: user)
+#
 #       create_and_add_bag_to_cart
 
 #       click_on "Checkout"

@@ -21,11 +21,11 @@
     }
 
     .select2-search-choice-close {
-      background-image: none !important;
-      font-size: 100% !important;
-      @extend .icon-remove;
-      @extend [class^="icon-"]:before;
+      @extend .fa;
+      @extend .fa-times;
       margin-top: 2px;
+      font-size: 100% !important;
+      background-image: none !important;
     }
   }
 
@@ -35,7 +35,7 @@
     }
 
     &.select2-dropdown-open .select2-choice div b {
-      @extend .icon-caret-up
+      @extend .fa-caret-up
     }
   }
 }
@@ -53,7 +53,8 @@
 }
 
 .select2-search {
-  @extend .icon-search;
+  @extend .fa; 
+  @extend .fa-search;
 
   font-size: 100%;
   color: darken($color-border, 15);
@@ -174,10 +175,13 @@
       .select2-search-choice-close {
         background-image: none !important;
         font-size: 85% !important;
-        @extend .icon-remove;
-        @extend [class^="icon-"]:before;
+        @extend .fa;
+        @extend .fa-times;
         margin-left: 2px;
         color: $color-1;
+        &:before {
+          font-size: 11px;
+        }
       }
     }
   }
@@ -191,4 +195,15 @@ label .select2-container {
       font-weight: normal;
     }
   }
+}
+
+// Keep original element in the same spot
+// So that HTML5 valiation message appear in the correct position
+.select2-container + select {
+    position:absolute;
+    display: block !important;
+    visibility: hidden;
+    height: 1px;
+    margin-left: 10px;
+    margin-top: -14px;
 }

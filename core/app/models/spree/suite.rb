@@ -5,8 +5,6 @@ module Spree
     validates_uniqueness_of :name, :permalink
     validates_presence_of :name, :permalink, :title
 
-    # has_many :taxons
-
     belongs_to :target
     has_one :image, as: :viewable, dependent: :destroy, class_name: "Spree::SuiteImage"
 
@@ -14,6 +12,7 @@ module Spree
     has_many :taxons, through: :classifications, dependent: :destroy
     has_many :tabs, -> { order(:position) }, dependent: :destroy, class_name: "Spree::SuiteTab"
     alias_method :suite_tabs, :tabs
+    has_many :line_items, class_name: "Spree::LineItem"
 
     accepts_nested_attributes_for :tabs, allow_destroy: true
     accepts_nested_attributes_for :image, allow_destroy: true

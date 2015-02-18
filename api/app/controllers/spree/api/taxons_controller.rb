@@ -66,18 +66,19 @@ module Spree
         # Products#index does not do the sorting.
         taxon = Spree::Taxon.find(params[:id])
         @suites = taxon.suites.includes(:image).ransack(params[:q]).result
-        @suites = @suites.page(params[:page]).per(500 || params[:per_page])
+        @suites = @suites.page(params[:page]).per(params[:per_page] || 500)
         render "spree/api/suites/index"
       end
 
       private
 
-      def update_params
-        #{parent_id: params[:taxon][:parent_id], taxon_id: taxon.id, position: params[:taxon][:position]}
-        hsh = params[:taxon]
-        hsh[:taxon_id] = taxon.id
-        {data: hsh}
-      end
+      # Delete this if nothing breaks ( 5/1/15 DD )
+      #def update_params
+      #  #{parent_id: params[:taxon][:parent_id], taxon_id: taxon.id, position: params[:taxon][:position]}
+      #  hsh = params[:taxon]
+      #  hsh[:taxon_id] = taxon.id
+      #  {data: hsh}
+      #end
 
         def taxonomy
           if params[:taxonomy_id].present?

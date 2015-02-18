@@ -3,8 +3,9 @@
   <div id="general_fields" class="alpha thirteen columns">
     <div class="alpha four columns">
       <%= f.field_container :name do %>
-        <%= f.label 'Name (the customer sees this at checkout)' %>
+        <%= f.label :name %>
         <%= f.text_field :name, :class => 'fullwidth' %>
+        <span class="info">The customer sees this at checkout</span>
       <% end %>
       
       <%= f.field_container :code do %>
@@ -32,6 +33,11 @@
       <%= f.field_container :description do %>
         <%= f.label :description %><br />
         <%= f.text_area :description, :rows => 7, :class => 'fullwidth' %>
+      <% end %>
+
+      <%= f.field_container :category do %>
+        <%= f.label :promotion_category %><br />
+        <%= f.collection_select(:promotion_category_id, @promotion_categories, :id, :name, { :include_blank => Spree.t('match_choices.none') }, { :class => 'select2 fullwidth' }) %>
       <% end %>
     </div>
   </div>

@@ -1,5 +1,5 @@
 module Spree
-  class Classification < ActiveRecord::Base
+  class Classification < Spree::Base
     acts_as_paranoid
 
     self.table_name = 'spree_suites_taxons'

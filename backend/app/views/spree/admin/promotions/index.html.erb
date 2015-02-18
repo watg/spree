@@ -4,11 +4,11 @@
 
 <% content_for :page_actions do %>
   <li>
-    <%= button_link_to Spree.t(:new_promotion), spree.new_admin_promotion_path, :icon => 'icon-plus' %>
+    <%= button_link_to Spree.t(:new_promotion), spree.new_admin_promotion_path, :icon => 'plus' %>
   </li>
 <% end %>
 
-<%= render :partial => 'spree/admin/shared/incentives_sub_menu' %>
+<%= render 'spree/admin/shared/promotion_sub_menu' %>
 
 <% content_for :table_filter_title do %>
   <%= Spree.t(:search) %>
@@ -17,39 +17,49 @@
 <% content_for :table_filter do %>
   <div data-hook="admin_promotions_index_search">
     <%= search_form_for [:admin, @search] do |f| %>
-      <div class="five columns">
+      <div class="four columns alpha">
         <div class="field">
-          <%= label_tag nil, 'name' %>
+          <%= label_tag :q_name_cont, Spree.t(:name) %>
           <%= f.text_field :name_cont, tabindex: 1 %>
         </div>
       </div>
 
-      <div class="five columns">
+      <div class="four columns">
         <div class="field">
-          <%= label_tag nil, 'code' %>
+          <%= label_tag :q_code_cont, Spree.t(:code) %>
           <%= f.text_field :code_cont, tabindex: 1 %>
         </div>
       </div>
 
-      <div class="five columns">
+      <div class="four columns">
         <div class="field">
-          <%= label_tag nil, 'path' %>
+          <%= label_tag :q_path_cont, Spree.t(:path) %>
           <%= f.text_field :path_cont, tabindex: 1 %>
-          <br>
-          <br>
+        </div>
+      </div>
+
+      <div class="four columns omega">
+        <div class="field">
+          <%= label_tag :q_promotion_category_id_eq, 'promotion category' %><br>
+          <%= f.collection_select(:promotion_category_id_eq, @promotion_categories, :id, :name, { :include_blank => Spree.t('match_choices.all') }, { :class => 'select2 fullwidth' }) %>
+        </div>
+      </div>
+
+      <div class="four columns omega">
+        <div class="field">
           <label>
             <%= f.check_box :dynamic_null, {checked: @hide_dynamic}, '1', '0' %>
             Hide dynamic promotions
           </label>
         </div>
-
       </div>
+
 
       <div class="clearfix"></div>
 
       <div class="actions filter-actions">
         <div data-hook="admin_promotions_index_search_buttons">
-          <%= button Spree.t(:filter_results), 'icon-search' %>
+          <%= button Spree.t(:filter_results), 'search' %>
         </div>
       </div>
     <% end %>

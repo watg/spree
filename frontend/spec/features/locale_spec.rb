@@ -1,15 +1,10 @@
 require 'spec_helper'
 
-describe "setting locale" do
+describe "setting locale" , :type => :feature do
   before do
     pending "to fix"
     I18n.locale = I18n.default_locale
-    I18n.backend.store_translations(:fr, 
-     :spree => {
-       :cart => "Panier",
-       :shopping_cart => "Panier"
-    })
-    Spree::Frontend::Config[:locale] = "fr"
+    Spree::Frontend::Config[:locale] = 'en'
   end
 
   after do

@@ -6,19 +6,21 @@
 
 <% content_for :page_actions do %>
   <li>
-    <%= button_link_to Spree.t(:back_to_stock_transfers_list), admin_stock_transfers_path, :icon => 'icon-arrow-left' %>
+    <%= button_link_to Spree.t(:back_to_stock_transfers_list), admin_stock_transfers_path, :icon => 'arrow-left' %>
   </li>
 <% end %>
 
 <script type='text/template' id='transfer_variant_template'>
   {{#each variants}}
     <tr>
-      <td>{{{name}}</td>
+      <td>{{{name}}}</td>
       <td>
         {{#if ../receiving_stock}}
           <%= select_tag 'suppliers[]', options_from_collection_for_select(@suppliers, :id, :name), :include_blank => true, class: 'variant_supplier select2 fullwidth' %>
         {{else}}
-          {{supplier_name}} ({{supplier_permalink}})
+          {{supplier_name}}
+          <br>
+          <small>{{supplier_permalink}}</small>
           <br>
           <input type='hidden' id='suppliers[]' name='suppliers[]' value='{{supplier_id}}'>
           <small>on hand:</small> {{count_on_hand}}
@@ -26,7 +28,7 @@
       </td>
       <td class='align-center'>{{quantity}}</td>
       <td class='actions'>
-        <button class='icon_link icon-trash no-text transfer_remove_variant'
+        <button class='icon_link fa fa-trash no-text transfer_remove_variant'
                 data-variant-id='{{id}}' data-action='remove'></button>
       </td>
       <input type='hidden' id='variants[]' name='variants[]' value='{{id}}'>
@@ -79,20 +81,20 @@
       </div>
       <div class="two columns">
         <div class="field" id="stock_movement_quantity_field">
-          <%= label_tag 'quantity', Spree.t(:quantity) %>
-          <%= number_field_tag 'transfer_variant_quantity', 1, class: 'fullwidth', min: 0 %>
+          <%= label_tag :transfer_variant_quantity, Spree.t(:quantity) %>
+          <%= number_field_tag :transfer_variant_quantity, 1, class: 'fullwidth', min: 0 %>
         </div>
       </div>
       <div class="two columns omega">
         <div class="field" style="padding: 25px 0 0 0 !important">
-          <%= button Spree.t(:add), 'icon-plus button transfer_add_variant' %>
+          <%= button Spree.t(:add), 'plus button transfer_add_variant' %>
         </div>
       </div>
 
     </fieldset>
 
     <div class="alpha twelve columns no-objects-found">
-      <%= Spree.t(:no_resource_found, resource: I18n.t(:other, scope: 'activerecord.models.spree/stock_transfer')) %>
+      <%= Spree.t(:no_resource_found, resource: I18n.t(:other, scope: 'activerecord.models.spree/variant')) %>.
     </div>
 
     <div id="transfer-variants-table" class="twelve columns alpha" style="display:none">
@@ -116,7 +118,7 @@
     </div>
 
     <div class="filter-actions actions" data-hook="buttons">
-      <%= button Spree.t(:transfer_stock), 'icon-plus transfer_transfer' %>
+      <%= button Spree.t(:transfer_stock), 'plus transfer_transfer' %>
     </div>
   </fieldset>
 <% end %>

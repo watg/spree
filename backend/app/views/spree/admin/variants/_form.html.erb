@@ -1,5 +1,5 @@
-<div data-hook="admin_variant_form_fields" class="label-block left six columns alpha">
-  <div data-hook="variants">
+<div class="row">
+  <div data-hook="admin_variant_form_fields" class="label-block left six columns alpha">
     <% @product.option_types.each do |option_type| %>
       <div class="field" data-hook="presentation">
         <%= label :new_variant, option_type.presentation %>
@@ -30,62 +30,51 @@
       <%= f.text_field :label, :class => 'fullwidth' %>
     </div>
 
-    <div class="twelve columns alpha omega">
-      <%= f.field_container :targets do %>
-        <%= f.label :targets, "Available for targets..." %>
-	      <%= f.hidden_field :target_ids, :value => @variant.targets.map(&:id).join(','), :class => 'targets-autocomplete fullwidth' %>
+    <div class="field">
+      <%= f.label :targets, "Available for targets..." %>
+      <%= f.hidden_field :target_ids, :value => @variant.targets.map(&:id).join(','), :class => 'targets-autocomplete fullwidth' %>
+    </div>
+  </div>
+
+  <div class="right six columns omega label-block" data-hook="admin_variant_form_additional_fields">
+    <% [:weight, :height, :width, :depth].each do |field| %>
+      <div class="field" data-hook="<%= field %>"><%= f.label field, Spree.t(field) %>
+        <% value = number_with_precision(@variant.send(field), :precision => 2) %>
+        <%= f.text_field field, :value => value || 0.00, :class => 'fullwidth' %>
+      </div>
+    <% end %>
+
+    <% if @product.product_type.requires_supplier? and @variant.new_record? %>
+      <%= f.field_container :supplier do %>
+        <%= label_tag :supplier_id, Spree.t(:supplier) %>
+        <%= select_tag 'variant[supplier_id]', options_from_collection_for_select(Spree::Supplier.all, :id, :name), :include_blank => true,
+        class: 'select2 fullwidth' %>
       <% end %>
-    </div>
-
-    <div class="twelve columns alpha omega">
-      <fieldset>
-        <legend align="center"><%= Spree.t(:tags) %></legend>
-	      <%= f.field_container :option_types do %>
-	        <%= f.label :tags, Spree.t(:tags) %>
-	        <%= f.hidden_field :tags, :value => @variant.tags.map(&:id).join(','), :class => 'tags-autocomplete fullwidth' %>
-	      <% end %>
-	<p><em>Don't put commas into tag names</em></p>
-      </fieldset>
-    </div>
-
-    <div class="twelve columns alpha omega">
-      <fieldset>
-        <legend align="center"><%= Spree.t(:prices) %></legend>
-        <%= f.field_container :prices do %>
-          <%= render :partial => 'spree/admin/shared/prices', :locals => {:variant => @variant} %>
-      <% end %>
-      </fieldset>
-    </div>
-
-    <div class="twelve columns alpha omega">
-      <fieldset>
-	<legend align="center"><%= Spree.t(:stock_thresholds) %></legend>
-        <%= render :partial => 'spree/admin/shared/stock_thresholds', :locals => {:variant => @variant} %>
-      </fieldset>
-    </div>
-
+    <% end %>
   </div>
 </div>
 
-<div class="right six columns omega label-block" data-hook="admin_variant_form_additional_fields">
-  <% [:weight, :height, :width, :depth].each do |field| %>
-    <div class="field" data-hook="<%= field %>"><%= f.label field, Spree.t(field) %>
-      <% value = number_with_precision(@variant.send(field), :precision => 2) %>
-      <%= f.text_field field, :value => value || 0.00, :class => 'fullwidth' %>
-    </div>
+<div class="row">
+  <fieldset>
+    <legend align="center"><%= Spree.t(:tags) %></legend>
+    <%= f.field_container :tags do %>
+      <%= f.label :tags, Spree.t(:tags) %>
+      <%= f.hidden_field :tags, :value => @variant.tags.map(&:id).join(','), :class => 'tags-autocomplete fullwidth' %>
+    <% end %>
+    <p><em>Don't put commas into tag names</em></p>
+  </fieldset>
+
+  <fieldset>
+    <legend align="center"><%= Spree.t(:prices) %></legend>
+    <%= f.field_container :prices do %>
+      <%= render :partial => 'spree/admin/shared/prices', :locals => {:variant => @variant} %>
   <% end %>
+  </fieldset>
+
+  <fieldset>
+    <legend align="center"><%= Spree.t(:stock_thresholds) %></legend>
+    <%= render :partial => 'spree/admin/shared/stock_thresholds', :locals => {:variant => @variant} %>
+  </fieldset>
 </div>
-
-<% if @product.product_type.requires_supplier? and @variant.new_record? %>
-  <div class="six columns omega">
-  <%= f.field_container :supplier do %>
-    <%= label_tag :supplier_id, Spree.t(:supplier) %>
-  <%= select_tag 'variant[supplier_id]', options_from_collection_for_select(Spree::Supplier.all, :id, :name), :include_blank => true,
-    class: 'select2 fullwidth' %>
-<% end %>
-  </div>
-<% end %>
-
-
 
 <div class="clear"></div>

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::OptionType do
+describe Spree::OptionType, :type => :model do
 
   let(:option_type) { build(:option_type, name: 'color', sku_part: nil, presentation: nil) }
 
@@ -47,7 +47,7 @@ describe Spree::OptionType do
       product = product_option_type.product
       product.update_column(:updated_at, 1.day.ago)
       option_type.touch
-      product.reload.updated_at.should be_within(3.seconds).of(Time.now)
+      expect(product.reload.updated_at).to be_within(3.seconds).of(Time.now)
     end
   end
 end

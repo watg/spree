@@ -33,7 +33,7 @@ describe Spree::ShippingManifestService do
     let!(:inventory_unit_1) { create(:base_inventory_unit, line_item: line_item_1, order: order, variant: variant) }
 
     it "retuns errors" do
-      expect(subject.valid?).to be_false
+      expect(subject.valid?).to be false
       expect(subject.errors.full_messages.to_sentence).to eq "Missing supplier for product: #{variant.product.name} (ID: #{variant.product.id}) for order ##{order.number}"
     end
 

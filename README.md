@@ -1,6 +1,9 @@
+**THIS README IS FOR THE MASTER BRANCH OF SPREE AND REFLECTS THE WORK CURRENTLY
+EXISTING ON THE MASTER BRANCH. IF YOU ARE WISHING TO USE A NON-MASTER BRANCH OF
+SPREE, PLEASE CONSULT THAT BRANCH'S README AND NOT THIS ONE.**
+
 SUMMARY
 -------
-
 
 Spree is a complete open source e-commerce solution built with Ruby on Rails. It
 was originally developed by Sean Schofield and is now maintained by a dedicated
@@ -26,17 +29,23 @@ and perhaps combine it with your own custom backend admin instead of using
 spree_api.
 
 [![Code Climate](https://codeclimate.com/github/spree/spree.png)](https://codeclimate.com/github/spree/spree)
+[![Issue Stats](http://issuestats.com/github/spree/spree/badge/pr)](http://issuestats.com/github/spree/spree)
+[![Issue Stats](http://issuestats.com/github/spree/spree/badge/issue)](http://issuestats.com/github/spree/spree)
 
 Installation
 ------------
+
+**THIS README IS FOR THE MASTER BRANCH OF SPREE AND REFLECTS THE WORK CURRENTLY
+EXISTING ON THE MASTER BRANCH. IF YOU ARE WISHING TO USE A NON-MASTER BRANCH OF
+SPREE, PLEASE CONSULT THAT BRANCH'S README AND NOT THIS ONE.**
 
 The fastest way to get started is by using the spree command line tool
 available in the spree gem which will add Spree to an existing Rails application.
 
 ```shell
-gem install rails -v 4.0.4
+gem install rails -v 4.1.8
 gem install spree
-rails _4.0.4_ new my_store
+rails _4.1.8_ new my_store
 spree install my_store
 ```
 
@@ -57,15 +66,22 @@ To auto accept all prompts while running the install generator, pass -A as an op
 spree install my_store -A
 ```
 
+To select a specific branch, pass in the `--branch` option. If there is no branch, you
+will be given the latest version of either spree_auth_devise or spree_gateway.
+
+```shell
+spree install my_store --branch "2-4-stable"
+```
+
 Using stable builds and bleeding edge
 -------------
 
 To use a stable build of Spree, you can manually add Spree to your
-Rails 4.0.x application. To use the 2-2-stable branch of Spree, add this line to
+Rails application. To use the 2-4-stable branch of Spree, add this line to
 your Gemfile.
 
 ```ruby
-gem 'spree', github: 'spree/spree', branch: '2-2-stable'
+gem 'spree', github: 'spree/spree', branch: '2-4-stable'
 ```
 
 Alternatively, if you want to use the bleeding edge version of Spree, use this
@@ -83,7 +99,7 @@ If you wish to have authentication included also, you will need to add the
 `spree_auth_devise` gem as well. Either this:
 
 ```ruby
-gem 'spree_auth_devise', github: 'spree/spree_auth_devise', branch: '2-2-stable'
+gem 'spree_auth_devise', github: 'spree/spree_auth_devise', branch: '2-4-stable'
 ```
 
 Or this:
@@ -143,8 +159,6 @@ Browse Admin Interface
 
 http://localhost:nnnn/admin
 
-
-
 Working with the edge source (latest and greatest features)
 -----------------------------------------------------------
 
@@ -189,17 +203,23 @@ your Ruby objects on each request.  The introduction of the asset pipeline in
 Rails 3.1 made default performance in development mode significantly worse. There
 are, however, a few tricks to speeding up performance in development mode.
 
+First, in your `config/development.rb`:
+
+```ruby
+config.assets.debug = false
+```
+
 You can precompile your assets as follows:
 
 ```shell
-bundle exec rake assets:precompile:nondigest
+RAILS_ENV=development bundle exec rake assets:precompile
 ```
 
 If you want to remove precompiled assets (recommended before you commit to Git
 and push your changes) use the following rake task:
 
 ```shell
-bundle exec rake assets:clean
+RAILS_ENV=development bundle exec rake assets:clean
 ```
 
 Use Dedicated Spree Devise Authentication
@@ -266,12 +286,12 @@ DB=postgres bundle exec rake test_app
 
 If you want to run specs for only a single spec file
 ```shell
-bundle exec rspec spec/models/state_spec.rb
+bundle exec rspec spec/models/spree/state_spec.rb
 ```
 
 If you want to run a particular line of spec
 ```shell
-bundle exec rspec spec/models/state_spec.rb:7
+bundle exec rspec spec/models/spree/state_spec.rb:7
 ```
 
 You can also enable fail fast in order to stop tests at the first failure
@@ -284,20 +304,37 @@ If you want to run the simplecov code coverage report
 COVERAGE=true bundle exec rspec spec
 ```
 
-If you're working on multiple facets of Spree, you may want
-to run this command at the root of the Spree project to
-generate test applications and run specs for all the facets:
+If you're working on multiple facets of Spree to test,
+please ensure that you have a postgres user:
+
+```shell
+createuser -s -r postgres
+```
+
+And also ensure that you have [PhantomJS](http://phantomjs.org/) installed as well:
+
+```shell
+brew update && brew install phantomjs
+```
+
+To execute all the tests, you may want to run this command at the
+root of the Spree project to generate test applications and run
+specs for all the facets:
 ```shell
 bash build.sh
 ```
 
 Further Documentation
 ------------
-Spree has a number of really useful guides online at [http://guides.spreecommerce.com](http://guides.spreecommerce.com). 
+Spree has a number of really useful guides online at [http://guides.spreecommerce.com](http://guides.spreecommerce.com).
+
+Roadmap
+------------
+Spree roadmap at [https://trello.com/b/PQsUfCL0/spree-roadmap](https://trello.com/b/PQsUfCL0/spree-roadmap).
 
 Contributing
 ------------
 
 Spree is an open source project and we encourage contributions. Please see the
-[contributors guidelines](http://spreecommerce.com/documentation/contributing_to_spree.html)
+[contributors guidelines](http://guides.spreecommerce.com/developer/contributing.html)
 before contributing.

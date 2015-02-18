@@ -17,7 +17,7 @@ describe Spree::Api::AssemblyDefinitionPartsController do
   let!(:attributes) { [:id, :options_text] }
   before do
     stub_authentication!
-    expect_any_instance_of(Spree::AssemblyDefinitionPart).to receive(:variants).any_number_of_times.and_return(variants)
+    expect_any_instance_of(Spree::AssemblyDefinitionPart).to receive(:variants).and_return(variants)
   end
   
   it "list available variants for an assembly definition part" do

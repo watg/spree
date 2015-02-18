@@ -2,10 +2,10 @@ module Spree::Stock
   class OrderItemBuilder
     Item = Struct.new(:variant_id, :line_item, :quantity)
 
-    attr_accessor :order, :items
+    attr_accessor :items, :line_items
 
-    def initialize(order)
-      @order = order
+    def initialize(line_items)
+      @line_items = line_items
       @items = []
       build_items
     end
@@ -29,7 +29,7 @@ module Spree::Stock
   private
 
     def build_items
-      order.line_items.each do |line_item|
+      line_items.uniq.each do |line_item|
         build_item(line_item)
       end
     end

@@ -10,7 +10,7 @@ describe Spree::LineItemPersonalisation do
     subject { lip.name }
 
     it "returns name of the personalisation" do
-      subject.should == 'monogram'
+      expect(subject).to eq('monogram')
     end
   end
 
@@ -18,7 +18,7 @@ describe Spree::LineItemPersonalisation do
     subject { lip.name }
 
     it "returns textual description of the personalisation" do
-      subject.should == 'monogram' 
+      expect(subject).to eq('monogram') 
     end
   end
 
@@ -26,7 +26,7 @@ describe Spree::LineItemPersonalisation do
     subject { lip.data_to_text }
 
     it "returns textual description of the personalisation" do
-      subject.should == 'Colour: Red, Initials: DD'
+      expect(subject).to eq('Colour: Red, Initials: DD')
     end
   end
 
@@ -36,7 +36,7 @@ describe Spree::LineItemPersonalisation do
 
     it "returns the personalisation " do
       lip2.reload
-      subject.should == monogram 
+      expect(subject).to eq(monogram) 
     end
 
     context "when persoanlisation is deleted" do
@@ -46,7 +46,7 @@ describe Spree::LineItemPersonalisation do
 
       it "returns the personalisation " do
         lip2.reload
-        subject.should == monogram 
+        expect(subject).to eq(monogram) 
       end
     end
   end

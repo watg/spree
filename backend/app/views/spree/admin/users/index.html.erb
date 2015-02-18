@@ -4,7 +4,7 @@
 
 <% content_for :page_actions do %>
   <li>
-    <%= button_link_to Spree.t(:new_user), new_admin_user_url, :icon => 'icon-plus', :id => 'admin_new_user_link' %>
+    <%= button_link_to Spree.t(:new_user), new_admin_user_url, :icon => 'plus', :id => 'admin_new_user_link' %>
   </li>
 <% end %>
 
@@ -42,11 +42,11 @@
   <div class="box align-center" data-hook="admin_users_index_search">
     <%= search_form_for [:admin, @search], url: admin_users_url do |f| %>
       <div class="field">
-        <%= f.label Spree.t(:email) %> <br>
+        <%= f.label :email_cont, Spree.t(:email) %> <br>
         <%= f.text_field :email_cont, :class => 'fullwidth' %>
       </div>
       <div data-hook="admin_users_index_search_buttons">
-        <%= button Spree.t(:search), 'icon-search' %>
+        <%= button Spree.t(:search), 'search' %>
       </div>
     <% end %>
   </div>

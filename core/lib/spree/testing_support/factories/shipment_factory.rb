@@ -1,7 +1,6 @@
 FactoryGirl.define do
   factory :base_shipment, class: Spree::Shipment do
     tracking 'U10000'
-    number '100'
     cost 100.00
     state 'pending'
 
@@ -17,6 +16,7 @@ FactoryGirl.define do
           line_item.quantity.times do
             shipment.inventory_units.create(
               variant_id: line_item.variant_id,
+			  order_id: shipment.order_id,
               line_item_id: line_item.id
             )
           end

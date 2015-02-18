@@ -2,23 +2,23 @@ module Spree
   class Promotion
     module Actions
       class CreateItemAdjustments < PromotionAction
-        include Spree::Core::CalculatedAdjustments
+        include Spree::CalculatedAdjustments
+        include Spree::AdjustmentSource
 
         has_many :adjustments, as: :source
 
         delegate :eligible?, to: :promotion
 
         before_validation :ensure_action_has_calculator
-        before_destroy :deals_with_adjustments
+        before_destroy :deals_with_adjustments_for_deleted_source
 
         def perform(payload = {})
           order = payload[:order]
-          # Find only the line items which have not already been adjusted by this promotion
-          # HACK: Need to use [0] because `pluck` may return an empty array, which AR helpfully
-          # coverts to meaning NOT IN (NULL) and the DB isn't happy about that.
-          already_adjusted_line_items = [0] + self.adjustments.pluck(:adjustable_id)
+          promotion = payload[:promotion]
+
           result = false
-          order.line_items.where("id NOT IN (?)", already_adjusted_line_items).find_each do |line_item|
+
+          line_items_to_adjust(promotion, order).each do |line_item|
             current_result = self.create_adjustment(line_item, order)
             result ||= current_result
           end
@@ -40,8 +40,10 @@ module Spree
         # Ensure a negative amount which does not exceed the sum of the order's
         # item_total and ship_total
         def compute_amount(adjustable)
+          order = adjustable.is_a?(Order) ? adjustable : adjustable.order
+          return 0 unless promotion.line_item_actionable?(order, adjustable)
           promotion_amount = self.calculator.compute(adjustable).to_f.abs
-          
+
           [adjustable.amount, promotion_amount].min * -1
         end
 
@@ -61,23 +63,16 @@ module Spree
             self.calculator = Calculator::PercentOnLineItem.new
           end
 
-          def deals_with_adjustments
-            adjustment_scope = Adjustment.includes(:order).references(:spree_orders)
-            # For incomplete orders, remove the adjustment completely.
-            adjustment_scope.where("spree_orders.completed_at IS NULL").each do |adjustment|
-              adjustment.destroy
-            end
+          def line_items_to_adjust(promotion, order)
+            excluded_ids = self.adjustments.
+              where(adjustable_id: order.line_items.pluck(:id), adjustable_type: 'Spree::LineItem').
+              pluck(:adjustable_id)
 
-            # For complete orders, the source will be invalid.
-            # Therefore we nullify the source_id, leaving the adjustment in place.
-            # This would mean that the order's total is not altered at all.
-            adjustment_scope.where("spree_orders.completed_at IS NOT NULL").each do |adjustment|
-              adjustment.update_columns(
-                source_id: nil,
-                updated_at: Time.now,
-              )
+            order.line_items.where.not(id: excluded_ids).select do |line_item|
+              promotion.line_item_actionable? order, line_item
             end
           end
+
       end
     end
   end

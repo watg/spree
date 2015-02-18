@@ -7,11 +7,7 @@ module Spree
       @currency ||= order.currency || Spree::Config[:currency]
     end
 
-    #  Sale feature
-    ## Transfer from spree extension product-assembly with options
-    #
     def add(variant, quantity=1, options = {})
-
       uuid = Spree::VariantUuid.fetch(variant, options[:parts], options[:personalisations]).number
       line_item = grab_line_item(variant, uuid, options[:target_id], false)
 
@@ -19,24 +15,17 @@ module Spree
         line_item = build_line_item(variant, uuid, options)
       end
 
-      add_by_line_item(line_item, quantity, options[:shipment])
+      add_by_line_item(line_item, quantity, options)
     end
 
-    def add_by_line_item(line_item, quantity, shipment=nil)
-
+    def add_by_line_item(line_item, quantity, options={})
       line_item = eager_load(line_item)
-
-      line_item.quantity += quantity
-      line_item.target_shipment = shipment if shipment
-      if line_item.save
-        reload_totals
-        PromotionHandler::Cart.new(order, line_item).activate
-        ItemAdjustments.new(line_item).update
-        reload_totals
-      end
+      line_item.quantity += quantity.to_i
+      line_item.target_shipment = options[:shipment] if options.has_key? :shipment
+      line_item.save
+      after_add_or_remove(line_item, options)
       line_item
     end
-
 
     # Remove variant qty from line_item
     # We need to fix the method below if we ever plan to use the api for incrementing and
@@ -45,29 +34,18 @@ module Spree
       uuid = Spree::VariantUuid.fetch(variant, options[:parts], options[:personalisations]).number
       line_item = grab_line_item(variant, uuid, options[:target_id], true)
 
-      remove_by_line_item(line_item, quantity, options[:shipment])
+      remove_by_line_item(line_item, quantity, options)
     end
 
-    def delete_line_item(line_item, shipment=nil)
-      remove_by_line_item(line_item, line_item.quantity, shipment)
-    end
-
-    def remove_by_line_item(line_item, quantity, shipment=nil)
-
+    def remove_by_line_item(line_item, quantity, options)
       line_item = eager_load(line_item)
-
-      if remove_from_line_item(line_item, quantity, shipment)
-        reload_totals
-        PromotionHandler::Cart.new(order, line_item).activate
-        ItemAdjustments.new(line_item).update
-        reload_totals
-      end
-      line_item
+      remove_from_line_item(line_item, quantity, options)
+      after_add_or_remove(line_item, options)
     end
 
     def update_cart(params)
-      if order.update_attributes(params)
-        order.line_items = order.line_items.select {|li| li.quantity > 0 }
+      if order.update_attributes(filter_order_items(params))
+        order.line_items = order.line_items.select { |li| li.quantity > 0 }
         # Update totals, then check if the order is eligible for any cart promotions.
         # If we do not update first, then the item total will be wrong and ItemTotal
         # promotion rules would not be triggered.
@@ -83,10 +61,44 @@ module Spree
 
     private
 
-    def remove_from_line_item(line_item, quantity, shipment)
+    def after_add_or_remove(line_item, options = {})
+      reload_totals
+      shipment = options[:shipment]
+      shipment.present? ? shipment.update_amounts : order.ensure_updated_shipments
+      PromotionHandler::Cart.new(order, line_item).activate
+      ItemAdjustments.new(line_item).update
+      reload_totals
+      line_item
+    end
 
-      line_item.quantity -= quantity
-      line_item.target_shipment = shipment
+    def filter_order_items(params)
+      filtered_params = params.symbolize_keys
+      return filtered_params if filtered_params[:line_items_attributes].nil? || filtered_params[:line_items_attributes][:id]
+
+      line_item_ids = order.line_items.pluck(:id)
+
+      params[:line_items_attributes].each_pair do |id, value|
+        unless line_item_ids.include?(value[:id].to_i) || value[:variant_id].present?
+          filtered_params[:line_items_attributes].delete(id)
+        end
+      end
+      filtered_params
+    end
+
+    def order_updater
+      @updater ||= OrderUpdater.new(order)
+    end
+
+    def reload_totals
+      order_updater.update_item_count
+      order_updater.update
+      order.reload
+    end
+
+    def remove_from_line_item(line_item, quantity, options)
+
+      line_item.quantity -= quantity.to_i
+      line_item.target_shipment = options[:shipment]
 
       if line_item.quantity <= 0
         line_item.destroy
@@ -97,6 +109,8 @@ module Spree
     end
 
     def build_line_item(variant, uuid, options)
+      opts = { currency: order.currency }.merge ActionController::Parameters.new(options).
+                                          permit(PermittedAttributes.line_item_attributes)
 
       line_item = order.line_items.new(
         quantity: 0,
@@ -108,8 +122,10 @@ module Spree
         price:  variant.current_price_in(currency).amount,
         normal_price:  variant.price_normal_in(currency).amount,
         in_sale: variant.in_sale,
-        item_uuid: uuid
+        item_uuid: uuid,
+        options: opts
       )
+
       line_item.line_item_parts = options[:parts] || []
       line_item.line_item_personalisations = options[:personalisations] || []
 
@@ -134,18 +150,6 @@ module Spree
       end
 
       line_item
-    end
-
-    def order_updater
-      @updater ||= OrderUpdater.new(order)
-    end
-
-    def reload_totals
-      order_updater.update_item_count
-      order_updater.update_item_total
-      order_updater.update_adjustment_total
-      order_updater.persist_totals
-      order.reload
     end
 
     # It is important that we eager load the line_item with it's

@@ -1,5 +1,5 @@
 <%= render :partial => 'spree/admin/shared/product_sub_menu' %>
-<%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => 'personalisations'} %>
+<%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => 'Personalisations'} %>
 
 <% content_for :page_title do %>
   <%= Spree.t(:personalisations) %>
@@ -15,7 +15,7 @@
         <%= select_tag('personalisation[type]', options_for_product_personalisation_types(@product), :class => 'select2 fullwidth') %>
       </div>
       <div class="filter-actions actions">
-        <%= button Spree.t(:add), 'icon-plus' %>
+        <%= button Spree.t(:add), 'fa fa-plus' %>
       </div>
     </fieldset>
   <% end %>
@@ -33,7 +33,7 @@
     </div>
 
     <div class="personalisation-update filter-actions actions">
-      <%= button Spree.t('actions.update'), 'icon-refresh' %>
+      <%= button Spree.t('actions.update'), 'fa fa-refresh' %>
     </div>
 
   </fieldset>

@@ -7,6 +7,7 @@ if ENV["COVERAGE"]
     add_group 'Mailers', 'app/mailers'
     add_group 'Models', 'app/models'
     add_group 'Views', 'app/views'
+    add_group 'Jobs', 'app/jobs'
     add_group 'Libraries', 'lib'
   end
 end
@@ -27,6 +28,7 @@ require 'database_cleaner'
 
 require File.expand_path("../support/big_decimal", __FILE__)
 require File.expand_path("../support/test_gateway", __FILE__)
+require "support/rake"
 
 if ENV["CHECK_TRANSLATIONS"]
   require "spree/testing_support/i18n"
@@ -38,7 +40,11 @@ require 'spree/testing_support/image_stub'
 
 RSpec.configure do |config|
   config.color = true
+  config.fail_fast = ENV['FAIL_FAST'] || false
+  config.fixture_path = File.join(File.expand_path(File.dirname(__FILE__)), "fixtures")
+  config.infer_spec_type_from_file_location!
   config.mock_with :rspec
+  #config.raise_errors_for_deprecations!
   config.backtrace_exclusion_patterns = [
     /\/lib\d*\/ruby\//,
     /bin\//,
@@ -47,20 +53,18 @@ RSpec.configure do |config|
     /spec\/spec_helper\.rb/,
     /lib\/rspec\/(core|expectations|matchers|mocks)/
   ]
-  config.fixture_path = File.join(File.expand_path(File.dirname(__FILE__)), "fixtures")
 
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, comment the following line or assign false
   # instead of true.
   config.use_transactional_fixtures = true
 
-  config.before(:each) do
+  config.before :each do
+    Rails.cache.clear
+    Spree::Money.enable_options_cache = false
     reset_spree_preferences
   end
 
   config.include FactoryGirl::Syntax::Methods
   config.include Spree::TestingSupport::Preferences
-
-  config.fail_fast = ENV['FAIL_FAST'] || false
-
 end

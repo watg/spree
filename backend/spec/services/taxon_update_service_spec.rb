@@ -16,7 +16,7 @@ describe Spree::TaxonUpdateService do
 
   describe "run" do
     it "returns valid if correct params" do
-      expect(subject.valid?).to be_true
+      expect(subject.valid?).to be true
     end
 
     context "adding a taxon with a suite to a parent" do
@@ -27,7 +27,7 @@ describe Spree::TaxonUpdateService do
       end
 
       it "adds the taxon suite to the ancestors" do
-        expect(subject.valid?).to be_true
+        expect(subject.valid?).to be true
         expect(taxon.suites.select { |s| s == suite }.size).to eq 1
         expect(taxon_child.suites.select { |s| s == suite }.size).to eq 1
       end
@@ -38,7 +38,7 @@ describe Spree::TaxonUpdateService do
         end
 
         it "does not add suites to ancestors if the parent_id has not changed" do
-          expect(subject.valid?).to be_true
+          expect(subject.valid?).to be true
           expect(taxon.suites.select { |s| s == suite }.size).to eq 0
           expect(taxon_child.suites.select { |s| s == suite }.size).to eq 0
         end
@@ -52,7 +52,7 @@ describe Spree::TaxonUpdateService do
         end
 
         it "does not duplicate the classification" do
-          expect(subject.valid?).to be_true
+          expect(subject.valid?).to be true
           expect(taxon.suites.select { |s| s == suite }.size).to eq 1
           expect(taxon_child.suites.select { |s| s == suite }.size).to eq 1
         end
@@ -67,7 +67,7 @@ describe Spree::TaxonUpdateService do
         end
 
         it "does not duplicate the classification" do
-          expect(subject.valid?).to be_true
+          expect(subject.valid?).to be true
           expect(taxon_child.suites.select { |s| s == suite }.size).to eq 1
           taxon.suites.reload
           expect(taxon.suites.select { |s| s == suite }.size).to eq 1
@@ -93,7 +93,7 @@ describe Spree::TaxonUpdateService do
       end
 
       it "remove the taxon suite from the ancestors" do
-        expect(subject.valid?).to be_true
+        expect(subject.valid?).to be true
         expect(taxon.suites.select { |s| s == suite }.size).to eq 0
         expect(taxon_child.suites.select { |s| s == suite }.size).to eq 0
       end
@@ -105,7 +105,7 @@ describe Spree::TaxonUpdateService do
         end
 
         it "does not remove suites if the parent_id has not changed" do
-          expect(subject.valid?).to be_true
+          expect(subject.valid?).to be true
           expect(taxon.suites.select { |s| s == suite }.size).to eq 1
           expect(taxon_child.suites.select { |s| s == suite }.size).to eq 1
         end
@@ -129,7 +129,7 @@ describe Spree::TaxonUpdateService do
           expect(taxon.suites.size).to eq 2
           expect(taxon_child.suites.size).to eq 2
           expect(taxon_childs_child.suites.size).to eq 2
-          expect(subject.valid?).to be_true
+          expect(subject.valid?).to be true
           expect(taxon.suites.size).to eq 0
           expect(taxon_child.suites.size).to eq 0
           expect(taxon_childs_child.suites.size).to eq 2
@@ -147,7 +147,7 @@ describe Spree::TaxonUpdateService do
         it "does not duplicate the classification" do
           expect(taxon.suites.size).to eq 1
           expect(taxon_child.suites.size).to eq 1
-          expect(subject.valid?).to be_true
+          expect(subject.valid?).to be true
           expect(taxon.suites.size).to eq 1
           expect(taxon_child.suites.size).to eq 0
         end
@@ -175,7 +175,7 @@ describe Spree::TaxonUpdateService do
       it "does not duplicate the classification" do
         expect(taxon_child.reload.suites.select { |s| s == suite }.size).to eq 1
         expect(taxon.suites.reload.select { |s| s == suite }.size).to eq 1
-        expect(subject.valid?).to be_true
+        expect(subject.valid?).to be true
         expect(another_taxon.reload.suites.select { |s| s == suite }.size).to eq 1
         expect(taxon.suites.reload.select { |s| s == suite }.size).to eq 0
         expect(taxon_child.reload.suites.select { |s| s == suite }.size).to eq 0

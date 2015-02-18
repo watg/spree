@@ -1,7 +1,6 @@
 module Spree
   module Stock
     class Package
-
       attr_reader :stock_location, :contents
       attr_accessor :shipping_rates
 
@@ -24,6 +23,12 @@ module Spree
         @contents -= [item] if item
       end
 
+      # Fix regression that removed package.order.
+      # Find it dynamically through an inventory_unit.
+      def order
+        contents.detect {|item| !!item.try(:inventory_unit).try(:order) }.try(:inventory_unit).try(:order)
+      end
+
       def weight
         contents.sum(&:weight)
       end
@@ -35,13 +40,12 @@ module Spree
       def backordered
         contents.select(&:backordered?)
       end
-
-      def awaiting_feed
+	
+	  def awaiting_feed
         contents.select(&:awaiting_feed?)
       end
 
-
-       def find_item(inventory_unit, state = nil)
+      def find_item(inventory_unit, state = nil)
         contents.detect do |item|
           item.inventory_unit == inventory_unit &&
             (!state || item.state.to_s == state.to_s)

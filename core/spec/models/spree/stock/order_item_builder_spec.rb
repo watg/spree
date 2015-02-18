@@ -3,14 +3,14 @@ require 'spec_helper'
 module Spree
   module Stock
     describe OrderItemBuilder do
-      subject { OrderItemBuilder.new(order) }
-      let(:order) { Spree::Order.new(id: 21) }
+      subject { OrderItemBuilder.new(line_items) }
 
       let(:variant_id) { 15 }
       let(:extra_variant_id) { 16 }
 
       let(:line_item) { Spree::LineItem.new(variant_id: variant_id, quantity: 2) }
       let(:extra_line_item) { Spree::LineItem.new(variant_id: extra_variant_id, quantity: 1) }
+      let(:line_items) {[]}
 
       let(:part1) { Spree::LineItemPart.new(variant_id: variant_id, quantity: 3) }
       let(:part2) { Spree::LineItemPart.new(variant_id: extra_variant_id, quantity: 4) }
@@ -25,8 +25,8 @@ module Spree
         line_item.line_item_parts << part2
         line_item.line_item_parts << container_part
 
-        order.line_items << line_item
-        order.line_items << extra_line_item
+        line_items << line_item
+        line_items << extra_line_item
       end
 
       it "builds a flat list of items" do

@@ -27,11 +27,11 @@ describe Spree::CreateAndAllocateConsignmentService do
 
     context "successfull case" do
       it "service outcome is positive" do
-        expect(@outcome.valid?).to be_true
+        expect(@outcome.valid?).to be true
       end
 
       it "updates order with metapack consignment code" do
-        expect(order.metapack_allocated).to be_true
+        expect(order.metapack_allocated).to be true
         expect(order.metapack_consignment_code).to eql('12345')
       end
 
@@ -50,13 +50,13 @@ describe Spree::CreateAndAllocateConsignmentService do
       it "cannot create consignment when order has no parcel" do
         order_no_parcel = FactoryGirl.create(:order_ready_to_ship)
         outcome = subject.run(order_id: order_no_parcel.id)
-        expect(outcome.valid?).to be_false
+        expect(outcome.valid?).to be false
       end
 
       it "order is already shipped" do
         shipped_order = FactoryGirl.create(:shipped_order)
         outcome = subject.run(order_id: shipped_order.id)
-        expect(outcome.valid?).to be_false
+        expect(outcome.valid?).to be false
       end
     end
 
@@ -84,7 +84,7 @@ describe Spree::CreateAndAllocateConsignmentService do
       parcel_weight = (order.weight / order.parcels.size).round(2)
 
       p1,p2 = [order.parcels[0],order.parcels[1]]
-      address = { line1: "10 Lovely Street", line2: "Northwest", line3: "Herndon", postcode: "20170", country: "USA" }
+      address = { line1: "10 Lovely Street", line2: "Northwest", line3: "Herndon", postcode: "35005", country: "USA" }
       parcel_value = order.total / 2
       expected  = {
         value:         order.total,
@@ -151,7 +151,7 @@ describe Spree::CreateAndAllocateConsignmentService do
       expect(consignment.send(:allocation_hash, order, shipping_manifest.result )).to eql(expected)
 
       order.shipping_address.update_attributes(address2: nil)
-      address = { line1: "10 Lovely Street", line2: "Herndon", postcode: "20170", country: "USA" }
+      address = { line1: "10 Lovely Street", line2: "Herndon", postcode: "35005", country: "USA" }
       expected[:recipient][:address] = address
       expect(consignment.send(:allocation_hash, order, shipping_manifest.result )).to eql(expected)
     end

@@ -1,5 +1,6 @@
 # maybe require the file in an engine instead
 require 'spree/core/controller_helpers/currency_helpers'
+require 'spree/core/controller_helpers/store'
 
 module Spree
   module Core
@@ -7,50 +8,49 @@ module Spree
       module Order
         extend ActiveSupport::Concern
         include CurrencyHelpers
+        include Store
 
-        def self.included(base)
-          base.class_eval do
-            helper_method :simple_current_order
-            helper_method :current_order
-            helper_method :current_currency
-            before_filter :set_current_order
-          end
+        included do
+          before_filter :set_current_order
+
+          helper_method :current_currency
+          helper_method :current_order
+          helper_method :simple_current_order
         end
 
         # Used in the link_to_cart helper.
         def simple_current_order
-          @order ||= Spree::Order.find_by(id: session[:order_id], currency: current_currency)
+
+          return @simple_current_order if @simple_current_order
+
+          @simple_current_order = find_order_by_token_or_user
+
+          if @simple_current_order
+            @simple_current_order.last_ip_address = ip_address
+            return @simple_current_order
+          else
+            @simple_current_order = Spree::Order.new
+          end
         end
 
-        # The current incomplete order from the session for use in cart and during checkout
+        # The current incomplete order from the guest_token for use in cart and during checkout
         def current_order(options = {})
           options[:create_order_if_necessary] ||= false
-          options[:lock] ||= false
-
 
           return @current_order if @current_order
 
-          if session[:order_id]
-            current_order = Spree::Order.includes(:adjustments).lock(options[:lock]).find_by(id: session[:order_id], currency: current_currency)
-            @current_order = current_order unless current_order.try(:completed?)
-          end
+          @current_order = find_order_by_token_or_user(options, true)
 
-          if options[:create_order_if_necessary] and (@current_order.nil? or @current_order.completed?)
-            @current_order = Spree::Order.new(currency: current_currency)
+          if options[:create_order_if_necessary] && (@current_order.nil? || @current_order.completed?)
+            @current_order = Spree::Order.new(current_order_params)
             @current_order.user ||= try_spree_current_user
             # See issue #3346 for reasons why this line is here
             @current_order.created_by ||= try_spree_current_user
             @current_order.save!
-
-            # make sure the user has permission to access the order (if they are a guest)
-            if try_spree_current_user.nil?
-              session[:access_token] = @current_order.token
-            end
           end
 
           if @current_order
             @current_order.last_ip_address = ip_address
-            session[:order_id] = @current_order.id
             return @current_order
           end
         end
@@ -60,20 +60,15 @@ module Spree
           if try_spree_current_user && @order
             @order.associate_user!(try_spree_current_user) if @order.user.blank? || @order.email.blank?
           end
-
-          session[:guest_token] = nil
         end
 
         def set_current_order
-          if user = try_spree_current_user
-            last_incomplete_order = user.last_incomplete_spree_order
-            if session[:order_id].nil? && last_incomplete_order
-              session[:order_id] = last_incomplete_order.id
-            elsif current_order && last_incomplete_order && current_order != last_incomplete_order
+          if try_spree_current_user && current_order
+            try_spree_current_user.orders.incomplete.in_currency(current_currency).where('id != ?', current_order.id).each do |order|
               # This will ensure that any redeemed gift cards that are not on completed orders
               # will be reactivated
-              last_incomplete_order.reactivate_gift_cards!
-              current_order.merge!(last_incomplete_order, user)
+              order.reactivate_gift_cards!
+              current_order.merge!(order, try_spree_current_user)
             end
           end
         end
@@ -93,6 +88,35 @@ module Spree
         def ip_address
           request.remote_ip
         end
+
+        private
+
+        def last_incomplete_order
+          @last_incomplete_order ||= try_spree_current_user.last_incomplete_spree_order(current_currency)
+        end
+
+        def current_order_params
+          { currency: current_currency, guest_token: cookies.signed[:guest_token], store_id: current_store.id, user_id: try_spree_current_user.try(:id) }
+        end
+
+        def find_order_by_token_or_user(options={}, with_adjustments = false)
+          options[:lock] ||= false
+
+          # Find any incomplete orders for the guest_token
+          if with_adjustments
+            order = Spree::Order.incomplete.includes(:adjustments).lock(options[:lock]).find_by(current_order_params)
+          else
+            order = Spree::Order.incomplete.lock(options[:lock]).find_by(current_order_params)
+          end
+
+          # Find any incomplete orders for the current user
+          if order.nil? && try_spree_current_user
+            order = last_incomplete_order
+          end
+
+          order
+        end
+
       end
     end
   end

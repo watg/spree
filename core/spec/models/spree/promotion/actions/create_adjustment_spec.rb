@@ -1,47 +1,48 @@
 require 'spec_helper'
 
-describe Spree::Promotion::Actions::CreateAdjustment do
+describe Spree::Promotion::Actions::CreateAdjustment, :type => :model do
   let(:order) { create(:order_with_line_items, :line_items_count => 1) }
   let(:promotion) { create(:promotion) }
   let(:action) { Spree::Promotion::Actions::CreateAdjustment.new }
+  let(:payload) { { order: order } }
 
   # From promotion spec:
   context "#perform" do
     before do
       action.calculator = Spree::Calculator::FlatRate.new(:preferred_amount => [{type: :integer, name: "USD", value: 10}])
       promotion.promotion_actions = [action]
-      action.stub(:promotion => promotion)
+      allow(action).to receive_messages(:promotion => promotion)
     end
 
     # Regression test for #3966
     it "does not apply an adjustment if the amount is 0" do
       action.calculator.preferred_amount = [{type: :integer, name: "USD", value: 0}]
-      action.perform(:order => order)
-      promotion.credits_count.should == 0
-      order.adjustments.count.should == 0
+      action.perform(payload)
+      expect(promotion.credits_count).to eq(0)
+      expect(order.adjustments.count).to eq(0)
     end
 
     it "should create a discount with correct negative amount" do
       order.shipments.create!(:cost => 10)
 
-      action.perform(:order => order)
-      promotion.credits_count.should == 1
-      order.adjustments.count.should == 1
-      order.adjustments.first.amount.to_i.should == -10
+      action.perform(payload)
+      expect(promotion.credits_count).to eq(1)
+      expect(order.adjustments.count).to eq(1)
+      expect(order.adjustments.first.amount.to_i).to eq(-10)
     end
 
     it "should create a discount accessible through both order_id and adjustable_id" do
-      action.perform(:order => order)
-      order.adjustments.count.should == 1
-      order.all_adjustments.count.should == 1
+      action.perform(payload)
+      expect(order.adjustments.count).to eq(1)
+      expect(order.all_adjustments.count).to eq(1)
     end
 
     it "should not create a discount when order already has one from this promotion" do
       order.shipments.create!(:cost => 10)
 
-      action.perform(:order => order)
-      action.perform(:order => order)
-      promotion.credits_count.should == 1
+      action.perform(payload)
+      action.perform(payload)
+      expect(promotion.credits_count).to eq(1)
     end
   end
 
@@ -53,9 +54,9 @@ describe Spree::Promotion::Actions::CreateAdjustment do
 
     context "when order is not complete" do
       it "should not keep the adjustment" do
-        action.perform(:order => order)
+        action.perform(payload)
         action.destroy
-        order.adjustments.count.should == 0
+        expect(order.adjustments.count).to eq(0)
       end
     end
 
@@ -65,16 +66,16 @@ describe Spree::Promotion::Actions::CreateAdjustment do
       end
 
       before(:each) do
-        action.perform(:order => order)
+        action.perform(payload)
         action.destroy
       end
 
       it "should keep the adjustment" do
-        order.adjustments.count.should == 1
+        expect(order.adjustments.count).to eq(1)
       end
 
       it "should nullify the adjustment source" do
-        order.adjustments.reload.first.source.should be_nil
+        expect(order.adjustments.reload.first.source).to be_nil
       end
     end
   end

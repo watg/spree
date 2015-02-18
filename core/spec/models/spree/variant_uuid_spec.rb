@@ -66,8 +66,23 @@ describe Spree::VariantUuid do
     end
   end
 
-  its(:base_variant)     { should eq variant }
-  its(:parts)            { should_not be_blank }
-  its(:personalisations) { should eq personalisations }
-  its(:number)           { should_not be_blank }
+  describe '#base_variant' do
+    subject { super().base_variant }
+    it { is_expected.to eq variant }
+  end
+
+  describe '#parts' do
+    subject { super().parts }
+    it { is_expected.not_to be_blank }
+  end
+
+  describe '#personalisations' do
+    subject { super().personalisations }
+    it { is_expected.to eq personalisations }
+  end
+
+  describe '#number' do
+    subject { super().number }
+    it { is_expected.not_to be_blank }
+  end
 end

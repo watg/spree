@@ -33,7 +33,7 @@ def consignment_hash
             line1: "10 Lovely & Wonderful Street",
             line2: "Northwest",
             line3: "Herdon",
-            postcode:"20170",
+            postcode:"35005",
             country: "GBR"},
           phone:       "123-456-7890",
           email:        'john@doe.com',

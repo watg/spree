@@ -7,21 +7,11 @@ describe Spree::Variant do
     let!(:variant_in_stock) { create(:variant_with_stock_items, product_id: variant.product.id) }
 
     it "checks stock level" do
-      Spree::StockItem.any_instance.stub(backorderable: false)
-      expect(variant_in_stock.in_stock?).to be_true
-      expect(variant.in_stock?).to be_false
+      allow_any_instance_of(Spree::StockItem).to receive_messages(backorderable: false)
+      expect(variant_in_stock.in_stock?).to be true
+      expect(variant.in_stock?).to be false
     end
 
-  end
-
-  describe "with tags" do
-    let(:tags) { 2.times.map { FactoryGirl.create(:tag) } }
-
-    before :each do
-      subject.tags = tags
-    end
-
-    its(:tag_names) { should eq(tags.map(&:value)) }
   end
 
   context '#part_prices' do
@@ -40,7 +30,7 @@ describe Spree::Variant do
   describe '#total_on_hand' do
     it 'should be infinite if track_inventory_levels is false' do
       Spree::Config[:track_inventory_levels] = false
-      build(:variant).total_on_hand.should eql(Float::INFINITY)
+      expect(build(:variant).total_on_hand).to eql(Float::INFINITY)
     end
 
     it 'should match quantifier total_on_hand' do
@@ -122,7 +112,7 @@ describe Spree::Variant do
       it "is updated" do
         variant.product.update_column(:updated_at, 1.day.ago)
         variant.touch
-        variant.product.reload.updated_at.should be_within(1.seconds).of(Time.now)
+        expect(variant.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
       end
     end
   end

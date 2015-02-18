@@ -21,11 +21,13 @@
 # total. This allows an adjustment to be preserved if it becomes ineligible so
 # it might be reinstated.
 module Spree
-  class Adjustment < ActiveRecord::Base
-    belongs_to :adjustable, polymorphic: true
+  class Adjustment < Spree::Base
+    belongs_to :adjustable, polymorphic: true, touch: true
     belongs_to :source, polymorphic: true
-    belongs_to :order, :class_name => "Spree::Order"
+    belongs_to :order, class_name: "Spree::Order"
 
+    validates :adjustable, presence: true
+    validates :order, presence: true
     validates :label, presence: true
     validates :amount, numericality: true
 
@@ -40,16 +42,22 @@ module Spree
     end
 
     after_create :update_adjustable_adjustment_total
+    after_destroy :update_adjustable_adjustment_total
 
     scope :open, -> { where(state: 'open') }
     scope :closed, -> { where(state: 'closed') }
     scope :tax, -> { where(source_type: 'Spree::TaxRate') }
+    scope :non_tax, -> do
+      source_type = arel_table[:source_type]
+      where(source_type.not_eq('Spree::TaxRate').or source_type.eq(nil))
+    end
     scope :price, -> { where(adjustable_type: 'Spree::LineItem') }
     scope :shipping, -> { where(adjustable_type: 'Spree::Shipment') }
     scope :optional, -> { where(mandatory: false) }
     scope :eligible, -> { where(eligible: true) }
     scope :charge, -> { where("#{quoted_table_name}.amount >= 0") }
     scope :credit, -> { where("#{quoted_table_name}.amount < 0") }
+    scope :nonzero, -> { where("#{quoted_table_name}.amount != 0") }
     scope :promotion, -> { where(source_type: 'Spree::PromotionAction') }
     scope :gift_card, -> { where(source_type: 'Spree::GiftCard') }
     scope :manual, -> { where(source_type: nil) }
@@ -59,6 +67,14 @@ module Spree
 
     def closed?
       state == "closed"
+    end
+
+    def currency
+      adjustable ? adjustable.currency : Spree::Config[:currency]
+    end
+
+    def display_amount
+      Spree::Money.new(amount, { currency: currency })
     end
 
     def promotion?
@@ -90,19 +106,12 @@ module Spree
       amount
     end
 
-    def currency
-      adjustable ? adjustable.currency : Spree::Config[:currency]
-    end
-
-    def display_amount
-      Spree::Money.new(amount, { currency: currency }).to_s
-    end
-
     private
 
     def update_adjustable_adjustment_total
       # Cause adjustable's total to be recalculated
-      Spree::ItemAdjustments.new(adjustable).update if adjustable
+      ItemAdjustments.new(adjustable).update
     end
+
   end
 end

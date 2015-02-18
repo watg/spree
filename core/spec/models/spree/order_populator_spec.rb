@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::OrderPopulator do
+describe Spree::OrderPopulator, :type => :model do
 
   let(:order) { mock_model(Spree::Order, currency: 'USD') }
   subject { Spree::OrderPopulator.new(order, "USD") }
@@ -13,7 +13,7 @@ describe Spree::OrderPopulator do
 
     before do
       allow(order).to receive(:line_items).and_return([])
-      order.should_receive(:contents).at_least(:once).and_return(Spree::OrderContents.new(order))
+      expect(order).to receive(:contents).at_least(:once).and_return(Spree::OrderContents.new(order))
     end
 
     context "with variants parameters" do
@@ -76,7 +76,8 @@ describe Spree::OrderPopulator do
               :suite_id     => options[:suite_id],
               :suite_tab_id => options[:suite_tab_id],
               :order_id            => order.id,
-              :missing_parts_and_variants => {part.id => variant.id}
+              :parts               => part_params,
+              :missing_parts_and_variants => {part.id => variant.id},
             }
             #expect(notifier).to receive(:notify).with("Some required parts are missing", notification_params)
             #expect(Helpers::AirbrakeNotifier).to receive(:delay).and_return(notifier)
@@ -182,9 +183,9 @@ describe Spree::OrderPopulator do
       context "variant out of stock" do
         before do
           line_item = double("LineItem", valid?: false)
-          line_item.stub(:errors).and_return [double]
-          line_item.stub_chain(:errors, messages: { quantity: ["error message"] })
-          order.contents.stub(add: line_item)
+          allow(line_item).to receive(:errors).and_return [double]
+          allow(line_item).to receive_message_chain(:errors, messages: { quantity: ["error message"] })
+          allow(order.contents).to receive_messages(add: line_item)
         end
 
         it "adds an error when trying to populate" do
@@ -199,9 +200,9 @@ describe Spree::OrderPopulator do
         it "restricts quantities to reasonable sizes (less than 2.1 billion, seriously)" do
           expect(order.contents).to_not receive(:add)
           subject.populate(:products => { product.id => variant.id }, :quantity => 2_147_483_648)
-          subject.should_not be_valid
+          expect(subject).not_to be_valid
           output = "Please enter a reasonable quantity."
-          subject.errors.full_messages.join("").should == output
+          expect(subject.errors.full_messages.join("")).to eq(output)
         end
 
         it "does not add any products if a quantity is set to 0" do
@@ -216,9 +217,9 @@ describe Spree::OrderPopulator do
         it "restricts quantities to reasonable sizes (less than 2.1 billion, seriously)" do
           expect(order.contents).to_not receive(:add)
           subject.populate(:variants => {variant.id => 2_147_483_648 } )
-          subject.should_not be_valid
+          expect(subject).not_to be_valid
           output = "Please enter a reasonable quantity."
-          subject.errors.full_messages.join("").should == output
+          expect(subject.errors.full_messages.join("")).to eq(output)
         end
 
         it "does not add any products if a quantity is set to 0" do

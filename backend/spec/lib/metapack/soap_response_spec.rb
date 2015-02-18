@@ -4,12 +4,12 @@ describe Metapack::SoapResponse do
   describe "#success?" do
     context "when the http response was successful" do
       subject { Metapack::SoapResponse.new(Net::HTTPResponse.new(1.0, '200', '')) }
-      its(:success?) { should be_true }
+      its(:success?) { should be true }
     end
 
     context "when the http response was unsuccessful" do
       subject { Metapack::SoapResponse.new(Net::HTTPResponse.new(1.0, '500', '')) }
-      its(:success?) { should be_false }
+      its(:success?) { should be false }
     end
   end
 

@@ -42,7 +42,7 @@ describe Spree::AssemblyDefinitionPart do
   context "when add all variants is set to true (default)" do
 
     it 'sets add_all_available_variants to true by default' do
-      expect(subject.add_all_available_variants).to be_true
+      expect(subject.add_all_available_variants).to be true
     end
 
   end

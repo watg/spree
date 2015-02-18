@@ -6,7 +6,7 @@ FactoryGirl.define do
 
     factory :multiple_nested_taxons do
 
-      ignore do
+      transient do
         depth 3
       end
 

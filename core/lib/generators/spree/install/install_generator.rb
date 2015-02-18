@@ -13,6 +13,7 @@ module Spree
     class_option :admin_email, :type => :string
     class_option :admin_password, :type => :string
     class_option :lib_name, :type => :string, :default => 'spree'
+    class_option :enforce_available_locales, :type => :boolean, :default => nil
 
     def self.source_paths
       paths = self.superclass.source_paths
@@ -45,10 +46,6 @@ module Spree
       end
     end
 
-    def remove_unneeded_files
-      remove_file "public/index.html"
-    end
-
     def additional_tweaks
       return unless File.exists? 'public/robots.txt'
       append_file "public/robots.txt", <<-ROBOTS
@@ -56,14 +53,10 @@ User-agent: *
 Disallow: /checkout
 Disallow: /cart
 Disallow: /orders
-Disallow: /countries
-Disallow: /line_items
-Disallow: /password_resets
-Disallow: /states
-Disallow: /user_sessions
-Disallow: /user_registrations
-Disallow: /users
+Disallow: /user
 Disallow: /account
+Disallow: /api
+Disallow: /password
       ROBOTS
     end
 
@@ -104,6 +97,13 @@ Disallow: /account
       end
     end
       APP
+
+      if !options[:enforce_available_locales].nil?
+        application <<-APP
+    # Prevent this deprecation message: https://github.com/svenfuchs/i18n/commit/3b6e56e
+    I18n.enforce_available_locales = #{options[:enforce_available_locales]}
+        APP
+      end
     end
 
     def include_seed_data
@@ -168,7 +168,7 @@ Spree::Auth::Engine.load_seed if defined?(Spree::Auth)
     end
 
     def notify_about_routes
-      insert_into_file File.join('config', 'routes.rb'), :after => "Application.routes.draw do\n" do
+      insert_into_file File.join('config', 'routes.rb'), :after => "Rails.application.routes.draw do\n" do
         %Q{
   # This line mounts Spree's routes at the root of your application.
   # This means, any requests to URLs such as /products, will go to Spree::ProductsController.
@@ -195,6 +195,5 @@ Spree::Auth::Engine.load_seed if defined?(Spree::Auth)
         puts "Enjoy!"
       end
     end
-
   end
 end

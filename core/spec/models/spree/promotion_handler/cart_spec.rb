@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Spree
   module PromotionHandler
-    describe Cart do
+    describe Cart, :type => :model do
       let(:line_item) { create(:line_item) }
       let(:order) { line_item.order }
 
@@ -35,7 +35,8 @@ module Spree
 
         context "promotion has item total rule" do
           let(:shirt) { create(:product) }
-          let!(:rule) { Promotion::Rules::ItemTotal.create(preferred_attributes: { 'USD' => { 'amount' =>'50', 'enabled' => 'true' } }, promotion: promotion) }
+          let(:promotion) {create(:promotion, :with_item_total_rule, item_total_threshold_amount: 50)}
+          #let!(:rule) { Promotion::Rules::ItemTotal.create(preferred_attributes: { 'USD' => { 'amount' =>'50', 'enabled' => 'true' } }, promotion: promotion) }
 
           before do
             # Makes the order eligible for this promotion
@@ -80,6 +81,21 @@ module Spree
           end
 
           include_context "creates the adjustment"
+        end
+      end
+
+      context "activates promotions associated with the order" do
+        let(:promo) { create :promotion_with_item_adjustment, adjustment_rate: 5, code: 'promo' }
+        let(:adjustable) { line_item }
+
+        before do
+          order.promotions << promo
+        end
+
+        it "creates the adjustment" do
+          expect {
+            subject.activate
+          }.to change { adjustable.adjustments.count }.by(1)
         end
       end
     end

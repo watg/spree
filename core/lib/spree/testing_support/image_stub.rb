@@ -12,6 +12,6 @@ end
 
 RSpec.configure do |config|
   config.before(:each) do
-    Spree::Image.any_instance.stub(:save_attached_files).and_return(true)
+    allow_any_instance_of(Spree::Image).to receive(:save_attached_files).and_return(true)
   end
 end

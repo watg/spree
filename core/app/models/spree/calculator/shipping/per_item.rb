@@ -4,22 +4,19 @@ module Spree
   module Calculator::Shipping
     class PerItem < ShippingCalculator
       preference :amount, :decimal, default: 0
-      preference :currency, :string, default: Spree::Config[:currency]
+      preference :currency, :string, default: ->{ Spree::Config[:currency] }
 
       def self.description
         Spree.t(:shipping_flat_rate_per_item)
       end
-      
-      def compute_package(object)
-        return 0 if object.nil?
-        if object.is_a?(Spree::Order)
-          self.preferred_amount * object.line_items.map(&:quantity).sum
-        else
-          content_items = object.contents
-          self.preferred_amount * content_items.sum { |item| item.quantity }
-        end
+
+      def compute_package(package)
+        compute_from_quantity(package.contents.sum(&:quantity))
       end
-      
+
+      def compute_from_quantity(quantity)
+        self.preferred_amount * quantity
+      end
     end
   end
 end

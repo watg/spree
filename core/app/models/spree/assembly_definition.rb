@@ -22,7 +22,7 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
   def validate_main_part
     # if we have a assembled we need a main part
     if self.assembly_definition_parts.detect(&:assembled).present? != self.main_part_id.present?
-      errors.add(:assembly_definition, "can not have assmebled parts without a main part")
+      errors.add(:assembly_definition, "can not have assembled parts without a main part")
     end
   end
 

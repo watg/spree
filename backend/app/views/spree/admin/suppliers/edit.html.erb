@@ -1,7 +1,7 @@
 <% content_for :page_actions do %>
-  <li><%= button_link_to Spree.t(:back_to_suppliers_list), admin_suppliers_url, :icon => 'icon-arrow-left' %></li>
+  <li><%= button_link_to Spree.t(:back_to_suppliers_list), admin_suppliers_url, :icon => 'fa fa-arrow-left' %></li>
   <li id="new_supplier_link">
-    <%= button_link_to Spree.t(:new_supplier), new_object_url, { :icon => 'icon-plus', :id => 'admin_new_supplier' } %>
+    <%= button_link_to Spree.t(:new_supplier), new_object_url, { :icon => 'fa fa-plus', :id => 'admin_new_supplier' } %>
   </li>
 <% end %>
 

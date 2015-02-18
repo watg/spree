@@ -2,7 +2,6 @@ module Spree
   class Image < Asset
     acts_as_paranoid
 
-    validates_attachment_presence :attachment
     validate :no_attachment_errors
 
     belongs_to :target, class_name: 'Spree::Target', inverse_of: :images
@@ -23,6 +22,10 @@ module Spree
                         product: "-quality 80",
                         large: "-quality 80",
                       }
+
+	validates_attachment :attachment,
+      :presence => true,
+      :content_type => { :content_type => %w(image/jpeg image/jpg image/png image/gif) }
 
     # save the w,h of the original image (from which others can be calculated)
     # we need to look at the write-queue for images which have not been saved yet
@@ -50,7 +53,7 @@ module Spree
     # if there are errors from the plugin, then add a more meaningful message
     def no_attachment_errors
       unless attachment.errors.empty?
-        # uncomment this to get rid of the less-than-useful interrim messages
+        # uncomment this to get rid of the less-than-useful interim messages
         # errors.clear
         errors.add :attachment, "Paperclip returned errors for file '#{attachment_file_name}' - check ImageMagick installation or image source file."
         false

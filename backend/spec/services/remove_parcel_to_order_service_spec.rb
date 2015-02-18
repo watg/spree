@@ -9,7 +9,7 @@ describe Spree::RemoveParcelToOrderService do
 
     it "should invoke success callback when all is good" do
       outcome = subject.run(box_id: small_box.id, quantity: 1, order_id: order.id)
-      expect(outcome.valid?).to be_true
+      expect(outcome.valid?).to be true
     end
 
     it "should remove parcel to order" do
@@ -19,17 +19,17 @@ describe Spree::RemoveParcelToOrderService do
 
     it "should invoke failure callback on wrong quantity" do
       outcome = subject.run(box_id: small_box.id, quantity: -1, order_id: order.id)
-      expect(outcome.valid?).to be_false
+      expect(outcome.valid?).to be false
     end
 
     it "should invoke failure callback on wrong box_id" do
       outcome = subject.run(box_id: 99999999, quantity: 1, order_id: order.id)
-      expect(outcome.valid?).to be_false
+      expect(outcome.valid?).to be false
     end
 
     it "should invoke failure callback on wrong box_id" do
       outcome = subject.run(box_id: small_box.id, quantity: 1, order_id: 99999999)
-      expect(outcome.valid?).to be_false
+      expect(outcome.valid?).to be false
     end
 
     context "stock level control" do
@@ -51,7 +51,7 @@ describe Spree::RemoveParcelToOrderService do
         allow(Spree::Order).to receive(:find).and_return(order)
         outcome = subject.run(box_id: small_box.id, quantity: 4, order_id: order.id)
 
-        expect(outcome.valid?).to be_false
+        expect(outcome.valid?).to be false
       end
     end
 

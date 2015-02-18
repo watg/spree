@@ -44,7 +44,7 @@ describe Spree::StockCheckAlertJob do
         message = [variant.product.marketing_type.name, "===========", "", "\t name, sku, #{Spree::Core::Engine.routes.url_helpers.stock_admin_product_url(variant.product)}","",""].join("\n")
 
         mock_object = double("mock_object")
-        mock_object.should_receive(:deliver)
+        expect(mock_object).to receive(:deliver)
 
         expect(Spree::NotificationMailer).to receive(:send_notification).with(message, ['test@woolandthegang.com'], "Items out of stock").and_return(mock_object)
         subject.perform
@@ -66,9 +66,10 @@ describe Spree::StockCheckAlertJob do
     context "when there is stock in feeder stores" do
       let(:active_location) { create(:stock_location, active: true) }
       let(:feeder) { create(:stock_location, active: false, feed_into: active_location) }
-      let!(:alternative_stock) { create(:stock_item, stock_location: feeder, count_on_hand: 1, variant: variant)}
+      let!(:alternative_stock) { create(:stock_item, stock_location: feeder, variant: variant)}
 
       before do
+        alternative_stock.set_count_on_hand(1)
         stock_item.update_columns(updated_at: 1.days.ago, backorderable: false, count_on_hand: 0)
       end
 
@@ -89,7 +90,7 @@ describe Spree::StockCheckAlertJob do
 
       it "sends a notification" do
         mock_object = double("mock_object")
-        mock_object.should_receive(:deliver)
+        expect(mock_object).to receive(:deliver)
 
         expect(Spree::NotificationMailer).to receive(:send_notification).and_return(mock_object)
         subject.perform

@@ -3,7 +3,7 @@ module Spree
     class VariantsController < ResourceController
       belongs_to 'spree/product', :find_by => :slug
       new_action.before :new_before
-      before_filter :load_data, :only => [:new, :create, :edit, :update]
+      before_action :load_data, only: [:new, :create, :edit, :update]
 
       def create
         invoke_callbacks(:create, :before)
@@ -105,7 +105,7 @@ module Spree
         if @deleted.blank?
           @collection ||= super
         else
-          @collection ||= Variant.where(:product_id => parent.id).deleted
+         @collection ||= Variant.only_deleted.where(:product_id => parent.id)
         end
         @collection
       end

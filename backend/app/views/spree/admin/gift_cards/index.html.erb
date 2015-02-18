@@ -4,11 +4,11 @@
 
 <% content_for :page_actions do %>
   <li>
-    <%= button_link_to Spree.t(:new_order), new_admin_order_url, :icon => 'icon-plus', :id => 'admin_new_order' %>
+    <%= button_link_to Spree.t(:new_order), new_admin_order_url, :icon => 'fa fa-plus', :id => 'admin_new_order' %>
   </li>
 <% end if can? :edit, Spree::Order.new %>
 
-<%= render :partial => 'spree/admin/shared/incentives_sub_menu' %>
+<%= render :partial => 'spree/admin/shared/promotion_sub_menu' %>
 
 <% content_for :table_filter_title do %>
   <%= Spree.t(:search) %>
@@ -24,7 +24,7 @@
             <%= f.text_field :created_at_gt, :class => 'datepicker datepicker-from', :value => params[:q][:created_at_gt], :placeholder => Spree.t(:start) %>
 
             <span class="range-divider">
-              <i class="icon-arrow-right"></i>
+              <i class="fa fa-arrow-right"></i>
             </span>
 
             <%= f.text_field :created_at_lt, :class => 'datepicker datepicker-to', :value => params[:q][:created_at_lt], :placeholder => Spree.t(:stop) %>
@@ -63,7 +63,7 @@
 
       <div class="actions filter-actions">
         <div data-hook="admin_gift_cards_index_search_buttons">
-          <%= button Spree.t(:filter_results), 'icon-search' %>
+          <%= button Spree.t(:filter_results), 'fa fa-search' %>
         </div>
       </div>
     <% end %>

@@ -1,5 +1,7 @@
 module Spree
-  class Address < ActiveRecord::Base
+  class Address < Spree::Base
+    require 'twitter_cldr'
+
     belongs_to :country, class_name: "Spree::Country"
     belongs_to :state, class_name: "Spree::State"
 
@@ -9,7 +11,7 @@ module Spree
     validates :zipcode, presence: true, if: :require_zipcode?
     validates :phone, presence: true, if: :require_phone?
 
-    validate :state_validate
+    validate :state_validate, :postal_code_validate
     validate :phone_validate
 
     alias_attribute :first_name, :firstname
@@ -36,7 +38,7 @@ module Spree
 
     def self.default(user = nil, kind = "bill")
       if user && user_address = user.send(:"#{kind}_address")
-         user_address.clone
+        user_address.clone
       else
         build_default
       end
@@ -141,6 +143,14 @@ module Spree
 
         # ensure at least one state field is populated
         errors.add :state, :blank if state.blank? && state_name.blank?
+      end
+
+      def postal_code_validate
+        return if country.blank? || country.iso.blank? || !require_zipcode?
+        return if !TwitterCldr::Shared::PostalCodes.territories.include?(country.iso.downcase.to_sym)
+
+        postal_code = TwitterCldr::Shared::PostalCodes.for_territory(country.iso)
+        errors.add(:zipcode, :invalid) if !postal_code.valid?(zipcode.to_s)
       end
   end
 end

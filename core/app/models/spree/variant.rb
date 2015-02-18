@@ -1,6 +1,8 @@
 module Spree
-  class Variant < ActiveRecord::Base
+  class Variant < Spree::Base
     acts_as_paranoid
+
+    include Spree::DefaultPrice
 
     belongs_to :product, touch: true, class_name: 'Spree::Product', inverse_of: :variants
     belongs_to :tax_category, class_name: 'Spree::TaxCategory'
@@ -9,13 +11,14 @@ module Spree
                         :shipping_category_id, :meta_description, :meta_keywords,
                         :shipping_category
 
-    has_many :inventory_units
+    has_many :inventory_units, inverse_of: :variant
     has_many :line_items, inverse_of: :variant
+    has_many :orders, through: :line_items
 
     has_many :stock_items, dependent: :destroy, inverse_of: :variant
     has_many :stock_locations, through: :stock_items
-    has_many :suppliers, through: :stock_items
     has_many :stock_movements, through: :stock_items
+    has_many :suppliers, through: :stock_items
 
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants, class_name: "Spree::OptionValue"
 
@@ -35,6 +38,11 @@ module Spree
       class_name: 'Spree::StockThreshold',
       dependent: :destroy
 
+    has_one :assembly_definition
+
+    has_many :taggings, as: :taggable
+    has_many :tags, -> { order(:value) }, through: :taggings
+
     delegate_belongs_to :default_price, :display_price, :display_amount, :currency
 
     delegate_belongs_to :product, :assembly_definitions
@@ -44,23 +52,20 @@ module Spree
       dependent: :destroy,
       inverse_of: :variant
 
+    before_validation :set_cost_currency
+    before_validation :generate_variant_number, on: :create
+
     validate :check_price
 
     validates :cost_price, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
     validates :weight, numericality: { greater_than_or_equal_to: 0, allow_nil: true }
+    validates_uniqueness_of :sku, allow_blank: true, conditions: -> { where(deleted_at: nil) }
 
-    has_many :taggings, as: :taggable
-    has_many :tags, -> { order(:value) }, through: :taggings
-
-    has_one :assembly_definition
-
-    before_validation :set_cost_currency
-    before_validation :generate_variant_number, on: :create
-
-    after_save :save_default_price
     before_create :create_sku_if_not_present
+
     after_create :create_stock_items
     after_create :set_position
+    after_create :set_master_out_of_stock, unless: :is_master?
     after_create { delay(:priority => 20).add_to_all_assembly_definitions }
 
     # This can take a while so run it asnyc with a low priority for now
@@ -183,7 +188,11 @@ module Spree
     end
 
     def cost_price=(price)
-      self[:cost_price] = parse_price(price)
+      self[:cost_price] = Spree::LocalizedNumber.parse(price) if price.present?
+    end
+
+    def weight=(weight)
+      self[:weight] = Spree::LocalizedNumber.parse(weight) if weight.present?
     end
 
     # returns number of units currently on backorder for this variant.
@@ -284,21 +293,21 @@ module Spree
       values.to_sentence({ words_connector: ", ", two_words_connector: ", " })
     end
 
+    def is_backorderable?
+      Spree::Stock::Quantifier.new(self).backorderable?
+    end
+
     def options_text
       values = self.option_values.sort do |a, b|
         a.option_type.position <=> b.option_type.position
       end
 
-      values.map! do |ov|
+      values.to_a.map! do |ov|
         "#{ov.option_type.presentation}: #{ov.presentation}"
       end
 
       values.to_sentence({ words_connector: ", ", two_words_connector: ", " })
     end
-
-    #def gross_profit
-    #  cost_price.nil? ? 0 : (price - cost_price)
-    #end
 
     # use deleted? rather than checking the attribute directly. this
     # allows extensions to override deleted? if they want to provide
@@ -312,10 +321,6 @@ module Spree
     # This is a stopgap for that little problem.
     def product
       Spree::Product.unscoped { super }
-    end
-
-    def default_price
-      Spree::Price.unscoped { super }
     end
 
     def options=(options = {})
@@ -358,9 +363,40 @@ module Spree
       self.option_values.detect { |o| o.option_type.name == opt_name }.try(:presentation)
     end
 
+    def price_in(currency)
+      #prices.select{ |price| price.currency == currency }.first || Spree::Price.new(variant_id: self.id, currency: currency)
+      price_normal_in(currency)
+	end
+
     def amount_in(currency)
       return nil unless currency
       price_normal_in(currency).try(:amount)
+    end
+
+    def price_modifier_amount_in(currency, options = {})
+      return 0 unless options.present?
+
+      options.keys.map { |key|
+        m = "#{key}_price_modifier_amount_in".to_sym
+        if self.respond_to? m
+          self.send(m, currency, options[key])
+        else
+          0
+        end
+      }.sum
+    end
+
+    def price_modifier_amount(options = {})
+      return 0 unless options.present?
+
+      options.keys.map { |key|
+        m = "#{options[key]}_price_modifier_amount".to_sym
+        if self.respond_to? m
+          self.send(m, options[key])
+        else
+          0
+        end
+      }.sum
     end
 
     def name_and_sku
@@ -378,8 +414,8 @@ module Spree
 
     def in_stock?
       Rails.cache.fetch(in_stock_cache_key) do
+        in_stock_cache
         #total_on_hand > 0
-        self.in_stock_cache
       end
     end
 
@@ -415,7 +451,7 @@ module Spree
     end
 
     def assembly_definition_parts
-      assembly_definition.try(:parts) || []
+      assembly_definition.try(:assembly_definition_parts) || []
     end
 
     def part_prices
@@ -445,6 +481,22 @@ module Spree
 
     def touch_assemblies_parts
       Spree::AssembliesPart.where(part_id: self.id).map(&:touch)
+    end
+
+    def set_master_out_of_stock
+      if product.master && product.master.in_stock?
+        #  Becuase we use the in_stock_cache attribute we need to go
+        #  about reseting and purging the cache arount that, instead
+        #  of vanilla spree which just updates the stock_items
+        product.master.update_column(:in_stock_cache, false)
+        product.master.touch
+
+        #product.master.stock_items.update_all(:backorderable => false)
+        product.master.stock_items.each do |item|
+          item.backorderable = false
+          item.reduce_count_on_hand_to_zero
+        end
+      end
     end
 
     # strips all non-price-like characters from the price, taking into account locale settings

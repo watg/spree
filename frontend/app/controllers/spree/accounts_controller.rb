@@ -24,7 +24,11 @@ class Spree::AccountsController < Spree::StoreController
 
   def load_object
     @user ||= try_spree_current_user
-    redirect_to root_path and return unless @user
+    unless @user
+      store_location
+      redirect_to login_path
+      return
+    end
     authorize! params[:action].to_sym, @user
   end
 

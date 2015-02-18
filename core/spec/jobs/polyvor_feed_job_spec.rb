@@ -85,7 +85,7 @@ describe Spree::PolyvorFeedJob do
     context 'image on variant' do
       before do
         allow(variant).to receive(:images_for).with(target).and_return [image]
-        image.stub_chain(:attachment, :url).and_return('image-url')
+        allow(image).to receive_message_chain(:attachment, :url).and_return('image-url')
       end
 
       it "returns image on variant" do
@@ -96,7 +96,7 @@ describe Spree::PolyvorFeedJob do
     context 'when no image on variant' do
       before do
         allow(product).to receive(:images_for).with(target).and_return [image]
-        image.stub_chain(:attachment, :url).and_return('image-url-on-product')
+        allow(image).to receive_message_chain(:attachment, :url).and_return('image-url-on-product')
       end
 
       it "finds image url on product" do
@@ -108,7 +108,7 @@ describe Spree::PolyvorFeedJob do
       let(:suite_tab_image) { Spree::SuiteTabImage.new }
       before do
         tab.image = suite_tab_image
-        suite_tab_image.stub_chain(:attachment, :url).and_return('image-url-on-tab')
+        allow(suite_tab_image).to receive_message_chain(:attachment, :url).and_return('image-url-on-tab')
       end
 
       it "finds image on tab" do
@@ -118,9 +118,9 @@ describe Spree::PolyvorFeedJob do
 
     context 'when image not found on variant, product or tab' do
       before do
-        variant.stub(images_for: [])
-        variant.stub_chain(:product, :images_for).and_return([])
-        tab.stub(image: nil)
+        allow(variant).to receive_messages(images_for: [])
+        allow(variant).to receive_message_chain(:product, :images_for).and_return([])
+        allow(tab).to receive_messages(image: nil)
       end
       it "if found no where else, returns default image" do
         expect(subject.send(:variant_image_url, variant, suite, tab)).to eq Spree::PolyvorFeedJob::DEFAULT_IMAGE_URL

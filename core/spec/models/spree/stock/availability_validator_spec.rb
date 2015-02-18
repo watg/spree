@@ -19,28 +19,28 @@ module Spree
       describe "validation of line item" do
 
         it 'should be valid when supply is sufficient' do
-          Stock::Quantifier.any_instance.stub(can_supply?: true)
+          allow_any_instance_of(Stock::Quantifier).to receive_messages(can_supply?: true)
 
-          line_item.should_not_receive(:errors)
-          subject.validate(line_item).should eq true
+          expect(line_item).not_to receive(:errors)
+          expect(subject.validate(line_item)).to eq true
         end
 
         it 'should be invalid when supply is insufficent' do
-          Stock::Quantifier.any_instance.stub(can_supply?: false)
+          allow_any_instance_of(Stock::Quantifier).to receive_messages(can_supply?: false)
 
-          line_item.errors.should_receive(:[]).with(:quantity).and_return []
-          subject.validate(line_item).should eq false
+          expect(line_item.errors).to receive(:[]).with(:quantity).and_return []
+          expect(subject.validate(line_item)).to eq false
         end
 
         it "does not validate other line items" do
           order.line_items << extra_line_item
-          Stock::Quantifier.should_not_receive(:new).with(extra_variant)
+          expect(Stock::Quantifier).not_to receive(:new).with(extra_variant)
 
-          Stock::Quantifier.should_receive(:new).with(variant).and_return quantifier
-          quantifier.should_receive(:can_supply?).with(2).and_return true
+          expect(Stock::Quantifier).to receive(:new).with(variant).and_return quantifier
+          expect(quantifier).to receive(:can_supply?).with(2).and_return true
 
-          line_item.should_not_receive(:errors)
-          subject.validate(line_item).should eq true
+          expect(line_item).not_to receive(:errors)
+          expect(subject.validate(line_item)).to eq true
         end
 
         context "when variant is required by other line items" do
@@ -50,71 +50,52 @@ module Spree
           end
 
           it "should not add errors if the line item quantity required is eq to 0" do
-            Stock::Quantifier.any_instance.stub(can_supply?: false)
+            allow_any_instance_of(Stock::Quantifier).to receive_messages(can_supply?: false)
 
-            line_item.should_not_receive(:errors)
-            subject.validate(line_item).should eq true
+            expect(line_item).not_to receive(:errors)
+            expect(subject.validate(line_item)).to eq true
           end
         end
 
         context "when inventory units exist" do
           before do
-            Stock::Quantifier.any_instance.stub(can_supply?: false)
+            allow_any_instance_of(Stock::Quantifier).to receive_messages(can_supply?: false)
             Spree::InventoryUnit.create(variant_id: variant.id, order: order, pending: false)
           end
 
           it 'should consider pending inventory units not sufficient' do
             Spree::InventoryUnit.create(variant_id: variant.id, order: order, pending: true)
 
-            line_item.errors.should_receive(:[]).with(:quantity).and_return []
-            subject.validate(line_item).should eq false
+            expect(line_item.errors).to receive(:[]).with(:quantity).and_return []
+            expect(subject.validate(line_item)).to eq false
           end
 
           it 'should consider non-pending inventory units sufficient' do
             Spree::InventoryUnit.create(variant_id: variant.id, order: order, pending: false)
 
-            line_item.should_not_receive(:errors)
-            subject.validate(line_item).should eq true
+            expect(line_item).not_to receive(:errors)
+            expect(subject.validate(line_item)).to eq true
           end
         end
-      end
 
-      describe "validation of an entire order" do
-        before do
-          order.line_items << extra_line_item
-        end
+        context "The line item exists already and the quantity changes" do
+          let!(:line_item) { create(:line_item, quantity: 2) }
+          let(:variant) { line_item.variant }
+          let(:order) {line_item.order}
 
-        it 'should show errors for all line_items, which are missing stock' do
-          Stock::Quantifier.any_instance.stub(can_supply?: false)
-
-          line_item.errors.should_receive(:[]).with(:quantity).and_return []
-          extra_line_item.errors.should_receive(:[]).with(:quantity).and_return []
-
-          subject.validate_order(order).should eq false
-        end
-      end
-
-
-      context "with feeder and inactive locations" do
-        let!(:inactive_location) { create(:stock_location, active: false) }
-        let!(:active_location) { variant.stock_items.first.stock_location }
-        let!(:feeder_location) { create(:stock_location, active: false, feed_into: active_location) }
-
-        let(:available_stock_locations) { [active_location, feeder_location] }
-
-        let(:stock_items) {
-          variant.stock_items.select do |si|
-            available_stock_locations.include?(si.stock_location)
+          before do
+            order.reload
           end
-        }
 
-        it "only passes stock items from feeder and active locations into the Quantifier" do
-          expect(Stock::Quantifier).to receive(:new) do |call_variant, call_items|
-            expect(call_variant).to eq(variant)
-            expect(call_items.map(&:id)).to match_array(stock_items.map(&:id))
-          end.and_call_original
-          subject.validate_order(order)
+          it "validates the new updated object, and not the old one with a quantity of 2" do
+            expect(Stock::Quantifier).to receive(:new).with(variant).and_return quantifier
+            expect(quantifier).to receive(:can_supply?).with(3).once.and_return true
+            line_item.quantity = 3
+            expect(subject.validate(line_item)).to eq true
+          end
+
         end
+
       end
 
     end

@@ -5,7 +5,7 @@ module Spree
       # pass a block to override the defaults with a block
       #
       # reset_spree_preferences do |config|
-      #   config.site_name = "my fancy pants store"
+      #   config.track_inventory_levels = false
       # end
       #
       def reset_spree_preferences(&config_block)
@@ -22,8 +22,8 @@ module Spree
       end
 
       def assert_preference_unset(preference)
-        find("#preferences_#{preference}")['checked'].should be_false
-        Spree::Config[preference].should be_false
+        find("#preferences_#{preference}")['checked'].should be false
+        Spree::Config[preference].should be false
       end
     end
   end

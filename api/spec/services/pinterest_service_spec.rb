@@ -146,13 +146,13 @@ describe Spree::PinterestService do
     it "returns a could_not_parse_url error" do
       url = "invalid_string"
       outcome = Spree::PinterestService.run({url: url})
-      outcome.errors[:url].should == ["Could not parse url"]
+      expect(outcome.errors[:url]).to eq ["Could not parse url"]
     end
 
     it "returns a could_not_find_product error" do
       url = "http://www.woolandthegang.com/shop/product/invalid_suite"
       outcome = Spree::PinterestService.run({url: url})
-      outcome.errors[:url].should == ["Could not find requested product"]
+      expect(outcome.errors[:url]).to eq ["Could not find requested product"]
     end
   end
 

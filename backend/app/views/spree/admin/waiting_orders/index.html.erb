@@ -95,7 +95,7 @@
         </div>
       </div>
       <div class="form-buttons actions filter-actions">
-        <%= button Spree.t(:search), 'icon-search' %>
+        <%= button Spree.t(:search), 'fa fa-search' %>
       </div>
     <% end %>
 
@@ -168,7 +168,7 @@
         <td class="align-center"><%= order.display_total.to_html %></td>
         <td class="align-center"><%= render :partial => 'boxes', :locals => {order: order, all_boxes: @all_boxes} %></td>
         <td class='actions align-center' data-hook="admin_orders_index_row_actions">
-          <%= link_to_with_icon 'icon-edit', Spree.t(:add_box), admin_waiting_order_path(order), :title => "admin_#{dom_id(order)}", :no_text => true, :class => 'add-box-to-order', 'data-order' => "order-#{order.id}" %>
+          <%= link_to_with_icon 'edit', Spree.t(:add_box), admin_waiting_order_path(order), :title => "admin_#{dom_id(order)}", :no_text => true, :class => 'add-box-to-order', 'data-order' => "order-#{order.id}" %>
           <%= button_to 'consignment', create_and_allocate_consignment_admin_waiting_order_path(id: order.id, page: params[:page]) %>
         </td>
       </tr>

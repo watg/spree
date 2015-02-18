@@ -51,6 +51,10 @@ nav.menu {
         color: $color-body-text;
       }
 
+      &.fa:before {
+        padding-right: 4px;
+      }
+
       &:hover {
         i {
           color: $color-2;
@@ -79,6 +83,11 @@ nav.menu {
       text-transform: uppercase;
       position: relative;
       text-align: center;
+
+      @media(max-width: 1009px) {
+        top: -3px;
+        margin-bottom: -5px;
+      }
 
       i {
         display: inline;
