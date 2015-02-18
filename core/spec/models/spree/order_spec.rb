@@ -25,9 +25,10 @@ describe Spree::Order, :type => :model do
     it "does not delete any line_items which have active variants" do
       order_2.prune_line_items!
       expect(order_2.line_items.size).to eq 1
+      expect(order_2.errors[:base].size).to eq 0
     end
 
-    it "does deletes line_items which have deleted variants and calls touch" do
+    it "deletes line_items which have deleted variants and calls touch" do
       line_item1.variant.delete
       line_item1.variant.save
 
