@@ -1,10 +1,9 @@
 module Spree
-  class Taxon < Spree::Base
+ class Taxon < Spree::Base
     acts_as_paranoid
-    acts_as_nested_set dependent: :destroy
 
     belongs_to :taxonomy, class_name: 'Spree::Taxonomy', inverse_of: :taxons
-    has_many :classifications, -> { order(:position) }, dependent: :delete_all, inverse_of: :taxon
+    has_many :classifications, -> { order(:position) }, dependent: :destroy, inverse_of: :taxon
     has_many :suites, through: :classifications
 
     #has_and_belongs_to_many :prototypes, join_table: :spree_taxons_prototypes
@@ -23,6 +22,7 @@ module Spree
     after_touch :touch_ancestors_and_taxonomy
 
     scope :displayable, -> { where(hidden: [false,nil]) }
+    nested_set_scope(deleted_at: nil)
 
     has_attached_file :icon,
       styles: { mini: '32x32>', normal: '128x128>' },
