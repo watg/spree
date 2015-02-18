@@ -1,4 +1,11 @@
 //= require jquery.payment
+
+// Fix a bug whereby SpreePaypalExpress is referenced directly
+// in the views without being defined
+if (typeof this.SpreePaypalExpress === 'undefined') {
+  this.SpreePaypalExpress = {};
+}
+
 $(document).ready(function() {
   if ($("#new_payment").is("*")) {
     $(".cardNumber").payment('formatCardNumber');
