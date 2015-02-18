@@ -6,7 +6,7 @@ module Spree
     def initialize(object, template, context={})
       @object = object
       @template = template
-      @currency = context.fetch(:currency)
+      @currency = context.fetch(:currency, nil)
       @target = context[:target] || nil
       @device = context[:device] || :desktop
       @context = context
