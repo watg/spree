@@ -19,7 +19,11 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'activemerchant', '~> 1.44.1'
   s.add_dependency 'acts_as_list', '~> 0.3'
-  s.add_dependency 'awesome_nested_set', '~> 3.0.1'
+  s.add_dependency 'awesome_nested_set', '~> 3.0.0'
+  # There is a bug in 3.0.1 onwards which makes it not play nicely with 
+  # # paraniod gem, this is still broken if the following does not scope the ancestors with deleted_at: nil:
+  # # Spree::Taxon.first.ancestors
+
   s.add_dependency 'carmen', '~> 1.0.0'
   s.add_dependency 'cancancan', '~> 1.9.2'
   s.add_dependency 'deface', '~> 1.0.0'

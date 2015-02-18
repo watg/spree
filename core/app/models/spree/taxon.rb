@@ -22,7 +22,6 @@ module Spree
     after_touch :touch_ancestors_and_taxonomy
 
     scope :displayable, -> { where(hidden: [false,nil]) }
-    nested_set_scope(deleted_at: nil)
 
     has_attached_file :icon,
       styles: { mini: '32x32>', normal: '128x128>' },
