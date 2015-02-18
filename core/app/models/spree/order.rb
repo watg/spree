@@ -867,7 +867,7 @@ module Spree
         Rails.logger.error "spree_order: Cannot prune line items from a completed order: #{self.id}"
       else
         line_items_to_delete = self.line_items.select {|li| li.variant.deleted? }
-        if line_items_to_delete
+        if line_items_to_delete.any?
           order_contents = OrderContents.new(self)
           variant_names = []
 
