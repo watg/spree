@@ -51,14 +51,10 @@ module Spree
       provider_class.supports?(source.brand)
     end
 
-    # Disabled as part of the 2.4 upgrade may need to reanable it    
-    #def credit(credit_cents, source, response_code, gateway_options = {})
-    #  Class.new do
-    #    def success?; true; end
-    #    def authorization; nil; end
-    #  end.new
-    #end
-
+    # If #cancel is not implemented in one of the sub-classes,
+    # then use this one
+    def cancel(response_code)
+    end
 
     def disable_customer_profile(source)
       if source.is_a? CreditCard
