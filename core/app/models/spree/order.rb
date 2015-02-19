@@ -655,13 +655,10 @@ module Spree
           if current_line_item.valid?
             current_line_item.save!
           end
-          other_order_line_item.delete
         else
           if other_order_line_item.valid?
             other_order_line_item.order_id = self.id
             other_order_line_item.save!
-          else
-            other_order_line_item.delete
           end
         end
       end
