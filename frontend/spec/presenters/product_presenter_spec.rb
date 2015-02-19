@@ -55,6 +55,7 @@ describe Spree::ProductPresenter do
     end
 
     its(:assembly_definition) { should eq assembly_definition }
+    its(:assembly_definition?) { should eq true }
     its(:assembly_definition_parts) { should eq [assembly_definition_part] }
   end
 

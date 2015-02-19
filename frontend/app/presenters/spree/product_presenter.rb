@@ -31,7 +31,6 @@ module Spree
     end
 
     #### option value methods ####
-
     def variant_tree
       variant_options.tree
     end
@@ -76,6 +75,10 @@ module Spree
 
 
     ### Assembly definition accessors ###
+    def assembly_definition?
+      !assembly_definition.nil?
+    end
+
     def assembly_definition
       @asem_def ||= product.assembly_definition
     end
