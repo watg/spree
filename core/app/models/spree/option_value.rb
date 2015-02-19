@@ -23,7 +23,6 @@ module Spree
       :default_style => :small
 
     validates_attachment :image,
-      :presence => true,
       :content_type => { :content_type => %w(image/jpeg image/jpg image/png image/gif) }
 
 #    TODO: move options values in option_values folder on S3
