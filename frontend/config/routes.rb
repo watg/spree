@@ -10,6 +10,7 @@ Spree::Core::Engine.add_routes do
   get '/oproxy' => 'oproxy#show', :via => :get, :as => :olapic_proxy
 
   # we don't use spree's default products
+  get '/products', :to => redirect('/')
   resources :products, :only => [:index, :show] do
     match '*option_values' => 'products#show', :via => :get, :as => :variant_options
   end
