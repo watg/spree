@@ -187,7 +187,7 @@ module Spree
     end
 
     def line_items
-      inventory_units.includes(:line_item).map(&:line_item).uniq
+      inventory_units.includes(:line_item).map(&:line_item).uniq.compact
     end
 
     ManifestItem = Struct.new(:line_item, :variant, :quantity, :states, :inventory_units)
