@@ -22,6 +22,14 @@
   <% end %>
   </div>
 
+  <div class="alpha four columns">
+    <%= f.field_container :order_type do %>
+      <%= f.label :order_type_id, Spree.t(:order_type) %><br />
+      <%= f.select :order_type_id, Spree::OrderType.all.collect {|ot| [ot.name, ot.id]}, {}, :class => 'select2 fullwidth' %>
+      <%= f.error_message_on :order_type_id %>
+    <% end %>
+  </div>
+
   <div class="clearfix"></div>
 
   <div class="actions filter-actions">

@@ -73,6 +73,7 @@ module Spree
 
     belongs_to :invoice_print_job, class_name: "PrintJob"
     belongs_to :image_sticker_print_job, class_name: "PrintJob"
+    belongs_to :order_type, class_name: "OrderType"
 
     accepts_nested_attributes_for :line_items
     accepts_nested_attributes_for :bill_address

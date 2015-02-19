@@ -1,8 +1,9 @@
 module Spree
+  # This provides the life time value and also basic cohort analysis based aroud marketing type
+  # for completed orders
   class AnalyticsReport
     include BaseReport
-
-    # TODO take into account shipping and promotions
+    # TODO: take into account shipping and promotions
     # periodic job to update the views
     # GROUPS:
     #   0. ALL
@@ -12,12 +13,11 @@ module Spree
     #   4. KNITTING PATTERN
     #   5. RTW + MIX
     #   1,2,3,4,[1,2-4]
-
     GROUPS ||= {
-      rtw: ['peruvian','gang'],
-      kit: ['kit'],
-      sup: ["yarn","needle","embellishment","clasp"],
-      pat: ['pattern'],
+      rtw: %w(peruvian gang),
+      kit: %w(kit),
+      sup: %w(yarn needle embellishment clasp),
+      pat: %w(pattern)
     }
 
     attr_accessor :marketing_types
@@ -33,11 +33,10 @@ module Spree
     end
 
     def self.life_time_value
-      groups.each do |key,values|
+      groups.each do |key, names|
         # Create filename with the group and a date
-        marketing_types = Spree::MarketingType.where(name: values).to_a
-        obj = self.new(marketing_types)
-        filename = File.join(Rails.root, 'tmp', "ltv_#{key.to_s}_#{Date.today.to_s}.csv")
+        obj = init_self_for_marketing_types(names)
+        filename = File.join(Rails.root, "tmp", "ltv_#{key}_#{Date.today}.csv")
         CSV.open(filename, "wb") do |csv|
           csv << obj.header_for_life_time_value
           obj.formatted_data_for_life_time_value do |data|
@@ -48,11 +47,10 @@ module Spree
     end
 
     def self.returning_customers
-      groups.each do |key,values|
+      groups.each do |key, names|
         # Create filename with the group and a date
-        marketing_types = Spree::MarketingType.where(name: values).to_a
-        obj = self.new(marketing_types)
-        filename = File.join(Rails.root, 'tmp', "rc_#{key.to_s}_#{Date.today.to_s}.csv")
+        obj = init_self_for_marketing_types(names)
+        filename = File.join(Rails.root, "tmp", "rc_#{key}_#{Date.today}.csv")
         CSV.open(filename, "wb") do |csv|
           csv << obj.header_for_returning_customers
           obj.formatted_data_for_returning_customers do |data|
@@ -62,31 +60,59 @@ module Spree
       end
     end
 
+    def self.init_self_for_marketing_types(names)
+      marketing_types = Spree::MarketingType.where(name: names).to_a
+      new(marketing_types)
+    end
+
     # If there is a problem creating them, then refresh them
     def self.create_views
-      begin
-        ActiveRecord::Base.connection.execute(first_orders_view_sql)
-        ActiveRecord::Base.connection.execute(second_orders_view_sql)
-        ActiveRecord::Base.connection.execute(email_marketing_types_view_sql)
-      rescue => e
-        if e.to_s.match 'PG::DuplicateTable: ERROR'
-          puts "views already exist try refreshing the views"
-        else
-          raise e
-        end
+      ActiveRecord::Base.connection.execute(first_orders_view_sql)
+      ActiveRecord::Base.connection.execute(second_orders_view_sql)
+      ActiveRecord::Base.connection.execute(email_marketing_types_view_sql)
+    rescue => e
+      if e.to_s.match "PG::DuplicateTable: ERROR"
+        puts "views already exist try refreshing the views"
+      else
+        raise e
       end
     end
 
+    def self.drop_views
+      drop_email_marketing_types_view
+      drop_second_orders_view
+      drop_first_orders_view
+    end
+
+    def self.drop_email_marketing_types_view
+      ActiveRecord::Base.connection.execute("DROP MATERIALIZED VIEW email_marketing_types_view")
+    rescue => e
+      puts e.inspect
+    end
+
+    def self.drop_first_orders_view
+      ActiveRecord::Base.connection.execute("DROP MATERIALIZED VIEW first_orders_view")
+    rescue => e
+      puts e.inspect
+    end
+
+    def self.drop_second_orders_view
+      ActiveRecord::Base.connection.execute("DROP MATERIALIZED VIEW second_orders_view")
+    rescue => e
+      puts e.inspect
+    end
+
     def self.refresh_views
-      ActiveRecord::Base.connection.execute('REFRESH MATERIALIZED VIEW first_orders_view')
-      ActiveRecord::Base.connection.execute('REFRESH MATERIALIZED VIEW second_orders_view')
-      ActiveRecord::Base.connection.execute('REFRESH MATERIALIZED VIEW email_marketing_types_view')
+      ActiveRecord::Base.connection.execute("REFRESH MATERIALIZED VIEW first_orders_view")
+      ActiveRecord::Base.connection.execute("REFRESH MATERIALIZED VIEW second_orders_view")
+      ActiveRecord::Base.connection.execute("REFRESH MATERIALIZED VIEW email_marketing_types_view")
     end
 
     def header_for_life_time_value
       %w(
         first_purchase_date
         purchase_date
+        unique_customers
         purchases
         avg_spend
         total_spend
@@ -103,7 +129,7 @@ module Spree
 
     def formatted_data_for_life_time_value
       data = fetch_data_for_life_time_value
-      format_data_for_life_time_value( normalise_data_for_life_time_value(data) ).each do |d|
+      format_data_for_life_time_value(normalise_data_for_life_time_value(data)).each do |d|
         yield d
       end
     end
@@ -122,7 +148,7 @@ module Spree
     end
 
     def self.groups
-      GROUPS.merge(all: Spree::MarketingType.all.map(&:name).uniq )
+      GROUPS.merge(all: Spree::MarketingType.all.map(&:name).uniq)
     end
 
     def fetch_data_for_life_time_value
@@ -135,30 +161,36 @@ module Spree
 
     def normalise_data_for_life_time_value(data)
       # Normalise the amounts to GBP
-      hash = data.inject({}) do |hash,r|
-        key = [ r["first_purchase_date"], r["purchase_date"] ]
+      data.each_with_object({}) do |r, hash|
+        key = [r["first_purchase_date"], r["purchase_date"]]
         hash[key] ||= {}
-        hash[key]['total_purchases'] ||= 0
-        hash[key]['total_purchases'] += r["total_purchases"].to_i
-        hash[key]['total_spend'] ||= 0
-        hash[key]['total_spend'] += xe(r["total_spend"], r["currency"])
-        hash
+        hash[key]["unique_customers"] ||= 0
+        hash[key]["unique_customers"] += r["unique_customers"].to_i
+        hash[key]["total_purchases"] ||= 0
+        hash[key]["total_purchases"] += r["total_purchases"].to_i
+        hash[key]["total_spend"] ||= 0.00
+        hash[key]["total_spend"] += r["total_spend"].to_f
       end
     end
 
     def format_data_for_life_time_value(hash)
       # Format it into one nice big array
-      hash.map do |dates,prices|
-        dates += prices.values
+      hash.map do |dates, prices|
+        dates + prices.values
       end
     end
 
     def format_data_for_returning_customers(data)
       data.map do |record|
-        [record['first_order_date'],record['first_order_count'],record['second_order_count']]
+        [record["first_order_date"], record["first_order_count"], record["second_order_count"]]
       end
     end
 
+    # Of all the people that made at least 1 order for the given marketing type
+    # Return the month in which they made that first purchase, the date and also
+    # the date they made the second purchase
+    # Then group by month to give us the quantity of first purchases followed by
+    # how many repeated
     def returning_customers_sql
       "SELECT
   DATE_TRUNC('month', marketing_types.completed_at) first_order_date,
@@ -172,11 +204,15 @@ GROUP BY first_order_date
 ORDER BY first_order_date"
     end
 
+    def exchange_rate(currency)
+      ActiveRecord::Base.sanitize(Helpers::CurrencyConversion::TO_GBP_RATES[currency])
+    end
+
     def life_time_value_sql
       "SELECT
   DATE_TRUNC('month', t1.completed_at) first_purchase_date,
   t2.date purchase_date,
-  t2.currency currency,
+  count(t1.email) unique_customers,
   SUM(t2.payment_total) total_spend,
   SUM(t2.purchases) total_purchases
 from
@@ -185,23 +221,27 @@ LEFT OUTER JOIN
   (
     SELECT
       email, DATE_TRUNC('month', completed_at) date,
-      SUM(payment_total) payment_total,
-      currency,
+      SUM(
+        CASE WHEN currency='GBP' THEN (payment_total)::float *#{exchange_rate('GBP')}
+             WHEN currency='USD' THEN (payment_total)::float *#{exchange_rate('USD')}
+             WHEN currency='EUR' THEN (payment_total)::float *#{exchange_rate('EUR')}
+        END
+      ) payment_total,
       COUNT(email) purchases
-    FROM spree_orders
-    WHERE completed_at IS NOT NULL 
-    AND email <> 'request@woolandthegang.com'
-    GROUP BY email, date, currency
+    FROM spree_orders o
+    INNER JOIN spree_order_types ot on o.order_type_id=ot.id
+    WHERE completed_at IS NOT NULL
+    AND ot.name = 'regular'
+    GROUP BY email, date
   ) as t2
 ON t1.email=t2.email
-GROUP BY first_purchase_date, purchase_date, currency
-ORDER BY first_purchase_date, purchase_date, currency "
+GROUP BY first_purchase_date, purchase_date
+ORDER BY first_purchase_date, purchase_date"
     end
 
     def email_marketing_types_sql
-
       marketing_type_ids = marketing_types.map(&:id)
-      marketing_type_ids_string = marketing_type_ids.join(',').to_s
+      marketing_type_ids_string = marketing_type_ids.join(",").to_s
 
       not_exists_sql = "SELECT email
     FROM email_marketing_types_view
@@ -225,21 +265,16 @@ ORDER BY first_purchase_date, purchase_date, currency "
       sql
     end
 
-    # exchanges to GBP
-    def xe(price,currency)
-      rates = {'GBP' => 1, 'USD' => 0.61, 'EUR' => 0.83}
-      (price.to_f * rates[currency]).to_f
-    end
-
     def self.email_marketing_types_view_sql
       "CREATE MATERIALIZED VIEW email_marketing_types_view as
-SELECT p.marketing_type_id marketing_type_id, o.email email, MIN(completed_at) completed_at
+SELECT pr.marketing_type_id marketing_type_id, o.email email, MIN(completed_at) completed_at
 FROM spree_line_items li
 INNER JOIN first_orders_view o on li.order_id=o.id
+INNER JOIN spree_order_types ot on o.order_type_id=ot.id
 INNER JOIN spree_variants v ON li.variant_id = v.id
-INNER JOIN spree_products p ON v.product_id = p.id
+INNER JOIN spree_products pr ON v.product_id = pr.id
 WHERE o.completed_at is not null
-AND o.email <> 'request@woolandthegang.com'
+AND ot.name = 'regular'
 GROUP BY marketing_type_id, email"
     end
 
@@ -247,22 +282,27 @@ GROUP BY marketing_type_id, email"
       "CREATE MATERIALIZED VIEW first_orders_view as
   SELECT o1.*
   FROM spree_orders o1
+  INNER JOIN spree_order_types ot1 on o1.order_type_id=ot1.id
   INNER JOIN (
     SELECT email, MIN(completed_at) completed_at
-    FROM spree_orders
+    FROM spree_orders o
+    INNER JOIN spree_order_types ot2 on o.order_type_id=ot2.id
     WHERE completed_at is not null
-    AND email <> 'request@woolandthegang.com'
+    AND ot2.name = 'regular'
     GROUP BY email
-  ) AS o2 ON o1.email = o2.email AND o1.completed_at = o2.completed_at"
+  ) AS o2 ON o1.email = o2.email AND o1.completed_at = o2.completed_at
+    WHERE ot1.name = 'regular'"
     end
 
     def self.second_orders_view_sql
       "CREATE MATERIALIZED VIEW second_orders_view as
   SELECT o1.*
   FROM spree_orders o1
+  INNER JOIN spree_order_types ot1 on o1.order_type_id=ot1.id
   INNER JOIN (
     SELECT o2.email email, MIN(o2.completed_at) completed_at
     FROM spree_orders o2
+    INNER JOIN spree_order_types ot2 on o2.order_type_id=ot2.id
     WHERE NOT EXISTS
     (
       SELECT o3.id
@@ -270,10 +310,10 @@ GROUP BY marketing_type_id, email"
       WHERE o2.id = o3.id
     )
     AND o2.completed_at is not null
-    AND o2.email <> 'request@woolandthegang.com'
+    AND ot2.name = 'regular'
     GROUP BY email
-  ) AS o4 ON o1.email = o4.email AND o1.completed_at = o4.completed_at"
+  ) AS o4 ON o1.email = o4.email AND o1.completed_at = o4.completed_at
+    WHERE ot1.name = 'regular'"
     end
-
   end
 end

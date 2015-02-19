@@ -8,6 +8,8 @@ FactoryGirl.define do
     created_at Time.now
     currency 'USD'
 
+    association :order_type, factory: :order_type, strategy: :build
+
     transient do
       line_items_price BigDecimal.new(10)
     end

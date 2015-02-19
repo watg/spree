@@ -33,6 +33,7 @@ describe Spree::Core::ControllerHelpers::Order, type: :controller do
   end
 
   describe '#current_order' do
+    let!(:order_type) { create(:order_type) }
     before {
       Spree::Order.destroy_all # TODO data is leaking between specs as database_cleaner or rspec 3 was broken in Rails 4.1.6 & 4.0.10
       allow(controller).to receive_messages(current_store: store)
@@ -55,6 +56,17 @@ describe Spree::Core::ControllerHelpers::Order, type: :controller do
         controller.current_order(create_order_if_necessary: true)
         expect(Spree::Order.last.store_id).to eq store.id
       end
+
+      it 'assigns the currency' do
+        controller.current_order(create_order_if_necessary: true)
+        expect(Spree::Order.last.currency).to eq 'USD'
+      end
+
+      it 'assigns the default order type' do
+        controller.current_order(create_order_if_necessary: true)
+        expect(Spree::Order.last.order_type).to eq order_type
+      end
+
     end
   end
 

@@ -1,3 +1,4 @@
+# Report which returns a summary of completed orders
 module Spree
   class OrderSummaryReport
     include BaseReport
@@ -22,6 +23,7 @@ module Spree
         location_shipped
         returning_customer
         internal
+        order_type
         currency
         cost_price
         item_normal_total
@@ -35,9 +37,7 @@ module Spree
         promo_code
         payment_total
         order_total
-      ) +
-        marketing_type_headers +
-      %w(
+      ) + marketing_type_headers + %w(
         billing_address_firstname
         billing_address_lastname
         billing_address_line_1
@@ -67,8 +67,8 @@ module Spree
 
     def retrieve_data
       # This is from the old system
-      previous_users = CSV.read(File.join(File.dirname(__FILE__),"unique_previous_users.csv")).flatten
-      previous_users = previous_users.to_set
+      previous_users = CSV.read(File.join(File.dirname(__FILE__), "unique_previous_users.csv"))
+      previous_users = previous_users.flatten.to_set
 
       loop_orders do |order|
         yield generate_csv_line(order, previous_users)
@@ -79,10 +79,8 @@ module Spree
       marketing_type_lookup.map { |mt| "#{mt}_revenue_pre_promo" }
     end
 
-    def marketing_type_totals( o )
-
-      totals = o.line_items.inject({}) do |h,line|
-
+    def marketing_type_totals(o)
+      totals = o.line_items.each_with_object({}) do |line, h|
         # A hack incase someone deletes the variant or product
         variant = Variant.unscoped.find(line.variant_id)
 
@@ -91,57 +89,53 @@ module Spree
         h[marketing_type] ||= 0
         h[marketing_type] += line.amount
 
-        options_amount = line.line_item_parts.optional.inject(0) { |acc,val| acc + ( val.price * val.quantity ).to_f }
-
+        options_amount = line.line_item_parts.optional.inject(0) do |acc, val|
+          acc + (val.price * val.quantity).to_f
+        end
         h[marketing_type] += options_amount
-
-        h
       end
 
       marketing_type_lookup.map { |mt| totals[mt] || 0.0 }
     end
 
-  private
+    private
 
-    def loop_orders(&block)
+    def loop_orders
       valid_states = %w(complete resumed warehouse_on_hold customer_service_on_hold)
 
-      Spree::Order.includes(:shipments, line_items: [ :line_item_parts] ).
-          where( :state => valid_states, :completed_at => @from..@to ).find_each do |order|
-
+      Spree::Order.includes(:shipments, line_items: [:line_item_parts])
+        .where(state: valid_states, completed_at: @from..@to).find_each do |order|
         yield order
       end
     end
-
-
 
     def marketing_type_lookup
       Spree::MarketingType.all.map(&:name)
     end
 
-    def generate_csv_line(o,previous_users)
-
-      shipped_at = ''
-      if !o.shipments.last.nil?
-        if !o.shipments.last.shipped_at.blank?
+    def generate_csv_line(o, previous_users)
+      shipped_at = ""
+      unless o.shipments.last.nil?
+        unless o.shipments.last.shipped_at.blank?
           shipped_at = o.shipments.last.shipped_at.to_s(:db)
         end
       end
 
-      payment_method = ''
+      payment_method = ""
       if payment = o.payments.find_by_state('completed')
-        if !payment.payment_method.nil?
+        unless payment.payment_method.nil?
           payment_method = payment.payment_method.name
         end
       end
 
-      if !o.shipments.last.nil?
+      unless o.shipments.last.nil?
         shipping_methods = o.shipments.last.shipping_methods
       end
 
       promotions = Spree::Adjustment.promotion.where(order_id: o.id, state: :closed, eligible: true)
-      promo_label = promotions.map(&:label).join('|')
-      if promo_label
+      promo_label = promotions.map(&:label).join("|")
+      # Are we sure we are meant to be doing this?
+      return unless promo_label
       [
         o.id,
         o.email,
@@ -150,8 +144,9 @@ module Spree
         o.completed_at.try(:to_s, :db),
         shipped_at,
         o.shipping_address.country.name,
-        returning_customer(o,previous_users),
+        returning_customer(o, previous_users),
         o.internal?,
+        o.order_type.title,
         o.currency,
         o.cost_price_total.to_f,
         o.item_normal_total.to_f,
@@ -164,11 +159,11 @@ module Spree
         o.adjustments.manual.sum(:amount).to_f,
         promo_label,
         o.payment_total.to_f, # Over cost
-        o.total.to_f ] + # Over cost
+        o.total.to_f # Over cost
 
-        marketing_type_totals(o) +
+      ] + marketing_type_totals(o) + [
 
-        [ o.billing_address.firstname,
+        o.billing_address.firstname,
         o.billing_address.lastname,
         o.billing_address.address1,
         o.billing_address.address2,
@@ -184,26 +179,35 @@ module Spree
         o.shipping_address.country.name,
         o.shipping_address.zipcode,
 
-        o.payments.where( :state => ['completed','pending']).size,
+        o.payments.where(state: %w(completed, pending)).size,
         payment_method,
-        ( shipping_methods && shipping_methods.find_by_display_on('front_end') ? shipping_methods.find_by_display_on('front_end').name : '' ),
-        ( shipping_methods && shipping_methods.find_by_display_on('back_end') ? shipping_methods.find_by_display_on('back_end').name : '' ),
+        frontend_shipping_method(shipping_methods),
+        backend_shipping_method(shipping_methods),
         o.state,
         o.order_notes.last ? o.order_notes.last.reason : "",
-        o.important?,
+        o.important?
       ]
-      end
-
     end
 
-
-    def returning_customer(order,previous_users)
-      rtn = !first_order(order)
-      if rtn == false
-        if previous_users.include? order.email.to_s
-          rtn = true
-        end
+    def frontend_shipping_method(shipping_methods)
+      if shipping_methods && shipping_methods.find_by_display_on("front_end")
+        shipping_methods.find_by_display_on("front_end").name
+      else
+        ""
       end
+    end
+
+    def backend_shipping_method(shipping_methods)
+      if shipping_methods && shipping_methods.find_by_display_on("back_end")
+        shipping_methods.find_by_display_on("back_end").name
+      else
+        ""
+      end
+    end
+
+    def returning_customer(order, previous_users)
+      rtn = !first_order(order)
+      rtn = true if (rtn == false) && previous_users.include?(order.email.to_s)
       rtn
     end
 
@@ -223,6 +227,5 @@ module Spree
         Spree::Order.where("email = ?", email).complete
       end
     end
-
   end
 end

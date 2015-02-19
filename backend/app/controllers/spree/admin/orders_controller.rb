@@ -55,6 +55,7 @@ module Spree
       def create
         @order = Order.new
         @order.currency = params[:order][:currency] || Spree::Config[:default_currency]
+        @order.order_type_id = params[:order][:order_type_id]
         @order.internal = params[:order][:internal]
         @order.created_by = try_spree_current_user
         @order.save!
