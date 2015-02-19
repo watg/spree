@@ -210,11 +210,11 @@ module Spree
     end
 
     def completed_orders(user, email)
-      user ? user.orders.complete : orders_by_email(email)
-    end
-
-    def orders_by_email(email)
-      Spree::Order.where(email: email).complete
+      if user
+        Spree::Order.where("email = ? or user_id = ?", email, user.id).complete
+      else
+        Spree::Order.where("email = ?", email).complete
+      end
     end
 
   end
