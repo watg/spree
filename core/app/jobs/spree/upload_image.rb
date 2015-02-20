@@ -4,8 +4,13 @@ module Spree
       direct_upload_url_data = direct_upload_url_format.match(image.direct_upload_url)
       s3 = AWS::S3.new
 
+      begin
+        image.attachment = URI.parse(URI.escape(image.direct_upload_url))
+      rescue OpenURI::HTTPError => error
+        Helpers::AirbrakeNotifier.notify(error.message)
+        return
+      end
 
-      image.attachment = URI.parse(URI.escape(image.direct_upload_url))
       image.find_dimensions
       image.save!
 
