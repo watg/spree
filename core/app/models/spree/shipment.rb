@@ -74,6 +74,7 @@ module Spree
         }
         transition from: :canceled, to: :pending
         transition from: :pending, to: :pending
+        transition from: :ready, to: :ready
       end
       # This was refactored due to the way we unstock an restock
       #after_transition from: :canceled, to: [:pending, :ready, canceled], do: :after_resume

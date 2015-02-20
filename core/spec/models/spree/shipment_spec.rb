@@ -466,6 +466,7 @@ describe Spree::Shipment, :type => :model do
     context "when the shipment is pending" do
       before do
         shipment.state = 'pending'
+        shipment.save!
       end
 
       it "leaves the state in pending" do
@@ -476,6 +477,21 @@ describe Spree::Shipment, :type => :model do
       it "does not call the after_resume callback" do
         shipment.resume!
         expect(shipment).to be_pending
+      end
+    end
+
+    context "when the shipment is ready" do
+      before do
+        allow(shipment).to receive(:check_for_only_digital_and_ship)
+        shipment.state = 'ready'
+        shipment.save!
+      end
+
+      it "leaves the state in ready" do
+        expect(shipment).not_to receive(:after_resume)
+        expect(shipment.reload).to be_ready
+
+        shipment.resume!
       end
     end
 
