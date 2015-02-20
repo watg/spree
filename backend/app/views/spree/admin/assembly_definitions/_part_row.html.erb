@@ -12,7 +12,7 @@
 
     <div class="field">
       <%= f.label :displayable_option_type_id, 'Displayable Type' %> <span class="required">*</span>
-      <%= f.collection_select(:displayable_option_type_id, part.product.option_types, :id, :name, {include_blank: true}, :class => 'select2 fullwidth', :required => true ) %>
+      <%= f.collection_select(:displayable_option_type_id, part.product.option_types, :id, :name, {include_blank: true}, :class => 'fullwidth', :required => true ) %>
     </div
 
     <br><br>
