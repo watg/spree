@@ -237,8 +237,13 @@ describe Spree::Order, :type => :model do
   context "insufficient_stock_lines" do
     let(:line_item) { Spree::LineItem.new(currency: order.currency) }
 
+    before do
+      line_item.errors[:quantity] << "Insufficient stock error"
+      order.line_items << line_item
+    end
+
     it "should return line_items that have insufficient stock on hand" do
-      expect_any_instance_of(Spree::Stock::AvailabilityValidator).to receive(:validate_order).with(order).and_return([line_item])
+      expect_any_instance_of(Spree::Stock::AvailabilityValidator).to receive(:validate_order).with(order)
       out_of_stock_lines = order.insufficient_stock_lines
       expect(out_of_stock_lines.size).to eq 1
       expect(out_of_stock_lines).to include line_item
@@ -270,17 +275,6 @@ describe Spree::Order, :type => :model do
       it 'should be false' do
         expect(subject).to be_falsey
       end
-
-      context "when restart: false" do
-        subject { order.ensure_line_item_variants_are_not_deleted(restart: false) }
-
-        it 'should not restart checkout flow' do
-          expect(order).to receive(:restart_checkout_flow).never
-          subject
-        end
-
-      end
-
     end
 
     context 'when no variants are destroyed' do
@@ -322,17 +316,6 @@ describe Spree::Order, :type => :model do
     it 'should be false' do
       expect(subject).to be_falsey
     end
-
-    context "when restart: false" do
-      subject { order.ensure_line_items_are_in_stock(restart: false) }
-
-      it 'should not restart checkout flow' do
-        expect(order).to receive(:restart_checkout_flow).never
-        subject
-      end
-
-    end
-
   end
 
   context "#send_cancel_email" do

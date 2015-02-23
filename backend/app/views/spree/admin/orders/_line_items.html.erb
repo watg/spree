@@ -25,7 +25,7 @@
           <td class="line-item-type"><%= item.variant.product.marketing_type.name %></td>
           <td class="line-item-image"><%= mini_image(item.variant) %></td>
           <td class="line-item-name">
-            <%= render 'spree/admin/orders/line_item_name', item: item, inventory_units: item.inventory_units, order: order %>
+            <%= render 'spree/admin/orders/line_item_name', item: item, inventory_units: item.inventory_units %>
           </td> 
           <td class="line-item-price align-center"><%= item.single_money.to_html %></td>
           <td class="line-item-qty-show align-center">

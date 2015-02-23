@@ -1,8 +1,4 @@
 <strong>
-  <% if order.insufficient_stock_lines.include? item %>
-    <span class="out-of-stock"><%= Spree.t(:out_of_stock) %><br /></span>
-  <% end %>
-
   <div class="field">
     <%= link_to item.variant.product.name, edit_admin_product_variant_path(item.variant.product, item.variant) %>
   </div>

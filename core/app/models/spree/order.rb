@@ -600,7 +600,8 @@ module Spree
     end
 
     def insufficient_stock_lines
-      @insufficient_stock_lines ||= Spree::Stock::AvailabilityValidator.new.validate_order(self)
+      Spree::Stock::AvailabilityValidator.new.validate_order(self)
+      line_items.select {|line| line.errors.any? }
     end
 
     def product_groups
@@ -614,11 +615,9 @@ module Spree
     ##
     # Check to see if any line item variants are soft, deleted.
     # If so add error and restart checkout.
-    def ensure_line_item_variants_are_not_deleted(restart: true)
+    def ensure_line_item_variants_are_not_deleted
       if line_items.select{ |li| li.variant.paranoia_destroyed? }.present?
-        # Not Vanilla, we have had to add a conditional restart
-        # as resumed orders should not restart the checkout_flow
-        restart_checkout_flow if restart
+        restart_checkout_flow
         errors.add(:base, Spree.t(:deleted_variants_present))
         self.prune_line_items!
         false
@@ -627,11 +626,9 @@ module Spree
       end
     end
 
-    def ensure_line_items_are_in_stock(restart: true)
+    def ensure_line_items_are_in_stock
       if insufficient_stock_lines.present?
-        # Not Vanilla, we have had to add a conditional restart
-        # as resumed orders should not restart the checkout_flow
-        restart_checkout_flow if restart
+        restart_checkout_flow
         errors.add(:base, Spree.t(:insufficient_stock_lines_present))
         self.prune_line_items!
         false

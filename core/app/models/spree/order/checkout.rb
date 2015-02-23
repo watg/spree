@@ -65,6 +65,18 @@ module Spree
                 transition to: :resumed, from: :canceled, if: :canceled?
               end
 
+              state :resumed do
+                validate do |order|
+                  if order.insufficient_stock_lines.any?
+                    order.line_items.each do |line|
+                      line.errors.full_messages.each do |msg|
+                        self.errors.add(:base, msg)
+                      end
+                    end
+                  end
+                end
+              end
+
               event :authorize_return do
                 transition to: :awaiting_return
               end
@@ -114,21 +126,11 @@ module Spree
                 before_transition from: :delivery, do: :apply_free_shipping_promotions
               end
 
-              # Fix an issue where we only want to restart the checkout flow if
-              # we are moving to the state complete, and not resumed
-              before_transition to: :resumed do |order|
-                order.ensure_line_item_variants_are_not_deleted(restart: false)
-              end
-              before_transition to: :resumed do |order|
-                order.ensure_line_items_are_in_stock(restart: false)
-              end
+              before_transition to: :resumed, do: :ensure_line_item_variants_are_not_deleted
+              before_transition to: :resumed, do: :ensure_line_items_are_in_stock
 
-              before_transition to: :complete do |order|
-                order.ensure_line_item_variants_are_not_deleted(restart: true)
-              end
-              before_transition to: :complete do |order|
-                order.ensure_line_items_are_in_stock(restart: true)
-              end
+              before_transition to: :complete, do: :ensure_line_item_variants_are_not_deleted
+              before_transition to: :complete, do: :ensure_line_items_are_in_stock
 
               after_transition to: :complete, do: :finalize!
               after_transition to: :resumed,  do: :after_resume

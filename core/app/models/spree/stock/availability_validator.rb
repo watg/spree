@@ -63,13 +63,23 @@ module Spree
 
         variants = Spree::Variant.where(id: grouped_variants.keys)
 
-        variants.map do |variant|
+        valids = variants.map do |variant|
           quantity = grouped_variants[variant.id]
-          if !Stock::Quantifier.new(variant).can_supply? quantity
-            item_builder.find_by_variant_id(variant.id).last.line_item
-          end
-        end.compact
 
+          if !Stock::Quantifier.new(variant).can_supply? quantity
+            display_name = %Q{#{variant.name}}
+            display_name += %Q{ (#{variant.options_text})} unless variant.options_text.blank?
+
+            out_of_stock_line_item = item_builder.find_by_variant_id(variant.id).last.line_item
+            out_of_stock_line_item.errors[:quantity] << Spree.t(:selected_quantity_not_available, :scope => :order_populator, :item => display_name.inspect)
+
+            false
+          else
+            true
+          end
+        end
+
+        valids.all?
       end
 
       private
