@@ -9,33 +9,37 @@ module Spree
 
     def restock(variant, inventory_units)
 
+      restockable_inventory_units = inventory_units.select do |iu|
+        iu.on_hand? && !iu.pending
+      end
+
       # Do not be tempted to do update_all, as this will not trigger the cache purge
       # for the total_on_hand
-      inventory_units.each do |iu|
+      restockable_inventory_units.each do |iu|
         iu.supplier_id = nil
         iu.pending = true
         iu.save
       end
 
-      if restockable_inventory_units = inventory_units.select(&:on_hand?)
-        restock_on_hand(variant, restockable_inventory_units)
-      end
+      restock_on_hand(variant, restockable_inventory_units)
 
       clear_total_on_hand_cache(variant)
     end
 
     def unstock(variant, inventory_units)
 
+      unstockable_inventory_units = inventory_units.select do |iu|
+        iu.on_hand? && iu.pending
+      end
+
       # Do not be tempted to do update_all, as this will not trigger the cache purge
       # for the total_on_hand
-      inventory_units.each do |iu|
+      unstockable_inventory_units.each do |iu|
         iu.pending = false
         iu.save
       end
 
-      if on_hand = inventory_units.select(&:on_hand?)
-        unstock_on_hand(variant, on_hand)
-      end
+      unstock_on_hand(variant, unstockable_inventory_units)
 
       clear_total_on_hand_cache(variant)
     end
