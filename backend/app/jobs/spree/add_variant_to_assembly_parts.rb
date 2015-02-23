@@ -3,7 +3,7 @@ module Spree
     # TODO -put scope on assembly definition parts
     # pass in variant
 
-    AddVariantToAssemblyPart = Struct.new(:variant) do
+    AddVariantToAssemblyPart ||= Struct.new(:variant) do
 
       def perform
         variant.product.assembly_definition_parts.each do |part|
