@@ -28,7 +28,7 @@
 //= require core.static
 //= require core.navigation
 
-//= require spree/frontend/spree
+//= require spree/frontend
 //= require spree/frontend/checkout
 //= require spree/frontend/checkout/address
 //= require spree/frontend/cart
