@@ -16,7 +16,7 @@ module Spree
         order.line_items << line_item
       end
 
-      describe "validate_order" do
+      describe "invalid_line_items" do
 
         context "single line item" do
 
@@ -26,12 +26,12 @@ module Spree
 
           it 'should return no line_items if stock exists' do
             allow_any_instance_of(Stock::Quantifier).to receive_messages(can_supply?: true)
-            expect(subject.validate_order(order)).to eq []
+            expect(subject.invalid_line_items(order)).to eq []
           end
 
           it 'should return line_items if stock doe not exist' do
             allow_any_instance_of(Stock::Quantifier).to receive_messages(can_supply?: false)
-            expect(subject.validate_order(order)).to eq [line_item]
+            expect(subject.invalid_line_items(order)).to eq [line_item]
           end
         end
 
@@ -48,7 +48,7 @@ module Spree
             expect(Stock::Quantifier).to receive(:new).with(extra_variant).and_return quantifier
             expect(quantifier).to receive(:can_supply?).with(6).and_return true
 
-            expect(subject.validate_order(order)).to eq []
+            expect(subject.invalid_line_items(order)).to eq []
           end
 
           it 'should return line_items if stock does not exist' do
@@ -58,7 +58,7 @@ module Spree
             expect(Stock::Quantifier).to receive(:new).with(extra_variant).and_return quantifier
             expect(quantifier).to receive(:can_supply?).with(6).and_return false
 
-            expect(subject.validate_order(order)).to eq [extra_line_item]
+            expect(subject.invalid_line_items(order)).to eq [extra_line_item]
           end
         end
 
@@ -73,7 +73,7 @@ module Spree
           it 'sums the qauntity of both line_items and validates the value' do
             expect(Stock::Quantifier).to receive(:new).with(variant).and_return quantifier
             expect(quantifier).to receive(:can_supply?).with(3)
-            expect(subject.validate_order(order))
+            expect(subject.invalid_line_items(order))
           end
 
         end
@@ -89,7 +89,7 @@ module Spree
             expect(Stock::Quantifier).to receive(:new).with(variant).and_return quantifier
             expect(quantifier).to receive(:can_supply?).with(1)
 
-            expect(subject.validate_order(order))
+            expect(subject.invalid_line_items(order))
           end
 
           it 'should consider pending inventory units not sufficient' do
@@ -98,7 +98,7 @@ module Spree
             expect(Stock::Quantifier).to receive(:new).with(variant).and_return quantifier
             expect(quantifier).to receive(:can_supply?).with(2)
 
-            expect(subject.validate_order(order))
+            expect(subject.invalid_line_items(order))
           end
 
         end
@@ -116,7 +116,7 @@ module Spree
             expect(Stock::Quantifier).to receive(:new).with(variant).and_return quantifier
             expect(quantifier).to receive(:can_supply?).with(3).once.and_return true
             line_item.update_column(:quantity, 3)
-            expect(subject.validate_order(order)).to be_empty
+            expect(subject.invalid_line_items(order)).to be_empty
           end
         end
 

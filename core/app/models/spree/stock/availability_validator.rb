@@ -44,7 +44,7 @@ module Spree
         end
       end
 
-      def validate_order(order)
+      def invalid_line_items(order)
         preloader = ActiveRecord::Associations::Preloader.new
         preloader.preload(order, [line_items: :line_item_parts])
 

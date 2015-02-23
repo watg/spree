@@ -600,7 +600,7 @@ module Spree
     end
 
     def insufficient_stock_lines
-      @insufficient_stock_lines ||= Spree::Stock::AvailabilityValidator.new.validate_order(self)
+      @insufficient_stock_lines ||= Spree::Stock::AvailabilityValidator.new.invalid_line_items(self)
     end
 
     def product_groups

@@ -238,7 +238,7 @@ describe Spree::Order, :type => :model do
     let(:line_item) { Spree::LineItem.new(currency: order.currency) }
 
     it "should return line_items that have insufficient stock on hand" do
-      expect_any_instance_of(Spree::Stock::AvailabilityValidator).to receive(:validate_order).with(order).and_return([line_item])
+      expect_any_instance_of(Spree::Stock::AvailabilityValidator).to receive(:invalid_line_items).with(order).and_return([line_item])
       out_of_stock_lines = order.insufficient_stock_lines
       expect(out_of_stock_lines.size).to eq 1
       expect(out_of_stock_lines).to include line_item
