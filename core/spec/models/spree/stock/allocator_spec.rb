@@ -204,6 +204,7 @@ describe Spree::Stock::Allocator do
       context "no feeder and backordering not allowed" do
 
         it "does try to unstock stock item" do
+          expect(adjuster).to receive(:all_stock_items).with(variant).and_return(stock_items)
           expect(adjuster).to receive(:unstock_stock_item).with(stock_items.first, inventory_units)
           adjuster.unstock_on_hand(variant, inventory_units)
         end
@@ -235,6 +236,44 @@ describe Spree::Stock::Allocator do
 
       it "returns puts nils first for last_updated_at" do
         expect(subject.send(:available_items, variant)).to eq [ stock_item_2, stock_item_1 ]
+      end
+
+    end
+
+  end
+
+  context "all_stock_items" do
+
+    let!(:stock_location) { create(:base_stock_location) }
+    let(:variant) { create(:base_variant) }
+    let(:stock_item_1) { create(:stock_item, stock_location: stock_location, count_on_hand: 0, backorderable: false, variant: variant, last_unstocked_at: '2012-01-01') }
+    let(:stock_item_2) { create(:stock_item, stock_location: stock_location, count_on_hand: 0, backorderable: false, variant: variant, last_unstocked_at: '2012-02-01') }
+
+    it "returns stock in time order of last_updated_at" do
+      expect(subject.send(:all_stock_items, variant)).to eq [ stock_item_1, stock_item_2 ]
+    end
+
+    context "stock_location is not active" do
+
+      before do
+        stock_location.update_column(:active, false)
+      end
+
+      it "returns no stock items" do
+        expect(subject.send(:all_stock_items, variant)).to be_empty
+      end
+
+    end
+
+    context "last_unstocked_at is nil " do
+
+      before do
+        stock_item_2.last_unstocked_at = nil
+        stock_item_2.save
+      end
+
+      it "returns puts nils first for last_updated_at" do
+        expect(subject.send(:all_stock_items, variant)).to eq [ stock_item_2, stock_item_1 ]
       end
 
     end

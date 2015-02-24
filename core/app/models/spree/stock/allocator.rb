@@ -73,7 +73,7 @@ module Spree
         # OK, this is getting silly. We sold this but there is no stock anywhere
         # and we can't backorder it. Let's allocate it from anywhere and force
         # the stock to be negative somewhere.
-        unstock_stock_item(available_items(variant).first, problem_on_hand)
+        unstock_stock_item(all_stock_items(variant).first, problem_on_hand)
       end
 
     end
@@ -137,6 +137,10 @@ module Spree
       @available_items ||= {}
       @available_items[variant] ||= stock_location.available_stock_items(variant).order('last_unstocked_at NULLS FIRST')
       @available_items[variant]
+    end
+
+    def all_stock_items(variant)
+      stock_location.stock_items.where(variant: variant).active.order('last_unstocked_at NULLS FIRST')
     end
 
     def unstock_stock_item(stock_item, units)
