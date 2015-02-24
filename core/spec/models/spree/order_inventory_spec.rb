@@ -181,6 +181,10 @@ describe Spree::OrderInventory, :type => :model do
     let(:shipment) { order.shipments.first }
     let(:variant) { subject.variant }
 
+    before do
+      shipment.inventory_units.update_all(pending: false)
+    end
+
     context "order can not be shippped" do
       before { allow(order).to receive_messages can_allocate_stock?: false }
 
