@@ -8,7 +8,7 @@ describe Spree::Stock::Allocator do
   let(:variant) { mock_model(Spree::Variant) }
   let(:order) { Spree::Order.new }
 
-  let(:inventory_units) { build_list(:inventory_unit, 3, line_item: nil, supplier: supplier, variant: variant, state: 'on_hand') }
+  let(:inventory_units) { build_list(:inventory_unit, 3, line_item: nil, supplier: supplier, variant: variant, state: 'on_hand', pending: false) }
   subject(:adjuster) { described_class.new(shipment)  }
 
   describe "#restock" do
@@ -75,6 +75,8 @@ describe Spree::Stock::Allocator do
   end
 
   describe "#unstock" do
+
+    let(:inventory_units) { build_list(:inventory_unit, 3, line_item: nil, supplier: supplier, variant: variant, state: 'on_hand', pending: true) }
 
     it "calls save on each of the inventory units" do
       expect(subject).to receive(:unstock_on_hand)
