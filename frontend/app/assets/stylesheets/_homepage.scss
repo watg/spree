@@ -81,10 +81,10 @@ body.homepage {
 		height: 100%;
 	}
 	.link-mbtg {
-		width: 100%;
+		width: 50%;
 		height: 45px;
 		// Positioning
-		bottom: 15px;
+		bottom: 40px;
 		right: 0;
 	}
 	/* Large screen background */
@@ -94,11 +94,9 @@ body.homepage {
 			height: 700px;
 		}
 		.link-mbtg {
-			width: 238px;
-			height: 45px;
+			width: 270px;
 			// Positioning
 			bottom: 100px;
-			left: 200px;
 		}
 	}
 }
