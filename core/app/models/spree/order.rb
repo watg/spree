@@ -259,7 +259,9 @@ module Spree
     end
 
     def delivery_time
-      self.shipments.first.shipping_method.duration_description if self.shipments.any?
+      if self.shipments.any? && self.shipments.first.shipping_method.present?
+        self.shipments.first.shipping_method.duration_description
+      end
     end
 
     def currency
