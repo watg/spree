@@ -32,9 +32,7 @@ module Spree
             # and processing them that something has changed
             on_hand = units.select(&:fill_waiting_unit)
 
-            stock_allocator = stock_allocator(shipment)
-            stock_allocator.unstock_on_hand(stock_item.variant, on_hand)
-
+            stock_allocator(shipment).unstock_on_hand(stock_item.variant, on_hand)
           end
 
           @orders_to_update << shipment.order
