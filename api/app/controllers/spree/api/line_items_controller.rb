@@ -49,7 +49,6 @@ module Spree
 
       def find_line_item
         id = params[:id].to_i
-        d { id }
         order.line_items.detect { |line_item| line_item.id == id } or
           raise ActiveRecord::RecordNotFound
       end
