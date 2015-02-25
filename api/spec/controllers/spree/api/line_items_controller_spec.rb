@@ -107,6 +107,15 @@ module Spree
         expect(response.status).to eq(200)
       end
 
+      it "can update a line item's options on the order with 0" do
+        expect_any_instance_of(LineItem).to receive(:some_option=).with(12)
+        line_item = order.line_items.first
+        api_put :update,
+          id: line_item.id,
+          line_item: { quantity: 0, options: { some_option: 12 } }
+        expect(response.status).to eq(200)
+      end
+
       it "can delete a line item on the order" do
         line_item = order.line_items.first
         api_delete :destroy, :id => line_item.id

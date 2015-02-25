@@ -27,7 +27,7 @@ module Spree
       def update
         @line_item = find_line_item
         if @order.contents.update_cart(line_items_attributes)
-          @line_item.reload
+          @line_item.reload unless @line_item.quantity == 0
           respond_with(@line_item, default_template: :show)
         else
           invalid_resource!(@line_item)
@@ -49,6 +49,7 @@ module Spree
 
       def find_line_item
         id = params[:id].to_i
+        d { id }
         order.line_items.detect { |line_item| line_item.id == id } or
           raise ActiveRecord::RecordNotFound
       end
