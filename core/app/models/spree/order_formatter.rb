@@ -14,7 +14,7 @@ module Spree
         adjustments: taxes,
         promotions: promotions,
         adjustments_total: adjustments_total.to_html,
-        delivery_time: @order.delivery_time,
+        delivery_time: @order.delivery_time || 'soon',
         currency: @order.currency,
         payment_total: order_total.to_html
       }

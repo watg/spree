@@ -6,7 +6,7 @@ module Spree
       subject += "#{Spree::Store.current.name} #{Spree.t('shipment_mailer.shipped_email.subject')} ##{@shipment.order.number}"
       mail(to: @shipment.order.email, from: from_address, subject: subject)
 
-      mandrill_default_headers(tags: "shipment", template: "#{I18n.locale}_shipped_metapack_email")
+      mandrill_default_headers(tags: "shipment", template: "#{I18n.locale}_shipped_metapack_email_v2")
 
       headers['X-MC-MergeVars'] = shipment_data.to_json
     end
