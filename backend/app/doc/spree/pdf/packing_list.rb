@@ -102,6 +102,10 @@ module Spree
         pdf.move_down 45
 
         body = packing_list.body
+        all_data = packing_list.all_data
+
+        # Don't be tempted to stick this in the invoce_data.any? below, this has scoping issues
+        notify_airbrake(all_data) unless body.any?
 
         pdf.table(packing_list.all_data, :width => pdf.bounds.width, :cell_style => { :inline_format => true }) do
           # If we have more date that 1 row, then we have more than just the header.
@@ -146,6 +150,9 @@ module Spree
         pdf
       end
 
+      def notify_airbrake(data)
+        Helpers::AirbrakeNotifier.notify("Spree::PDF::PackingList data missing for order: #{order.number} ", data: data)
+      end
 
     end
   end
