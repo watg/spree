@@ -8,6 +8,12 @@ module Spree
       def create
         variant = Spree::Variant.find(params[:line_item][:variant_id])
         options = parse_options( variant, params[:line_item][:options] || {} )
+
+        if order.completed? and order.shipments.empty?
+          stock_location_id = Spree::StockLocation.active.first.id
+          order.shipments.create(stock_location_id: stock_location_id)
+        end
+
         @line_item = order.contents.add(
             variant,
             params[:line_item][:quantity] || 1,
