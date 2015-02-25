@@ -32,6 +32,9 @@ module Spree
       :default_style => :mini,
       :convert_options =>  { :all => '-strip -auto-orient' }
 
+    validates_attachment :avatar,
+      :content_type => { :content_type => %w(image/jpeg image/jpg image/png image/gif) }
+
     process_in_background :avatar
 
     def self.default_country
