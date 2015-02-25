@@ -40,8 +40,8 @@ module Spree
       def backordered
         contents.select(&:backordered?)
       end
-	
-	  def awaiting_feed
+
+      def awaiting_feed
         contents.select(&:awaiting_feed?)
       end
 
