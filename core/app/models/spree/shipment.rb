@@ -125,7 +125,8 @@ module Spree
     def determine_state(order)
       return 'canceled' if order.canceled?
       return 'pending' unless order.can_ship?
-      return 'pending' if inventory_units.any? &:backordered?
+      return 'pending' if inventory_units.any?(&:backordered?)
+      return 'awaiting_feed' if inventory_units.any?(&:awaiting_feed?)
       return 'shipped' if state == 'shipped'
       order.paid? || Spree::Config[:auto_capture_on_dispatch] ? 'ready' : 'pending'
     end
@@ -177,7 +178,7 @@ module Spree
     end
 
     def inventory_units_for_item(line_item, variant = nil)
-      # Vanilla spree has line_item.variant.id evaled first, this does not work for when we have 
+      # Vanilla spree has line_item.variant.id evaled first, this does not work for when we have
       # parts
       # inventory_units.where(line_item_id: line_item.id, variant_id: line_item.variant.id || variant.id)
       inventory_units.where(line_item_id: line_item.id, variant_id: variant.id || line_item.variant.id)
@@ -438,7 +439,7 @@ module Spree
       def manifest_restock(item)
         Stock::Allocator.new(self).restock(item.variant, item.inventory_units)
       end
-     
+
       def manifest_unstock(item)
         Stock::Allocator.new(self).unstock(item.variant, item.inventory_units)
       end

@@ -82,6 +82,14 @@ describe Spree::Shipment, :type => :model do
       expect(shipment.determine_state(order)).to eq 'ready'
     end
 
+    it "returns awaiting feed" do
+      allow(order).to receive_messages(can_ship?: true)
+      allow(shipment).to receive_messages(
+        inventory_units: [mock_model(Spree::InventoryUnit, backordered?: false, awaiting_feed?: true)]
+      )
+      expect(shipment.determine_state(order)).to eq 'awaiting_feed'
+    end
+
     it 'returns ready when Config.auto_capture_on_dispatch' do
       Spree::Config.auto_capture_on_dispatch = true
       expect(shipment.determine_state(order)).to eq 'ready'
