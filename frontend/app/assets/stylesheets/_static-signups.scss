@@ -156,9 +156,21 @@
           font-family: $watg-font-secondary-light;
           font-size: emCalc(30px);
         }
+        h3 {
+          strong {
+            font-family: $watg-font-secondary-light;
+            font-weight: normal;
+          }
+        }
       }
       .mobile-intro {
         display: none;
+        h3 {
+          strong {
+            font-family: $watg-font-secondary-light;
+            font-weight: normal;
+          }
+        }
       }
     }
   }
