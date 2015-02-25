@@ -7,7 +7,7 @@ module Spree
       model :taxon, class: 'Spree::Taxon'
 
       def execute
-        taxon.ancestors.each do |ancestor|
+        taxon.ancestors.map do |ancestor|
           Spree::Classification.find_or_create_by(suite_id: suite.id, taxon_id: ancestor.id)
         end
       end

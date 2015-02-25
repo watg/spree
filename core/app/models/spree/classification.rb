@@ -10,5 +10,9 @@ module Spree
     default_scope { order(:position) }
     validates_uniqueness_of :taxon_id, :scope => [:suite_id, :deleted_at], :message => :already_linked
 
+    def send_to_top
+      insert_at(1)
+    end
+
   end
 end

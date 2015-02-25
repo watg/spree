@@ -13,7 +13,7 @@ describe Spree::SuiteUpdateService do
   before do
     taxon.children << taxon_child
     taxon_child.children << taxon_childs_child
-    suite.taxons = [ taxon, taxon_child ] 
+    suite.taxons = [ taxon, taxon_child ]
   end
 
   describe "run" do
@@ -30,6 +30,19 @@ describe Spree::SuiteUpdateService do
         expect(subject.valid?).to be true
         expect(taxon_child.suites.select { |s| s == suite }.size).to eq 1
         expect(taxon.suites.reload.select { |s| s == suite }.size).to eq 1
+      end
+
+      context "when another classification exists " do
+
+        let(:another_suite) { create(:suite) }
+
+        it "adds the new classification at the the top" do
+          expect(suite.classifications.map(&:position)).to eq [1,1]
+          Spree::SuiteUpdateService.run(suite: another_suite, params: params)
+
+          expect(suite.classifications.reload.map(&:position)).to eq [2,2]
+          expect(another_suite.classifications.map(&:position)).to eq [1,1,1]
+        end
       end
 
       context "anscstor already has suite" do
