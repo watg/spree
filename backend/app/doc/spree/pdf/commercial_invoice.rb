@@ -134,12 +134,18 @@ module Spree
           ]
         end
 
-        pdf.table(header + invoice_data, :width => pdf.bounds.width, :cell_style => { :inline_format => true }) do
+        all_data = header + invoice_data
+        
+        # Don't be tempted to stick this in the invoce_data.any? below, this has scoping issues
+        notify_airbrake(all_data) unless invoice_data.any?
+
+        pdf.table(all_data, :width => pdf.bounds.width, :cell_style => { :inline_format => true }) do
           # Only format the data rows e.g. 1 onwards if we have invoice_data, otherwise this breaks invoicing for
           # everyone
           if invoice_data.any?
             style(row(1..-1).columns(0..-1), :padding => [4, 5, 4, 5], :borders => [:bottom], :border_color => 'dddddd')
           end
+
           style(row(0), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
           style(row(0).columns(0..-1), :borders => [:top, :bottom])
           style(row(0).columns(0), :borders => [:top, :left, :bottom])
@@ -197,6 +203,10 @@ module Spree
         "\n" + group.garment +
         "\n" + [group.fabric, country.try(:name)].join(" - ") +
         "\n" + group.contents
+      end
+
+      def notify_airbrake(data)
+        Helpers::AirbrakeNotifier.notify("Spree::PDF::CommercialInvoice data missing for order: #{order.number} ", data: data)
       end
 
     end

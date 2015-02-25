@@ -1,4 +1,24 @@
 module Spree
+
+  class PackingList
+
+    attr_accessor :header, :body
+
+    def initialize(header)
+      @header = header
+      @body = []
+    end
+
+    def all_data
+      [header] + body
+    end
+
+    def add(data)
+      body << data
+    end
+
+  end
+
   class PackingListService < ActiveInteraction::Base
 
     model :order, class: 'Spree::Order'
@@ -8,25 +28,26 @@ module Spree
 
     def execute
 
-      invoice_services_data = [ HEADER ]
+      packing_list = PackingList.new(HEADER)
+      
       order.line_items.each do |line|
 
         # We want to show the container for the parts
         if line.parts.any?
-          invoice_services_data << format_kit_container(line)
+          packing_list.add( format_kit_container(line) )
         end
 
         grouped_inventory_units(line).each do |item|
-          invoice_services_data << format_grouped_inventory_unit(item, line)
+          packing_list.add( format_grouped_inventory_unit(item, line) )
         end
 
         line.line_item_personalisations.each do |p|
-          invoice_services_data << format_personalisation(p)
+          packing_list.add( format_personalisation(p) )
         end
 
       end
 
-      invoice_services_data
+      packing_list
 
     end
 
