@@ -27,7 +27,7 @@ module Spree
       def update
         @line_item = find_line_item
         if @order.contents.update_cart(line_items_attributes)
-          @line_item.reload
+          @line_item.reload unless @line_item.quantity == 0
           respond_with(@line_item, default_template: :show)
         else
           invalid_resource!(@line_item)
