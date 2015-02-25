@@ -16,7 +16,7 @@ describe Spree::PackingListService do
 
   it "returns a header" do
     result = subject.result
-    header = result.first
+    header = result.header
     expect(header).to eq Spree::PackingListService::HEADER
   end
 
@@ -26,16 +26,15 @@ describe Spree::PackingListService do
 
     it "returns the correct data" do
       result = subject.result
-      expect(result.size).to eq 2
-      data = result.second
-      expect(data).to eq [
+      body = result.body
+      expect(body).to eq [[
         variant.product.name,
         "#{variant.sku} \n [#{supplier.permalink}]",
         "",
         variant.options_text,
         1,
         "|_|"
-      ]
+      ]]
     end
 
     context "when supplier is not a company" do
@@ -45,16 +44,15 @@ describe Spree::PackingListService do
 
       it "does not show supplier permalink " do
         result = subject.result
-        expect(result.size).to eq 2
-        data = result.second
-        expect(data).to eq [
+        body = result.body
+        expect(body).to eq [[
           variant.product.name,
           "#{variant.sku}",
           "",
           variant.options_text,
           1,
           "|_|"
-        ]
+        ]]
       end
     end
 
@@ -66,9 +64,8 @@ describe Spree::PackingListService do
 
       it "returns the correct data" do
         result = subject.result
-        expect(result.size).to eq 3
-        expect(result).to match_array([
-          Spree::PackingListService::HEADER,
+        expect(result.body.size).to eq 2
+        expect(result.body).to match_array([
           [
             variant.product.name,
             "#{variant.sku} \n [#{supplier.permalink}]",
@@ -111,8 +108,7 @@ describe Spree::PackingListService do
 
     it "returns the correct data" do
       result = subject.result
-      expect(result).to match_array([
-        Spree::PackingListService::HEADER,
+      expect(result.body).to match_array([
         [
           "KIT - #{variant.product.name}",
           "#{variant.sku}",
@@ -144,8 +140,7 @@ describe Spree::PackingListService do
 
       it "includes any part containers and uses a CUSTOM prefix" do
         result = subject.result
-        expect(result).to match_array([
-          Spree::PackingListService::HEADER,
+        expect(result.body).to match_array([
           [
             "CUSTOM - #{variant.product.name}",
             "#{variant.sku}",
@@ -187,8 +182,7 @@ describe Spree::PackingListService do
 
       it "returns the correct data" do
         result = subject.result
-        expect(result).to match_array([
-          Spree::PackingListService::HEADER,
+        expect(result.body).to match_array([
           [
             "KIT - #{variant.product.name}",
             "#{variant.sku}",
@@ -226,8 +220,7 @@ describe Spree::PackingListService do
 
       it "skips parts with parent part ID" do
         result = subject.result
-        expect(result).to match_array([
-          Spree::PackingListService::HEADER,
+        expect(result.body).to match_array([
           [
             "KIT - #{variant.product.name}",
             "#{variant.sku}",
@@ -248,9 +241,7 @@ describe Spree::PackingListService do
 
     it "returns the correct data" do
       result = subject.result
-      expect(result.size).to eq 2
-      expect(result).to match_array([
-        Spree::PackingListService::HEADER,
+      expect(result.body).to match_array([
         [
           "",
           "",
