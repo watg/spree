@@ -13,7 +13,7 @@ module Spree
     #   5. RTW + MIX
     #   1,2,3,4,[1,2-4]
 
-    GROUPS = {
+    GROUPS ||= {
       rtw: ['peruvian','gang'],
       kit: ['kit'],
       sup: ["yarn","needle","embellishment","clasp"],

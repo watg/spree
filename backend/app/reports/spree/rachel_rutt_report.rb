@@ -4,7 +4,7 @@ module Spree
 
     attr_writer :search_names
 
-    NAMES = ['Totally Tunic',"Primo Sweater", "Teeny Tiny Bikini"]
+    NAMES ||= ['Totally Tunic',"Primo Sweater", "Teeny Tiny Bikini"]
 
     def search_variants
       Spree::Variant.unscoped.where( product_id: Spree::Product.unscoped.where(name: NAMES).map(&:id) ).flatten.uniq

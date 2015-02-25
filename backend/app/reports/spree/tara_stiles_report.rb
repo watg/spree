@@ -2,7 +2,7 @@ module Spree
   class TaraStilesReport
     include BaseReport
 
-    SEARCH_NAMES = [
+    SEARCH_NAMES ||= [
       "TS Hoodie",
       "Tree Hugger",
       "Hot Top",
