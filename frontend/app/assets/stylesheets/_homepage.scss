@@ -66,7 +66,7 @@ body.homepage {
 
 .home-main .leader-lfw {
 	/* Small screen background */
-	background: #c7c7c7 cdn-url("/homepage/2015-02-24/Homepage_CR_x_WATG_MOBILE_V1.jpg") top center no-repeat;
+	background: #c7c7c7 cdn-url("/homepage/2015-02-25/Homepage_CR_x_WATG_MOBILE_V2.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
@@ -84,19 +84,32 @@ body.homepage {
 		width: 50%;
 		height: 45px;
 		// Positioning
-		bottom: 40px;
+		bottom: 80px;
 		right: 0;
+	}
+	.link-blog {
+		width: 50%;
+		height: 45px;
+		// Positioning
+		bottom: 20px;
+		right: 25%;
 	}
 	/* Large screen background */
 	@media only screen and (min-width: 56em) {
-		background: #c7c7c7 cdn-url("/homepage/2015-02-24/Homepage_CR_x_WATG_DESKTOP_V2.jpg") top center no-repeat;
+		background: #c7c7c7 cdn-url("/homepage/2015-02-25/Homepage_CR_x_WATG_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
 		.link-mbtg {
 			width: 270px;
 			// Positioning
-			bottom: 100px;
+			bottom: 125px;
+		}
+		.link-blog {
+			width: 270px;
+			// Positioning
+			bottom: 70px;
+			right: 125px;
 		}
 	}
 }
