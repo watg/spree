@@ -29,10 +29,22 @@ module Spree
       end
 
       def today_sells_by_type
-        sells_by_type=query_sells_by_type
+        sells_by_type=query_sells_by_type.sort_by{ |k| k.last }.reverse!
 
         respond_to do |format|
           format.json { render :json => sells_by_type.to_json }
+        end
+      end
+
+      def today_orders_by_hour
+        today_orders= Spree::Order.where("completed_at >= ?", Time.zone.now.beginning_of_day).group_by_hour(:completed_at,range: Date.today..Time.now).count.to_a
+
+        today_orders.map! do |point|
+          {x: point[0].to_i, y: point[1]}
+        end
+
+        respond_to do |format|
+          format.json { render :json => today_orders.to_json }
         end
       end
 
