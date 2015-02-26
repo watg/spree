@@ -1233,10 +1233,16 @@ body.thank-you {
 			font-weight: normal;
 		}
 		.columns {
-			height: auto;
+			height: auto !important;
 		}
 		.column-text {
 			background-color: transparent;
+			img {
+				margin-bottom: emCalc(20px) !important;
+			}
+			p:after {
+				content: "" !important;
+			}
 		}
 	}
 	.row-more {
