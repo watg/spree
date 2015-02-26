@@ -276,6 +276,14 @@ describe Spree::CheckoutController, :type => :controller do
             expect(response).to redirect_to spree.checkout_state_path('address')
             expect(flash[:error]).to eq "The order has already been updated."
           end
+
+          it "redirects back if HTTP_REFERER set" do
+            request.env["HTTP_REFERER"] = "where_i_came_from"
+            spree_post :update, post_params
+            expect(response).to redirect_to "where_i_came_from"
+            expect(flash[:error]).to eq "Whoops, there was a problem, please retry!"
+          end
+
         end
       end
     end

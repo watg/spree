@@ -99,8 +99,13 @@ module Spree
       if params[:order] && params[:order][:state_lock_version]
         @order.with_lock do
           unless @order.state_lock_version == params[:order].delete(:state_lock_version).to_i
-            flash[:error] = Spree.t(:order_already_updated)
-            redirect_to checkout_state_path(@order.state) and return
+            if request.env["HTTP_REFERER"].blank?
+              flash[:error] = Spree.t(:order_already_updated)
+              redirect_to checkout_state_path(@order.state) and return
+            else
+              flash[:error] = Spree.t(:whoops_there_was_a_problem)
+              redirect_to(:back) and return
+            end
           end
           @order.increment!(:state_lock_version)
         end
