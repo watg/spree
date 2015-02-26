@@ -37,8 +37,25 @@ module Spree
     def suite
       return @page.permalink if @page
       @page = Spree::Suite.joins(tabs: [:product]).merge(Spree::Product.where(slug: product.slug)).first
+      @page ||= find_suite_by_product_name_and_type
+      @page ||= find_suite_by_product_name
       @page.permalink if @page
     end
+
+    def find_suite_by_product_name_and_type
+      products = Spree::Product.where(name: product.name, product_type_id: product.product_type_id).joins(:suite_tabs)
+      if products.any?
+        products.first.suite_tabs.first.try(:suite)
+      end
+    end
+
+    def find_suite_by_product_name
+      products = Spree::Product.where(name: product.name).joins(:suite_tabs)
+      if products.any?
+        products.first.suite_tabs.first.try(:suite)
+      end
+    end
+
     
     def tab(product)
       return 'knit-your-own' if product.product_type.kit?

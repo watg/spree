@@ -63,7 +63,7 @@ module Spree
         else
           @products = Product.active(current_currency)
         end
-        @product = @products.friendly.find(params[:id])
+        @product = @products.friendly.find(params[:product_id] || params[:id])
       end
 
       def load_taxon

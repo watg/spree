@@ -5,8 +5,52 @@ describe Spree::ProductRedirectionService, type: :routing do
   let!(:women_target) { create(:target, name: 'Women') }
   let!(:page) { create(:suite, name: 'Lil Foxy Roxy Women', target: women_target, permalink: 'lil-foxy-roxy-women') }
 
-  before do
+  context 'old gang product that has no suite or suite tabs' do
+    let(:product_type_rtw) { create(:product_type)}
+    let(:product_type_kit) { create(:product_type_kit)}
+    let!(:old_product) { create(:product, name: 'Lil Foxy Roxy', product_type: product_type_rtw) }
+
+    context "has similar products that has same name and product type" do
+
+      let!(:product_kit) { create(:product, name: 'Lil Foxy Roxy', product_type: product_type_kit) }
+      let!(:product_rtw) { create(:product, name: 'Lil Foxy Roxy', product_type: product_type_rtw) }
+
+      before do
+        create(:suite_tab, product: product_kit, suite: page)
+        create(:suite_tab, product: product_rtw, suite: page)
+      end
+
+      it "matches name and product type" do
+        o = subject.run(product: old_product, variant: nil)
+        expect(o.result).to eq({
+          url: spree.suite_path("lil-foxy-roxy-women", :tab => "made-by-the-gang"),
+          http_code: 301,
+          flash: nil
+        })
+      end
+
+    end
+
+    context "has similar products that has same name only" do
+
+      let!(:product_kit) { create(:product, name: 'Lil Foxy Roxy', product_type: product_type_kit) }
+
+      before do
+        create(:suite_tab, product: product_kit, suite: page)
+      end
+
+      it "matches name and product type" do
+        o = subject.run(product: old_product, variant: nil)
+        expect(o.result).to eq({
+          url: spree.suite_path("lil-foxy-roxy-women", :tab => "made-by-the-gang"),
+          http_code: 301,
+          flash: nil
+        })
+      end
+    end
+
   end
+
 
   context 'kit product' do
     let!(:product) { create(:product, name: 'Lil Foxy Roxy', product_type: create(:product_type_kit)) }
