@@ -53,10 +53,14 @@ module Spree
           it 'should not raise an error' do
             allow_any_instance_of(Stock::Quantifier).to receive_messages(can_supply?: true)
 
-            expect(line_item).not_to receive(:errors)
-            expect do
-              expect(subject.validate(line_item)).to eq true
-            end.to_not raise_error
+            expect { subject.validate(line_item) }.to_not raise_error
+          end
+
+          it 'should be invalid' do
+            allow_any_instance_of(Stock::Quantifier).to receive_messages(can_supply?: true)
+
+            expect(line_item.errors).to receive(:[]).with(:quantity).and_return []
+            expect(subject.validate(line_item)).to eq false
           end
 
         end
@@ -141,8 +145,8 @@ module Spree
               variant.update_column(:deleted_at, Time.now)
             end
 
-            it 'should return no line_items if stock exists' do
-              allow_any_instance_of(Stock::Quantifier).to receive_messages(can_supply?: false)
+            it 'should return invalid line_items if stock exists' do
+              allow_any_instance_of(Stock::Quantifier).to receive_messages(can_supply?: true)
               expect(subject.invalid_line_items(order)).to eq [line_item]
             end
 

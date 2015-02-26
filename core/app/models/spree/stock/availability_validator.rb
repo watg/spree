@@ -31,7 +31,7 @@ module Spree
         out_of_stock_variants = []
         grouped_variants.each do |variant_id, quantity|
           variant = Spree::Variant.unscoped.find(variant_id)
-          if !Stock::Quantifier.new(variant).can_supply? quantity
+          if !Stock::Quantifier.new(variant).can_supply?(quantity) or variant.deleted?
             out_of_stock_variants << variant
           end
         end
@@ -66,7 +66,7 @@ module Spree
         variants.map do |variant|
           quantity = grouped_variants[variant.id]
 
-          if !Stock::Quantifier.new(variant).can_supply? quantity
+          if !Stock::Quantifier.new(variant).can_supply?(quantity) or variant.deleted?
             item_builder.find_by_variant_id(variant.id).last.line_item
           end
         end.compact
