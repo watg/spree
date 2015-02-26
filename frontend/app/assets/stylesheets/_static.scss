@@ -1225,6 +1225,13 @@ body.thank-you {
 			margin: emCalc(30px) 0;
 		}
 	}
+	.row-testimonials {
+		text-align: center;
+		h3 {
+			font-family: $watg-font;
+			font-weight: normal;
+		}
+	}
 	.row-more {
 		padding: emCalc(30px) 0;
 		overflow: hidden;
