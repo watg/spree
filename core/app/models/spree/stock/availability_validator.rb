@@ -30,7 +30,7 @@ module Spree
 
         out_of_stock_variants = []
         grouped_variants.each do |variant_id, quantity|
-          variant = Spree::Variant.find(variant_id)
+          variant = Spree::Variant.unscoped.find(variant_id)
           if !Stock::Quantifier.new(variant).can_supply? quantity
             out_of_stock_variants << variant
           end
@@ -61,7 +61,7 @@ module Spree
           grouped_variants[variant_id] = grouped_variants[variant_id].to_i - grouped_units[variant_id].to_i
         end.select {|v_id, count| count > 0}
 
-        variants = Spree::Variant.where(id: grouped_variants.keys)
+        variants = Spree::Variant.unscoped.where(id: grouped_variants.keys)
 
         variants.map do |variant|
           quantity = grouped_variants[variant.id]
