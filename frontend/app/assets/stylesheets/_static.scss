@@ -1231,11 +1231,13 @@ body.thank-you {
 		h3 {
 			font-family: $watg-font;
 			font-weight: normal;
+			font-size: emCalc(40px);
 		}
 		.columns {
 			height: auto !important;
 		}
 		.column-text {
+			padding: emCalc(30px) emCalc(100px);
 			background-color: transparent;
 			img {
 				margin-bottom: emCalc(20px) !important;
