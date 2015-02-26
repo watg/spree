@@ -1226,10 +1226,17 @@ body.thank-you {
 		}
 	}
 	.row-testimonials {
+		padding: emCalc(30px) 0;
 		text-align: center;
 		h3 {
 			font-family: $watg-font;
 			font-weight: normal;
+		}
+		.columns {
+			height: auto;
+		}
+		.column-text {
+			background-color: transparent;
 		}
 	}
 	.row-more {
