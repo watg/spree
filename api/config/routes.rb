@@ -38,6 +38,16 @@ Spree::Core::Engine.add_routes do
 
     resources :suite, :only => [:index]
 
+    resources :dashboard, :only=>[] do
+      collection do
+        get :last_bought_product
+        get :today_sells
+        get :today_orders
+        get :today_sells_by_type
+        get :today_orders_by_hour
+      end
+    end
+
     concern  :order_routes do
       member do
         put :cancel
