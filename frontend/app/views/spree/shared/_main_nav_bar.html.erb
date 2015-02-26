@@ -1,5 +1,5 @@
 <ul id="main-nav-bar" data-hook>
-	<li id="link-to-cart" data-hook><%= link_to_cart %></li>
+	<li id="link-to-cart" data-hook><%= my_bag_link %></li>
 	<% if (Spree::Config[:show_currency_selector] && supported_currencies.size > 1) %>
 		<li id="currency-select" class="currency-setting" style="float: right; margin-right: 10px;" data-hook>
 			<%= form_tag(spree.set_currency_path(:format => :html)) do %>
