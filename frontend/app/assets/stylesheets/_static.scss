@@ -1245,6 +1245,9 @@ body.thank-you {
 			p:after {
 				content: "" !important;
 			}
+			p + p {
+				margin-top: emCalc(20px);
+			}
 		}
 	}
 	.row-more {
@@ -1305,6 +1308,11 @@ body.thank-you {
 		.row-hero {
 			h1 {
 				font-size: emCalc(50px);
+			}
+		}
+		.row-testimonials {
+			.column-text {
+				padding: emCalc(30px);
 			}
 		}
 		.row-share {
