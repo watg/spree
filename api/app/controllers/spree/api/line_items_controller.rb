@@ -8,13 +8,12 @@ module Spree
       def create
         variant = Spree::Variant.find(params[:line_item][:variant_id])
         options = parse_options( variant, params[:line_item][:options] || {} )
-        @line_item = order.contents.add(
-            variant,
-            params[:line_item][:quantity] || 1,
-        # This can not use strong params as { parts => { 1 => 2 } } is passed in
-        # and we can not predict the keys and values before hand
-        #    line_item_params[:options] || {} # spree_vanilla
-            options
+
+        @line_item = LineItemCreateService.run!(
+          order:    order,
+          variant:  variant,
+          quantity: params[:line_item][:quantity],
+          options:  options,
         )
 
         if @line_item.errors.empty?

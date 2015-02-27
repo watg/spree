@@ -125,6 +125,22 @@ module Spree
         expect { line_item.reload }.to raise_error(ActiveRecord::RecordNotFound)
       end
 
+      context "adding an item to a complete order with no shipments" do
+
+        before do
+          order.update_column(:completed_at, Time.now)
+          order.shipments.delete_all
+        end
+
+        it "creates a shipment when added to a completed order without shipments" do
+          allow(order).to receive(:completed?).and_return true
+          api_post :create, :line_item => { :variant_id => product.master.to_param, :quantity => 1 }
+          expect(order.reload.shipments).to_not be_empty
+          expect(response.status).to eq(201)
+        end
+
+      end
+
       context "order contents changed after shipments were created" do
         let!(:order) { Order.create }
         let!(:line_item) { order.contents.add(product.master) }
