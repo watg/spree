@@ -49,7 +49,7 @@ module Spree
       end
 
       def today_orders_by_hour
-        today_orders = Spree::Order.where('completed_at >= ?', Time.zone.now.beginning_of_day).group_by_hour(:completed_at, range: Date.today..Time.now).count.to_a
+        today_orders = Spree::Order.where('completed_at >= ?', Time.zone.now.beginning_of_day).group_by_hour(:completed_at, range: Date.today..Time.zone.now.beginning_of_hour-1).count.to_a
 
         today_orders.map! do |point|
           { x: point[0].to_i, y: point[1] }
