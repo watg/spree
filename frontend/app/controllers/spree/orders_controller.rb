@@ -51,6 +51,7 @@ module Spree
 
     # Adds a new item to the order (creating a new order if none already exists)
     def populate
+      sleep(2)
       populator = Spree::OrderPopulator.new(current_order(create_order_if_necessary: true), current_currency)
       populator.populate(params.slice(:products, :variants, :quantity, :parts, :target_id, :suite_id, :suite_tab_id))
 

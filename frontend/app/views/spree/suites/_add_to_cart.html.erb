@@ -1,14 +1,22 @@
 <% if product_presenter.price and !product_presenter.price.nil? %>
-	<div class="add-to-cart">
-    <% if !product_presenter.out_of_stock_override? %>
-			  <label>Quantity</label>
-			  <%= number_field_tag (product_presenter.assembly_definition? ? "variants[#{product_presenter.master.id}]" : :quantity ), 1, :id => 'qty', :min => 1 %>
-			  <%= button_tag :class => 'add-to-cart-button small disabled', :type => :submit, :style => "opacity: 0.5", :title => "Please select above options" do %>
-			  	<%= Spree.t(:add_to_cart) %>
-			  <% end %>
+    <div class="add-to-cart">
+      <% if !product_presenter.out_of_stock_override? %>
+          <div class="left">
+            <label>Quantity</label>
+            <%= number_field_tag (product_presenter.assembly_definition? ? "variants[#{product_presenter.master.id}]" : :quantity ), 1, :id => 'qty', :min => 1 %>
+          </div>
+          <div class="left">
+            <%= button_tag :class => 'add-to-cart-button small disabled', :type => :submit, :style => "opacity: 0.5", :title => "Please select above options" do %>
+                <%= Spree.t(:add_to_cart) %>
+            <% end %>
+            <div id="waiting-loader" class="hide">
+              <%= image_tag('watg-img/knitting_icon_small-quick.gif')%>
+              <div style="display: inline-block"><h5>Please wait...</h5></div>
+            </div>
+          </div>
       <% else %>
-        <h5>Sorry, this item is out of stock</h5>
-		<% end %>
-	</div>
+          <h5>Sorry, this item is out of stock</h5>
+      <% end %>
+    </div>
 <% end %>
 
