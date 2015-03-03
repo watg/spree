@@ -238,6 +238,7 @@ core.suite.readyAjaxCarSpinner = function() {
 
   form.on('submit', function(){
     button.prop('disabled', true);
+    $('#cart-ajax-message .flash').fadeOut('slow');
     button.fadeOut('slow', function(){
       loader.fadeIn('slow').css("display","inline-block");
     });
