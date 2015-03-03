@@ -45,6 +45,7 @@ Spree::Core::Engine.add_routes do
         get :today_orders
         get :today_sells_by_type
         get :today_orders_by_hour
+        get :today_items
       end
     end
 
