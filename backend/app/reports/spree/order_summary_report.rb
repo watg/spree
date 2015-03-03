@@ -65,20 +65,14 @@ module Spree
     end
 
     def retrieve_data
-
       # This is from the old system
       previous_users = CSV.read(File.join(File.dirname(__FILE__),"unique_previous_users.csv")).flatten
       previous_users = previous_users.to_set
 
-      valid_states = %w(complete resumed warehouse_on_hold customer_service_on_hold)
-
-      Spree::Order.includes(:shipments, line_items: [ :line_item_parts] ).
-        where( :state => valid_states, :completed_at => @from..@to ).find_each do |o|
-        #Spree::Order.includes(:shipments).where( :state => 'complete', :completed_at => @from..@to ).find_each do |o|
-        yield generate_csv_line(o,previous_users)
+      loop_orders do |order|
+        yield generate_csv_line(order, previous_users)
       end
     end
-
 
     def marketing_type_headers
       marketing_type_lookup.map { |mt| "#{mt}_revenue_pre_promo" }
@@ -106,7 +100,19 @@ module Spree
       marketing_type_lookup.map { |mt| totals[mt] || 0.0 }
     end
 
-    private
+  private
+
+    def loop_orders(&block)
+      valid_states = %w(complete resumed warehouse_on_hold customer_service_on_hold)
+
+      Spree::Order.includes(:shipments, line_items: [ :line_item_parts] ).
+          where( :state => valid_states, :completed_at => @from..@to ).find_each do |order|
+
+        yield order
+      end
+    end
+
+
 
     def marketing_type_lookup
       Spree::MarketingType.all.map(&:name)
@@ -188,7 +194,6 @@ module Spree
 
     end
 
-    private
 
     def returning_customer(order,previous_users)
       rtn = !first_order(order)
