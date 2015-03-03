@@ -146,7 +146,7 @@ module Spree
         o.email,
         o.number,
         o.line_items.size,
-        o.completed_at.to_s(:db),
+        o.completed_at.try(:to_s, :db),
         shipped_at,
         o.shipping_address.country.name,
         returning_customer(o,previous_users),
