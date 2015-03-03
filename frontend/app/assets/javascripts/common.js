@@ -120,6 +120,14 @@ WATG.referral = {
 			qualifies = false;
 		}
 
+		// check for presence of country if free knitting patterns page
+		if ($('body').hasClass('free-patterns')) {
+			var country = this.referralForm.find('select[name="country"]').val();
+			if (!country) {
+				qualifies = false
+			}
+		}
+
 		// Referees --------------------
 
 		// Check we've got valid referee emails...
@@ -186,7 +194,7 @@ WATG.referral = {
 	},
 
 	showError: function() {
-		$('<p class="error"><strong>Oops. Something\'s not quite right.</strong> <br/>Please check that you\'ve supplied your own email address, and check your friends addresses are all unique. Thank you!</p>').hide().insertBefore(this.referralForm).fadeIn('slow').focus();
+		$('<p class="error"><strong>Oops. Something\'s not quite right.</strong> <br/>Please check that you\'ve supplied your own email address and country, and ensure your friends addresses are all unique. Thank you!</p>').hide().insertBefore(this.referralForm).fadeIn('slow').focus();
 		this.referralForm.find('input[type="email"]').css('border', '2px solid #f4bfbf');
 	},
 

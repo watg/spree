@@ -207,7 +207,6 @@
       }
     }
   }
-
   .row-form {
     margin-top: 60px !important;
     .sign-up-header {
@@ -224,6 +223,9 @@
         margin: 0;
         border: 0;
         padding: 0 0 60px;
+        select {
+          color: #999;
+        }
       }
       .success-message {
         display: none;
