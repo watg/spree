@@ -74,11 +74,13 @@ module Spree
 
       private
 
+      def format_out_of_stock_error_message(variant)
+        "<strong>#{[variant.name, variant.options_text].compact.join(", ")}</strong>"
+      end
+
       def out_of_stock_error_message(variants)
         display_names = variants.map do |variant|
-          display_name = %Q{#{variant.name}}
-          display_name += %Q{ (#{variant.options_text})} unless variant.options_text.blank?
-          display_name
+          format_out_of_stock_error_message(variant)
         end
 
         error_message = Spree.t(

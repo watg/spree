@@ -24,6 +24,9 @@ var readySuite = function() {
 	core.suite.closeAssemblyMenus();
 	core.suite.readyAssemblyItemNames();
 	core.suite.setAssemblyListHeights();
+
+  /* ----- Ajax cart animation ----- */
+  core.suite.readyAjaxCarSpinner();
 };
 
 $(document).ready(readySuite);
@@ -227,6 +230,29 @@ core.suite.checkForVariantNumber = function() {
 		}
 	}
 }
+
+core.suite.readyAjaxCarSpinner = function() {
+  var form = $('.add_to_cart_form'),
+      button = $('.add_to_cart_form .add-to-cart-button'),
+      loader = $('#waiting-loader');
+
+  form.on('submit', function(){
+    button.prop('disabled', true);
+    $('#cart-ajax-message .flash').fadeOut('slow');
+    button.fadeOut('slow', function(){
+      loader.fadeIn('slow').css("display","inline-block");
+    });
+  });
+
+  form.on('ajax:complete',function(xhr, status){
+    button.stop();
+    loader.stop();
+    button.prop('disabled', false);
+    loader.fadeOut('slow', function(){
+      button.fadeIn('slow');
+    });
+  });
+};
 
 /* ----- New kit UI only ----- */
 

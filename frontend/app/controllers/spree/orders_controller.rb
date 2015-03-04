@@ -3,6 +3,8 @@ module Spree
     ssl_required :show
 
     before_action :check_authorization
+    respond_to :js, :only => :populate
+
     rescue_from ActiveRecord::RecordNotFound, :with => :render_404
     helper 'spree/products', 'spree/orders'
 
@@ -50,14 +52,24 @@ module Spree
     # Adds a new item to the order (creating a new order if none already exists)
     def populate
       populator = Spree::OrderPopulator.new(current_order(create_order_if_necessary: true), current_currency)
+      populator.populate(params.slice(:products, :variants, :quantity, :parts, :target_id, :suite_id, :suite_tab_id))
 
-      if populator.populate(params.slice(:products, :variants, :quantity, :parts, :target_id, :suite_id, :suite_tab_id))
+      if populator.valid?
+        @item = populator.item
+        current_order.ensure_updated_shipments
         respond_with(@order) do |format|
+          format.js { render :layout => false }
           format.html { redirect_to cart_path }
         end
       else
-        flash[:error] = populator.errors.full_messages.join(" ")
-        redirect_back_or_default(:back)
+        @errors = populator.errors.full_messages.join(" ")
+        respond_with(@order) do |format|
+          format.js { render :layout => false }
+          format.html do
+            flash[:error] = @errors
+            redirect_back_or_default(:back)
+          end
+        end
       end
     end
 

@@ -14,6 +14,7 @@ describe Spree::OrderPopulator, :type => :model do
     before do
       allow(order).to receive(:line_items).and_return([])
       expect(order).to receive(:contents).at_least(:once).and_return(Spree::OrderContents.new(order))
+      allow(subject.options_parser).to receive(:missing_parts).and_return({})
     end
 
     context "with variants parameters" do
@@ -231,4 +232,35 @@ describe Spree::OrderPopulator, :type => :model do
     end
 
   end
+
+  describe "#item" do
+
+    it "should return nil if populate has not been called succesfully" do
+      expect(subject.item).to be_nil
+    end
+
+
+    context "item has been added to cart" do
+
+      let(:variant) { Spree::Variant.new }
+      let(:quantity) { 2 }
+
+      before do
+        allow(order).to receive(:line_items).and_return([])
+        expect(order).to receive(:contents).at_least(:once).and_return(Spree::OrderContents.new(order))
+        line_item = double(:line_item, errors: [])
+        expect(order.contents).to receive(:add).and_return(line_item)
+        subject.attempt_cart_add(variant, quantity, {})
+      end
+
+      it "should return an Item Struct with variant and quantity" do
+        expect(subject.item.variant).to eq variant
+        expect(subject.item.quantity).to eq quantity
+      end
+
+    end
+
+  end
+
+
 end

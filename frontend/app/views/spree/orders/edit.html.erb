@@ -28,9 +28,9 @@
 
 				<div class="row collapse checkout-link">
           <%= button_tag "Update bag", :class => 'inverse', :id => 'update-button' %>
-					<%= link_to Spree.t(:continue_shopping), root_path, :class => 'continue-shopping button inverse' %>
-					<%= button_tag :class => '', :id => 'checkout-link', :name => 'checkout' do %>
-						<%= Spree.t(:checkout) %>
+          <%= link_to Spree.t(:continue_shopping), referring_page, :class => 'continue-shopping button inverse' %>
+          <%= button_tag :class => '', :id => 'checkout-link', :name => 'checkout' do %>
+            <%= Spree.t(:checkout) %>
 					<% end %>
 					<%#
 					<ul class="small-print">

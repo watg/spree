@@ -4,7 +4,7 @@
       <ul>
       <% @order.errors.messages.each do |attr, msg| %>
         <% msg.each do |val| %>
-          <li><%= val %></li>
+          <li><%= val.html_safe %></li>
         <% end %>
       <% end %>
       </ul>
