@@ -22,6 +22,8 @@ module Spree
     belongs_to :country, class_name: 'Spree::Country'
 
     scope :displayable, -> { where(is_displayable: true) }
+    scope :with_nickname, -> { where.not(nickname: '') }
+    scope :displayable_with_nickname, -> { displayable.with_nickname }
 
     after_initialize :init
 
