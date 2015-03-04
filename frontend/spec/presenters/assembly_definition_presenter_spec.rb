@@ -34,7 +34,7 @@ describe Spree::AssemblyDefinitionPresenter do
       before do
         mock_object = double('mock')
         allow(variant).to receive(:suppliers).and_return(mock_object)
-        allow(mock_object).to receive(:displayable).and_return(suppliers)
+        allow(mock_object).to receive(:displayable_with_nickname).and_return(suppliers)
 
         assembly_definition.parts << part1
         product.master.assembly_definition = assembly_definition
@@ -53,7 +53,7 @@ describe Spree::AssemblyDefinitionPresenter do
         before do
           mock_object = double('mock')
           allow(variant_2).to receive(:suppliers).and_return(mock_object)
-          allow(mock_object).to receive(:displayable).and_return(suppliers_2)
+          allow(mock_object).to receive(:displayable_with_nickname).and_return(suppliers_2)
           assembly_definition.parts << part2
           part2.variants << variant_2
         end

@@ -9,7 +9,7 @@ module Spree
     def displayable_suppliers
       part = assembly_definition.main_part || assembly_definition.parts.first
       variant = part.variants.first if part
-      variant ? variant.suppliers.displayable : []
+      variant ? variant.suppliers.displayable_with_nickname : []
     end
 
   end

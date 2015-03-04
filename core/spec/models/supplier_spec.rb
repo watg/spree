@@ -31,6 +31,19 @@ describe Spree::Supplier do
 
   end
 
+  it "returns suppliers where the nickname is set" do
+    expected = create_list(:supplier, 2, nickname: "nickname")
+    create(:supplier, nickname: "")
+    expect(Spree::Supplier.with_nickname).to match_array(expected)
+  end
+
+  it "returns displayable suppliers where the nickname is set" do
+    expected = create_list(:supplier, 2, nickname: "nickname")
+    create(:supplier, nickname: "")
+    create(:supplier, nickname: "nickname", is_displayable: false)
+    expect(Spree::Supplier.displayable_with_nickname).to match_array(expected)
+  end
+
   context "name" do
     context "validation" do
       let(:supplier) { Spree::Supplier.new(permalink: "something", is_company: is_company) }
