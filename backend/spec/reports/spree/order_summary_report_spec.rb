@@ -40,6 +40,20 @@ module Spree
           it { is_expected.to include order.send(method) }
         end
 
+        describe "adjustments" do
+          let(:address) { create(:address) }
+          let(:order) { create(:order, ship_address: address) }
+
+          context "manual adjustment" do
+            let(:manual_adjustment) { create(:adjustment, source: nil, amount: 4.31, order: order) }
+
+            before do
+              order.adjustments << manual_adjustment
+            end
+
+            it { is_expected.to include 4.31 }
+          end
+        end
       end
     end
 

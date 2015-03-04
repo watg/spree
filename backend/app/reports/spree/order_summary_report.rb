@@ -31,6 +31,7 @@ module Spree
         shipping_promo
         promo_total
         gift_card_total
+        manual_adjustments_total
         promo_code
         payment_total
         order_total
@@ -160,6 +161,7 @@ module Spree
         o.shipments.sum(:promo_total).to_f,
         o.promo_total,
         o.adjustments.gift_card.sum(:amount).to_f,
+        o.adjustments.manual.sum(:amount).to_f,
         promo_label,
         o.payment_total.to_f, # Over cost
         o.total.to_f ] + # Over cost
