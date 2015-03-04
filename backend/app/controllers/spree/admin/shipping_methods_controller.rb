@@ -40,7 +40,7 @@ module Spree
         @available_zones = Zone.order(:name)
         @tax_categories = Spree::TaxCategory.order(:name)
         @calculators = ShippingMethod.calculators.sort_by(&:name)
-        @shipping_method_duration = Spree::ShippingMethodDuration.order(:description)
+        @shipping_method_durations = Spree::ShippingMethodDuration.order(:description)
       end
     end
   end
