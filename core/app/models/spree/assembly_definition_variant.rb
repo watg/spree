@@ -12,6 +12,12 @@ class Spree::AssemblyDefinitionVariant < ActiveRecord::Base
     variant.part_prices
   end
 
+  # Return variant, even if deleted
+  # Fixes admin errors on assembly definition.
+  def variant
+    Spree::Variant.unscoped { super }
+  end
+
   private
 
   def set_assembly_product
