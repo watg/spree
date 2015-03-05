@@ -24,7 +24,7 @@ module Spree
         transition from: [:not_redeemed], to: :paused
       end
       event :activate do
-        transition from: [:paused], to: :not_redeemed
+        transition from: [:paused, :redeemed], to: :not_redeemed
       end
       event :refund do
         transition from: [:not_redeemed, :redeemed, :paused], to: :refunded

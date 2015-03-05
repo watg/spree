@@ -100,7 +100,7 @@ describe Spree::GiftCard do
       it 'tells if can change to desired state from redeemed' do
         card = build(:gift_card, state: 'redeemed')
 
-        expect(card.change_state_to?('not_redeemed')).to be false
+        expect(card.change_state_to?('not_redeemed')).to be true
         expect(card.change_state_to?('paused')).to be false
         expect(card.change_state_to?('cancelled')).to be false
         expect(card.change_state_to?('refunded')).to be true
