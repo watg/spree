@@ -532,6 +532,66 @@
       margin-top: 0 !important; /* Pull up to hero row */
     }
 	}
+
+  /* cross sales */
+  //colors
+  $white: #fff;
+  .cross-sales {
+    .owl-carousel .inverted {
+      color: $white;
+    }
+    .owl-controls .owl-nav {
+      div {
+        position: absolute;
+      }
+      .owl-prev {
+        left: -45px;
+        top: 55px;
+      }
+      .owl-next {
+        right: -45px;
+        top: 55px;
+      }
+    }
+    .row-carousel .row h2 {
+      position: absolute;
+      top: 80%;
+      z-index: 20;
+      &.small {
+        padding: 0 1.25em;
+        margin-left: -0.46875em;
+        font-size: 1.625em;
+        text-align: center;
+        width: 100%;
+      }
+    }
+    &.suites-index .row-products .row-product img {
+      height: auto;
+      width: auto;
+    }
+  }
+  .widget-cross-sales {
+    margin: 0 50px;
+    h2 {
+      text-align: center;
+      margin: 0 0 1.63em;
+    }
+  }
+  @media(max-width: 1000px) {
+    .cross-sales .row-carousel .row h2.small {
+      font-size: 1.3em;
+    }
+  }
+  @media(max-width: 750px) {
+    .cross-sales .row-carousel .row h2.small {
+      font-size: 1em;
+    }
+  }
+}
+
+/* cross sales no margin on mobile */
+body.mobile .suite .widget-cross-sales {
+  margin: 0;
 }
 
 // Main images and varians

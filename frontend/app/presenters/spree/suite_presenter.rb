@@ -7,7 +7,11 @@ module Spree
     end
 
     def self.desktop_image_size(counter)
-      counter % 9 == 0  ? :large : :small
+      if counter
+        counter % 9 == 0  ? :large : :small
+      else
+        :small
+      end
     end
 
     def tabs
@@ -41,7 +45,11 @@ module Spree
     end
 
     def container_class(counter=0)
-      image_size(counter) == :large ? 'large-8' : 'large-4'
+      if counter
+        image_size(counter) == :large ? 'large-8' : 'large-4'
+      else
+        'large-12'
+      end
     end
 
     def image_alt
@@ -51,12 +59,12 @@ module Spree
 
     def header_style
       case suite.template_id
-      when Spree::Suite::LARGE_TOP
-        classes = "large top"
-      when Spree::Suite::SMALL_BOTTOM
-        classes = "small bottom"
-      else
-        classes = "small bottom"
+        when Spree::Suite::LARGE_TOP
+          classes = "large top"
+        when Spree::Suite::SMALL_BOTTOM
+          classes = "small bottom"
+        else
+          classes = "small bottom"
       end
 
       if suite.inverted?
@@ -134,11 +142,11 @@ module Spree
     def suite_tab_presenter(tab)
       @suite_tab_presenter ||= {}
       @suite_tab_presenter[tab] ||= SuiteTabPresenter.new(tab, template, {
-        suite: suite,
-        currency: currency,
-        target: target,
-        device: device
-      })
+                                                               suite: suite,
+                                                               currency: currency,
+                                                               target: target,
+                                                               device: device
+                                                             })
       @suite_tab_presenter[tab]
     end
 

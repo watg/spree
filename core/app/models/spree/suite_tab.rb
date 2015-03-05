@@ -21,7 +21,14 @@ module Spree
     belongs_to :product, inverse_of: :suite_tabs, class_name: "Spree::Product"
     has_one :image, as: :viewable, dependent: :destroy, class_name: "Spree::SuiteTabImage"
 
-    accepts_nested_attributes_for :image, allow_destroy: true
+    has_and_belongs_to_many(:cross_sales,
+                            :class_name => "Spree::Suite",
+                            :join_table => "spree_suite_tab_cross_sales",
+                            :foreign_key => "suite_id",
+                            :association_foreign_key => "suite_tab_id")
+
+    accepts_nested_attributes_for :image,:cross_sales, allow_destroy: true
+
 
     validates_uniqueness_of :position, scope: [:suite_id, :deleted_at]
     validates_uniqueness_of :tab_type, scope: [:suite_id, :deleted_at]
@@ -64,7 +71,11 @@ module Spree
       end
     end
 
-    
+    def pretty_name
+      "#{self.product.name} -> #{self.suite.title} -> #{self.tab_type} #{'-> ' + self.suite.target.name if self.suite.target}"
+    end
+
+
     private
 
     def lowest_normal_amount_key(currency)

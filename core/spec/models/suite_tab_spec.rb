@@ -26,6 +26,10 @@ describe Spree::SuiteTab do
     end
   end
 
+  describe "associations" do
+    it { is_expected.to have_and_belong_to_many(:cross_sales) }
+  end
+
   describe "#presentation" do
     its(:presentation) { should eq 'MADE BY THE GANG' }
 
@@ -122,5 +126,4 @@ describe Spree::SuiteTab do
     end
 
   end
-
 end

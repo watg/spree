@@ -1,0 +1,20 @@
+<div class="suites-index cross-sales">
+  <% if @selected_tab.cross_sales.any? %>
+      <h2>More WATG goodness</h2>
+  <% end %>
+  <div class="row-carousel row-products">
+    <% if mobile_device? %>
+        <div class="row row-product">
+          <% @selected_tab.cross_sales.each do |suite| %>
+              <%= render partial: "spree/taxons/suite", locals: {suite: suite, cache_safe_suite_counter: 1} %>
+          <% end %>
+        </div>
+    <%else%>
+        <div class="row row-product owl-carousel">
+          <% @selected_tab.cross_sales.each do |suite| %>
+              <%= render partial: "spree/taxons/suite", locals: {suite: suite, cache_safe_suite_counter: false} %>
+          <% end %>
+        </div>
+    <% end %>
+  </div>
+</div>

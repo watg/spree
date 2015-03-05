@@ -17,6 +17,11 @@
       </span>
     </div>
 
+    <div class="field">
+      <%= f.label :cross_sale_ids, Spree.t(:cross_sales) %>
+      <%= f.collection_select(:cross_sale_ids, Spree::SuiteTab.all.sort_by(&:pretty_name), :id, :pretty_name, {include_hidden: false, include_blank: false}, { class: 'select2 fullwidth cross_sales', multiple: true}) %>
+    </div>
+
     <div class="dropzone" id="<%= f.object.tab_type %>_image_container">
       <div>
         <%= f.fields_for :image do |image_fields| %>
@@ -36,6 +41,16 @@
       <%= f.hidden_field :_destroy %>
       <%= link_to_with_icon 'fa fa-trash', "Delete Tab", "#", class: "remove_tab" %>
     </div>
-
+    <div class="field">
+      <%= f.label :cross_sale_ids, Spree.t(:cross_sales) %>
+      <%= f.collection_select(:cross_sale_ids, Spree::Suite.all.sort_by(&:name), :id, :name, {include_hidden: false, include_blank: false}, { class: 'select2 fullwidth cross_sales', multiple: true}) %>
+    </div>
   </fieldset>
 </div>
+
+<style>
+  .select2.cross_sales ul.select2-choices {
+    height:100px !important;
+    overflow-y: scroll;
+  }
+</style>

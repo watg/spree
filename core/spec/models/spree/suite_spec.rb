@@ -44,7 +44,6 @@ describe Spree::Suite do
     end
   end
 
-
   # Regression tests for #2352
   context "classifications and taxons" do
     it "is joined through classifications" do

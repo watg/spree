@@ -3,6 +3,7 @@ module Spree
     presents :suite_tab
 
     attr_accessor :suite, :variants
+    delegate :cross_sales, to: :suite_tab
 
     def initialize(object, template, context={})
       super(object, template, context)

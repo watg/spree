@@ -1,6 +1,8 @@
 <% present(suite, @context) do |suite_presenter| %>
 
-  <div class="<%= suite_presenter.container_class(cache_safe_suite_counter) %> small-6 columns" itemscope itemtype="http://schema.org/Product">
+  <div class="<%= suite_presenter.container_class(cache_safe_suite_counter) %> <%='small-6' if cache_safe_suite_counter %> columns"
+       itemscope
+       itemtype="http://schema.org/Product">
 
     <a href="<%= suite_presenter.link_to_first_tab_in_stock %>" title="<%=suite_presenter.title%>">
         <h2 itemprop="name" class="<%= suite_presenter.header_style %>"><%= suite_presenter.title %></h2>

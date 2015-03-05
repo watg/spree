@@ -11,7 +11,7 @@ var readyCore = function() {
 
 $(document).ready(readyCore);
 $(document).on('page:load', readyCore);
-  
+
 // On document fully loaded...
 $(window).bind('load', function() {
   if ($('body').hasClass('no-sitewide-promo')) return false; // Die if sitewide promo not required
@@ -271,6 +271,60 @@ core.signupUser = function() {
       }
     })
   })
+}
+
+// this is called when we need the product overlay text
+core.productOverlays = function() {
+  if (Modernizr.touch) {
+    var touched_without_scroll = false;
+
+    // Tablet
+    $('.row-product .columns').on({
+      touchstart: function(e) {
+        if (e.originalEvent.touches.length > 1) return;
+        touched_without_scroll = true;
+      },
+      touchmove: function(e) {
+        touched_without_scroll = false;
+      },
+      touchend: function(e) {
+        if(touched_without_scroll) {
+          $('.row-product ul').hide(); // Close all overlays
+          var overlay = $(this).find('ul');
+          overlay.show(); // Open this overlay
+          overlay.delay(3000).fadeOut('slow', function() {
+            $(this).find('a').removeClass('active');
+          });
+        }
+      }
+    });
+
+    // Ensure the first anchor click for mobile doesn't do 'owt; it's the second click we want
+    $('.row-product .columns a').on({
+      click: function(e) {
+        if (!$(this).hasClass('active')) {
+          $(this).addClass('active');
+          return false;
+        }
+      }
+    });
+  } else {
+    // Desktop
+    $('.row-product .columns').on({
+      mouseover: function() {
+        $(this).find('h2').hide();
+        $(this).find('ul').show();
+        $(this).find('.more-colours').show();
+      }
+    });
+    $('.row-product ul').on({
+      mouseout: function() {
+        $(this).prev('a').find('h2').show();
+        $(this).next('.more-colours').hide();
+        $(this).hide();
+      }
+    });
+  }
 }
 
 core.signupSetCookie = function() {

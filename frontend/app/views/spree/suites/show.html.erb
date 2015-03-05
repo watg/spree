@@ -28,6 +28,7 @@
       	<div class="widget-social">
       		<%= render partial: 'olapic' %>
       	</div>
+
       	<div class="row-hero <%= selected_tab_presenter.tab_type %>" data-hero-image="<%= selected_tab_presenter.banner_url %>">
       		<div class="row">
       			<div class="large-4 push-8 small-12 columns title <%= selected_tab_presenter.inverted_colour %>">
@@ -60,8 +61,10 @@
         <% cache [selected_tab_presenter.suite_tab, suite_presenter.currency, device] do %>
       	  <%= render selected_tab_presenter.cart_partial, selected_tab_presenter: selected_tab_presenter, suite_presenter: suite_presenter %>
         <% end %>
-
       <% end # cache suite,selected_tab_presenter %>
+      <div class="widget-cross-sales">
+        <%= render partial: 'cross_sales' %>
+      </div>
     </div><!-- /wrapper -->
   <% end # selected_tab_presenter_presenter %>
 <% end # suite_presenter %>

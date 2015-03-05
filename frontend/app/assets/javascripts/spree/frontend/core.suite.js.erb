@@ -18,6 +18,7 @@ var readySuite = function() {
 	core.suite.checkForVariantNumber();
 	core.suite.showHeroImage();
 	core.suite.positionHeroTitle();
+  core.suite.startCrossSales();
 
 	/* ----- New kit UI only ----- */
 	core.suite.readyAssemblyMenus();
@@ -251,6 +252,32 @@ core.suite.readyAjaxCarSpinner = function() {
     loader.fadeOut('slow', function(){
       button.fadeIn('slow');
     });
+  });
+};
+
+/* Cross Sales Widget */
+core.suite.startCrossSales = function() {
+  if (core.isMobileWidthOrLess() === false) {
+    core.productOverlays();
+  }
+
+  $(".owl-carousel").owlCarousel({
+    loop:true,
+    responsiveClass:true,
+    navText: [
+      "<img src='https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/free-knitting-patterns/free-patterns-arrow-left-thin.jpg'>",
+      "<img src='https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/free-knitting-patterns/free-patterns-arrow-right-thin.jpg'>"
+    ],
+    responsive:{
+      0:{
+        items:2,
+        nav:true
+      },
+      900:{
+        items:3,
+        nav:true
+      }
+    }
   });
 };
 
