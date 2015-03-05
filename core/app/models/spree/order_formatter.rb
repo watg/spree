@@ -16,7 +16,8 @@ module Spree
         adjustments_total: adjustments_total.to_html,
         delivery_time: @order.delivery_time || 'soon',
         currency: @order.currency,
-        payment_total: order_total.to_html
+        payment_total: order_total.to_html,
+        digital_message: digital_message
       }
     end
 
@@ -85,6 +86,14 @@ module Spree
           '</tr>'
       end
       t.to_s
+    end
+
+    def digital_message
+      if @order.digital?
+        "Your PDF pattern will be sent in a separate email, it should be with you in 5-10 minutes from receiving this order confirmation."
+      else
+        ""
+      end
     end
   end
 end
