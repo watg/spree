@@ -45,7 +45,7 @@ core.suite.readyVariantOptions = (entity) ->
       message = message + last
 
       entity.find('p.error').remove()
-      entity.find('.add-to-cart').prepend($("<p class='error'>#{message}!</p>").hide().fadeIn('slow').focus())
+      entity.find('.add-to-cart').prepend($("<p class='error'>#{message}</p>").hide().fadeIn('slow').focus())
       false
 
   entity.find('.option-value').click (event)->
