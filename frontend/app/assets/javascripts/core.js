@@ -15,7 +15,7 @@ $(document).on('page:load', readyCore);
 // On document fully loaded...
 $(window).bind('load', function() {
   if ($('body').hasClass('no-sitewide-promo')) return false; // Die if sitewide promo not required
-  setTimeout(function() { core.signupCheck() }, 4000);
+  setTimeout(function() { core.signupCheck() }, 1500);
 });
 
 /* ----- Init methods ----- */
@@ -294,7 +294,7 @@ core.signupGetPromoCode = function() {
 }
 
 core.signupGetPromoText = function() {
-  return '<strong>Get 10% off</strong> your items,<br/>Enter code when you check out:';
+  return '<strong>Get 20% off</strong> your items,<br/>Enter code when you check out:';
 }
 
 // optional, depending where veronica wants the disclaimer
