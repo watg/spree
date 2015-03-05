@@ -62,6 +62,52 @@ core.suite.readyVariantOptions = (entity) ->
       toggle_images(entity, variant_details['id'])
       set_prices(entity, variant_details['id'], variant_details['normal_price'], variant_details['sale_price'], variant_details['in_sale'])
 
+    # I am so sorry for the following code.
+    #
+    # If the user has selected a colour but not a size we can't identify the
+    # variant but we still want to toggle the images. In that case we walk the
+    # options tree starting from the selected colour and keep looking at
+    # child nodes until we find a variant. Any variant, we don't care - the all
+    # have the same images. For example, given this tree:
+    #
+    #   {
+    #     "colour": {
+    #       "red": {
+    #         "size": {
+    #           "small": {
+    #             "variant": {...}
+    #           }
+    #           "medium": {
+    #             "variant": {...}
+    #           }
+    #         }
+    #       }
+    #       "blue": {
+    #         ...
+    #       }
+    #     }
+    #   }
+    #
+    # When the users clicks on "red" we want to find any variant under the
+    # "red" subtree to toggle the images. So we start at "red" and keep looking
+    # at children until we find a key called "variant", then we use it to call
+    # toggle_images.
+    #
+    # I copied/pasted some code from toggle_option_values. You could refactor
+    # this into a function but I decided it was less messy to keep all of this
+    # horror in a self contained function of shit, rather than smearing it out
+    # across other functions.
+    else
+      node = master_tree
+      entity.find('.option-value.selected').each ->
+        option_value = $(this)
+        type =  option_value.data('type')
+        value = option_value.data('value')
+        node = node[type][value]
+      find_first_variant = (tree) ->
+          tree["variant"] || find_first_variant(tree[Object.keys(tree)[0]])
+      toggle_images(entity, find_first_variant(node)['id'])
+
 toggle_option_values = (entity, selected_type, selected_value, selected_presentation, option_type_order, master_tree) ->
 
   # Update the color-text value if type is selected_type is colour
