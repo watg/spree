@@ -1,0 +1,12 @@
+<div data-hook="admin_shipping_method_duration_form_fields" class="alpha twelve columns">
+  <div data-hook="admin_shipping_method_duration_form_description_field" class="alpha twelve columns">
+    <%= f.field_container :description do %>
+        <%= f.label :description, Spree.t(:description) %><br />
+        <%= f.text_field :description, :class => 'fullwidth' %>
+        <%= error_message_on :shipping_method_duration, :description %>
+    <% end %>
+  </div>
+</div>
+
+
+
