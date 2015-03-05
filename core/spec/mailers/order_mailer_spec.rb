@@ -134,8 +134,16 @@ describe Spree::OrderMailer, :type => :mailer do
     it "contains a message" do
       message = Spree::OrderMailer.confirm_email(order)
       header = JSON.parse(message.header['X-MC-MergeVars'].value)
-
       expect(header["digital_message"]).to eq "Your PDF pattern will be sent in a separate email, it should be with you in 5-10 minutes from receiving this order confirmation."
+    end
+  end
+
+  context "when digital download not present" do
+    it "does not contain a message" do
+      message = Spree::OrderMailer.confirm_email(order)
+      header = JSON.parse(message.header['X-MC-MergeVars'].value)
+
+      expect(header["digital_message"]).to eq ""
     end
   end
 
