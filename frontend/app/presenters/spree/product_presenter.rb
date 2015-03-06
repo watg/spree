@@ -44,7 +44,7 @@ module Spree
     end
 
     def option_types_and_values
-      variant_options.option_types_and_values_for(first_variant_or_master)
+      variant_options.option_types_and_values_for(sale_variant_or_first_variant_or_master)
     end
 
     def variant_option_values
@@ -103,9 +103,9 @@ module Spree
       @part_quantity[part]
     end
 
-    def first_variant_or_master
+    def sale_variant_or_first_variant_or_master
       @first_variant_or_master ||= begin
-        variants.first || product.master
+        variants.detect(&:in_sale) || variants.first || product.master
       end
     end
 

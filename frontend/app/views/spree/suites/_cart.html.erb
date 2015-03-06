@@ -1,5 +1,5 @@
 <% present(selected_tab_presenter.product, @context) do |product_presenter| %>
-  <% present(product_presenter.first_variant_or_master, @context) do |variant_presenter| %>
+  <% present(product_presenter.sale_variant_or_first_variant_or_master, @context) do |variant_presenter| %>
 
     <% if product_presenter.assembly_definition %>
       <div class="displayable-kit-entity row active">

@@ -96,17 +96,21 @@ describe Spree::ProductPresenter do
   ## Presenters
 
 
-  describe "#first_variant_or_master" do
+  describe "#sale_variant_or_first_variant_or_master" do
     it "returns an the first variant in stock when variants are available" do
-      subject.stub_chain(:variants, :first).and_return variant
-      expect(subject.first_variant_or_master).to be_kind_of Spree::Variant
-      expect(subject.first_variant_or_master).to eq variant
+      sale_variant = build(:variant, in_sale: true)
+      allow(subject).to receive(:variants).and_return [variant, sale_variant]
+      expect(subject.sale_variant_or_first_variant_or_master).to eq(sale_variant)
+    end
+
+    it "returns an the first variant in stock when variants are available" do
+      subject.stub_chain(:variants).and_return [variant]
+      expect(subject.sale_variant_or_first_variant_or_master).to eq(variant)
     end
 
     it "returns master variant when no variants are available" do
       allow(product).to receive(:master).and_return variant
-      expect(subject.first_variant_or_master).to be_kind_of Spree::Variant
-      expect(subject.first_variant_or_master).to eq variant
+      expect(subject.sale_variant_or_first_variant_or_master).to eq(variant)
     end
   end
 
@@ -148,7 +152,7 @@ describe Spree::ProductPresenter do
     describe "#option_types_and_values" do
 
       it "delegates to variant_options" do
-        expect(variant_options).to receive(:option_types_and_values_for).with(subject.first_variant_or_master)
+        expect(variant_options).to receive(:option_types_and_values_for).with(subject.sale_variant_or_first_variant_or_master)
         subject.option_types_and_values
       end
     end
