@@ -122,11 +122,13 @@
         <td class='actions align-center' data-hook="admin_gift_cards_index_row_actions">
           <% states_allowed.each do |state| %>
           <% if gift_card.change_state_to?(state) %>
+            <div class="field">
             <%= button_to(title_text[state], admin_gift_card_path(gift_card, gift_card: {state: state}),
                 method: :patch,
                 remote: true,
                 data: { confirm: state_confirm_message[state] },
                 title: title_text[state]) %>
+            </div>
           <% end %>
           <% end %>
         </td>
