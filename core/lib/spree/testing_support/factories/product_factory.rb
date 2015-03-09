@@ -9,9 +9,13 @@ FactoryGirl.define do
     individual_sale true
     weight 0.25
 
-    association :product_group, factory: :product_group, strategy: :build
+    product_group_id 0
+    marketing_type_id 0
+
     association :product_type, factory: :product_type, strategy: :build
-    association :marketing_type, factory: :marketing_type, strategy: :build
+    # association :product_group, factory: :product_group, strategy: :build
+    # association :marketing_type, factory: :marketing_type, strategy: :build
+
     shipping_category { |r| Spree::ShippingCategory.first || r.association(:shipping_category) }
 
     transient do

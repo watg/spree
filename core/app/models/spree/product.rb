@@ -45,9 +45,9 @@ module Spree
     belongs_to :marketing_type, class_name: 'Spree::MarketingType'
     belongs_to :product_type, class_name: 'Spree::ProductType'
 
-    validates :product_group, :presence => true
+    validates :product_group_id, :presence => true
+    validates :marketing_type_id, :presence => true
     validates :product_type, :presence => true
-    validates :marketing_type, :presence => true
 
     has_many :personalisations, dependent: :destroy
 
