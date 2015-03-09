@@ -7,16 +7,24 @@ module Spree
     def execute
       taxon_ids = (params.delete(:taxon_ids) || []).map(&:to_i)
       existing_taxon_ids = suite.taxons.map(&:id).map(&:to_i)
-
-      # This will not update taxons as we have deleted them from 
+      # This will not update taxons as we have deleted them from
       # the params, this will be updated below manually
-      suite.update_attributes!(params)
+      suite.update_attributes!(confirm_tab_attributes(params))
 
       update_suites(suite, taxon_ids, existing_taxon_ids)
       rebuild_suite_tabs_cache(suite)
     end
 
     private
+
+    # confirm that each tab has a cross_sale_ids attribute
+    def confirm_tab_attributes(parameters)
+      parameters[:tabs_attributes] = parameters[:tabs_attributes].each do |tab|
+        tab.last[:cross_sale_ids] ||= []
+        tab
+      end
+      parameters
+    end
 
     def update_suites(suite, taxon_ids, existing_taxon_ids)
       taxon_ids_to_add = taxon_ids - existing_taxon_ids
@@ -60,6 +68,5 @@ module Spree
         classification.send_to_top
       end
     end
-
   end
 end

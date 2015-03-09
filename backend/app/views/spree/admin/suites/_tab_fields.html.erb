@@ -17,11 +17,6 @@
       </span>
     </div>
 
-    <div class="field">
-      <%= f.label :cross_sale_ids, Spree.t(:cross_sales) %>
-      <%= f.collection_select(:cross_sale_ids, Spree::SuiteTab.all.sort_by(&:pretty_name), :id, :pretty_name, {include_hidden: false, include_blank: false}, { class: 'select2 fullwidth cross_sales', multiple: true}) %>
-    </div>
-
     <div class="dropzone" id="<%= f.object.tab_type %>_image_container">
       <div>
         <%= f.fields_for :image do |image_fields| %>
