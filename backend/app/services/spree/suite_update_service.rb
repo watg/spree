@@ -42,7 +42,7 @@ module Spree
       taxon_ids_to_remove.each do |taxon_id|
         taxon = Spree::Taxon.find taxon_id
 
-        Spree::Classification.where(suite_id: suite.id, taxon_id: taxon_id).destroy
+        Spree::Classification.where(suite_id: suite.id, taxon_id: taxon_id).destroy_all
 
         compose(SuiteUpdate::RemoveSuiteFromAncestorsService, suite: suite, taxon: taxon)
         compose(SuiteUpdate::RemoveSuiteFromDescendantsService, suite: suite, taxon: taxon)
