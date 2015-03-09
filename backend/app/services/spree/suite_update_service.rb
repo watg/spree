@@ -19,9 +19,11 @@ module Spree
 
     # confirm that each tab has a cross_sale_ids attribute
     def confirm_tab_attributes(parameters)
-      parameters[:tabs_attributes] = parameters[:tabs_attributes].each do |tab|
-        tab.last[:cross_sale_ids] ||= []
-        tab
+      if parameters[:tabs_attributes].present?
+        parameters[:tabs_attributes] = parameters[:tabs_attributes].each do |tab|
+          tab.last[:cross_sale_ids] ||= []
+          tab
+        end
       end
       parameters
     end
