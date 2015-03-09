@@ -13,7 +13,7 @@ module Spree
       private
 
       def inventory_units_inject(acc, &block)
-        units = Spree::InventoryUnit.last_24_hours.awaiting_feed.
+        units = Spree::InventoryUnit.awaiting_feed.
           includes(shipment: [:stock_location]).
           includes(:variant)
         units.each do |iu|

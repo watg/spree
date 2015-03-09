@@ -16,17 +16,17 @@ describe Spree::Feed::InventoryUnitRequirement do
       create_list(:inventory_unit, 1, state: "awaiting_feed", variant: v2, shipment: shipment1)
       create_list(:inventory_unit, 2, state: "awaiting_feed", variant: v2, shipment: shipment2)
 
-      # Older inventory units should be ignored
+      # Older inventory units should NOT be ignored
       create_list(:inventory_unit, 2,
         state: "awaiting_feed", variant: v1, shipment: shipment1, created_at: 2.days.ago
       )
     end
 
 
-    it "returns a mapping of {location => { variant => count }} for last 24 hours" do
+    it "returns a mapping of {location => { variant => count }}" do
       expected = {
         location1 => {
-          v1 => 2,
+          v1 => 4,
           v2 => 1,
         },
         location2 => {
