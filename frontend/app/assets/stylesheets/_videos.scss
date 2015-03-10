@@ -58,6 +58,7 @@
       font-family: $watg-font-secondary-light;
       font-size: emCalc(30px);
     }
+    img,
     iframe {
       margin-top: emCalc(30px);
     }
@@ -81,7 +82,8 @@
     p {
       font-size: emCalc(20px);
     }
-    img {
+    img,
+    iframe {
       margin: emCalc(20px) 0;
     }
     .button {
@@ -105,7 +107,7 @@
         font-weight: normal;
       }
     }
-    .icon-heart {
+    .fa-heart {
       color: #2e3192;
     }
   }
