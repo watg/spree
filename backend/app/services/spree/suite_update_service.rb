@@ -9,7 +9,8 @@ module Spree
       existing_taxon_ids = suite.taxons.map(&:id).map(&:to_i)
       # This will not update taxons as we have deleted them from
       # the params, this will be updated below manually
-      suite.update_attributes!(confirm_tab_attributes(params))
+      suite_params = format_tab_attributes(params)
+      suite.update_attributes!(suite_params)
 
       update_suites(suite, taxon_ids, existing_taxon_ids)
       rebuild_suite_tabs_cache(suite)
@@ -18,11 +19,10 @@ module Spree
     private
 
     # confirm that each tab has a cross_sale_ids attribute
-    def confirm_tab_attributes(parameters)
+    def format_tab_attributes(parameters)
       if parameters[:tabs_attributes].present?
-        parameters[:tabs_attributes] = parameters[:tabs_attributes].each do |tab|
+        parameters[:tabs_attributes].each do |tab|
           tab.last[:cross_sale_ids] ||= []
-          tab
         end
       end
       parameters
