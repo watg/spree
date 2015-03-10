@@ -355,3 +355,7 @@ core.signupGetPromoText = function() {
 core.signupGetPromoDisclaimer = function() {
   return 'Available only until October 21st';
 }
+
+core.clearFocus = function() {
+  document.activeElement.blur();
+};
