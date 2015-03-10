@@ -14,7 +14,7 @@ describe Spree::VariantOptions, type: :model do
     before do
       allow_any_instance_of(Spree::StockItem).to receive_messages(backorderable: false)
     end
-    context "for made by the gang" do
+    context "for normal product" do
 
       let!(:variant_out_stock) { create(:variant, product: product, label: 'women out of stock') }
       let!(:variant_in_stock1)  { create(:variant_with_stock_items, product: product, label: 'women') }

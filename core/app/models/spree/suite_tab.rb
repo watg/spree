@@ -9,7 +9,7 @@ module Spree
     # please ensure that they are url-safe
     TAB_TYPES = {
       'knit-your-own' => ['KNIT YOUR OWN', 'knit_your_own'],
-      'made-by-the-gang' => ['MADE BY THE GANG',DEFAULT_PARTIAL],
+      'made-by-the-gang' => ['READY MADE',DEFAULT_PARTIAL],
       'gift-voucher' => [DEFAULT_PRESENTATION, DEFAULT_PARTIAL],
       'knitting-pattern' => [DEFAULT_PRESENTATION, DEFAULT_PARTIAL],
       'yarn-and-wool' => [DEFAULT_PRESENTATION, DEFAULT_PARTIAL],

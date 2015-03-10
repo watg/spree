@@ -31,7 +31,7 @@ describe Spree::SuiteTab do
   end
 
   describe "#presentation" do
-    its(:presentation) { should eq 'MADE BY THE GANG' }
+    its(:presentation) { should eq 'READY MADE' }
 
     context "knit-your-own" do
       before { subject.tab_type = 'knit-your-own' }
