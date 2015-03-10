@@ -13,9 +13,11 @@ module Spree
       end
 
       def today_sells
-        today_sells = { EUR: 0, GBP: 0, USD: 0 }.merge(
-          today_valid_orders.group('currency').sum(:total)
-        )
+        today_sells = today_valid_orders.group_by(&:currency).inject({ EUR: 0, GBP: 0, USD: 0 }) do |h,(currency,orders)|
+            h[currency] = orders.map(&:total).reduce(:+)
+            h
+      end
+
 
         respond_to do |format|
           format.json { render json: today_sells.to_json }
@@ -31,8 +33,7 @@ module Spree
       end
 
       def today_items
-        today_items = Spree::LineItem.joins(:order).merge(today_valid_orders)
-                      .sum(:quantity)
+        today_items = Spree::LineItem.joins(:order).merge(today_valid_orders).sum(:quantity)
 
         respond_to do |format|
           format.json { render json: { total: today_items }.to_json }
@@ -62,9 +63,7 @@ module Spree
       private
 
       def query_sells_by_type
-        data = Spree::LineItem.joins(:order).merge(today_valid_orders)
-               .joins(variant: [product: :marketing_type])
-               .group('spree_marketing_types.title').sum(:quantity)
+        data = Spree::LineItem.joins(:order).merge(today_valid_orders).joins(variant: [product: :marketing_type]).group('spree_marketing_types.title').sum(:quantity)
         data.sort.reverse!
       end
 
