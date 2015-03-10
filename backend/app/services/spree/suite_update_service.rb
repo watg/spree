@@ -1,6 +1,6 @@
 module Spree
+  # Updates a suite and rebuild the suite cache
   class SuiteUpdateService < ActiveInteraction::Base
-
     model :suite, class: 'Spree::Suite'
     hash :params, strip: false
 
@@ -19,6 +19,7 @@ module Spree
     private
 
     # confirm that each tab has a cross_sale_ids attribute
+    # make sure that each tab cross_sale_ids is an Array
     def format_tab_attributes(parameters)
       if parameters[:tabs_attributes].present?
         parameters[:tabs_attributes].each do |tab|
