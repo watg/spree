@@ -11,8 +11,8 @@ var readySuite = function() {
 	core.suite.setScrollPosition();
 	core.suite.runVariantMethods();
 	core.suite.readyHeroRow();
-	core.suite.readyTabs();
-	core.suite.readyRevealContent();
+//	core.suite.readyTabs();
+//	core.suite.readyRevealContent();
 	core.suite.readySocialWidget();
 	core.suite.readyHistoryPlugin();
 	core.suite.checkForVariantNumber();
@@ -57,16 +57,14 @@ core.suite.runVariantMethods = function() {
 }
 
 core.suite.readySocialWidget = function() {
+
 	// Don't show widget on tablet/mobile, or for Gift Cards
 	if (core.isTabletWidthOrLess() === false && $('.title h1').text().toLowerCase() != 'gift cards') {
 		var widget = $('.widget-social');
-		var container = $('.row-social:visible div:first-child');
+		var container = $('.row-social:visible > div:first-child');
 
 		// Die if widget already in place
 		if (container.find('.widget-social').length > 0) return false;
-
-		// Move widget
-		widget.appendTo(container).show();
 
 		// Apply conditional backgrounds when widget carousel loaded
 		widget.on('DOMNodeInserted', '.olapic_carousel', function() {
@@ -75,18 +73,31 @@ core.suite.readySocialWidget = function() {
 			var thumbs = $(this).find('li').length;
 			var prefix = '<%= cdn_prefix %>' + '/product-group/';
 			// 1, 2, and 3...
-		    if (thumbs > 0 && thumbs < 4) {
-				$('.olapic_widget').css('background-image', 'url("' + prefix + 'olapic-widget-background-thumbs.png")');
-			} else {
-				$('.olapic_widget').css('background-image', 'url("' + prefix + 'olapic-widget-background.png")');
+      if (thumbs > 0 && thumbs < 4) {
+				$('.olapic_widget').css('background-image', 'url("' + prefix + 'olapic-widget-background-thumbs-v2.png")');
+        $('.olapic_widget').css('background-repeat', 'no-repeat');
 			}
-
 			$(this).addClass('inserted');
-		})
+      // Move widget
+      widget.detach().appendTo(container).show();
+		});
+
+    // move arrows outside of parent when widget carousel loaded
+    widget.on('DOMNodeInserted', '.olapic_widget_main', function() {
+      $('.carousel-navigation').each(function() {
+        if (!$(this).hasClass('inserted')) $(this).parent().before(this);
+        $(this).addClass('inserted');
+      });
+    });
+    widget.on('click', '.upload-button', function(event){
+      event.preventDefault();
+      widget.find( ".olapic_widget_area" ).trigger( "click" );
+    });
+
 	} else {
 		$('.row-social').hide();
 	}
-}
+};
 
 core.suite.readyZoomableImages = function() {
 	var images = $('img.zoomable');
@@ -269,6 +280,7 @@ core.suite.startCrossSales = function() {
     navText: [
       "<img src='https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/free-knitting-patterns/free-patterns-arrow-left-thin.jpg'>",
       "<img src='https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/free-knitting-patterns/free-patterns-arrow-right-thin.jpg'>"
+
     ],
     responsive:{
       0:{

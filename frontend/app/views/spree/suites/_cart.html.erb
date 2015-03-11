@@ -92,36 +92,14 @@
               <% end %>
             </div>
          <% end %>
-    
-          <h5 class="reveal-title revealed">Contents</h5>
-          <p class="reveal-content"><%= product_presenter.clean_description %></p>
-
-          <% if product_presenter.assembly_definition %>
-            <% present(product_presenter.assembly_definition, @context) do |assembly_definition_presenter| %>
-              <%= render 'suppliers', suppliers: assembly_definition_presenter.displayable_suppliers %>
-            <% end %>
-          <% else %>
-            <%= render 'suppliers', suppliers: variant_presenter.displayable_suppliers %>
-          <% end %>
-
-    			<h5 class="reveal-title delivery">Delivery info</h5>
-    			<div class="reveal-content">
-    					<%= render "/spree/suites/delivery/delivery_default" %>
-    			</div>
-
-          <%= render 'social_icons', variant_presenter: variant_presenter %>
-
-          <p class="promo-raf">Get your next order free! <a href="/raf/invite">Find out more</a></p>
+          <%= render 'product_details', variant_presenter: variant_presenter, product_presenter: product_presenter%>
         </div>
       </div>
-
-      <div class="row row-social">
+    </div><!-- /row -->
+    <div class="row-social">
+      <div class="row">
         <div class="large-12 columns"></div>
       </div>
-    </div><!-- /row -->
-
+    </div>
   <% end # variant_presenter %>
 <% end # product_presenter %>
-
-
-

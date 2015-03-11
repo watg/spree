@@ -282,65 +282,65 @@
   .stock-level,
   .digital-available,
   .no-stock {
-    float: right;
-    position: relative;
-    top: emCalc(-5px);
-    display: none;
-    color: #8224e3;
-    span {
-      color: #000;
-    }
-  }
-  .digital-available {
-    margin-top: 5px;
-  }
-  .no-stock {
-    display: initial;
-  }
-  h5.delivery + div {
-    margin-bottom: 1.25em;
-    a {
-      text-decoration: underline;
-    }
-    h6 {
-      font-size: emCalc(18px);
-    }
-    table {
-      margin-bottom: 1.25em;
-      caption {
-        display: none;
-      }
-      tr {
-        th, td {
-          padding: emCalc(15px) 0;
-          background-color: #fff;
-          border-bottom: 1px solid #ccc;
-        }
-        th {
-          font-family: $watg-font;
-          font-size: emCalc(16px);
-          text-transform: uppercase;
-          text-align: left;
-        }
-        td {
-          font-size: emCalc(16px);
-        }
-      }
-      tr:first-child {
-        th, td {
-          border-top: 4px solid #ccc;
-        }
-      }
-      tr:last-child {
-        th, td {
-          border-top: 0;
-        }
-      }
-    }
-    p:last-child {
-      margin-bottom: 0;
-    }
-  }
+		float: right;
+		position: relative;
+		top: emCalc(-5px);
+		display: none;
+		color: #8224e3;
+		span {
+			color: #000;
+		}
+	}
+	.digital-available {
+		margin-top: 5px;
+	}
+	.no-stock {
+		display: initial;
+	}
+	h5.delivery + div {
+		margin-bottom: 1.25em;
+		a {
+			text-decoration: underline;
+		}
+		h6 {
+			font-size: emCalc(18px);
+		}
+		table {
+			margin-bottom: 1.25em;
+			caption {
+				display: none;
+			}
+			tr {
+				th, td {
+					padding: emCalc(15px) 0;
+					background-color: #fff;
+					border-bottom: 1px solid #ccc;
+				}
+				th {
+					font-family: $watg-font;
+					font-size: emCalc(16px);
+					text-transform: uppercase;
+					text-align: left;
+				}
+				td {
+					font-size: emCalc(16px);
+				}
+			}
+			tr:first-child {
+				th, td {
+					border-top: 4px solid #ccc;
+				}
+			}
+			tr:last-child {
+				th, td {
+					border-top: 0;
+				}
+			}
+		}
+		p:last-child {
+			margin-bottom: 0;
+		}
+	}
 }
 
 // out of stock form
@@ -994,19 +994,44 @@ body.mobile.suite .widget-cross-sales {
  */
 
 .suite {
-  .widget-social {
-    display: none;
-  }
-  .row-social {
-    padding-top: emCalc(30px);
-    .widget-social {
-      margin-left: -0.25em;
-      padding: emCalc(20px) 0;
-      border-top: 2px solid #f3f3f3;
-      border-bottom: 2px solid #f3f3f3;
+	.widget-social {
+		display: none;
+	}
+	.row-social {
+		padding-top: emCalc(30px);
+    background-color: #f9f9f9;
+		.widget-social {
+			margin-left: -0.25em;
+			padding: emCalc(20px) 45px;
+			border:none;
+			position: relative;
       background-color: #f9f9f9;
-      position: relative;
 
+      h4 {
+        text-transform: uppercase;
+        font-family: 'Gill Sans W01 Light', Helvetica, Arial, sans-serif;
+        margin-bottom: 40px;
+        em {
+          font-family: "Gill Sans W01 Book", Helvetica, Arial, sans-serif;
+          font-weight: normal;
+          font-style: normal;
+          a {
+            text-decoration: underline;
+          }
+        }
+      }
+      h2 {
+        font-family: "Trade Gothic W01 Bold";
+        font-size: 2.4em;
+      }
+      h4 {
+        em a:hover {
+          text-decoration: underline;
+        }
+        a:hover {
+          text-decoration: none;
+        }
+      }
       /* Row arrow */
       &:after, &:before {
         bottom: 100%;
@@ -1031,98 +1056,98 @@ body.mobile.suite .widget-cross-sales {
         margin-left: -20px;
       }
 
-      /* Overwrite Olapic styles */
-      /* --- Widget --- */
-      .olapic_widget_header {
-        padding: emCalc(15px);
-        .olapic_widget_gallery_title {
-          padding: 0;
-          font-size: 1em;
-          color: #000;
-          line-height: inherit;
-          display: none;
-        }
-        .olapic_widget_area,
-        .olapic_view_all_button {
-          margin: 0 0 0 emCalc(20px);
-          padding: 0;
-          font-family: $watg-font;
-          font-size: 1em;
-          text-decoration: underline;
-          text-transform: uppercase;
-          height: auto;
-          line-height: inherit;
-          background: none;
-        }
-        .olapic_view_all_button {
-          display: none; // Hide this for now...
-        }
-      }
-      .olapic_widget_mainwrapper {
-        height: 170px;
-        .olapic_widget_main {
-          .carousel-navigation {
-            top: 10px;
-            margin: 0;
-            line-height: 0;
-            height: 150px;
-            width: 87px;
-            background-color: none;
-          }
-          // Mobile .olapic_empty_widget_content
-          @media only screen and (max-width: 28.750em) {
-            .carousel-navigation {
-              margin-top: 45px;
-              height: 60px;
-              width: 60px;
-            }
-          }
-          .olapic-icon-chevron-left {
-            background: image-url('product-group/olapic-widget-arrow-left.png') left center no-repeat;
-            &:before {
-              content: "";
-            }
-          }
-          .olapic-icon-chevron-right {
-            background: image-url('product-group/olapic-widget-arrow-right.png') right center no-repeat;
-            &:before {
-              content: "";
-            }
-          }
-          .olapic_empty_widget_content {
-            margin-top: emCalc(15px);
-            background: image-url('product-group/olapic-background-empty.png') center center no-repeat;
-            min-height: 148px;
-            p {
-              padding-top: 50px;
-              font-family: $watg-font;
-              font-size: emCalc(30px);
-              text-transform: uppercase;
-              text-align: center;
-            }
-          }
-          // Mobile .olapic_empty_widget_content
-          @media only screen and (max-width: 28.750em) {
-            .olapic_empty_widget_content {
-              p {
-                font-size: 1em;
-              }
-            }
-          }
-          .olapic_image_thumbnail {
-            max-width: 150px;
-          }
-        }
-      }
-      .olapic_widget_footer {
-        padding: 0 emCalc(15px);
-        margin: 0;
-        a {
-          color: #e6e6e6;
-        }
-      }
-    }
-  }
+			/* Overwrite Olapic styles */
+			/* --- Widget --- */
+			.olapic_widget_header {
+				padding: emCalc(15px);
+				.olapic_widget_gallery_title {
+					padding: 0;
+					font-size: 1em;
+					color: #000;
+					line-height: inherit;
+					display: none;
+				}
+				.olapic_widget_area,
+				.olapic_view_all_button {
+					margin: 0 0 0 emCalc(20px);
+					padding: 0;
+					font-family: $watg-font;
+					font-size: 1em;
+					text-decoration: underline;
+					text-transform: uppercase;
+					height: auto;
+					line-height: inherit;
+					background: none;
+				}
+				.olapic_view_all_button {
+					display: none; // Hide this for now...
+				}
+			}
+			.olapic_widget_mainwrapper {
+				height: 170px;
+				.olapic_widget_main {
+					.carousel-navigation {
+						top: 10px;
+						margin: 0;
+						line-height: 0;
+						height: 150px;
+						width: 87px;
+						background-color: none;
+					}
+					// Mobile .olapic_empty_widget_content
+					@media only screen and (max-width: 28.750em) {
+						.carousel-navigation {
+							margin-top: 45px;
+							height: 60px;
+							width: 60px;
+						}
+					}
+					.olapic-icon-chevron-left {
+						background: image-url('product-group/olapic-widget-arrow-left.png') left center no-repeat;
+						&:before {
+							content: "";
+						}
+					}
+					.olapic-icon-chevron-right {
+						background: image-url('product-group/olapic-widget-arrow-right.png') right center no-repeat;
+						&:before {
+							content: "";
+						}
+					}
+					.olapic_empty_widget_content {
+						margin-top: emCalc(15px);
+						background: image-url('product-group/olapic-background-empty.png') center center no-repeat;
+						min-height: 148px;
+						p {
+							padding-top: 50px;
+							font-family: $watg-font;
+							font-size: emCalc(30px);
+							text-transform: uppercase;
+							text-align: center;
+						}
+					}
+					// Mobile .olapic_empty_widget_content
+					@media only screen and (max-width: 28.750em) {
+						.olapic_empty_widget_content {
+							p {
+								font-size: 1em;
+							}
+						}
+					}
+					.olapic_image_thumbnail {
+						max-width: 150px;
+					}
+				}
+			}
+			.olapic_widget_footer {
+				padding: 0 emCalc(15px);
+				margin: 0;
+				a {
+					color: #e6e6e6;
+				}
+			}
+		}
+	}
 
   /* --- Overlay --- */
   #olapic_viewer_overlay.olapic-viewer-overlay {
