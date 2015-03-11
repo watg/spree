@@ -239,7 +239,7 @@ describe Spree::SuiteTabPresenter do
 
     it "returns the title" do
       expected = "suite_title | meta_title | WOOL AND THE GANG"
-      expect(subject.meta_title).to eq expected 
+      expect(subject.meta_title).to eq expected
     end
 
     context "suite has a meta_title" do
@@ -250,7 +250,7 @@ describe Spree::SuiteTabPresenter do
 
       it "returns the title" do
         expected = "ralf | meta_title | WOOL AND THE GANG"
-        expect(subject.meta_title).to eq expected 
+        expect(subject.meta_title).to eq expected
       end
 
     end
@@ -263,7 +263,7 @@ describe Spree::SuiteTabPresenter do
 
       it "returns the title" do
         expected = "suite_title | title | WOOL AND THE GANG"
-        expect(subject.meta_title).to eq expected 
+        expect(subject.meta_title).to eq expected
       end
     end
 
@@ -282,7 +282,7 @@ describe Spree::SuiteTabPresenter do
 
     it "returns the keywords of the product" do
       expected = "Knitwear, Knitting, Knitted, Wool, Unique, Handmade, Sustainable yarn, How to knit, Learn to knit, suite_title, marketing_type, product"
-      expect(subject.meta_keywords).to eq expected 
+      expect(subject.meta_keywords).to eq expected
     end
   end
 
@@ -304,7 +304,7 @@ describe Spree::SuiteTabPresenter do
       end
 
       it "returns formatted normal and sale price" do
-        expect(subject.lowest_prices).to eq '<span class="price was" itemprop="price">from $21.89</span><span class="price now">$11.99</span>'
+        expect(subject.lowest_prices).to eq '<span class="price was" itemprop="price">from $21.89</span><span class="price now">from $11.99</span>'
       end
 
       context "sale price disabled" do
