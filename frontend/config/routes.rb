@@ -59,9 +59,6 @@ Spree::Core::Engine.add_routes do
 
   get '/product/:id(/:tab)(/:variant_id)', :to => 'suites#show', :as => :suite
 
-  # Videos
-  get '/videos', :to => 'videos#show', :as => :videos
-
   scope path: 'shop' do
 
     get '/items/:id(/:tab)(/:variant_id)', :to => 'product_pages#show', :as => :product_page
