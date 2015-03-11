@@ -7,7 +7,7 @@
 				<%= cdn_image_tag("sitewide/Footer_Logos_MOBILE.jpg", alt: "Vogue, Elle, The New York Times and more!") %>
 			<% else %>
 				<%= cdn_image_tag("sitewide/Footer_Logos_DESKTOP.jpg", width: "970", height: "49", alt: "Vogue, Elle, The New York Times and more!") %>
-			<% end %>	
+			<% end %>
 		</div>
 	</div>
 </div>
@@ -45,8 +45,8 @@
   <a class="modal-close" href="#">Close</a>
   <h3>Contact Us</h3>
   <% if production_or_staging? %>
-    <iframe src="<%= desk_iframe_url %>"></iframe>
-  <% end %>
+    <iframe onload="core.clearFocus()" src="<%= desk_iframe_url %>"></iframe>
+<% end %>
 </div>
 
 <!-- Signup modal -->
