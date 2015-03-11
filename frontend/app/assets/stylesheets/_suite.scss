@@ -250,7 +250,9 @@
 		border-bottom: 1px dotted #333;
 	}
 	/* Stock level and level */
-	.stock-level, .digital-available, .no-stock,
+	.stock-level,
+  .digital-available,
+  .no-stock,
 	.level {
 		margin-bottom: 0;
 		font-family: $watg-font;
@@ -263,7 +265,9 @@
 			content: "/ ";
 		}
 	}
-	.stock-level, .digital-available, .no-stock {
+	.stock-level,
+  .digital-available,
+  .no-stock {
 		float: right;
 		position: relative;
 		top: emCalc(-5px);
@@ -324,6 +328,7 @@
 		}
 	}
 }
+
 // out of stock form
 .section-out-of-stock {
 	max-height: 300px;
