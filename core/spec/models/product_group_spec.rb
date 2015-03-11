@@ -19,7 +19,6 @@ describe Spree::ProductGroup do
   #     product = create(:product, product_group_id: pg.id)
   #     expect(pg.next_variant_in_stock).to be_nil
   #   end
-
   # end
 
 end
