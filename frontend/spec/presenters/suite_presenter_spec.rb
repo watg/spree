@@ -16,13 +16,11 @@ describe Spree::SuitePresenter do
   end
 
   describe "#tabs" do
-    context "in_stock" do
-      let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true)}
-      let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false)}
+    let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true)}
+    let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false)}
 
-      it "should give you only the tabs in stock" do
-        expect(subject.tabs).to eq [tab_in_stock]
-      end
+    it "should give you only the tabs in stock" do
+      expect(subject.tabs).to eq [tab, tab_in_stock, tab_not_in_stock]
     end
 
     context "sort order of tabs" do
@@ -42,6 +40,15 @@ describe Spree::SuitePresenter do
       end
     end
 
+  end
+
+  describe "#tabs_in_stock" do
+    let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true)}
+    let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false)}
+
+    it "should give you only the tabs in stock" do
+      expect(subject.tabs_in_stock).to eq [tab_in_stock]
+    end
   end
 
   describe "#desktop_image_size" do
@@ -123,31 +130,17 @@ describe Spree::SuitePresenter do
   end
 
 
-  context "#suite_tab_presenters" do
-
-    before do
-      allow(subject).to receive(:tabs).and_return([tab])
-    end
-
-    it "should present its tabs" do
-      suite_tab_presenter = double
-      expect(Spree::SuiteTabPresenter).to receive(:new).with(tab, view, context.merge(suite: suite, target: target, device: device)).and_return(suite_tab_presenter)
-      expect(subject.suite_tab_presenters).to eq [suite_tab_presenter]
-    end
-
-  end
-
   context "#available_stock?" do
     let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false)}
 
-    it "returns false if there is not in_stock_tabs" do
+    it "returns false if there is not tabs_in_stock" do
       expect(subject.available_stock?).to eq false
     end
 
     context "in stock tab" do
       let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true)}
 
-      it "returns true if there is not in_stock_tabs" do
+      it "returns true if there is not tabs_in_stock" do
         expect(subject.available_stock?).to eq true
       end
 
@@ -302,19 +295,12 @@ describe Spree::SuitePresenter do
 
   end
 
-  describe "#link_to_first_tab_in_stock" do
-    let!(:suite_tab_presenter_not_in_stock) { double(link_to: 'not_in_stock', in_stock?: false) }
-    let!(:suite_tab_presenter_in_stock) { double(link_to: 'in_stock', in_stock?: true) }
+  describe "#first_tab_in_stock" do
+    let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true)}
+    let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false)}
 
-    before do
-      allow(subject).to receive(:suite_tab_presenters).and_return([
-        suite_tab_presenter_not_in_stock,
-        suite_tab_presenter_in_stock
-      ])
-    end
-
-    it "returns link of first tab" do
-      expect(subject.link_to_first_tab_in_stock).to eq 'in_stock'
+    it "returns first tab in stock" do
+      expect(subject.first_tab_in_stock).to eq tab_in_stock
     end
   end
 

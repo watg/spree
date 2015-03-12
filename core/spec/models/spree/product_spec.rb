@@ -499,18 +499,8 @@ describe Spree::Product, :type => :model do
   end
 
   describe "touching" do
-
-    let(:product_group) { create(:product_group) }
-    let(:kit) { create(:product, product_group: product_group, product_type: create(:product_type_kit)) }
-
     before { Delayed::Worker.delay_jobs = false }
     after { Delayed::Worker.delay_jobs = true }
-
-    it "updates a product_group" do
-      product_group.update_column(:updated_at, 1.day.ago)
-      kit.touch
-      expect(product_group.reload.updated_at).to be_within(3.seconds).of(Time.now)
-    end
 
     context "Assembly Definition" do
 

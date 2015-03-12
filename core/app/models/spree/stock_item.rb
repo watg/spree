@@ -19,6 +19,7 @@ module Spree
     after_save :conditional_variant_touch, if: :changed?
     after_save :conditional_clear_total_on_hand_cache
     after_destroy :clear_total_on_hand_cache
+    after_destroy :conditional_variant_touch
     after_save :clear_backorderable_cache
     after_touch { variant.touch }
 
@@ -171,12 +172,14 @@ module Spree
 
     # the variant_id changes from nil when a new stock location is added
     def stock_changed?
-      @stock_chagned ||= (count_on_hand_changed? && count_on_hand_change.any?(&:zero?)) || variant_id_changed?
+      @stock_chagned ||= (
+        count_on_hand_changed? && (
+          count_on_hand_change.any?(&:zero?) ||
+          (count_on_hand_was < 0 and count_on_hand > 0) ||
+          (count_on_hand_was > 0 and count_on_hand < 0)
+        )
+      ) || variant_id_changed?
     end
 
-
-
   end
-
-
 end

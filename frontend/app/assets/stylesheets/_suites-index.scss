@@ -271,15 +271,15 @@
 							text-transform: lowercase;
 						}
 					}
-					// a:before {
-					// 	content: "";
-					// 	background: rgba(0, 0, 0, 1);
-					// 	position: absolute;
-					// 	top: 0;
-					// 	left: 25%;
-					// 	height: 1px;
-					// 	width: 50%;
-					// }
+					a:before {
+						content: "";
+						background: rgba(0, 0, 0, 1);
+						position: absolute;
+						top: 0;
+						left: 25%;
+						height: 1px;
+						width: 50%;
+					}
 				}
 				li:first-child {
 					a {
@@ -299,14 +299,20 @@
 					line-height: 1.125em;
 					text-transform: uppercase;
 					text-align: center;
-					a {
-						margin: 20px 0 20px -25px;
-						width: 50px;
-						height: 33px;
-						background: image-url('product-group/icon-mail.png') 0 0 no-repeat;
-						font-size: 0;
-						line-height: 0;
+					a.click-here {
+						margin: 0;
+						padding: 0;
+						width: initial;
+						display: inline;
 						position: relative;
+						left: inherit;
+						font-size: inherit;
+						text-align: center;
+						font-family: $watg-font;
+						font-weight: normal;
+						line-height: 1.125em;
+						text-transform: uppercase;
+						z-index: 1;
 					}
 				}
 			}
@@ -342,20 +348,13 @@
 					}
 					li.item-unavailable {
 						margin: 0;
-						font-size: emCalc(14px);
+						font-size: emCalc(12px);
 						font-family: $watg-font;
+						p {
+							font-size: emCalc(14px);
+						}
 						a {
-							font-family: $watg-font-light;
-							margin: 0;
-							width: auto;
-							height: auto;
-							background: none;
-							font-size: inherit;
-							line-height: inherit;
-							position: initial;
-							icon {
-								font-size: emCalc(16px);
-							}
+							text-decoration: underline;
 						}
 					}
 				}
@@ -409,4 +408,26 @@
 			}
 		}
 	}
+	// out of stock form
+	.section-out-of-stock {
+		h5 {
+			padding: emCalc(8px), emCalc(15px);
+			font-family: $watg-font-secondary;
+			font-size: emCalc(12px);
+		}
+		h5 {
+			padding: emCalc(8px), emCalc(15px);
+			font-family: $watg-font-secondary-light !important;
+			font-size: emCalc(8px);
+		}
+		.email {
+			width: 60%;
+			margin-left: 20%;
+		}
+		button {
+			width: 100% !important;
+			margin: 0 !important;
+		}
+	}
 }
+

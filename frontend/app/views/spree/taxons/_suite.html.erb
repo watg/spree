@@ -4,29 +4,38 @@
        itemscope
        itemtype="http://schema.org/Product">
 
-    <a href="<%= suite_presenter.link_to_first_tab_in_stock %>" title="<%=suite_presenter.title%>">
+    <% tab = suite_presenter.tabs.first %>
+    <% present(tab, @context.merge(suite: suite)) do |tab_presenter| %>
+      <a href="<%=tab_presenter.link_to%>">
         <h2 itemprop="name" class="<%= suite_presenter.header_style %>"><%= suite_presenter.title %></h2>
 				<%= image_tag(suite_presenter.image_url(cache_safe_suite_counter), alt: suite_presenter.image_alt) %>
       </a>
+    <% end %>
 
       <ul class="no-bullet">
+
         <% if suite_presenter.available_stock? %>
-          <% suite_presenter.suite_tab_presenters do |tab_presenter| %>
-            <li>
-              <a href="<%= tab_presenter.link_to %>" title='<%="#{suite_presenter.title} | #{tab_presenter.presentation}"%>'>
-                <%= tab_presenter.presentation %><br/>
-                <%= tab_presenter.lowest_prices %>
-              </a>
-            </li>
+          <% suite_presenter.tabs_in_stock.each do |tab| %>
+
+            <% present(tab, @context.merge(suite: suite)) do |tab_presenter| %>
+              <li>
+                <a href="<%= tab_presenter.link_to %>">
+                  <%= tab_presenter.presentation %><br/>
+                  <%= tab_presenter.lowest_prices %>
+                </a>
+              </li>
+            <% end %>
           <% end %>
 
         <% else %>
           <li class="item-unavailable">
-          	<% unless mobile_device? %>
-						Sorry, this item has been really popular. <a href="mailto:info@woolandthegang.com?subject=When will <%= suite_presenter.title %> be back in stock?">info@woolandthegang.com</a> Drop us an email and we'll let you know when it's back.<br/><br/>info@woolandthegang.com
-						<% else %>
-						Out of stock <a href="mailto:info@woolandthegang.com?subject=When will <%= suite_presenter.title %> be back in stock?">Pre-order it!</a>
-						<% end %>
+            <div class="section-out-of-stock">
+              <% tab = suite_presenter.tabs.first %>
+              <% present(tab, @context.merge(suite: suite)) do |tab_presenter| %>
+                <h4>Out of Stock</h4>
+                <p><a href="<%=tab_presenter.link_to%>" class="click-here">Click here</a> to be notified<br class="only-desktop"/> when back in stock</p>
+              <% end %>
+            </div>
           </li>
         <% end # end if stock is available %>
       </ul>

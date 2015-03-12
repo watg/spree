@@ -40,7 +40,7 @@ module Spree
 
     belongs_to :tax_category,      class_name: 'Spree::TaxCategory'
     belongs_to :shipping_category, class_name: 'Spree::ShippingCategory', inverse_of: :products
-    belongs_to :product_group,     class_name: 'Spree::ProductGroup', touch: true
+    belongs_to :product_group,     class_name: 'Spree::ProductGroup'#, touch: true
 
     belongs_to :marketing_type, class_name: 'Spree::MarketingType'
     belongs_to :product_type, class_name: 'Spree::ProductType'

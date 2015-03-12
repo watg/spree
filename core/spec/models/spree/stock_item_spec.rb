@@ -382,6 +382,13 @@ describe Spree::StockItem, :type => :model do
         subject.destroy
       end
     end
+
+    context "clear_total_on_hand_cache" do
+      it "gets called" do
+        expect(subject).to receive(:conditional_variant_touch)
+        subject.destroy
+      end
+    end
   end
 
 
@@ -484,6 +491,42 @@ describe Spree::StockItem, :type => :model do
     it "is false when it changes but not to 0" do
       subject.send(:count_on_hand=,1123)
       expect(subject.send(:stock_changed?)).to be false
+    end
+
+    it "is true when it changes from a negative to a positive" do
+      subject.update_column(:count_on_hand, -1)
+      subject.send(:count_on_hand=,1)
+      expect(subject.send(:stock_changed?)).to be_truthy
+    end
+
+    it "is true when it changes from a zero to a positive" do
+      subject.update_column(:count_on_hand, 0)
+      subject.send(:count_on_hand=,1)
+      expect(subject.send(:stock_changed?)).to be_truthy
+    end
+
+    it "is true when it changes from a postive to a negative" do
+      subject.update_column(:count_on_hand, 1)
+      subject.send(:count_on_hand=,-1)
+      expect(subject.send(:stock_changed?)).to be_truthy
+    end
+
+    it "is true when it changes from a zero to a negative" do
+      subject.update_column(:count_on_hand, 0)
+      subject.send(:count_on_hand=,-1)
+      expect(subject.send(:stock_changed?)).to be_truthy
+    end
+
+    it "is false when it changes from a positive to positive" do
+      subject.update_column(:count_on_hand, 1)
+      subject.send(:count_on_hand=,2)
+      expect(subject.send(:stock_changed?)).to be_falsey
+    end
+
+    it "is false when it changes from a negative to negative" do
+      subject.update_column(:count_on_hand, -1)
+      subject.send(:count_on_hand=,-2)
+      expect(subject.send(:stock_changed?)).to be_falsey
     end
 
     it "is true if the variant_id changes from nil" do

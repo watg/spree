@@ -691,7 +691,7 @@ describe Spree::Variant, :type => :model do
 
       it "touches assembly product after save" do
         variant.product.update_column(:updated_at, 1.day.ago)
-        variant_part.save
+        variant_part.reload.save
         expect(variant.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
       end
 

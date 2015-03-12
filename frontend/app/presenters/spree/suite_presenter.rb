@@ -15,23 +15,19 @@ module Spree
     end
 
     def tabs
-      @tabs ||= suite.tabs.select { |tab| tab.in_stock_cache }.sort_by(&:position)
+      @tabs ||= suite.tabs.sort_by { |t| t.position.to_i }
+    end
+
+    def tabs_in_stock
+      @tabs_in_stock ||= tabs.select { |tab| tab.in_stock_cache? }
     end
 
     def image
       @image ||= suite.image
     end
 
-    def suite_tab_presenters
-      tabs.map do |tab|
-        presenter = suite_tab_presenter(tab)
-        yield presenter if block_given?
-        presenter
-      end
-    end
-
     def available_stock?
-      tabs.any?
+      tabs_in_stock.any?
     end
 
     ## Images
@@ -74,10 +70,8 @@ module Spree
       classes
     end
 
-    def link_to_first_tab_in_stock
-      if first_tab = suite_tab_presenters.detect { |stp| stp.in_stock? }
-        first_tab.link_to
-      end
+    def first_tab_in_stock
+      tabs_in_stock.first
     end
 
     def title

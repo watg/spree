@@ -414,6 +414,14 @@ module Spree
       "#{sku} #{options_text}".strip
     end
 
+    def disable_in_stock_cache
+      self.in_stock_cache = false
+    end
+
+    def enable_in_stock_cache
+      self.in_stock_cache = true
+    end
+
     def in_stock?
       Rails.cache.fetch(in_stock_cache_key) do
         in_stock_cache
@@ -422,10 +430,12 @@ module Spree
     end
 
     def can_supply?(quantity=1)
+      # This does not work for kits
       Spree::Stock::Quantifier.new(self).can_supply?(quantity)
     end
 
     def total_on_hand
+      # This does not work for kits
       Spree::Stock::Quantifier.new(self).total_on_hand
     end
 

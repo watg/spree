@@ -12,6 +12,7 @@ var readySuitesIndex = function() {
 
 	core.suitesIndex.readyLazyLoadImages();
 	core.suitesIndex.extendClickableArea();
+	core.suite.readyOutOfStock();
 };
 
 $(document).ready(readySuitesIndex);
@@ -46,6 +47,59 @@ core.suitesIndex.extendClickableArea = function() {
 			}
 		});
 	}
+}
+
+core.suite.readyOutOfStock = function() {
+	if ($('.out-of-stock-form')) {
+		core.suite.requestOutOfStock();
+	}
+}
+
+core.suite.requestOutOfStock = function() {
+  var section = $('.section-out-of-stock');
+  var form = section.find('.out-of-stock-form');
+
+  var heading_primary = section.find('h5');
+  var heading_secondary = section.find('p');
+
+  form.on('submit', function(e) {
+    e.preventDefault();
+
+    // Die if no value
+    var email = form.find('input[name="signupEmail"]').val();
+
+    if (!email) return false;
+	    form.fadeOut('slow');
+
+    $.ajax({
+      type: 'POST',
+      url: form.attr('action'),
+      data: form.serialize(),
+      dataType: 'json',
+      success: function(e) {
+
+        if (e.response !== 'success') {
+        	form.fadeOut('slow');
+
+          heading_primary.text("Oops, something\'s gone wrong, please try again");
+          form.fadeIn('slow')
+        } else {
+          // select exact text
+          var heading_primary_text = document.getElementById('notice');
+          var success_message = document.getElementById('success-message');
+
+          // change text + styling
+          heading_primary.text("Thanks " + email);
+          heading_primary_text.className = "green";
+          success_message.style.display = 'initial';
+
+          // fade sections back in
+			    heading_primary.fadeIn('slow');
+			    heading_secondary.fadeIn('slow');
+        }
+      }
+    })
+  })
 }
 
 /* ----- Non-init methods ----- */

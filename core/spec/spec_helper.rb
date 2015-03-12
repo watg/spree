@@ -26,8 +26,9 @@ require 'rspec/rails'
 require 'database_cleaner'
 # require 'ffaker'
 
-require File.expand_path("../support/big_decimal", __FILE__)
-require File.expand_path("../support/test_gateway", __FILE__)
+# require File.expand_path("../support/big_decimal", __FILE__)
+# require File.expand_path("../support/test_gateway", __FILE__)
+Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
 require "support/rake"
 
 if ENV["CHECK_TRANSLATIONS"]

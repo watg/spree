@@ -31,36 +31,67 @@
           <p class="stock-level">Low stock <span class="stock-value"></span></p>
           <p class="digital-available">PDF + Printed Pattern</p>
 
-          <div class="cart-form" data-hook="cart_form">
-            <%= form_for :order, :url => populate_orders_path,  :remote => true , :html => {:class => 'add_to_cart_form'}  do |f| %>
-          <%= hidden_field_tag "suite_id", suite_presenter.id %>
-              <%= hidden_field_tag "suite_tab_id", selected_tab_presenter.id %>
-              <%= hidden_field_tag "target_id", suite_presenter.target.try(:id) %>
+          <% if selected_tab_presenter.in_stock? %>
 
-              <% unless Rails.env.production? %>
-              	<a class="link-admin" href="<%= spree.edit_admin_product_variant_url(product_presenter.slug,variant_presenter.id) %>">Goto admin</a>
+            <div class="cart-form" data-hook="cart_form">
+              <%= form_for :order, :url => populate_orders_path,  :remote => true , :html => {:class => 'add_to_cart_form'}  do |f| %>
+            <%= hidden_field_tag "suite_id", suite_presenter.id %>
+                <%= hidden_field_tag "suite_tab_id", selected_tab_presenter.id %>
+                <%= hidden_field_tag "target_id", suite_presenter.target.try(:id) %>
+
+                <% unless Rails.env.production? %>
+                	<a class="link-admin" href="<%= spree.edit_admin_product_variant_url(product_presenter.slug,variant_presenter.id) %>">Goto admin</a>
+                <% end %>
+
+                <% if variant_presenter.level %>
+                	<p class="level">Level <span><%= variant_presenter.level %></span></p>
+                <% end %>
+
+                <div class="product-price prices" data-hook="product_price" data-in-sale="<%=variant_presenter.in_sale?%>">
+                	<% if variant_presenter.price.present? %>
+                		<span class="<%=variant_presenter.normal_price_classes %>" data-price="<%= variant_presenter.price_in_subunit %>" data-currency="<%= variant_presenter.currency_symbol %>"><%= variant_presenter.price_html %></span>
+                		<span class="<%=variant_presenter.sale_price_classes %>" data-price="<%= variant_presenter.sale_price_in_subunit %>" data-currency="<%= variant_presenter.currency_symbol %>"><%= variant_presenter.sale_price_html %></span>
+                	<% end %>
+                </div>
+
+                <% if product_presenter.assembly_definition %>
+                  <%= render 'cart_kit_form', variant_presenter: variant_presenter, product_presenter: product_presenter %>
+                <% else %>
+                  <%= render 'cart_form', variant_presenter: variant_presenter, product_presenter: product_presenter %>
+                <% end %>
+
               <% end %>
-
-              <% if variant_presenter.level %>
-              	<p class="level">Level <span><%= variant_presenter.level %></span></p>
-              <% end %>
-
+            </div>
+          <% else %>
+            <p class="no-stock">Out Of Stock</p>
+              <div class="cart-form" data-hook="cart_form">
               <div class="product-price prices" data-hook="product_price" data-in-sale="<%=variant_presenter.in_sale?%>">
-              	<% if variant_presenter.price.present? %>
-              		<span class="<%=variant_presenter.normal_price_classes %>" data-price="<%= variant_presenter.price_in_subunit %>" data-currency="<%= variant_presenter.currency_symbol %>"><%= variant_presenter.price_html %></span>
-              		<span class="<%=variant_presenter.sale_price_classes %>" data-price="<%= variant_presenter.sale_price_in_subunit %>" data-currency="<%= variant_presenter.currency_symbol %>"><%= variant_presenter.sale_price_html %></span>
-              	<% end %>
-              </div>
+                <% if variant_presenter.price.present? %>
+                  <span class="<%=variant_presenter.normal_price_classes %>" data-price="<%= variant_presenter.price_in_subunit %>" data-currency="<%= variant_presenter.currency_symbol %>"><%= variant_presenter.price_html %></span>
+                  <span class="<%=variant_presenter.sale_price_classes %>" data-price="<%= variant_presenter.sale_price_in_subunit %>" data-currency="<%= variant_presenter.currency_symbol %>"><%= variant_presenter.sale_price_html %></span>
+                <% end %>
+              </div></div>
 
-              <% if product_presenter.assembly_definition %>
-                <%= render 'cart_kit_form', variant_presenter: variant_presenter, product_presenter: product_presenter %>
-              <% else %>
-                <%= render 'cart_form', variant_presenter: variant_presenter, product_presenter: product_presenter %>
+
+            <div class="section-out-of-stock">
+              <h5 id="notice">Notify me when it's in stock</h5>
+              <p class="success-message" id="success-message"> You will here from us as soon as its back in stock
+                <% unless mobile_device? %>
+                  <%= cdn_image_tag("raf/icon-completed.png", class: "icon-completed", width: "30", height: "30",  alt: "") %>
+                <% end %>
+              </p>
+
+              <%= form_tag spree.chimpy_subscribe_to_list_path, remote: true, :method => :post, :class => "out-of-stock-form" do %>
+                <%= text_field_tag 'signupEmail', nil, placeholder: 'Enter your email here' %>
+                <%= hidden_field_tag(:list_name, "stock requests") %>
+                <%= hidden_field_tag(:product, product_presenter.name ) %>
+
+                <%= submit_tag("Submit") %>
+
               <% end %>
-
-            <% end %>
-          </div>
-
+            </div>
+         <% end %>
+    
           <h5 class="reveal-title revealed">Contents</h5>
           <p class="reveal-content"><%= product_presenter.clean_description %></p>
 

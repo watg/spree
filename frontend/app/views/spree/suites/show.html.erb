@@ -47,11 +47,14 @@
 
       	<% if suite_presenter.tabs.size > 1 # Show row if we have both ready made and knit your own %>
       		<div class="row row-tabs">
-      		<% suite_presenter.suite_tab_presenters.each_with_index do |tab_presenter, index| %>
-      			<div class="large-3 small-6 columns tab <%= suite_presenter.tab_grid_class(index) %> <%= 'active' if tab_presenter.tab_type == selected_tab_presenter.tab_type %>">
-      			  <h2><a class="tab-<%= tab_presenter.tab_type %>" href="<%= tab_presenter.link_to %>"><span><%= tab_presenter.presentation %></span></a></h2>
-      			</div>
-      		<% end %>
+          <% suite_presenter.tabs.each_with_index do |tab, index| %>
+            <% present(tab, @context.merge(suite: @suite)) do |tab_presenter| %>
+
+      			  <div class="large-3 small-6 columns tab <%= suite_presenter.tab_grid_class(index) %> <%= 'active' if tab_presenter.tab_type == selected_tab_presenter.tab_type %>">
+      			    <h2><a class="tab-<%= tab_presenter.tab_type %>" href="<%= tab_presenter.link_to %>"><span><%= tab_presenter.presentation %></span></a></h2>
+      			  </div>
+      		  <% end %>
+          <% end %>
       		</div><!-- /row -->
       	<% end %>
 

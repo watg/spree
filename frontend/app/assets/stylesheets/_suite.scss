@@ -250,7 +250,7 @@
 		border-bottom: 1px dotted #333;
 	}
 	/* Stock level and level */
-	.stock-level, .digital-available,
+	.stock-level, .digital-available, .no-stock,
 	.level {
 		margin-bottom: 0;
 		font-family: $watg-font;
@@ -263,7 +263,7 @@
 			content: "/ ";
 		}
 	}
-	.stock-level, .digital-available {
+	.stock-level, .digital-available, .no-stock {
 		float: right;
 		position: relative;
 		top: emCalc(-5px);
@@ -275,6 +275,9 @@
 	}
 	.digital-available {
 		margin-top: 5px;
+	}
+	.no-stock {
+		display: initial;
 	}
 	h5.delivery + div {
 		margin-bottom: 1.25em;
@@ -321,6 +324,32 @@
 		}
 	}
 }
+// out of stock form
+.section-out-of-stock {
+	max-height: 300px;
+	input#signupEmail {
+		display: inline-block;
+		width: 75%;
+		margin-right: 2%;
+		height: 40px;
+		margin-top: 14px;
+		text-transform: uppercase;
+	}
+	.green {
+		color: #00b877;
+		margin: 0;
+	}
+	.success-message {
+		display: none;
+		color: #00b877;
+		img {
+			padding-left: 5%;
+		}
+	}
+}
+
+
+
 
 /**
  * Hero
