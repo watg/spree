@@ -1,0 +1,114 @@
+@charset "UTF-8";
+/**
+ * WATG
+ *
+ * Video pages CSS file
+ *
+ */
+
+/**
+ * Table of contents
+ *
+ * Pagewide
+ * Row specific
+ */
+
+/**
+ * Pagewide
+ *
+ * @section pagewide
+ */
+
+.video-tutorial {
+  /* Break the grid */
+  .row-shipping-and-contact + .container > div.row {
+    max-width: none !important;
+  }
+  .row-shipping-and-contact + .container > div.row > .columns {
+    padding: 0;
+  }
+  .wrapper-video-tutorial {
+    .row {
+      margin: 0 auto;
+      position: relative;
+      max-width: 62.5em;
+    }
+  }
+  a:hover {
+    text-decoration: none;
+  }
+}
+
+ /**
+ * Row specific
+ *
+ * @section row specific
+ */
+
+.video-tutorial {
+  .row-hero {
+    padding: emCalc(30px) 0;
+    text-align: center;
+    h1 {
+      margin-bottom: 20px;
+      font-size: emCalc(60px);
+    }
+    h2 {
+      margin-bottom: 0;
+      font-family: $watg-font-secondary-light;
+      font-size: emCalc(30px);
+    }
+    img,
+    iframe {
+      margin-top: emCalc(30px);
+    }
+  }
+  .row-description {
+    padding-bottom: emCalc(30px);
+  }
+  .row-other-tutorials {
+    padding: emCalc(30px) 0;
+    text-align: center;
+    background-color: #f9f9f9;
+    h3 {
+      font-size: emCalc(40px);
+    }
+    h4 {
+      margin-bottom: emCalc(5px);
+      a {
+        text-decoration: underline;
+      }
+    }
+    p {
+      font-size: emCalc(20px);
+    }
+    img,
+    iframe {
+      margin: emCalc(20px) 0;
+    }
+    .button {
+      margin-top: emCalc(30px);
+      font-size: emCalc(20px);
+    }
+  }
+  .row-follow {
+    padding: emCalc(30px) 0;
+    text-align: center;
+    h3 {
+      font-size: emCalc(40px);
+    }
+    p {
+      font-family: $watg-font-secondary-light;
+      font-size: emCalc(20px);
+      text-transform: uppercase;
+      line-height: 1.25em;
+      strong {
+        font-family: $watg-font-secondary;
+        font-weight: normal;
+      }
+    }
+    .fa-heart {
+      color: #2e3192;
+    }
+  }
+}
