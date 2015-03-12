@@ -258,10 +258,6 @@ core.suite.readyAjaxCarSpinner = function() {
 
 /* Cross Sales Widget */
 core.suite.startCrossSales = function() {
-  if (core.isMobileWidthOrLess() === false) {
-    core.productOverlays();
-  }
-
   $(".owl-carousel").owlCarousel({
     loop:true,
     responsiveClass:true,
@@ -280,6 +276,9 @@ core.suite.startCrossSales = function() {
       }
     }
   });
+  if (core.isMobileWidthOrLess() === false) {
+    core.productOverlays();
+  }
 };
 
 /* ----- New kit UI only ----- */
