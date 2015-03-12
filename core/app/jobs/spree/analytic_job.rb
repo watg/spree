@@ -68,6 +68,7 @@ module Spree
         tr: o.total.to_f,
         tt: o.display_tax_total.to_f,
         ts: o.shipments.last.cost.to_f,
+        cu: o.currency,
         cd1: original_cohort(o.email),
         cm1: latency(o.email),
         cm2: lifetime_spend(o),
