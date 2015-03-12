@@ -4,7 +4,7 @@ cache [I18n.locale, @current_user_roles.include?('admin'), current_currency, roo
 attributes *product_attributes
 
 node(:display_price) { |p| p.display_price.to_s }
-node(:marketing_type) { |p| p.marketing_type.name }
+node(:marketing_type) { |p| p.marketing_type.try(:name) }
 node(:product_type) { |p| p.product_type.name }
 node(:has_variants) { |p| p.has_variants? }
 

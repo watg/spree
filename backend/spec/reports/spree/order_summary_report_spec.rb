@@ -114,7 +114,7 @@ module Spree
 
       describe "data" do
         let(:time_in_range) { Time.now.midnight + 1 }
-        let!(:order) { create(:order_ready_to_ship, completed_at: time_in_range) }
+        let!(:order) { create(:order_ready_to_ship, :with_marketing_type, completed_at: time_in_range) }
 
         it "includes order state" do
           processed = 0
@@ -126,8 +126,8 @@ module Spree
         end
 
         it "includes on hold orders" do
-          create(:order_ready_to_ship, state: "warehouse_on_hold", completed_at: time_in_range)
-          create(:order_ready_to_ship, state: "customer_service_on_hold", completed_at: time_in_range)
+          create(:order_ready_to_ship, :with_marketing_type, state: "warehouse_on_hold", completed_at: time_in_range)
+          create(:order_ready_to_ship, :with_marketing_type, state: "customer_service_on_hold", completed_at: time_in_range)
           processed = 0
           report.retrieve_data { processed += 1 }
           expect(processed).to eq(3)
@@ -156,8 +156,8 @@ module Spree
       end
 
       describe "data" do
-        let!(:important_order) { create(:order_ready_to_ship, completed_at: Time.now, important: true) }
-        let!(:unimportant_order) { create(:order_ready_to_ship, completed_at: Time.now) }
+        let!(:important_order) { create(:order_ready_to_ship, :with_marketing_type, completed_at: Time.now, important: true) }
+        let!(:unimportant_order) { create(:order_ready_to_ship, :with_marketing_type, completed_at: Time.now) }
 
         it "includes order important flag" do
           important_values = []

@@ -13,10 +13,11 @@ module Spree
 
     let(:product_type) { create(:product_type) }
     let(:marketing_type) { create(:marketing_type) }
+    let(:product_group) { create(:product_group) }
 
     let(:product_data) do
       { name: "The Other Product",
-		    product_group_id: product.product_group.id,
+        product_group_id: product_group.id,
         product_type_id: product_type.id,
         marketing_type_id: marketing_type.id,
         shipping_category_id: create(:shipping_category).id }
@@ -289,7 +290,7 @@ module Spree
       describe "creating a product" do
         it "can create a new product" do
           api_post :create, :product => { :name => "The Other Product",
-                                          :product_group_id => product.product_group.id,
+                                          :product_group_id => product_group.id,
                                           :shipping_category_id => create(:shipping_category).id,
                                           :product_type_id => product_type.id,
                                           :marketing_type_id => marketing_type.id }
@@ -338,9 +339,9 @@ module Spree
 
         it "creates with shipping categories" do
           hash = { :name => "The Other Product",
-                   :product_group_id => product.product_group.id,
-                   :product_type_id => product.product_type.id,
-                   :marketing_type_id => product.marketing_type.id,
+                   :product_group_id => product_group.id,
+                   :product_type_id => product_type.id,
+                   :marketing_type_id => marketing_type.id,
                    :shipping_category => "Free Ships" }
 
           api_post :create, :product => hash
@@ -386,7 +387,7 @@ module Spree
           expect(json_response["error"]).to eq("Invalid resource. Please fix errors and try again.")
           errors = json_response["errors"]
           errors.delete("slug") # Don't care about this one.
-          expect(errors.keys).to match_array(["name", "product_group", "shipping_category_id", "product_type", "marketing_type"])
+          expect(errors.keys).to match_array(["name", "product_group_id", "shipping_category_id", "product_type", "marketing_type_id"])
         end
       end
 

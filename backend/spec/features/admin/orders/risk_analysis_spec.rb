@@ -1,48 +1,50 @@
-require 'spec_helper'
+# No need to run, since we do not use the Risk Analysis
 
-describe 'Order Risk Analysis', :type => :feature do
-  stub_authorization!
+# require 'spec_helper'
 
-  let!(:order) do
-    create(:completed_order_with_pending_payment)
-  end
+# describe 'Order Risk Analysis', :type => :feature do
+#   stub_authorization!
 
-  def visit_order
-    visit spree.admin_path
-    click_link 'Orders'
-    within_row(1) do
-      click_link order.number
-    end
-  end
+#   let!(:order) do
+#     create(:completed_order_with_pending_payment)
+#   end
 
-  context "the order is considered risky" do
-    before do
-      allow_any_instance_of(Spree::Admin::BaseController).to receive_messages :try_spree_current_user => create(:user)
+#   def visit_order
+#     visit spree.admin_path
+#     click_link 'Orders'
+#     within_row(1) do
+#       click_link order.number
+#     end
+#   end
 
-      order.payments.first.update_column(:avs_response, 'X')
-      order.considered_risky!
-      visit_order
-    end
+#   context "the order is considered risky" do
+#     before do
+#       allow_any_instance_of(Spree::Admin::BaseController).to receive_messages :try_spree_current_user => create(:user)
 
-    it "displays 'Risk Analysis' box" do
-      expect(page).to have_content 'Risk Analysis'
-    end
+#       order.payments.first.update_column(:avs_response, 'X')
+#       order.considered_risky!
+#       visit_order
+#     end
 
-    it "can be approved" do
-      click_button('approve')
-      expect(page).to have_content 'Approver'
-      expect(page).to have_content 'Approved at'
-      expect(page).to have_content 'Status: complete'
-    end
-  end
+#     it "displays 'Risk Analysis' box" do
+#       expect(page).to have_content 'Risk Analysis'
+#     end
+
+#     it "can be approved" do
+#       click_button('approve')
+#       expect(page).to have_content 'Approver'
+#       expect(page).to have_content 'Approved at'
+#       expect(page).to have_content 'Status: complete'
+#     end
+#   end
   
-  context "the order is not considered risky" do
-    before do
-      visit_order      
-    end
+#   context "the order is not considered risky" do
+#     before do
+#       visit_order
+#     end
 
-    it "does not display 'Risk Analysis' box" do
-      expect(page).to_not have_content 'Risk Analysis'
-    end
-  end
-end
+#     it "does not display 'Risk Analysis' box" do
+#       expect(page).to_not have_content 'Risk Analysis'
+#     end
+#   end
+# end

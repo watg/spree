@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Spree::CreateAndAllocateConsignmentService do
   subject { Spree::CreateAndAllocateConsignmentService }
-  let(:order) { FactoryGirl.create(:order_ready_to_be_consigned_and_allocated, line_items_count: 1) }
+  let(:order) { FactoryGirl.create(:order_ready_to_be_consigned_and_allocated, :with_product_group, line_items_count: 1) }
   let(:country) { create(:country) }
   let!(:shipping_method) { create(:shipping_method, shipments: order.shipments) }
 
