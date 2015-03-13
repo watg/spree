@@ -42,6 +42,24 @@ describe Spree::SuitePresenter do
 
   end
 
+  describe "indexable?" do
+
+    before { suite.indexable = true }
+    it "returns correct meta tags" do
+      expect(subject.meta_content_for_robots).to eq 'index,follow'
+    end
+
+    context "indexable off" do
+      before { suite.indexable = false }
+
+      it "returns correct meta tags" do
+        expect(subject.meta_content_for_robots).to eq 'noindex,nofollow'
+      end
+
+    end
+
+  end
+
   describe "#tabs_in_stock" do
     let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true)}
     let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false)}
