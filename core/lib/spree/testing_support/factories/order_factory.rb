@@ -28,6 +28,18 @@ FactoryGirl.define do
         shipment_cost 100
       end
 
+      trait :with_marketing_type do
+        after(:create) do |order, evaluator|
+          order.line_items.first.variant.product.update_column(:marketing_type_id, create(:marketing_type).id)
+        end
+      end
+
+      trait :with_product_group do
+        after(:create) do |order, evaluator|
+          order.line_items.first.variant.product.update_column(:product_group_id, create(:product_group).id)
+        end
+      end
+
       after(:create) do |order, evaluator|
         create_list(:line_item, evaluator.line_items_count, order: order, price: evaluator.line_items_price)
         order.line_items.reload

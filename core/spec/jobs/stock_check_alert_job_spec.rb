@@ -3,6 +3,7 @@ require 'spec_helper'
 describe Spree::StockCheckAlertJob do
   let(:variant) {create(:variant_with_stock_items)}
   let(:stock_item) { variant.stock_items.first }
+  let(:marketing_type) { create(:marketing_type) }
   subject  { Spree::StockCheckAlertJob.new }
 
   before { Timecop.freeze }
@@ -32,6 +33,7 @@ describe Spree::StockCheckAlertJob do
 
     context "recent out of stock item" do
       before do
+        variant.product.marketing_type = marketing_type
         variant.product.name = 'name'
         variant.product.slug = 'slug'
         variant.sku =  'sku'
@@ -86,6 +88,7 @@ describe Spree::StockCheckAlertJob do
 
       before do
         stock_item.update_columns(updated_at: 1.days.ago, backorderable: false, count_on_hand: 0)
+        variant.product.update_column(:marketing_type_id, marketing_type.id)
       end
 
       it "sends a notification" do

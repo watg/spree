@@ -8,7 +8,7 @@ describe Spree::Api::DashboardController , :type => :controller do
 
   subject { Spree::Api::DashboardController }
 
-  let!(:product) { create(:product) }
+  let!(:product) { create(:product, :with_marketing_type) }
   let!(:variant) {  create(:variant, product: product)  }
 
   describe '#last_bought_product'  do

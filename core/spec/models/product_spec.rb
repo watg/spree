@@ -10,7 +10,7 @@ describe Spree::Product do
   end
 
   describe '#product_group' do
-    subject { super().product_group }
+    subject { create(:product, :with_product_group).product_group }
     it { is_expected.to be_kind_of(Spree::ProductGroup) }
   end
 

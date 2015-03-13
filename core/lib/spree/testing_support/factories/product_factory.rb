@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :base_product, class: Spree::Product do
     sequence(:name) { |n| "Product ##{n} - #{Kernel.rand(9999)}" }
-    description { generate(:random_description) }
+    description { "Product Description" }
     cost_price 17.00
     sku { generate(:sku) }
     available_on { 1.year.ago }
@@ -9,10 +9,20 @@ FactoryGirl.define do
     individual_sale true
     weight 0.25
 
-    association :product_group, factory: :product_group, strategy: :build
+    product_group_id 0
+    marketing_type_id 0
+
     association :product_type, factory: :product_type, strategy: :build
-    association :marketing_type, factory: :marketing_type, strategy: :build
+
     shipping_category { |r| Spree::ShippingCategory.first || r.association(:shipping_category) }
+
+    trait :with_marketing_type do
+      marketing_type
+    end
+
+    trait :with_product_group do
+      product_group
+    end
 
     transient do
       amount nil

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::AnalyticJob do
-  let(:order) { create(:completed_order_with_totals) }
+  let(:order) { create(:completed_order_with_totals, :with_marketing_type) }
 
   subject { Spree::AnalyticJob.new(order: nil, user_id: 'uuid', event: :transaction)}
   it "performs transaction" do

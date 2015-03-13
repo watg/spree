@@ -5,7 +5,8 @@ describe Spree::BulkOrderPrintingService do
 
   describe "#print_invoices" do
     before :all do
-      @unprinted_invoices = 2.times.map { create(:order_ready_to_be_consigned_and_allocated, line_items_count: 2) }
+      @unprinted_invoices = 2.times.map { create(:order_ready_to_be_consigned_and_allocated, :with_product_group) }
+
     end
 
     it "generates a PDF for each order that hasn't been printed and create a print job" do
