@@ -14,6 +14,10 @@ module Spree
       end
     end
 
+    def meta_content_for_robots
+      suite.indexable? ? 'index,follow' : 'noindex,nofollow'
+    end
+
     def tabs
       @tabs ||= suite.tabs.sort_by { |t| t.position.to_i }
     end

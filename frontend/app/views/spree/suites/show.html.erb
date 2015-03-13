@@ -3,7 +3,7 @@
 
     <% content_for :title do %> <%= selected_tab_presenter.meta_title %> <% end %>
     <% content_for :meta do %>
-    <meta content="index,follow" name="robots" />
+    <meta content="<%= suite_presenter.meta_content_for_robots%>" name="robots" />
     <meta content="<%= selected_tab_presenter.meta_keywords %>" name="keywords" />
     <meta content="<%= selected_tab_presenter.meta_name %>" name="name" />
     <meta content="<%= selected_tab_presenter.meta_description %>" name="description" />

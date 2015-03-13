@@ -19,6 +19,7 @@ module Spree
 
     # TODO this should be a boolean
     scope :active, -> { where(deleted_at: nil) }
+    scope :indexable, -> { where(indexable: true) }
 
     make_permalink
 
