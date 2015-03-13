@@ -12,13 +12,14 @@ describe Spree::Feed::InventoryUnitRequirement do
     let(:shipment2) { create(:shipment, stock_location: location2) }
 
     before do
-      create_list(:inventory_unit, 2, state: "awaiting_feed", variant: v1, shipment: shipment1)
-      create_list(:inventory_unit, 1, state: "awaiting_feed", variant: v2, shipment: shipment1)
-      create_list(:inventory_unit, 2, state: "awaiting_feed", variant: v2, shipment: shipment2)
+      create_list(:inventory_unit, 2, state: "awaiting_feed", variant: v1, shipment: shipment1, pending: false)
+      create_list(:inventory_unit, 1, state: "awaiting_feed", variant: v2, shipment: shipment1, pending: false)
+      create_list(:inventory_unit, 2, state: "awaiting_feed", variant: v2, shipment: shipment2, pending: false)
 
       # Older inventory units should NOT be ignored
       create_list(:inventory_unit, 2,
-        state: "awaiting_feed", variant: v1, shipment: shipment1, created_at: 2.days.ago
+        state: "awaiting_feed", variant: v1, shipment: shipment1,
+        pending: false, created_at: 2.days.ago
       )
     end
 
