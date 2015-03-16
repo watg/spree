@@ -1,7 +1,7 @@
 module Spree
   module Api
     # Rest Interface for the dashboard
-    class DashboardController < Spree::Api::BaseController
+    class OfficeDashboardController < Spree::Api::BaseController
       def last_bought_product
         last_variant = Spree::Order.where('completed_at is not null').last.variants.last
         last_product = last_variant.product
@@ -57,6 +57,22 @@ module Spree
           format.json { render json: today_orders.to_json }
         end
       end
+
+      def today_shipped_orders
+        shipped_orders = { total: Spree::Shipment.where('shipped_at >?',Time.zone.now.at_beginning_of_day).count }
+        Spree::Shipment.shipped.joins(:order).merge(Spree::Order.complete).where('shipped_at > ?', Time.zone.now.at_beginning_of_day).count
+         respond_to do |format|
+           format.json { render json: shipped_orders.to_json }
+         end
+      end
+
+      def today_shipments
+        shipments = { total: Spree::Shipment.shipped.joins(:order).merge(Spree::Order.complete).where('shipped_at > ?', Time.zone.now.at_beginning_of_day).count }
+        respond_to do |format|
+          format.json { render json: shipments.to_json }
+        end
+      end
+
 
       private
 

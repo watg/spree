@@ -1,12 +1,12 @@
 require 'spec_helper'
-describe Spree::Api::DashboardController , :type => :controller do
+describe Spree::Api::OfficeDashboardController , :type => :controller do
   render_views
 
   before do
     stub_authentication!
   end
 
-  subject { Spree::Api::DashboardController }
+  subject { Spree::Api::OfficeDashboardController }
 
   let!(:product) { create(:product, :with_marketing_type) }
   let!(:variant) {  create(:variant, product: product)  }
