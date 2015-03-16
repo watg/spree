@@ -37,6 +37,11 @@ module Spree
 
       if @order.update_from_params(params, permitted_checkout_attributes, request.headers.env)
         @order.temporary_address = !params[:save_user_address]
+
+        if params.has_key?(:no_advance)
+          redirect_to checkout_state_path(@order.state) and return
+        end
+
         unless @order.next
           flash[:error] = @order.errors.full_messages.join("\n")
           redirect_to checkout_state_path(@order.state) and return
@@ -67,9 +72,9 @@ module Spree
                                                     user_id: tracking_cookie), queue: 'analytics'
       ::Delayed::Job.enqueue Spree::DigitalOnlyOrderShipperJob.new(@order), queue: 'order_shipper'
     end
- 
+
     def ensure_valid_state
-      unless skip_state_validation?  
+      unless skip_state_validation?
         if (params[:state] && !@order.has_checkout_step?(params[:state])) ||
           (!params[:state] && !@order.has_checkout_step?(@order.state))
           @order.state = 'cart'
@@ -77,7 +82,7 @@ module Spree
         end
       end
     end
- 
+
     def subscribe_to_newsletter(email)
       user = Spree.user_class.find_or_create_unenrolled(email, tracking_cookie)
       user.subscribe("Website - Guest Checkout")
