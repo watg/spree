@@ -1,5 +1,5 @@
 require "spec_helper"
-require 'ruby-debug'
+require "ruby-debug"
 module Spree
   describe Api::WholesaleDashboardController, type: :controller do
     render_views
@@ -23,8 +23,8 @@ module Spree
       let!(:normal_order) { create(:order, completed_at: Time.zone.now) }
       let!(:old_order) { create(:order, completed_at: Time.zone.yesterday) }
 
-      let!(:normal_order_ships) { create_list(:shipment, 2, shipped_at: Time.zone.now, state: 'shipped', order: normal_order) }
-      let!(:old_order_ship) { create(:shipment, shipped_at: Time.zone.now, state: 'shipped', order: old_order) }
+      let!(:normal_order_ships) { create_list(:shipment, 2, shipped_at: Time.zone.now, state: "shipped", order: normal_order) }
+      let!(:old_order_ship) { create(:shipment, shipped_at: Time.zone.now, state: "shipped", order: old_order) }
 
       it "returns 3 shippments" do
         api_get :today_order_shipped
@@ -82,16 +82,16 @@ module Spree
     end
 
     context "orders by marketing type" do
-      let!(:marketing_pattern){create(:marketing_type, title:'pattern')}
-      let!(:marketing_kit){create(:marketing_type, title:'kit')}
-      let!(:normal) { create(:product_with_variants , marketing_type:marketing_pattern ) }
-      let!(:kit) { create(:product_with_variants, marketing_type:marketing_kit ) }
+      let!(:marketing_pattern) { create(:marketing_type, title: "pattern") }
+      let!(:marketing_kit) { create(:marketing_type, title: "kit") }
+      let!(:normal) { create(:product_with_variants, marketing_type: marketing_pattern) }
+      let!(:kit) { create(:product_with_variants, marketing_type: marketing_kit) }
 
       describe "#printed_by_marketing_type" do
         let!(:printed_order) { create(:order, completed_at: Time.zone.now, invoice_print_job_id: 2, shipment_state: "ready", payment_state: "paid") }
         let!(:unprinted_order) { create(:order, completed_at: Time.zone.now, invoice_print_job_id: nil, shipment_state: "ready", payment_state: "paid") }
-        let!(:printed_order_shipment) { create(:shipment, :order => printed_order, :stock_location => create(:stock_location_with_items)) }
-        let!(:unprinted_order_shipment) { create(:shipment, :order => unprinted_order, :stock_location => create(:stock_location_with_items)) }
+        let!(:printed_order_shipment) { create(:shipment, order: printed_order, stock_location: create(:stock_location_with_items)) }
+        let!(:unprinted_order_shipment) { create(:shipment, order: unprinted_order, stock_location: create(:stock_location_with_items)) }
 
         # printed line items
         let!(:printed_li_1) { create(:line_item, quantity: 3, product: normal, order: printed_order) }
@@ -119,8 +119,8 @@ module Spree
       describe "#unprinted_by_marketing_type" do
         let!(:printed_order) { create(:order, completed_at: Time.zone.now, invoice_print_job_id: 2, shipment_state: "ready", payment_state: "paid") }
         let!(:unprinted_order) { create(:order, completed_at: Time.zone.now, invoice_print_job_id: nil, shipment_state: "ready", payment_state: "paid") }
-        let!(:printed_order_shipment) { create(:shipment, :order => printed_order, :stock_location => create(:stock_location_with_items)) }
-        let!(:unprinted_order_shipment) { create(:shipment, :order => unprinted_order, :stock_location => create(:stock_location_with_items)) }
+        let!(:printed_order_shipment) { create(:shipment, order: printed_order, stock_location: create(:stock_location_with_items)) }
+        let!(:unprinted_order_shipment) { create(:shipment, order: unprinted_order, stock_location: create(:stock_location_with_items)) }
 
         # unprinted line items
 
@@ -148,8 +148,8 @@ module Spree
       describe "#waiting_feed_by_marketing_type" do
         let!(:printed_order) { create(:order, completed_at: Time.zone.now, invoice_print_job_id: 2, shipment_state: "ready", payment_state: "paid") }
         let!(:waiting_feed_by_marketing_type) { create(:order, completed_at: Time.zone.now, shipment_state: "awaiting_feed", payment_state: "paid") }
-        let!(:printed_order_shipment) { create(:shipment, :order => printed_order, :stock_location => create(:stock_location_with_items)) }
-        let!(:waiting_feed_by_marketing_type_shipment) { create(:shipment, :order => waiting_feed_by_marketing_type, :stock_location => create(:stock_location_with_items)) }
+        let!(:printed_order_shipment) { create(:shipment, order: printed_order, stock_location: create(:stock_location_with_items)) }
+        let!(:waiting_feed_by_marketing_type_shipment) { create(:shipment, order: waiting_feed_by_marketing_type, stock_location: create(:stock_location_with_items)) }
 
         # waiting line items
         let!(:waiting_li_1) { create(:line_item, quantity: 3, product: normal, order: waiting_feed_by_marketing_type) }
