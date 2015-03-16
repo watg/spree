@@ -43,6 +43,8 @@ module Spree
       # TODO: track: - sales discount
       # TODO: track: - b2b/affiliates discount [JL, ]
       # TODO: product collection [TS x watg, tartan, ...]
+      Rails.logger.info("GA_BUG: Params #{params.inspect}")
+      Rails.logger.info("GA_BUG: Order params #{params[:order].inspect}")
       if params[:order].completed_at
         GA.transaction(ga_transaction_details(params[:order], user_id))
         params[:order].line_items.each  {|i| GA.item(ga_item_details(i, user_id))}
