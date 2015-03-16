@@ -36,6 +36,7 @@ module Spree
     end
 
     def perform
+      Rails.logger.info("GA_BUG Performing for: #{@user_id}")
       send(event)
     end
 
@@ -46,7 +47,10 @@ module Spree
       Rails.logger.info("GA_BUG: Params #{params.inspect}")
       Rails.logger.info("GA_BUG: Order params #{params[:order].inspect}")
       if params[:order].completed_at
+        Rails.logger.info("GA_BUG I have a completed_at")
         GA.transaction(ga_transaction_details(params[:order], user_id))
+        Rails.logger.info("GA_BUG line items: #{params[:order].line_items.count}")
+        Rails.logger.info("GA_BUG adjustments: #{params[:order].adjustments.count}")
         params[:order].line_items.each  {|i| GA.item(ga_item_details(i, user_id))}
         params[:order].adjustments.each {|i| GA.item(ga_adjustment_details(i, user_id))}
       end
@@ -58,6 +62,7 @@ module Spree
 
     private
     def event
+      Rails.logger.info("GA_BUG has we an event: #{@event}")
       return @event if @event
       _e = params[:event].downcase.to_sym rescue :no_event_error
       @event = ( [:transaction, :no_event_error].include?(_e) ? _e : :no_event_error)
