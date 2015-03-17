@@ -94,8 +94,8 @@ module Spree
             key => line_items.map(&:quantity).reduce(:+)
           }
         end
-        orders.sort_by { |hsh| - hsh.values.first } # orders the array of hash by value in desc
-        Hash[*orders.collect(&:to_a).flatten].sort.reverse
+        orders = Hash[*orders.collect(&:to_a).flatten]
+        orders.sort_by { |hsh| - hsh.last } # orders the array by value in desc
       end
 
       def printed_items_by_type

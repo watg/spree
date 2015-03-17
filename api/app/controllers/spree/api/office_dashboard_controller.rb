@@ -83,8 +83,8 @@ module Spree
             key => line_items.map(&:quantity).reduce(:+)
           }
         end
-        data.sort_by { |_name, value| value }
-        Hash[*data.collect(&:to_a).flatten].sort.reverse
+        data = Hash[*data.collect(&:to_a).flatten]
+        data.sort_by { |_name, value| - value }
       end
 
       def today_valid_orders

@@ -52,7 +52,7 @@ Spree::Core::Engine.add_routes do
     resources :wholesale_dashboard, :only=>[] do
       collection do
         get :today_orders
-        get :today_shipments
+        get :today_order_shipped
         get :printed_orders
         get :printed_by_marketing_type
         get :unprinted_orders
