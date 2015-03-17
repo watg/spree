@@ -19,16 +19,14 @@ module Spree
       end
     end
 
-    describe "#today_order_shipped" do
-      let!(:normal_order) { create(:order, completed_at: Time.zone.now) }
-      let!(:old_order) { create(:order, completed_at: Time.zone.yesterday) }
-
-      let!(:normal_order_ships) { create_list(:shipment, 2, shipped_at: Time.zone.now, state: "shipped", order: normal_order) }
-      let!(:old_order_ship) { create(:shipment, shipped_at: Time.zone.now, state: "shipped", order: old_order) }
+    describe "#today_shippments" do
+      let!(:shipped_shipments) { create_list(:shipment , 4, state: 'shipped', shipped_at: Time.zone.now ) }
+      let!(:old_shipped_shipments) { create_list(:shipment , 4, state: 'shipped', shipped_at: Time.zone.yesterday ) }
+      let!(:unshipped_shipments) { create_list(:shipment , 4, state: 'pending') }
 
       it "returns 3 shippments" do
-        api_get :today_order_shipped
-        expect(json_response["total"]).to eq(3)
+        api_get :today_shipments
+        expect(json_response["total"]).to eq(4)
       end
     end
 
@@ -170,6 +168,17 @@ module Spree
         it "returns 1 kit" do
           api_get :waiting_feed_by_marketing_type
           expect(json_response.last).to eq(["kit",1])
+        end
+      end
+
+      describe "#today_shipments_by_country" do
+        let!(:address) {create(:address)}
+        let!(:shipment1) { create(:shipment ,state: 'shipped', shipped_at: Time.zone.now , address: address) }
+        let!(:shipment2) { create(:shipment ,state: 'shipped', shipped_at: Time.zone.now  , address: address) }
+
+        it "it should return the quantity of shipped orders by location" do
+          api_get :today_shipments_by_country
+          expect(json_response.first).to eq([address.country.name,2])
         end
       end
     end

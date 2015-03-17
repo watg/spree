@@ -52,7 +52,8 @@ Spree::Core::Engine.add_routes do
     resources :warehouse_dashboard, :only=>[] do
       collection do
         get :today_orders
-        get :today_order_shipped
+        get :today_shipments
+        get :today_shipments_by_country
         get :printed_orders
         get :printed_by_marketing_type
         get :unprinted_orders

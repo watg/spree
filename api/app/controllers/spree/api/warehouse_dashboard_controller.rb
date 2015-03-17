@@ -9,11 +9,10 @@ module Spree
         end
       end
 
-      def today_order_shipped
+      def today_shipments
         shipments = { total: Spree::Shipment.shipped
-                             .joins(:order).merge(valid_orders)
-                             .where('shipped_at > ?', Time.zone.now.at_beginning_of_day)
-                             .count
+                               .where('shipped_at > ?', Time.zone.now.at_beginning_of_day)
+                               .count
         }
         respond_to do |format|
           format.json { render json: shipments.to_json }
@@ -86,7 +85,36 @@ module Spree
         end
       end
 
+      def today_shipments_by_country
+        shipments = shipments_by_marketing_type(shipped_countries)
+        shipments = short_countries_list(shipments)
+        respond_to do |format|
+          format.json { render json: shipments.to_json }
+        end
+      end
+
       private
+      def shipments_by_marketing_type(collection)
+        shipments = collection.group_by(&:name).map do |key, line_items|
+          {
+            key => line_items.count
+          }
+        end
+        shipments = Hash[*shipments.collect(&:to_a).flatten]
+        shipments.sort_by { |hsh| - hsh.last } # orders the array by value in desc
+      end
+
+      def short_countries_list(shipments)
+        if shipments.count > 10
+          shipments[9] = ['others' , (shipments[9..shipments.size].map(&:last).reduce(:+))]
+          shipments = shipments[0..9]
+        end
+        shipments
+      end
+
+      def shipped_countries
+        Spree::Shipment.shipped.joins(address: [:country]).select('spree_countries.name as name').where('shipped_at > ?', Time.zone.today.at_beginning_of_day)
+      end
 
       def items_by_marketing_type(collection)
         orders = collection.group_by(&:marketing_type_title).map do |key, line_items|
