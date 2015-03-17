@@ -47,15 +47,15 @@ module Spree
           redirect_to checkout_state_path(@order.state) and return
         end
 
+        # BAD CODE ALERT!!!
+        # Be careful this peice of code never gets executed if you pay via
+        # paypal, please add any post completion actions to 
+        # OrderPostCompleteService
         if @order.completed?
           @current_order = nil
           flash.notice = Spree.t(:order_processed_successfully)
-          # This is a hack to ensure that both google analytics and google
-          # remarketing javascript snippets
-          # are rendered, we can not use completion_route to pass a
-          # param as it is overridden in the auth plugin
           flash[:order_completed] = true
-          send_delayed_jobs
+          OrderPostCompleteService.run!(order: @order, tracking_cookie: tracking_cookie)
           redirect_to completion_route
         else
           redirect_to checkout_state_path(@order.state)
@@ -66,13 +66,6 @@ module Spree
     end
 
     private
-    def send_delayed_jobs
-      ::Delayed::Job.enqueue Spree::AnalyticJob.new(event: :transaction,
-                                                    order: @order,
-                                                    user_id: tracking_cookie), queue: 'analytics'
-      ::Delayed::Job.enqueue Spree::DigitalOnlyOrderShipperJob.new(@order), queue: 'order_shipper'
-    end
-
     def ensure_valid_state
       unless skip_state_validation?
         if (params[:state] && !@order.has_checkout_step?(params[:state])) ||
@@ -141,7 +134,7 @@ module Spree
       end
     end
 
-    # Provides a route to redirect after order completion
+    # This is overridden by spree_auth_devise!!!!!!!!!!!!!!!!!!
     def completion_route
       spree.order_path(@order)
     end

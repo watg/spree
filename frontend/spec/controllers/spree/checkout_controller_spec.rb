@@ -234,6 +234,16 @@ describe Spree::CheckoutController, :type => :controller do
           expect(assigns(:current_order)).to be_nil
           expect(assigns(:order)).to eql controller.current_order
         end
+
+        it "should call OrderPostCompleteService.run!" do
+          expect(Spree::OrderPostCompleteService).to receive(:run!).with(
+            order: order,
+            tracking_cookie: 'foobar'
+          )
+          cookies[:watgtc] = 'foobar'
+          spree_post :update, {:state => "confirm"}
+        end
+
       end
 
       # Regression test for #4190
