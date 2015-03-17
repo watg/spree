@@ -67,7 +67,6 @@ module Spree
 
     private
     def send_delayed_jobs
-      Rails.logger.info("GA_BUG Tracking Cookie: #{tracking_cookie}")
       ::Delayed::Job.enqueue Spree::AnalyticJob.new(event: :transaction,
                                                     order: @order,
                                                     user_id: tracking_cookie), queue: 'analytics'
