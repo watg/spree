@@ -1,7 +1,7 @@
 require "spec_helper"
 require "ruby-debug"
 module Spree
-  describe Api::WholesaleDashboardController, type: :controller do
+  describe Api::WarehouseDashboardController, type: :controller do
     render_views
 
     before do

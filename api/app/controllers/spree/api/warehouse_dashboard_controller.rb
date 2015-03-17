@@ -1,7 +1,7 @@
 module Spree
   module Api
     # Rest Interface for the wholesale dashboard
-    class WholesaleDashboardController < Spree::Api::BaseController
+    class WarehouseDashboardController < Spree::Api::BaseController
       def today_orders
         orders = { total: today_valid_orders.count }
         respond_to do |format|

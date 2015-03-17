@@ -49,7 +49,7 @@ Spree::Core::Engine.add_routes do
       end
     end
 
-    resources :wholesale_dashboard, :only=>[] do
+    resources :warehouse_dashboard, :only=>[] do
       collection do
         get :today_orders
         get :today_order_shipped
