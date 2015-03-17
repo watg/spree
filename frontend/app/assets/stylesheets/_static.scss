@@ -125,6 +125,19 @@
 		padding-bottom: 0.25em;
 		border-bottom: 1px dotted #000;
 	}
+	.row-anchors {
+		a {
+			margin-right: emCalc(5px);
+			padding-right: emCalc(5px);
+			text-decoration: underline;
+			border-right: 1px solid #ccc;
+		}
+		a:last-child {
+			margin: 0;
+			padding: 0;
+			border: 0;
+		}
+	}
 }
 .video-cta {
 	margin: 0 0 1.5em 0;
