@@ -11,7 +11,7 @@
 
 <% if Flip.on?(:shipping_options) %>
 <%= form.fields_for :shipments do |ship_form| %>
-<div class="small-12 columns">
+<div class="small-12 columns shipping-methods">
   <h3><%= Spree.t(:shipping_method) %></h3>
 
   <table>
