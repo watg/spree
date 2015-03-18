@@ -295,6 +295,21 @@ body.homepage {
 .home-main .row-flavours {
 	text-align: center;
 	overflow: hidden;
+	.knit-kits {
+		width: 50%;
+	  height: 600px;
+	  display: block;
+	  position: absolute;
+	  z-index: 101;
+	}
+	.whats-new {
+		width: 50%;
+	  height: 600px;
+	  display: block;
+	  position: absolute;
+	  z-index: 101;
+	  right: 0;
+	}
 	.columns {
 		height: 200px;
 	}
