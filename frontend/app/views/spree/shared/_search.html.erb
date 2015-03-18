@@ -1,1 +1,4 @@
-<!-- -->
+<%= form_tag spree.suites_path, :method => :get do %>
+  <%= search_field_tag :keywords, params[:keywords], :placeholder => Spree.t(:search), id: "search-bar" %>
+  <%= button_tag Spree.t(:search), :name => nil, class: "button search-button" %>
+<% end %>
