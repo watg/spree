@@ -13,12 +13,6 @@
   if (uid && uid != 'undefined') {ga('set', '&uid', uid);}
   ga('send', 'pageview');
 
-  <% if order_just_completed?(@order)  %>
-    ga('require', 'ecommerce', 'ecommerce.js');
-    ga('ecommerce:addTransaction',{'id': "<%= j @order.number %>"});
-    ga('ecommerce:send');
-  <% end %>
-
   <% end %>
 <% end %>
 <% end %>
