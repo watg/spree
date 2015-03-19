@@ -14,24 +14,31 @@
 <div class="small-12 columns shipping-methods">
   <h3><%= Spree.t(:shipping_method) %></h3>
 
-  <table>
+  <table class="delivery_options">
+    <thead>
+      <tr>
+        <th><%= Spree.t(:delivery_option) %></th>
+        <th class="turnaround"><%= Spree.t(:turnaround) %></th>
+        <th class="cost"><%= Spree.t(:cost) %></th>
+      </tr>
+    </thead>
     <tbody>
       <% ship_form.object.shipping_rates.each do |rate| %>
       <% present rate, {} do |rate_presenter| %>
-        <tr>
-          <td>
+      <tr>
+        <td>
+          <label>
             <%= ship_form.radio_button :selected_shipping_rate_id, rate.id, class: "shipping-rate" %>
-	  </td>
-	  <td>
             <%= rate_presenter.name %>
-	  </td>
-	  <td>
-            <%= rate_presenter.duration %>
-	  </td>
-	  <td>
-            <%= rate_presenter.display_cost %>
-	  </td>
-	</tr>
+          </label>
+        </td>
+        <td class="turnaround">
+          <%= rate_presenter.duration %>
+        </td>
+        <td class="cost">
+          <%= rate_presenter.display_cost %>
+        </td>
+      </tr>
       <% end %>
       <% end %>
     </tbody>
