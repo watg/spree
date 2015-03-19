@@ -27,7 +27,9 @@ module Spree
 
     private
       def send_shipped_email
-        ShipmentMailer.shipped_email(@shipment.id).deliver
+        if @shipment.send_email?
+          ShipmentMailer.shipped_email(@shipment.id).deliver
+        end
       end
 
       def update_order_shipment_state

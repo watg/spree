@@ -158,7 +158,7 @@ Spree::Core::Engine.add_routes do
 
     resources :shipping_manifests
 
-     resources :orders do
+    resources :orders do
       member do
         get :cart
         post :internal
@@ -172,6 +172,8 @@ Spree::Core::Engine.add_routes do
         put :cancel
         put :resume
       end
+
+      resource :shipment_email, controller: "/admin/orders/shipment_email"
 
       resource :customer, controller: "orders/customer_details"
       resources :customer_returns, only: [:index, :new, :edit, :create, :update] do
