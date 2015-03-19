@@ -296,6 +296,7 @@
     /** Carousel **/
     .row-carousel {
       padding-bottom: 30px;
+      overflow: hidden;
       .owl-carousel {
         .owl-item img {
           width: initial !important;
