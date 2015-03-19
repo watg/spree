@@ -4,15 +4,15 @@ var readySuite = function() {
 	if (!$('body').hasClass('suite')) return false;
 
 	// Don't initialise zoom for mobile devices
-	if (core.isMobileWidthOrLess() === false) {
+  if (core.isMobileWidthOrLess() === false) {
 		core.suite.readyZoomableImages();
 	}
 
 	core.suite.setScrollPosition();
 	core.suite.runVariantMethods();
 	core.suite.readyHeroRow();
-//	core.suite.readyTabs();
-//	core.suite.readyRevealContent();
+	core.suite.readyTabs();
+	core.suite.readyRevealContent();
 	core.suite.readySocialWidget();
 	core.suite.readyHistoryPlugin();
 	core.suite.checkForVariantNumber();
@@ -20,6 +20,7 @@ var readySuite = function() {
 	core.suite.positionHeroTitle();
   core.suite.startCrossSales();
 	core.suite.readyOutOfStock();
+  core.suite.readyProductTabs();
 
 	/* ----- New kit UI only ----- */
 	core.suite.readyAssemblyMenus();
@@ -270,6 +271,20 @@ core.suite.readyAjaxCarSpinner = function() {
       }
     });
   });
+};
+
+core.suite.readyProductTabs = function () {
+  $('.product-details-content').slimScroll({
+    height: '230px',
+    borderRadius: '0px',
+    railOpacity: 1,
+    opacity: 1,
+    railColor : '#F1F1F1',
+    railBorderRadius : '0px',
+    railVisible : true
+  });
+
+  $('.product-details-tabs').tabslet({});
 };
 
 /* Cross Sales Widget */

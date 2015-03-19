@@ -1,29 +1,41 @@
-<div class='product_details_tabs'>
-  <ul class='horizontal product_details'>
-    <li class="tab-title active"><a href="#panel_contents">Contents</a></li>
-    <li class="#tab-title"><a href="#panel_delivery">Delivery info</a></li>
-    <li class="#tab-title"><a href="#panel_by_the_gang">#MADEUNIQUE</a></li>
+<div class='product-details-tabs'>
+  <ul class='horizontal product-details'>
+    <li class="tab-title active"><a href="#panel_contents">Description</a></li>
+    <li class="tab-title"><a href="#panel_delivery">Delivery info</a></li>
+    <% unless product_presenter.assembly_definition %>
+      <li class="tab-title"><a href="#panel_by_the_gang">#MADEUNIQUE</a></li>
+    <%end%>
   </ul>
   <hr/>
   <div id='panel_contents'>
-    <div class="product_details_content">
-      <%= product_presenter.clean_description %>
+    <div class="product-details-content">
+      <p><%= product_presenter.clean_description %></p>
     </div>
   </div>
   <div id='panel_delivery'>
-    <div class="product_details_content delivery">
+    <div class="product-details-content delivery">
       <%= render "/spree/suites/delivery/delivery_default" %>
     </div>
   </div>
   <div id='panel_by_the_gang'>
-    <div class="product_details_content">
-      <%= product_presenter.assembly_definition.to_s %>
-      <% if product_presenter.assembly_definition %>
-          <% present(product_presenter.assembly_definition, @context) do |assembly_definition_presenter| %>
-              <%= render 'suppliers', suppliers: assembly_definition_presenter.displayable_suppliers %>
+    <div class="product-details-content">
+
+      <% unless product_presenter.assembly_definition %>
+        <div class="suppliers-mark-container">
+          <h5 class="suppliers-mark suppliers">
+            <%= cdn_image_tag("static/made-by-the-gang.png", alt: "made by the gang symbol", width: "40", height: "40") %>
+            #madeunique <span>by <%= variant_presenter.displayable_supplier_nickname %> </span>
+          </h5>
+        </div>
+          <% variant_presenter.displayable_suppliers.each_with_index do |supplier, i| %>
+            <% if (supplier.profile.size > 0) %>
+              <h6><%= supplier.nickname.titlecase() %>:</h6>
+              <p><%= supplier.profile %></p>
+              <% if (i < variant_presenter.displayable_suppliers.size - 1) %>
+                <br/><br/>
+              <% end %>
+            <% end %>
           <% end %>
-      <% else %>
-          <%= render 'suppliers', suppliers: variant_presenter.displayable_suppliers %>
       <% end %>
     </div>
   </div>
@@ -31,60 +43,3 @@
 <%= render 'social_icons', variant_presenter: variant_presenter %>
 
 <p class="promo-raf">Get your next order for free! <a href="/raf/invite">Find out more</a></p>
-
-<script>
-
-  $('.product_details_content').slimScroll({
-    height: '300px',
-    borderRadius: '0px',
-    railOpacity: 1,
-    opacity: 1,
-    railColor : '#F1F1F1',
-    railBorderRadius : '0px',
-    railVisible : true
-  });
-
-  $('.product_details_tabs').tabslet({});
-
-</script>
-<style>
-  .product_details_tabs{
-    padding-bottom: 30px;
-    margin-bottom: 15px;
-    border-bottom: 1px dotted #333;
-  }
-  .product_details_tabs ul{
-    margin-bottom: 0;
-  }
-  .product_details_tabs ul.horizontal li{
-    display: inline-block;
-    margin: 0 10px 0 0;
-  }
-  .product_details_tabs ul.horizontal li a{
-    padding: 0.7em 0;
-    font-family: "Trade Gothic W01 Bold", Helvetica, Arial, sans-serif;
-    color: #808080;
-    font-size: 1em;
-    text-transform: uppercase;
-    border-bottom: 5px solid transparent;
-    display: block;
-    outline: 0;
-  }
-
-  .product_details_tabs ul.horizontal li a:hover, .product_details_tabs ul.horizontal li.active a{
-    border-bottom: 5px solid black;
-    text-decoration: none;
-    color: black;
-  }
-  .product_details_content {
-    font-size: 0.750em;
-    word-wrap: break-word;
-    padding-right: 5px;
-  }
-  .product_details_tabs hr{
-    margin: 0 0 30px 0;
-  }
-  .suite ol {
-    margin-bottom: 0px;
-  }
-</style>
