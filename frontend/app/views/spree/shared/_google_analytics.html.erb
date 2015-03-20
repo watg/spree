@@ -1,34 +1,38 @@
 <% if production_or_staging? %>
 <% if tracker = Spree::Tracker.current %>
   <%= javascript_tag do %>
+    var gaq_count = 0;
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', '<%= tracker.analytics_id %>']);
     _gaq.push(['_trackPageview']);
 
-  <% if order_just_completed?(@order) && @order.bill_address %>
+    <% if order_just_completed?(@order) && @order.bill_address %>
       <%# more info: https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApiEcommerce %>
-      _gaq.push(['_addTrans',
-        "<%= j @order.number %>",
-        "",
-        "<%= @order.total %>",
-        "<%= @order.all_adjustments.tax.sum(:amount) %>",
-        "<%= @order.shipments.sum("cost + promo_total") %>",
-        "<%= j @order.bill_address.city %>",
-        "<%= j @order.bill_address.state_text %>",
-        "<%= j @order.bill_address.country.name %>"
-      ]);
-      <% @order.line_items.each do |line_item| %>
-        _gaq.push(['_addItem',
+      if (gaq_count === 0) {
+        _gaq.push(['_addTrans',
           "<%= j @order.number %>",
-          "<%= j line_item.item_sku %>",
-          "<%= j line_item.variant.product.name %>",
-          "<%= j line_item.variant.product.marketing_type.name %>",
-          "<%= line_item.price %>",
-          "<%= line_item.quantity %>"
+          "",
+          "<%= @order.total %>",
+          "<%= @order.all_adjustments.tax.sum(:amount) %>",
+          "<%= @order.shipments.sum("cost + promo_total") %>",
+          "<%= j @order.bill_address.city %>",
+          "<%= j @order.bill_address.state_text %>",
+          "<%= j @order.bill_address.country.name %>"
         ]);
-      <% end %>
-      _gaq.push(['_set', 'currencyCode', "<%= @order.currency %>"]);
-      _gaq.push(['_trackTrans']);
+        <% @order.line_items.each do |line_item| %>
+          _gaq.push(['_addItem',
+            "<%= j @order.number %>",
+            "<%= j line_item.item_sku %>",
+            "<%= j line_item.variant.product.name %>",
+            "<%= j line_item.variant.product.marketing_type.name %>",
+            "<%= line_item.price %>",
+            "<%= line_item.quantity %>"
+          ]);
+        <% end %>
+        _gaq.push(['_set', 'currencyCode', "<%= @order.currency %>"]);
+        _gaq.push(['_trackTrans']);
+        gaq_count++;
+      }
     <% end %>
 
     (function() {
