@@ -2,7 +2,7 @@
   <ul class='horizontal product-details'>
     <li class="tab-title active"><a href="#panel_contents">Description</a></li>
     <li class="tab-title"><a href="#panel_delivery">Delivery info</a></li>
-    <% unless product_presenter.assembly_definition %>
+    <% if selected_tab_presenter.ready_made? && !product_presenter.assembly_definition %>
       <li class="tab-title"><a href="#panel_by_the_gang">#MADEUNIQUE</a></li>
     <%end%>
   </ul>
@@ -20,7 +20,7 @@
   <div id='panel_by_the_gang'>
     <div class="product-details-content">
 
-      <% unless product_presenter.assembly_definition %>
+      <% if selected_tab_presenter.ready_made? && !product_presenter.assembly_definition  %>
         <div class="suppliers-mark-container">
           <h5 class="suppliers-mark suppliers">
             <%= cdn_image_tag("static/made-by-the-gang.png", alt: "made by the gang symbol", width: "40", height: "40") %>

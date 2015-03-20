@@ -92,9 +92,9 @@
           </div>
         <% end %>
         <% if mobile_device? %>
-          <%= render 'product_details_mobile', variant_presenter: variant_presenter, product_presenter: product_presenter %>
+          <%= render 'product_details_mobile', variant_presenter: variant_presenter, product_presenter: product_presenter, selected_tab_presenter: selected_tab_presenter%>
         <% else %>
-          <%= render 'product_details', variant_presenter: variant_presenter, product_presenter: product_presenter %>
+          <%= render 'product_details', variant_presenter: variant_presenter, product_presenter: product_presenter, selected_tab_presenter: selected_tab_presenter %>
         <% end %>
       </div>
     </div>
