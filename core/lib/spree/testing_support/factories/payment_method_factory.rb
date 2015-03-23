@@ -28,7 +28,7 @@ FactoryGirl.define do
   # end
 
   factory :paypal_payment_method, class: Spree::Gateway::Bogus do
-    name 'paypal'
+    name 'PayPal'
     environment 'test'
   end
 
