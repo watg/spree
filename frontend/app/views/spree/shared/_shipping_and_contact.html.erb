@@ -1,23 +1,27 @@
-<!-- The modal for shipping can be found in the footer -->
-<div class="row-shipping-and-contact">
-	<div class="row">
-		<% if free_shipping? %>
-			<% if mobile_device? %>
-				<div class="small-12 columns column-shipping">
-					<p><a rel="modal" name="modal-shipping" href="#modal-shipping"><strong>Free shipping over <%= free_shipping_amount %></strong></a></p>
-				</div>
+<% Spree::GlobalFreeShippingPresenter.new(self).present do |presenter| %>
+  <% cache presenter.cache_key do %>
+  <!-- The modal for shipping can be found in the footer -->
+	<div class="row-shipping-and-contact">
+		<div class="row">
+			<% if presenter.eligible? %>
+				<% if mobile_device? %>
+					<div class="small-12 columns column-shipping">
+						<p><a rel="modal" name="modal-shipping" href="#modal-shipping"><strong>Free shipping over <%= presenter.amount %></strong></a></p>
+					</div>
+				<% else %>
+					<div class="large-6 small-6 columns column-shipping">
+						<p><strong>Free shipping</strong> on orders over <%= presenter.amount %> <a rel="modal" name="modal-shipping" href="#modal-shipping">Find out more</a></p>
+					</div>
+					<div class="large-6 small-6 columns column-contact">
+						<p><strong>We're happy if you're happy</strong> <a rel="modal" name="modal-contact" href="#modal-contact">contact us</a> if you need our help</p>
+					</div>
+				<% end %>
 			<% else %>
-				<div class="large-6 small-6 columns column-shipping">
-					<p><strong>Free shipping</strong> on orders over <%= free_shipping_amount %> <a rel="modal" name="modal-shipping" href="#modal-shipping">Find out more</a></p>
-				</div>
-				<div class="large-6 small-6 columns column-contact">
+				<div class="large-12 small-12 columns column-contact">
 					<p><strong>We're happy if you're happy</strong> <a rel="modal" name="modal-contact" href="#modal-contact">contact us</a> if you need our help</p>
 				</div>
 			<% end %>
-		<% else %>
-			<div class="large-12 small-12 columns column-contact">
-				<p><strong>We're happy if you're happy</strong> <a rel="modal" name="modal-contact" href="#modal-contact">contact us</a> if you need our help</p>
-			</div>
-		<% end %>
+		</div>
 	</div>
-</div>
+  <% end %>
+<% end %>

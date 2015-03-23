@@ -21,7 +21,6 @@
   <% else %>
     <%= render "/spree/shared/mobile_footer_nav" %>
   <% end %>
-
 </footer>
 
 <!-- Cookie message -->
@@ -30,14 +29,18 @@
 </div>
 
 <!-- Shipping modal -->
-<% if free_shipping? %>
-<div class="modal" id="modal-shipping">
-  <a class="modal-close" href="#">Close</a>
-  <%= render "/spree/shared/shipping/shipping_#{current_country_code.downcase}" %>
-  <p>
-    <a class="button" href="#">OK, got it</a>
-  </p>
-</div>
+<% Spree::GlobalFreeShippingPresenter.new(self).present do |presenter| %>
+  <% cache presenter.cache_key do %>
+   <% if presenter.eligible? %>
+     <div class="modal" id="modal-shipping">
+     <a class="modal-close" href="#">Close</a>
+     <%= render presenter.shipping_partial, free_shipping_amount: presenter.amount %>
+     <p>
+       <a class="button" href="#">OK, got it</a>
+     </p>
+   </div>
+   <% end %>
+  <% end %>
 <% end %>
 
 <!-- Contact modal -->
