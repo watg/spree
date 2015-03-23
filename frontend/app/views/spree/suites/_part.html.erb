@@ -5,7 +5,7 @@
 
   <%# Reroute colour picker images... %>
   <%# Move these to a presenter method before go-live %>
-  <% product_abbr = product_name.split.map{|w|w[0]}.join %>
+  <% product_abbr = product_name.split.map{|w|w[0]}.join.upcase %>
   <% colour_abbr = value.presentation.delete(' ') %>
   <% picker_image_url = cdn_url('colour-picker/Picker_' + product_abbr + '_' + colour_abbr + '.jpg') %>
 
