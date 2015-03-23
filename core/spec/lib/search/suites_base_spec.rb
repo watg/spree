@@ -5,19 +5,21 @@ describe Spree::Core::Search::SuitesBase do
   before do
     @taxon = create(:taxon, name: "Ruby on Rails")
 
-    @suite1 = create(:suite, title: "RoR Mug")
+    @suite1 = create(:suite, :with_tab, title: "RoR Mug")
     @suite1.taxons << @taxon
-    @suite2 = create(:suite, title: "RoR Shirt")
+    @suite2 = create(:suite, :with_tab, title: "RoR Shirt")
   end
 
-  it "returns all suites by default" do
+  it "returns all suites with tabs by default" do
+    suite3 = create(:suite, title: "RoR Shirt2")
     params = { :per_page => "" }
+
     searcher = described_class.new(params)
     expect(searcher.retrieve_suites.count).to eq(2)
   end
 
   it "switches to next page according to the page parameter" do
-    @suite3 = create(:suite, title: "RoR Pants")
+    @suite3 = create(:suite, :with_tab, title: "RoR Pants")
 
     params = { :per_page => "2" }
     searcher = described_class.new(params)

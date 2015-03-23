@@ -32,9 +32,8 @@ module Spree
     ]
 
     class << self
-      # TODO: this should be active not nil
-      def active(currency = nil)
-        where(deleted_at: nil)
+      def active
+        joins(:tabs) # to ensure that tabs are present
       end
     end
 
