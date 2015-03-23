@@ -15,13 +15,15 @@
   
               <% option_values = part_presenter.displayable_option_values %>
               <% type = part_presenter.displayable_option_type %>
+              <% product_name = part_presenter.product_name %>
+
               <!-- render parts -->
               <li class="product-variants required" data-tree="<%= part_presenter.variant_tree.to_json %>" data-adjustment="0"  data-quantity="<%=part_presenter.count%>" data-adp-id="<%= part_presenter.id %>"><%= part_presenter.presentation %> <span class="color-value"></span>
                 <div class="variant-options required <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
-                  <p><%= part_presenter.product_name %></p>
+                  <p><%= product_name %></p>
                   <ul class="variant-option-values <%= type.url_safe_name.downcase %>">
   
-                    <%= render 'spree/suites/part', type: type, option_values: option_values %>
+                    <%= render 'spree/suites/part', type: type, option_values: option_values, product_name: product_name %>
                   </ul>
                 </div>
                 <input class="selected-parts" type="hidden" name="parts[<%= part_presenter.id %>]" value="" />
@@ -32,16 +34,17 @@
           <% else # optional %>
   
             <% option_values = part_presenter.displayable_option_values %>
-
             <% type = part_presenter.displayable_option_type %>
+            <% product_name = part_presenter.product_name %>
+
             <!-- render parts -->
               <li class="product-variants optional" data-tree="<%= part_presenter.variant_tree.to_json %>" data-adjustment="0" data-quantity="<%=part_presenter.count%>" data-adp-id="<%= part_presenter.id %>"><%= part_presenter.presentation %> <span class="optional">(Optional)</span> <span class="color-value"></span>
                 <div class="variant-options optional <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
   
-                  <p><%= part_presenter.product_name %></p>
+                  <p><%= product_name %></p>
                   <ul class="variant-option-values <%= type.url_safe_name.downcase %>">
   
-                    <%= render 'spree/suites/part', type: type, option_values: option_values %>
+                    <%= render 'spree/suites/part', type: type, option_values: option_values, product_name: product_name %>
   
                     <li class="no-thanks">
                       <% if option_values.any? %>
