@@ -130,7 +130,7 @@ core.readyAccordions = function() {
 
 core.readyCustomScroll = function() {
   $('.slimscroll').slimScroll({
-    height: '230px',
+    height: '350px',
     borderRadius: '0px',
     railOpacity: 1,
     opacity: 1,
