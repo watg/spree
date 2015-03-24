@@ -1,7 +1,7 @@
 module Spree
   module Api
     module Dashboard
-      module Office
+      module Warehouse
         # returns a formatted version of the todays sells by type for the dashboard api
         class FormatTodaySellsByType
           def initialize(valid_orders)
@@ -23,7 +23,7 @@ module Spree
           end
 
           def today_orders
-            Spree::Api::Dashboard::Office::FindTodayValidOrders.new(@orders).run
+            Spree::Api::Dashboard::Warehouse::FindTodayValidOrders.new(@orders).run
           end
         end
       end

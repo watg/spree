@@ -2,6 +2,7 @@ module Spree
   module Api
     module Dashboard
       module Office
+        # returns a formatted version of the number of items sold today for the dashboard api
         class FormatTodayItems
           def initialize(valid_orders)
             @orders = valid_orders
@@ -9,7 +10,13 @@ module Spree
 
           def run
             today_orders = Spree::Api::Dashboard::Office::FindTodayValidOrders.new(@orders).run
-            { total: Spree::LineItem.joins(:order).merge(today_orders).to_a.map(&:quantity).reduce(:+) }
+            {
+              total: Spree::LineItem
+                .joins(:order)
+                .merge(today_orders)
+                .to_a.map(&:quantity)
+                .reduce(:+)
+            }
           end
         end
       end

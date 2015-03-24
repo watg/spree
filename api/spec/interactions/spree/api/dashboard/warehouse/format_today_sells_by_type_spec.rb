@@ -1,5 +1,5 @@
 require "spec_helper"
-describe Spree::Api::Dashboard::Office::FormatTodaySellsByType, type: :interaction do
+describe Spree::Api::Dashboard::Warehouse::FormatTodaySellsByType, type: :interaction do
   let!(:marketing_pattern) { create(:marketing_type, title: "pattern") }
   let!(:marketing_kit) { create(:marketing_type, title: "kit") }
   let!(:normal) { create(:product_with_variants, marketing_type: marketing_pattern) }
