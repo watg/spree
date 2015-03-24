@@ -1,5 +1,5 @@
 <% Spree::GlobalFreeShippingPresenter.new(self).present do |presenter| %>
-  <% cache presenter.cache_key do %>
+  <% cache presenter.cache_key, expires_in: 10.minutes do %>
   <!-- The modal for shipping can be found in the footer -->
 	<div class="row-shipping-and-contact">
 		<div class="row">
