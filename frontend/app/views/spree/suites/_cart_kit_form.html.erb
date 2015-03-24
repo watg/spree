@@ -21,7 +21,7 @@
               <li class="product-variants required" data-tree="<%= part_presenter.variant_tree.to_json %>" data-adjustment="0"  data-quantity="<%=part_presenter.count%>" data-adp-id="<%= part_presenter.id %>"><%= part_presenter.presentation %> <span class="color-value"></span>
                 <div class="variant-options required <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
                   <p><%= product_name %></p>
-                  <ul class="variant-option-values <%= type.url_safe_name.downcase %>">
+                  <ul class="variant-option-values <%= type.url_safe_name.downcase %><% if type.url_safe_name.downcase == 'colour' %> slimscroll<% end %>">
   
                     <%= render 'spree/suites/part', type: type, option_values: option_values, product_name: product_name %>
                   </ul>
@@ -42,7 +42,7 @@
                 <div class="variant-options optional <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
   
                   <p><%= product_name %></p>
-                  <ul class="variant-option-values <%= type.url_safe_name.downcase %>">
+                  <ul class="variant-option-values <%= type.url_safe_name.downcase %><% if type.url_safe_name.downcase == 'colour' %> slimscroll<% end %>">
   
                     <%= render 'spree/suites/part', type: type, option_values: option_values, product_name: product_name %>
   
