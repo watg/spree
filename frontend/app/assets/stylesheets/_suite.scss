@@ -1545,6 +1545,8 @@ body.mobile.suite .widget-cross-sales {
 			/* Colour picker images */
 			.color, .colour {
 				.option-value, .personalisation-option-value {
+					position: relative;
+					left: 1px; // Shift anchors by 1px to cater for scroll offset
 					img {
 						margin: 5px;
 						height: 50px;
