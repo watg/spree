@@ -633,15 +633,17 @@
 	}
 
 	.delivery_options {
+		label {
+			font-size: inherit;
+		}
     input[type="radio"] {
-        margin: 0 1em 0 0;
+			margin: 0 1em 0 0;
     }
     .turnaround {
-        width: 50%;
+			width: 50%;
     }
-
     .cost {
-        width: 30%;
+			width: 30%;
     }
 	}
 
