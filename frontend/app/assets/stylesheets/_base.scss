@@ -694,3 +694,14 @@ footer p.promo-raf {
 		}
 	}
 }
+
+/**
+ * Plugin overwrites
+ *
+ * @section plugins
+ */
+
+/* Slimscroll custom rule */
+.slimScrollBar[style*="display: none;"] + .slimScrollRail {
+	display: none !important;
+}
