@@ -632,11 +632,10 @@
 		margin: 1em 0 0.5em 0;
 	}
 
-.delivery_options {
+	.delivery_options {
     input[type="radio"] {
-        margin-right: 1em;
+        margin: 0 1em 0 0;
     }
-
     .turnaround {
         width: 50%;
     }
@@ -644,7 +643,7 @@
     .cost {
         width: 30%;
     }
-}
+	}
 
 	/* payment */
 	.payment-method-tab {
