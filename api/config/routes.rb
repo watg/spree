@@ -38,14 +38,31 @@ Spree::Core::Engine.add_routes do
 
     resources :suite, :only => [:index]
 
-    resources :dashboard, :only=>[] do
-      collection do
-        get :last_bought_product
-        get :today_sells
-        get :today_orders
-        get :today_sells_by_type
-        get :today_orders_by_hour
-        get :today_items
+    namespace :dashboard do
+      resources :office, :only=>[] do
+        collection do
+          get :last_bought_product
+          get :today_sells
+          get :today_orders
+          get :today_sells_by_type
+          get :today_orders_by_hour
+          get :today_items
+        end
+      end
+
+      resources :warehouse, :only=>[] do
+        collection do
+          get :today_orders
+          get :today_sells_by_marketing_type
+          get :today_shipments
+          get :today_shipments_by_country
+          get :printed_orders
+          get :printed_by_marketing_type
+          get :unprinted_orders
+          get :unprinted_by_marketing_type
+          get :unprinted_orders_waiting_feed
+          get :waiting_feed_by_marketing_type
+        end
       end
     end
 
