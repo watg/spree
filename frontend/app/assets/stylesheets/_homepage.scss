@@ -49,10 +49,73 @@ body.homepage {
 	}
 }
 
+.home-main .leader-count {
+	/* Small screen background */
+	background: #fff cdn-url("/homepage/2015-03-25/Homepage_Countdown_MOBILE_V1.jpg") top center no-repeat;
+	& > div {
+		height: 580px;
+	}
+	a {
+		position: absolute;
+		display: block;
+		line-height: 0;
+		font-size: 0;
+	}
+	.link-women {
+		width: 100%;
+		height: 100%;
+	}
+	.link-men {
+		width: 40px;
+		height: 45px;
+		// Positioning
+		bottom: 285px;
+		right: 160px;
+	}
+	.link-kids {
+		width: 40px;
+		height: 45px;
+		// Positioning
+		bottom: 285px;
+		right: 105px;
+	}
+	.link-yarn {
+		width: 42px;
+		height: 45px;
+		// Positioning
+		bottom: 285px;
+		right: 46px;
+	}
+	/* Large screen background */
+	@media only screen and (min-width: 28.750em) {
+		background: #fff cdn-url("/homepage/2015-03-25/Homepage_Countdown_DESKTOP_V1.jpg") top center no-repeat;
+		& > div {
+			height: 700px;
+		}
+		.link-men {
+			width: 105px;
+			// Positioning
+			bottom: 120px;
+			right: 254px;
+		}
+		.link-kids {
+			width: 105px;
+			// Positioning
+			bottom: 120px;
+			right: 144px;
+		}
+		.link-yarn {
+			width: 105px;
+			// Positioning
+			bottom: 120px;
+			right: 32px;
+		}
+	}
+}
+
 .home-main .leader-0 {
 	/* Small screen background */
 	background: #fff cdn-url("/homepage/2015-03-18/Homepage_PillowTalk_MOBILE_V1.jpg") top center no-repeat;
-	//background: #efefef cdn-url("/homepage/2014-11-06/Homepage_BabyGang_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
@@ -76,7 +139,6 @@ body.homepage {
 	/* Large screen background */
 	@media only screen and (min-width: 28.750em) {
 		background: #fff cdn-url("/homepage/2015-03-18/Homepage_PillowTalk_DESKTOP_V1.jpg") top center no-repeat;
-  	//background: #efefef cdn-url("/homepage/2014-11-06/Homepage_BabyGang_DEKSTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
@@ -86,7 +148,6 @@ body.homepage {
 			right: 76px;
 		}*/
 	}
-
 }
 
 .home-main .leader-1 {
