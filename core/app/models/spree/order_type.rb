@@ -22,6 +22,5 @@ module Spree
     def party?
       name == PARTY
     end
-
   end
 end
