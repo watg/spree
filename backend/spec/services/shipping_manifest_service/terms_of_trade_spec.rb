@@ -2,24 +2,34 @@ require 'spec_helper'
 
 describe Spree::ShippingManifestService::TermsOfTrade do
 
-  subject { Spree::ShippingManifestService::TermsOfTrade.run(order: order) }
+  subject(:service) { Spree::ShippingManifestService::TermsOfTrade.run(order: order) }
 
   let(:order) { create(:order, total: 110, ship_total: 10, currency: 'USD'  ) }
 
-  let(:usa) { create(:country)}
 
-  before { order.stub_chain(:ship_address, :country).and_return(usa) }
-
-  context "in the usa" do
-    its(:result) { should eq('DDP') }
+  it "returns DDP for party orders for Canada" do
+    canada = create(:country_canada)
+    order.order_type = create(:party_order_type)
+    allow(order).to receive_message_chain(:ship_address, :country).and_return(canada)
+    expect(service.result).to eq('DDP')
   end
 
-  context "not in the usa" do
-    let(:uk) { create(:country_uk)}
+  it "returns DDU for non-party orders for Canada eh" do
+    canada = create(:country_canada)
+    allow(order).to receive_message_chain(:ship_address, :country).and_return(canada)
+    expect(service.result).to eq('DDU')
+  end
 
-    before { order.stub_chain(:ship_address, :country).and_return(uk) }
+  it "returns DDP for the USA" do
+    usa = create(:country)
+    allow(order).to receive_message_chain(:ship_address, :country).and_return(usa)
+    expect(service.result).to eq('DDP')
+  end
 
-    its(:result) { should eq('DDU') }
+  it "returns DDU for countries outside USA" do
+    uk = create(:country_uk)
+    allow(order).to receive_message_chain(:ship_address, :country).and_return(uk)
+    expect(service.result).to eq('DDU')
   end
 
 end

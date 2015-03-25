@@ -15,4 +15,13 @@ FactoryGirl.define do
     states_required false
     numcode 001
   end
+
+  factory :country_canada, class: Spree::Country do
+    iso_name 'CANADA'
+    name 'Canada'
+    iso 'CA'
+    iso3 'CAN'
+    states_required false
+    numcode 002
+  end
 end
