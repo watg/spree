@@ -1,0 +1,9 @@
+<div class="shipment-email">
+  <% present order, {}, OrderShipmentEmailPresenter do |shipment_email_presenter| %>
+    <% if shipment_email_presenter.send_email? %>
+      <%= link_to "Disable email", admin_order_shipment_email_path(order), class: "shipment-email-change", method: :delete, remote: true %>
+    <% else %>
+      <%= link_to "Enable email", admin_order_shipment_email_path(order), class: "shipment-email-change", method: :post, remote: true %>
+    <% end %>
+  <% end %>
+</div>
