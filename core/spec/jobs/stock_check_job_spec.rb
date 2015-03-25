@@ -967,8 +967,26 @@ describe Spree::StockCheckJob do
         end
 
       end
-
     end
 
+    describe "fetch_dynamic_assemblies" do
+      include_context "assembly definition"
+
+      subject { described_class.new(variant_part) }
+
+      it "returns no assemblies" do
+        expect(subject.send(:fetch_dynamic_assemblies, adp)).to eq [assembly_definition]
+      end
+
+      context "when assemblies_definition is deleted" do
+        before do
+          assembly_definition.delete
+        end
+
+        it "returns no assemblies" do
+          expect(subject.send(:fetch_dynamic_assemblies, adp)).to be_empty
+        end
+      end
+    end
   end
 end
