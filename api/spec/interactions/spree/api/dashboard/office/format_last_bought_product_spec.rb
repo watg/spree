@@ -13,7 +13,7 @@ describe Spree::Api::Dashboard::Office::FormatLastBoughtProduct, type: :interact
     create(:order, completed_at: Time.zone.yesterday, variants: [new_variant], state: "complete")
   end
 
-  subject { described_class.new(Spree::Order.complete) }
+  subject { described_class.new }
   describe "execute" do
     it "returns the last variant bought" do
       expect(subject.run).to eq(

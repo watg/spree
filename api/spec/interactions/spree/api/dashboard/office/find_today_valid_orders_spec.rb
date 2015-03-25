@@ -64,7 +64,7 @@ describe Spree::Api::Dashboard::Office::FindTodayValidOrders, type: :interaction
     create(:payment, order: valid_credit_order, payment_method: credit_card_payment_method)
   end
 
-  subject { described_class.new(Spree::Order.complete) }
+  subject { described_class.new }
 
   describe "execute" do
     it "it should return valid orders" do

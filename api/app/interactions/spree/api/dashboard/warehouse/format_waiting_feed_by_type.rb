@@ -4,9 +4,9 @@ module Spree
       module Warehouse
         # returns a formatted version of number of waiting feed items by marketing type
         class FormatWaitingFeedByType
-          def initialize(valid_orders)
-            @waiting_feed_orders = valid_orders.not_cancelled.where(shipment_state: "awaiting_feed",
-                                                                    payment_state: "paid")
+          def initialize(valid_orders = Spree::Order.complete.not_cancelled)
+            @waiting_feed_orders = valid_orders.where(shipment_state: "awaiting_feed",
+                                                      payment_state: "paid")
           end
 
           def run

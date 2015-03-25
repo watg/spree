@@ -44,7 +44,7 @@ describe Spree::Api::Dashboard::Warehouse::FormatPrintedItemsByType, type: :inte
   let!(:unprinted_li_1) { create(:line_item, product: normal, order: unprinted_order) }
   let!(:unprinted_li_2) { create(:line_item, product: kit, order: unprinted_order) }
 
-  subject { described_class.new(Spree::Order.complete) }
+  subject { described_class.new }
   describe "execute" do
     it "returns 3 patterns" do
       expect(subject.run.first).to eq(["pattern", 3])

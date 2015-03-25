@@ -4,7 +4,7 @@ describe Spree::Api::Dashboard::Office::FormatTodaySells, type: :interaction do
   let(:usd_order) { build_stubbed(:order, completed_at: Time.zone.now, total: 10, currency: "USD") }
   let(:eur_order) { build_stubbed(:order, completed_at: Time.zone.now, total: 11, currency: "EUR") }
   let(:gbp_order) { build_stubbed(:order, completed_at: Time.zone.now, total: 12, currency: "GBP") }
-  subject { described_class.new(Spree::Order.complete) }
+  subject { described_class.new }
   describe "execute" do
     it "returns todays orders by currency" do
       allow_any_instance_of(Spree::Api::Dashboard::Office::FindTodayValidOrders)

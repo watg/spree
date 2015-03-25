@@ -35,7 +35,7 @@ describe Spree::Api::Dashboard::Warehouse::FormatWaitingFeedOrders, type: :inter
            state: "complete")
   end
 
-  subject { described_class.new(Spree::Order.complete) }
+  subject { described_class.new }
   it "returns 1 new printed order" do
     expect(subject.run).to include(new: 1)
   end

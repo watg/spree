@@ -4,9 +4,9 @@ module Spree
       module Warehouse
         # returns a formatted version of number of printed items by marketing type
         class FormatPrintedItemsByType
-          def initialize(valid_orders)
-            @printed_orders = valid_orders.not_cancelled.where(shipment_state: "ready",
-                                                               payment_state: "paid")
+          def initialize(valid_orders = Spree::Order.complete.not_cancelled)
+            @printed_orders = valid_orders.where(shipment_state: "ready",
+                                                 payment_state: "paid")
           end
 
           def run

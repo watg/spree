@@ -14,7 +14,7 @@ describe Spree::Api::Dashboard::Warehouse::FormatTodaySellsByType, type: :intera
   let!(:li_1) { create_list(:line_item, 2, product: normal, order: order, quantity: 3) }
   let!(:li_2) { create_list(:line_item, 4, product: kit, order: order, quantity: 3) }
 
-  subject { described_class.new(Spree::Order.complete) }
+  subject { described_class.new }
   describe "execute" do
     it "returns todays orders by currency" do
       allow_any_instance_of(Spree::Api::Dashboard::Office::FindTodayValidOrders)

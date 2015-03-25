@@ -4,8 +4,8 @@ module Spree
       module Office
         # returns a formatted version of the number of sells by currency type for the dashboard api
         class FormatTodaySells
-          def initialize(valid_orders)
-            @orders = valid_orders.not_cancelled
+          def initialize(valid_orders = Spree::Order.complete.not_cancelled)
+            @orders = valid_orders
           end
 
           def run

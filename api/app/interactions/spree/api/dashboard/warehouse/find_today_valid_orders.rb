@@ -4,8 +4,8 @@ module Spree
       module Warehouse
         # Filters valid orders returning only the new ones.
         class FindTodayValidOrders
-          def initialize(valid_orders)
-            @orders = valid_orders.not_cancelled
+          def initialize(validated_orders)
+            @orders = validated_orders
           end
 
           def run

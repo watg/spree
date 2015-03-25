@@ -4,10 +4,10 @@ module Spree
       module Warehouse
         # returns a formatted version of number of unprinted items by marketing type
         class FormatUnprintedItemsByType
-          def initialize(valid_orders)
-            @unprinted_orders = valid_orders.not_cancelled.where(invoice_print_job_id: nil,
-                                                                 shipment_state: "ready",
-                                                                 payment_state: "paid")
+          def initialize(valid_orders = Spree::Order.complete.not_cancelled)
+            @unprinted_orders = valid_orders.where(invoice_print_job_id: nil,
+                                                   shipment_state: "ready",
+                                                   payment_state: "paid")
           end
 
           def run

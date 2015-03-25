@@ -4,8 +4,8 @@ module Spree
       module Warehouse
         # returns a formatted version of unprinted orders divided in over 24h and under 24h
         class FormatUnprintedOrders
-          def initialize(valid_orders)
-            @orders = valid_orders.not_cancelled
+          def initialize(valid_orders = Spree::Order.complete.not_cancelled)
+            @orders = valid_orders
             @today_orders = Spree::Api::Dashboard::Warehouse::FindTodayValidOrders.new(@orders).run
           end
 

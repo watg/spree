@@ -3,7 +3,7 @@ require "spec_helper"
 describe Spree::Api::Dashboard::Office::FormatTodayOrdersByHour, type: :interaction do
   let!(:orders_early) { create_list(:order, 4, completed_at: Time.zone.now.at_beginning_of_day) }
   let!(:orders_recent) { create_list(:order, 4, completed_at: 1.hour.ago) }
-  subject { described_class.new(Spree::Order.complete) }
+  subject { described_class.new }
 
   describe "execute" do
     it "contains all the hours until one hour ago" do
