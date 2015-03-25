@@ -61,7 +61,7 @@ module Spree
       def user_zone_ids
         @user_zone_ids ||= begin
           country = Spree::Country.find_by(iso: country_code)
-          members = Spree::ZoneMember.where(zoneable_id: country.id)
+          members = Spree::ZoneMember.where(zoneable_id: country)
           members.map(&:zone_id)
         end
       end

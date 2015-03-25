@@ -55,6 +55,16 @@ module Spree
             expect(promo.amount).to eq(0)
           end
         end
+
+        context "when country is not found" do
+          subject { described_class.new("FOOBAR", "USD") }
+
+          it "does not return a promotion" do
+            promo = subject.eligible_promotion
+            expect(promo.eligible?).to eq false
+            expect(promo.amount).to eq(0)
+          end
+        end
       end
 
       context "when no free shipping rules are found" do
