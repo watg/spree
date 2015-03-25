@@ -11,7 +11,8 @@ describe Spree::Api::Dashboard::Warehouse::FormatPrintedItemsByType, type: :inte
            completed_at: Time.zone.now,
            invoice_print_job_id: 2,
            shipment_state: "ready",
-           payment_state: "paid")
+           payment_state: "paid",
+           state: "complete")
   end
 
   let!(:unprinted_order) do
@@ -19,7 +20,8 @@ describe Spree::Api::Dashboard::Warehouse::FormatPrintedItemsByType, type: :inte
            completed_at: Time.zone.now,
            invoice_print_job_id: nil,
            shipment_state: "ready",
-           payment_state: "paid")
+           payment_state: "paid",
+           state: "complete")
   end
 
   let!(:printed_order_shipment) do

@@ -7,7 +7,7 @@ module Spree
         class FormatTodayOrdersByHour
           TODAY_RANGE = Time.zone.now.at_beginning_of_day..Time.zone.now.beginning_of_hour - 1
           def initialize(valid_orders)
-            @orders = valid_orders
+            @orders = valid_orders.not_cancelled
           end
 
           def run

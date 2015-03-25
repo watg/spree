@@ -5,7 +5,7 @@ module Spree
         # returns a formatted version of unprinted orders divided in over 24h and under 24h
         class FormatUnprintedOrders
           def initialize(valid_orders)
-            @orders = valid_orders
+            @orders = valid_orders.not_cancelled
             @today_orders = Spree::Api::Dashboard::Warehouse::FindTodayValidOrders.new(@orders).run
           end
 

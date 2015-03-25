@@ -5,7 +5,7 @@ module Spree
         # returns the last bought product formatted object for dashboard api
         class FormatLastBoughtProduct
           def initialize(valid_orders)
-            @orders = valid_orders
+            @orders = valid_orders.not_cancelled
           end
 
           def run

@@ -2,10 +2,10 @@ module Spree
   module Api
     module Dashboard
       module Warehouse
-        # Find valid orders completed today.
+        # Filters valid orders returning only the new ones.
         class FindTodayValidOrders
           def initialize(valid_orders)
-            @orders = valid_orders
+            @orders = valid_orders.not_cancelled
           end
 
           def run

@@ -1,19 +1,39 @@
 require "spec_helper"
 describe Spree::Api::Dashboard::Office::FindTodayValidOrders, type: :interaction do
   let!(:valid_paypal_order) do
-    create(:order, completed_at: Time.zone.now, internal: false, email: "valid@go.com")
+    create(:order,
+           completed_at: Time.zone.now,
+           internal: false,
+           email: "valid@go.com",
+           state: "complete")
   end
 
   let!(:valid_credit_order)do
-    create(:order, completed_at: Time.zone.now, internal: false, email: "valid@go.com")
+    create(:order,
+           completed_at: Time.zone.now,
+           internal: false,
+           email: "valid@go.com",
+           state: "complete")
   end
 
   let!(:internal_order)do
-    create(:order, completed_at: Time.zone.now, email: "request@woolandthegang.com", internal: true)
+    create(:order,
+           completed_at: Time.zone.now,
+           email: "request@woolandthegang.com",
+           internal: true,
+           state: "complete")
+  end
+
+  let!(:canceled_order) do
+    create(:order,
+           completed_at: Time.zone.now,
+           internal: false,
+           email: "valid@go.com",
+           state: "canceled")
   end
 
   let!(:test_order) do
-    create(:order, completed_at: Time.zone.now)
+    create(:order, completed_at: Time.zone.now, state: "complete")
   end
 
   let!(:paypal_payment_method) do

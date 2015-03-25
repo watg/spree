@@ -6,8 +6,12 @@ describe Spree::Api::Dashboard::Office::FormatLastBoughtProduct, type: :interact
   let!(:new_variant) { create(:variant, product: new_product) }
   let!(:old_variant) { create(:variant, product: old_product) }
 
-  let!(:new_order) { create(:order, completed_at: Time.zone.now, variants: [new_variant]) }
-  let!(:old_order) { create(:order, completed_at: Time.zone.yesterday, variants: [new_variant]) }
+  let!(:new_order) do
+    create(:order, completed_at: Time.zone.now, variants: [new_variant], state: "complete")
+  end
+  let!(:old_order) do
+    create(:order, completed_at: Time.zone.yesterday, variants: [new_variant], state: "complete")
+  end
 
   subject { described_class.new(Spree::Order.complete) }
   describe "execute" do

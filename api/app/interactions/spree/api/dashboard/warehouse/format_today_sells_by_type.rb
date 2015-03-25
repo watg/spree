@@ -5,7 +5,7 @@ module Spree
         # returns a formatted version of the todays sells by type for the dashboard api
         class FormatTodaySellsByType
           def initialize(valid_orders)
-            @orders = valid_orders
+            @orders = valid_orders.not_cancelled
           end
 
           def run

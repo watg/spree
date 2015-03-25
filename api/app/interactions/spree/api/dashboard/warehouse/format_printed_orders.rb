@@ -5,7 +5,7 @@ module Spree
         # returns a formatted version of printed orders divided in over 24h and under 24h
         class FormatPrintedOrders
           def initialize(valid_orders)
-            @orders = valid_orders
+            @orders = valid_orders.not_cancelled
           end
 
           def run

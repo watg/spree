@@ -5,7 +5,7 @@ module Spree
         # returns a formatted version of the number of orders sold today for the dashboard api
         class FormatTodayOrders
           def initialize(valid_orders)
-            @orders = valid_orders
+            @orders = valid_orders.not_cancelled
           end
 
           def run

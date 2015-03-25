@@ -5,7 +5,7 @@ describe Spree::Api::Dashboard::Warehouse::FormatTodaySellsByType, type: :intera
   let!(:normal) { create(:product_with_variants, marketing_type: marketing_pattern) }
   let!(:kit) { create(:product_with_variants, marketing_type: marketing_kit) }
 
-  let!(:order) { create(:order, completed_at: Time.zone.now) }
+  let!(:order) { create(:order, completed_at: Time.zone.now, state: "complete") }
 
   let!(:order_shipment) do
     create(:shipment, order: order, stock_location: create(:stock_location_with_items))

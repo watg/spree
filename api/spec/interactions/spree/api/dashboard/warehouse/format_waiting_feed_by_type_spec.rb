@@ -11,14 +11,16 @@ describe Spree::Api::Dashboard::Warehouse::FormatWaitingFeedByType, type: :inter
            completed_at: Time.zone.now,
            invoice_print_job_id: 2,
            shipment_state: "ready",
-           payment_state: "paid")
+           payment_state: "paid",
+           state: "complete")
   end
 
   let!(:waiting_feed_by_marketing_type) do
     create(:order,
            completed_at: Time.zone.now,
            shipment_state: "awaiting_feed",
-           payment_state: "paid")
+           payment_state: "paid",
+           state: "complete")
   end
 
   let!(:printed_order_shipment) do

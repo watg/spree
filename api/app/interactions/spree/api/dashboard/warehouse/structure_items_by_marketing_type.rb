@@ -7,8 +7,8 @@ module Spree
         # returns a structured version by marketing_type_title
         # of line items of a given order collection
         class StructureItemsByMarketingType
-          def initialize(valid_orders)
-            @orders = valid_orders
+          def initialize(validated_orders)
+            @orders = validated_orders
           end
 
           def run

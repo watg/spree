@@ -6,7 +6,8 @@ describe Spree::Api::Dashboard::Warehouse::FormatUnprintedOrders, type: :interac
            completed_at: Time.zone.now,
            invoice_print_job_id: nil,
            shipment_state: "ready",
-           payment_state: "paid")
+           payment_state: "paid",
+           state: "complete")
   end
 
   let!(:printed_order) do
@@ -14,7 +15,8 @@ describe Spree::Api::Dashboard::Warehouse::FormatUnprintedOrders, type: :interac
            completed_at: Time.zone.now,
            invoice_print_job_id: 2,
            shipment_state: "ready",
-           payment_state: "paid")
+           payment_state: "paid",
+           state: "complete")
   end
 
   let!(:old_unprinted_order) do
@@ -22,7 +24,8 @@ describe Spree::Api::Dashboard::Warehouse::FormatUnprintedOrders, type: :interac
            completed_at: Time.zone.yesterday,
            invoice_print_job_id: nil,
            shipment_state: "ready",
-           payment_state: "paid")
+           payment_state: "paid",
+           state: "complete")
   end
 
   subject { described_class.new(Spree::Order.complete) }
