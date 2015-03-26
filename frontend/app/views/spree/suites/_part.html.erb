@@ -4,11 +4,10 @@
   <li data-ov-id="<%= value.id %>">
 
   <%# Reroute colour picker images... %>
-  <%# Move these to a presenter method before go-live %>
+  <%# *** THIS CODE HAS A SHELF LIFE: TO BE REPLACED... *** %>
   <% product_abbr = product_name.split.map{|w|w[0]}.join.upcase %>
   <% colour_abbr = value.presentation.delete(' ') %>
   <% picker_image_url = cdn_url('colour-picker/Picker_' + product_abbr + '_' + colour_abbr + '.jpg') %>
-
   <% image_url = type.url_safe_name == 'colour' ? picker_image_url : value.image.url %>
   <%# / %>
 
