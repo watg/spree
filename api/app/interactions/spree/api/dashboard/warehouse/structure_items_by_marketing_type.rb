@@ -12,7 +12,9 @@ module Spree
           end
 
           def run
+            # debugger
             orders = @orders.group_by(&:marketing_type_title).map do |key, line_items|
+              # debugger
               { key => line_items.map(&:quantity).reduce(:+) }
             end
             orders = Hash[*orders.collect(&:to_a).flatten]

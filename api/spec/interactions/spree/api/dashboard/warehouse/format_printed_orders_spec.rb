@@ -4,7 +4,7 @@ describe Spree::Api::Dashboard::Warehouse::FormatPrintedOrders, type: :interacti
   let!(:printed_order) do
     create(:order,
            completed_at: Time.zone.now,
-           invoice_print_job_id: 2,
+           batch_invoice_print_date: Time.zone.now,
            shipment_state: "ready",
            payment_state: "paid",
            state: "complete")
@@ -22,6 +22,7 @@ describe Spree::Api::Dashboard::Warehouse::FormatPrintedOrders, type: :interacti
   let!(:old_printed_order) do
     create(:order,
            completed_at: Time.zone.yesterday,
+           batch_invoice_print_date: Time.zone.yesterday,
            invoice_print_job_id: 3,
            shipment_state: "ready",
            payment_state: "paid",
