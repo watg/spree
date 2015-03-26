@@ -113,6 +113,10 @@ module Spree
       self.ready? || self.pending?
     end
 
+    def waiting_to_ship?
+      self.ready? || self.pending? || self.awaiting_feed?
+    end
+
     def currency
       order ? order.currency : Spree::Config[:currency]
     end

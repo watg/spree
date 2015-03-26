@@ -103,11 +103,11 @@ module Spree
     # first unshipped that's leaving from a stock_location that stocks this variant
     def determine_target_shipment
       shipment = order.shipments.detect do |s|
-        s.ready_or_pending? && s.include?(variant)
+        s.waiting_to_ship? && s.include?(variant)
       end
 
       shipment ||= order.shipments.detect do |s|
-        s.ready_or_pending? && variant.stock_location_ids.include?(s.stock_location_id)
+        s.waiting_to_ship? && variant.stock_location_ids.include?(s.stock_location_id)
       end
     end
 
@@ -115,7 +115,6 @@ module Spree
 
       inventory = []
       if variant.should_track_inventory?
-
         on_hand, backordered, awaiting_feed = shipment.stock_location.fill_status(variant, quantity)
 
         on_hand.times do
