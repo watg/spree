@@ -163,8 +163,7 @@ module Spree
       asm_def_variants = part.assembly_definition_variants.select do |asm_def_variant|
         asm_def_variant.assembly_definition_part.required?
       end
-
-      asm_def_variants.map(&:assembly_definition_part).map(&:assembly_definition).uniq
+      asm_def_variants.map(&:assembly_definition_part).map(&:assembly_definition).uniq.compact
     end
 
     def set_in_stock_cache_of_dynamic_assemblies(assemblies)
