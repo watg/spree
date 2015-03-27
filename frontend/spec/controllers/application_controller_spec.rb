@@ -2,24 +2,33 @@ require 'spec_helper'
 
 describe ApplicationController, type: :controller do
 
-  context "device" do
+  subject { described_class.new }
 
+  describe "#device" do
     context "user agent recongised" do
       it "sets the correct devise" do
         request = double(:user_agent => 'iPhone' )
-        allow_any_instance_of(ApplicationController).to receive(:request).and_return(request)
-        expect(ApplicationController.new.device).to eq :mobile
+        allow(subject).to receive(:request).and_return(request)
+        expect(subject.device).to eq :mobile
       end
     end
 
     context "no user_agent" do
       it "sets the correct device to desktop" do
         request = double(:user_agent => 'asdaklsdj' )
-        allow_any_instance_of(ApplicationController).to receive(:request).and_return(request)
-        expect(ApplicationController.new.device).to eq :desktop
+        allow(subject).to receive(:request).and_return(request)
+        expect(subject.device).to eq :desktop
       end
     end
-
   end
 
+  describe "#context" do
+    it "returns an object with context accessor methods" do
+      allow(subject).to receive(:device).and_return("my_device")
+      allow(subject).to receive(:current_currency).and_return("USD")
+
+      expect(subject.context[:device]).to eq "my_device"
+      expect(subject.context[:currency]).to eq "USD"
+    end
+  end
 end
