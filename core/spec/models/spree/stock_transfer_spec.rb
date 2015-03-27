@@ -20,6 +20,11 @@ module Spree
       it { is_expected.to match /T\d+/ }
     end
 
+    it "validates reference uniqueness" do
+      new_stock_transfer = subject.dup
+      expect(new_stock_transfer.valid?).to eq false
+    end
+
     it "considers suppliers and creates stock items if they do not exist at destination" do
       location1 = create(:stock_location)
       location2 = create(:stock_location)

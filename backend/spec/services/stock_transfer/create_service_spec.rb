@@ -1,5 +1,4 @@
 require 'spec_helper'
-
 describe Spree::StockTransferService::Create do
 
   describe '#execute' do
@@ -24,13 +23,22 @@ describe Spree::StockTransferService::Create do
     } }
 
     it "creates a stock transfer" do
-      outcome = subject.run(params)
-      expect {
+      expect do
+        outcome = subject.run(params)
+        expect(outcome.valid?).to be true
+        transfer = outcome.result
+        expect(transfer).to be_kind_of Spree::StockTransfer
+      end.to change(Spree::StockTransfer, :count).by 1
+    end
+
+    context "same stock transfer is put through twice" do
+      it "does not create duplicate stock transfers" do
         subject.run(params)
-      }.to change(Spree::StockTransfer, :count).by 1
-      expect(outcome.valid?).to be true
-      transfer = outcome.result
-      expect(transfer).to be_kind_of Spree::StockTransfer
+        expect do
+          outcome = subject.run(params)
+          expect(outcome.valid?).to be false
+        end.to change(Spree::StockTransfer, :count).by 0
+      end
     end
 
     context "params are not supplied" do
