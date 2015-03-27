@@ -57,6 +57,7 @@ Spree::Core::Engine.add_routes do
   get '/cart_link', :to => 'store#cart_link', :as => :cart_link
 
 
+  resources :suites, :only => [:index]
   get '/product/:id(/:tab)(/:variant_id)', :to => 'suites#show', :as => :suite
 
   scope path: 'shop' do

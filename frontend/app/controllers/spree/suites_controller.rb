@@ -1,8 +1,21 @@
 module Spree
   class SuitesController < Spree::StoreController
+    helper 'spree/products'
 
     rescue_from ActionController::UnknownFormat, with: :render_404
     rescue_from ActiveRecord::RecordNotFound, :with => :render_404
+
+    PER_PAGE = 27
+    SHOW_ALL = 999
+
+    def index
+      @taxonomies = Spree::Taxonomy.includes(root: :children)
+      @context = {
+        currency: current_currency,
+        device: device
+      }
+      @search_page = SearchPage.new(@context.merge(params: params, user: try_spree_current_user))
+    end
 
     def show
       @suite = Suite.find_by!(permalink: params[:id])

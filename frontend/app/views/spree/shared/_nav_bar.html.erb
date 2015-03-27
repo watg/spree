@@ -1,3 +1,8 @@
+<%= form_tag spree.suites_path, :method => :get do %>
+  <%= search_field_tag :keywords, params[:keywords], :placeholder => Spree.t(:search) %>
+  <%= submit_tag Spree.t(:search), :name => nil %>
+<% end %>
+
 <nav id="top-nav-bar">
 	<ul id="nav-bar" data-hook>
   <% unless mobile_device? %>

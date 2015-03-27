@@ -31,11 +31,17 @@ module Spree
       { id: SMALL_BOTTOM, name: "bottom centre" }
     ]
 
+    class << self
+      # TODO: this should be active not nil
+      def active(currency = nil)
+        where(deleted_at: nil)
+      end
+    end
+
+
     def to_param
       permalink.present? ? permalink.to_s.to_url : name.to_s.to_url
     end
 
   end
 end
-
-require_dependency 'spree/suite/scopes'

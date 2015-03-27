@@ -1,0 +1,47 @@
+<% content_for :title do %><%= 'search results' %><% end %>
+<% content_for :meta do %>
+  <meta content="" name="keywords" />
+  <meta content="" name="description" />
+<% end %>
+
+<% show_all = Spree::TaxonsController::SHOW_ALL %>
+
+<% @body_class = 'suites-index no-sitewide-promo' %>
+
+<div class="wrapper-product-index">
+
+  <div class="row-hero">
+    <div class="row">
+      <h1><%= 'search results' %></h1>
+    </div>
+  </div>
+
+  <% if @search_page.suites.length > 0 %>
+    <div class="row-products">
+      <div class="row">
+        <div class="large-12 columns">
+          <% if params['per_page'] != show_all.to_s %><p class="show-all"><a href="?per_page=<%= show_all %>">Show all</a></p><% end %>
+          <%= paginate @search_page.suites, theme: "frontend_override" %>
+        </div>
+      </div>
+
+      <div class="row row-product">
+        <%= render partial: 'spree/taxons/suite', collection: @search_page.suites, cache: Proc.new{|suite, counter| [suite, Spree::SuitePresenter.desktop_image_size(counter), @search_page.currency , @search_page.device]} %>
+      </div>
+
+      <div class="row">
+        <div class="large-12 columns">
+          <% if params['per_page'] != show_all.to_s %><p class="show-all"><a href="?per_page=<%= show_all %>">Show all</a></p><% end %>
+          <%= paginate @search_page.suites, theme: "frontend_override" %>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="text-center">
+      <br>
+      <h4>No results found.</h4>
+      <br><br>
+    </div>
+  <% end %>
+
+</div><!-- /wrapper -->
