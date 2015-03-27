@@ -14,10 +14,5 @@ describe Spree::AppConfiguration, :type => :model do
     expect(Spree::Config.layout).to eq "my/layout"
   end
 
-  it "uses base searcher class by default" do
-    prefs.searcher_class = nil
-    expect(prefs.searcher_class).to eq Spree::Core::Search::Base
-  end
-
 end
 

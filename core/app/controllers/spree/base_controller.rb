@@ -6,7 +6,6 @@ class Spree::BaseController < ApplicationController
   include Spree::Core::ControllerHelpers::RespondWith
   include Spree::Core::ControllerHelpers::SSL
   include Spree::Core::ControllerHelpers::Common
-  include Spree::Core::ControllerHelpers::Search
   include Spree::Core::ControllerHelpers::Store
   include Spree::Core::ControllerHelpers::StrongParameters
   include Spree::Core::ControllerHelpers::CurrencyHelpers

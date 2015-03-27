@@ -15,7 +15,6 @@
 # a.get :color
 # a.preferred_color
 #
-require "spree/core/search/base"
 
 module Spree
   class AppConfiguration < Preferences::Configuration
@@ -89,16 +88,6 @@ module Spree
 
     # for the asset cdn which contains all our common images 
     preference :asset_cdn_url, :string, :default => ''
-
-
-    # searcher_class allows spree extension writers to provide their own Search class
-    def searcher_class
-      @searcher_class ||= Spree::Core::Search::Base
-    end
-
-    def searcher_class=(sclass)
-      @searcher_class = sclass
-    end
 
     # all the following can be deprecated when store prefs are no longer supported
     DEPRECATED_STORE_PREFERENCES = {
