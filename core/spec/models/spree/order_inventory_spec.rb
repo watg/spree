@@ -155,6 +155,19 @@ describe Spree::OrderInventory, :type => :model do
         expect(variant.stock_location_ids.include?(shipment.stock_location_id)).to be true
       end
     end
+
+    context "when there is only one shipment and it is awaiting_feed" do
+      it "selects that shipment" do
+        order = Spree::Order.new
+        order_inventory = described_class.new(order, line_item)
+        shipment = Spree::Shipment.new(state: "awaiting_feed")
+        allow(order).to receive(:shipments).and_return([shipment])
+        allow(shipment).to receive(:awaiting_feed?).and_return(true)
+        allow(shipment).to receive(:include?).with(variant).and_return(true)
+
+        expect(order_inventory.send(:determine_target_shipment)).to eq shipment
+      end
+    end
   end
 
   context 'when order has too many inventory units' do

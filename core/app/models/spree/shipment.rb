@@ -109,8 +109,8 @@ module Spree
       inventory_units.any? { |inventory_unit| inventory_unit.awaiting_feed? }
     end
 
-    def ready_or_pending?
-      self.ready? || self.pending?
+    def waiting_to_ship?
+      self.ready? || self.pending? || self.awaiting_feed?
     end
 
     def currency
@@ -241,10 +241,6 @@ module Spree
     rescue Spree::Core::GatewayError => e
       errors.add(:base, e.message)
       return !!Spree::Config[:allow_checkout_on_gateway_error]
-    end
-
-    def ready_or_pending?
-      self.ready? || self.pending?
     end
 
     def refresh_rates

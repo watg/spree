@@ -847,4 +847,31 @@ describe Spree::Shipment, :type => :model do
       expect(shipment.state).to eq "ready"
     end
   end
+
+  describe "#waiting_to_ship" do
+    it "is true if state is pending" do
+      shipment = described_class.new(state: "pending")
+      expect(shipment).to be_waiting_to_ship
+    end
+
+    it "is true if state is ready" do
+      shipment = described_class.new(state: "ready")
+      expect(shipment).to be_waiting_to_ship
+    end
+
+    it "is true if state is awaiting_feed" do
+      shipment = described_class.new(state: "awaiting_feed")
+      allow(shipment).to receive(:awaiting_feed?).and_return(true)
+      expect(shipment).to be_waiting_to_ship
+    end
+
+    it "is false for all other states" do
+      all_states = described_class.state_machine.states.map(&:name)
+      other_states = all_states - %w(ready pending awaiting_feed)
+      other_states.each do |state|
+        shipment = described_class.new(state: state)
+        expect(shipment).not_to be_waiting_to_ship
+      end
+    end
+  end
 end
