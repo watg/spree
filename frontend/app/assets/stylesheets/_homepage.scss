@@ -51,7 +51,7 @@ body.homepage {
 
 .home-main .leader-count {
 	/* Small screen background */
-	background: #fff cdn-url("/homepage/2015-03-25/Homepage_Countdown_MOBILE_V1.jpg") top center no-repeat;
+	background: #fff cdn-url("/homepage/2015-03-27/Homepage_Countdown_MOBILE_2_Friday.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
@@ -88,7 +88,7 @@ body.homepage {
 	}
 	/* Large screen background */
 	@media only screen and (min-width: 28.750em) {
-		background: #fff cdn-url("/homepage/2015-03-25/Homepage_Countdown_DESKTOP_V1.jpg") top center no-repeat;
+		background: #fff cdn-url("/homepage/2015-03-27/Homepage_Countdown_DESKTOP_2_Friday.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
