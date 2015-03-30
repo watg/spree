@@ -2,6 +2,8 @@ module Spree
   class Suite < ActiveRecord::Base
     acts_as_paranoid
 
+    has_one :indexed_search, foreign_key: :suite_id, class_name: "IndexedSearch"
+
     validates_uniqueness_of :name, :permalink
     validates_presence_of :name, :permalink, :title
 

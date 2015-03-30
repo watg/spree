@@ -1,10 +1,10 @@
-require 'spec_helper'
+require "spec_helper"
 
 module Search
   describe Base do
-    let(:suite1) { create(:suite, :with_tab, title: "RoR Mug") }
-    let(:suite2) { create(:suite, :with_tab, title: "RoR Shirt") }
-    let(:taxon) { create(:taxon, name: "Ruby on Rails") }
+    let!(:suite1) { create(:suite, :with_tab, title: "RoR Mug") }
+    let!(:suite2) { create(:suite, :with_tab, title: "RoR Shirt") }
+    let!(:taxon) { create(:taxon, name: "Ruby on Rails") }
 
     before do
       suite1.taxons << taxon
@@ -22,11 +22,11 @@ module Search
     it "switches to next page according to the page parameter" do
       suite3 = create(:suite, :with_tab, title: "RoR Pants")
 
-      params = { :per_page => "2" }
+      params = { per_page: "2" }
       searcher = described_class.new(params)
       expect(searcher.retrieve_suites.count).to eq(2)
 
-      params.merge! :page => "2"
+      params.merge! page: "2"
       searcher = described_class.new(params)
       expect(searcher.retrieve_suites.count).to eq(1)
     end
@@ -46,20 +46,23 @@ module Search
     end
 
     it "returns suites matching the keywords using AND logic" do
-      params = { :keywords => "ror mug" }
+      IndexedSearch.rebuild
+      params = { keywords: "ror mug" }
       searcher = described_class.new(params)
       expect(searcher.retrieve_suites.count).to eq(1)
     end
 
     it "returns suites within taxons matching the keywords" do
-      suite2.taxons = []
-      params = {:keywords => "Rails" }
+      suite2.taxons.clear
+      IndexedSearch.rebuild
+      params = { keywords: "Rails" }
       searcher = described_class.new(params)
       expect(searcher.retrieve_suites.count).to eq(1)
     end
 
     it "returns suites with keywords matching both suite and taxons" do
-      params = {:keywords => "ruby shirt" }
+      IndexedSearch.rebuild
+      params = { keywords: "ruby shirt" }
       searcher = described_class.new(params)
       expect(searcher.retrieve_suites.count).to eq(1)
     end

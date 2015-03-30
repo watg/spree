@@ -31,7 +31,7 @@ module Search
     def get_base_scope
       base_scope = Spree::Suite.active
       # base_scope = base_scope.in_taxon(taxon) unless taxon.blank? # not used at present
-      base_scope = get_suites_conditions_for(base_scope, keywords)
+      base_scope = get_suites_conditions_for(base_scope, @properties[:keywords])
       # base_scope = add_search_scopes(base_scope) # not used at present
       base_scope
     end
@@ -52,8 +52,7 @@ module Search
     def get_suites_conditions_for(base_scope, query)
       unless query.blank?
         query = sanitize(query)
-        base_scope = base_scope.joins(:taxons)
-          .where("to_tsvector('english', spree_taxons.name || ' ' || spree_suites.title) @@ to_tsquery(:q)", q: query)
+        base_scope = base_scope.joins(:indexed_search).where("indexed_searches.document @@ to_tsquery('english',:q)", q: query)
       end
       base_scope
     end
@@ -61,7 +60,7 @@ module Search
     def prepare(params)
       @properties[:taxon] = params[:taxon].blank? ? nil : Spree::Taxon.find(params[:taxon])
       @properties[:keywords] = params[:keywords]
-      @properties[:search] = params[:search]
+      @properties[:indexed_search] = params[:indexed_search]
 
       per_page = params[:per_page].to_i
       @properties[:per_page] = per_page > 0 ? per_page : Spree::Config[:products_per_page]
