@@ -15,7 +15,7 @@ module Spree
       StockTransfer.create do |transfer|
         transfer.source_location_id = 3
         transfer.destination_location_id = 4
-        transfer.reference = 'PO 666'
+        transfer.reference = 'P01 666'
       end }
 
 
