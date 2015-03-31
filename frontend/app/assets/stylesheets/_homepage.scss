@@ -51,7 +51,7 @@ body.homepage {
 
 .home-main .leader-0 {
 	/* Small screen background */
-	background: #fff cdn-url("/homepage/2015-03-18/Homepage_PillowTalk_MOBILE_V1.jpg") top center no-repeat;
+	background: #fff cdn-url("/homepage/2015-03-31/Homepage_WhiteOut_MOBILE_V2.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
@@ -61,28 +61,28 @@ body.homepage {
 		line-height: 0;
 		font-size: 0;
 	}
-	.link-one {
+	.link-shop {
 		width: 100%;
 		height: 100%;
 	}
-	/*.link-two {
-		width: 160px;
+	.link-blog {
+		width: 180px;
 		height: 45px;
 		// Positioning
-		bottom: 40px;
-		right: 100px;
-	}*/
+		bottom: 16px;
+		right: 72px;
+	}
 	/* Large screen background */
 	@media only screen and (min-width: 28.750em) {
-		background: #fff cdn-url("/homepage/2015-03-18/Homepage_PillowTalk_DESKTOP_V1.jpg") top center no-repeat;
+		background: #fff cdn-url("/homepage/2015-03-31/Homepage_WhiteOut_DESKTOP_V2.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
-		/*.link-two {
+		.link-blog {
 			// Positioning
-			bottom: 120px;
-			right: 76px;
-		}*/
+			bottom: 40px;
+			right: 355px;
+		}
 	}
 }
 
