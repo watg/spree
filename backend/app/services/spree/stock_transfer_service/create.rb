@@ -28,13 +28,16 @@ module Spree
         end
 
         stock_transfer = StockTransfer.create(:reference => reference)
-        stock_transfer.transfer(source_location,
-                               destination_location,
-                               stock_transfer_items)
+        if stock_transfer.valid?
+          stock_transfer.transfer(source_location,
+                                  destination_location,
+                                  stock_transfer_items)
 
-        stock_transfer
+          stock_transfer
+        else
+          errors.merge!(stock_transfer.errors)
+        end
       end
-    
 
       private
 

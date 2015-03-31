@@ -7,6 +7,7 @@ module Spree
 
     make_permalink field: :number, prefix: 'T'
 
+    validates :reference, uniqueness: true
 
     TransferItem = Struct.new(:variant, :quantity, :supplier)
 
