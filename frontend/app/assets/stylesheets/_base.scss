@@ -702,9 +702,12 @@ footer p.promo-raf {
  */
 
 /* Slimscroll custom rule */
-.slimScrollRail {
+.slimScrollRail, {
 	display: none !important;
 }
 .slimScrollBar[style*="height"] + .slimScrollRail {
 	display: block !important;
+}
+.slimScrollBar[style*="display: none;"] + .slimScrollRail {
+	display: none !important;
 }
