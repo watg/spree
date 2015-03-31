@@ -1,13 +1,10 @@
-<% meta_title = @taxon.meta_title.blank? ? @taxon.title : @taxon.meta_title %>
-<% content_for :title do %><%= "#{meta_title} | Knit Kits | Knitwear | WOOL AND THE GANG" %><% end %>
+<% content_for :title do %><%= "#{@page.meta_title} | Knit Kits | Knitwear | WOOL AND THE GANG" %><% end %>
 
 <% content_for :meta do %>
   <meta content="index,follow" name="robots" />
-  <meta content="<%= @taxon.meta_keywords %>" name="keywords" />
-  <meta content="<%= @taxon.meta_description %>" name="description" />
+  <meta content="<%= @page.meta_keywords %>" name="keywords" />
+  <meta content="<%= @page.meta_description %>" name="description" />
 <% end %>
-
-<% show_all = Spree::TaxonsController::SHOW_ALL %>
 
 <% @body_class = 'suites-index no-sitewide-promo' %>
 
@@ -15,26 +12,26 @@
 
   <div class="row-hero">
     <div class="row">
-      <h1><%= @taxon.title %></h1>
+      <h1><%= @page.title %></h1>
     </div>
   </div>
 
   <div class="row-products">
 		<div class="row">
 			<div class="large-12 columns">
-				<% if params['per_page'] != show_all.to_s %><p class="show-all"><a href="?per_page=<%= show_all %>">Show all</a></p><% end %>
-				<%= paginate @suites, theme: "frontend_override" %>
+				<% if params['per_page'] != @page.show_all %><p class="show-all"><a href="?per_page=<%= @page.show_all %>">Show all</a></p><% end %>
+				<%= paginate @page.suites, theme: "frontend_override" %>
 			</div>		
 		</div>
     
 		<div class="row row-product">
-      <%= render partial: "suite", collection: @suites, cache: Proc.new{|suite, counter| [suite, Spree::SuitePresenter.desktop_image_size(counter), @currency ,device]} %>
+      <%= render partial: "suite", collection: @page.suites, cache: Proc.new{|suite, counter| [suite, Spree::SuitePresenter.desktop_image_size(counter), @currency ,device]} %>
   	</div>
 
 		<div class="row">
 			<div class="large-12 columns">
-				<% if params['per_page'] != show_all.to_s %><p class="show-all"><a href="?per_page=<%= show_all %>">Show all</a></p><% end %>
-				<%= paginate @suites, theme: "frontend_override" %>
+				<% if params['per_page'] != @page.show_all %><p class="show-all"><a href="?per_page=<%= @page.show_all %>">Show all</a></p><% end %>
+				<%= paginate @page.suites, num_pages: @page.num_pages, theme: "frontend_override" %>
 			</div>		
 		</div>
 	</div>
