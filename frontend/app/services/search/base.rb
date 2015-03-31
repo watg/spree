@@ -26,17 +26,18 @@ module Search
     end
 
     def prepare_query(query)
-      query.split.join("&")
+      ActiveRecord::Base.sanitize(query).split.join("&")
     end
 
-    def filter_suites(base_scope, query)
+    def filter_suites(scoped_suites, query)
       unless query.blank?
-        query = prepare_query(query)
-        base_scope = base_scope
-                     .joins(:indexed_search)
-                     .where("indexed_searches.document @@ to_tsquery('english',:q)", q: query)
+        query = "to_tsquery('english','#{query.split.join('&')}')"
+        scoped_suites = scoped_suites
+                        .joins(:indexed_search)
+                        .select("*, ts_rank(document, #{query}) AS rank")
+                        .where("indexed_searches.document @@ #{query}")
       end
-      base_scope
+      scoped_suites
     end
   end
 end

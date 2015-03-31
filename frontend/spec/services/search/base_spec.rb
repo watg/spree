@@ -17,7 +17,7 @@ module Search
         params = {}
 
         searcher = described_class.new(params)
-        expect(searcher.results.count).to eq(2)
+        expect(searcher.results.count(:all)).to eq(2)
       end
 
       it "switches to next page according to the page parameter" do
@@ -25,18 +25,18 @@ module Search
 
         params = { per_page: "2" }
         searcher = described_class.new(params)
-        expect(searcher.results.count).to eq(2)
+        expect(searcher.results.count(:all)).to eq(2)
 
         params.merge! page: "2"
         searcher = described_class.new(params)
-        expect(searcher.results.count).to eq(1)
+        expect(searcher.results.count(:all)).to eq(1)
       end
 
       it "returns suites matching the keywords using AND logic" do
         IndexedSearch.rebuild
         params = { keywords: "ror mug" }
         searcher = described_class.new(params)
-        expect(searcher.results.count).to eq(1)
+        expect(searcher.results.count(:all)).to eq(1)
       end
 
       it "returns suites within taxons matching the keywords" do
@@ -44,14 +44,14 @@ module Search
         IndexedSearch.rebuild
         params = { keywords: "Rails" }
         searcher = described_class.new(params)
-        expect(searcher.results.count).to eq(1)
+        expect(searcher.results.count(:all)).to eq(1)
       end
 
       it "returns suites with keywords matching both suite and taxons" do
         IndexedSearch.rebuild
         params = { keywords: "ruby shirt" }
         searcher = described_class.new(params)
-        expect(searcher.results.count).to eq(1)
+        expect(searcher.results.count(:all)).to eq(1)
       end
     end
     context "#num_pages" do
