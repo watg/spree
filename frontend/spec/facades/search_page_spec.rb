@@ -1,4 +1,5 @@
 require "spec_helper"
+require_relative "../modules/indexable_spec"
 
 describe SearchPage do
   let(:context) do
@@ -8,9 +9,8 @@ describe SearchPage do
     }
   end
 
-  subject { described_class.new(context) }
+  subject { described_class.new(context: context) }
 
-  [:params, :suites, :currency].each do |method|
-    it { is_expected.to respond_to(method) }
-  end
+  # TODO
+  # it_behaves_like Indexable
 end

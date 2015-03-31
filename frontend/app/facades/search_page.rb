@@ -1,29 +1,13 @@
 # Provides an object for the search view
 class SearchPage
-  attr_reader :params, :currency
+  attr_reader :currency
 
-  def initialize(context)
-    @params = context[:params]
+  delegate :suites, :num_pages, to: :searcher
+
+  def initialize(context: context, searcher: searcher, page: page, per_page: per_page)
     # @device = context[:device]
-    @user = context[:user]
-    @currency = context[:currency]
+    # @user = context[:user]
+    # @currency = context[:currency]
   end
 
-  def suites
-    @suites ||= begin
-      searcher = build_searcher
-      searcher.retrieve_suites.all
-    end
-  end
-
-  private
-
-  attr_reader :user
-
-  def build_searcher
-    Spree::Core::Search::SuitesBase.new(params).tap do |searcher|
-      searcher.current_user = user
-      searcher.current_currency = currency
-    end
-  end
 end
