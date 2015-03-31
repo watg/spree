@@ -296,7 +296,7 @@ core.suite.readyAssemblyMenus = function() {
 }
 
 core.suite.closeAssemblyMenus = function() {
-	$('.row-made-by-the-gang, .row-knit-your-own').on('click', function() {
+	$('.row-made-by-the-gang, .row-knit-your-own, .displayable-kit-entity').on('click', function() {
 		$(this).find('.product-variants.revealed').click();
 	});
 }

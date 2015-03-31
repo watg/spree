@@ -7,6 +7,7 @@ var readyCore = function() {
 	core.showCookieMessage();
 	core.readyAlpacaAttack();
   core.readyAccordions();
+  core.readyCustomScroll();
 };
 
 $(document).ready(readyCore);
@@ -124,6 +125,19 @@ core.readyAccordions = function() {
   $('.accordion-title').on('click', function() {
     $(this).children().children().toggleClass('purple');
     $(this).next().slideToggle();
+  });
+}
+
+core.readyCustomScroll = function() {
+  $('.slimscroll').slimScroll({
+    height: '350px',
+    borderRadius: '0px',
+    railOpacity: 1,
+    opacity: 1,
+    railColor : '#f1f1f1',
+    railBorderRadius : '0px',
+    railVisible : true,
+    alwaysVisible : true
   });
 }
 
