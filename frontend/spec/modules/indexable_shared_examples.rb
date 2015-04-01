@@ -1,11 +1,11 @@
 require "spec_helper"
 
-shared_examples_for Indexable do
-  it { is_expected.to respond_to(:title) }
-  it { is_expected.to respond_to(:meta_description) }
-  it { is_expected.to respond_to(:meta_keywords) }
-  it { is_expected.to respond_to(:meta_title) }
-  it { is_expected.to respond_to(:suites) }
-  it { is_expected.to respond_to(:num_pages) }
-  it { is_expected.to respond_to(:show_all) }
+shared_examples_for IndexableInterface do
+  [:suites, :num_pages].each do |raising_error_method|
+    specify { expect { subject.send(raising_error_method) }.not_to raise_error }
+  end
+
+  [:title, :meta_description, :meta_keywords, :meta_title, :show_all].each do |respond_method|
+    it { is_expected.to respond_to(respond_method) }
+  end
 end

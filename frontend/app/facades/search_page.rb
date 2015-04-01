@@ -1,6 +1,6 @@
 # Provides a page for the index view
 class SearchPage
-  include Indexable
+  include IndexableInterface
   attr_reader :searcher
 
   delegate :num_pages, to: :searcher

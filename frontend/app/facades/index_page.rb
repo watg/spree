@@ -1,6 +1,6 @@
 # Provides a page object for the taxon index view
 class IndexPage
-  include Indexable
+  include IndexableInterface
 
   def initialize(taxon: taxon, context: context, page: page, per_page: per_page)
     @taxon = taxon

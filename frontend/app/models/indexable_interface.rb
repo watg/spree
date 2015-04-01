@@ -1,4 +1,4 @@
-module Indexable
+module IndexableInterface
 
   PER_PAGE = 27
   SHOW_ALL = 999
