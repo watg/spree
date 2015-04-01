@@ -47,7 +47,7 @@ class IndexPage
 
   def fetch_suites
     Spree::Suite.joins(:classifications, :tabs).includes(:image, :tabs, :target)
-      .merge(Spree::Classification.where(taxon_id: taxon.id))
+      .merge(Spree::Classification.where(taxon_id: taxon.try(:id)))
       .references(:classifications)
   end
 

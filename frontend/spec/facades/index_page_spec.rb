@@ -2,6 +2,7 @@ require "spec_helper"
 require_relative "../modules/indexable_shared_examples"
 
 describe IndexPage do
+  let(:taxon) { nil }
   let(:context) do
     {
       device: :tablet,
@@ -9,67 +10,45 @@ describe IndexPage do
     }
   end
 
-  subject { described_class.new(context: context) }
+  subject { described_class.new(context: context, taxon: taxon) }
 
-  # TODO
-  it_behaves_like Indexable
+  it_behaves_like IndexableInterface
 
+  describe "#suites" do
+    let(:taxon) { create(:taxon, :permalink => "test") }
 
-  # describe "#suites" do
-  #   let(:taxon) { create(:taxon, :permalink => "test") }
+    let(:suite_1) { create(:suite, :with_tab) }
+    let(:suite_2) { create(:suite, :with_tab) }
+    let(:suite_3) { create(:suite, :with_tab) }
 
-  #   let(:suite_tabs_1) { [ create(:suite_tab) ] }
-  #   let(:suite_tabs_2) { [ create(:suite_tab) ] }
-  #   let(:suite_tabs_3) { [ create(:suite_tab) ] }
+    before do
+      suite_1.taxons << taxon
+      suite_2.taxons << taxon
+      suite_3.taxons << taxon
+    end
 
-  #   let!(:suite_1) { create(:suite, tabs: suite_tabs_1) }
-  #   let!(:suite_2) { create(:suite, tabs: suite_tabs_2) }
-  #   let!(:suite_3) { create(:suite, tabs: suite_tabs_3) }
+    it "assigns @suites to the suites, which belong to a taxon" do
+      expect(subject.suites).to eq ([ suite_1, suite_2, suite_3])
+    end
 
-  #   let!(:suites) { [ suite_1, suite_2, suite_3] }
+    it "only returns the number of suites required by per_page" do
+      subject.instance_variable_set("@per_page", 1)
+      expect(subject.suites.size).to eq 1
+    end
 
-  #   before do
-  #     suite_1.taxons << taxon
-  #     suite_2.taxons << taxon
-  #     suite_3.taxons << taxon
-  #   end
+    it "loads the first page if the request page does not contain any suites" do
+      subject.instance_variable_set("@per_page", 10)
+      subject.instance_variable_set("@page", 2)
+      expect(subject.suites.size).to eq 3
+    end
 
-  #   it "assigns @suites to the suites, which belong to a taxon" do
-  #     spree_get :show, :id => taxon.permalink
+    it "does not return suites that have no tabs" do
+      suite_3.tabs = []
+      expect(subject.suites.size).to eq 2
+    end
+  end
 
-  #     expect(assigns(:suites)).to eq suites
-  #     expect(response).to render_template(:show)
-  #   end
-
-  #   it "only returns the number of suites required by per_page" do
-  #     spree_get :show, :id => taxon.permalink, per_page: 1
-
-  #     expect(assigns(:suites).size).to eq 1
-  #     expect(response).to render_template(:show)
-  #   end
-
-  #   context "no suites on page" do
-
-  #     it "loads the first page" do
-  #       spree_get :show, :id => taxon.permalink, per_page: 10, page: 2
-
-  #       expect(assigns(:suites).size).to eq 3
-  #       expect(response).to render_template(:show)
-  #     end
-
-  #   end
-
-  #   context "suite has no tabs" do
-
-  #     let!(:suite_1) { create(:suite, tabs: suite_tabs_1) }
-  #     let!(:suite_2) { create(:suite, tabs: []) }
-  #     let!(:suite_3) { create(:suite, tabs: []) }
-
-  #     it "does not return suites that have no tabs" do
-  #       spree_get :show, :id => taxon.permalink, per_page: 3
-  #       expect(assigns(:suites).size).to eq 1
-  #       expect(response).to render_template(:show)
-  #     end
-  #   end
-  # end
+  describe "#num_pages" do
+    # TODO
+  end
 end
