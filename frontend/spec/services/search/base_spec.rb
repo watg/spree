@@ -53,18 +53,17 @@ module Search
         searcher = described_class.new(params)
         expect(searcher.results.count(:all)).to eq(1)
       end
-    end
-    context "#num_pages" do
+
       it "returns the total pages" do
-        params = { keywords: "" }
-        searcher = described_class.new(params)
-        allow(searcher).to receive(:results).and_return([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-        searcher.instance_variable_set("@per_page", 10)
-        expect(searcher.num_pages).to eq(1)
-        searcher.instance_variable_set("@per_page", 5)
-        expect(searcher.num_pages).to eq(2)
-        searcher.instance_variable_set("@per_page", 1)
-        expect(searcher.num_pages).to eq(10)
+        create(:suite, :with_tab, title: "RoR Pants")
+        searcher1 = described_class.new({per_page: 3})
+        expect(searcher1.num_pages).to eq(1)
+
+        searcher2 = described_class.new({per_page: 2})
+        expect(searcher2.num_pages).to eq(2)
+
+        searcher3 = described_class.new({per_page: 1})
+        expect(searcher3.num_pages).to eq(3)
       end
     end
   end

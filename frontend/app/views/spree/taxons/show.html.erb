@@ -25,7 +25,7 @@
 		</div>
     
 		<div class="row row-product">
-      <%= render partial: "suite", collection: @page.suites, cache: Proc.new{|suite, counter| [suite, Spree::SuitePresenter.desktop_image_size(counter), @currency ,device]} %>
+      <%= render partial: "spree/taxons/suite", collection: @page.suites, cache: Proc.new{|suite, counter| [suite, Spree::SuitePresenter.desktop_image_size(counter), @currency ,device]} %>
   	</div>
 
 		<div class="row">
