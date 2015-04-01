@@ -11,11 +11,22 @@ class IndexPage
   end
 
   def suites
-    @suites ||= fetch_suites
+    @suites ||= begin
+      selector = fetch_suites
+
+      # Ensure that if for some reason the page you are looking at is
+      # now empty then re-run the query with the first page
+      found_suites = selector.page(curr_page).per(per_page)
+      if found_suites.empty? and curr_page > 1
+        found_suites = selector.page(1).per(per_page)
+      end
+      found_suites
+    end
   end
 
   def num_pages
-    @num_pages ||= suites.count
+    @num_pages ||= fetch_suites.count.to_f / per_page
+    @num_pages.ceil
   end
 
   def meta_description
@@ -35,18 +46,9 @@ class IndexPage
   attr_reader :taxon
 
   def fetch_suites
-    selector = Spree::Suite.joins(:classifications, :tabs).includes(:image, :tabs, :target)
+    Spree::Suite.joins(:classifications, :tabs).includes(:image, :tabs, :target)
       .merge(Spree::Classification.where(taxon_id: taxon.id))
       .references(:classifications)
-
-    # Ensure that if for some reason the page you are looking at is
-    # now empty then re-run the query with the first page
-    suites = selector.page(curr_page).per(per_page)
-    if suites.empty? and curr_page > 1
-      params[:page] = 1
-      suites = selector.page(curr_page).per(per_page)
-    end
-    suites
   end
 
   def per_page

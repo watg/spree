@@ -5,15 +5,13 @@ module Spree
 
     respond_to :html
 
-    PER_PAGE = 27
-
     def show
       @context = context
       @page = IndexPage.new(
         taxon: taxon,
         context: context,
         page: params[:page].to_i,
-        per_page: (params[:per_page] || PER_PAGE).to_i
+        per_page: params[:per_page].to_i
       )
     end
 

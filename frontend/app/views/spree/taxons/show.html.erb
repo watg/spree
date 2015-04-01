@@ -20,7 +20,7 @@
 		<div class="row">
 			<div class="large-12 columns">
 				<% if params['per_page'] != @page.show_all %><p class="show-all"><a href="?per_page=<%= @page.show_all %>">Show all</a></p><% end %>
-				<%= paginate @page.suites, theme: "frontend_override" %>
+				<%= paginate @page.suites, num_pages: @page.num_pages, theme: "frontend_override" %>
 			</div>		
 		</div>
     

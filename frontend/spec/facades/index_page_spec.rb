@@ -1,7 +1,7 @@
 require "spec_helper"
 require_relative "../modules/indexable_shared_examples"
 
-describe SearchPage do
+describe IndexPage do
   let(:context) do
     {
       device: :tablet,
@@ -12,7 +12,7 @@ describe SearchPage do
   subject { described_class.new(context: context) }
 
   # TODO
-  # it_behaves_like Indexable
+  it_behaves_like Indexable
 
 
   # describe "#suites" do
