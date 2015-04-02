@@ -23,7 +23,9 @@
       <div class="row">
         <div class="large-12 columns">
           <% if params['per_page'] != @page.show_all %>
-            <p class="show-all"><a href="?per_page=<%= @page.show_all %>">Show all</a></p>
+            <p class="show-all">
+              <%= link_to 'Show all', params.merge(:per_page => @page.show_all) %>
+            </p>
           <% end %>
           <%= paginate @page.suites,
                        num_pages: @page.num_pages
@@ -44,7 +46,9 @@
       <div class="row">
         <div class="large-12 columns">
           <% if params['per_page'] != @page.show_all %>
-            <p class="show-all"><a href="?per_page=<%= @page.show_all %>">Show all</a></p>
+            <p class="show-all">
+              <%= link_to 'Show all', params.merge(:per_page => @page.show_all) %>
+            </p>
           <% end %>
           <%= paginate @page.suites,
                        num_pages: @page.num_pages
