@@ -1,4 +1,6 @@
-<% content_for :title do %><%= "#{@page.meta_title} | Knit Kits | Knitwear | WOOL AND THE GANG" %><% end %>
+<% content_for :title do %>
+  <%= "#{@page.meta_title} | Knit Kits | Knitwear | WOOL AND THE GANG" %>
+<% end %>
 
 <% content_for :meta do %>
   <meta content="index,follow" name="robots" />
@@ -17,23 +19,38 @@
   </div>
 
   <div class="row-products">
-		<div class="row">
-			<div class="large-12 columns">
-				<% if params['per_page'] != @page.show_all %><p class="show-all"><a href="?per_page=<%= @page.show_all %>">Show all</a></p><% end %>
-				<%= paginate @page.suites, num_pages: @page.num_pages, theme: "frontend_override" %>
-			</div>		
-		</div>
-    
-		<div class="row row-product">
-      <%= render partial: "spree/taxons/suite", collection: @page.suites, cache: Proc.new{|suite, counter| [suite, Spree::SuitePresenter.desktop_image_size(counter), @currency ,device]} %>
-  	</div>
+    <div class="row">
+      <div class="large-12 columns">
+        <% if params['per_page'] != @page.show_all %>
+          <p class="show-all"><a href="?per_page=<%= @page.show_all %>">Show all</a></p>
+        <% end %>
+        <%= paginate @page.suites,
+                     num_pages: @page.num_pages
+                     #theme: "frontend_override" remove strip params override
+        %>
+      </div>
+    </div>
 
-		<div class="row">
-			<div class="large-12 columns">
-				<% if params['per_page'] != @page.show_all %><p class="show-all"><a href="?per_page=<%= @page.show_all %>">Show all</a></p><% end %>
-				<%= paginate @page.suites, num_pages: @page.num_pages, theme: "frontend_override" %>
-			</div>		
-		</div>
-	</div>
+    <div class="row row-product">
+      <%= render partial: "spree/taxons/suite",
+                 collection: @page.suites,
+                 cache:
+                   Proc.new{ |suite, counter|
+                     [suite, Spree::SuitePresenter.desktop_image_size(counter), @currency ,device]
+                   } %>
+    </div>
+
+    <div class="row">
+      <div class="large-12 columns">
+        <% if params['per_page'] != @page.show_all %>
+          <p class="show-all"><a href="?per_page=<%= @page.show_all %>">Show all</a></p>
+        <% end %>
+        <%= paginate @page.suites,
+                     num_pages: @page.num_pages
+                     #theme: "frontend_override" remove strip params override
+        %>
+      </div>
+    </div>
+  </div>
 
 </div><!-- /wrapper -->
