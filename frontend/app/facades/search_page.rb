@@ -16,4 +16,8 @@ class SearchPage
     searcher.results
   end
 
+  def title
+    "Search results"
+  end
+
 end
