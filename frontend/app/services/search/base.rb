@@ -12,7 +12,7 @@ module Search
     end
 
     def num_pages
-      (filtered_suites.count(:all).to_i + @per_page.to_i - 1) / @per_page.to_i
+      (filtered_suites.length.to_i + @per_page.to_i - 1) / @per_page.to_i
     end
 
     private
@@ -30,14 +30,13 @@ module Search
     end
 
     def filtered_suites(scoped_suites = Spree::Suite.active, query = @keywords)
-      unless query.blank?
-        query = "to_tsquery('english',#{prepare_query(query)})"
-        scoped_suites = scoped_suites
-                        .joins(:indexed_search)
-                        .select("spree_suites.*, ts_rank(document, #{query}) AS rank")
-                        .where("indexed_searches.document @@ #{query}").uniq
-      end
-      scoped_suites
+      return scoped_suites if query.blank?
+      query = "to_tsquery('english',#{prepare_query(query)})"
+      scoped_suites.joins(:indexed_search)
+        .select("DISTINCT ON (spree_suites.id) spree_suites.*,
+                                 ts_rank(document, #{query}) AS rank")
+        .where("indexed_searches.document @@ #{query}")
+        .order("spree_suites.id, rank desc")
     end
   end
 end
