@@ -26,16 +26,20 @@ module Search
     end
 
     def prepare_query(query)
-      ActiveRecord::Base.sanitize(query).split.join("&")
+      ActiveRecord::Base.send(:sanitize_sql_array,
+                              [
+                                "to_tsquery('english', ?)",
+                                ActiveRecord::Base.sanitize(query.split.join("&"))
+                              ]
+      )
     end
 
     def filtered_suites(scoped_suites = Spree::Suite.active, query = @keywords)
       return scoped_suites if query.blank?
-      query = "to_tsquery('english',#{prepare_query(query)})"
-      scoped_suites.joins(:indexed_search)
-        .select("DISTINCT ON (spree_suites.id) spree_suites.*,
-                                 ts_rank(document, #{query}) AS rank")
-        .where("indexed_searches.document @@ #{query}")
+      scoped_suites.select("DISTINCT ON (spree_suites.id) spree_suites.*,
+                ts_rank(document, #{prepare_query(query)}) AS rank")
+        .joins(:indexed_search)
+        .where("indexed_searches.document @@ #{prepare_query(query)}")
         .order("spree_suites.id, rank desc")
     end
   end
