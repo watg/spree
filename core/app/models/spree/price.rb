@@ -16,7 +16,8 @@ module Spree
 
     # Prevent duplicate prices from happening in the system, there is also a uniq
     # index on the database table to ensure there are no race conditions
-    validates_uniqueness_of :variant_id, :scope => [ :currency, :sale, :is_kit, :deleted_at ]
+    #validates_uniqueness_of :variant_id, :scope => [ :currency, :sale, :is_kit, :deleted_at ]
+    validates_uniqueness_of :variant_id, :scope => [ :currency, :deleted_at ]
 
     class << self
 
