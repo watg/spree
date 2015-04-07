@@ -25,22 +25,24 @@ module Search
                   end
     end
 
-    def prepare_query(query)
+    # sanitize and convert the keywords for a tsquery
+    def prepare_keywords(keywords)
       ActiveRecord::Base.send(:sanitize_sql_array,
-                              [
-                                "to_tsquery('english', ?)",
-                                ActiveRecord::Base.sanitize(query.split.join("&"))
-                              ]
+                              ["(to_tsquery('english', :q) || to_tsquery('simple', :q))",
+                               q: ActiveRecord::Base.sanitize(keywords.split.join("&"))]
       )
     end
 
-    def filtered_suites(scoped_suites = Spree::Suite.active, query = @keywords)
-      return scoped_suites if query.blank?
-      scoped_suites.select("DISTINCT ON (spree_suites.id) spree_suites.*,
-                ts_rank(document, #{prepare_query(query)}) AS rank")
-        .joins(:indexed_search)
-        .where("indexed_searches.document @@ #{prepare_query(query)}")
-        .order("spree_suites.id, rank desc")
+    def filtered_suites(scoped_suites = Spree::Suite.active, keywords = @keywords)
+      return scoped_suites.select("DISTINCT ON (spree_suites.id) spree_suites.*") if keywords.blank?
+      # Wrap the query in a subquery, allowing the use of order on all fields
+      subquery = scoped_suites.select("DISTINCT ON (spree_suites.id) spree_suites.*,
+                ts_rank(document, #{prepare_keywords(keywords)}) AS rank")
+                 .joins(:indexed_search)
+                 .where("indexed_searches.document @@ #{prepare_keywords(keywords)}").to_sql
+
+      Spree::Suite.select("spree_suites.*").from("(#{subquery}) spree_suites")
+        .order("rank desc")
     end
   end
 end
