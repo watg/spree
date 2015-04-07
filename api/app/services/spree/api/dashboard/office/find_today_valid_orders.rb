@@ -4,7 +4,8 @@ module Spree
       module Office
         # Find valid orders completed at today.
         class FindTodayValidOrders
-          def initialize(valid_orders = Spree::Order.complete.not_cancelled)
+          def initialize(valid_orders = nil)
+            valid_orders ||= Spree::Order.complete.not_cancelled
             @orders = valid_orders
           end
 

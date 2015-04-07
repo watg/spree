@@ -4,7 +4,8 @@ module Spree
       module Warehouse
         # returns a formatted version of the todays sells by type for the dashboard api
         class FormatTodaySellsByType
-          def initialize(valid_orders = Spree::Order.complete.not_cancelled)
+          def initialize(valid_orders = nil)
+            valid_orders ||= Spree::Order.complete.not_cancelled
             @orders = valid_orders
           end
 
