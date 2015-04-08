@@ -1,28 +1,33 @@
 <tr>
-    <td rowspan="<%= variant.visible_price_types.size + 1 %>" > <%= (variant.options_text.blank? ? Spree.t(:master) : variant.options_text) %>  </td>
-  </tr>
+  <td rowspan="<%= variant.visible_price_types.size + 1 %>" >
+    <%= (variant.options_text.blank? ? Spree.t(:master) : variant.options_text) %>
+  </td>
+</tr>
 
-  <tr class="<%= cycle('odd', 'even')%>" >
-    <td> normal </td>
-    <td></td>
-    <% supported_currencies.each do |currency| %>
-      <% price = variant.currency_price(currency.iso_code) %>
+<tr class="<%= cycle('odd', 'even')%>" >
+  <td> normal </td>
+  <td></td>
+  <% supported_currencies.each do |currency| %>
+    <% present(variant.currency_price(currency.iso_code), {}) do |price| %>
       <td> <%= text_field_tag("vp[#{variant.id}][normal][#{currency.iso_code}]", (price ? price.display_amount : '')) %> </td>
     <% end %>
-  </tr>
-  <tr class="<%= cycle('odd', 'even')%>" >
-    <td> normal sale</td>
-    <td><%= check_box_tag "in_sale[]", variant.id, variant.in_sale? %></td>
-    <% supported_currencies.each do |currency| %>
-      <% price = variant.currency_price(currency.iso_code) %>
+  <% end %>
+</tr>
+<tr class="<%= cycle('odd', 'even')%>" >
+  <td> normal sale</td>
+  <td><%= check_box_tag "in_sale[]", variant.id, variant.in_sale? %></td>
+  <% supported_currencies.each do |currency| %>
+    <% present(variant.currency_price(currency.iso_code), {}) do |price| %>
       <td> <%= text_field_tag("vp[#{variant.id}][normal_sale][#{currency.iso_code}]", (price ? price.display_sale_amount : '')) %> </td>
     <% end %>
-  </tr>
-  <tr class="<%= cycle('odd', 'even')%>" >
-    <td> part </td>
-    <td></td>
-    <% supported_currencies.each do |currency| %>
-      <% price = variant.currency_price(currency.iso_code) %>
+  <% end %>
+</tr>
+<tr class="<%= cycle('odd', 'even')%>" >
+  <td> part </td>
+  <td></td>
+  <% supported_currencies.each do |currency| %>
+    <% present(variant.currency_price(currency.iso_code), {}) do |price| %>
       <td> <%= text_field_tag("vp[#{variant.id}][part][#{currency.iso_code}]", (price ? price.display_part_amount : '')) %> </td>
     <% end %>
-  </tr>
+  <% end %>
+</tr>
