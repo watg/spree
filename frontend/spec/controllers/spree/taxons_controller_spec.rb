@@ -12,11 +12,11 @@ module Spree
       end
 
       describe "@page" do
-        let(:index_page) { double(IndexPage) }
+        let(:index_page) { double(IndexPageFacade) }
 
         it "should render a search page" do
 
-          expect(::IndexPage).to receive(:new).with(
+          expect(::IndexPageFacade).to receive(:new).with(
             taxon: taxon,
             context: kind_of(Hash),
             page: 10,

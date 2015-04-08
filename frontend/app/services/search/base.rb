@@ -21,7 +21,7 @@ module Search
       @per_page = if params.key?(:per_page) && params[:per_page].to_i > 0
                     params[:per_page].to_i
                   else
-                    Spree::Config[:products_per_page].to_i
+                    IndexableInterface::PER_PAGE
                   end
     end
 

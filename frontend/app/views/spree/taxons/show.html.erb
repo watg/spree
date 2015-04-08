@@ -27,16 +27,16 @@
               <%= link_to 'Show all', params.merge(:per_page => @page.show_all) %>
             </p>
           <% end %>
-          <%= paginate @page.suites,
-                       num_pages: @page.num_pages
-              #theme: "frontend_override" remove strip params override
-          %>
+          <%= paginate @page.suites, num_pages: @page.num_pages %>
         </div>
       </div>
 
       <div class="row row-product">
         <%= render partial: "spree/taxons/suite",
                    collection: @page.suites,
+                   locals: {
+                     context: @page.context
+                   },
                    cache:
                      Proc.new{ |suite, counter|
                        [suite, Spree::SuitePresenter.desktop_image_size(counter), @currency ,device]
@@ -50,10 +50,7 @@
               <%= link_to 'Show all', params.merge(:per_page => @page.show_all) %>
             </p>
           <% end %>
-          <%= paginate @page.suites,
-                       num_pages: @page.num_pages
-              #theme: "frontend_override" remove strip params override
-          %>
+          <%= paginate @page.suites, num_pages: @page.num_pages %>
         </div>
       </div>
     <% else %>

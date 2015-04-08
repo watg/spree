@@ -6,13 +6,13 @@
     <% if mobile_device? %>
         <div class="row row-product">
           <% @selected_tab.cross_sales.each do |suite| %>
-              <%= render partial: "spree/taxons/suite", locals: {suite: suite, cache_safe_suite_counter: 1} %>
+              <%= render partial: "spree/taxons/suite", locals: {suite: suite, cache_safe_suite_counter: 1, context: @context} %>
           <% end %>
         </div>
     <%else%>
         <div class="row row-product owl-carousel">
           <% @selected_tab.cross_sales.each do |suite| %>
-              <%= render partial: "spree/taxons/suite", locals: {suite: suite, cache_safe_suite_counter: false} %>
+              <%= render partial: "spree/taxons/suite", locals: {suite: suite, cache_safe_suite_counter: false, context: @context} %>
           <% end %>
         </div>
     <% end %>

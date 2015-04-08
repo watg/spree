@@ -1,7 +1,7 @@
 require "spec_helper"
 require_relative "../modules/indexable_shared_examples"
 
-describe SearchPage do
+describe SearchPageFacade do
   let(:searcher) { instance_double("Search::Base", results: [], num_pages: 3) }
 
   let(:context) do

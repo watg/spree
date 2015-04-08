@@ -1,7 +1,7 @@
 require "spec_helper"
 require_relative "../modules/indexable_shared_examples"
 
-describe IndexPage do
+describe IndexPageFacade do
   let(:taxon) { nil }
   let(:context) do
     {
@@ -49,6 +49,10 @@ describe IndexPage do
   end
 
   describe "#num_pages" do
-    # TODO
+    it "returns the correct number of pages" do
+      allow(subject).to receive(:fetch_suites).and_return([1,2,3,4])
+      allow(subject).to receive(:per_page).and_return(3)
+      expect(subject.num_pages).to eq 2
+    end
   end
 end

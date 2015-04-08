@@ -1,15 +1,13 @@
 # Provides a page for the index view
-class SearchPage
+class SearchPageFacade
   include IndexableInterface
   attr_reader :searcher
-
+  attr_reader :context
   delegate :num_pages, to: :searcher
 
-  def initialize(context: context, searcher: searcher, page: page, per_page: per_page)
+  def initialize(context: context, searcher: searcher)
     @searcher = searcher
-    # @device = context[:device]
-    # @user = context[:user]
-    # @currency = context[:currency]
+    @context = context
   end
 
   def suites
@@ -19,5 +17,4 @@ class SearchPage
   def title
     "Search results"
   end
-
 end

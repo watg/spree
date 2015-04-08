@@ -1,13 +1,13 @@
 # Provides a page object for the taxon index view
-class IndexPage
+class IndexPageFacade
   include IndexableInterface
+  attr_reader :context
 
   def initialize(taxon: taxon, context: context, page: page, per_page: per_page)
     @taxon = taxon
+    @context = context
     @page = page
     @per_page = per_page
-    # @device = context[:device]
-    # @currency = context[:currency]
   end
 
   def suites
@@ -17,7 +17,7 @@ class IndexPage
       # Ensure that if for some reason the page you are looking at is
       # now empty then re-run the query with the first page
       found_suites = selector.page(curr_page).per(per_page)
-      if found_suites.empty? and curr_page > 1
+      if found_suites.empty? && curr_page > 1
         found_suites = selector.page(1).per(per_page)
       end
       found_suites

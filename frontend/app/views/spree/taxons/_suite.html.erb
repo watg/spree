@@ -1,11 +1,11 @@
-<% present(suite, @context) do |suite_presenter| %>
+<% present(suite, context) do |suite_presenter| %>
 
   <div class="<%= suite_presenter.container_class(cache_safe_suite_counter) %> <%='small-6' if cache_safe_suite_counter %> columns"
        itemscope
        itemtype="http://schema.org/Product">
 
     <% tab = suite_presenter.tabs.first %>
-    <% present(tab, @context.merge(suite: suite)) do |tab_presenter| %>
+    <% present(tab, context.merge(suite: suite)) do |tab_presenter| %>
       <a href="<%=tab_presenter.link_to%>">
         <h2 itemprop="name" class="<%= suite_presenter.header_style %>"><%= suite_presenter.title %></h2>
 				<%= image_tag(suite_presenter.image_url(cache_safe_suite_counter), alt: suite_presenter.image_alt) %>
@@ -17,7 +17,7 @@
         <% if suite_presenter.available_stock? %>
           <% suite_presenter.tabs_in_stock.each do |tab| %>
 
-            <% present(tab, @context.merge(suite: suite)) do |tab_presenter| %>
+            <% present(tab, context.merge(suite: suite)) do |tab_presenter| %>
               <li>
                 <a href="<%= tab_presenter.link_to %>">
                   <%= tab_presenter.presentation %><br/>
@@ -31,7 +31,7 @@
           <li class="item-unavailable">
             <div class="section-out-of-stock">
               <% tab = suite_presenter.tabs.first %>
-              <% present(tab, @context.merge(suite: suite)) do |tab_presenter| %>
+              <% present(tab, context.merge(suite: suite)) do |tab_presenter| %>
                 <h4>Out of Stock</h4>
                 <p><a href="<%=tab_presenter.link_to%>" class="click-here">Click here</a> to be notified<br class="only-desktop"/> when back in stock</p>
               <% end %>
