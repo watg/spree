@@ -241,6 +241,10 @@ module Spree
       self.send(price_in_method, currency_code )
     end
 
+    def currency_price(currency_code)
+      self.prices.where(currency: currency_code).first
+    end
+
     # --- new price getters --------
     def price_normal_in(currency_code)
       Spree::Price.find_normal_price(prices, currency_code) ||

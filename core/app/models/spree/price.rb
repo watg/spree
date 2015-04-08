@@ -59,12 +59,18 @@ module Spree
     end
 
     def display_amount
-      money
+      money(amount)
+    end
+    def display_sale_amount
+      money(sale_amount)
+    end
+    def display_part_amount
+      money(part_amount)
     end
 
     alias :display_price :display_amount
 
-    def money
+    def money(amount)
       self.class.money(amount,currency)
     end
 
