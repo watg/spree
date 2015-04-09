@@ -1,98 +1,53 @@
 require 'spec_helper'
 
-describe Spree::TaxonsController do
-  # Fix when implementing search
-  # it "should provide the current user to the searcher class" do
-  #   taxon = create(:taxon, :permalink => "test")
-  #   user = mock_model(Spree.user_class, :last_incomplete_spree_order => nil, :spree_api_key => 'fake')
-  #   controller.stub :spree_current_user => user
-  #   Spree::Config.searcher_class.any_instance.should_receive(:current_user=).with(user)
-  #   spree_get :show, :id => taxon.permalink
-  #   response.status.should == 200
-  # end
+module Spree
+  describe TaxonsController do
+    let(:taxon_show_service) { double(Spree::TaxonShowService) }
+    let(:taxon) { double(Spree::Taxon, permalink: "taxon-permalink") }
 
-  describe "#show" do
-    let(:taxon) { create(:taxon, :permalink => "test") }
-
-    let(:suite_tabs_1) { [ create(:suite_tab) ] }
-    let(:suite_tabs_2) { [ create(:suite_tab) ] }
-    let(:suite_tabs_3) { [ create(:suite_tab) ] }
-
-    let!(:suite_1) { create(:suite, tabs: suite_tabs_1) }
-    let!(:suite_2) { create(:suite, tabs: suite_tabs_2) }
-    let!(:suite_3) { create(:suite, tabs: suite_tabs_3) }
-
-    let!(:suites) { [ suite_1, suite_2, suite_3] }
-
-    before do
-      suite_1.taxons << taxon
-      suite_2.taxons << taxon
-      suite_3.taxons << taxon
-    end
-
-    it "assigns @suites to the suites, which belong to a taxon" do
-      spree_get :show, :id => taxon.permalink
-
-      expect(assigns(:suites)).to eq suites
-      expect(response).to render_template(:show)
-    end
-
-    it "only returns the number of suites required by per_page" do
-      spree_get :show, :id => taxon.permalink, per_page: 1
-
-      expect(assigns(:suites).size).to eq 1
-      expect(response).to render_template(:show)
-    end
-
-    context "no suites on page" do
-
-      it "loads the first page" do
-        spree_get :show, :id => taxon.permalink, per_page: 10, page: 2
-
-        expect(assigns(:suites).size).to eq 3
-        expect(response).to render_template(:show)
+    context "when taxon is found" do
+      before do
+        expect(Spree::TaxonShowService).to receive(:run!)
+          .with(permalink: taxon.permalink).and_return(taxon)
       end
 
-    end
+      describe "@page" do
+        let(:index_page) { double(IndexPageFacade) }
 
-    context "suite has no tabs" do
+        it "should render a search page" do
 
-      let!(:suite_1) { create(:suite, tabs: suite_tabs_1) }
-      let!(:suite_2) { create(:suite, tabs: []) }
-      let!(:suite_3) { create(:suite, tabs: []) }
+          expect(::IndexPageFacade).to receive(:new).with(
+            taxon: taxon,
+            context: kind_of(Hash),
+            page: 10,
+            per_page: 2
+          ).and_return(index_page)
 
-      it "does not return suites that have no tabs" do
-        spree_get :show, :id => taxon.permalink, per_page: 3
-        expect(assigns(:suites).size).to eq 1
-        expect(response).to render_template(:show)
-      end
+          spree_get :show, id: "taxon-permalink", page: 10, per_page: 2
 
-    end
-
-    context "context" do
-      it "assigns @context to contain device" do
-        spree_get :show, :id => taxon.permalink
-        expected = {:currency=>"USD", :device => :desktop}
-        expect(assigns(:context)).to eq expected 
-      end
-
-      context "mobile" do
-
-        before do
-          allow_any_instance_of(ApplicationController).to receive(:device).and_return(:mobile)
+          expect(assigns[:page]).to eq index_page
         end
+      end
 
-        it "assigns mobile as device in the context" do
+      describe "@context" do
+        it "assigns @context to contain values from the context Application Controller" do
           spree_get :show, :id => taxon.permalink
-
-          expected = {:currency=>"USD", :device => :mobile}
-          expect(assigns(:context)).to eq expected 
+          expected = {:currency=>"USD", :device => :desktop}
+          expect(assigns(:context)).to eq expected
         end
+      end
+    end # end taxon is found
 
+    context "when taxon is not found" do
+      before do
+        expect(Spree::TaxonShowService).to receive(:run!)
+          .with(permalink: taxon.permalink).and_return(nil)
+      end
+
+      it "should return a not found page" do
+        spree_get :show, id: "taxon-permalink"
+        expect(response.status).to eq 404
       end
     end
-
-
-
   end
 end

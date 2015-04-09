@@ -1356,7 +1356,7 @@ en:
     transfer_to_location: Transfer To
     tree: Tree
     type: Type
-    type_to_search: Type to search
+    type_to_search: What are you looking for?
     unable_to_connect_to_gateway: Unable to connect to gateway.
     unable_to_create_reimbursements: Unable to create reimbursements because there are items pending manual intervention.
     under_price: Under %{price}

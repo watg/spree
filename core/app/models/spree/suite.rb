@@ -2,6 +2,8 @@ module Spree
   class Suite < ActiveRecord::Base
     acts_as_paranoid
 
+    has_one :indexed_search, foreign_key: :suite_id, class_name: "IndexedSearch"
+
     validates_uniqueness_of :name, :permalink
     validates_presence_of :name, :permalink, :title
 
@@ -31,11 +33,16 @@ module Spree
       { id: SMALL_BOTTOM, name: "bottom centre" }
     ]
 
+    class << self
+      def active
+        joins(:tabs) # to ensure that tabs are present
+      end
+    end
+
+
     def to_param
       permalink.present? ? permalink.to_s.to_url : name.to_s.to_url
     end
 
   end
 end
-
-require_dependency 'spree/suite/scopes'
