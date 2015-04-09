@@ -7,7 +7,6 @@ module Spree
     CURRENCY_SYMBOL = {'USD' => '$', 'GBP' => '£', 'EUR' => '€'}
     TYPES = [:normal,:normal_sale,:part,:part_sale]
 
-
     validate :check_price
     validates :amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: false
     validate :validate_amount_maximum
@@ -30,34 +29,38 @@ module Spree
       end
 
       def find_normal_prices(prices, currency=nil)
-        prices = prices.select{ |price| price.sale == false && price.is_kit == false }
-        prices = prices.select{ |price| price.currency == currency } if currency
-        prices
+        prices.map do |p|
+          find_normal_price([p], currency)
+        end.compact
       end
 
       def find_normal_price(prices, currency=nil)
-        find_by_currency(prices,currency)
+        price = find_by_currency(prices, currency)
+        price.readonly! if price
+        price
       end
 
       def find_sale_prices(prices, currency=nil)
-        prices = prices.select{ |price| price.sale == true && price.is_kit == false }
-        prices = prices.select{ |price| price.currency == currency } if currency
-        prices
+        prices.map do |p|
+          find_sale_price([p], currency)
+        end.compact
       end
 
       def find_sale_price(prices, currency=nil)
         price = find_by_currency(prices,currency)
+        return unless price
         price.amount = price.sale_amount
         price.readonly!
+        price
       end
 
       def find_part_price(prices, currency)
         price = find_by_currency(prices,currency)
+        return unless price
         price.amount = price.part_amount
         price.readonly!
+        price
       end
-
-      #   NEW INTERFACE
 
       def find_by_currency(prices,currency)
         prices.detect{|price| price.currency == currency }
@@ -67,9 +70,11 @@ module Spree
     def display_amount
       money(amount)
     end
+
     def display_sale_amount
       money(sale_amount)
     end
+
     def display_part_amount
       money(part_amount)
     end

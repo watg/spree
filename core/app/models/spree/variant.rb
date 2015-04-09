@@ -267,9 +267,8 @@ module Spree
     end
     # ------------------------------
 
-    def price_in(currency)
-      ActiveSupport::Deprecation.warn("variant#price_in is deprecated use price_normal_in instead")
-      price_normal_in(currency)
+    def price_in(currency_code)
+      Spree::Price.find_by_currency(prices, currency_code)
     end
 
     def kit_price_in(currency)
@@ -278,7 +277,6 @@ module Spree
     end
 
     def display_name
-
       # retrieve all the option type ids which are visible, we have to go up to the product to retrieve this information
       option_type_ids = self.product.product_option_types.where( visible: true ).joins(:option_type).map(&:option_type_id)
 

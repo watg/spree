@@ -49,8 +49,8 @@ describe Spree::BaseFeedJob do
 
   describe "#current_price" do
     before do
-      variant.price_normal_in(currency).amount = 6.25
-      variant.price_normal_sale_in(currency).amount = 5.21
+      variant.price_in(currency).amount = 6.25
+      variant.price_in(currency).sale_amount = 5.21
     end
 
     it "returns normal price when variant is not in sale" do

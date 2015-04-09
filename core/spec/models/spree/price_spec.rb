@@ -1,25 +1,74 @@
 require "spec_helper"
 
 describe Spree::Price, type: :model do
+  let(:gbp)      { build(:price, currency: "GBP") }
+  let(:eur)      { build(:price, currency: "EUR") }
+  let(:prices)   { [usd, gbp, eur] }
+
+  describe '.find_normal_prices' do
+    let(:usd)      { build(:price, amount: 10.00) }
+    let(:usd2)     { build(:price, amount: 20.00) }
+    let(:prices)   { [usd, usd2, gbp, eur] }
+    let(:expected) { described_class.find_normal_prices(prices, 'USD') }
+
+    it { expect(expected).to eq([usd, usd2]) }
+    it { expect(expected).to all(be_readonly) }
+  end
+
+  describe '.find_normal_price' do
+    let(:usd)      { build(:price, amount: 10.00) }
+    let(:expected) { described_class.find_normal_price(prices, 'USD') }
+
+    it { expect(expected).to eq(usd) }
+    it { expect(expected).to be_readonly }
+  end
+
+  describe '.find_sale_prices' do
+    let(:usd)      { build(:price, sale_amount: 10.00) }
+    let(:usd2)     { build(:price, sale_amount: 20.00) }
+    let(:prices)   { [usd, usd2, gbp, eur] }
+    let(:expected) { described_class.find_sale_prices(prices, 'USD') }
+
+    it { expect(expected).to eq([usd, usd2]) }
+    it { expect(expected).to all(be_readonly) }
+  end
+
+  describe '.find_sale_price' do
+    let(:usd)      { build(:price, sale_amount: 10.00) }
+    let(:expected) { described_class.find_sale_price(prices, 'USD') }
+
+    it { expect(expected).to eq(usd) }
+    it { expect(expected.amount).to eq 10.00}
+    it { expect(expected).to be_readonly }
+  end
+
+  describe '.find_part_price' do
+    let(:usd)      { build(:price, part_amount: 10.00) }
+    let(:expected) { described_class.find_part_price(prices, 'USD') }
+
+    it { expect(expected).to eq(usd) }
+    it { expect(expected.amount).to eq 10.00}
+    it { expect(expected).to be_readonly }
+
+    context 'price doesnt exist' do
+      let(:expected) { described_class.find_part_price(prices, 'none') }
+      it { expect(expected).to be nil }
+    end
+  end
+
+  describe ".find_by_currency" do
+    let(:usd)    { build(:price, currency: "USD") }
+    let(:gbp)    { build(:price, currency: "GBP") }
+    let(:eur)    { build(:price, currency: "EUR") }
+    let(:prices) { [usd, gbp, eur] }
+
+    it { expect(described_class.find_by_currency(prices, "USD")).to eq(usd) }
+  end
+
   describe "validations" do
     let(:variant) { stub_model Spree::Variant }
     subject { described_class.new variant: variant, amount: amount }
 
-    # Disabled as in our case price amount should never be nil
-    # context 'when the amount is nil' do
-    #  let(:amount) { nil }
-    #  it { is_expected.to be_valid }
-    # end
-
-    describe ".find_by_currency" do
-      let(:usd)    { build(:price, currency: "USD") }
-      let(:gbp)    { build(:price, currency: "GBP") }
-      let(:eur)    { build(:price, currency: "EUR") }
-      let(:prices) { [usd, gbp, eur] }
-      it "returns the price by currency" do
-        expect(described_class.find_by_currency(prices, "USD")).to eq(usd)
-      end
-    end
 
     context "when the amount is less than 0" do
       let(:amount) { -1 }
