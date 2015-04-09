@@ -142,14 +142,6 @@ module Spree
       self.assembly_definition
     end
 
-    def memoized_images
-      @_memoized_images ||= images
-    end
-
-    def memoized_variant_images
-      @_memoized_variant_images ||= variant_images
-    end
-
     def next_variant_in_stock
       variants.in_stock.active(currency).includes(:product).references(:product).first
     end

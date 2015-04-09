@@ -139,10 +139,6 @@ module Spree
       inventory_units.non_pending.awaiting_feed
     end
 
-    def memoized_images
-      @_memoized_images ||= images
-    end
-
     def is_master_but_has_variants?
       self.is_master? and self.product.variants and self.product.variants.any?
     end
@@ -156,7 +152,6 @@ module Spree
       self.number = random if self.number.blank? || force
       self.number
     end
-
 
     def self.is_number(variant_id)
       return false if variant_id.blank?

@@ -52,19 +52,21 @@ describe Spree::VariantPresenter do
   end
 
   describe "#images" do
+    let(:mock_image) { double }
     context 'when variants are available' do
-      before { allow(variant).to receive(:images_for).with(target).and_return true }
+      before { allow(variant).to receive(:images_for).with(target).and_return mock_image }
 
       it "returns targetted images from the variants" do
-        expect(subject.send(:images)).to eq true
+        expect(subject.send(:images)).to eq mock_image
       end
     end
 
-    context 'when only master variant is available' do
-      before { allow(product).to receive(:memoized_images).and_return true }
+    context 'when there are no variant images' do
+      before { allow(variant).to receive(:images_for).with(target).and_return [] }
+      before { allow(product).to receive(:variant_images_for).with(target).and_return mock_image }
 
       it 'returns master variant images without target' do
-        expect(subject.send(:images)).to eq true
+        expect(subject.send(:images)).to eq mock_image
       end
     end
   end
