@@ -107,7 +107,7 @@ class Spree::VariantDecorator < Draper::Decorator
   def first_image
     return @_first_image if @_first_image
     images = object.images_for(target)
-    images = object.product.memoized_images if images.blank?
+    images = object.product.variant_images_for(target) if images.blank?
     @_first_image = images.first
     @_first_image
   end
