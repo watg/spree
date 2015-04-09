@@ -129,8 +129,9 @@ core.readyAccordions = function() {
 }
 
 core.readyCustomScroll = function() {
+  var height = core.isMobileWidthOrLess() ? '320px' : '300px'; // Alternative height for mobile
   $('.slimscroll').slimScroll({
-    height: '300px',
+    height: height,
     borderRadius: '0px',
     railOpacity: 1,
     opacity: 1,
