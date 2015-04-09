@@ -114,7 +114,7 @@ module Spree
     def images
       @images ||= begin
         images = variant.images_for(target)
-        images = product.memoized_images if images.blank?
+        images = product.variant_images_for(target) if images.blank?
         images
       end
     end
