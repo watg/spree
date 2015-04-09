@@ -36,7 +36,7 @@ module Spree
       end
 
       def find_normal_price(prices, currency=nil)
-        find_normal_prices(prices, currency).first
+        find_by_currency(prices,currency)
       end
 
       def find_sale_prices(prices, currency=nil)
@@ -46,15 +46,21 @@ module Spree
       end
 
       def find_sale_price(prices, currency=nil)
-        find_sale_prices(prices, currency).first
+        price = find_by_currency(prices,currency)
+        price.amount = price.sale_amount
+        price.readonly!
       end
 
       def find_part_price(prices, currency)
-        prices.select{ |price| price.currency == currency && price.sale == false && price.is_kit == true }.first
+        price = find_by_currency(prices,currency)
+        price.amount = price.part_amount
+        price.readonly!
       end
 
-      def find_part_sale_price(prices, currency)
-        prices.select{ |price| price.currency == currency && price.sale == true && price.is_kit == true }.first
+      #   NEW INTERFACE
+
+      def find_by_currency(prices,currency)
+        prices.detect{|price| price.currency == currency }
       end
     end
 
