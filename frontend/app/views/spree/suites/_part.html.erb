@@ -5,10 +5,12 @@
 
   <%# Reroute colour picker images... %>
   <%# *** THIS CODE HAS A SHELF LIFE: TO BE REPLACED... *** %>
-  <% product_abbr = product_name.split.map{|w|w[0]}.join.upcase %>
-  <% colour_abbr = value.presentation.delete(' ') %>
-  <% picker_image_url = cdn_url('colour-picker/Picker_' + product_abbr + '_' + colour_abbr + '.jpg') %>
-  <% image_url = type.url_safe_name == 'colour' ? picker_image_url : value.image.url %>
+  <% image_url = value.image.url %>
+  <% if type.url_safe_name == 'colour' %>
+    <% product_abbr = product_name.split.map{|w|w[0]}.join.upcase %>
+    <% colour_abbr = value.presentation.delete(' ') %>
+    <% image_url = cdn_url('colour-picker/Picker_' + product_abbr + '_' + colour_abbr + '.jpg') %>
+  <% end %>
   <%# / %>
 
   <%= link_to value.has_image? ? image_tag(image_url, :alt => value.presentation) : content_tag(:span, value.presentation), "#", :title => value.presentation, :class => classes.join(" "), data: {type: type.url_safe_name, value: value.url_safe_name, presentation: value.presentation } %>
