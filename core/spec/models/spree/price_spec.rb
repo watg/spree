@@ -12,7 +12,6 @@ describe Spree::Price, type: :model do
     let(:expected) { described_class.find_normal_prices(prices, 'USD') }
 
     it { expect(expected).to eq([usd, usd2]) }
-    it { expect(expected).to all(be_readonly) }
   end
 
   describe '.find_normal_price' do
@@ -20,7 +19,12 @@ describe Spree::Price, type: :model do
     let(:expected) { described_class.find_normal_price(prices, 'USD') }
 
     it { expect(expected).to eq(usd) }
-    it { expect(expected).to be_readonly }
+    it { expect(expected).to_not be_readonly }
+
+    context 'price doesnt exist' do
+      let(:expected) { described_class.find_normal_price(prices, 'none') }
+      it { expect(expected).to be nil }
+    end
   end
 
   describe '.find_sale_prices' do
@@ -30,7 +34,6 @@ describe Spree::Price, type: :model do
     let(:expected) { described_class.find_sale_prices(prices, 'USD') }
 
     it { expect(expected).to eq([usd, usd2]) }
-    it { expect(expected).to all(be_readonly) }
   end
 
   describe '.find_sale_price' do
@@ -39,7 +42,6 @@ describe Spree::Price, type: :model do
 
     it { expect(expected).to eq(usd) }
     it { expect(expected.amount).to eq 10.00}
-    it { expect(expected).to be_readonly }
   end
 
   describe '.find_part_price' do
@@ -48,7 +50,6 @@ describe Spree::Price, type: :model do
 
     it { expect(expected).to eq(usd) }
     it { expect(expected.amount).to eq 10.00}
-    it { expect(expected).to be_readonly }
 
     context 'price doesnt exist' do
       let(:expected) { described_class.find_part_price(prices, 'none') }

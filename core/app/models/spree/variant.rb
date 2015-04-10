@@ -121,12 +121,10 @@ module Spree
       end
 
       def lowest_priced_variant(currency, in_sale: false )
-        selector = in_stock.active(currency).select('spree_prices.id').includes(:normal_prices)
-          .where('sale = ?', in_sale )
-
-        selector = selector.where('spree_variants.in_sale = ?', in_sale) if in_sale == true
-
-        selector.reorder('amount').first
+        selector     = in_stock.active(currency).select('spree_prices.id').includes(:normal_prices)
+        selector     = selector.where('spree_variants.in_sale = ?', in_sale) if in_sale == true
+        order_column = in_sale ? 'sale_amount' : 'amount'
+        selector.reorder(order_column).first
       end
 
     end
@@ -253,18 +251,14 @@ module Spree
 
     def price_normal_sale_in(currency_code)
       Spree::Price.find_sale_price(prices, currency_code) ||
-      self.prices.new(currency: currency_code, is_kit: false, sale: true)
+      self.prices.new(currency: currency_code, is_kit: false, sale: true, price_type: 'sale')
     end
 
     def price_part_in(currency_code)
       Spree::Price.find_part_price(prices, currency_code) ||
-      self.prices.new(currency: currency_code, is_kit: true, sale: false)
+      self.prices.new(currency: currency_code, is_kit: true, sale: false, price_type: 'part')
     end
 
-    def price_part_sale_in(currency_code)
-      Spree::Price.find_part_sale_price(prices, currency_code) ||
-      self.prices.new(currency: currency_code, is_kit: true, sale: true)
-    end
     # ------------------------------
 
     def price_in(currency_code)

@@ -7,6 +7,8 @@ module Spree
     CURRENCY_SYMBOL = {'USD' => '$', 'GBP' => '£', 'EUR' => '€'}
     TYPES = [:normal,:normal_sale,:part,:part_sale]
 
+    attr_accessor :price_type
+
     validate :check_price
     validates :amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: false
     validate :validate_amount_maximum
@@ -15,8 +17,7 @@ module Spree
 
     # Prevent duplicate prices from happening in the system, there is also a uniq
     # index on the database table to ensure there are no race conditions
-    #validates_uniqueness_of :variant_id, :scope => [ :currency, :sale, :is_kit, :deleted_at ]
-    validates_uniqueness_of :variant_id, :scope => [ :currency, :deleted_at ]
+    validates_uniqueness_of :variant_id, :scope => [ :currency, :sale, :is_kit, :deleted_at ]
 
     class << self
 
@@ -36,7 +37,6 @@ module Spree
 
       def find_normal_price(prices, currency=nil)
         price = find_by_currency(prices, currency)
-        price.readonly! if price
         price
       end
 
@@ -49,21 +49,35 @@ module Spree
       def find_sale_price(prices, currency=nil)
         price = find_by_currency(prices,currency)
         return unless price
-        price.amount = price.sale_amount
-        price.readonly!
+        price.price_type = 'sale'
         price
       end
 
       def find_part_price(prices, currency)
         price = find_by_currency(prices,currency)
         return unless price
-        price.amount = price.part_amount
-        price.readonly!
+        price.price_type = 'part'
         price
       end
 
       def find_by_currency(prices,currency)
         prices.detect{|price| price.currency == currency }
+      end
+    end
+
+    def amount
+      case price_type
+      when 'sale' then self[:sale_amount]
+      when 'part' then self[:part_amount]
+      else self[:amount]
+      end
+    end
+
+    def amount=(value)
+      case price_type
+      when 'sale' then write_attribute(:sale_amount, value)
+      when 'part' then write_attribute(:part_amount, value)
+      else write_attribute(:amount, value)
       end
     end
 
