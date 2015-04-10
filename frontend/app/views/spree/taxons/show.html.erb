@@ -39,7 +39,7 @@
                    },
                    cache:
                      Proc.new{ |suite, counter|
-                       [suite, Spree::SuitePresenter.desktop_image_size(counter), @currency ,device]
+                       [suite, Spree::SuitePresenter.desktop_image_size(counter), @page.context[:currency] ,device]
                      } %>
       </div>
 
