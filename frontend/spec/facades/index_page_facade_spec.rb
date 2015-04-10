@@ -55,4 +55,27 @@ describe IndexPageFacade do
       expect(subject.num_pages).to eq 2
     end
   end
+
+  describe "#meta_title" do
+    let(:taxon) { double }
+    it "returns the taxon.meta_title if present" do
+      allow(taxon).to receive(:meta_title).and_return(:foo)
+      expect(subject.meta_title).to eq(:foo)
+    end
+
+    it "returns the taxon.title if meta_title not present" do
+      allow(taxon).to receive(:meta_title).and_return(nil)
+      allow(taxon).to receive(:title).and_return(:foo)
+      expect(subject.meta_title).to eq(:foo)
+    end
+  end
+
+
+  describe "#title" do
+    it "delegates to meta_title" do
+      expect(subject).to receive(:meta_title)
+      subject.title
+    end
+  end
+
 end

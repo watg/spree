@@ -19,6 +19,7 @@ class IndexPageFacade
       found_suites = selector.page(curr_page).per(per_page)
       if found_suites.empty? && curr_page > 1
         found_suites = selector.page(1).per(per_page)
+
       end
       found_suites
     end
@@ -39,6 +40,10 @@ class IndexPageFacade
 
   def meta_title
     taxon.meta_title.present? ? taxon.meta_title : taxon.title
+  end
+
+  def title
+    meta_title
   end
 
   private
