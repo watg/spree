@@ -60,25 +60,17 @@ describe Spree::ProductPresenter do
   end
 
   describe "#part_price_in_pence" do
-    before do
-      price1 = variant.price_normal_in("USD").amount = 9.99
-      price1 = variant.price_part_in("USD").amount = 5.99
-    end
+    let(:variant) { Spree::Variant.new(prices: [price]) }
+    let(:price)   { create(:price, sale: false, is_kit: true, amount: 9.99, part_amount: 5.99) }
 
     context 'when variant is master' do
       before { variant.is_master = true }
-
-      it "returns the part price of the variant in the context currency" do
-        expect(subject.part_price_in_pence(variant)).to eq 999
-      end
+      it     { expect(subject.part_price_in_pence(variant)).to eq 999 }
     end
 
     context 'when variant is master' do
       before { variant.is_master = false }
-
-      it "returns the part price of the variant in the context currency" do
-        expect(subject.part_price_in_pence(variant)).to eq 599
-      end
+      it     { expect(subject.part_price_in_pence(variant)).to eq 599 }
     end
   end
 

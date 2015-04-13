@@ -26,7 +26,7 @@ module Spree
       end
 
       def default_price
-        new(amount: 0, currency: Spree::Config[:currency], sale: false, is_kit: false)
+        new(amount: 0, currency: Spree::Config[:currency])
       end
 
       def find_normal_prices(prices, currency=nil)
@@ -82,20 +82,12 @@ module Spree
     end
 
     def display_amount
-      money(amount)
-    end
-
-    def display_sale_amount
-      money(sale_amount)
-    end
-
-    def display_part_amount
-      money(part_amount)
+      money
     end
 
     alias :display_price :display_amount
 
-    def money(amount)
+    def money
       self.class.money(amount,currency)
     end
 
