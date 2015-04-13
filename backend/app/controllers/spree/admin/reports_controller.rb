@@ -15,7 +15,7 @@ module Spree
         rachel_rutt: { name: "Rachel Rutt", description: "Get a report about Rachel Rutt Sales", date: true },
         referrer: { name: "Referrer", description: "Refer a Friend", date: true },
         referee: { name: "Referee", description: "Refer a Friend", date: true },
-        parties: { name: "Parties", description: "Party conversion", date: false, class: PostPartyReport::Report }
+        parties: { name: "Parties", description: "Party conversion", date: false, class: ::Party::PostPartyReport::Report }
       }.with_indifferent_access
 
       def index
