@@ -1,12 +1,16 @@
 module Spree
+  # basic inheritance report
   module BaseReport
+
+    def initialize(params = {})
+    end
 
     def filename
       "#{name}.#{filename_uuid}.csv"
     end
 
     def name
-      self.class.to_s.split('::').last.underscore
+      self.class.to_s.split("::").last.underscore
     end
 
     def generate_csv
@@ -17,6 +21,5 @@ module Spree
         end
       end
     end
-
   end
 end
