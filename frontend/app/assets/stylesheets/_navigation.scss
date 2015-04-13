@@ -336,9 +336,16 @@
 
 // Mobile .row-logo
 @media only screen and (max-width: 48em) {
-  .row-logo {
-    padding: emCalc(20px) 0;
-  }
+	.row-logo {
+		padding: emCalc(20px) 0;
+		.large-10 { // Search container
+			margin-top: -55px;
+		}
+		#search-input {
+			font-size: 10px;
+			width: 150px;
+		}
+	}
 }
 
 #search-input {
