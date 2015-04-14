@@ -206,13 +206,13 @@ module Spree
     def price_types
       types = [:normal,:normal_sale]
       unless product.assembly?
-        types << [:part, :part_sale]
+        types << [:part]
       end
       types.flatten
     end
 
     def visible_price_types
-      Spree::Price::TYPES - [:part_sale]
+      Spree::Price::TYPES
     end
 
     def currency
@@ -246,17 +246,17 @@ module Spree
     # --- new price getters --------
     def price_normal_in(currency_code)
       Spree::Price.find_normal_price(prices, currency_code) ||
-      self.prices.new(currency: currency_code, is_kit: false, sale: false)
+      self.prices.new(currency: currency_code, price_type: 'normal')
     end
 
     def price_normal_sale_in(currency_code)
       Spree::Price.find_sale_price(prices, currency_code) ||
-      self.prices.new(currency: currency_code, is_kit: false, sale: true, price_type: 'sale')
+      self.prices.new(currency: currency_code, price_type: 'sale')
     end
 
     def price_part_in(currency_code)
       Spree::Price.find_part_price(prices, currency_code) ||
-      self.prices.new(currency: currency_code, is_kit: true, sale: false, price_type: 'part')
+      self.prices.new(currency: currency_code, price_type: 'part')
     end
 
     # ------------------------------
