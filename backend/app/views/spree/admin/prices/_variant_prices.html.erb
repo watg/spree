@@ -1,35 +1,19 @@
-<tr>
-  <td rowspan="<%= variant.visible_price_types.size + 1 %>" >
-    <%= (variant.options_text.blank? ? Spree.t(:master) : variant.options_text) %>
-  </td>
-</tr>
-
 <tr class="<%= cycle('odd', 'even')%>" >
-  <td> normal </td>
-  <td></td>
-  <% supported_currencies.each do |currency| %>
-    <% present(variant.currency_price(currency.iso_code), {}) do |price| %>
-      <td> <%= text_field_tag("vp[#{price.id}][amount]", (price ? price.display_amount : '')) %> </td>
-    <% end %>
-  <% end %>
-</tr>
+  <td rowspan="<%= variant.visible_price_types.size %>" > <%= (variant.options_text.blank? ? Spree.t(:master) : variant.options_text) %>  </td>
+    <% variant.visible_price_types.each do |price_type| %>
+      <td> <%= price_type %> </td>
 
-<tr class="<%= cycle('odd', 'even')%>" >
-  <td> normal sale</td>
-  <td><%= check_box_tag "in_sale[]", variant.id, variant.in_sale? %></td>
-  <% supported_currencies.each do |currency| %>
-    <% present(variant.currency_price(currency.iso_code), {}) do |price| %>
-      <td> <%= text_field_tag("vp[#{price.id}][sale_amount]", (price ? price.display_sale_amount : '')) %> </td>
-    <% end %>
-  <% end %>
-</tr>
+      <% if price_type == :normal_sale %>
+          <td><%= check_box_tag "in_sale[]", variant.id, variant.in_sale? %></td>
+      <% else %>
+        <td></td>
+      <% end %>
 
-<tr class="<%= cycle('odd', 'even')%>" >
-  <td> part </td>
-  <td></td>
-  <% supported_currencies.each do |currency| %>
-    <% present(variant.currency_price(currency.iso_code), {}) do |price| %>
-      <td> <%= text_field_tag("vp[#{price.id}][part_amount]", (price ? price.display_part_amount : '')) %> </td>
-    <% end %>
-  <% end %>
+      <% supported_currencies.each do |currency| %>
+        <% price = variant.price_for_type(price_type, currency.iso_code) %>
+          <td> <%= text_field_tag("vp[#{variant.id}][#{price_type}][#{currency.iso_code}]", (price ? price.display_amount : '')) %> </td>
+      <% end %>
+       </tr>
+      <tr class="<%= cycle('even', 'odd')%>">
+   <% end %>
 </tr>
