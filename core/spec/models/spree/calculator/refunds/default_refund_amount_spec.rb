@@ -31,8 +31,9 @@ describe Spree::Calculator::Returns::DefaultRefundAmount, :type => :model do
 
     context "shipping adjustments" do
       let(:adjustment_total) { -50.0 }
+      let(:shipment) { create(:shipment) }
 
-      before { order.shipments << Spree::Shipment.new(adjustment_total: adjustment_total) }
+      before { shipment.selected_shipping_rate.adjustment_total = adjustment_total }
 
       it { is_expected.to eq pre_tax_amount / line_item_quantity }
     end

@@ -1,14 +1,19 @@
 module Spree
+  class ShippingManifestService
+    # shipping manifest service
+    class ShippingCosts < ActiveInteraction::Base
+      model :order, class: "Spree::Order"
 
-  class ShippingManifestService::ShippingCosts < ActiveInteraction::Base
+      def execute
+        cost = shipping_coster(order.shipments).total
+        BigDecimal.new(cost)
+      end
 
-    model :order, class: 'Spree::Order'
+      private
 
-    def execute
-      cost = order.ship_total - order.shipping_discount
-      BigDecimal.new(cost)
+      def shipping_coster(shipments)
+        ::Shipping::Coster.new(shipments)
+      end
     end
-
   end
-
 end

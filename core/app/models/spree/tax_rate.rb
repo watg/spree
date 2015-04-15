@@ -69,7 +69,7 @@ module Spree
     def self.store_pre_tax_amount(item, rates)
       pre_tax_amount = case item
         when Spree::LineItem then item.discounted_amount
-        when Spree::Shipment then item.discounted_cost
+        when Spree::ShippingRate then item.discounted_cost
         end
 
       included_rates = rates.select(&:included_in_price)
@@ -82,6 +82,7 @@ module Spree
 
     # This method is best described by the documentation on #potentially_applicable?
     def self.adjust(order_tax_zone, items)
+
       order_currency = items.first.order.currency
       rates = self.match(order_tax_zone, order_currency)
       tax_categories = rates.map(&:tax_category)

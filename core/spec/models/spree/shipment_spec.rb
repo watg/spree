@@ -12,7 +12,7 @@ describe Spree::Shipment, :type => :model do
                                          touch: true }
   let(:shipping_method) { create(:shipping_method, name: "UPS") }
   let(:shipment) do
-    shipment = Spree::Shipment.new(cost: 1, state: 'pending')
+    shipment = Spree::Shipment.new(state: 'pending')
     allow(shipment).to receive_messages order: order
     allow(shipment).to receive_messages shipping_method: shipping_method
     shipment.save
@@ -123,32 +123,38 @@ describe Spree::Shipment, :type => :model do
     expect(shipment.item_cost).to eql(10.0)
   end
 
+  it "#promo_total" do
+    shipment = build(:shipment_light)
+    shipment.selected_shipping_rate.promo_total = -1
+    expect(shipment.promo_total).to eq(-1)
+  end
+
   it "#discounted_cost" do
-    shipment = create(:shipment)
-    shipment.cost = 10
-    shipment.promo_total = -1
+    shipment = build(:shipment_light)
+    shipment.selected_shipping_rate.cost = 10
+    shipment.selected_shipping_rate.promo_total = -1
     expect(shipment.discounted_cost).to eq(9)
   end
 
   it "#tax_total with included taxes" do
-    shipment = Spree::Shipment.new
+    shipment = build(:shipment_light)
     expect(shipment.tax_total).to eq(0)
-    shipment.included_tax_total = 10
+    shipment.selected_shipping_rate.included_tax_total = 10
     expect(shipment.tax_total).to eq(10)
   end
 
   it "#tax_total with additional taxes" do
-    shipment = Spree::Shipment.new
+    shipment = build(:shipment_light)
     expect(shipment.tax_total).to eq(0)
-    shipment.additional_tax_total = 10
+    shipment.selected_shipping_rate.additional_tax_total = 10
     expect(shipment.tax_total).to eq(10)
   end
 
   it "#final_price" do
-    shipment = Spree::Shipment.new
-    shipment.cost = 10
-    shipment.adjustment_total = -2
-    shipment.included_tax_total = 1
+    shipment = build(:shipment_light)
+    shipment.selected_shipping_rate.cost = 10
+    shipment.selected_shipping_rate.adjustment_total = -2
+    shipment.selected_shipping_rate.included_tax_total = 1
     expect(shipment.final_price).to eq(8)
   end
 
@@ -194,7 +200,6 @@ describe Spree::Shipment, :type => :model do
       it 'should request new rates, and maintain shipping_method selection' do
         expect(Spree::Stock::Estimator).to receive(:new).with(shipment.order).and_return(mock_estimator)
         allow(shipment).to receive_messages(shipping_method: shipping_method2)
-
         expect(shipment.refresh_rates).to eq(shipping_rates)
         expect(shipment.reload.selected_shipping_rate.shipping_method_id).to eq(shipping_method2.id)
       end
@@ -379,17 +384,6 @@ describe Spree::Shipment, :type => :model do
         end
       end
 
-      # Regression test for #4347
-      context "with adjustments" do
-        before do
-          shipment.adjustments << Spree::Adjustment.create(order: order, label: "Label", amount: 5)
-        end
-
-        it "transitions to shipped" do
-          shipment.update_column(:state, "ready")
-          expect { shipment.ship! }.not_to raise_error
-        end
-      end
     end
   end
 
@@ -620,15 +614,6 @@ describe Spree::Shipment, :type => :model do
           expect(shipment_id).to eq(shipment.id)
         end
 
-        it "finalizes adjustments" do
-          allow_any_instance_of(Spree::ShipmentHandler).to receive(:update_order_shipment_state)
-          allow_any_instance_of(Spree::ShipmentHandler).to receive(:send_shipped_email)
-
-          shipment.adjustments.each do |adjustment|
-            expect(adjustment).to receive(:finalize!)
-          end
-          shipment.ship!
-        end
       end
     end
   end
@@ -647,7 +632,11 @@ describe Spree::Shipment, :type => :model do
         Spree::Config[:auto_capture_on_dispatch] = true
         @order = create :completed_order_with_pending_payment
         @shipment = @order.shipments.first
-        @shipment.cost = @order.ship_total
+        # the shipping rates will get refreshed as part of the 
+        # completed_order_with_pending_payment, create, as it creates
+        # a payment which calls update_order that causes a brand new 
+        # set of shipping rates to be created
+        @shipment.selected_shipping_rate.cost = @order.ship_total
       end
 
       it "shipments ready for an order if the order is unpaid" do
@@ -668,7 +657,6 @@ describe Spree::Shipment, :type => :model do
 
         it "can fully capture an authorized payment" do
           payment.update_attribute(:amount, @order.total)
-
           expect(payment.amount).to eq payment.uncaptured_amount
           @shipment.ship!
           expect(payment.reload.uncaptured_amount.to_f).to eq 0
@@ -676,47 +664,11 @@ describe Spree::Shipment, :type => :model do
 
         it "can partially capture an authorized payment" do
           payment.update_attribute(:amount, @order.total + 50)
-
           expect(payment.amount).to eq payment.uncaptured_amount
           @shipment.ship!
           expect(payment.reload.uncaptured_amount).to eq 50
         end
       end
-    end
-  end
-
-  context "updates cost when selected shipping rate is present" do
-    let(:shipment) { create(:shipment) }
-
-    before { allow(shipment).to receive_message_chain :selected_shipping_rate, cost: 5 }
-
-    it "updates shipment totals" do
-      shipment.update_amounts
-      expect(shipment.reload.cost).to eq(5)
-    end
-
-    it "factors in additional adjustments to adjustment total" do
-      shipment.adjustments.create!(
-        order:    order,
-        label:    "Additional",
-        amount:   5,
-        included: false,
-        state:    "closed"
-      )
-      shipment.update_amounts
-      expect(shipment.reload.adjustment_total).to eq(5)
-    end
-
-    it "does not factor in included adjustments to adjustment total" do
-      shipment.adjustments.create!(
-        order:    order,
-        label:    "Included",
-        amount:   5,
-        included: true,
-        state:    "closed"
-      )
-      shipment.update_amounts
-      expect(shipment.reload.adjustment_total).to eq(0)
     end
   end
 
@@ -734,14 +686,29 @@ describe Spree::Shipment, :type => :model do
     end
 
     before do
-      shipment.update_attributes_and_order selected_shipping_rate_id: shipping_rate.id
     end
 
     it "updates everything around order shipment total and state" do
-      expect(shipment.cost.to_f).to eq 10
+      expect(shipment).to receive(:update_shipping_rate_adjustments).once
+      shipment.update_attributes_and_order selected_shipping_rate_id: shipping_rate.id
       expect(shipment.state).to eq 'pending'
       expect(shipment.order.total.to_f).to eq 110
       expect(shipment.order.payment_state).to eq 'balance_due'
+    end
+
+  end
+
+  describe "update_shipping_rate_adjustments" do
+    it "updates the adjustments on shipping rates" do
+      shipping_rate = stub_model(Spree::ShippingRate)
+      shipment = stub_model(Spree::Shipment, :order => order, :shipping_rates => [shipping_rate])
+      shipments = [shipment]
+      allow(order).to receive_messages :shipments => shipments
+      updater = double("Updater")
+      expect(updater).to receive(:update).once
+      expect(::Shipping::AdjustmentsUpdater).to receive(:new).with([shipping_rate]).
+        and_return(updater)
+      shipment.update_shipping_rate_adjustments
     end
   end
 
@@ -749,17 +716,6 @@ describe Spree::Shipment, :type => :model do
     context "line item changes" do
       before do
         shipment.cost = shipment.cost + 10
-      end
-
-      it "triggers adjustment total recalculation" do
-        expect(shipment).to receive(:recalculate_adjustments)
-        shipment.save
-      end
-
-      it "does not trigger adjustment recalculation if shipment has shipped" do
-        shipment.state = 'shipped'
-        expect(shipment).not_to receive(:recalculate_adjustments)
-        shipment.save
       end
     end
 
@@ -774,14 +730,6 @@ describe Spree::Shipment, :type => :model do
   context "currency" do
     it "returns the order currency" do
       expect(shipment.currency).to eq(order.currency)
-    end
-  end
-
-  context "nil costs" do
-    it "sets cost to 0" do
-      shipment = Spree::Shipment.new
-      shipment.valid?
-      expect(shipment.cost).to eq 0
     end
   end
 

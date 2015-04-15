@@ -23,8 +23,16 @@ module Spree
 
     private
 
+    def shipment_coster
+      ::Shipping::Coster.new(@order.shipments)
+    end
+
+    def adjustments_selector
+      ::Adjustments::Selector.new(@order.all_adjustments)
+    end
+
     def shipment_total
-      format_money @order.shipment_total
+      format_money shipment_coster.final_price
     end
 
     def items_total
@@ -32,7 +40,7 @@ module Spree
     end
 
     def adjustments_total
-      format_money @order.adjustment_total
+      format_money @order.adjustment_total + shipment_coster.adjustment_total
     end
 
     def order_total
@@ -40,12 +48,12 @@ module Spree
     end
 
     def promotions
-      promotions = @order.all_adjustments.promotion.eligible.group_by(&:label)
-      adjustments_template(promotions)
+      adjustments = adjustments_selector.promotion.eligible.without_shipping_rate.group_by(&:label)
+      adjustments_template(adjustments)
     end
 
     def taxes
-      taxes = @order.all_adjustments.tax.additional.eligible.group_by(&:label)
+      taxes = adjustments_selector.tax.additional.eligible.group_by(&:label)
       adjustments_template(taxes)
     end
 

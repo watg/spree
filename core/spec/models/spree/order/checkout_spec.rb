@@ -273,6 +273,12 @@ describe Spree::Order, :type => :model do
           allow(order).to receive(:has_available_payment)
           allow(order).to receive(:create_proposed_shipments)
           allow(order).to receive(:ensure_available_shipping_rates) { true }
+          allow(order).to receive(:apply_free_shipping_promotions)
+        end
+
+        it "attempts to apply free shipping promotions" do
+          expect(order).to receive(:apply_free_shipping_promotions)
+          order.next!
         end
 
         it 'should invoke set_shipment_cost' do
@@ -289,12 +295,6 @@ describe Spree::Order, :type => :model do
     context "from delivery" do
       before do
         order.state = 'delivery'
-        allow(order).to receive(:apply_free_shipping_promotions)
-      end
-
-      it "attempts to apply free shipping promotions" do
-        expect(order).to receive(:apply_free_shipping_promotions)
-        order.next!
       end
 
       context "with payment required" do

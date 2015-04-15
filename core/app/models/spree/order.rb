@@ -51,7 +51,8 @@ module Spree
     has_many :reimbursements, inverse_of: :order
     has_many :adjustments, -> { order("#{Adjustment.table_name}.created_at ASC") }, as: :adjustable, dependent: :destroy
     has_many :line_item_adjustments, through: :line_items, source: :adjustments
-    has_many :shipment_adjustments, through: :shipments, source: :adjustments
+    has_many :shipping_rates, through: :shipments
+    has_many :shipping_rate_adjustments, through: :shipping_rates, source: :adjustments
     has_many :inventory_units, inverse_of: :order
     has_many :products, through: :variants
     has_many :variants, through: :line_items
@@ -302,10 +303,6 @@ module Spree
       Spree::Money.new(total, { currency: currency })
     end
 
-    def shipping_discount
-      shipment_adjustments.eligible.sum(:amount) * - 1
-    end
-
     def to_param
       number.to_s.to_url.upcase
     end
@@ -467,7 +464,9 @@ module Spree
       # We want to only look up the applicable tax zone once and pass it to TaxRate calculation to avoid duplicated lookups.
       order_tax_zone = self.tax_zone
       Spree::TaxRate.adjust(order_tax_zone, line_items) if line_items.any?
-      Spree::TaxRate.adjust(order_tax_zone, shipments) if shipments.any?
+
+      shipping_rates = shipments.map(&:shipping_rates).flatten
+      Spree::TaxRate.adjust(order_tax_zone, shipping_rates) if shipping_rates.any?
     end
 
     def outstanding_balance
@@ -732,14 +731,19 @@ module Spree
     end
 
     def create_proposed_shipments
-      adjustments.shipping.delete_all
+      delete_all_shipping_rate_adjustments
       shipments.destroy_all
       self.shipments = Spree::Stock::Coordinator.new(self).shipments
     end
 
     def apply_free_shipping_promotions
+
       Spree::PromotionHandler::FreeShipping.new(self).activate
-      shipments.each { |shipment| ItemAdjustments.new(shipment).update }
+      shipments.each do |shipment|
+        shipment.shipping_rates.each { |rate| ItemAdjustments.new(rate).update }
+      end
+
+      updater.update_adjustment_total
       updater.update_shipment_total
       persist_totals
     end
@@ -751,6 +755,7 @@ module Spree
     # e.g. customer goes back from payment step and changes order items
     def ensure_updated_shipments
       if shipments.any? && !self.completed?
+        delete_all_shipping_rate_adjustments
         self.shipments.destroy_all
         self.update_column(:shipment_total, 0)
         restart_checkout_flow
@@ -774,7 +779,7 @@ module Spree
     end
 
     def set_shipments_cost
-      shipments.each(&:update_amounts)
+      shipments.each(&:update_shipping_rate_adjustments)
       updater.update_shipment_total
       persist_totals
     end
@@ -889,6 +894,10 @@ module Spree
     end
 
     private
+
+    def delete_all_shipping_rate_adjustments
+      ::Adjustments::Selector.new(all_adjustments).shipping_rate.map(&:delete)
+    end
 
     def link_by_email
       self.email = user.email if self.user

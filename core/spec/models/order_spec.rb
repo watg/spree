@@ -27,6 +27,35 @@ describe Spree::Order do
 
   end
 
+  describe "#create_tax_charge!" do
+    let(:order) { stub_model(Spree::Order, tax_zone: :tax_zone) }
+
+    context "when line items present" do
+      let(:line_item) { stub_model(Spree::LineItem, :order => order) }
+      before { allow(order).to receive(:line_items).and_return([line_item]) }
+
+      it "creates a tax adjustment for line_items" do
+        expect(Spree::TaxRate).to receive(:adjust).with(:tax_zone, [line_item])
+        order.create_tax_charge!
+      end
+    end
+
+    context "when line shipping rates present" do
+      let(:shipment) { stub_model(Spree::Shipment, :order => order) }
+      let(:shipping_rate) { stub_model(Spree::ShippingRate, :shipment => shipment) }
+
+      before do
+        allow(order).to receive(:shipments).and_return([shipment])
+        allow(shipment).to receive(:shipping_rates).and_return([shipping_rate])
+      end
+
+      it "creates a tax adjustment for line_items" do
+        expect(Spree::TaxRate).to receive(:adjust).with(:tax_zone, [shipping_rate])
+        order.create_tax_charge!
+      end
+    end
+  end
+
   describe "#to_be_packed_and_shipped" do
     let!(:order_with_one_digital_line_item) { create(:order_with_line_items, line_items_count: 2,
                                         payment_state: 'paid', shipment_state: 'ready', state: 'complete') }

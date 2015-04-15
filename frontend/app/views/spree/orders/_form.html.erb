@@ -24,7 +24,7 @@
 			<%= render :partial => 'line_item', :locals => { :variant => item_form.object.variant, :line_item => item_form.object, :item_form => item_form } %>
 		<% end %>
 	</tbody>
-        <% if @order.adjustments.nonzero.exists? || @order.line_item_adjustments.nonzero.exists? || @order.shipment_adjustments.nonzero.exists? %>
+        <% if @order.all_adjustments.nonzero.exists? %>
         <tr class="cart-subtotal">
           <td colspan="2" align='right'><h5><%= Spree.t(:cart_subtotal, :count => @order.line_items.sum(:quantity)) %></h5></td>
           <td><h5><%= order_form.object.display_item_total %></h5></td>

@@ -44,15 +44,20 @@ require 'spree/testing_support/url_helpers'
 require 'spree/testing_support/order_walkthrough'
 require 'spree/testing_support/caching'
 require 'spree/testing_support/image_stub'
+require 'alchemy/seeder'
 
 require 'paperclip/matchers'
+
+Capybara.register_driver :poltergeist_custom do |app|
+  Capybara::Poltergeist::Driver.new(app, { debug: false, timeout: 30 })
+end
 
 if ENV['WEBDRIVER'] == 'accessible'
   require 'capybara/accessible'
   Capybara.javascript_driver = :accessible
 else
   require 'capybara/poltergeist'
-  Capybara.javascript_driver = :poltergeist
+  Capybara.javascript_driver = :poltergeist_custom
 end
 
 RSpec.configure do |config|
@@ -111,8 +116,9 @@ RSpec.configure do |config|
     Delayed::Worker.delay_jobs = true
   end
 
-  config.after(:each) do
+  config.before(:suite) do
     DatabaseCleaner.clean
+    Alchemy::Seeder.seed!
   end
 
   config.after(:each, :type => :feature) do |example|
@@ -126,6 +132,16 @@ RSpec.configure do |config|
 
   config.before(:each) do
     reset_spree_preferences
+  end
+
+  # After each spec the database gets cleaned. (via rollback or truncate for feature specs)
+  # After every feature spec the database gets seeded so the next spec can rely on that data.
+  config.append_after(:each) do
+    DatabaseCleaner.clean
+    if RSpec.current_example.metadata[:type] == :feature
+      allow(Alchemy::Seeder).to receive(:puts)
+      Alchemy::Seeder.seed!
+    end
   end
 
   config.include FactoryGirl::Syntax::Methods

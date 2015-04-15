@@ -215,7 +215,7 @@ module Spree
 
         if order.completed?
           order.updater.update_payment_state
-          order.updater.update_shipments
+          order.shipments.each { |s| s.update!(order) }
           order.updater.update_shipment_state
         end
 

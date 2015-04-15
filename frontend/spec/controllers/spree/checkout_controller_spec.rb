@@ -197,14 +197,28 @@ describe Spree::CheckoutController, :type => :controller do
 
         end
 
+        context "when the shipping rate is changed" do
+          let!(:shipment) { create(:shipment, :order => order) }
+          let!(:shipping_rate) { shipment.shipping_rates.first }
+          let!(:shipping_method) { create(:shipping_method) }
+          let!(:new_shipping_rate) do
+            shipment.shipping_rates.create(
+              shipping_method: shipping_method, selected: false, cost: 12, shipment: shipment
+            )
+          end
 
-
-        #it "should redirect to the payment view" do
-        #  spree_post :update, {:state => "delivery"}
-        #  expect(response).to redirect_to spree.checkout_state_path("confirm")
-        #  #"refresh_page"=>""
-        #end
-
+          it "recalculates the delivery cost" do
+            expect(Orders::RecalculateDeliveryService).to receive(:run!).with(order: order)
+            spree_post :update, :id => order.to_param, :order_token => order.guest_token,
+              :order => {
+              :shipments_attributes => {
+                "0" => { :selected_shipping_rate_id => shipping_rate.id, :id => shipment.id }
+              }
+            }, no_advance: true, state: :delivery
+            expect(response).to redirect_to spree.checkout_state_path("delivery")
+            expect(shipment.shipping_rates.first).to eq new_shipping_rate
+          end
+        end
       end
 
       context "when in the confirm state" do

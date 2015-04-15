@@ -37,8 +37,8 @@ module Spree
 
       if @order.update_from_params(params, permitted_checkout_attributes, request.headers.env)
         @order.temporary_address = !params[:save_user_address]
-
         if params.has_key?(:no_advance)
+          Orders::RecalculateDeliveryService.run!(order: @order)
           redirect_to checkout_state_path(@order.state) and return
         end
 

@@ -17,10 +17,10 @@ describe Spree::OrderContents, :type => :model do
     end
 
     context 'given a shipment' do
-      it "ensure shipment calls update_amounts instead of order calling ensure_updated_shipments" do
+      it "ensure shipment calls update_shipping_rate_adjustments" do
         shipment = create(:shipment)
         expect(subject.order).to_not receive(:ensure_updated_shipments)
-        expect(shipment).to receive(:update_amounts)
+        expect(shipment).to receive(:update_shipping_rate_adjustments)
         subject.add(variant, 1, shipment: shipment)
       end
     end
@@ -107,18 +107,18 @@ describe Spree::OrderContents, :type => :model do
     end
 
     context 'given a shipment' do
-      it "ensure shipment calls update_amounts instead of order calling ensure_updated_shipments" do
-        line_item = subject.add(variant, 1)
+      it "ensure shipment calls update_shipping_rate_adjustments" do
+        subject.add(variant, 1)
         shipment = create(:shipment)
         expect(subject.order).to_not receive(:ensure_updated_shipments)
-        expect(shipment).to receive(:update_amounts)
+        expect(shipment).to receive(:update_shipping_rate_adjustments)
         subject.remove(variant, 1, shipment: shipment)
       end
     end
 
     context 'not given a shipment' do
       it "ensures updated shipments" do
-        line_item = subject.add(variant, 1)
+        subject.add(variant, 1)
         expect(subject.order).to receive(:ensure_updated_shipments)
         subject.remove(variant)
       end

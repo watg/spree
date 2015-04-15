@@ -28,21 +28,10 @@
     </tbody>
 
     <% if order.shipments.any? %>
-      <tr data-hook="shipping_total">
+      <tr class="shipping-total-table" data-hook="shipping_total">
         <td><%= Spree.t(:shipping_total) %>:</td>
-        <td><%= Spree::Money.new(order.shipments.to_a.sum(&:cost), currency: order.currency).to_html %></td>
+        <td class="shipping-total"><%= Spree::Money.new(::Shipping::Coster.new(order.shipments).total, currency: order.currency).to_html %></td>
       </tr>
-
-      <% if order.shipment_adjustments.nonzero.exists? %>
-        <tbody data-hook="order_details_shipment_promotion_adjustments">
-          <% order.shipment_adjustments.nonzero.promotion.eligible.group_by(&:label).each do |label, adjustments| %>
-            <tr class="total">
-              <td><%= label %>:</td>
-              <td><%= Spree::Money.new(adjustments.sum(&:amount), currency: order.currency).to_html %></td>
-            </tr>
-          <% end %>
-        </tbody>
-      <% end %>
     <% end %>
 
     <% if order.adjustments.nonzero.eligible.exists? %>

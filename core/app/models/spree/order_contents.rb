@@ -64,7 +64,7 @@ module Spree
     def after_add_or_remove(line_item, options = {})
       reload_totals
       shipment = options[:shipment]
-      shipment.present? ? shipment.update_amounts : order.ensure_updated_shipments
+      shipment.present? ? shipment.update_shipping_rate_adjustments : order.ensure_updated_shipments
       PromotionHandler::Cart.new(order, line_item).activate
       ItemAdjustments.new(line_item).update
       reload_totals

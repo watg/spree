@@ -1,20 +1,15 @@
 require 'ostruct'
-
 module Spree
+
   class Shipment < Spree::Base
     belongs_to :address, class_name: 'Spree::Address', inverse_of: :shipments
     belongs_to :order, class_name: 'Spree::Order', touch: true, inverse_of: :shipments
     belongs_to :stock_location, class_name: 'Spree::StockLocation'
 
-    has_many :adjustments, as: :adjustable, dependent: :delete_all
     has_many :inventory_units, dependent: :delete_all, inverse_of: :shipment
-    has_many :shipping_rates, -> { order('cost ASC') }, dependent: :delete_all
+    has_many :shipping_rates, -> { order('spree_shipping_rates.cost ASC') }, dependent: :delete_all
     has_many :shipping_methods, through: :shipping_rates
     has_many :state_changes, as: :stateful
-
-    after_save :update_adjustments
-
-    before_validation :set_cost_zero_when_nil
 
     attr_accessor :special_instructions
 
@@ -89,10 +84,6 @@ module Spree
       end
     end
 
-    def add_shipping_method(shipping_method, selected = false)
-      shipping_rates.create(shipping_method: shipping_method, selected: selected, cost: cost)
-    end
-
     def after_cancel
       manifest.each { |item| manifest_restock(item) }
     end
@@ -131,8 +122,16 @@ module Spree
       order.paid? || Spree::Config[:auto_capture_on_dispatch] ? 'ready' : 'pending'
     end
 
+    def cost
+      shipping_coster.cost
+    end
+
+    def promo_total
+      shipping_coster.promo_total
+    end
+
     def discounted_cost
-      cost + promo_total
+      shipping_coster.discounted_cost
     end
     alias discounted_amount discounted_cost
 
@@ -158,7 +157,7 @@ module Spree
     end
 
     def final_price
-      cost + adjustment_total
+      shipping_coster.final_price
     end
 
     def final_price_with_items
@@ -249,7 +248,6 @@ module Spree
 
       # StockEstimator.new assigment below will replace the current shipping_method
       original_shipping_method_id = shipping_method.try(:id)
-
       self.shipping_rates = Stock::Estimator.new(order).shipping_rates(to_package)
 
       if shipping_method
@@ -263,7 +261,7 @@ module Spree
     end
 
     def selected_shipping_rate
-      shipping_rates.where(selected: true).first
+      shipping_rates.select(&:selected).first
     end
 
     def selected_shipping_rate_id
@@ -271,9 +269,9 @@ module Spree
     end
 
     def selected_shipping_rate_id=(id)
-      shipping_rates.update_all(selected: false)
-      shipping_rates.update(id, selected: true)
-      self.save!
+      shipping_rates.each { |sr| sr.selected = false }
+      shipping_rates.detect { |sr| sr.id == id.to_i }.selected = true
+      shipping_rates.map(&:save)
     end
 
     def set_up_inventory(state, variant, order, line_item, supplier=nil, line_item_part=nil)
@@ -298,15 +296,11 @@ module Spree
       selected_shipping_rate.try(:shipping_method) || shipping_rates.first.try(:shipping_method)
     end
 
-    def tax_category
-      selected_shipping_rate.try(:tax_rate).try(:tax_category)
-    end
-
     # Only one of either included_tax_total or additional_tax_total is set
     # This method returns the total of the two. Saves having to check if
     # tax is included or additional.
     def tax_total
-      included_tax_total + additional_tax_total
+      shipping_coster.tax_total
     end
 
     def to_package
@@ -325,14 +319,8 @@ module Spree
       @tracking_url ||= shipping_method.build_tracking_url(tracking)
     end
 
-    def update_amounts
-      if selected_shipping_rate
-        self.update_columns(
-          cost: selected_shipping_rate.cost,
-          adjustment_total: adjustments.additional.map(&:update!).compact.sum,
-          updated_at: Time.now,
-        )
-      end
+    def update_shipping_rate_adjustments
+      ::Shipping::AdjustmentsUpdater.new(shipping_rates).update
     end
 
     # Update Shipment and make sure Order states follow the shipment changes
@@ -343,7 +331,7 @@ module Spree
           # so we persist the Shipment#cost before calculating order shipment
           # total and updating payment state (given a change in shipment cost
           # might change the Order#payment_state)
-          self.update_amounts
+          update_shipping_rate_adjustments
 
           order.updater.update_shipment_total
           order.updater.update_payment_state
@@ -371,10 +359,13 @@ module Spree
     def update!(order)
       old_state = state
       new_state = determine_state(order)
-      update_columns(
-        state: new_state,
-        updated_at: Time.now,
-      )
+      # TODO: only update if you need to, e.g. enable the if statement
+      #if old_state != new_state
+        update_columns(
+          state: new_state,
+          updated_at: Time.now,
+        )
+      #end
       after_ship if new_state == 'shipped' and old_state != 'shipped'
 
       check_for_only_digital_and_ship if new_state == 'ready' and old_state != 'ready'
@@ -434,6 +425,10 @@ module Spree
 
     def knitting_experience_mailer
       Shipping::KnittingExperienceMailer.new(self.order)
+    end
+
+    def shipping_coster
+      ::Shipping::Coster.new([self])
     end
 
     def manifest_unstock(item)

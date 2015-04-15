@@ -154,7 +154,7 @@ module Spree
       [
         :adjustments,
         :line_item_adjustments,
-        :shipment_adjustments
+        :shipping_rate_adjustments
       ].any? do |adjustment_type|
         user.orders.complete.joins(adjustment_type).where(
           spree_adjustments: {
