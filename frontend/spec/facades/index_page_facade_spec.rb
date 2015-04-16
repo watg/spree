@@ -15,7 +15,7 @@ describe IndexPageFacade do
   it_behaves_like IndexableInterface
 
   describe "#suites" do
-    let(:taxon) { create(:taxon, :permalink => "test") }
+    let(:taxon) { create(:taxon, permalink: "test") }
 
     let(:suite_1) { create(:suite, :with_tab) }
     let(:suite_2) { create(:suite, :with_tab) }
@@ -28,7 +28,7 @@ describe IndexPageFacade do
     end
 
     it "assigns @suites to the suites, which belong to a taxon" do
-      expect(subject.suites).to eq ([ suite_1, suite_2, suite_3])
+      expect(subject.suites).to eq [suite_1, suite_2, suite_3]
     end
 
     it "only returns the number of suites required by per_page" do
@@ -50,7 +50,7 @@ describe IndexPageFacade do
 
   describe "#num_pages" do
     it "returns the correct number of pages" do
-      allow(subject).to receive(:fetch_suites).and_return([1,2,3,4])
+      allow(subject).to receive(:fetch_suites).and_return([1, 2, 3, 4])
       allow(subject).to receive(:per_page).and_return(3)
       expect(subject.num_pages).to eq 2
     end
@@ -70,12 +70,8 @@ describe IndexPageFacade do
     end
   end
 
-
   describe "#title" do
-    it "delegates to meta_title" do
-      expect(subject).to receive(:meta_title)
-      subject.title
-    end
+    let(:taxon) { double(title: "Made Unique") }
+    it { expect(subject.title).to eq taxon.title }
   end
-
 end
