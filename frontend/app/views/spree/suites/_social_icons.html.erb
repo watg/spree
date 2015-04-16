@@ -10,12 +10,8 @@
     </li>
     <li>
       <!-- Pinterest Pinning -->
-      <a href="http://pinterest.com/pin/create/button/?url=<%=request.url%>
-          &media=<%=url_encode(variant_presenter.first_image_url(:product))%>
-          &description=I%20love%20Wool%20and%20the%20Gangs%20<%=url_encode(variant_presenter.name)%>"
-          data-pin-do="buttonPin"
-          data-pin-config="none">
-          <img src="//assets.pinterest.com/images/pidgets/pin_it_button.png" />
+      <a href="http://pinterest.com/pin/create/button/?url=<%=request.url%>&amp;media=<%=url_encode(variant_presenter.first_image_url(:product))%>&amp;description=I%20love%20Wool%20and%20the%20Gangs%20<%=url_encode(variant_presenter.name)%>" data-pin-do="buttonPin" data-pin-config="none">
+          <img src="//assets.pinterest.com/images/pidgets/pin_it_button.png" alt="" />
       </a>
     </li>
     <li>
