@@ -127,6 +127,13 @@
     }
 	}
 
+	/* Something of a hack to pull up the cart message for kits */
+	.displayable-kit-entity {
+		#cart-ajax-message {
+			margin-top: -50px;
+		}
+	}
+
 	/* Reveal content */
 	.reveal-title {
 		margin: 1em 0;
