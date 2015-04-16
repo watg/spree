@@ -1,7 +1,7 @@
 module Spree
+  # Report generator model
   class Report < ActiveRecord::Base
-
-    REPORTS_FOLDER_ID = '0B9oajy9I3FKQOTE3bnE4OFh4ZmM'
+    REPORTS_FOLDER_ID = "0B9oajy9I3FKQOTE3bnE4OFh4ZmM"
     FINISHED = -1
 
     def finished_status
@@ -16,10 +16,15 @@ module Spree
       job_id > 0
     end
 
-    def trigger_csv_generation(name, params)
+    def trigger_csv_generation(name, klass, params)
       params ||= {}
-      csv = Spree::Jobs::GenerateCsv.new({:report_instance => self, :name => name, :params => params})
-      job = Delayed::Job.enqueue(csv, queue: 'reports')
+      csv = Spree::Jobs::GenerateCsv.new(
+        report_instance: self,
+        name: name,
+        klass: klass,
+        params: params
+      )
+      job = Delayed::Job.enqueue(csv, queue: "reports")
       job_id = job.id
     end
 
@@ -27,8 +32,8 @@ module Spree
     # 2. base class for other reports
     # 4. Tests
 
-    def write_csv(name, params)
-      report = "Spree::#{name.camelize}Report".constantize.new(params)
+    def write_csv(name, klass, params)
+      report = klass.new(params)
 
       csv_string = CSV.generate do |csv|
         csv << report.header
@@ -37,15 +42,18 @@ module Spree
         end
       end
 
-      gfile = GoogleDriveStorage.upload_csv_string( csv_string, report.filename, true )
-      gfile.parent_directory( REPORTS_FOLDER_ID )
-      gfile.add_permission( 'reports@woolandthegang.com', 'group', 'reader' )
-      self.update_attributes!( file_id: gfile.file_id, download_uri: gfile.download_uri, filename: gfile.converted_filename )
+      gfile = GoogleDriveStorage.upload_csv_string(csv_string, report.filename, true)
+      gfile.parent_directory(REPORTS_FOLDER_ID)
+      gfile.add_permission("reports@woolandthegang.com", "group", "reader")
+      self.update_attributes!(
+        file_id: gfile.file_id,
+        download_uri: gfile.download_uri,
+        filename: gfile.converted_filename
+      )
     end
 
     def data
-      GoogleDriveStorage.download_data( self.download_uri )
+      GoogleDriveStorage.download_data(self.download_uri)
     end
-
   end
 end
