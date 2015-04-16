@@ -16,7 +16,7 @@
   <%= csrf_meta_tags %>
   <%= render "spree/shared/frontend_routes" %>
   <%= yield :head %>
-  <script type="text/javascript" src="//apis.google.com/js/plusone.js" parsetags="explicit"></script>
+  <script type="text/javascript" src="//apis.google.com/js/plusone.js"></script>
 </head>
 
 <body id="<%= @body_id || 'default' %>" class="shop <%= body_class %> <%= device_class %>" data-hook="body">
