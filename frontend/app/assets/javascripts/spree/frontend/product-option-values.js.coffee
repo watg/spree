@@ -277,7 +277,7 @@ update_supplier_details = (entity, suppliers) ->
   # Update heading and reveal panel
   heading = entity.find('.suppliers')
   img = heading.find('img')
-  heading.empty().append(img).append(names);
+  heading.empty().append(img).append(names)
   heading.next().html(profiles)
 
 # Modify the images based on the selected variant
