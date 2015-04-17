@@ -253,17 +253,17 @@ update_url = (entity, number) ->
     History.replaceState(null, null, '/' + path[1] + '/' + path[2] + '/' + path[3] + '/' + number + query);
 
 update_supplier_details = (entity, suppliers) ->
-	names = []
-	profiles = []
+  names = []
+  profiles = []
 
-	# Loop through suppliers
+  # Loop through suppliers
   for index, supplier of suppliers
     for index, items of supplier
       names.push(items.nickname)
       if items.nickname != null
         profiles.push('<strong>' + items.nickname + '</strong>: ' + items.profile)
 
-	# Prep names for output...
+  # Prep names for output...
   if names.length > 1
     names = names.slice(0, names.length - 1).join(', ') + " and " + names.slice(-1)
   else
