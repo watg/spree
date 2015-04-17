@@ -23,7 +23,7 @@ $(window).bind('load', function() {
 
 // Ready modal plugin
 core.readyModals = function() {
-	$('a[rel*=modal]').leanModal({top: 30, closeButton: '.modal-close'});
+	$('a[data-rel*=modal]').leanModal({top: 30, closeButton: '.modal-close'});
 
 	// Prime additional 'close modal' CTA...
 	$('.modal .button:not(.no-close)').on('click', function(e) {
@@ -34,7 +34,7 @@ core.readyModals = function() {
 
 // Reset modal events
 core.resetModals = function() {
-	$('a[rel*=modal]').off();
+	$('a[data-rel*=modal]').off();
 
 	$('.modal .button').off();
 };
