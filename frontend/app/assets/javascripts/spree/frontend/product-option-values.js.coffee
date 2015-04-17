@@ -270,15 +270,15 @@ update_supplier_details = (entity, suppliers) ->
     names = 'WATG'
   names = ' #madeunique <span>by ' + names + '</span>'
 
-	# Prep profiles for output...
-	if profiles.length > 1
-		profiles = profiles.join('<br/><br/>')
+  # Prep profiles for output...
+  if profiles.length > 1
+    profiles = profiles.join('<br/><br/>')
 
-	# Update heading and reveal panel
-	heading = entity.find('.suppliers')
-	img = heading.find('img')
-	heading.empty().append(img).append(names);
-	heading.next().html(profiles)
+  # Update heading and reveal panel
+  heading = entity.find('.suppliers')
+  img = heading.find('img')
+  heading.empty().append(img).append(names);
+  heading.next().html(profiles)
 
 # Modify the images based on the selected variant
 toggle_images = (entity, variant_id) ->
