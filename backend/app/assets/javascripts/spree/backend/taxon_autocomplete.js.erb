@@ -1,7 +1,7 @@
 'use strict';
 
 var set_taxon_select = function(){
-  if ($('#suite_taxon_ids').length > 0) {
+  if ($('.taxon_picker').length > 0) {
     $('#suite_taxon_ids').select2({
       placeholder: Spree.translations.taxon_placeholder,
       multiple: true,
