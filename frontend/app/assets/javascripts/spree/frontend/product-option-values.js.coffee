@@ -253,30 +253,32 @@ update_url = (entity, number) ->
     History.replaceState(null, null, '/' + path[1] + '/' + path[2] + '/' + path[3] + '/' + number + query);
 
 update_supplier_details = (entity, suppliers) ->
-	names = []
-	profiles = []
+  names = []
+  profiles = []
 
-	# Loop through suppliers
-	for index, supplier of suppliers
-		for index, items of supplier
-				names.push(items.nickname)
-				if items.profile != ''
-					profiles.push('<strong>' + items.nickname + '</strong>: ' + items.profile)
+  # Loop through suppliers
+  for index, supplier of suppliers
+    for index, items of supplier
+      names.push(items.nickname)
+      if items.nickname != null
+        profiles.push('<strong>' + items.nickname + '</strong>: ' + items.profile)
 
-	# Prep names for output...
-	if names.length > 1
-		names = names.slice(0, names.length - 1).join(', ') + " and " + names.slice(-1)
-	names = ' #madeunique <span>by ' + names + '</span>'
+  # Prep names for output...
+  if names.length > 1
+    names = names.slice(0, names.length - 1).join(', ') + " and " + names.slice(-1)
+  else
+    names = 'WATG'
+  names = ' #madeunique <span>by ' + names + '</span>'
 
-	# Prep profiles for output...
-	if profiles.length > 1
-		profiles = profiles.join('<br/><br/>')
+  # Prep profiles for output...
+  if profiles.length > 1
+    profiles = profiles.join('<br/><br/>')
 
-	# Update heading and reveal panel
-	heading = entity.find('.suppliers')
-	img = heading.find('img')
-	heading.empty().append(img).append(names);
-	heading.next().html(profiles)
+  # Update heading and reveal panel
+  heading = entity.find('.suppliers')
+  img = heading.find('img')
+  heading.empty().append(img).append(names)
+  heading.next().html(profiles)
 
 # Modify the images based on the selected variant
 toggle_images = (entity, variant_id) ->
