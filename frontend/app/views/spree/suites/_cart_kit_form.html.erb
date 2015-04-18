@@ -1,5 +1,7 @@
 <div class="row row-assembly" data-ad-id="<%= product_presenter.assembly_definition.id %>">
 	<div class="assembly-menus large-10 small-8 column">
+
+    <ol>
       <% product_presenter.assembly_definition.parts.each do |part| %>
         <% cache [part, product_presenter.currency, device] do %>
           <% present(part, @context) do |part_presenter| %>
@@ -15,7 +17,6 @@
               <% type = part_presenter.displayable_option_type %>
               <% product_name = part_presenter.product_name %>
 
-              <ol>
                 <!-- render parts -->
                 <li class="product-variants required" data-tree="<%= part_presenter.variant_tree.to_json %>" data-adjustment="0"  data-quantity="<%=part_presenter.count%>" data-adp-id="<%= part_presenter.id %>"><%= part_presenter.presentation %> <span class="color-value"></span>
                   <div class="variant-options required <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
@@ -28,7 +29,6 @@
                   <input class="selected-parts" type="hidden" name="parts[<%= part_presenter.id %>]" value="" />
                 </li>
                 <!-- render parts -->
-              </ol>
   
             <% end %>
           <% else # optional %>
@@ -37,7 +37,6 @@
             <% type = part_presenter.displayable_option_type %>
             <% product_name = part_presenter.product_name %>
 
-            <ol>
             <!-- render parts -->
               <li class="product-variants optional" data-tree="<%= part_presenter.variant_tree.to_json %>" data-adjustment="0" data-quantity="<%=part_presenter.count%>" data-adp-id="<%= part_presenter.id %>"><%= part_presenter.presentation %> <span class="optional">(Optional)</span> <span class="color-value"></span>
                 <div class="variant-options optional <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
@@ -63,13 +62,13 @@
                 <input class="selected-parts" type="hidden" name="parts[<%= part_presenter.id %>]" value="<%= Spree::AssemblyDefinitionPart::NO_THANKS %>" data-original-value="<%= Spree::AssemblyDefinitionPart::NO_THANKS %>" />
               </li>
             <!-- render parts -->
-            </ol>
 
           <% end %>
   
         <% end # part_presenter %>
       <% end # cache %>
     <% end # each parts %>
+    </ol>
 
     <%= render 'add_to_cart', product_presenter: product_presenter %>
 
