@@ -230,7 +230,10 @@ LEFT OUTER JOIN
       COUNT(email) purchases
     FROM spree_orders o
     INNER JOIN spree_order_types ot on o.order_type_id=ot.id
+    INNER JOIN spree_payments p on p.order_id=o.id
+    INNER JOIN spree_payment_methods pm on p.payment_method_id=pm.id
     WHERE completed_at IS NOT NULL
+    AND pm.name IN ('Credit Card', 'PayPal')
     AND ot.name = 'regular'
     GROUP BY email, date
   ) as t2
@@ -273,7 +276,10 @@ INNER JOIN first_orders_view o on li.order_id=o.id
 INNER JOIN spree_order_types ot on o.order_type_id=ot.id
 INNER JOIN spree_variants v ON li.variant_id = v.id
 INNER JOIN spree_products pr ON v.product_id = pr.id
+INNER JOIN spree_payments p on p.order_id=o.id
+INNER JOIN spree_payment_methods pm on p.payment_method_id=pm.id
 WHERE o.completed_at is not null
+AND pm.name IN ('Credit Card', 'PayPal')
 AND ot.name = 'regular'
 GROUP BY marketing_type_id, email"
     end
@@ -283,15 +289,21 @@ GROUP BY marketing_type_id, email"
   SELECT o1.*
   FROM spree_orders o1
   INNER JOIN spree_order_types ot1 on o1.order_type_id=ot1.id
+  INNER JOIN spree_payments p1 on p1.order_id=o1.id
+  INNER JOIN spree_payment_methods pm1 on p1.payment_method_id=pm1.id
   INNER JOIN (
     SELECT email, MIN(completed_at) completed_at
     FROM spree_orders o
     INNER JOIN spree_order_types ot2 on o.order_type_id=ot2.id
+    INNER JOIN spree_payments p2 on p2.order_id=o.id
+    INNER JOIN spree_payment_methods pm2 on p2.payment_method_id=pm2.id
     WHERE completed_at is not null
+    AND pm2.name IN ('Credit Card', 'PayPal')
     AND ot2.name = 'regular'
     GROUP BY email
   ) AS o2 ON o1.email = o2.email AND o1.completed_at = o2.completed_at
-    WHERE ot1.name = 'regular'"
+    WHERE ot1.name = 'regular'
+    AND pm1.name IN ('Credit Card', 'PayPal')"
     end
 
     def self.second_orders_view_sql
@@ -299,10 +311,14 @@ GROUP BY marketing_type_id, email"
   SELECT o1.*
   FROM spree_orders o1
   INNER JOIN spree_order_types ot1 on o1.order_type_id=ot1.id
+  INNER JOIN spree_payments p1 on p1.order_id=o1.id
+  INNER JOIN spree_payment_methods pm1 on p1.payment_method_id=pm1.id
   INNER JOIN (
     SELECT o2.email email, MIN(o2.completed_at) completed_at
     FROM spree_orders o2
     INNER JOIN spree_order_types ot2 on o2.order_type_id=ot2.id
+    INNER JOIN spree_payments p2 on p2.order_id=o2.id
+    INNER JOIN spree_payment_methods pm2 on p2.payment_method_id=pm2.id
     WHERE NOT EXISTS
     (
       SELECT o3.id
@@ -310,10 +326,12 @@ GROUP BY marketing_type_id, email"
       WHERE o2.id = o3.id
     )
     AND o2.completed_at is not null
+    AND pm2.name IN ('Credit Card', 'PayPal')
     AND ot2.name = 'regular'
     GROUP BY email
   ) AS o4 ON o1.email = o4.email AND o1.completed_at = o4.completed_at
-    WHERE ot1.name = 'regular'"
+    WHERE ot1.name = 'regular'
+    AND pm1.name IN ('Credit Card', 'PayPal')"
     end
   end
 end

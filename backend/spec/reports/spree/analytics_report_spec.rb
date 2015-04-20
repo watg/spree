@@ -2,6 +2,8 @@ require "spec_helper"
 
 describe Spree::AnalyticsReport do
   let(:order_type) { create(:regular_order_type) }
+  let(:payment_method) { create(:payment_method, name:'PayPal' ) }
+  let(:bad_payment_method) { create(:payment_method, name:'foobar' ) }
 
   let(:gang) { create(:user, email: "gang") }
   let(:peru) { create(:user, email: "peru") }
@@ -23,10 +25,14 @@ describe Spree::AnalyticsReport do
   let!(:kit_variant) { create(:base_variant, product: kit_product) }
 
   let!(:order_peru_and_gang) { create(:order, user: peru_gang, order_type: order_type) }
+  let!(:payment1) { create(:payment, payment_method: payment_method, order: order_peru_and_gang) }
   let!(:gang_line_item) { create(:line_item, variant: gang_variant, order: order_peru_and_gang) }
   let!(:peru_line_item) { create(:line_item, variant: peru_variant, order: order_peru_and_gang) }
 
   let!(:order_peru_and_gang_and_kit) { create(:order, user: peru_gang_kit, order_type: order_type) }
+  let!(:payment2) do 
+    create(:payment, payment_method: payment_method, order: order_peru_and_gang_and_kit)
+  end
   let!(:kit_line_item_2) do
     create(:line_item, variant: kit_variant, order: order_peru_and_gang_and_kit)
   end
@@ -38,12 +44,15 @@ describe Spree::AnalyticsReport do
   end
 
   let!(:order_gang_only) { create(:order, user: gang, order_type: order_type) }
+  let!(:payment3) { create(:payment, payment_method: payment_method, order: order_gang_only) }
   let!(:gang_line_item_3) { create(:line_item, variant: gang_variant, order: order_gang_only) }
 
   let!(:order_peru_only) { create(:order, user: peru, order_type: order_type) }
+  let!(:payment4) { create(:payment, payment_method: payment_method, order: order_peru_only) }
   let!(:peru_line_item_3) { create(:line_item, variant: peru_variant, order: order_peru_only) }
 
   let!(:order_kit_only) { create(:order, user: kit, order_type: order_type) }
+  let!(:payment5) { create(:payment, payment_method: payment_method, order: order_kit_only) }
   let!(:kit_line_item) { create(:line_item, variant: kit_variant, order: order_kit_only) }
 
   subject { Spree::AnalyticsReport.new([gang_marketing_type, peru_marketing_type]) }
@@ -85,6 +94,16 @@ describe Spree::AnalyticsReport do
         expect(records.size).to eq 0
       end
     end
+
+    context "wrong payment method" do
+      let(:payment_method) { create(:payment_method, name: "foobar") }
+
+      it "returns no emails" do
+        records = ActiveRecord::Base.connection.execute("select * from first_orders_view").to_a
+        expect(records.size).to eq 0
+      end
+    end
+
   end
 
   describe "email_marketing_types_sql" do
@@ -99,6 +118,16 @@ describe Spree::AnalyticsReport do
 
     context "wrong order type" do
       let(:order_type) { create(:order_type, name: "foobar") }
+
+      it "returns no emails " do
+        sql = subject.send(:email_marketing_types_sql)
+        records = ActiveRecord::Base.connection.execute(sql).to_a
+        expect(records.size).to eq 0
+      end
+    end
+
+    context "wrong payment method" do
+      let(:payment_method) { create(:payment_method, name: "foobar") }
 
       it "returns no emails " do
         sql = subject.send(:email_marketing_types_sql)
@@ -129,7 +158,7 @@ describe Spree::AnalyticsReport do
       end
     end
 
-    context "wrong order type" do
+    context "wrong order type with a selected marketing type" do
       let(:order_type) { create(:order_type, name: "foobar") }
 
       it "returns no emails" do
@@ -140,6 +169,19 @@ describe Spree::AnalyticsReport do
         expect(records.size).to eq 0
       end
     end
+
+    context "wrong payment method with a selected marketing type" do
+      let(:payment_method) { create(:payment_method, name: "foobar") }
+
+      it "returns no emails" do
+        subject.marketing_types = [gang_marketing_type]
+        sql = subject.send(:email_marketing_types_sql)
+        records = ActiveRecord::Base.connection.execute(sql).to_a
+
+        expect(records.size).to eq 0
+      end
+    end
+
   end
 
   describe "second_orders_view_sql" do
@@ -347,22 +389,26 @@ describe Spree::AnalyticsReport do
 
     # First order
     order = create(:order, user: user, payment_total: 100, currency: "USD", order_type: order_type)
+    create(:payment, payment_method: payment_method, order: order)
     create(:line_item, variant: gang_variant, order: order)
     create(:line_item, variant: peru_variant, order: order)
     order.update_column(:completed_at, "2014-02-01")
 
     # Second order
     order = create(:order, user: user, payment_total: 50, currency: "USD", order_type: order_type)
+    create(:payment, payment_method: payment_method, order: order)
     create(:line_item, variant: kit_variant, order: order)
     order.update_column(:completed_at, "2014-03-01")
 
     # Third order
     order = create(:order, user: user, payment_total: 50, currency: "GBP", order_type: order_type)
+    create(:payment, payment_method: payment_method, order: order)
     create(:line_item, variant: kit_variant, order: order, currency: "GBP")
     order.update_column(:completed_at, "2014-04-01")
 
     # Fourth order
     order = create(:order, user: user, payment_total: 50, currency: "EUR", order_type: order_type)
+    create(:payment, payment_method: payment_method, order: order)
     create(:line_item, variant: kit_variant, order: order, currency: "EUR")
     order.update_column(:completed_at, "2014-04-02")
 
@@ -370,7 +416,14 @@ describe Spree::AnalyticsReport do
     bad_order_type = create(:order_type, name: "foobar")
     order =
       create(:order, user: user, payment_total: 50, currency: "USD", order_type: bad_order_type)
+    create(:payment, payment_method: payment_method, order: order)
     create(:line_item, variant: kit_variant, order: order)
+    order.update_column(:completed_at, "2014-03-01")
+
+    # Sixth order which has a bad payment type, hence we should ignore
+    order = create(:order, user: user, payment_total: 50, currency: "EUR", order_type: order_type)
+    create(:payment, payment_method: bad_payment_method, order: order)
+    create(:line_item, variant: kit_variant, order: order, currency: "EUR")
     order.update_column(:completed_at, "2014-03-01")
   end
 end
