@@ -313,6 +313,25 @@ describe Spree::Shipment, :type => :model do
         shipment.update!(order)
       end
 
+      context 'survey email' do
+        let(:survey) { double(delay: Shipping::EmailSurveyJob.new(order)) }
+        let(:mailer) { double }
+
+        before do
+          stub_const("Spree::Shipment::SURVEY_DELAY", "10 Days")
+          allow(shipment).to receive_messages determine_state: 'shipped'
+          allow(Shipping::EmailSurveyJob).to receive(:new).with(order).and_return(survey)
+          allow(Spree::ShipmentMailer).to receive(:survey_email).with(order).and_return(mailer)
+        end
+
+        it 'dispatches email in 10 days' do
+          expect(survey).to receive(:delay).with({:run_at => "10 Days"})
+          expect(mailer).to receive(:deliver)
+          shipment.state = 'pending'
+          shipment.update!(order)
+        end
+      end
+
       context "when using the default shipment handler" do
         it "should call the 'perform' method" do
           shipment.state = 'pending'
