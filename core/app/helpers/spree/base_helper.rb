@@ -121,7 +121,7 @@ module Spree
       taxon.children.detect {|t| t.permalink == child_permalink }
     end
 
-    def get_taxon_path(taxon)
+    def get_taxon_chain(taxon)
       taxon.self_and_ancestors.map(&:name).join("/").downcase
     end
 
