@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe StaticController, type: :controller do
 
@@ -8,28 +8,52 @@ describe StaticController, type: :controller do
 
     it "works when country and zone exist" do
       Spree::ZoneMember.create(zoneable: country, zone: zone)
-      subject.stub :current_country_code => "UK"
+      subject.stub current_country_code: "UK"
 
       spree_get :home_page
       response.status.should == 200
-      expect(session[:currency]).to eq "GBP" 
+      expect(session[:currency]).to eq "GBP"
     end
 
     it "defaults to USD when country is found, but no mathing zone exists" do
-      subject.stub :current_country_code => "UK"
+      subject.stub current_country_code: "UK"
 
       spree_get :home_page
       response.status.should == 200
-      expect(session[:currency]).to eq "USD" 
+      expect(session[:currency]).to eq "USD"
     end
 
     it "defaults to USD when the country code is not recognized" do
       spree_get :home_page
-      response.status.should == 200
+      response.status.should eq 200
       expect(session[:country_code]).to eq "US"
       expect(session[:currency]).to eq "USD"
     end
+  end
 
+  describe "#home_page" do
+    let(:country_codes) { "CountryCodeValidator::VALID_COUNTRY_CODES" }
+
+    context 'whitelisted country' do
+      before do
+        stub_const(country_codes, "GBP")
+        allow(subject).to receive(:render)
+      end
+
+      it 'returns country specific homepage' do
+        expect(subject).to receive(:render).with("/static/gbp/home_page")
+        get :home_page, {}, { "country_code" => "GBP" }
+      end
+    end
+
+    context 'blacklisted country' do
+      before { stub_const(country_codes, "GBP") }
+
+      it 'returns default homepage' do
+        get :home_page, {}, { "country_code" => "AU"}
+        expect(response).to render_template(/static\/home_page/)
+      end
+    end
   end
 
   context "setting country code" do
@@ -41,7 +65,7 @@ describe StaticController, type: :controller do
       subject.request.stub(:location).and_raise("this error")
 
       spree_get :home_page
-      response.status.should == 200
+      response.status.should eq 200
       expect(session[:country_code]).to eq "US"
     end
 
@@ -50,7 +74,7 @@ describe StaticController, type: :controller do
       subject.request.stub :location => double("Location", :country_code => "UK", :cache_hit => false)
 
       spree_get :home_page
-      response.status.should == 200
+      response.status.should eq 200
       expect(session[:country_code]).to eq "UK"
     end
 
@@ -58,7 +82,7 @@ describe StaticController, type: :controller do
       subject.request.stub :location => nil
 
       spree_get :home_page
-      response.status.should == 200
+      response.status.should eq 200
       expect(session[:country_code]).to eq "US"
     end
   end
