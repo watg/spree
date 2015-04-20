@@ -10,7 +10,7 @@
   			  <% if !part_presenter.optional? %>
             <!-- If we have only one variant and it is not optional then it becomes mandatory -->
             <% if part_presenter.variants.size == 1 %>
-              <input class="selected-parts" type="hidden" name="parts[<%= part_presenter.id %>]" value="<%= part_presenter.first_variant.id %>"/>
+              <li class="hidden"><input class="selected-parts" type="hidden" name="parts[<%= part_presenter.id %>]" value="<%= part_presenter.first_variant.id %>"/></li>
   
             <% else %>
               <% option_values = part_presenter.displayable_option_values %>
