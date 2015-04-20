@@ -130,11 +130,11 @@ core.Navigation.readyTracking = function() {
         sub_label = ' (' + sub_name + ')';
       }
       // Track
-      // New style tracking...
+      // --- New style tracking...
       /*if (typeof ga !== 'undefined') {
         ga('send', 'event', 'navigation', 'click', $(this).text().toLowerCase() + sub_label);
       }*/
-      // Old style tracking
+      // --- Old style tracking...
       var _gaq = _gaq || [];
       _gaq.push(['_trackEvent', 'navigation', 'click', $(this).text().toLowerCase() + sub_label]);
 
