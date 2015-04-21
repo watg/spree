@@ -340,9 +340,11 @@ describe Spree::Shipment, :type => :model do
           shipment.state = 'pending'
           allow(shipment).to receive_messages determine_state: 'shipped'
           allow(Shipping::KitAndPatternEmailSurveyJob).to receive(:new).and_return(email_survey_job)
+          Timecop.freeze
         end
 
         it 'dispatches email' do
+          expect(email_survey_job).to receive(:delay).with({:run_at => 1.month.from_now}).and_return(email_survey_job)
           expect(email_survey_job).to receive(:perform)
           shipment.update!(order)
         end

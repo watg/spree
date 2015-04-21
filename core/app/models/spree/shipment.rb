@@ -423,7 +423,7 @@ module Spree
     def after_ship
       shipment_handler.perform
       email_survey_job.delay(run_at: SURVEY_DELAY).perform
-      kit_and_pattern_email_survey_job.perform
+      Worker.enque(kit_and_pattern_email_survey_job, 30.days)
     end
 
     def shipment_handler

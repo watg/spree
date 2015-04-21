@@ -21,7 +21,6 @@ module Shipping
         before { order.products.last.product_type = kit }
 
         it 'sends email to customers in 1 month' do
-          expect(mailer).to receive(:delay).with({:run_at=> "1 month"}).and_return(mailer)
           expect(mailer).to receive(:deliver)
           subject.perform
         end
@@ -31,7 +30,6 @@ module Shipping
         before { order.products.last.marketing_type = pattern }
 
         it 'sends email to customers in 1 month' do
-          expect(mailer).to receive(:delay).with({:run_at=> "1 month"}).and_return(mailer)
           expect(mailer).to receive(:deliver)
           subject.perform
         end
@@ -41,7 +39,6 @@ module Shipping
         before { order.products.map { |p| p.product_type = kit } }
 
         it 'send email once' do
-          expect(mailer).to receive(:delay).with({:run_at=> "1 month"}).and_return(mailer)
           expect(mailer).to receive(:deliver).once
           subject.perform
         end
@@ -54,7 +51,6 @@ module Shipping
         end
 
         it 'send email once' do
-          expect(mailer).to receive(:delay).with({:run_at=> "1 month"}).and_return(mailer)
           expect(mailer).to receive(:deliver).once
           subject.perform
         end

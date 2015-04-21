@@ -18,7 +18,7 @@ describe "user receives email" do
     it "creates a delayed job for 1 month after today" do
       Timecop.freeze
       shipment.update!(order)
-      expect(Delayed::Job.last.handler).to include("kit_and_pattern_survey_email")
+      expect(Delayed::Job.last.handler).to include("KitAndPatternEmailSurveyJob")
       expect(Delayed::Job.last.run_at).to eq(1.month.from_now)
     end
   end
