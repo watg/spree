@@ -89,8 +89,6 @@ module Spree
       end
     end
 
-    SURVEY_DELAY = 10.days.from_now
-
     def add_shipping_method(shipping_method, selected = false)
       shipping_rates.create(shipping_method: shipping_method, selected: selected, cost: cost)
     end
@@ -422,7 +420,7 @@ module Spree
 
     def after_ship
       shipment_handler.perform
-      email_survey_job.delay(run_at: SURVEY_DELAY).perform
+      Worker.enque(email_survey_job, 10.days)
       Worker.enque(kit_and_pattern_email_survey_job, 30.days)
     end
 
