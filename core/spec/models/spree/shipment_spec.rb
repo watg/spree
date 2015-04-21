@@ -7,6 +7,7 @@ describe Spree::Shipment, :type => :model do
                                          can_ship?: true,
                                          currency: 'USD',
                                          number: 'S12345',
+                                         products: [],
                                          paid?: false,
                                          touch: true }
   let(:shipping_method) { create(:shipping_method, name: "UPS") }
