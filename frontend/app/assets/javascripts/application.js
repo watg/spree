@@ -24,6 +24,7 @@
 //= require lib/jquery.tabslet.js
 //= require lib/jquery.slimscroll.js
 
+
 //= require common
 //= require core
 //= require core.static
