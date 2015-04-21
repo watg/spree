@@ -10,10 +10,7 @@ module Shipping
 
     def perform
       if order.contains_pattern_or_kit?
-        Spree::ShipmentMailer
-        	.kit_and_pattern_survey_email(order)
-        	.delay(run_at: DELAY)
-        	.deliver
+        Spree::ShipmentMailer.delay(run_at: DELAY).kit_and_pattern_survey_email(order)
       end
     end
   end

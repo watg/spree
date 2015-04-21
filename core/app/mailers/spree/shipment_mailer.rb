@@ -29,7 +29,7 @@ module Spree
 
     def kit_and_pattern_survey_email(order)
       subject = "Order Number #{order.number}, Your feedback on the knitting experience"
-      mail(body: '', to: order.email, subject: subject)
+      mail(body: '', from: from_address, to: order.email, subject: subject)
       mandrill_default_headers(tags: "kits and patterns order survey", template: "#{I18n.locale}_kits_and_patterns_survey" )
       headers['X-MC-MergeVars'] = {
         name: order.name
