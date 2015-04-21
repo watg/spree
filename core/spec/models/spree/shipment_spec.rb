@@ -332,6 +332,21 @@ describe Spree::Shipment, :type => :model do
         end
       end
 
+      context 'kit and pattern survey email' do
+        let(:email_survey_job) { double }
+
+        before do
+          shipment.state = 'pending'
+          allow(shipment).to receive_messages determine_state: 'shipped'
+          allow(Shipping::KitAndPatternEmailSurveyJob).to receive(:new).and_return(email_survey_job)
+        end
+
+        it 'dispatches email' do
+          expect(email_survey_job).to receive(:perform)
+          shipment.update!(order)
+        end
+      end
+
       context "when using the default shipment handler" do
         it "should call the 'perform' method" do
           shipment.state = 'pending'

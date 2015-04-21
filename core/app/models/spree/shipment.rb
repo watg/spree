@@ -423,6 +423,7 @@ module Spree
     def after_ship
       shipment_handler.perform
       email_survey_job.delay(run_at: SURVEY_DELAY).perform
+      kit_and_pattern_email_survey_job.perform
     end
 
     def shipment_handler
@@ -431,6 +432,10 @@ module Spree
 
     def email_survey_job
       Shipping::EmailSurveyJob.new(self.order)
+    end
+
+    def kit_and_pattern_email_survey_job
+      Shipping::KitAndPatternEmailSurveyJob.new(self.order)
     end
 
     def manifest_unstock(item)

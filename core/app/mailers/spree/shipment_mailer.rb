@@ -1,5 +1,7 @@
 module Spree
   class ShipmentMailer < BaseMailer
+    default from: from_address
+
     def shipped_email(shipment, resend = false)
       @shipment = shipment.respond_to?(:id) ? shipment : Spree::Shipment.find(shipment)
       subject = (resend ? "[#{Spree.t(:resend).upcase}] " : '')
@@ -17,12 +19,20 @@ module Spree
       email = order.email
       subject = "Order Number #{order_number}, How did we do?"
       mail(to: email, from: from_address, subject: subject)
-
       mandrill_default_headers(tags: "order survey", template: "#{I18n.locale}_survey_email")
       headers['X-MC-MergeVars'] = {
         order_number: order_number,
         email: email,
         name: name
+      }.to_json
+    end
+
+    def kit_and_pattern_survey_email(order)
+      subject = "Order Number #{order.number}, Your feedback on the knitting experience"
+      mail(body: '', to: order.email, subject: subject)
+      mandrill_default_headers(tags: "kits and patterns order survey", template: "#{I18n.locale}_kits_and_patterns_survey" )
+      headers['X-MC-MergeVars'] = {
+        name: order.name
       }.to_json
     end
 
