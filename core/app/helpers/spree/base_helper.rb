@@ -112,7 +112,7 @@ module Spree
       return unless taxon
       taxon.children.displayable.map do |taxon|
         content_tag :li do
-          link_to(taxon.name, seo_url(taxon), data: get_taxon_path(taxon))
+          link_to(taxon.name, seo_url(taxon), data: get_taxon_chain(taxon))
         end
       end.join("\n").html_safe
     end
