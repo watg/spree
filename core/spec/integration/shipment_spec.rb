@@ -18,7 +18,7 @@ describe "user receives email" do
 
     it "creates a delayed job for 1 month after today" do
       shipment.update!(order)
-      expect(handler).to be_a(Shipping::KitAndPatternEmailSurveyJob)
+      expect(handler).to be_a(Shipping::KitAndPatternMailer)
       expect(Delayed::Job.last.run_at).to eq(1.month.from_now)
     end
   end

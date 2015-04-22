@@ -315,12 +315,12 @@ describe Spree::Shipment, :type => :model do
       end
 
       context 'survey email' do
-        let(:survey) { double(delay: Shipping::EmailSurveyJob.new(order)) }
+        let(:survey) { double(delay: Shipping::Mailer.new(order)) }
         let(:mailer) { double }
 
         before do
           allow(shipment).to receive_messages determine_state: 'shipped'
-          allow(Shipping::EmailSurveyJob).to receive(:new).with(order).and_return(survey)
+          allow(Shipping::Mailer).to receive(:new).with(order).and_return(survey)
           allow(Spree::ShipmentMailer).to receive(:survey_email).with(order).and_return(mailer)
           Timecop.freeze
         end
@@ -339,7 +339,7 @@ describe Spree::Shipment, :type => :model do
         before do
           shipment.state = 'pending'
           allow(shipment).to receive_messages determine_state: 'shipped'
-          allow(Shipping::KitAndPatternEmailSurveyJob).to receive(:new).and_return(email_survey_job)
+          allow(Shipping::KitAndPatternMailer).to receive(:new).and_return(email_survey_job)
           Timecop.freeze
         end
 

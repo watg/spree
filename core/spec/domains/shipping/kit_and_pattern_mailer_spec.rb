@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Shipping
-  describe KitAndPatternEmailSurveyJob do
+  describe KitAndPatternMailer do
     subject         { described_class.new(order) }
     let(:order)     { create(:order_with_line_items) }
     let(:line_item) { create(:line_item) }

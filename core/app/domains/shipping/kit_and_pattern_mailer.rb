@@ -1,5 +1,5 @@
 module Shipping
-  class KitAndPatternEmailSurveyJob
+  class KitAndPatternMailer
     attr_reader :order
 
     def initialize(order)

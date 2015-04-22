@@ -1,5 +1,5 @@
 module Shipping
-  class EmailSurveyJob
+  class Mailer
     attr_reader :order
 
     def initialize(order)
