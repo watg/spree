@@ -30,16 +30,14 @@
 
 <!-- Shipping modal -->
 <% Spree::GlobalFreeShippingPresenter.new(self).present do |presenter| %>
-  <% cache presenter.cache_key do %>
-   <% if presenter.eligible? %>
-     <div class="modal" id="modal-shipping">
-     <a class="modal-close" href="#">Close</a>
-     <%= render presenter.shipping_partial, free_shipping_amount: presenter.amount %>
-     <p>
-       <a class="button" href="#">OK, got it</a>
-     </p>
-   </div>
-   <% end %>
+  <% cache presenter.cache_key, expires_in: 10.minutes do %>
+    <% if presenter.eligible? %>
+      <div class="modal" id="modal-shipping">
+        <a class="modal-close" href="#">Close</a>
+        <%= render presenter.shipping_partial, free_shipping_amount: presenter.amount %>
+        <p><a class="button" href="#">OK, got it</a></p>
+      </div>
+    <% end %>
   <% end %>
 <% end %>
 
