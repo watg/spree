@@ -12,7 +12,6 @@ module Shipping
 
     describe '#perform' do
       before do
-        stub_const("Shipping::KitAndPatternEmailSurveyJob::DELAY", "1 month")
         allow(Spree::ShipmentMailer).to receive(:kit_and_pattern_survey_email).and_return(mailer)
         order.line_items << line_item
       end
