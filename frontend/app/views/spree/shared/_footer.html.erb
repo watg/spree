@@ -63,6 +63,15 @@
     </p>
   </div>
 
+  <!-- Totes modal -->
+  <div class="modal" id="modal-totes">
+    <a class="modal-close" href="#">Close</a>
+    <%= render "/spree/shared/modal_totes" %>
+    <p class="hide">
+      <a class="button" href="#">OK, got it</a>
+    </p>
+  </div>
+
   <!-- Alpaca -->
   <% unless true # disabeld for the time being due to an ssl issue mobile_device? %>
     <img class="alpaca-attack" src="<%= image_path("alpaca-attack.gif") %>" alt="THE ALPACAS ARE ATTACKING" />

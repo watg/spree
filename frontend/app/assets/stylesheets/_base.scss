@@ -642,6 +642,29 @@ table.order-item-listing{
 		}
 	}
 }
+// Totes modal
+#modal-totes {
+	p {
+		font-size: emCalc(16px);
+		small {
+			font-size: emCalc(14px);
+			color: #666;
+		}
+	}
+	img {
+		margin: 0 0 emCalc(20px) emCalc(20px);
+		float: right;
+	}
+}
+// Mobile #modal-totes
+@media only screen and (max-width: 48em) {
+	#modal-totes {
+		img {
+			display: none;
+		}
+	}
+}
+
 /* Alpaca */
 .alpaca-attack {
 	display: none;
