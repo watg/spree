@@ -27,7 +27,7 @@ module Spree
       }.to_json
     end
 
-    def kit_and_pattern_survey_email(order)
+    def knitting_experience_email(order)
       subject = "Order Number #{order.number}, Your feedback on the knitting experience"
       mail(body: '', from: from_address, to: order.email, subject: subject)
       mandrill_default_headers(tags: "kits and patterns order survey", template: "#{I18n.locale}_kits_and_patterns_survey" )

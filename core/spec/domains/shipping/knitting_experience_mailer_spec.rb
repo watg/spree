@@ -1,18 +1,17 @@
 require 'spec_helper'
 
 module Shipping
-  describe KitAndPatternMailer do
+  describe KnittingExperienceMailer do
     subject         { described_class.new(order) }
-    let(:order)     { create(:order_with_line_items) }
-    let(:line_item) { create(:line_item) }
+    let(:order)     { build(:order_with_line_items) }
+    let(:line_item) { build(:line_item) }
     let(:mailer)    { double }
-    let(:normal)    { create(:product_type) }
-    let(:kit)       { create(:product_type_kit) }
-    let(:pattern)   { create(:marketing_type, :pattern) }
+    let(:kit)       { build(:product_type_kit) }
+    let(:pattern)   { build(:marketing_type, :pattern) }
 
     describe '#perform' do
       before do
-        allow(Spree::ShipmentMailer).to receive(:kit_and_pattern_survey_email).and_return(mailer)
+        allow(Spree::ShipmentMailer).to receive(:knitting_experience_survey_email).and_return(mailer)
         order.line_items << line_item
       end
 
@@ -57,6 +56,7 @@ module Shipping
 
       context 'order does not contain pattern or kit' do
         let(:embellishment) { create(:marketing_type, :embellishment) }
+        let(:normal)        { build(:product_type) }
 
         before do
           order.products.first.marketing_type = embellishment

@@ -420,20 +420,20 @@ module Spree
 
     def after_ship
       shipment_handler.perform
-      Worker.enque(mailer, 10.days)
-      Worker.enque(kit_and_pattern_mailer, 30.days)
+      Worker.enque(customer_feedback_mailer, 10.days)
+      Worker.enque(knitting_experience_mailer, 30.days)
     end
 
     def shipment_handler
       ShipmentHandler.factory(self)
     end
 
-    def mailer
-      Shipping::Mailer.new(self.order)
+    def customer_feedback_mailer
+      Shipping::CustomerFeedbackMailer.new(self.order)
     end
 
-    def kit_and_pattern_mailer
-      Shipping::KitAndPatternMailer.new(self.order)
+    def knitting_experience_mailer
+      Shipping::KnittingExperienceMailer.new(self.order)
     end
 
     def manifest_unstock(item)

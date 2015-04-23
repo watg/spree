@@ -1,5 +1,5 @@
 module Shipping
-  class KitAndPatternMailer
+  class KnittingExperienceMailer
     attr_reader :order
 
     def initialize(order)
@@ -9,7 +9,7 @@ module Shipping
     def perform
       if order.contains_pattern_or_kit?
         Spree::ShipmentMailer
-        	.kit_and_pattern_survey_email(order)
+        	.knitting_experience_survey_email(order)
         	.deliver
       end
     end

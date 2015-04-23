@@ -37,8 +37,8 @@ describe Spree::ShipmentMailer, :type => :mailer do
     }.not_to raise_error
   end
 
-  describe '#kit_and_pattern_survey_email' do
-    let(:email)    { described_class.kit_and_pattern_survey_email(order) }
+  describe '#knitting_experience_email' do
+    let(:email)    { described_class.knitting_experience_email(order) }
     let(:order)    { create(:order) }
     let(:subject)  { %[Order Number #{order.number}, Your feedback on the knitting experience]}
     let(:header)   { JSON.load(email.header['X-MC-MergeVars'].to_s) }

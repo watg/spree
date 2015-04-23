@@ -1,5 +1,5 @@
 module Shipping
-  class Mailer
+  class CustomerFeedbackMailer
     attr_reader :order
 
     def initialize(order)

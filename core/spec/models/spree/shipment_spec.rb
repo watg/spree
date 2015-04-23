@@ -314,13 +314,13 @@ describe Spree::Shipment, :type => :model do
         shipment.update!(order)
       end
 
-      context 'survey email' do
-        let(:survey) { double(delay: Shipping::Mailer.new(order)) }
+      context 'customer feedback email' do
+        let(:survey) { double(delay: Shipping::CustomerFeedbackMailer.new(order)) }
         let(:mailer) { double }
 
         before do
           allow(shipment).to receive_messages determine_state: 'shipped'
-          allow(Shipping::Mailer).to receive(:new).with(order).and_return(survey)
+          allow(Shipping::CustomerFeedbackMailer).to receive(:new).with(order).and_return(survey)
           allow(Spree::ShipmentMailer).to receive(:survey_email).with(order).and_return(mailer)
           Timecop.freeze
         end
@@ -333,19 +333,19 @@ describe Spree::Shipment, :type => :model do
         end
       end
 
-      context 'kit and pattern survey email' do
-        let(:email_survey_job) { double }
+      context 'knitting experience email' do
+        let(:mailer) { double }
 
         before do
           shipment.state = 'pending'
           allow(shipment).to receive_messages determine_state: 'shipped'
-          allow(Shipping::KitAndPatternMailer).to receive(:new).and_return(email_survey_job)
+          allow(Shipping::KnittingExperienceMailer).to receive(:new).and_return(mailer)
           Timecop.freeze
         end
 
         it 'dispatches email' do
-          expect(email_survey_job).to receive(:delay).with({:run_at => 1.month.from_now}).and_return(email_survey_job)
-          expect(email_survey_job).to receive(:perform)
+          expect(mailer).to receive(:delay).with({:run_at => 1.month.from_now}).and_return(mailer)
+          expect(mailer).to receive(:perform)
           shipment.update!(order)
         end
       end
