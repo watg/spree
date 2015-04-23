@@ -728,9 +728,41 @@ footer p.promo-raf {
 .slimScrollRail, {
   display: none !important;
 }
+
 .slimScrollBar[style*="height"] + .slimScrollRail {
   display: block !important;
 }
+
 .slimScrollBar[style*="display: none;"] + .slimScrollRail {
   display: none !important;
+}
+
+/* ----- Animations ----- */
+
+@-webkit-keyframes blink {
+  0% {
+    opacity: 0.2;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0.2;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.2;
+  }
 }
