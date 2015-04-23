@@ -173,9 +173,7 @@ describe Spree::Product do
       expect(suite_tab).to receive(:touch)
       product.send(:touch_suite_tabs)
     end
-
   end
-
 
   describe "#description_for" do
     subject { create(:base_product, description: "Just a very basic description") }

@@ -85,26 +85,6 @@ describe Spree::Product, :type => :model do
         end
       end
 
-# This is not relevent for us 
-#      context "when master default price changed" do
-#        before do
-#          master = product.master
-#          master.default_price.price = 11
-#          master.save!
-#          product.master.default_price.price = 12
-#        end
-#
-#        it "saves the master" do
-#          expect(product.master).to receive(:save!)
-#          product.save
-#        end
-#
-#        it "saves the default price" do
-#          expect(product.master.default_price).to receive(:save)
-#          product.save
-#        end
-#      end
-
       context "when master variant and price haven't changed" do
         it "does not save the master" do
           expect(product.master).not_to receive(:save!)
@@ -148,7 +128,7 @@ describe Spree::Product, :type => :model do
     context "#display_price" do
       before { product.price_normal_in('USD').amount = 10.55 }
       before { product.save }
-      before do 
+      before do
         Spree::Money.options_cache = nil
         Spree::Money.enable_options_cache = false
       end
@@ -168,20 +148,6 @@ describe Spree::Product, :type => :model do
           expect(product.display_price.to_s).to eq("$10.55")
         end
       end
-
-    #  Not relevent for us
-    #  context "with currency set to JPY" do
-    #    before do
-    #      product.master.default_price.currency = 'JPY'
-    #      product.master.default_price.save!
-    #      Spree::Config[:currency] = 'JPY'
-    #    end
-    #
-    #    it "displays the currency in yen" do
-    #      expect(product.display_price.to_s).to eq("¥0")
-    #    end
-    #  end
-      
     end
 
     context "#available?" do
@@ -243,7 +209,6 @@ describe Spree::Product, :type => :model do
       it 'returns all variants for no target' do
         expect(subject.variants_for(nil)).to include(women_variant,men_variant)
       end
-
     end
 
     context "has stock movements" do
@@ -364,7 +329,7 @@ describe Spree::Product, :type => :model do
     let!(:product) { Spree::Product.new(name: "Foo", shipping_category_id: create(:shipping_category).id) }
 
     before { product.prototype_id = prototype.id }
-    before do 
+    before do
       product.product_group = create(:product_group)
       product.product_type = create(:product_type)
       product.marketing_type = create(:marketing_type)
@@ -511,14 +476,6 @@ describe Spree::Product, :type => :model do
       let(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: product_part) }
       let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
 
-
-      # This is not needed for the time being
-      #it "touches assembly product after touch" do
-      #  variant_assembly.product.update_column(:updated_at, 1.day.ago)
-      #  product_part.touch
-      #  expect(variant_assembly.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
-      #end
-
       it "touches assembly product after save" do
         variant_assembly.product.update_column(:updated_at, 1.day.ago)
         product_part.reload.save
@@ -528,7 +485,7 @@ describe Spree::Product, :type => :model do
     end
 
   end
-   
+
   # Regression spec for https://github.com/spree/spree/issues/5588
   context '#validate_master when duplicate SKUs entered' do
     let!(:first_product) { create(:product, sku: 'a-sku') }

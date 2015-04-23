@@ -9,21 +9,21 @@ describe Spree::Parcel do
                               height: 10.0,
                               width: 15.0,
                               depth: 4.0) }
-  
+
   context "Class Methods" do
     subject      { Spree::Parcel }
     let!(:boxes) { [create(:box)] }
-#    its(:find_boxes) { should match_array(boxes) }
+    its(:find_boxes) { should match_array(boxes) }
   end
- 
+
   context "Validation" do
     [:box_id, :order_id, :weight, :height, :width, :depth].each do |field|
       it "should be present  #{field}" do
         subject.send("#{field}=", nil)
-        expect(subject).to be_invalid 
+        expect(subject).to be_invalid
       end
     end
   end
-  
+
 
 end

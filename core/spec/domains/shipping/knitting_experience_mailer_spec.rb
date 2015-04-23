@@ -7,7 +7,7 @@ module Shipping
     let(:line_item) { build(:line_item) }
     let(:mailer)    { double }
     let(:kit)       { build(:product_type_kit) }
-    let(:pattern)   { build(:marketing_type, :pattern) }
+    let(:pattern)   { build(:product_type, :pattern) }
 
     describe '#perform' do
       before do
@@ -25,7 +25,7 @@ module Shipping
       end
 
       context 'order contains pattern' do
-        before { order.products.last.marketing_type = pattern }
+        before { order.products.last.product_type = pattern }
 
         it 'sends email to customers in 1 month' do
           expect(mailer).to receive(:deliver)
@@ -45,7 +45,7 @@ module Shipping
       context 'order contains kit and pattern' do
         before do
           order.products.first.product_type = kit
-          order.products.last.marketing_type = pattern
+          order.products.last.product_type = pattern
         end
 
         it 'send email once' do

@@ -23,5 +23,8 @@ FactoryGirl.define do
       is_promotable false
     end
 
+    trait :pattern do
+      name 'pattern'
+    end
   end
 end

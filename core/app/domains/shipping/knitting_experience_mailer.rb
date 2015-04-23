@@ -7,7 +7,7 @@ module Shipping
     end
 
     def perform
-      if order.contains_pattern_or_kit?
+      if order.contains_kit? || order.contains_pattern?
         Spree::ShipmentMailer
         	.knitting_experience_survey_email(order)
         	.deliver
