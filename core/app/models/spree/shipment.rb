@@ -159,6 +159,10 @@ module Spree
       !shipped?
     end
 
+    def express?
+      shipping_methods.detect(&:express)
+    end
+
     def final_price
       shipping_coster.final_price
     end

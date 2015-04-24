@@ -97,6 +97,20 @@ describe Spree::Shipment, :type => :model do
     end
   end
 
+  describe 'express' do
+    context 'contains express shipping method' do
+      let(:express) { create(:shipping_method, express: true) }
+      before        { subject.shipping_methods = [express] }
+      it            { is_expected.to be_express }
+    end
+
+    context 'does not contain express shipping method' do
+      let(:express) { create(:shipping_method, express: false) }
+      before        { subject.shipping_methods = [express] }
+      it            { is_expected.to_not be_express }
+    end
+  end
+
   context "display_amount" do
     it "retuns a Spree::Money" do
       allow(shipment).to receive(:cost) { 21.22 }
