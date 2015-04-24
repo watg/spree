@@ -2,7 +2,8 @@ module Admin
   class OrderPresenter < Spree::BasePresenter
     presents :order
 
-    delegate :id, :state, :completed_at, :number, :considered_risky, :payment_state, :shipment_state, :user, :email, :display_total, to: :order
+    delegate :id, :state, :completed_at, :number, :considered_risky, :payment_state, :shipment_state, :user, :email, :display_total, :express?, to: :order
+
     def to_param
       @object.to_param
     end
@@ -19,6 +20,22 @@ module Admin
       eligible_adjustments.order.to_a
     end
 
+    def delivery_type_class
+      if express?
+        'active'
+      else
+        'inactive'
+      end
+    end
+
+    def delivery_type
+      if express?
+        'express'
+      else
+        'normal'
+      end
+    end
+    
     def line_item_adjustments
       eligible_adjustments.line_item.to_a
     end
