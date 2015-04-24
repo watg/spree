@@ -893,6 +893,10 @@ module Spree
       end
     end
 
+    def express?
+      shipments.any?{ |s|  s.shipping_method.express if s.shipping_method.present? }
+    end
+
     private
 
     def delete_all_shipping_rate_adjustments
