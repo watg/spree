@@ -894,7 +894,7 @@ module Spree
     end
 
     def express?
-      shipments.any?{ |s|  s.shipping_method.express if s.shipping_method.present? }
+      shipments.any?{ |s| s.shipping_methods.any?{ |m| m.express } }
     end
 
     private
