@@ -192,8 +192,9 @@ describe Spree::VariantOptions, type: :model do
 
       context "sale price" do
 
+        let!(:sale_price) { create(:price, amount: BigDecimal.new('6'), sale: true, is_kit: false, variant: variant_in_stock1)}
+
         before do
-          variant_in_stock1.prices.first.update_attributes(sale_amount: BigDecimal.new('6'), sale: true, is_kit: false, price_type: "sale")
           variant_in_stock1.update_column(:in_sale, true)
         end
 
@@ -210,11 +211,8 @@ describe Spree::VariantOptions, type: :model do
 
       context "part price" do
 
-        let!(:part_price) { create(:price, part_amount: BigDecimal.new('50'), sale_amount: "0", sale: false, is_kit: true)}
-        before do # remove the default price and add the part_price as usd price
-          variant_in_stock1.prices.delete_all
-          variant_in_stock1.prices << part_price
-        end
+        let!(:part_price) { create(:price, amount: BigDecimal.new('50'), sale: false, is_kit: true, variant: variant_in_stock1)}
+
         it "should have part_price" do
           tree = subject.tree
           attributes = tree["size"]["small"]["colour"]["pink"]["variant"]
@@ -227,12 +225,7 @@ describe Spree::VariantOptions, type: :model do
 
       context "currency" do
 
-        let!(:gbp_price) { create(:price,
-                                  amount: BigDecimal.new('7'),
-                                  sale_amount: 0,
-                                  part_amount: 0,
-                                  currency: 'GBP',
-                                  variant: variant_in_stock1)}
+        let!(:gbp_price) { create(:price, amount: BigDecimal.new('7'), currency: 'GBP', variant: variant_in_stock1)}
         let(:currency) {'GBP'}
 
         it "should have sale_price" do

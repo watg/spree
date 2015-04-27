@@ -11,7 +11,6 @@ module Spree
     end
 
     def duplicate
-      product.reload
       new_product = duplicate_product
 
       # don't dup the actual variants, just the characterising types

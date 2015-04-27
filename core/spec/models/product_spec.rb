@@ -99,6 +99,7 @@ describe Spree::Product do
     end
 
     context "no variant in sale" do
+
       it "returns lowest sale price" do
         expect(r2w.lowest_priced_variant("USD", in_sale: true)).to be_nil
       end
@@ -106,13 +107,11 @@ describe Spree::Product do
       it "returns lowest normal price" do
         expect(r2w.lowest_priced_variant("USD")).to eq(variant2)
       end
+
     end
 
     context "variants in sale" do
-      before do
-        variant1.update_attributes(in_sale: true)
-        variant2.update_attributes(in_sale: true)
-      end
+      before {  variant1.update_attributes(in_sale: true) }
 
       it "returns lowest sale price" do
         expect(r2w.lowest_priced_variant("USD", in_sale: true)).to eq(variant1)
@@ -121,6 +120,7 @@ describe Spree::Product do
       it "returns lowest nornal price" do
         expect(r2w.lowest_priced_variant("USD")).to eq(variant2)
       end
+
     end
 
     it "scoped by currency" do

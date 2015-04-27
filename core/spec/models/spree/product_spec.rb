@@ -85,6 +85,26 @@ describe Spree::Product, :type => :model do
         end
       end
 
+# This is not relevent for us 
+#      context "when master default price changed" do
+#        before do
+#          master = product.master
+#          master.default_price.price = 11
+#          master.save!
+#          product.master.default_price.price = 12
+#        end
+#
+#        it "saves the master" do
+#          expect(product.master).to receive(:save!)
+#          product.save
+#        end
+#
+#        it "saves the default price" do
+#          expect(product.master.default_price).to receive(:save)
+#          product.save
+#        end
+#      end
+
       context "when master variant and price haven't changed" do
         it "does not save the master" do
           expect(product.master).not_to receive(:save!)
@@ -128,14 +148,17 @@ describe Spree::Product, :type => :model do
     context "#display_price" do
       before { product.price_normal_in('USD').amount = 10.55 }
       before { product.save }
-      before do
+      before do 
         Spree::Money.options_cache = nil
         Spree::Money.enable_options_cache = false
       end
 
       context "with display_currency set to true" do
         before { Spree::Config[:display_currency] = true }
-        it { expect(product.display_price.to_s).to eq("$10.55 USD") }
+
+        it "shows the currency" do
+          expect(product.display_price.to_s).to eq("$10.55 USD")
+        end
       end
 
       context "with display_currency set to false" do
@@ -145,6 +168,20 @@ describe Spree::Product, :type => :model do
           expect(product.display_price.to_s).to eq("$10.55")
         end
       end
+
+    #  Not relevent for us
+    #  context "with currency set to JPY" do
+    #    before do
+    #      product.master.default_price.currency = 'JPY'
+    #      product.master.default_price.save!
+    #      Spree::Config[:currency] = 'JPY'
+    #    end
+    #
+    #    it "displays the currency in yen" do
+    #      expect(product.display_price.to_s).to eq("¥0")
+    #    end
+    #  end
+      
     end
 
     context "#available?" do
@@ -327,7 +364,7 @@ describe Spree::Product, :type => :model do
     let!(:product) { Spree::Product.new(name: "Foo", shipping_category_id: create(:shipping_category).id) }
 
     before { product.prototype_id = prototype.id }
-    before do
+    before do 
       product.product_group = create(:product_group)
       product.product_type = create(:product_type)
       product.marketing_type = create(:marketing_type)
@@ -491,7 +528,7 @@ describe Spree::Product, :type => :model do
     end
 
   end
-
+   
   # Regression spec for https://github.com/spree/spree/issues/5588
   context '#validate_master when duplicate SKUs entered' do
     let!(:first_product) { create(:product, sku: 'a-sku') }
