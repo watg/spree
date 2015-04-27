@@ -18,4 +18,8 @@ class OrderPresenter < Spree::BasePresenter
       "#{shipment.shipping_method.shipping_method_duration.description}"
     end.join("<br/>")
   end
+
+  def total_label
+    order.shipments.any? ? Spree.t(:total) : Spree.t(:subtotal)
+  end
 end

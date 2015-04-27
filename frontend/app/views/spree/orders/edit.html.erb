@@ -23,7 +23,9 @@
 				</div>
 
         <div class="subtotal">
-          <span class="subtotal-label"><%= Spree.t(:subtotal) %></span> <span class="sub-total"><%= @order.display_total.to_html %></span>
+        <% present(@order, {}, OrderPresenter) do |order_presenter| %>
+          <span class="subtotal-label"><%= order_presenter.total_label %></span> <span class="sub-total"><%= @order.display_total.to_html %></span>
+        <% end %>
         </div>
 
 				<div class="row collapse checkout-link">
