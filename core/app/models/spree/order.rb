@@ -432,12 +432,12 @@ module Spree
       find_line_item_by_variant(variant, options).present?
     end
 
-    def quantity_of(variant, options = nil)
+    def quantity_of(variant, options = {})
       line_item = find_line_item_by_variant(variant, options)
       line_item ? line_item.quantity : 0
     end
 
-    def find_line_item_by_variant(variant, options = nil)
+    def find_line_item_by_variant(variant, options = {})
       line_items.detect { |line_item|
                     line_item.variant_id == variant.id &&
                     line_item_options_match(line_item, options)

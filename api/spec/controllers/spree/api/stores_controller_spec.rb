@@ -35,7 +35,7 @@ module Spree
             "seo_title" => nil,
             "mail_from_address" => "spree@example.org",
             "default_currency" => nil,
-            "code" => store.code,
+            "code" => "spree_1",
             "default" => true
           },
           {
@@ -47,7 +47,7 @@ module Spree
             "seo_title" => nil,
             "mail_from_address" => "spree@example.org",
             "default_currency" => nil,
-            "code" => non_default_store.code,
+            "code" => "spree_2",
             "default" => false
           }
         ])

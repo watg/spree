@@ -24,7 +24,6 @@ end
 
 require 'rspec/rails'
 require 'database_cleaner'
-require 'pry'
 # require 'ffaker'
 
 # require File.expand_path("../support/big_decimal", __FILE__)

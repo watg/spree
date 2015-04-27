@@ -116,14 +116,24 @@ describe Spree::VariantPresenter do
     end
   end
 
+
+
+  ## Prices
+
   context 'prices' do
-    let(:variant) { Spree::Variant.new(product: product, prices: [price]) }
-    let(:price)   { create(:price, amount: 8.99, sale_amount: 6.99, sale: false, is_kit: true, currency: currency) }
-    its(:price)   { should eq price }
+    let(:normal_price) { variant.price_normal_in(currency) }
+    let(:sale_price) { variant.price_normal_sale_in(currency) }
+
+    before do
+      normal_price.amount = 8.99
+      sale_price.amount = 6.99
+    end
+
+    its(:price) { should eq normal_price }
     its(:price_in_subunit) { should eq 899 }
     its(:price_html) { should eq '$8.99' }
 
-    its(:sale_price) { should eq price }
+    its(:sale_price) { should eq sale_price }
     its(:sale_price_in_subunit) { should eq 699 }
     its(:sale_price_html) { should eq '$6.99' }
   end
