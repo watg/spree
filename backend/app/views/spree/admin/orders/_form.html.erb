@@ -8,6 +8,7 @@
   <% else %>
     <%= render :partial => "spree/admin/orders/line_items", :locals => { :order => order } %>
   <% end %>
+  <% adjustments =  Adjustments::Selector.new(order.all_adjustments).eligible %>
 
   <% present(@order, {}, Admin::OrderPresenter) do |order_presenter| %>
     <%= render :partial => "spree/admin/orders/adjustments", :locals => {

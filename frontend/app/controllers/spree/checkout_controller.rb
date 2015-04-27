@@ -31,10 +31,6 @@ module Spree
         subscribe_to_newsletter(params[:chimpy_subscriber][:signupEmail])
       end
 
-      # Added by WATG
-      # In case a coupon is applied and we want only a page refresh
-      redirect_to(checkout_state_path(@order.state)) and return if params.has_key?(:refresh_page)
-
       if @order.update_from_params(params, permitted_checkout_attributes, request.headers.env)
         @order.temporary_address = !params[:save_user_address]
         if params.has_key?(:no_advance)

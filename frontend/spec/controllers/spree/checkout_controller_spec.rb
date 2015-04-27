@@ -191,10 +191,14 @@ describe Spree::CheckoutController, :type => :controller do
         context "coupon code added" do
 
           it "should redirect to the current state" do
-            spree_post :update, {:state => "delivery", :refresh_page => ''}
+            spree_post :update, {:state => "delivery", :no_advance => ''}
             expect(response).to redirect_to spree.checkout_state_path("delivery")
           end
 
+          it "should apply any free shipping promo codes" do
+            expect(order).to receive(:apply_free_shipping_promotions)
+            spree_post :update, {:state => "delivery", :no_advance => ''}
+          end
         end
 
         context "when the shipping rate is changed" do

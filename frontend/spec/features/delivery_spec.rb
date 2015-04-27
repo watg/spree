@@ -26,6 +26,39 @@ describe "Delivery", type: :feature, js: true do
     order.reload
   end
 
+  context "when a free shipping promo code is added" do
+    let(:promotion) { Spree::Promotion.create(name: "Free Shipping", code: "FREEMANGAL") }
+    let!(:action) { Spree::Promotion::Actions::FreeShipping.create(promotion: promotion) }
+
+    before do
+      action.shipping_methods << order.shipments.first.selected_shipping_rate.shipping_method
+    end
+
+    it "applies to the relevant shipping rate" do
+      visit spree.checkout_state_path("delivery")
+
+      # default selected shippng rate
+      expect(page).to have_content "UPS Ground"
+      expect(find_field("UPS Ground")).to be_checked
+
+      within ".shipping-total-table" do
+        expect(page).to have_content "Shipping total:"
+        expect(page).to have_content "$10.00"
+      end
+
+      #  Adds coupon code
+      within ".coupons-updates" do
+        fill_in('order[coupon_code]', :with => 'FREEMANGAL')
+        find_button('Update bag').click
+      end
+
+      within ".shipping-total-table" do
+        expect(page).to have_content "Shipping total:"
+        expect(page).to have_content "$0.00"
+      end
+    end
+  end
+
   context "with multiple shipping rates" do
     let(:shipping_method_2) { create(:shipping_method, name: "second shipping rate") }
     let!(:second_shipping_rate) do
