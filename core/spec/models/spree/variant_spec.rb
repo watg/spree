@@ -339,34 +339,26 @@ describe Spree::Variant, :type => :model do
   end
 
   describe '.price_normal_in' do
+    subject { variant.price_normal_in(currency).display_amount }
+
     before do
       variant.price_normal_in('EUR').amount = 33.33
       variant.price_normal_in('USD').amount = 19.99
     end
-    subject { variant.price_normal_in(currency).display_amount }
 
-    context "when currency is not specified" do
+    context "currency nil" do
       let(:currency) { nil }
-
-      it "returns 0" do
-        expect(subject.to_s).to eql "$19.99"
-      end
+      it { expect(subject.to_s).to eql "$0.00" }
     end
 
-    context "when currency is EUR" do
+    context "currency is EUR" do
       let(:currency) { 'EUR' }
-
-      it "returns the value in the EUR" do
-        expect(subject.to_s).to eql "€33.33"
-      end
+      it { expect(subject.to_s).to eql "€33.33" }
     end
 
-    context "when currency is USD" do
+    context "currency is USD" do
       let(:currency) { 'USD' }
-
-      it "returns the value in the USD" do
-        expect(subject.to_s).to eql "$19.99"
-      end
+      it { expect(subject.to_s).to eql "$19.99" }
     end
   end
 

@@ -44,8 +44,8 @@ describe Spree::LineItemOptionsParser do
 
       let!(:variant_assembly) { create(:variant) }
       let!(:assembly_definition) { create(:assembly_definition, variant: variant_assembly) }
-      let!(:variant_part)  { create(:base_variant, product: product) }
-      let!(:price) { create(:price, variant: variant_part, price: 2.99, sale: false, is_kit: true, currency: 'USD') }
+      let!(:variant_part)  { create(:base_variant, product: product, prices: [price]) }
+      let!(:price) { create(:price, price: 2.99, sale: false, is_kit: true, price_type: "part", currency: 'USD') }
       let!(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: product, count: 2, assembled: true) }
       let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
 
@@ -190,15 +190,13 @@ describe Spree::LineItemOptionsParser do
         let(:other_part) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: other_product, count: 1) }
         let!(:other_part_variant) { create(:assembly_definition_variant, assembly_definition_part: other_part, variant: other_variant) }
 
-        # Overide the price to 0 as this is now a container
-        let(:part_attached_to_product) { create(:base_variant) }
-        let(:part_attached_to_variant) { create(:base_variant) }
-        let!(:part_product_price) { create(:price, variant: part_attached_to_product, price: 1.99, sale: false, is_kit: true, currency: 'USD') }
-        let!(:part_variant_price) { create(:price, variant: part_attached_to_variant, price: 3.99, sale: false, is_kit: true, currency: 'USD') }
+        # Override the price to 0 as this is now a container
+        let(:part_attached_to_product) { create(:base_variant, prices: [part_product_price]) }
+        let(:part_attached_to_variant) { create(:base_variant, prices: [part_variant_price]) }
+        let!(:part_product_price) { create(:price, part_amount: 1.99, sale: false, is_kit: true, currency: 'USD') }
+        let!(:part_variant_price) { create(:price, part_amount: 3.99, sale: false, is_kit: true, currency: 'USD') }
 
         before do
-          assembly_definition.main_part = other_part
-          variant_part.prices.map { |p| p.amount = 0 }
           variant_part.product.add_part(part_attached_to_product, 3, false)
           variant_part.add_part(part_attached_to_variant, 4, false)
         end
@@ -211,7 +209,7 @@ describe Spree::LineItemOptionsParser do
             variant_id: variant_part.id,
             quantity: 2,
             optional: adp.optional,
-            price: price.amount,
+            price: price.part_amount,
             currency: "USD",
             assembled: true,
             container: true,
@@ -233,7 +231,7 @@ describe Spree::LineItemOptionsParser do
             variant_id: part_attached_to_product.id,
             quantity: 6,
             optional: adp.optional,
-            price: part_product_price.amount,
+            price: part_product_price.part_amount,
             currency: "USD",
             assembled: true,
             parent_part: lip1, # the id refers to the parent container index
@@ -245,7 +243,7 @@ describe Spree::LineItemOptionsParser do
             variant_id: part_attached_to_variant.id,
             quantity: 8,
             optional: adp.optional,
-            price: part_variant_price.amount,
+            price: part_variant_price.part_amount,
             currency: "USD",
             assembled: true,
             parent_part: lip1, # the id refers to the parent container index
@@ -261,8 +259,10 @@ describe Spree::LineItemOptionsParser do
 
     context "static kits" do
 
-      let(:required_part1) { create(:variant) }
-      let(:part1) { create(:variant) }
+      let(:required_part1) { create(:variant, prices: [required_part1_price]) }
+      let(:part1) { create(:variant, prices: [part1_price]) }
+      let!(:required_part1_price) { create(:price, price: 1.99, sale: false, is_kit: true, price_type: "part", currency: 'USD') }
+      let!(:part1_price) { create(:price, price: 3.99, sale: false, is_kit: true, price_type: "part", currency: 'USD') }
 
       let(:expected_required_parts) { [
         Spree::LineItemPart.new(
@@ -270,7 +270,7 @@ describe Spree::LineItemOptionsParser do
           variant_id: required_part1.id,
           quantity: 2,
           optional: false,
-          price: BigDecimal.new('19.99'),
+          price: required_part1_price.part_amount,
           currency: "USD",
           container: false,
           main_part: false
@@ -282,7 +282,7 @@ describe Spree::LineItemOptionsParser do
           variant_id: part1.id,
           quantity: 1,
           optional: true,
-          price: BigDecimal.new('19.99'),
+          price: part1_price.part_amount,
           currency: "USD",
           container: false,
           main_part: false

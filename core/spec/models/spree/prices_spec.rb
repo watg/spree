@@ -37,73 +37,64 @@ describe Spree::Price do
   end
 
   context "Finding prices" do
+    let(:normal_price) { build(:price, sale_amount: sale_amount, part_amount: part_amount, currency: 'USD') }
+    let(:sale_amount)  { 50.0 }
+    let(:part_amount)  { 60.0 }
+    let(:uk_price)     { build(:price, currency: 'GBP') }
 
-    let(:normal_price) { mock_model(Spree::Price, is_kit: false, sale: false, currency: 'USD')}
-    let(:normal_price_2) { mock_model(Spree::Price, is_kit: false, sale: false, currency: 'USD')}
-    let(:sale_price) { mock_model(Spree::Price, is_kit: false, sale: true, currency: 'USD')}
-    let(:sale_price_2) { mock_model(Spree::Price, is_kit: false, sale: true, currency: 'USD')}
-    let(:part_price) { mock_model(Spree::Price, is_kit: true, sale: false, currency: 'USD')}
-    let(:part_sale_price) { mock_model(Spree::Price, is_kit: true, sale: true, currency: 'USD')}
-    let(:price_different_currency) { mock_model(Spree::Price, is_kit: false, sale: false, currency: 'GBP')}
+    let(:prices) { [normal_price, uk_price] }
 
-    let(:prices) {[normal_price, normal_price_2, sale_price, sale_price_2, part_price, part_sale_price, price_different_currency]}
-
-    it "returns the normal_prices" do
-      expect(Spree::Price.find_normal_prices(prices, 'USD')).to eq [normal_price, normal_price_2]
+    describe '.find_normal_prices' do
+      it { expect(Spree::Price.find_normal_prices(prices, 'USD')).to eq [normal_price] }
+      it { expect(Spree::Price.find_normal_prices(prices, 'GBP')).to eq [uk_price] }
     end
 
-    it "returns the sale_prices" do
-      expect(Spree::Price.find_sale_prices(prices, 'USD')).to eq [sale_price, sale_price_2]
+    describe '.find_sale_prices' do
+      it { expect(Spree::Price.find_sale_prices(prices, 'USD').first.amount).to eq sale_amount }
     end
 
-    it "only returns prices for the currency" do
-      expect(Spree::Price.find_normal_prices(prices, 'GBP')).to eq [price_different_currency]
+    describe '.find_normal_price' do
+      it { expect(Spree::Price.find_normal_price(prices, 'USD')).to eq normal_price }
     end
 
-    context "Finding a price" do
-      it "returns the normal_prices" do
-        expect(Spree::Price.find_normal_price(prices, 'USD')).to eq normal_price
-      end
+    describe '.find_sale_price' do
+      it { expect(Spree::Price.find_sale_price(prices, 'USD').amount).to eq sale_amount }
+    end
 
-      it "returns the sale_prices" do
-        expect(Spree::Price.find_sale_price(prices, 'USD')).to eq sale_price
-      end
+    describe '.find_part_price' do
+      it { expect(Spree::Price.find_part_price(prices, 'USD').amount).to eq part_amount }
     end
   end
 
-  context ".default_price" do
-    it "should return default price" do
-      expected = {
-        "id"=>nil,
-        "variant_id"=>nil,
-        "amount"=> BigDecimal.new('0.0'),
-        "currency"=>"USD",
-        "is_kit"=>false,
-        "sale"=>false,
-        "deleted_at"=>nil
-      }
-      expect(Spree::Price.default_price.attributes).to eq expected
-    end
+  describe ".default_price" do
+    let(:expected) {
+                     {
+                       "id"=>nil,
+                       "variant_id"=>nil,
+                       "amount"=> BigDecimal.new('0.0'),
+                       "currency"=>"USD",
+                       "is_kit"=>false,
+                       "sale"=>false,
+                       "deleted_at"=>nil,
+                       "sale_amount" => BigDecimal.new('0.0'),
+                       "part_amount" => BigDecimal.new('0.0')
+                     }
+                  }
+    it { expect(Spree::Price.default_price.attributes).to eq expected }
   end
 
-  context "money" do
-    let!(:price) { Spree::Price.new( amount: 123, currency: 'USD') }
-
-    it "returns the money version of a price" do
-      expect(price.money).to eq Spree::Money.new(123, currency: 'USD')
-    end
-
-    context "class method" do
-      it "returns the money version of a price" do
-        expect(described_class.money(123, 'USD')).to eq Spree::Money.new(123, currency: 'USD')
-      end
-    end
+  describe "#money" do
+    let(:price) { Spree::Price.new( amount: 123, currency: 'USD') }
+    it { expect(price.money).to eq Spree::Money.new(123, currency: 'USD') }
   end
 
+  describe '.money' do
+    it { expect(described_class.money(123, 'USD')).to eq Spree::Money.new(123, currency: 'USD') }
+  end
 
   context "validates_uniqueness_of" do
     # Choose the GBP currency as variant has a default price with USD
-    let(:price) { build(:price, currency: 'GBP',variant: variant) }
+    let(:price)     { build(:price, currency: 'GBP',variant: variant) }
     let(:dup_price) { build(:price, currency: 'GBP', variant: variant) }
 
     it "should not allow duplicate prices" do
