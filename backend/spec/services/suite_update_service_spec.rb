@@ -23,6 +23,12 @@ describe Spree::SuiteUpdateService do
       expect(subject.valid?).to be true
     end
 
+    it "fixes gaps in positions left after destroy of classifications" do
+      # swanandp/acts_as_list/issues/158
+      expect(ActsAsListFixer).to receive(:fix_all_taxon_positions!)
+      subject.valid?
+    end
+
     context "adding" do
       let!(:params) { { taxon_ids: [taxon.id, taxon_child.id, taxon_childs_child.id] } }
 

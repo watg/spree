@@ -5,8 +5,9 @@ module Spree
     belongs_to :variant, class_name: 'Spree::Variant', inverse_of: :prices, touch: true
 
     CURRENCY_SYMBOL = {'USD' => '$', 'GBP' => '£', 'EUR' => '€'}
-    TYPES = [:normal,:normal_sale,:part,:part_sale]
+    TYPES = [:normal,:normal_sale,:part]
 
+    attr_accessor :price_type
 
     validate :check_price
     validates :amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: false
@@ -16,7 +17,7 @@ module Spree
 
     # Prevent duplicate prices from happening in the system, there is also a uniq
     # index on the database table to ensure there are no race conditions
-    validates_uniqueness_of :variant_id, :scope => [ :currency, :sale, :is_kit, :deleted_at ]
+    validates_uniqueness_of :variant_id, :scope => [ :currency, :deleted_at ]
 
     class << self
 
@@ -25,35 +26,60 @@ module Spree
       end
 
       def default_price
-        new(amount: 0, currency: Spree::Config[:currency], sale: false, is_kit: false)
+        new(amount: 0, currency: Spree::Config[:currency])
       end
 
       def find_normal_prices(prices, currency=nil)
-        prices = prices.select{ |price| price.sale == false && price.is_kit == false }
-        prices = prices.select{ |price| price.currency == currency } if currency
-        prices
+        prices.map do |p|
+          find_normal_price([p], currency)
+        end.compact
       end
 
       def find_normal_price(prices, currency=nil)
-        find_normal_prices(prices, currency).first
+        price = find_by_currency(prices, currency)
+        return unless price
+        price.price_type = 'normal'
+        price
       end
 
       def find_sale_prices(prices, currency=nil)
-        prices = prices.select{ |price| price.sale == true && price.is_kit == false }
-        prices = prices.select{ |price| price.currency == currency } if currency
-        prices
+        prices.map do |p|
+          find_sale_price([p], currency)
+        end.compact
       end
 
       def find_sale_price(prices, currency=nil)
-        find_sale_prices(prices, currency).first
+        price = find_by_currency(prices,currency)
+        return unless price
+        price.price_type = 'sale'
+        price
       end
 
       def find_part_price(prices, currency)
-        prices.select{ |price| price.currency == currency && price.sale == false && price.is_kit == true }.first
+        price = find_by_currency(prices,currency)
+        return unless price
+        price.price_type = 'part'
+        price
       end
 
-      def find_part_sale_price(prices, currency)
-        prices.select{ |price| price.currency == currency && price.sale == true && price.is_kit == true }.first
+      def find_by_currency(prices,currency)
+        prices.detect{|price| price.currency == currency }
+      end
+    end
+
+    def amount
+      case price_type
+      when 'sale' then self[:sale_amount]
+      when 'part' then self[:part_amount]
+      else self[:amount]
+      end
+    end
+
+    def amount=(value)
+      case price_type
+      when 'sale' then write_attribute(:sale_amount, value)
+      when 'part' then write_attribute(:part_amount, value)
+      else write_attribute(:amount, value)
       end
     end
 
@@ -71,16 +97,21 @@ module Spree
       amount
     end
 
+    def price=(price)
+      value = Spree::LocalizedNumber.parse(price)
+      case price_type
+        when 'sale' then write_attribute(:sale_amount, value)
+        when 'part' then write_attribute(:part_amount, value)
+        else write_attribute(:amount, value)
+      end
+    end
+
     def in_subunit
       ( (price || 0) * 100 ).to_i
     end
 
     def currency_symbol
       CURRENCY_SYMBOL[currency.to_s.upcase]
-    end
-
-    def price=(price)
-      self[:amount] = Spree::LocalizedNumber.parse(price)
     end
 
     # Remove variant default_scope `deleted_at: nil`
@@ -94,7 +125,7 @@ module Spree
       Spree::SuiteTabCacheRebuilder.rebuild_from_variant_async(self.variant)
     end
 
-    def check_price
+    def  check_price
       self.currency ||= Spree::Config[:currency]
     end
 
