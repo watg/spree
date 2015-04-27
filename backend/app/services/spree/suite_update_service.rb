@@ -13,6 +13,7 @@ module Spree
       suite.update_attributes!(suite_params)
 
       update_suites(suite, taxon_ids, existing_taxon_ids)
+      fix_classification_positions
       rebuild_suite_tabs_cache(suite)
     end
 
@@ -70,6 +71,10 @@ module Spree
       classifications.each do |classification|
         classification.send_to_top
       end
+    end
+
+    def fix_classification_positions
+      ActsAsListFixer.fix_all_taxon_positions!
     end
   end
 end
