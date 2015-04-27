@@ -1,6 +1,7 @@
 <div class="row row-assembly" data-ad-id="<%= product_presenter.assembly_definition.id %>">
 	<div class="assembly-menus large-10 small-8 column">
-		<ol>
+
+    <ol>
       <% product_presenter.assembly_definition.parts.each do |part| %>
         <% cache [part, product_presenter.currency, device] do %>
           <% present(part, @context) do |part_presenter| %>
@@ -12,23 +13,22 @@
               <input class="selected-parts" type="hidden" name="parts[<%= part_presenter.id %>]" value="<%= part_presenter.first_variant.id %>"/>
   
             <% else %>
-  
               <% option_values = part_presenter.displayable_option_values %>
               <% type = part_presenter.displayable_option_type %>
               <% product_name = part_presenter.product_name %>
 
-              <!-- render parts -->
-              <li class="product-variants required" data-tree="<%= part_presenter.variant_tree.to_json %>" data-adjustment="0"  data-quantity="<%=part_presenter.count%>" data-adp-id="<%= part_presenter.id %>"><%= part_presenter.presentation %> <span class="color-value"></span>
-                <div class="variant-options required <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
-                  <p><%= product_name %></p>
-                  <ul class="variant-option-values <%= type.url_safe_name.downcase %><% if type.url_safe_name.downcase == 'colour' %> slimscroll<% end %>">
-  
-                    <%= render 'spree/suites/part', type: type, option_values: option_values, product_name: product_name %>
-                  </ul>
-                </div>
-                <input class="selected-parts" type="hidden" name="parts[<%= part_presenter.id %>]" value="" />
-              </li>
-              <!-- render parts -->
+                <!-- render parts -->
+                <li class="product-variants required" data-tree="<%= part_presenter.variant_tree.to_json %>" data-adjustment="0"  data-quantity="<%=part_presenter.count%>" data-adp-id="<%= part_presenter.id %>"><%= part_presenter.presentation %> <span class="color-value"></span>
+                  <div class="variant-options required <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
+                    <p><%= product_name %></p>
+                    <ul class="variant-option-values <%= type.url_safe_name.downcase %><% if type.url_safe_name.downcase == 'colour' %> slimscroll<% end %>">
+
+                      <%= render 'spree/suites/part', type: type, option_values: option_values, product_name: product_name %>
+                    </ul>
+                  </div>
+                  <input class="selected-parts" type="hidden" name="parts[<%= part_presenter.id %>]" value="" />
+                </li>
+                <!-- render parts -->
   
             <% end %>
           <% else # optional %>
@@ -62,11 +62,13 @@
                 <input class="selected-parts" type="hidden" name="parts[<%= part_presenter.id %>]" value="<%= Spree::AssemblyDefinitionPart::NO_THANKS %>" data-original-value="<%= Spree::AssemblyDefinitionPart::NO_THANKS %>" />
               </li>
             <!-- render parts -->
+
           <% end %>
   
         <% end # part_presenter %>
       <% end # cache %>
     <% end # each parts %>
+    </ol>
 
     <%= render 'add_to_cart', product_presenter: product_presenter %>
 
@@ -77,7 +79,7 @@
         <% present(part, @context) do |part_presenter| %>
           <!-- we do not want to render the image place holder if it is mandotory -->
 			    <% next if !part_presenter.optional? and part_presenter.displayable_option_values.size == 1 %>
-          <li class="part-image-<%= part_presenter.id %>"</li>
+          <li class="part-image-<%= part_presenter.id %>"></li>
         <% end # part_presenter %>
 			<% end # parts.each  %>
 		</ul>

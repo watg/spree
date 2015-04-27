@@ -26,20 +26,20 @@ module Spree
     end
 
     private
-      def send_shipped_email
-        if @shipment.send_email?
-          ShipmentMailer.shipped_email(@shipment.id).deliver
-        end
+    def send_shipped_email
+      if @shipment.send_email?
+        ShipmentMailer.shipped_email(@shipment.id).deliver
       end
+    end
 
-      def update_order_shipment_state
-        order = @shipment.order
+    def update_order_shipment_state
+      order = @shipment.order
 
-        new_state = OrderUpdater.new(order).update_shipment_state
-        order.update_columns(
-                             shipment_state: new_state,
-                             updated_at: Time.now,
-                             )
-      end
+      new_state = OrderUpdater.new(order).update_shipment_state
+      order.update_columns(
+                           shipment_state: new_state,
+                           updated_at: Time.now,
+                           )
+    end
   end
 end

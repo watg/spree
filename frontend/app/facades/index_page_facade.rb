@@ -43,7 +43,7 @@ class IndexPageFacade
   end
 
   def title
-    meta_title
+    taxon.title
   end
 
   private

@@ -6,7 +6,6 @@ describe Spree::ShipmentMailer, :type => :mailer do
   include EmailSpec::Matchers
 
   let(:shipment) do
-    order = stub_model(Spree::Order)
     product = stub_model(Spree::Product, :name => %Q{The "BEST" product})
     variant = stub_model(Spree::Variant, :product => product)
     line_item = stub_model(Spree::LineItem, :variant => variant, :order => order, :quantity => 1, :price => 5)
@@ -15,6 +14,8 @@ describe Spree::ShipmentMailer, :type => :mailer do
     allow(shipment).to receive_messages(:tracking_url => "TRACK_ME")
     shipment
   end
+
+  let(:order) { stub_model(Spree::Order) }
 
   context ":from not set explicitly" do
     it "falls back to spree config" do
@@ -34,6 +35,20 @@ describe Spree::ShipmentMailer, :type => :mailer do
     expect {
       shipped_email = Spree::ShipmentMailer.shipped_email(shipment.id)
     }.not_to raise_error
+  end
+
+  describe '#knitting_experience_email' do
+    let(:email)    { described_class.knitting_experience_email(order) }
+    let(:order)    { create(:order) }
+    let(:subject)  { %[Order Number #{order.number}, Your feedback on the knitting experience]}
+    let(:header)   { JSON.load(email.header['X-MC-MergeVars'].to_s) }
+    let(:tags)     { %[kits and patterns order survey] }
+    let(:template) { %[en_kits_and_patterns_survey] }
+
+    it { expect(email.subject).to eq subject }
+    it { expect(email.header['X-MC-Tags'].to_s).to eq tags }
+    it { expect(email.header['X-MC-Template'].to_s).to eq template }
+    it { expect(header["name"]).to eq order.bill_address.full_name }
   end
 
   context "emails must be translatable" do

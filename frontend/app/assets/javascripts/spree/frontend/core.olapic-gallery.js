@@ -81,7 +81,7 @@ core.olapicGallery.processStreamData = function(response) {
 core.olapicGallery.addPhoto = function(id, data) {
 	var container = $('.olapic-photos');
 
-	var item = '<li class="' + data.id + '"><a rel="modal" href="#modal-' + data.id + '">More about photo ' + data.id + '</a></li>';
+	var item = '<li class="' + data.id + '"><a data-rel="modal" href="#modal-' + data.id + '">More about photo ' + data.id + '</a></li>';
 	if (id % 5 === 0) { // Every fifth item
 		if (id % 2 === 0) { // Odd ('cos human beans count from one, not zero)
 			container.append('<ul class="no-bullet odd"></ul>');

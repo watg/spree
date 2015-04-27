@@ -235,23 +235,28 @@ core.suite.checkForVariantNumber = function() {
 
 core.suite.readyAjaxCarSpinner = function() {
   var form = $('.add_to_cart_form'),
-      button = $('.add_to_cart_form .add-to-cart-button'),
+      cart_button = $('.add_to_cart_form .add-to-cart-button'),
+      checkout_button = $('.add_to_cart_form .checkout-now-button')
       loader = $('#waiting-loader');
 
   form.on('submit', function(){
-    button.prop('disabled', true);
+    cart_button.prop('disabled', true);
     $('#cart-ajax-message .flash').fadeOut('slow');
-    button.fadeOut('slow', function(){
+    checkout_button.fadeOut('slow');
+    cart_button.fadeOut('slow', function() {
       loader.fadeIn('slow').css("display","inline-block");
     });
   });
 
   form.on('ajax:complete',function(xhr, status){
-    button.stop();
+    cart_button.stop();
     loader.stop();
-    button.prop('disabled', false);
+    cart_button.prop('disabled', false);
     loader.fadeOut('slow', function(){
-      button.fadeIn('slow');
+      cart_button.fadeIn('slow');
+      if (!$('.flash').hasClass('error')) {
+      	checkout_button.fadeIn('slow');
+      }
     });
   });
 };

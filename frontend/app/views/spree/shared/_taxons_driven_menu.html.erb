@@ -15,25 +15,32 @@
 			<a href="/t/sale/made-by-the-gang">Sale</a>
 		</li><!-- Comments fix inline-block spacing
 		--><li class="whats-new">
-			<a href="<%= seo_url(whats_new) %>">What's new</a>
+			<a href="<%= seo_url(whats_new) %>"
+			data-path="<%= get_taxon_chain(whats_new) %>">What's new</a>
 		</li><!--
 		--><li class="women">
-			<a href="<%= seo_url(women) %>">Women</a>
+			<a href="<%= seo_url(women) %>"
+			data-path="<%= get_taxon_chain(women) %>">Women</a>
 		</li><!--
 		--><li class="men">
-			<a href="<%= seo_url(men) %>">Men</a>
+			<a href="<%= seo_url(men) %>"
+			data-path="<%= get_taxon_chain(men) %>">Men</a>
 		</li><!--
 		--><li class="kids">
-			<a href="<%= seo_url(kids) %>">Kids</a>
+			<a href="<%= seo_url(kids) %>"
+			data-path="<%= get_taxon_chain(kids) %>">Kids</a>
 		</li><!--
 		--><li class="knit-kits">
-			<a href="<%= seo_url(knit_kits) %>">Knit kits</a>
+			<a href="<%= seo_url(knit_kits) %>"
+			data-path="<%= get_taxon_chain(knit_kits) %>">Knit kits</a>
 		</li><!--
 		--><li class="yarn-and-patterns">
-			<a href="<%= seo_url(yarn_and_patterns) %>">Yarn &amp; patterns</a>
+			<a href="<%= seo_url(yarn_and_patterns) %>"
+			data-path="<%= get_taxon_chain(yarn_and_patterns) %>">Yarn &amp; patterns</a>
 		</li><!--
 		--><li class="gang-culture">
-			<a href="/meet-the-gang">Gang culture</a>
+			<a href="/meet-the-gang"
+			data-path="gang-culture">Gang culture</a>
 		</li>
 	</ul>
 </nav>

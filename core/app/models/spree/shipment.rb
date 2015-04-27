@@ -418,62 +418,63 @@ module Spree
 
     private
 
-      def after_ship
-        ShipmentHandler.factory(self).perform
-        # set job to send survey 10 days later
-       send_survey_email
-      end
+    def after_ship
+      shipment_handler.perform
+      Worker.enque(customer_feedback_mailer, 10.days)
+      Worker.enque(knitting_experience_mailer, 30.days)
+    end
 
-      def manifest_unstock(item)
-        Stock::Allocator.new(self).unstock(item.variant, item.inventory_units)
-      end
+    def shipment_handler
+      ShipmentHandler.factory(self)
+    end
 
-      def can_get_rates?
-        order.ship_address && order.ship_address.valid?
-      end
+    def customer_feedback_mailer
+      Shipping::CustomerFeedbackMailer.new(self.order)
+    end
 
-      def manifest_restock(item)
-        Stock::Allocator.new(self).restock(item.variant, item.inventory_units)
-      end
+    def knitting_experience_mailer
+      Shipping::KnittingExperienceMailer.new(self.order)
+    end
 
-      def manifest_unstock(item)
-        Stock::Allocator.new(self).unstock(item.variant, item.inventory_units)
-      end
+    def manifest_unstock(item)
+      Stock::Allocator.new(self).unstock(item.variant, item.inventory_units)
+    end
 
-      def recalculate_adjustments
-        Spree::ItemAdjustments.new(self).update
-      end
+    def can_get_rates?
+      order.ship_address && order.ship_address.valid?
+    end
 
-      def check_for_only_digital_and_ship
-        if order.line_items.any? && order.physical_line_items.empty?
-          self.ship!
-        end
-      end
+    def manifest_restock(item)
+      Stock::Allocator.new(self).restock(item.variant, item.inventory_units)
+    end
 
-      def send_shipped_email
-        ShipmentMailer.shipped_email(self.id).deliver
-      end
-      handle_asynchronously :send_shipped_email, :run_at => Proc.new { Date.tomorrow.to_time }
+    def manifest_unstock(item)
+      Stock::Allocator.new(self).unstock(item.variant, item.inventory_units)
+    end
 
-      def send_survey_email
-        EmailSurveyJob.new(self.order).delay(run_at: 10.days.from_now ).perform
-      end
+    def recalculate_adjustments
+      Spree::ItemAdjustments.new(self).update
+    end
 
-      EmailSurveyJob = Struct.new(:order) do
-        def perform
-          ShipmentMailer.survey_email(order).deliver
-        end
+    def check_for_only_digital_and_ship
+      if order.line_items.any? && order.physical_line_items.empty?
+        self.ship!
       end
+    end
 
-      def set_cost_zero_when_nil
-        self.cost = 0 unless self.cost
+    def send_shipped_email
+      ShipmentMailer.shipped_email(self.id).deliver
+    end
+    handle_asynchronously :send_shipped_email, :run_at => Proc.new { Date.tomorrow.to_time }
+
+    def set_cost_zero_when_nil
+      self.cost = 0 unless self.cost
+    end
+
+    def update_adjustments
+      if cost_changed? && state != 'shipped'
+        recalculate_adjustments
       end
-
-      def update_adjustments
-        if cost_changed? && state != 'shipped'
-          recalculate_adjustments
-        end
-      end
-
+    end
   end
 end

@@ -7,6 +7,7 @@ describe Spree::Shipment, :type => :model do
                                          can_ship?: true,
                                          currency: 'USD',
                                          number: 'S12345',
+                                         products: [],
                                          paid?: false,
                                          touch: true }
   let(:shipping_method) { create(:shipping_method, name: "UPS") }
@@ -311,6 +312,42 @@ describe Spree::Shipment, :type => :model do
         allow(shipment).to receive_messages determine_state: 'shipped'
         expect(shipment).to receive(:update_columns).with(state: 'shipped', updated_at: kind_of(Time))
         shipment.update!(order)
+      end
+
+      context 'customer feedback email' do
+        let(:survey) { double(delay: Shipping::CustomerFeedbackMailer.new(order)) }
+        let(:mailer) { double }
+
+        before do
+          allow(shipment).to receive_messages determine_state: 'shipped'
+          allow(Shipping::CustomerFeedbackMailer).to receive(:new).with(order).and_return(survey)
+          allow(Spree::ShipmentMailer).to receive(:survey_email).with(order).and_return(mailer)
+          Timecop.freeze
+        end
+
+        it 'dispatches email in 10 days' do
+          expect(survey).to receive(:delay).with({:run_at => 10.days.from_now})
+          expect(mailer).to receive(:deliver)
+          shipment.state = 'pending'
+          shipment.update!(order)
+        end
+      end
+
+      context 'knitting experience email' do
+        let(:mailer) { double }
+
+        before do
+          shipment.state = 'pending'
+          allow(shipment).to receive_messages determine_state: 'shipped'
+          allow(Shipping::KnittingExperienceMailer).to receive(:new).and_return(mailer)
+          Timecop.freeze
+        end
+
+        it 'dispatches email' do
+          expect(mailer).to receive(:delay).with({:run_at => 1.month.from_now}).and_return(mailer)
+          expect(mailer).to receive(:perform)
+          shipment.update!(order)
+        end
       end
 
       context "when using the default shipment handler" do

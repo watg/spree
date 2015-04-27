@@ -1,14 +1,6 @@
 module Spree
   # presenter for user specific free shipping views
   class GlobalFreeShippingPresenter < SimpleBasePresenter
-    DEFAULT_COUNTRY_CODE = "US"
-
-    # This is disabled for now, as it needs to be discussed
-    # def cache
-    #  h.cache [currency, country_code, device] do
-    #    yield self
-    #  end
-    # end
 
     def cache_key
       [currency, country_code, device]

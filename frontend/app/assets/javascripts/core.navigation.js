@@ -123,16 +123,20 @@ core.Navigation.readyTracking = function() {
     click: function(e) {
       // Stop
       e.preventDefault();
-      // Do we need to append a sub label to the tracking value?
-      var sub_label = '';
-      var sub_name = $(this).closest('ul[class*=-sub]').attr('class');
-      if (sub_name != undefined) {
-        sub_label = ' (' + sub_name + ')';
-      }
+
+      // Get the data path, or just pass link name in its absence
+      var path = $(this).data('path');
+      var event_path = path == undefined ? $(this).text().toLowerCase() : path;
+
       // Track
-      if (typeof ga !== 'undefined') {
-        ga('send', 'event', 'navigation', 'click', $(this).text().toLowerCase() + sub_label);
-      }
+      // --- Old style tracking...
+      var _gaq = _gaq || [];
+      _gaq.push(['_trackEvent', 'navigation', 'click', event_path]);
+      // --- New style tracking...
+      /*if (typeof ga !== 'undefined') {
+        ga('send', 'event', 'navigation', 'click', VALUE GOES HERE);
+      }*/
+
       // Continue
       location.href = $(this).attr('href');
     }
