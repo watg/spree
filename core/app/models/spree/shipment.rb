@@ -11,6 +11,9 @@ module Spree
     has_many :shipping_methods, through: :shipping_rates
     has_many :state_changes, as: :stateful
 
+    # TODO: delete this once we are live with teh adjustments on shipping_rates
+    has_many :adjustments, as: :adjustable
+
     attr_accessor :special_instructions
 
     accepts_nested_attributes_for :address
