@@ -67,7 +67,9 @@ describe Spree::Order, :type => :model do
 
       it "adjusts tax rates twice if there are any shipments" do
         # Once for the line items, once for the shipments
-        order.shipments.build
+        shipment = order.shipments.build
+        shipping_rate = mock_model(Spree::ShippingRate)
+        allow(shipment).to receive_message_chain(:shipping_rates).and_return([shipping_rate])
         expect(Spree::TaxRate).to receive(:adjust).once
         allow(order).to receive :set_shipments_cost
         order.next!

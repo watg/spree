@@ -46,10 +46,21 @@ FactoryGirl.define do
         create_list(:line_item, evaluator.line_items_count, order: order, price: evaluator.line_items_price)
         order.line_items.reload
 
-        create(:shipment, order: order, cost: evaluator.shipment_cost)
-        order.shipments.reload
+        order.shipments << create(:shipment, order: order, cost: evaluator.shipment_cost)
 
         order.update!
+      end
+
+      factory :completed_order do
+        state 'complete'
+
+        transient do
+          completed_at Time.now
+        end
+
+        after(:create) do |order, evaluator|
+          order.update_column(:completed_at, evaluator.completed_at)
+        end
       end
 
       factory :completed_order_with_totals do
@@ -60,7 +71,6 @@ FactoryGirl.define do
         end
 
         after(:create) do |order, evaluator|
-          order.refresh_shipment_rates
           order.update_column(:completed_at, evaluator.completed_at)
         end
 

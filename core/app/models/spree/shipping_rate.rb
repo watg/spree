@@ -1,14 +1,21 @@
 module Spree
+  #  Shiping rates
   class ShippingRate < Spree::Base
-    belongs_to :shipment, class_name: 'Spree::Shipment'
-    belongs_to :shipping_method, class_name: 'Spree::ShippingMethod', inverse_of: :shipping_rates
-    belongs_to :tax_rate, class_name: 'Spree::TaxRate'
+    belongs_to :shipment, class_name: "Spree::Shipment"
+    belongs_to :shipping_method, class_name: "Spree::ShippingMethod", inverse_of: :shipping_rates
+    belongs_to :tax_rate, class_name: "Spree::TaxRate"
+
+    has_many :adjustments, as: :adjustable, dependent: :delete_all
 
     delegate :order, :currency, to: :shipment
     delegate :name, to: :shipping_method
 
     def display_base_price
       Spree::Money.new(cost, currency: currency)
+    end
+
+    def discounted_cost
+      cost + promo_total
     end
 
     def calculate_tax_amount
@@ -25,7 +32,7 @@ module Spree
               amount = "#{display_tax_amount(tax_amount)} #{tax_rate.name}"
               price += " (#{Spree.t(:incl)} #{amount})"
             else
-              amount = "#{display_tax_amount(tax_amount*-1)} #{tax_rate.name}"
+              amount = "#{display_tax_amount(tax_amount * -1)} #{tax_rate.name}"
               price += " (#{Spree.t(:excl)} #{amount})"
             end
           else
@@ -48,6 +55,10 @@ module Spree
 
     def shipping_method_code
       shipping_method.code
+    end
+
+    def tax_category
+      tax_rate.try(:tax_category)
     end
 
     def tax_rate

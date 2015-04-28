@@ -89,7 +89,7 @@ module Spree
               rate = shipment.shipping_rates.create!(:shipping_method => shipping_method,
                                                      :cost => s[:cost])
               shipment.selected_shipping_rate_id = rate.id
-              shipment.update_amounts
+              shipment.update_shipping_rate_adjustments
 
             rescue Exception => e
               raise "Order import shipments: #{e.message} #{s}"

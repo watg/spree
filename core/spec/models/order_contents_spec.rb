@@ -4,13 +4,50 @@ describe Spree::OrderContents do
   let(:order)   { create(:order) }
   let(:variant) { create(:variant) }
   let(:subject) { Spree::OrderContents.new(order) }
-  let(:currency){ 'USD' }
+  let(:currency) { "USD" }
 
-  let!(:price) { build(:price, is_kit: true, amount: 5) }
+  describe "after_add_or_remove" do
 
-  before do
-    variant.price_normal_in('USD').amount = 19.99
-    allow_any_instance_of(Spree::Variant).to receive_messages(:price_part_in => price)
+    let(:order) { stub_model(Spree::Order) }
+    let(:shipment) { stub_model(Spree::Shipment, order: order) }
+    let(:line_item) { stub_model(Spree::LineItem, order: order) }
+
+    before { allow(subject).to receive(:reload_totals) }
+
+    it "ensures updated shipments if shipment is not passed in" do
+      expect(order).to receive(:ensure_updated_shipments)
+      subject.send(:after_add_or_remove, line_item, {})
+    end
+
+    it "updates the adjustments on the shipping rates" do
+      expect(shipment).to receive(:update_shipping_rate_adjustments)
+      subject.send(:after_add_or_remove, line_item, shipment: shipment)
+    end
+
+    it "reloads the totals" do
+      expect(subject).to receive(:reload_totals).twice
+      subject.send(:after_add_or_remove, line_item)
+    end
+
+    it "activates prootions on the cart" do
+      handler = double("handler")
+      expect(handler).to receive(:activate)
+      expect(Spree::PromotionHandler::Cart)
+        .to receive(:new).with(order, line_item)
+        .and_return(handler)
+
+      subject.send(:after_add_or_remove, line_item)
+    end
+
+    it "adjustes items on the line item" do
+      handler = double("handler")
+      expect(handler).to receive(:update)
+      expect(Spree::ItemAdjustments)
+        .to receive(:new).with(line_item)
+        .and_return(handler)
+      subject.send(:after_add_or_remove, line_item)
+    end
+
   end
 
   context "#add" do

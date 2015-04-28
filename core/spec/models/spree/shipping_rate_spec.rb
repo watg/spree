@@ -9,6 +9,23 @@ describe Spree::ShippingRate, :type => :model do
                                                 :shipping_method => shipping_method,
                                                 :cost => 10) }
 
+  describe "tax_category" do
+    let!(:tax_rate) { mock_model(Spree::TaxRate) }
+
+    it "returns the correct tax category for a given zone" do
+      expect(tax_rate).to receive(:tax_category).once
+      expect(shipping_rate).to receive(:tax_rate).and_return tax_rate
+      shipping_rate.tax_category
+    end
+  end
+
+  describe "discounted_cost" do
+    it "returns the correct tax category for a given zone" do
+      shipping_rate.promo_total = -5
+      expect(shipping_rate.discounted_cost).to eq 5
+    end
+  end
+
   context "#display_price" do
     context "when tax included in price" do
       context "when the tax rate is from the default zone" do

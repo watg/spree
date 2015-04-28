@@ -127,10 +127,12 @@ describe Spree::OrderInventory, :type => :model do
     before do
       subject.verify
 
-      order.shipments.create(:stock_location_id => stock_location.id, :cost => 5)
+      shipment = order.shipments.create(:stock_location_id => stock_location.id)
+      allow(shipment).to receive_message_chain(:selected_shipping_rate, :cost).and_return(5)
+      shipment = order.shipments.create(:stock_location_id => order.shipments.first.stock_location.id)
 
-      shipped = order.shipments.create(:stock_location_id => order.shipments.first.stock_location.id, :cost => 10)
-      shipped.update_column(:state, 'shipped')
+      allow(shipment).to receive_message_chain(:selected_shipping_rate, :cost).and_return(10)
+      shipment.update_column(:state, 'shipped')
     end
 
     it 'should select first non-shipped shipment that already contains given variant' do

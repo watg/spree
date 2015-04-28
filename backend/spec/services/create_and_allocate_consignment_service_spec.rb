@@ -2,13 +2,12 @@ require 'spec_helper'
 
 describe Spree::CreateAndAllocateConsignmentService do
   subject { Spree::CreateAndAllocateConsignmentService }
-  let(:order) { FactoryGirl.create(:order_ready_to_be_consigned_and_allocated, :with_product_group, line_items_count: 1) }
+  let!(:order) { create(:order_ready_to_be_consigned_and_allocated, :with_product_group, line_items_count: 1) }
   let(:country) { create(:country) }
-  let!(:shipping_method) { create(:shipping_method, shipments: order.shipments) }
+  let(:shipping_method) { order.shipments.first.shipping_method }
 
   before do
     Spree::ProductGroup.any_instance.stub(:country).and_return country
-    order.shipments.first.shipping_methods = [shipping_method]
   end
 
   describe "::run" do
@@ -48,13 +47,13 @@ describe Spree::CreateAndAllocateConsignmentService do
 
     context "failed case" do
       it "cannot create consignment when order has no parcel" do
-        order_no_parcel = FactoryGirl.create(:order_ready_to_ship)
+        order_no_parcel = create(:order_ready_to_ship)
         outcome = subject.run(order_id: order_no_parcel.id)
         expect(outcome.valid?).to be false
       end
 
       it "order is already shipped" do
-        shipped_order = FactoryGirl.create(:shipped_order)
+        shipped_order = create(:shipped_order)
         outcome = subject.run(order_id: shipped_order.id)
         expect(outcome.valid?).to be false
       end

@@ -1,4 +1,4 @@
-module Spree
+ module Spree
   class Order < Spree::Base
     module Checkout
       def self.included(klass)
@@ -84,6 +84,10 @@ module Spree
                 transition :from => :customer_service_on_hold, :to => :resumed
               end
 
+              event :recalculate_shipping do
+                transition :from => :delivery, :to => :delivery
+              end
+
               if states[:payment]
                 before_transition to: :complete do |order|
                   if order.payment_required? && order.payments.valid.empty?
@@ -108,10 +112,10 @@ module Spree
               end
 
               if states[:delivery]
-                before_transition to: :delivery, do: :create_proposed_shipments
-                before_transition to: :delivery, do: :ensure_available_shipping_rates
+                before_transition except_from: :delivery, to: :delivery, do: :create_proposed_shipments
+                before_transition except_from: :delivery, to: :delivery, do: :ensure_available_shipping_rates
                 before_transition to: :delivery, do: :set_shipments_cost
-                before_transition from: :delivery, do: :apply_free_shipping_promotions
+                before_transition to: :delivery, do: :apply_free_shipping_promotions
               end
 
               before_transition to: :resumed, do: :ensure_line_item_variants_are_not_deleted

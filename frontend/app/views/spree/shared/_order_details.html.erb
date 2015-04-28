@@ -1,50 +1,54 @@
-<div class="steps-data">
+ <% present(@order, {}, OrderPresenter) do |order_presenter| %>
+  <div class="steps-data">
 
-  <% if order.has_step?("address") %>
-    <div class="row">
-      <div class="large-6 columns" data-hook="order-ship-address">
-        <h6><%= Spree.t(:shipping_address) %> <%= link_to "(#{Spree.t(:edit)})", checkout_state_path(:address) unless @order.completed? %></h6>
-        <%= render :partial => 'spree/shared/address', :locals => { :address => order.ship_address } %>
-      </div>
-
-      <div class="large-6 columns" data-hook="order-bill-address">
-        <h6><%= Spree.t(:billing_address) %> <%= link_to "(#{Spree.t(:edit)})", checkout_state_path(:address) unless @order.completed? %></h6>
-        <%= render :partial => 'spree/shared/address', :locals => { :address => order.bill_address } %>
-      </div>
-    </div>
-
-    <% if @order.has_step?("delivery") %>
-        <div class="row">
-          <div class="large-6 columns delivery-method">
-            <h6>Delivery time</h6>
-            <p>UK/EU: 2&ndash;3 business days<br/>US: 3 business days<br/>ROW: 5&ndash;7 business days</p>
-          </div>
-          <div class="large-6 columns delivery-method">
-            <h6><%= Spree.t(:shipments) %> <%= link_to "(#{Spree.t(:edit)})", checkout_state_path(:delivery) unless @order.completed? %></h6>
-            <div class="delivery">
-              <% order.shipments.each do |shipment| %>
-                  <%= shipment.stock_location.name %>: <%= shipment.shipping_method.try(:name) %>
-              <% end %>
-            </div>
-            <%= render(:partial => 'spree/shared/shipment_tracking', :locals => {:order => @order}) if @order.shipped? %>
-          </div>
+    <% if order_presenter.has_step?("address") %>
+      <div class="row">
+        <div class="large-6 columns" data-hook="order-ship-address">
+          <h6><%= Spree.t(:shipping_address) %> <%= link_to "(#{Spree.t(:edit)})", checkout_state_path(:address) unless @order.completed? %></h6>
+          <%= render :partial => 'spree/shared/address', :locals => { :address => order.ship_address } %>
         </div>
+
+        <div class="large-6 columns" data-hook="order-bill-address">
+          <h6><%= Spree.t(:billing_address) %> <%= link_to "(#{Spree.t(:edit)})", checkout_state_path(:address) unless @order.completed? %></h6>
+          <%= render :partial => 'spree/shared/address', :locals => { :address => order.bill_address } %>
+        </div>
+      </div>
+
+      <% if order_presenter.has_step?("delivery") %>
+          <div class="row">
+            <div class="large-6 columns delivery-method">
+              <h6><%= Spree.t(:shipments) %> <%= link_to "(#{Spree.t(:edit)})", checkout_state_path(:delivery) unless @order.completed? %></h6>
+              <div class="delivery">
+                <p>
+                  <%= order_presenter.display_shipments %>
+                </p>
+              </div>
+              <%= render(:partial => 'spree/shared/shipment_tracking', :locals => {:order => @order}) if @order.shipped? %>
+            </div>
+
+            <div class="large-6 columns delivery-method">
+              <h6>Delivery time</h6>
+              <p>
+                <%= order_presenter.display_delivery_time %>
+              </p>
+            </div>
+          </div>
+      <% end %>
     <% end %>
-  <% end %>
 
-  <div class="row">
-    <div class="small-12 columns payment-method">
-      <h6><%= Spree.t(:payment_information) %> <%= link_to "(#{Spree.t(:edit)})", checkout_state_path(:payment) unless @order.completed? %></h6>
-      <div class="payment-info">
-        <% order.payments.valid.each do |payment| %>
-            <%= render payment %><br/>
-
-        <% end %>
+    <div class="row">
+      <div class="small-12 columns payment-method">
+        <h6><%= Spree.t(:payment_information) %> <%= link_to "(#{Spree.t(:edit)})", checkout_state_path(:payment) unless @order.completed? %></h6>
+        <div class="payment-info">
+          <% order.payments.valid.each do |payment| %>
+              <%= render payment %><br/>
+          <% end %>
+        </div>
       </div>
     </div>
-  </div>
 
-</div>
+  </div>
+<% end %>
 
 <table id="line-items" class="index order-item-listing" data-hook="order_details">
   <thead data-hook>

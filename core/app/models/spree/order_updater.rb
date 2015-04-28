@@ -57,14 +57,13 @@ module Spree
       update_adjustment_total
     end
 
-
     # give each of the shipments a chance to update themselves
     def update_shipments
       shipments.each do |shipment|
         next unless shipment.persisted?
         shipment.update!(order)
         shipment.refresh_rates
-        shipment.update_amounts
+        shipment.update_shipping_rate_adjustments
       end
     end
 
@@ -73,7 +72,7 @@ module Spree
     end
 
     def update_shipment_total
-      order.shipment_total = shipments.sum(:cost)
+      order.shipment_total = ::Shipping::Coster.new(shipments).cost
       update_order_total
     end
 
@@ -83,15 +82,20 @@ module Spree
 
     def update_adjustment_total
       recalculate_adjustments
+
       order.adjustment_total = line_items.sum(:adjustment_total) +
-                               shipments.sum(:adjustment_total)  +
-                               adjustments.eligible.sum(:amount)
-      order.included_tax_total = line_items.sum(:included_tax_total) + shipments.sum(:included_tax_total)
-      order.additional_tax_total = line_items.sum(:additional_tax_total) + shipments.sum(:additional_tax_total)
+        ::Shipping::Coster.new(shipments).adjustment_total +
+        adjustments.eligible.sum(:amount)
+
+      order.included_tax_total = line_items.sum(:included_tax_total) +
+        ::Shipping::Coster.new(shipments).included_tax_total
+
+      order.additional_tax_total = line_items.sum(:additional_tax_total) +
+        ::Shipping::Coster.new(shipments).additional_tax_total
 
       order.promo_total = line_items.sum(:promo_total) +
-                          shipments.sum(:promo_total) +
-                          adjustments.promotion.eligible.sum(:amount)
+        ::Shipping::Coster.new(shipments).promo_total +
+        adjustments.promotion.eligible.sum(:amount)
 
       update_order_total
     end

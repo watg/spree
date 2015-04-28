@@ -208,10 +208,12 @@ describe Spree::TaxRate, :type => :model do
     end
 
     context "with shipments" do
-      let(:shipments) { [stub_model(Spree::Shipment, :cost => 10.0,
-                                                     :tax_category => tax_category_1,
-                                                     :order => stub_model(Spree::Order, currency: 'USD'))] }
+      let(:shipment) { stub_model(Spree::Shipment,
+                                  :order => stub_model(Spree::Order, currency: 'USD')) }
 
+      let(:shipping_rate) { stub_model(Spree::ShippingRate,
+                                       :tax_category => tax_category_1,
+                                       shipment: shipment) }
       before do
         allow(Spree::TaxRate).to receive_messages :match => [rate_1, rate_2]
       end
@@ -219,7 +221,7 @@ describe Spree::TaxRate, :type => :model do
       it "should apply adjustments for two tax rates to the order" do
         expect(rate_1).to receive(:adjust)
         expect(rate_2).not_to receive(:adjust)
-        Spree::TaxRate.adjust(order.tax_zone, shipments)
+        Spree::TaxRate.adjust(order.tax_zone, [shipping_rate])
       end
     end
   end

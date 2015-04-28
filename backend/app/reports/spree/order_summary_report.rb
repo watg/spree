@@ -153,7 +153,7 @@ module Spree
         o.item_total.to_f, # Total cost
         o.ship_total,
         o.additional_tax_total,
-        o.shipments.sum(:promo_total).to_f,
+        o.shipments.to_a.sum(&:promo_total).to_f,
         o.promo_total,
         o.adjustments.gift_card.sum(:amount).to_f,
         o.adjustments.manual.sum(:amount).to_f,

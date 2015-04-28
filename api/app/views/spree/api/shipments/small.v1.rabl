@@ -32,6 +32,3 @@ child :manifest => :manifest do
   node(:states) { |m| m.states }
 end
 
-child :adjustments => :adjustments do
-  extends "spree/api/adjustments/show"
-end

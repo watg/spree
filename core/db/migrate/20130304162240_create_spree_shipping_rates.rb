@@ -13,7 +13,8 @@ class CreateSpreeShippingRates < ActiveRecord::Migration
 
     # Spree::Shipment.all.each do |shipment|
     #   shipping_method = Spree::ShippingMethod.find(shipment.shipment_method_id)
-    #   shipment.add_shipping_method(shipping_method, true)
+    #   shipment.shipping_rates.create(
+    #     shipping_method: shipping_method, selected: false, cost: shipment.cost)
     # end
   end
 

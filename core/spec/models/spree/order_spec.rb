@@ -120,7 +120,7 @@ describe Spree::Order, :type => :model do
     before { allow(order).to receive_messages shipments: [shipment] }
 
     it "update and persist totals" do
-      expect(shipment).to receive :update_amounts
+      expect(shipment).to receive :update_shipping_rate_adjustments
       expect(order.updater).to receive :update_shipment_total
       expect(order.updater).to receive :persist_totals
 
@@ -688,19 +688,62 @@ describe Spree::Order, :type => :model do
   context "#apply_free_shipping_promotions" do
     it "calls out to the FreeShipping promotion handler" do
       shipment = double('Shipment')
+      rate = double('ShipppingRate')
       allow(order).to receive_messages :shipments => [shipment]
+      allow(shipment).to receive_messages :shipping_rates => [rate]
       expect(Spree::PromotionHandler::FreeShipping).to receive(:new).and_return(handler = double)
       expect(handler).to receive(:activate)
 
-      expect(Spree::ItemAdjustments).to receive(:new).with(shipment).and_return(adjuster = double)
+      expect(Spree::ItemAdjustments).to receive(:new).with(rate).and_return(adjuster = double)
       expect(adjuster).to receive(:update)
 
+      expect(order.updater).to receive(:update_adjustment_total)
       expect(order.updater).to receive(:update_shipment_total)
       expect(order.updater).to receive(:persist_totals)
       order.apply_free_shipping_promotions
     end
   end
 
+  context "#ensure_updated_shipments" do
+    let(:shipment) { mock_model(Spree::Shipment) }
+
+    before do
+      allow(order).to receive_messages :completed? => false
+      allow(order).to receive_messages :shipments => [shipment]
+    end
+
+    it "updates the order and shipments" do
+      expect(order).to receive(:delete_all_shipping_rate_adjustments)
+      expect(order.shipments).to receive(:destroy_all)
+      expect(order).to receive(:update_column).with(:shipment_total, 0)
+      expect(order).to receive(:restart_checkout_flow)
+      order.ensure_updated_shipments
+    end
+
+    context "order completed true" do
+      before do
+        allow(order).to receive_messages :completed? => true
+      end
+
+      it "does not update the order and shipments" do
+        expect(order).not_to receive(:delete_all_shipping_rate_adjustments)
+        order.ensure_updated_shipments
+      end
+
+    end
+
+    context "no shipments" do
+      before do
+        allow(order).to receive_messages :shipments => []
+      end
+
+      it "does not update the order and shipments" do
+        expect(order).not_to receive(:delete_all_shipping_rate_adjustments)
+        order.ensure_updated_shipments
+      end
+
+    end
+  end
 
   context "#products" do
     before :each do
@@ -1037,6 +1080,7 @@ describe Spree::Order, :type => :model do
     it "assigns the coordinator returned shipments to its shipments" do
       shipment = build(:shipment)
       allow_any_instance_of(Spree::Stock::Coordinator).to receive(:shipments).and_return([shipment])
+      expect(subject).to receive(:delete_all_shipping_rate_adjustments)
       subject.create_proposed_shipments
       expect(subject.shipments).to eq [shipment]
     end
@@ -1069,6 +1113,23 @@ describe Spree::Order, :type => :model do
       it "is false" do
         expect(subject).to eq false
       end
+    end
+  end
+
+  describe "#delete_all_shipping_rate_adjustments" do
+    let(:shipping_rate) {Spree::ShippingRate.new}
+    let(:adjustment_1) {Spree::Adjustment.new(adjustable: shipping_rate)}
+    let(:adjustment_2) {Spree::Adjustment.new(adjustable: shipping_rate)}
+
+    before do
+      allow(subject).to receive(:all_adjustments).and_return([adjustment_1, adjustment_2])
+    end
+
+    it "deletes all the shipping rates" do
+      expect(adjustment_1).to receive(:delete)
+      expect(adjustment_2).to receive(:delete)
+      subject.send(:delete_all_shipping_rate_adjustments)
+      expect(shipping_rate.adjustments).to be_empty
     end
   end
 

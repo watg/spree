@@ -119,7 +119,7 @@ describe Spree::Calculator::DefaultTax, :type => :model do
       end
 
       it "takes discounts into consideration" do
-        shipment.promo_total = -1
+        shipment.selected_shipping_rate.promo_total = -1
         # 5% of 14
         expect(calculator.compute(shipment)).to eq(0.7)
       end
