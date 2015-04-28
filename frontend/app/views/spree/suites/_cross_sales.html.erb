@@ -1,6 +1,6 @@
 <div class="suites-index cross-sales">
   <% if @selected_tab.cross_sales.any? %>
-      <h2>More WATG goodness</h2>
+      <h2><%= selected_tab_presenter.cross_sales_heading %></h2>
   <% end %>
   <div class="row-carousel row-products">
     <% if mobile_device? %>

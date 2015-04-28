@@ -102,6 +102,19 @@ module Spree
       suite.name
     end
 
+    def cross_sales_heading
+      case tab_type
+      when 'yarn-and-wool'
+        'What you can make'
+      when 'knitting-pattern'
+        'Knit this pattern'
+      when 'made-by-the-gang'
+        'More ready made goodness'
+      else
+        'More WATG goodness'
+      end
+    end
+
     private
 
     def social_description
