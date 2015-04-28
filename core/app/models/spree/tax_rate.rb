@@ -81,10 +81,9 @@ module Spree
     end
 
     # This method is best described by the documentation on #potentially_applicable?
-    def self.adjust(order_tax_zone, items)
-
+    def self.adjust(order, items)
       order_currency = items.first.order.currency
-      rates = self.match(order_tax_zone, order_currency)
+      rates = self.match(order.tax_zone, order_currency)
       tax_categories = rates.map(&:tax_category)
       relevant_items, non_relevant_items = items.partition { |item| tax_categories.include?(item.tax_category) }
       Spree::Adjustment.where(adjustable: relevant_items).tax.destroy_all # using destroy_all to ensure adjustment destroy callback fires.
@@ -92,7 +91,7 @@ module Spree
         relevant_rates = rates.select { |rate| rate.tax_category == item.tax_category }
         store_pre_tax_amount(item, relevant_rates)
         relevant_rates.each do |rate|
-          rate.adjust(order_tax_zone, item)
+          rate.adjust(order, item)
         end
       end
       non_relevant_items.each do |item|
@@ -153,11 +152,11 @@ module Spree
     end
 
     # Creates necessary tax adjustments for the order.
-    def adjust(order_tax_zone, item)
+    def adjust(order, item)
       amount = compute_amount(item)
       return if amount == 0
 
-      included = included_in_price && default_zone_or_zone_match?(order_tax_zone)
+      included = included_in_price && default_zone_or_zone_match?(order.tax_zone)
 
       if amount < 0
         label = Spree.t(:refund) + ' ' + create_label
@@ -166,7 +165,7 @@ module Spree
       self.adjustments.create!({
         :adjustable => item,
         :amount => amount,
-        :order_id => item.order_id,
+        :order_id => order.id,
         :label => label || create_label,
         :included => included
       })

@@ -182,15 +182,25 @@ describe Spree::Shipment, :type => :model do
     let(:shipment) { create(:shipment) }
     let(:shipping_method1) { create(:shipping_method) }
     let(:shipping_method2) { create(:shipping_method) }
+    let(:old_shipping_rates) { shipment.shipping_rates }
     let(:shipping_rates) { [
       Spree::ShippingRate.new(shipping_method: shipping_method1, cost: 10.00, selected: true),
       Spree::ShippingRate.new(shipping_method: shipping_method2, cost: 20.00)
     ] }
+    #let!(:adjustment) { create(:adjustment, order: order, adjustable: shipping_rates.first) }
 
     it 'returns shipping_method from selected shipping_rate' do
       shipment.shipping_rates.delete_all
       shipment.shipping_rates.create shipping_method: shipping_method1, cost: 10.00, selected: true
       expect(shipment.shipping_method).to eq shipping_method1
+    end
+
+    context 'destroy_shipping_rates' do
+      it "delets shipping rates and adjusmtens" do
+        shipment.destroy_shipping_rates
+        expect(shipment.shipping_rates).to eq []
+        expect(shipment.reload.shipping_rates).to eq []
+      end
     end
 
     context 'refresh_rates' do
@@ -204,6 +214,18 @@ describe Spree::Shipment, :type => :model do
         expect(shipment.reload.selected_shipping_rate.shipping_method_id).to eq(shipping_method2.id)
       end
 
+      it "should refresh adjustments and promotions" do
+        expect(Spree::Stock::Estimator).to receive(:new).with(shipment.order).and_return(mock_estimator)
+        adjustment = build(:adjustment, order: order)
+        shipment.shipping_rates.first.adjustments << adjustment
+        allow(shipment).to receive_messages(shipping_method: shipping_method2)
+        expect(shipment.order).to receive(:apply_free_shipping_promotions).and_call_original
+        expect(Spree::TaxRate).to receive(:adjust).with(shipment.order, shipping_rates).
+          and_call_original
+        expect(shipment.refresh_rates).to eq(shipping_rates)
+        expect(shipment.shipping_rates.first.adjustments).to eq []
+      end
+
       it 'should handle no shipping_method selection' do
         expect(Spree::Stock::Estimator).to receive(:new).with(shipment.order).and_return(mock_estimator)
         allow(shipment).to receive_messages(shipping_method: nil)
@@ -211,10 +233,10 @@ describe Spree::Shipment, :type => :model do
         expect(shipment.reload.selected_shipping_rate).not_to be_nil
       end
 
-      it 'should not refresh if shipment is shipped' do
+      it 'should not refresh if shipment is completed' do
         expect(Spree::Stock::Estimator).not_to receive(:new)
         shipment.shipping_rates.delete_all
-        allow(shipment).to receive_messages(shipped?: true)
+        allow(shipment.order).to receive_messages(completed?: true)
         expect(shipment.refresh_rates).to eq([])
       end
 
