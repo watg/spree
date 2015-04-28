@@ -7,7 +7,7 @@ describe "user receives email" do
   let(:kit)       { create(:product_type, name: "kit") }
 
   before do
-    line_item.product.product_type = kit
+    line_item.product.update(product_type: kit)
     shipment.state = "ready"
     allow(shipment).to receive_messages determine_state: "shipped"
     Timecop.freeze
@@ -20,6 +20,7 @@ describe "user receives email" do
       shipment.update!(order)
       expect(handler).to be_a(Shipping::KnittingExperienceMailer)
       expect(Delayed::Job.last.run_at.to_s).to eq(1.month.from_now.to_s)
+      expect{ Delayed::Job.last.invoke_job }.to_not raise_error
     end
   end
 end
