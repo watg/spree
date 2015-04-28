@@ -11,7 +11,7 @@ module Shipping
 
     describe '#perform' do
       before do
-        allow(Spree::ShipmentMailer).to receive(:knitting_experience_survey_email).and_return(mailer)
+        allow(Spree::ShipmentMailer).to receive(:knitting_experience_email).and_return(mailer)
         order.line_items << line_item
       end
 
