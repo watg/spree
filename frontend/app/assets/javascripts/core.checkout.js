@@ -14,7 +14,7 @@ core.Checkout.readyShippingMethodChangeHandler = function() {
         // the shipping method a couple of times in quick succession and then hit
         // submit. There is a risk that previous form POSTs could still be in-flight
         // when they hit submit and we get an unexpected result.
-        form.find("input[type='submit']").prop('disabled', true);
+        form.find("input[type='submit']").prop('disabled', true).val('Processing...');
 
         // Adding this hidden field stops automatically advancing to the next
         // checkout stage.

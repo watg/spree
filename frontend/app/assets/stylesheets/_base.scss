@@ -103,6 +103,11 @@ input[type="submit"].inverse {
   background-color: $body-bg;
   border-color: $primary-color;
 }
+input[type="submit"]:disabled {
+  color: $primary-color;
+  background-color: #f1f1f1;
+  border-color: #f1f1f1;
+}
 
 /* CSS only select list styling */
 
