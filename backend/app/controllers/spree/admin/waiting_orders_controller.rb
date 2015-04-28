@@ -44,7 +44,6 @@ module Spree
         params[:q][:express] = params[:q][:filter_express] == "1"
         # apply the ransack and exclude filters
         orders = unprinted_image_stickers.ransack(params[:q]).result(distinct: true)
-        require "pry"; binding.pry
         orders = orders - unprinted_image_stickers.where("spree_products.marketing_type_id IN (?)", params[:ignored_marketing_type_ids])
 
         outcome = Spree::BulkOrderPrintingService.new.print_image_stickers(orders)

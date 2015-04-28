@@ -80,21 +80,27 @@ describe Spree::Stock::WaitingUnitsProcessor do
     end
 
     context "express shipment" do
-      let(:order)             { create(:order, completed_at: Time.now) }
-      let(:order_2)           { create(:order, completed_at: Time.now) }
+      let(:order)              { create(:order, completed_at: Time.now) }
+      let(:order_2)            { create(:order, completed_at: 1.week.ago) }
+      let(:order_3)            { create(:order, completed_at: Time.now) }
 
-      let(:shipment)          { create(:shipment, stock_location: stock_location, order: order) }
-      let(:express_shipment)  { create(:shipment, stock_location: stock_location, order: order_2, shipping_methods: [express_shipping]) }
-      let(:express_shipping)  { create(:shipping_method, express: true) }
+      let(:shipment)           { create(:shipment, stock_location: stock_location, order: order) }
+      let(:express_shipment)   { create(:shipment, stock_location: stock_location, order: order_2 , shipping_rates: [express_rate]) }
+      let(:express_shipment_2) { create(:shipment, stock_location: stock_location, order: order_3 , shipping_rates: [express_rate]) }
 
-      let!(:inventory_unit_1) { create(:inventory_unit, shipment: shipment, state: 'awaiting_feed', order: order, variant: stock_item.variant) }
-      let!(:inventory_unit_2) { create(:inventory_unit, shipment: express_shipment, state: 'awaiting_feed', order: order_2, variant: stock_item.variant)}
+      let(:express_rate)       { Spree::ShippingRate.create(shipping_method: express_shipping, selected: true) }
+      let(:express_shipping)   { create(:shipping_method, express: true) }
 
-      let(:variant)           { create(:variant) }
-      let(:stock_allocator)   { double(unstock_on_hand: []) }
+      let!(:inventory_unit_1)  { create(:inventory_unit, shipment: shipment, state: 'awaiting_feed', order: order, variant: stock_item.variant) }
+      let!(:inventory_unit_2)  { create(:inventory_unit, shipment: express_shipment, state: 'awaiting_feed', order: order_2, variant: stock_item.variant)}
+      let!(:inventory_unit_3)  { create(:inventory_unit, shipment: express_shipment_2, state: 'awaiting_feed', order: order_3, variant: stock_item.variant)}
+
+      let(:variant)            { create(:variant) }
+      let(:stock_allocator)    { double(unstock_on_hand: []) }
 
       it "processes express shipments first" do
         expect(Spree::Stock::Allocator).to receive(:new).with(express_shipment).and_return(stock_allocator)
+        expect(Spree::Stock::Allocator).to receive(:new).with(express_shipment_2).and_return(stock_allocator)
         expect(Spree::Stock::Allocator).to receive(:new).with(shipment).and_return(stock_allocator)
         subject.perform(3)
       end

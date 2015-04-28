@@ -160,7 +160,11 @@ module Spree
     end
 
     def express?
-      shipping_methods.detect(&:express)
+      selected_shipping_method && selected_shipping_method.express?
+    end
+
+    def selected_shipping_method
+      selected_shipping_rate && selected_shipping_rate.shipping_method
     end
 
     def final_price

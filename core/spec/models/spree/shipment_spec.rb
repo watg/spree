@@ -98,15 +98,24 @@ describe Spree::Shipment, :type => :model do
   end
 
   describe 'express' do
-    context 'contains express shipping method' do
+    context 'contains selected express shipping method' do
+      let(:shipping_rate) { Spree::ShippingRate.new(shipping_method: express, selected: true) }
       let(:express) { create(:shipping_method, express: true) }
-      before        { subject.shipping_methods = [express] }
+      before        { subject.update(shipping_rates: [shipping_rate]) }
       it            { is_expected.to be_express }
     end
 
+    context 'does not contain selected express shipping method' do
+      let(:shipping_rate) { Spree::ShippingRate.new(shipping_method: express, selected: false) }
+      let(:express) { create(:shipping_method, express: true) }
+      before        { subject.update(shipping_rates: [shipping_rate]) }
+      it            { is_expected.to_not be_express }
+    end
+
     context 'does not contain express shipping method' do
-      let(:express) { create(:shipping_method, express: false) }
-      before        { subject.shipping_methods = [express] }
+      let(:shipping_rate) { Spree::ShippingRate.new(shipping_method: default, selected: true) }
+      let(:default) { create(:shipping_method, express: false) }
+      before        { subject.update(shipping_rates: [shipping_rate]) }
       it            { is_expected.to_not be_express }
     end
   end

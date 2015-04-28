@@ -73,7 +73,8 @@ describe Spree::InventoryUnit, :type => :model do
       let!(:awaiting_2)         { create(:inventory_unit, shipment: express_shipment, state: 'awaiting_feed', variant: variant, order: order) }
       let!(:awaiting_3)         { create(:inventory_unit, shipment: shipment, state: 'awaiting_feed', variant: variant, order: earlier_order) }
       let!(:awaiting_4)         { create(:inventory_unit, shipment: shipment, state: 'awaiting_feed', variant: variant, order: order) }
-      let(:express_shipment)    { create(:shipment, stock_location: stock_location, shipping_methods: [express_shipping], order: order) }
+      let(:express_shipment)    { create(:shipment, stock_location: stock_location, shipping_rates: [express_rate], order: order) }
+      let(:express_rate)        { Spree::ShippingRate.create(shipping_method: express_shipping, selected: true) }
       let(:express_shipping)    { create(:shipping_method, express: true) }
       let(:express_units_first) { [awaiting, awaiting_2, awaiting_3, awaiting_4] }
 
