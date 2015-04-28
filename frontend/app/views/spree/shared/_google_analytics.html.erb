@@ -14,7 +14,7 @@
           "",
           "<%= @order.total %>",
           "<%= @order.all_adjustments.tax.sum(:amount) %>",
-          "<%= @order.shipments.sum("cost + promo_total") %>",
+          "<%= @order.shipments.to_a.sum(&:discounted_cost) %>",
           "<%= j @order.bill_address.city %>",
           "<%= j @order.bill_address.state_text %>",
           "<%= j @order.bill_address.country.name %>"
