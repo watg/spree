@@ -2,7 +2,7 @@ module Admin
   class OrderPresenter < Spree::BasePresenter
     presents :order
 
-    delegate :id, :state, :completed_at, :number, :considered_risky, :payment_state, :shipment_state, :user, :email, :display_total, :express?, to: :order
+    delegate :id, :state, :updated_at, :created_at, :completed_at, :number, :considered_risky, :payment_state, :shipment_state, :user, :email, :display_total, :express?, to: :order
 
     def to_param
       @object.to_param
