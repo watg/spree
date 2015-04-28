@@ -135,4 +135,26 @@ describe Adjustments::Selector do
       end
     end
   end
+
+  describe "#without_tax" do
+    context "when adjustments array contains multiple adjustments and has tax adjustable type" do
+      let!(:adjustment2) { mock_model(Spree::Adjustment) }
+      subject { described_class.new([adjustment, adjustment2]) }
+
+      it "returns a selector without shipping_rate adjustment" do
+        allow(adjustment).to receive(:source_type).and_return("Spree::TaxRate")
+        allow(adjustment2).to receive(:adjustable_type).and_return("Spree::ShippingRate")
+
+        expect(subject.without_shipping_rate).to be_kind_of(described_class)
+        expect(subject.without_tax.adjustments).to eq([adjustment2])
+      end
+    end
+
+    context "when adjustments array does not contain an adjustment with tax adjustable type" do
+      it "returns the same adjustment array" do
+        expect(subject.without_shipping_rate).to be_kind_of(described_class)
+        expect(subject.without_shipping_rate.adjustments).to eq([adjustment])
+      end
+    end
+  end
 end

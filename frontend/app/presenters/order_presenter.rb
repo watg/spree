@@ -6,7 +6,6 @@ class OrderPresenter < Spree::BasePresenter
     order.has_step?(step)
   end
 
-
   def display_shipments
     order.shipments.map do |shipment|
       "#{shipment.stock_location.name} : #{shipment.shipping_method.try(:name)}"
@@ -21,5 +20,19 @@ class OrderPresenter < Spree::BasePresenter
 
   def total_label
     order.shipments.any? ? Spree.t(:total) : Spree.t(:subtotal)
+  end
+
+  def adjustments_excluding_shipping_and_tax
+    eligible_adjustments.without_shipping_rate.without_tax.adjustments
+  end
+
+  private
+
+  def all_adjustments
+    Adjustments::Selector.new(order.all_adjustments)
+  end
+
+  def eligible_adjustments
+    eligible_adjustments ||= all_adjustments.eligible
   end
 end

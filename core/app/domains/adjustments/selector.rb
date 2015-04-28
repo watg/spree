@@ -50,5 +50,9 @@ module Adjustments
     def without_shipping_rate
       self.class.new(@adjustments.reject { |a| a.adjustable_type == "Spree::ShippingRate" })
     end
+
+    def without_tax
+      self.class.new(@adjustments.reject { |a| a.source_type == "Spree::TaxRate" })
+    end
   end
 end
