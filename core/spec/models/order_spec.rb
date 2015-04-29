@@ -35,7 +35,7 @@ describe Spree::Order do
       before { allow(order).to receive(:line_items).and_return([line_item]) }
 
       it "creates a tax adjustment for line_items" do
-        expect(Spree::TaxRate).to receive(:adjust).with(:tax_zone, [line_item])
+        expect(Spree::TaxRate).to receive(:adjust).with(order, [line_item])
         order.create_tax_charge!
       end
     end
@@ -50,7 +50,7 @@ describe Spree::Order do
       end
 
       it "creates a tax adjustment for line_items" do
-        expect(Spree::TaxRate).to receive(:adjust).with(:tax_zone, [shipping_rate])
+        expect(Spree::TaxRate).to receive(:adjust).with(order, [shipping_rate])
         order.create_tax_charge!
       end
     end

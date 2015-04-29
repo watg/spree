@@ -203,7 +203,7 @@ describe Spree::TaxRate, :type => :model do
       it "should apply adjustments for two tax rates to the order" do
         expect(rate_1).to receive(:adjust)
         expect(rate_2).not_to receive(:adjust)
-        Spree::TaxRate.adjust(order.tax_zone, line_items)
+        Spree::TaxRate.adjust(order, line_items)
       end
     end
 
@@ -221,7 +221,7 @@ describe Spree::TaxRate, :type => :model do
       it "should apply adjustments for two tax rates to the order" do
         expect(rate_1).to receive(:adjust)
         expect(rate_2).not_to receive(:adjust)
-        Spree::TaxRate.adjust(order.tax_zone, [shipping_rate])
+        Spree::TaxRate.adjust(order, [shipping_rate])
       end
     end
   end
@@ -259,12 +259,12 @@ describe Spree::TaxRate, :type => :model do
       let!(:line_item) { @order.contents.add(@nontaxable.master, 1) }
 
       it "should not create a tax adjustment" do
-        Spree::TaxRate.adjust(@order.tax_zone, @order.line_items)
+        Spree::TaxRate.adjust(@order, @order.line_items)
         expect(line_item.adjustments.tax.charge.count).to eq(0)
       end
 
       it "should not create a refund" do
-        Spree::TaxRate.adjust(@order.tax_zone, @order.line_items)
+        Spree::TaxRate.adjust(@order, @order.line_items)
         expect(line_item.adjustments.credit.count).to eq(0)
       end
     end
@@ -281,12 +281,12 @@ describe Spree::TaxRate, :type => :model do
 
         context "when zone is contained by default tax zone" do
           it "should create two adjustments, one for each tax rate" do
-            Spree::TaxRate.adjust(@order.tax_zone, @order.line_items)
+            Spree::TaxRate.adjust(@order, @order.line_items)
             expect(line_item.adjustments.count).to eq(1)
           end
 
           it "should not create a tax refund" do
-            Spree::TaxRate.adjust(@order.tax_zone, @order.line_items)
+            Spree::TaxRate.adjust(@order, @order.line_items)
             expect(line_item.adjustments.credit.count).to eq(0)
           end
         end
@@ -299,12 +299,12 @@ describe Spree::TaxRate, :type => :model do
             @zone.zone_members.delete_all
           end
           it "should create an adjustment" do
-            Spree::TaxRate.adjust(@order.tax_zone, @order.line_items)
+            Spree::TaxRate.adjust(@order, @order.line_items)
             expect(line_item.adjustments.charge.count).to eq(1)
           end
 
           it "should not create a tax refund for each tax rate" do
-            Spree::TaxRate.adjust(@order.tax_zone, @order.line_items)
+            Spree::TaxRate.adjust(@order, @order.line_items)
             expect(line_item.adjustments.credit.count).to eq(0)
           end
         end
@@ -319,12 +319,12 @@ describe Spree::TaxRate, :type => :model do
           end
 
           it "should not create positive adjustments" do
-            Spree::TaxRate.adjust(@order.tax_zone, @order.line_items)
+            Spree::TaxRate.adjust(@order, @order.line_items)
             expect(line_item.adjustments.charge.count).to eq(0)
           end
 
           it "should create a tax refund for each tax rate" do
-            Spree::TaxRate.adjust(@order.tax_zone, @order.line_items)
+            Spree::TaxRate.adjust(@order, @order.line_items)
             expect(line_item.adjustments.credit.count).to eq(1)
           end
         end
@@ -337,7 +337,7 @@ describe Spree::TaxRate, :type => :model do
               rate.zone = @zone
               rate.save
             end
-            Spree::TaxRate.adjust(@order.tax_zone, @order.line_items)
+            Spree::TaxRate.adjust(@order, @order.line_items)
           end
 
           it "should delete adjustments for open order when taxrate is deleted" do
@@ -362,7 +362,7 @@ describe Spree::TaxRate, :type => :model do
           end
 
           describe 'tax adjustments' do
-            before { Spree::TaxRate.adjust(@order.tax_zone, @order.line_items) }
+            before { Spree::TaxRate.adjust(@order, @order.line_items) }
 
             it "should apply adjustments when a tax zone is present" do
               expect(line_item.adjustments.count).to eq(2)
@@ -372,7 +372,7 @@ describe Spree::TaxRate, :type => :model do
               before { allow(@order).to receive_messages :tax_zone => nil }
 
               it 'does not apply any adjustments' do
-                Spree::TaxRate.adjust(@order.tax_zone, @order.line_items)
+                Spree::TaxRate.adjust(@order, @order.line_items)
                 expect(line_item.adjustments.count).to eq(0)
               end
             end
@@ -387,8 +387,8 @@ describe Spree::TaxRate, :type => :model do
             line_item.update_column(:pre_tax_amount, @price_before_taxes)
             # Clear out any previously automatically-applied adjustments
             @order.all_adjustments.delete_all
-            @rate1.adjust(@order.tax_zone, line_item)
-            @rate2.adjust(@order.tax_zone, line_item)
+            @rate1.adjust(@order, line_item)
+            @rate2.adjust(@order, line_item)
           end
 
           it "should create two price adjustments" do
