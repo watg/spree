@@ -57,10 +57,11 @@ describe Spree::Order do
   end
 
   describe ".express?" do
-    let(:shipments) { 3.times.map { build_stubbed(:shipment, shipping_methods: [new_shipping_method]) } }
+    let(:shipments) { 3.times.map { build_stubbed(:shipment) } }
 
     before do
       allow(order).to receive(:shipments).and_return(shipments)
+      shipments.each{ |s| allow(s).to receive(:shipping_method).and_return(new_shipping_method) }
     end
 
     context "all the shipments_methods are not express" do
@@ -70,7 +71,7 @@ describe Spree::Order do
     end
 
     context "at least one the shipments_methods are express" do
-      before { shipments[1].shipping_methods.first.express = true }
+      before { shipments[1].shipping_method.express = true }
       it "returns true" do
         expect(order.express?).to be_truthy
       end

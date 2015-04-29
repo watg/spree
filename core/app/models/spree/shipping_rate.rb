@@ -10,6 +10,8 @@ module Spree
     delegate :order, :currency, to: :shipment
     delegate :name, to: :shipping_method
 
+    scope :selected, -> { where(selected: true) }
+
     def display_base_price
       Spree::Money.new(cost, currency: currency)
     end

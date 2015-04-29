@@ -14,7 +14,7 @@
   </li>
   <li>
 
-    <%= form_tag image_stickers_admin_waiting_orders_url(format: :pdf), method: :put do |f| %>
+    <%= form_tag image_stickers_admin_waiting_orders_url(format: :pdf, params: params), method: :put do |f| %>
       <%= submit_tag "Print next #{[@batch_size, @unprinted_image_count].min} stickers", :target => "_blank" %>
     <% end %>
 
@@ -56,7 +56,7 @@
           <div class="field">
             <br>
             <label>
-              <%= f.check_box :batch_print_id_null %>
+              <%= f.check_box :batch_print_id_null, {:checked => params[:q][:batch_print_id_null] == '1' }, '1', '' %>
               Without a batch number
             </label>
           </div>
@@ -82,15 +82,24 @@
         </div>
         <div class="omega four columns">
           <div class="field">
-            <%= label_tag  'ignored_marketing_type_ids[]', "Marketing Types to Ignore" %>
-            <%= select_tag 'ignored_marketing_type_ids[]', options_from_collection_for_select(Spree::MarketingType.all, :id, :title, params['ignored_marketing_type_ids']), {class: 'select2 fullwidth', multiple: true} %>
-            <small><a href="#" id="exclude-unselected">Ignore all except selected</a></small>
+            <label>
+              <%= f.check_box :filter_express, {:checked => (params[:q][:filter_express] == '1')}, '1', '' %>
+              <%= Spree.t(:show_only_express_orders) %>
+            </label>
           </div>
         </div>
+        <div class="clearfix"></div>
         <div class="alpha four columns">
           <div class="field">
             <%= f.label :shipments_address_country_id_in, "Countries" %>
             <%= f.collection_select(:shipments_address_country_id_in, Spree::Country.all, :id, :name, {include_blank: true},  { class: 'select2 fullwidth', multiple: true}) %>
+          </div>
+        </div>
+        <div class="omega four columns">
+          <div class="field">
+            <%= label_tag  'ignored_marketing_type_ids[]', "Marketing Types to Ignore" %>
+            <%= select_tag 'ignored_marketing_type_ids[]', options_from_collection_for_select(Spree::MarketingType.all, :id, :title, params['ignored_marketing_type_ids']), {class: 'select2 fullwidth', multiple: true} %>
+            <small><a href="#" id="exclude-unselected">Ignore all except selected</a></small>
           </div>
         </div>
       </div>
@@ -107,72 +116,77 @@
 <% unless @collection.empty? %>
   <table class="index responsive" id="listing_orders" data-hook>
     <colgroup>
-       <col style="width: 10%;">
-       <col style="width: 10%;">
-       <col style="width: 10%;">
-       <col style="width: 10%;">
-       <col style="width: 10%;">
-       <col style="width: 15%;">
-       <col style="width: 35%;">
+      <col style="width: 10%;">
+      <col style="width: 10%;">
+      <col style="width: 10%;">
+      <col style="width: 10%;">
+      <col style="width: 10%;">
+      <col style="width: 15%;">
+      <col style="width: 10%;">
+      <col style="width: 35%;">
     </colgroup>
     <thead>
-      <tr data-hook="admin_orders_index_headers">
-        <th><%= Spree.t(:batch_id) %></th>
-        <th><%= I18n.t(:number, :scope => 'activerecord.attributes.spree/order') %></th>
-        <th>Packing</th>
-        <th>Sticker</th>
-        <th>Invoice</th>
-        <th><%= I18n.t(:total, :scope => 'activerecord.attributes.spree/order') %></th>
-        <th><%= Spree.t(:parcels) %></th>
-        <th data-hook="admin_orders_index_header_actions" class="actions"></th>
-      </tr>
+    <tr data-hook="admin_orders_index_headers">
+      <th><%= Spree.t(:batch_id) %></th>
+      <th><%= I18n.t(:number, :scope => 'activerecord.attributes.spree/order') %></th>
+      <th>Packing</th>
+      <th>Sticker</th>
+      <th>Invoice</th>
+      <th><%= I18n.t(:total, :scope => 'activerecord.attributes.spree/order') %></th>
+      <th><%= I18n.t(:delivery_type, :scope => 'activerecord.attributes.spree/order') %></th>
+      <th><%= Spree.t(:parcels) %></th>
+      <th data-hook="admin_orders_index_header_actions" class="actions"></th>
+    </tr>
     </thead>
     <tbody>
-    <% @collection.each_with_index do |order| %>
-      <tr data-hook="admin_orders_index_rows" class="state-<%= order.state.downcase %> <%= cycle('odd', 'even') %>">
-        <td class="align-center"><%= order.batch_print_id %></td>
-        <td class="align-center">
-          <% if order.important? %>
-            <p class="important">Important</p>
-          <% end %>
-          <%= link_to order.number, edit_admin_order_path(order) %>
-          <small><%= order.email %></small>
-          <div class="field">
-            <small><%= order.completed_at.to_datetime.to_s(:short) %></small>
-          </div>
-        </td>
-        <td class="align-center">
-          <% if order.batch_invoice_print_date.present? %>
-            <%= link_to "Printed", admin_order_path(order, :type =>:packing_list, :format => 'pdf') %>
+    <% @collection.each_with_index do |o| %>
+      <% admin_present(o,{}) do |order| %>
+        <tr data-hook="admin_orders_index_rows" class="state-<%= order.state.downcase %> <%= cycle('odd', 'even') %>">
+          <td class="align-center"><%= order.batch_print_id %></td>
+          <td class="align-center">
+            <% if order.important? %>
+              <p class="important">Important</p>
+            <% end %>
+            <%= link_to order.number, edit_admin_order_path(order) %>
+            <small><%= order.email %></small>
+            <div class="field">
+              <small><%= order.completed_at.to_datetime.to_s(:short) %></small>
+            </div>
+          </td>
+          <td class="align-center">
+            <% if order.batch_invoice_print_date.present? %>
+              <%= link_to "Printed", admin_order_path(order, :type =>:packing_list, :format => 'pdf') %>
 
-          <% else %>
-            <%= link_to "Not Printed", admin_order_path(order, :type =>:packing_list, :format => 'pdf') %>
-          <% end %>
-        </td>
-        <td class="align-center">
-          <% if order.batch_sticker_print_date.present? %>
-            <%= link_to "Printed", admin_order_path(order, :type =>:sticker, :format => 'pdf') %>
-            <small><%= link_to "+", admin_print_job_path(order.image_sticker_print_job) %></small>
-          <% else %>
-            <%= link_to "Not Printed", admin_order_path(order, :type =>:sticker, :format => 'pdf') %>
-          <% end %>
-        </td>
-        <td class="align-center">
-          <% if order.batch_invoice_print_date.present? %>
-            <%= link_to "Printed", admin_order_path(order, :format => 'pdf') %>
-            <small><%= link_to "+", admin_print_job_path(order.invoice_print_job) %></small>
-          <% else %>
-            <%= link_to "Not Printed", admin_order_path(order, :format => 'pdf') %>
-          <% end %>
-        </td>
-        <td class="align-center"><%= order.display_total.to_html %></td>
-        <td class="align-center"><%= render :partial => 'boxes', :locals => {order: order, all_boxes: @all_boxes} %></td>
-        <td class='actions align-center' data-hook="admin_orders_index_row_actions">
-          <%= link_to_with_icon 'edit', Spree.t(:add_box), admin_waiting_order_path(order), :title => "admin_#{dom_id(order)}", :no_text => true, :class => 'add-box-to-order', 'data-order' => "order-#{order.id}" %>
-          <%= button_to 'consignment', create_and_allocate_consignment_admin_waiting_order_path(id: order.id, page: params[:page]) %>
-	  <%= render :partial => "shipment_email", :locals => { :order => order } %>
-        </td>
-      </tr>
+            <% else %>
+              <%= link_to "Not Printed", admin_order_path(order, :type =>:packing_list, :format => 'pdf') %>
+            <% end %>
+          </td>
+          <td class="align-center">
+            <% if order.batch_sticker_print_date.present? %>
+              <%= link_to "Printed", admin_order_path(order, :type =>:sticker, :format => 'pdf') %>
+              <small><%= link_to "+", admin_print_job_path(order.image_sticker_print_job) %></small>
+            <% else %>
+              <%= link_to "Not Printed", admin_order_path(order, :type =>:sticker, :format => 'pdf') %>
+            <% end %>
+          </td>
+          <td class="align-center">
+            <% if order.batch_invoice_print_date.present? %>
+              <%= link_to "Printed", admin_order_path(order, :format => 'pdf') %>
+              <small><%= link_to "+", admin_print_job_path(order.invoice_print_job) %></small>
+            <% else %>
+              <%= link_to "Not Printed", admin_order_path(order, :format => 'pdf') %>
+            <% end %>
+          </td>
+          <td class="align-center"><%= order.display_total.to_html %></td>
+          <td class="align-center"><span class="state <%= order.delivery_type_class %>"><%= order.delivery_type %></span></td>
+          <td class="align-center"><%= render :partial => 'boxes', :locals => {order: order, all_boxes: @all_boxes} %></td>
+          <td class='actions align-center' data-hook="admin_orders_index_row_actions">
+            <%= link_to_with_icon 'edit', Spree.t(:add_box), admin_waiting_order_path(order), :title => "admin_#{dom_id(order)}", :no_text => true, :class => 'add-box-to-order', 'data-order' => "order-#{order.id}" %>
+            <%= button_to 'consignment', create_and_allocate_consignment_admin_waiting_order_path(id: order.id, page: params[:page]) %>
+            <%= render :partial => "shipment_email", :locals => { :order => order } %>
+          </td>
+        </tr>
+      <% end #end of presenter %>
     <% end %>
     </tbody>
   </table>
@@ -185,33 +199,33 @@
 <%= paginate @collection %>
 
 <script>
-$(document).ready(function(){
-  $('.add-box-to-order').on('click', function(){
-  $('#'+$(this).data('order')).show();
-    return false;
-  });
-
-  excludeUnselected = function () {
-    $("#exclude-unselected").click(function(event){
-      event.preventDefault();
-      var target_list = $(this).parent().parent().find('.select2:first');
-      var source_list = $('#q_line_items_product_marketing_type_id_in:first');
-      var selected = [];
-
-      source_list.find("option:not(:selected)").each(function(index, el) {
-        selected[selected.length] = $(el).attr("value");
-      });
-      target_list.select2("val", selected);
+  $(document).ready(function(){
+    $('.add-box-to-order').on('click', function(){
+      $('#'+$(this).data('order')).show();
+      return false;
     });
-  };
 
-  excludeUnselected();
+    excludeUnselected = function () {
+      $("#exclude-unselected").click(function(event){
+        event.preventDefault();
+        var target_list = $(this).parent().parent().find('.select2:first');
+        var source_list = $('#q_line_items_product_marketing_type_id_in:first');
+        var selected = [];
 
-  $(document).on("ajax:complete", ".shipment-email-change", function(e, data, status, xhr) {
-    $(e.target).parents(".shipment-email").html(data.responseText);
-  });
+        source_list.find("option:not(:selected)").each(function(index, el) {
+          selected[selected.length] = $(el).attr("value");
+        });
+        target_list.select2("val", selected);
+      });
+    };
 
-})
+    excludeUnselected();
+
+    $(document).on("ajax:complete", ".shipment-email-change", function(e, data, status, xhr) {
+      $(e.target).parents(".shipment-email").html(data.responseText);
+    });
+
+  })
 
 
 

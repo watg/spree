@@ -40,6 +40,13 @@
           <%= label_tag :q_shipment_state_eq, Spree.t(:shipment_status) %>
           <%= f.select :shipment_state_eq, Spree::OrderUpdater.shipment_states.map {|s| [s.humanize, s]}, {:include_blank => true}, :class => 'select2' %>
         </div>
+
+        <div class="field checkbox">
+          <label>
+            <%= f.check_box :filter_express, {:checked => (params[:q][:filter_express] == '1')}, '1', '' %>
+            <%= Spree.t(:show_only_express_orders) %>
+          </label>
+        </div>
       </div>
 
       <div class="four columns">
@@ -78,10 +85,11 @@
       <div class="omega four columns">
         <div class="field checkbox">
           <label>
-            <%= f.check_box :completed_at_not_null, {:checked => @show_only_completed}, '1', '0' %>
+            <%= f.check_box :completed_at_not_null, {:checked => params[:q][:completed_at_not_null] == '1' }, '1', '0' %>
             <%= Spree.t(:show_only_complete_orders) %>
           </label>
         </div>
+
         <div class="field checkbox">
           <label>
             <%= f.check_box :considered_risky_eq, {:checked => (params[:q][:considered_risky_eq] == '1')}, '1', '' %>
@@ -142,39 +150,39 @@
         <th><%= sort_link @search, :shipment_state, I18n.t(:shipment_state, :scope => 'activerecord.attributes.spree/order') %></th>
       <% end %>
       <th><%= sort_link @search, :email,            I18n.t(:email, :scope => 'activerecord.attributes.spree/order') %></th>
-      <th><%= sort_link @search,:express ,I18n.t(:delivery_type, :scope => 'activerecord.attributes.spree/order') %></th>
       <th><%= sort_link @search, :total,            I18n.t(:total, :scope => 'activerecord.attributes.spree/order') %></th>
+      <th><%= I18n.t(:delivery_type, :scope => 'activerecord.attributes.spree/order') %></th>
       <th data-hook="admin_orders_index_header_actions" class="actions"></th>
     </tr>
     </thead>
     <tbody>
     <% @orders.each do |o| %>
       <% admin_present(o,{}) do |order| %>
-      <tr data-hook="admin_orders_index_rows" class="state-<%= order.state.downcase %> <%= cycle('odd', 'even') %>">
-        <td class="align-center"><%= l (@show_only_completed ? order.completed_at : order.created_at).to_datetime %></td>
-        <td class="align-center"><%= link_to order.number, edit_admin_order_path(order) %></td>
-        <td class="align-center"><span class="state <%= order.considered_risky ? 'considered_risky' : 'considered_safe' %>"></span></td>
-        <td class="align-center"><span class="state <%= order.state.downcase %>"><%= Spree.t("order_state.#{order.state.downcase}") %></span></td>
-        <td class="align-center"><span class="state <%= order.payment_state %>"><%= link_to Spree.t("payment_states.#{order.payment_state}"), admin_order_payments_path(order) if order.payment_state %></span></td>
-        <% if Spree::Order.checkout_step_names.include?(:delivery) %>
-          <td class="align-center"><span class="state <%= order.shipment_state %>"><%= Spree.t("shipment_states.#{order.shipment_state}") if order.shipment_state %></span></td>
-        <% end %>
-        <td>
-          <% if order.user %>
-            <%= link_to order.email, edit_admin_user_path(order.user) %>
-          <% else %>
-            <%= mail_to order.email %>
+        <tr data-hook="admin_orders_index_rows" class="state-<%= order.state.downcase %> <%= cycle('odd', 'even') %>">
+          <td class="align-center"><%= l (@show_only_completed ? order.completed_at : order.created_at).to_datetime %></td>
+          <td class="align-center"><%= link_to order.number, edit_admin_order_path(order) %></td>
+          <td class="align-center"><span class="state <%= order.considered_risky ? 'considered_risky' : 'considered_safe' %>"></span></td>
+          <td class="align-center"><span class="state <%= order.state.downcase %>"><%= Spree.t("order_state.#{order.state.downcase}") %></span></td>
+          <td class="align-center"><span class="state <%= order.payment_state %>"><%= link_to Spree.t("payment_states.#{order.payment_state}"), admin_order_payments_path(order) if order.payment_state %></span></td>
+          <% if Spree::Order.checkout_step_names.include?(:delivery) %>
+            <td class="align-center"><span class="state <%= order.shipment_state %>"><%= Spree.t("shipment_states.#{order.shipment_state}") if order.shipment_state %></span></td>
           <% end %>
-        </td>
-        <td class="align-center"><span class="state <%= order.delivery_type_class %>"><%= order.delivery_type %></span></td>
-        <td class="align-center"><%= order.display_total.to_html %></td>
-        <td class='actions align-center' data-hook="admin_orders_index_row_actions">
-          <%= link_to_edit_url edit_admin_order_path(order), :title => "admin_edit_#{dom_id(order)}", :no_text => true %>
-          <%= link_to_with_icon 'envelope', Spree.t(:invoice), admin_order_path(order, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
-          <%= link_to_with_icon 'barcode', 'sticker', admin_order_path(order, :type =>:sticker, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
-          <%= link_to_with_icon 'file', 'Packing List', admin_order_path(order, :type =>:packing_list, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
-        </td>
-      </tr>
+          <td>
+            <% if order.user %>
+              <%= link_to order.email, edit_admin_user_path(order.user) %>
+            <% else %>
+              <%= mail_to order.email %>
+            <% end %>
+          </td>
+          <td class="align-center"><%= order.display_total.to_html %></td>
+          <td class="align-center"><span class="state <%= order.delivery_type_class %>"><%= order.delivery_type %></span></td>
+          <td class='actions align-center' data-hook="admin_orders_index_row_actions">
+            <%= link_to_edit_url edit_admin_order_path(order), :title => "admin_edit_#{dom_id(order)}", :no_text => true %>
+            <%= link_to_with_icon 'envelope', Spree.t(:invoice), admin_order_path(order, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
+            <%= link_to_with_icon 'barcode', 'sticker', admin_order_path(order, :type =>:sticker, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
+            <%= link_to_with_icon 'file', 'Packing List', admin_order_path(order, :type =>:packing_list, :format => 'pdf'), :title => "admin_#{dom_id(order)}", :no_text => true, target: '_blank' %>
+          </td>
+        </tr>
       <% end %>
     <% end %>
     </tbody>

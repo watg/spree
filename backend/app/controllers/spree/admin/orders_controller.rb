@@ -7,6 +7,7 @@ module Spree
       respond_to :html
 
       def index
+        params[:q] ||= {}
         @search = ::Admin::Orders::Search.run!(params: params, current_ability: current_ability)
         @orders = ::Admin::Orders::OrdersBySearch.run!(params: params, search: @search)
       end
