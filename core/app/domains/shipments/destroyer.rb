@@ -9,12 +9,9 @@ module Shipments
 
     def destroy
       shipment.shipping_rates.each do |shipping_rate|
-        shipping_rate.adjustments.each do |adjustment|
-          adjustment.destroy
-        end
-        shipping_rate.destroy
+        ::ShippingRates::Destroyer.new(shipping_rate).destroy
       end
-      shipment.destroy
+      shipment.delete
     end
 
   end

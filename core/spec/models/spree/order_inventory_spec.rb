@@ -282,7 +282,7 @@ describe Spree::OrderInventory, :type => :model do
 
     it 'should destroy self if not inventory units remain' do
       allow(shipment.inventory_units).to receive_messages(:count => 0)
-      expect(shipment).to receive(:destroy)
+      expect(shipment).to receive(:delete)
 
       expect(subject.send(:remove_from_shipment, shipment, 1)).to eq(1)
     end
