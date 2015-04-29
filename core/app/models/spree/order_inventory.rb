@@ -167,7 +167,7 @@ module Spree
       remove_units.map(&:destroy)
 
       if shipment.inventory_units.count == 0
-        ::Shipments::Destroyer.new(shipment).destroy
+        ::Shipments::Deleter.new(shipment).delete
       end
 
       removed_quantity

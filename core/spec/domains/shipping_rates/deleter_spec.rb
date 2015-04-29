@@ -1,4 +1,4 @@
-describe ShippingRates::Destroyer do
+describe ShippingRates::Deleter do
   let!(:shipping_rate) { mock_model(Spree::ShippingRate, selected: true, adjustments: []) }
   let!(:adjustment_1) { mock_model(Spree::Adjustment) }
   let!(:adjustment_2) { mock_model(Spree::Adjustment) }
@@ -10,12 +10,12 @@ describe ShippingRates::Destroyer do
 
   subject { described_class.new(shipping_rate) }
 
-  describe "#destroy" do
+  describe "#deleter" do
     it "returns deletes the shipping rate" do
       expect(adjustment_1).to receive(:delete).once
       expect(adjustment_2).to receive(:delete).once
       expect(shipping_rate).to receive(:delete)
-      subject.destroy
+      subject.delete
     end
   end
 end

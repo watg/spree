@@ -1,5 +1,5 @@
 module ShippingRates
-  class Destroyer
+  class Deleter
 
     attr_reader :shipping_rate
 
@@ -7,7 +7,7 @@ module ShippingRates
       @shipping_rate = shipping_rate
     end
 
-    def destroy
+    def delete
       shipping_rate.adjustments.map(&:delete)
       shipping_rate.delete
     end

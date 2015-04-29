@@ -1,5 +1,5 @@
 module Shipments
-  class Destroyer
+  class Deleter
 
     attr_reader :shipment
 
@@ -7,9 +7,9 @@ module Shipments
       @shipment = shipment
     end
 
-    def destroy
+    def delete
       shipment.shipping_rates.each do |shipping_rate|
-        ::ShippingRates::Destroyer.new(shipping_rate).destroy
+        ::ShippingRates::Deleter.new(shipping_rate).delete
       end
       shipment.delete
     end

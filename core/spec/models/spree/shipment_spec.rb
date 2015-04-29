@@ -195,9 +195,9 @@ describe Spree::Shipment, :type => :model do
       expect(shipment.shipping_method).to eq shipping_method1
     end
 
-    context 'destroy_shipping_rates' do
-      it "delets shipping rates and adjusmtens" do
-        shipment.destroy_shipping_rates
+    context 'delete_shipping_rates' do
+      it "deletes shipping rates and adjusmtens" do
+        shipment.delete_shipping_rates
         expect(shipment.shipping_rates).to eq []
         expect(shipment.reload.shipping_rates).to eq []
       end

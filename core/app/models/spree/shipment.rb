@@ -245,8 +245,8 @@ module Spree
       return !!Spree::Config[:allow_checkout_on_gateway_error]
     end
 
-    def destroy_shipping_rates
-      self.shipping_rates.each { |sr| ::ShippingRates::Destroyer.new(sr).destroy }
+    def delete_shipping_rates
+      self.shipping_rates.each { |sr| ::ShippingRates::Deleter.new(sr).delete }
       self.shipping_rates = []
     end
 
@@ -257,7 +257,7 @@ module Spree
       # StockEstimator.new assigment below will replace the current shipping_method
       original_shipping_method_id = shipping_method.try(:id)
 
-      destroy_shipping_rates
+      delete_shipping_rates
       self.shipping_rates = Stock::Estimator.new(order).shipping_rates(to_package)
       Spree::TaxRate.adjust(order, shipping_rates)
       order.apply_free_shipping_promotions
