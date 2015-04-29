@@ -10,16 +10,16 @@
     <% end %>
 
     <br/>
-    <em><%= @unprinted_invoice_count %> unprinted</em>
+    <em><%= @unprinted_invoice_total %> unprinted</em>
   </li>
   <li>
 
     <%= form_tag image_stickers_admin_waiting_orders_url(format: :pdf, params: params), method: :put do |f| %>
-      <%= submit_tag "Print next #{[@batch_size, @unprinted_image_count].min} stickers", :target => "_blank" %>
+      <%= submit_tag "Print next #{[@batch_size, @unprinted_image_count].min} selected stickers", :target => "_blank" %>
     <% end %>
 
     <br/>
-    <em><%= @unprinted_image_count %> ready to print</em>
+    <em><%= @unprinted_image_total%> ready to print</em>
   </li>
 <% end %>
 

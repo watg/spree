@@ -13,7 +13,9 @@ module Spree
         @collection = @collection.where("spree_products.marketing_type_id NOT IN (?)", params.fetch(:ignored_marketing_type_ids,"-1"))
         @unprinted_invoice_count = @collection.unprinted_invoices.size
         @unprinted_image_count = @collection.unprinted_image_stickers.size
-        @collection = Kaminari.paginate_array(@collection.to_a).page(params[:page]).per(15)
+        @unprinted_invoice_total = Spree::Order.unprinted_invoices.size
+        @unprinted_image_total = Spree::Order.unprinted_image_stickers.size
+        @collection = @collection.page(params[:page]).per(15)
       end
 
       def update
