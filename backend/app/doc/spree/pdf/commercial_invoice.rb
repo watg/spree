@@ -108,8 +108,8 @@ module Spree
 
         pdf.table(invoice_header_data, :position => invoice_header_x, :width => 215) do
           style(row(0..2).columns(0..1), :padding => [1, 5, 1, 5], :borders => [])
-          style(row(3), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
           style(column(2), :align => :right)
+          style(row(3), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
           style(row(3).columns(0), :borders => [:top, :left, :bottom])
           style(row(3).columns(1), :borders => [:top, :right, :bottom])
         end
@@ -166,7 +166,7 @@ module Spree
         pdf.move_down 1
         totals_data = []
         totals_data.push [ "Sub Total", (@order_display_total.money - @shipping_cost.money).format ]
-        totals_data.push [ "Shipping", @shipping_cost.to_s ]
+        totals_data.push [ "Shipping (#{order.express? ? "Express" : "Regular" })", @shipping_cost.to_s ]
         totals_data.push [ "Order Total", @order_display_total.to_s_with_USD ]
 
         pdf.table(totals_data, :position => invoice_header_x, :width => 215) do
