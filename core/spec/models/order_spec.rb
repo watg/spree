@@ -61,7 +61,7 @@ describe Spree::Order do
 
     before do
       allow(order).to receive(:shipments).and_return(shipments)
-      shipments.each{ |s| allow(s).to receive(:shipping_method).and_return(new_shipping_method) }
+      shipments.each{ |s| allow(s).to receive(:selected_shipping_method).and_return(new_shipping_method) }
     end
 
     context "all the shipments_methods are not express" do
@@ -71,7 +71,7 @@ describe Spree::Order do
     end
 
     context "at least one the shipments_methods are express" do
-      before { shipments[1].shipping_method.express = true }
+      before { shipments[1].selected_shipping_method.express = true }
       it "returns true" do
         expect(order.express?).to be_truthy
       end

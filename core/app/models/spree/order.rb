@@ -327,11 +327,11 @@ module Spree
     # If true, causes the confirmation step to happen during the checkout process
     def confirmation_required?
       Spree::Config[:always_include_confirm_step] ||
-      payments.valid.map(&:payment_method).compact.any?(&:payment_profiles_supported?) ||
-      # Little hacky fix for #4117
-      # If this wasn't here, order would transition to address state on confirm failure
-      # because there would be no valid payments any more.
-      state == 'confirm'
+        payments.valid.map(&:payment_method).compact.any?(&:payment_profiles_supported?) ||
+        # Little hacky fix for #4117
+        # If this wasn't here, order would transition to address state on confirm failure
+        # because there would be no valid payments any more.
+        state == 'confirm'
     end
 
     def backordered?
@@ -894,9 +894,7 @@ module Spree
     end
 
     def express?
-      shipments.any? do |s|
-        s.shipping_method.try(:express)
-      end
+      shipments.any?(&:express?)
     end
 
     def self.express
