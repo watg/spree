@@ -18,6 +18,7 @@ module Search
     private
 
     def calc_per_page(params)
+
       @per_page = if params.key?(:per_page) && params[:per_page].to_i > 0
                     params[:per_page].to_i
                   else
@@ -27,6 +28,7 @@ module Search
 
     # sanitize and convert the keywords for a tsquery
     def prepare_keywords(keywords)
+      keywords = keywords.gsub(/[\\,']/, "")
       ActiveRecord::Base.send(:sanitize_sql_array,
                               ["(to_tsquery('english', :q) || to_tsquery('simple', :q))",
                                q: ActiveRecord::Base.sanitize(keywords.split.join("&"))]
@@ -40,7 +42,6 @@ module Search
                 ts_rank(document, #{prepare_keywords(keywords)}) AS rank")
                  .joins(:indexed_search)
                  .where("indexed_searches.document @@ #{prepare_keywords(keywords)}").to_sql
-
       Spree::Suite.select("spree_suites.*").from("(#{subquery}) spree_suites")
         .order("rank desc")
     end
