@@ -64,6 +64,8 @@ module Spree
     def after_add_or_remove(line_item, options = {})
       reload_totals
       shipment = options[:shipment]
+      # reload_totals basically duplicates what is happening in
+      # shipment.update_shipping_rate_adjustments hence we may want to remove it
       shipment.present? ? shipment.update_shipping_rate_adjustments : order.ensure_updated_shipments
       PromotionHandler::Cart.new(order, line_item).activate
       ItemAdjustments.new(line_item).update

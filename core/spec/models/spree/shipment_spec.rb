@@ -751,7 +751,7 @@ describe Spree::Shipment, :type => :model do
       allow(order).to receive_messages :shipments => shipments
       updater = double("Updater")
       expect(updater).to receive(:update).once
-      expect(::Shipping::AdjustmentsUpdater).to receive(:new).with([shipping_rate]).
+      expect(Spree::ItemAdjustments).to receive(:new).with(shipping_rate).
         and_return(updater)
       shipment.update_shipping_rate_adjustments
     end

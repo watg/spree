@@ -340,7 +340,7 @@ module Spree
     end
 
     def update_shipping_rate_adjustments
-      ::Shipping::AdjustmentsUpdater.new(shipping_rates).update
+      shipping_rates.map { |sr| Spree::ItemAdjustments.new(sr).update }
     end
 
     # Update Shipment and make sure Order states follow the shipment changes
