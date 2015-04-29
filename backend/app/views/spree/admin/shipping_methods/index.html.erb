@@ -19,6 +19,7 @@
       <col style="width: 15%">
       <col style="width: 15%">
       <col style="width: 10%">
+      <col style="width: 10%">
     </colgroup>
     <thead>
       <tr data-hook="admin_shipping_methods_index_headers">
@@ -27,6 +28,7 @@
         <th><%= Spree.t(:zone) %></th>
         <th><%= Spree.t(:calculator) %></th>
         <th><%= Spree.t(:display) %></th>
+        <th><%= Spree.t(:express) %></th>
         <th data-hook="admin_shipping_methods_index_header_actions" class="actions"></th>
       </tr>
     </thead>
@@ -38,6 +40,7 @@
           <td class="align-center"><%= shipping_method.zones.collect(&:name).join(", ") if shipping_method.zones %></td>
           <td class="align-center"><%= shipping_method.calculator.description %></td>
           <td class="align-center"><%= shipping_method.display_on.blank? ? Spree.t(:both) : Spree.t(shipping_method.display_on) %></td>
+          <td class="align-center"><%= shipping_method.express %></td>
           <td data-hook="admin_shipping_methods_index_row_actions" class="actions">
             <%= link_to_edit shipping_method, :no_text => true %>
             <%= link_to_delete shipping_method, :no_text => true %>

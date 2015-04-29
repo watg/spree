@@ -6,19 +6,16 @@ module Spree
       def index
         @all_boxes = Spree::Parcel.find_boxes
         @batch_size = Spree::BulkOrderPrintingService::BATCH_SIZE
-        @unprinted_invoice_count = Spree::Order.unprinted_invoices.size
-        @unprinted_image_count = Spree::Order.unprinted_image_stickers.size
-
-        @orders = Spree::Order.to_be_packed_and_shipped
-        # @search needs to be defined as this is passed to search_form_for
-
         params[:q] ||= {}
-        @search = @orders.ransack(params[:q])
+        @search = ::Admin::WaitingOrders::Search.run!(params: params, current_ability: current_ability)
         @collection = @search.result(distinct: true)
-
         # subtract all orders, which are in the excluded select box
-        @collection = @collection - @orders.where("spree_products.marketing_type_id IN (?)", params[:ignored_marketing_type_ids])
-        @collection = Kaminari.paginate_array(@collection).page(params[:page]).per(15)
+        @collection = @collection.where("spree_products.marketing_type_id NOT IN (?)", params.fetch(:ignored_marketing_type_ids,"-1"))
+        @unprinted_invoice_count = @collection.unprinted_invoices.size
+        @unprinted_image_count = @collection.unprinted_image_stickers.size
+        @unprinted_invoice_total = Spree::Order.unprinted_invoices.size
+        @unprinted_image_total = Spree::Order.unprinted_image_stickers.size
+        @collection = @collection.page(params[:page]).per(15)
       end
 
       def update
@@ -33,7 +30,8 @@ module Spree
 
       def invoices
         unprinted_orders = Spree::Order.unprinted_invoices
-
+        params[:q] ||= {}
+        params[:q][:express] = params[:q][:filter_express] == "1"
         # apply the ransack and exclude filters
         orders = unprinted_orders.ransack(params[:q]).result(distinct: true)
         orders = orders - unprinted_orders.where("spree_products.marketing_type_id IN (?)", params[:ignored_marketing_type_ids])
@@ -43,7 +41,13 @@ module Spree
       end
 
       def image_stickers
-        orders = Spree::Order.unprinted_image_stickers
+        unprinted_image_stickers = Spree::Order.unprinted_image_stickers
+        params[:q] ||= {}
+        params[:q][:express] = params[:q][:filter_express] == "1"
+        # apply the ransack and exclude filters
+        orders = unprinted_image_stickers.ransack(params[:q]).result(distinct: true)
+        orders = orders - unprinted_image_stickers.where("spree_products.marketing_type_id IN (?)", params[:ignored_marketing_type_ids])
+
         outcome = Spree::BulkOrderPrintingService.new.print_image_stickers(orders)
         handle_pdf(outcome, "image_stickers.pdf")
       end

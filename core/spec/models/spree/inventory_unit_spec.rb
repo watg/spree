@@ -1,30 +1,13 @@
 require 'spec_helper'
 
 describe Spree::InventoryUnit, :type => :model do
-  let(:stock_location) { create(:stock_location_with_items) }
-  let(:stock_item) { stock_location.stock_items.order(:id).first }
-  let(:shipment) { build(:shipment) }
-  let(:order) { build(:order) }
+  let(:stock_location)  { create(:stock_location_with_items) }
+  let(:stock_item)      { stock_location.stock_items.order(:id).first }
+  let(:shipment)        { create(:shipment, stock_location: stock_location, shipping_methods: [shipping_method], order: order) }
+  let(:shipping_method) { create(:shipping_method) }
+  let(:order)           { create(:order, state: 'complete', completed_at: Time.now) }
 
-
-  context "#backordered_for_stock_item" do
-    let(:order) do
-      order = create(:order)
-      order.state = 'complete'
-      order.completed_at = Time.now
-      order.tap(&:save!)
-    end
-
-    let(:shipment) do
-      shipment = Spree::Shipment.new
-      shipment.stock_location = stock_location
-      shipment.shipping_methods << create(:shipping_method)
-      shipment.order = order
-      # We don't care about this in this test
-      allow(shipment).to receive(:ensure_correct_adjustment)
-      shipment.tap(&:save!)
-    end
-
+  describe "#backordered_for_stock_item" do
     let!(:unit) do
       unit = shipment.inventory_units.build
       unit.state = 'backordered'
@@ -60,14 +43,21 @@ describe Spree::InventoryUnit, :type => :model do
 
       expect(Spree::InventoryUnit.backordered_for_stock_item(stock_item)).not_to include(other_variant_unit)
     end
+  end
 
-    describe "#waiting_inventory_units_for" do
-      let(:earlier_order) do
-        order = create(:order)
-        order.update_attributes(state: 'complete', completed_at: 2.weeks.ago)
-        order
+  describe "#waiting_inventory_units_for" do
+    let(:earlier_order) { create(:order, state: 'complete', completed_at: 2.weeks.ago) }
+    let(:variant)       { stock_item.variant }
+
+    context do
+      let!(:unit) do
+        unit = shipment.inventory_units.build
+        unit.state = 'backordered'
+        unit.variant_id = stock_item.variant.id
+        unit.order_id = order.id
+        unit.tap(&:save!)
       end
-      let(:variant) { stock_item.variant }
+
       let!(:unit_awaiting_feed) { create(:inventory_unit, shipment: shipment, state: 'awaiting_feed', variant: variant, order: earlier_order) }
       let!(:unit_on_hand) { create(:inventory_unit, shipment: shipment, state: 'on_hand', variant: variant, order: order) }
       let!(:other_on_hand) { create(:inventory_unit, shipment: shipment, state: 'backordered', order: order) }
@@ -78,6 +68,18 @@ describe Spree::InventoryUnit, :type => :model do
       end
     end
 
+    context 'express delivery' do
+      let!(:awaiting)           { create(:inventory_unit, shipment: express_shipment, state: 'awaiting_feed', variant: variant, order: earlier_order) }
+      let!(:awaiting_2)         { create(:inventory_unit, shipment: express_shipment, state: 'awaiting_feed', variant: variant, order: order) }
+      let!(:awaiting_3)         { create(:inventory_unit, shipment: shipment, state: 'awaiting_feed', variant: variant, order: earlier_order) }
+      let!(:awaiting_4)         { create(:inventory_unit, shipment: shipment, state: 'awaiting_feed', variant: variant, order: order) }
+      let(:express_shipment)    { create(:shipment, stock_location: stock_location, shipping_rates: [express_rate], order: order) }
+      let(:express_rate)        { Spree::ShippingRate.create(shipping_method: express_shipping, selected: true) }
+      let(:express_shipping)    { create(:shipping_method, express: true) }
+      let(:express_units_first) { [awaiting, awaiting_2, awaiting_3, awaiting_4] }
+
+      it { expect(Spree::InventoryUnit.waiting_for_stock_item(stock_item)).to eq(express_units_first) }
+    end
   end
 
   describe "#waiting_fill" do

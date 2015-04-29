@@ -76,6 +76,8 @@ module Spree
         .where("spree_shipments.stock_location_id = ?", stock_item.stock_location_id)
         .where('spree_orders.completed_at is not null')
         .order("spree_orders.completed_at ASC")
+        .partition{ |i| i.shipment.express? }
+        .flatten
     end
 
     def self.total_awaiting_feed_for(variant)

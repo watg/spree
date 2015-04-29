@@ -14,14 +14,17 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
     end
 
     it "should use filter params" do
-      filter_params={'first_filter'=> 'test1','second_filter'=>'test2'}
+      filter_params={'first_filter'=> 'test1',
+                     'second_filter'=>'test2',
+                     "filter_express"=>"1",
+                     "express"=>true}
       expect(Spree::Order).to receive(:ransack).with(filter_params).and_call_original
       spree_get :index, { q: filter_params }
     end
 
     it "assigns the print batch size, number of unprinted invoices and stickers" do
-      expect(Spree::Order).to receive(:unprinted_invoices).and_return(["order1"])
-      expect(Spree::Order).to receive(:unprinted_image_stickers).and_return(["order2", "order3"])
+      expect(Spree::Order).to receive(:unprinted_invoices).and_return(["order1"]).twice
+      expect(Spree::Order).to receive(:unprinted_image_stickers).and_return(["order2", "order3"]).twice
 
       spree_get :index
       expect(assigns[:batch_size]).to eq(Spree::BulkOrderPrintingService::BATCH_SIZE)

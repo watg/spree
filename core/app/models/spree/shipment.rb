@@ -159,6 +159,14 @@ module Spree
       !shipped?
     end
 
+    def express?
+      selected_shipping_method && selected_shipping_method.express?
+    end
+
+    def selected_shipping_method
+      selected_shipping_rate && selected_shipping_rate.shipping_method
+    end
+
     def final_price
       shipping_coster.final_price
     end

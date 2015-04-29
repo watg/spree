@@ -157,12 +157,12 @@ module Spree
       def to_be_packed_and_shipped
         non_digital_product_type_ids = Spree::ProductType.where(is_digital: false).pluck(:id)
         select('spree_orders.*', "COALESCE(spree_orders.important, FALSE)").includes(line_items: [variant: :product]).
-          shippable_state.
-          where(payment_state: 'paid',
-                shipment_state: 'ready',
-                internal: false,
-                'spree_products.product_type_id' => non_digital_product_type_ids).
-                prioritised
+        shippable_state.
+        where(payment_state: 'paid',
+              shipment_state: 'ready',
+              internal: false,
+              'spree_products.product_type_id' => non_digital_product_type_ids).
+        prioritised
       end
 
       def unprinted_invoices
@@ -436,9 +436,9 @@ module Spree
 
     def find_line_item_by_variant(variant, options = {})
       line_items.detect { |line_item|
-                    line_item.variant_id == variant.id &&
-                    line_item_options_match(line_item, options)
-                  }
+        line_item.variant_id == variant.id &&
+        line_item_options_match(line_item, options)
+      }
     end
 
     # This method enables extensions to participate in the
@@ -553,21 +553,21 @@ module Spree
 
     def gift_card_line_items
       self.line_items.
-        includes(:variant, product: [:product_type]).
-        # TODO: It would be great if this was more generic e.g. digital rather than
-        # gift_card, that way we can have a generic delviery behaviour with type
-        # deciding at the very end what is to be delivered
-        where("spree_product_types.name" => Spree::ProductType::GIFT_CARD).
-        reorder('spree_line_items.created_at ASC').
-        references(:variant, :product)
+      includes(:variant, product: [:product_type]).
+      # TODO: It would be great if this was more generic e.g. digital rather than
+      # gift_card, that way we can have a generic delviery behaviour with type
+      # deciding at the very end what is to be delivered
+      where("spree_product_types.name" => Spree::ProductType::GIFT_CARD).
+      reorder('spree_line_items.created_at ASC').
+      references(:variant, :product)
     end
 
     def physical_line_items
       self.line_items.
-        includes(:variant, product: [:product_type]).
-        where("spree_product_types.is_digital" => false).
-        reorder('spree_line_items.created_at ASC').
-        references(:variant, :product)
+      includes(:variant, product: [:product_type]).
+      where("spree_product_types.is_digital" => false).
+      reorder('spree_line_items.created_at ASC').
+      references(:variant, :product)
     end
 
     def line_items_without_gift_cards
@@ -650,7 +650,7 @@ module Spree
         # not the extension-specific parts of the line item match
         current_line_item = self.line_items.detect { |my_li|
           my_li.variant == other_order_line_item.variant &&
-            self.line_item_comparison_hooks.all? { |hook|
+          self.line_item_comparison_hooks.all? { |hook|
             self.send(hook, my_li, other_order_line_item.serializable_hash)
           }
         }
@@ -707,10 +707,10 @@ module Spree
         new_state = self.send(state)
         unless old_state == new_state
           self.state_changes.create(
-            previous_state: old_state,
-            next_state:     new_state,
-            name:           name,
-            user_id:        self.user_id
+          previous_state: old_state,
+          next_state:     new_state,
+          name:           name,
+          user_id:        self.user_id
           )
         end
       end
@@ -763,8 +763,8 @@ module Spree
 
     def restart_checkout_flow
       self.update_columns(
-        state: 'cart',
-        updated_at: Time.now,
+      state: 'cart',
+      updated_at: Time.now,
       )
       self.next! if self.line_items.size > 0
     end
@@ -791,8 +791,8 @@ module Spree
       self.transaction do
         cancel!
         self.update_columns(
-          canceler_id: user.id,
-          canceled_at: Time.now,
+        canceler_id: user.id,
+        canceled_at: Time.now,
         )
       end
     end
@@ -801,8 +801,8 @@ module Spree
       self.transaction do
         approve!
         self.update_columns(
-          approver_id: user.id,
-          approved_at: Time.now,
+        approver_id: user.id,
+        approved_at: Time.now,
         )
       end
     end
@@ -857,7 +857,7 @@ module Spree
 
     def has_non_reimbursement_related_refunds?
       refunds.non_reimbursement.exists? ||
-        payments.offset_payment.exists? # how old versions of spree stored refunds
+      payments.offset_payment.exists? # how old versions of spree stored refunds
     end
 
     def active_hold_note
@@ -892,7 +892,20 @@ module Spree
       end
     end
 
+    def express?
+      shipments.any?(&:express?)
+    end
+
+    def self.express
+      Spree::Order.joins(shipments: [shipping_rates: :shipping_method]).
+      where('spree_shipping_methods.express = true and spree_shipping_rates.selected = true').uniq
+    end
+
     private
+
+    def self.ransackable_scopes(auth_object = nil)
+      %i(express)
+    end
 
     def delete_all_shipping_rate_adjustments
       ::Adjustments::Selector.new(all_adjustments).shipping_rate.map(&:delete)

@@ -64,6 +64,9 @@ RSpec.configure do |config|
     /lib\/rspec\/(core|expectations|matchers|mocks)/
   ]
 
+  # Ensure presenters works
+  config.include ActionView::TestCase::Behavior, file_path: %r{spec/presenters}
+
   config.fixture_path = File.join(File.expand_path(File.dirname(__FILE__)), "fixtures")
 
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
