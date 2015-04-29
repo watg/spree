@@ -82,7 +82,7 @@ module Spree
 
     # This method is best described by the documentation on #potentially_applicable?
     def self.adjust(order, items)
-      order_currency = items.first.order.currency
+      order_currency = order.currency
       rates = self.match(order.tax_zone, order_currency)
       tax_categories = rates.map(&:tax_category)
       relevant_items, non_relevant_items = items.partition { |item| tax_categories.include?(item.tax_category) }
