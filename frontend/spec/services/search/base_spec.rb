@@ -3,10 +3,12 @@ require "spec_helper"
 module Search
   describe Base do
     context "correct filters" do
-      let!(:suite1) { create(:suite, :with_tab, title: "RoR Mug") }
-      let!(:suite2) { create(:suite, :with_tab, title: "RoR Shirt") }
+      let!(:product){ create(:product, description: "test") }
+      let!(:suite1) { create(:suite, title: "RoR Mug") }
+      let!(:suite2) { create(:suite, title: "RoR Shirt") }
       let!(:taxon) { create(:taxon, name: "Ruby on Rails") }
-      let!(:suite_tab1) { create(:suite_tab, suite: suite1) }
+      let!(:suite_tab1) { create(:suite_tab, suite: suite1, product: product) }
+      let!(:suite_tab2) { create(:suite_tab, suite: suite2, product: product) }
 
       before do
         suite1.taxons << taxon
@@ -55,10 +57,21 @@ module Search
         expect(searcher.results.length).to eq(1)
       end
 
+      context "searching by product description" do
+        it "returns suites with product description that matches the search" do
+          IndexedSearch.rebuild
+          params = { keywords: "test" }
+          searcher = described_class.new(params)
+          expect(searcher.results.length).to eq(2)
+        end
+      end
+
       context "with taxons and suites that matches search" do
         let!(:suite3) { create(:suite, :with_tab, title: "Ruby on Rails") }
         before do
           suite3.taxons << taxon
+          suite3.suite_tabs.first.update(product: product)
+
         end
 
         it "returns suites with searched name hover taxon name" do

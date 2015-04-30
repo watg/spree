@@ -27,11 +27,66 @@ describe Spree::Order do
 
   end
 
+  describe "#create_tax_charge!" do
+    let(:order) { stub_model(Spree::Order, tax_zone: :tax_zone) }
+
+    context "when line items present" do
+      let(:line_item) { stub_model(Spree::LineItem, :order => order) }
+      before { allow(order).to receive(:line_items).and_return([line_item]) }
+
+      it "creates a tax adjustment for line_items" do
+        expect(Spree::TaxRate).to receive(:adjust).with(order, [line_item])
+        order.create_tax_charge!
+      end
+    end
+
+    context "when line shipping rates present" do
+      let(:shipment) { stub_model(Spree::Shipment, :order => order) }
+      let(:shipping_rate) { stub_model(Spree::ShippingRate, :shipment => shipment) }
+
+      before do
+        allow(order).to receive(:shipments).and_return([shipment])
+        allow(shipment).to receive(:shipping_rates).and_return([shipping_rate])
+      end
+
+      it "creates a tax adjustment for line_items" do
+        expect(Spree::TaxRate).to receive(:adjust).with(order, [shipping_rate])
+        order.create_tax_charge!
+      end
+    end
+  end
+
+  describe ".express?" do
+    let(:shipments) { 3.times.map { build_stubbed(:shipment) } }
+
+    before do
+      allow(order).to receive(:shipments).and_return(shipments)
+      shipments.each{ |s| allow(s).to receive(:selected_shipping_method).and_return(new_shipping_method) }
+    end
+
+    context "all the shipments_methods are not express" do
+      it "returns false" do
+        expect(order.express?).to be_falsey
+      end
+    end
+
+    context "at least one the shipments_methods are express" do
+      before { shipments[1].selected_shipping_method.express = true }
+      it "returns true" do
+        expect(order.express?).to be_truthy
+      end
+    end
+
+    def new_shipping_method
+      build_stubbed(:shipping_method, express: false)
+    end
+  end
+
   describe "#to_be_packed_and_shipped" do
     let!(:order_with_one_digital_line_item) { create(:order_with_line_items, line_items_count: 2,
-                                        payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
+                                                     payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
     let!(:order_with_digital_line_items_only) { create(:order_with_line_items, line_items_count: 1,
-                                        payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
+                                                       payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
 
     before do
       p1 = order_with_one_digital_line_item.line_items.first.product
@@ -42,7 +97,7 @@ describe Spree::Order do
     end
 
     it "disregards orders with digital products only" do
-       result = Spree::Order.to_be_packed_and_shipped
+      result = Spree::Order.to_be_packed_and_shipped
       expect(result.size).to eq 1
       expect(result.first).to eq order_with_one_digital_line_item
     end
@@ -56,11 +111,11 @@ describe Spree::Order do
 
   describe "#unprinted_invoices and #unprinted_image_stickers" do
     let!(:unprinted_invoices) { create(:order_with_line_items, line_items_count: 1,
-                                        payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
+                                       payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
     let!(:printed_invoice) { create(:order_with_line_items, line_items_count: 1,
                                     batch_invoice_print_date: Date.today, payment_state: 'paid', shipment_state: 'ready', state: 'complete') }
     let!(:unfinished_order) { create(:order_with_line_items, line_items_count: 1,
-                                    payment_state: 'balance_due', shipment_state: 'ready', state: 'complete') }
+                                     payment_state: 'balance_due', shipment_state: 'ready', state: 'complete') }
 
     it "returns orders in shipment_state = ready with no invoice print date" do
       expect(Spree::Order.unprinted_invoices).to eq ([unprinted_invoices])
@@ -71,11 +126,11 @@ describe Spree::Order do
   describe ".last_batch_id" do
     it "returns the highest batch ID ever allocated" do
       FactoryGirl.create(:order,
-        :batch_invoice_print_date => Date.yesterday,
-        :batch_print_id => "17")
+                         :batch_invoice_print_date => Date.yesterday,
+                         :batch_print_id => "17")
       FactoryGirl.create(:order,
-        :batch_invoice_print_date => Date.yesterday,
-        :batch_print_id => "9")
+                         :batch_invoice_print_date => Date.yesterday,
+                         :batch_print_id => "9")
       expect(Spree::Order.last_batch_id).to eq(17)
     end
 
@@ -85,11 +140,11 @@ describe Spree::Order do
 
     it "doesn't return 0 just because a nil exists" do
       FactoryGirl.create(:order,
-        :batch_invoice_print_date => Date.yesterday,
-        :batch_print_id => "17")
+                         :batch_invoice_print_date => Date.yesterday,
+                         :batch_print_id => "17")
       FactoryGirl.create(:order,
-        :batch_invoice_print_date => Date.yesterday,
-        :batch_print_id => nil)
+                         :batch_invoice_print_date => Date.yesterday,
+                         :batch_print_id => nil)
       expect(Spree::Order.last_batch_id).to eq(17)
     end
   end
@@ -174,7 +229,7 @@ describe Spree::Order do
       expect(gift_card_2.reload.state).to eq('cancelled')
       expect(gift_card_2.beneficiary_order).to eq order
     end
-    
+
   end
 
 end

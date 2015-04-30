@@ -505,6 +505,27 @@ describe Spree::Payment, :type => :model do
         expect(order.updater).to receive(:update_shipment_state)
         Spree::Payment.create(:amount => 100, :order => order)
       end
+
+      context "with different shipment state" do
+        let(:shipment) { build(:shipment, order: order) }
+        let(:payment) { build(:payment) }
+
+        before do
+          order.shipments << shipment
+          order.payments << payment
+          order.state = "canceled"
+          allow(order).to receive(:completed?).and_return(true)
+        end
+
+        it "updates shipment state according to order state" do
+          shipment = order.shipments.first
+          expect(shipment.state).to eq("pending")
+
+          Spree::Payment.create(:amount => 100, :order => order)
+          expect(order.state).to eq("canceled")
+          expect(shipment.reload.state).to eq("canceled")
+        end
+      end
     end
 
     context "when profiles are supported" do

@@ -25,6 +25,7 @@ module Spree
         pdf.move_down initialmove_y
 
         watg_details(pdf, address_x, lineheight_y)
+        shipping_type(pdf, order)
         watg_logo(pdf)
         customer_address(pdf, order, address_x, lineheight_y)
         invoice_details(pdf, order, invoice_header_x)
@@ -39,6 +40,10 @@ module Spree
         pdf.font "Helvetica"
         pdf.font_size 9
         pdf
+      end
+
+      def shipping_type(pdf, order)
+        pdf.text "Express!", size: 40 , style: :bold, :align => :center if order.express?
       end
 
       def watg_details(pdf, address_x, lineheight_y)
@@ -93,8 +98,8 @@ module Spree
 
         pdf.table(invoice_header_data, :position => invoice_header_x, :width => 215) do
           style(row(0..2).columns(0..1), :padding => [1, 5, 1, 5], :borders => [])
-          style(row(3), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
           style(column(2), :align => :centre)
+          style(row(3), :background_color => 'e9e9e9', :border_color => 'dddddd', :font_style => :bold)
           style(row(3).columns(0), :borders => [:top, :left, :bottom])
           style(row(3).columns(1), :borders => [:top, :right, :bottom])
         end

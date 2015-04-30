@@ -181,9 +181,10 @@ module Spree
         end
       end
 
-      context 'when shipment adjustments are present' do
+      context 'when shipping rate adjustments are present' do
+        let!(:shipment) { order.shipments.first }
         before do
-          order.shipments.first.adjustments << adjustment
+          shipment.selected_shipping_rate.adjustments = [adjustment]
         end
 
         it 'contains adjustments on shipment' do
@@ -192,8 +193,9 @@ module Spree
           # Test to insure shipment has adjustments
           shipment = json_response['shipments'][0]
           expect(shipment).to_not be_nil
-          expect(shipment['adjustments'][0]).not_to be_empty
-          expect(shipment['adjustments'][0]['label']).to eq(adjustment.label)
+
+          expect(shipment['shipping_rates'][0]['adjustments'][0]).not_to be_empty
+          expect(shipment['shipping_rates'][0]['adjustments'][0]['label']).to eq(adjustment.label)
         end
       end
     end

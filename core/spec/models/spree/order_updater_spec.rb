@@ -287,12 +287,12 @@ module Spree
         updater.update_shipments
       end
 
-      it "updates the shipment amount" do
+      it "updates the shipping rate adjustments" do
         shipment = stub_model(Spree::Shipment, :order => order)
         shipments = [shipment]
         allow(order).to receive_messages :shipments => shipments
 
-        expect(shipment).to receive(:update_amounts)
+        expect(shipment).to receive(:update_shipping_rate_adjustments).once
         updater.update_shipments
       end
     end

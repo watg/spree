@@ -20,7 +20,6 @@ module Spree
       orders = orders.first(BATCH_SIZE)
       print_date = Time.now
       print_job = Spree::PrintJob.create!(job_type: :invoice)
-
       last_batch_id = Spree::Order.last_batch_id
       orders.each_with_index do |order, idx|
         order.batch_print_id = last_batch_id + idx + 1

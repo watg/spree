@@ -158,14 +158,17 @@ module Spree
           context "right coupon code given" do
             let(:order) { create(:order_with_line_items, :line_items_count => 3) }
 
-            before { allow(order).to receive_messages :coupon_code => "10off" }
+            before do
+              action.shipping_methods << order.shipments.first.shipping_method
+              allow(order).to receive_messages :coupon_code => "10off"
+            end
 
             it "successfully activates promo" do
               expect(order.total).to eq(130)
               subject.apply
               expect(subject.success).to be_present
 
-              expect(order.shipment_adjustments.count).to eq(1)
+              expect(order.shipping_rate_adjustments.count).to eq(1)
             end
 
             it "coupon already applied to the order" do

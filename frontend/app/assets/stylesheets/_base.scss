@@ -103,6 +103,11 @@ input[type="submit"].inverse {
   background-color: $body-bg;
   border-color: $primary-color;
 }
+input[type="submit"]:disabled {
+  color: $primary-color;
+  background-color: #f1f1f1;
+  border-color: #f1f1f1;
+}
 
 /* CSS only select list styling */
 
@@ -639,28 +644,6 @@ table.order-item-listing{
           font-size: 15px;
         }
       }
-    }
-  }
-}
-// Totes modal
-#modal-totes {
-  p {
-    font-size: emCalc(16px);
-    small {
-      font-size: emCalc(14px);
-      color: #666;
-    }
-  }
-  img {
-    margin: 0 0 emCalc(20px) emCalc(20px);
-    float: right;
-  }
-}
-// Mobile #modal-totes
-@media only screen and (max-width: 48em) {
-  #modal-totes {
-    img {
-      display: none;
     }
   }
 }

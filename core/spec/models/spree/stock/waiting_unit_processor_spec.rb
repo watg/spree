@@ -14,71 +14,97 @@ describe Spree::Stock::WaitingUnitsProcessor do
   subject { described_class.new(stock_item) }
 
   describe "#perform" do
-
-    before do
-      allow(subject).to receive(:stock_allocator).with(shipment).and_return(stock_allocator)
-    end
-
-    it "returns if quantity is less than 1" do
-      expect(subject).to_not receive(:process_waiting_inventory_units)
-      subject.perform(0)
-    end
-
-    it "returns if quantity is less than 0" do
-      expect(subject).to_not receive(:process_waiting_inventory_units)
-      subject.perform(-1)
-    end
-
-    it "processes 1 inventory unit if quantity is 1" do
-      expect(subject).to receive(:waiting_inventory_units).with(1).and_return([inventory_unit_1])
-      expect(inventory_unit_1).to receive(:fill_waiting_unit).and_return(true)
-      expect(stock_allocator).to receive(:unstock_on_hand).with(stock_item.variant, [inventory_unit_1] )
-      expect(order).to receive(:update!)
-      subject.perform(1)
-    end
-
-    it "processes 2 inventory unit if quantity is 2" do
-      expect(subject).to receive(:waiting_inventory_units).with(2).and_return([inventory_unit_1, inventory_unit_2])
-      expect(inventory_unit_1).to receive(:fill_waiting_unit).and_return(true)
-      expect(inventory_unit_2).to receive(:fill_waiting_unit).and_return(true)
-      expect(stock_allocator).to receive(:unstock_on_hand).with(stock_item.variant, [inventory_unit_1, inventory_unit_2] )
-      expect(order).to receive(:update!)
-      subject.perform(2)
-    end
-
-    it "processes 1 inventory unit if quantity is 2 and a unit is not transitioned e.g. it is somehow on_hand" do
-      expect(subject).to receive(:waiting_inventory_units).with(2).and_return([inventory_unit_1, inventory_unit_2])
-      expect(inventory_unit_1).to receive(:fill_waiting_unit).and_return(true)
-      expect(inventory_unit_2).to receive(:fill_waiting_unit).and_return(false)
-      expect(stock_allocator).to receive(:unstock_on_hand).with(stock_item.variant, [inventory_unit_1] )
-      expect(order).to receive(:update!)
-      subject.perform(2)
-    end
-
-    context "multiple shipments" do
-
-      let(:order_2) { build_stubbed(:order) }
-      let(:shipment_2) { build_stubbed(:shipment, stock_location: stock_location, order: order_2) }
-      let(:inventory_unit_2) { build_stubbed(:inventory_unit, shipment:shipment_2)}
-      let(:stock_allocator_2) { double(:stock_allocator)}
-
+    context 'normal shipment' do
       before do
-        allow(subject).to receive(:stock_allocator).with(shipment_2).and_return(stock_allocator_2)
+        allow(subject).to receive(:stock_allocator).with(shipment).and_return(stock_allocator)
       end
 
-      it "processes inventory units from different shipments" do
+      it "returns if quantity is less than 1" do
+        expect(subject).to_not receive(:process_waiting_inventory_units)
+        subject.perform(0)
+      end
+
+      it "returns if quantity is less than 0" do
+        expect(subject).to_not receive(:process_waiting_inventory_units)
+        subject.perform(-1)
+      end
+
+      it "processes 1 inventory unit if quantity is 1" do
+        expect(subject).to receive(:waiting_inventory_units).with(1).and_return([inventory_unit_1])
+        expect(inventory_unit_1).to receive(:fill_waiting_unit).and_return(true)
+        expect(stock_allocator).to receive(:unstock_on_hand).with(stock_item.variant, [inventory_unit_1] )
+        expect(order).to receive(:update!)
+        subject.perform(1)
+      end
+
+      it "processes 2 inventory unit if quantity is 2" do
         expect(subject).to receive(:waiting_inventory_units).with(2).and_return([inventory_unit_1, inventory_unit_2])
         expect(inventory_unit_1).to receive(:fill_waiting_unit).and_return(true)
         expect(inventory_unit_2).to receive(:fill_waiting_unit).and_return(true)
-        expect(stock_allocator).to receive(:unstock_on_hand).with(stock_item.variant, [inventory_unit_1] )
-        expect(stock_allocator_2).to receive(:unstock_on_hand).with(stock_item.variant, [inventory_unit_2] )
+        expect(stock_allocator).to receive(:unstock_on_hand).with(stock_item.variant, [inventory_unit_1, inventory_unit_2] )
         expect(order).to receive(:update!)
-        expect(order_2).to receive(:update!)
         subject.perform(2)
       end
 
+      it "processes 1 inventory unit if quantity is 2 and a unit is not transitioned e.g. it is somehow on_hand" do
+        expect(subject).to receive(:waiting_inventory_units).with(2).and_return([inventory_unit_1, inventory_unit_2])
+        expect(inventory_unit_1).to receive(:fill_waiting_unit).and_return(true)
+        expect(inventory_unit_2).to receive(:fill_waiting_unit).and_return(false)
+        expect(stock_allocator).to receive(:unstock_on_hand).with(stock_item.variant, [inventory_unit_1] )
+        expect(order).to receive(:update!)
+        subject.perform(2)
+      end
+
+      context "multiple shipments" do
+
+        let(:order_2) { build_stubbed(:order) }
+        let(:shipment_2) { build_stubbed(:shipment, stock_location: stock_location, order: order_2) }
+        let(:inventory_unit_2) { build_stubbed(:inventory_unit, shipment:shipment_2)}
+        let(:stock_allocator_2) { double(:stock_allocator)}
+
+        before do
+          allow(subject).to receive(:stock_allocator).with(shipment_2).and_return(stock_allocator_2)
+        end
+
+        it "processes inventory units from different shipments" do
+          expect(subject).to receive(:waiting_inventory_units).with(2).and_return([inventory_unit_1, inventory_unit_2])
+          expect(inventory_unit_1).to receive(:fill_waiting_unit).and_return(true)
+          expect(inventory_unit_2).to receive(:fill_waiting_unit).and_return(true)
+          expect(stock_allocator).to receive(:unstock_on_hand).with(stock_item.variant, [inventory_unit_1] )
+          expect(stock_allocator_2).to receive(:unstock_on_hand).with(stock_item.variant, [inventory_unit_2] )
+          expect(order).to receive(:update!)
+          expect(order_2).to receive(:update!)
+          subject.perform(2)
+        end
+      end
     end
 
+    context "express shipment" do
+      let(:order)              { create(:order, completed_at: Time.now) }
+      let(:order_2)            { create(:order, completed_at: 1.week.ago) }
+      let(:order_3)            { create(:order, completed_at: Time.now) }
+
+      let(:shipment)           { create(:shipment, stock_location: stock_location, order: order) }
+      let(:express_shipment)   { create(:shipment, stock_location: stock_location, order: order_2 , shipping_rates: [express_rate]) }
+      let(:express_shipment_2) { create(:shipment, stock_location: stock_location, order: order_3 , shipping_rates: [express_rate]) }
+
+      let(:express_rate)       { Spree::ShippingRate.create(shipping_method: express_shipping, selected: true) }
+      let(:express_shipping)   { create(:shipping_method, express: true) }
+
+      let!(:inventory_unit_1)  { create(:inventory_unit, shipment: shipment, state: 'awaiting_feed', order: order, variant: stock_item.variant) }
+      let!(:inventory_unit_2)  { create(:inventory_unit, shipment: express_shipment, state: 'awaiting_feed', order: order_2, variant: stock_item.variant)}
+      let!(:inventory_unit_3)  { create(:inventory_unit, shipment: express_shipment_2, state: 'awaiting_feed', order: order_3, variant: stock_item.variant)}
+
+      let(:variant)            { create(:variant) }
+      let(:stock_allocator)    { double(unstock_on_hand: []) }
+
+      it "processes express shipments first" do
+        expect(Spree::Stock::Allocator).to receive(:new).with(express_shipment).and_return(stock_allocator)
+        expect(Spree::Stock::Allocator).to receive(:new).with(express_shipment_2).and_return(stock_allocator)
+        expect(Spree::Stock::Allocator).to receive(:new).with(shipment).and_return(stock_allocator)
+        subject.perform(3)
+      end
+    end
   end
 
   describe "#waiting_inventory_units" do

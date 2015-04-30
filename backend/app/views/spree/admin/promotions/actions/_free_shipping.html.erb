@@ -1,0 +1,15 @@
+<div class="calculator-fields row">
+  <div class="field alpha omega eight columns">
+    <%= label_tag "#{param_prefix}_shipping_method_ids",
+      Spree.t('product_action.choose_shipping_methods') %>
+
+    <% shipping_methods = Spree::ShippingMethod.all.map do |sm|
+      present(sm, {}, Admin::ShippingMethodPresenter)
+    end %>
+
+    <%= select_tag "#{param_prefix}[shipping_method_ids]", options_for_select(
+      shipping_methods.map { |sm| [ sm.display_name, sm.id] },
+        promotion_action.shipping_methods.map(&:id)),
+        multiple: true, class: 'select2 fullwidth', id: "promotion_rule_marketing_type" %>
+  </div>
+</div>

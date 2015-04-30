@@ -26,5 +26,9 @@ FactoryGirl.define do
     trait :pattern do
       name 'pattern'
     end
+
+    trait :kit do
+      name 'kit'
+    end
   end
 end
