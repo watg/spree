@@ -1,32 +1,32 @@
 core.suite = {};
 
 var readySuite = function() {
-	if (!$('body').hasClass('suite')) return false;
+  if (!$('body').hasClass('suite')) return false;
 
-	// Don't initialise zoom for mobile devices
+  // Don't initialise zoom for mobile devices
   if (core.isMobileWidthOrLess() === false) {
-		core.suite.readyZoomableImages();
-	}
+    core.suite.readyZoomableImages();
+  }
 
-	core.suite.setScrollPosition();
-	core.suite.runVariantMethods();
-	core.suite.readyHeroRow();
-	core.suite.readyTabs();
-	core.suite.readyRevealContent();
-	core.suite.readySocialWidget();
-	core.suite.readyHistoryPlugin();
-	core.suite.checkForVariantNumber();
-	core.suite.showHeroImage();
-	core.suite.positionHeroTitle();
+  core.suite.setScrollPosition();
+  core.suite.runVariantMethods();
+  core.suite.readyHeroRow();
+  core.suite.readyTabs();
+  core.suite.readyRevealContent();
+  core.suite.readySocialWidget();
+  core.suite.readyHistoryPlugin();
+  core.suite.checkForVariantNumber();
+  core.suite.showHeroImage();
+  core.suite.positionHeroTitle();
   core.suite.startCrossSales();
-	core.suite.readyOutOfStock();
+  core.suite.readyOutOfStock();
   core.suite.readyProductTabs();
 
-	/* ----- New kit UI only ----- */
-	core.suite.readyAssemblyMenus();
-	core.suite.closeAssemblyMenus();
-	core.suite.readyAssemblyItemNames();
-	core.suite.setAssemblyListHeights();
+  /* ----- New kit UI only ----- */
+  core.suite.readyAssemblyMenus();
+  core.suite.closeAssemblyMenus();
+  core.suite.readyAssemblyItemNames();
+  core.suite.setAssemblyListHeights();
 
   /* ----- Ajax cart animation ----- */
   core.suite.readyAjaxCarSpinner();
@@ -40,48 +40,48 @@ $(document).on('page:load', readySuite);
 // Run all the methods associated with variants
 core.suite.runVariantMethods = function() {
 
-	// Kill existing event handlers before reassigning...
-	$('.row-made-by-the-gang').find('*').not('.zoomable');
+  // Kill existing event handlers before reassigning...
+  $('.row-made-by-the-gang').find('*').not('.zoomable');
 
-	core.suite.readyThumbnailImages();
-	core.suite.readyPinterestLinks();
-	core.suite.setAuthToken();
+  core.suite.readyThumbnailImages();
+  core.suite.readyPinterestLinks();
+  core.suite.setAuthToken();
 
-	var visible_entity = $('.displayable-entity:visible');
-	if (visible_entity.length > 0) {
-		core.suite.readyVariantOptions(visible_entity.first());
-	}
-	var visible_entity = $('.displayable-kit-entity:visible');
-	if (visible_entity.length > 0) {
-		core.suite.readyKitVariantOptions(visible_entity.first());
-	}
+  var visible_entity = $('.displayable-entity:visible');
+  if (visible_entity.length > 0) {
+    core.suite.readyVariantOptions(visible_entity.first());
+  }
+  var visible_entity = $('.displayable-kit-entity:visible');
+  if (visible_entity.length > 0) {
+    core.suite.readyKitVariantOptions(visible_entity.first());
+  }
 }
 
 core.suite.readySocialWidget = function() {
 
-	// Don't show widget on tablet/mobile, or for Gift Cards
-	if (core.isTabletWidthOrLess() === false && $('.title h1').text().toLowerCase() != 'gift cards') {
-		var widget = $('.widget-social');
-		var container = $('.row-social:visible > div:first-child');
+  // Don't show widget on tablet/mobile, or for Gift Cards
+  if (core.isTabletWidthOrLess() === false && $('.title h1').text().toLowerCase() != 'gift cards') {
+    var widget = $('.widget-social');
+    var container = $('.row-social:visible > div:first-child');
 
-		// Die if widget already in place
-		if (container.find('.widget-social').length > 0) return false;
+    // Die if widget already in place
+    if (container.find('.widget-social').length > 0) return false;
 
-		// Apply conditional backgrounds when widget carousel loaded
-		widget.on('DOMNodeInserted', '.olapic_carousel', function() {
-			if ($(this).hasClass('inserted')) return false; // Don't do this more than once
+    // Apply conditional backgrounds when widget carousel loaded
+    widget.on('DOMNodeInserted', '.olapic_carousel', function() {
+      if ($(this).hasClass('inserted')) return false; // Don't do this more than once
 
-			var thumbs = $(this).find('li').length;
-			var prefix = '<%= cdn_prefix %>' + '/product-group/';
-			// 1, 2, and 3...
+      var thumbs = $(this).find('li').length;
+      var prefix = '<%= cdn_prefix %>' + '/product-group/';
+      // 1, 2, and 3...
       if (thumbs > 0 && thumbs < 4) {
-				$('.olapic_widget').css('background-image', 'url("' + prefix + 'olapic-widget-background-thumbs-v2.png")');
+        $('.olapic_widget').css('background-image', 'url("' + prefix + 'olapic-widget-background-thumbs-v2.png")');
         $('.olapic_widget').css('background-repeat', 'no-repeat');
-			}
-			$(this).addClass('inserted');
+      }
+      $(this).addClass('inserted');
       // Move widget
       widget.detach().appendTo(container).show();
-		});
+    });
 
     // move arrows outside of parent when widget carousel loaded
     widget.on('DOMNodeInserted', '.olapic_widget_main', function() {
@@ -95,154 +95,154 @@ core.suite.readySocialWidget = function() {
       widget.find( ".olapic_widget_area" ).trigger( "click" );
     });
 
-	} else {
-		$('.row-social').hide();
-	}
+  } else {
+    $('.row-social').hide();
+  }
 };
 
 core.suite.readyZoomableImages = function() {
-	var images = $('img.zoomable');
-	images.load(function() {
-		core.suite.handleZoomableImage($(this));
-	}).each(function() {
-		if(this.complete) $(this).load(); // Force reload if image already loaded
-	});
+  var images = $('img.zoomable');
+  images.load(function() {
+    core.suite.handleZoomableImage($(this));
+  }).each(function() {
+    if(this.complete) $(this).load(); // Force reload if image already loaded
+  });
 }
 
 // Remove space in Pinterest URL (we add the space to prevent Pinterest skinning the button)
 core.suite.readyPinterestLinks = function() {
-	var links = $('.icons-social .pinterest');
-	links.off();
-	links.on('click', function(e) {
-		e.preventDefault();
-		location.href = $(this).attr('href').replace('%20button', 'button');
-	});
+  var links = $('.icons-social .pinterest');
+  links.off();
+  links.on('click', function(e) {
+    e.preventDefault();
+    location.href = $(this).attr('href').replace('%20button', 'button');
+  });
 }
 
 // Clicking hero drops the user to the next row
 core.suite.readyHeroRow = function() {
-	var row_hero = $('.row-hero');
-	var row_next = row_hero.next('.row');
+  var row_hero = $('.row-hero');
+  var row_next = row_hero.next('.row');
 
-	row_hero.on('click', function(e) {
-		$.scrollTo(row_next, 500, {axis: 'y', easing: 'swing'});
-	});
+  row_hero.on('click', function(e) {
+    $.scrollTo(row_next, 500, {axis: 'y', easing: 'swing'});
+  });
 }
 
 // Clicking tabs sets the scroll position
 core.suite.readyTabs = function() {
-	var tabs = $('.row-tabs a');
+  var tabs = $('.row-tabs a');
 
-	tabs.on('click', function(e) {
-		$.cookie('suiteScrollTop', $(window).scrollTop());
-	});
+  tabs.on('click', function(e) {
+    $.cookie('suiteScrollTop', $(window).scrollTop());
+  });
 }
 
 core.suite.readyRevealContent = function() {
-	$('.reveal-title').on('click', function() {
-		$(this).next('.reveal-content').toggle();
-		$(this).toggleClass('revealed');
-	});
+  $('.reveal-title').on('click', function() {
+    $(this).next('.reveal-content').toggle();
+    $(this).toggleClass('revealed');
+  });
 }
 
 core.suite.readyThumbnailImages = function() {
-	$('.thumbnails a').on('click', function(e) {
-		e.preventDefault();
-		var image = $('.main-image:visible img'); // The visible main image (VMI)
-		image.attr('src', $(this).attr('href')); // Update the VMI
-		$.scrollTo(image, 500, {axis: 'y', easing: 'swing'}); // Scroll to the VMI
-	});
+  $('.thumbnails a').on('click', function(e) {
+    e.preventDefault();
+    var image = $('.main-image:visible img'); // The visible main image (VMI)
+    image.attr('src', $(this).attr('href')); // Update the VMI
+    $.scrollTo(image, 500, {axis: 'y', easing: 'swing'}); // Scroll to the VMI
+  });
 }
 
 core.suite.showHeroImage = function() {
-	var row = $('.row-hero');
-	row.css('background-image', 'none'); // Clear current image
-	var src = row.attr('data-hero-image')
-	if (src == undefined) return false;
-	$('<img/>').attr('src', src).load(function() {
-		$(this).remove(); // Prevent memory leaks
-		row.css('background-image', 'url(' + src + ')');
-	});
+  var row = $('.row-hero');
+  row.css('background-image', 'none'); // Clear current image
+  var src = row.attr('data-hero-image')
+  if (src == undefined) return false;
+  $('<img/>').attr('src', src).load(function() {
+    $(this).remove(); // Prevent memory leaks
+    row.css('background-image', 'url(' + src + ')');
+  });
 
-	// Adjust hero row for mobile/tablet
-	if (core.isTabletWidthOrLess() === true) {
-		var height_row = row.outerHeight();
-		var height_title = $('.title').outerHeight();
-		var height_remains = height_row - height_title;
-		row.css('background-size', 'auto ' + height_remains + 'px');
-		row.css('background-position', '0 ' + height_title + 'px');
-		// Pull image 60px left for mobile
-		if (core.isMobileWidthOrLess() === true) {
-			row.css('background-position', '-60px ' + height_title + 'px');
-		}
-	}
+  // Adjust hero row for mobile/tablet
+  if (core.isTabletWidthOrLess() === true) {
+    var height_row = row.outerHeight();
+    var height_title = $('.title').outerHeight();
+    var height_remains = height_row - height_title;
+    row.css('background-size', 'auto ' + height_remains + 'px');
+    row.css('background-position', '0 ' + height_title + 'px');
+    // Pull image 60px left for mobile
+    if (core.isMobileWidthOrLess() === true) {
+      row.css('background-position', '-60px ' + height_title + 'px');
+    }
+  }
 }
 
 // Use JS to vertically centre the hero title
 core.suite.positionHeroTitle = function() {
-	if (core.isTabletWidthOrLess() === false) {
-		var title = $('.title');
-		var title_height = title.outerHeight();
-		var row_height = $('.row-hero').outerHeight();
-		var tab_height = $('.tab-made-by-the-gang').outerHeight();
-		var margin = (row_height - tab_height - title_height) / 2;
-		title.css('margin-top', margin);
-	}
+  if (core.isTabletWidthOrLess() === false) {
+    var title = $('.title');
+    var title_height = title.outerHeight();
+    var row_height = $('.row-hero').outerHeight();
+    var tab_height = $('.tab-made-by-the-gang').outerHeight();
+    var margin = (row_height - tab_height - title_height) / 2;
+    title.css('margin-top', margin);
+  }
 }
 
 // Readies history.js
 core.suite.readyHistoryPlugin = function() {
-	(function(window, undefined) {
-		// Prepare
-		var History = window.History; // Note: We are using a capital H instead of a lower h
-		if (!History.enabled) {
-			// History.js is disabled for this browser.
-			// This is because we can optionally choose to support HTML4 browsers or not.
-			return false;
-		}
+  (function(window, undefined) {
+    // Prepare
+    var History = window.History; // Note: We are using a capital H instead of a lower h
+    if (!History.enabled) {
+      // History.js is disabled for this browser.
+      // This is because we can optionally choose to support HTML4 browsers or not.
+      return false;
+    }
 
-		// Bind to StateChange Event
-		History.Adapter.bind(window, 'statechange', function() { // Note: We are using statechange instead of popstate
-			var State = History.getState(); // Note: We are using History.getState() instead of event.state
-			//History.log(State.data, State.title, State.url);
-		});
-	})(window);
+    // Bind to StateChange Event
+    History.Adapter.bind(window, 'statechange', function() { // Note: We are using statechange instead of popstate
+      var State = History.getState(); // Note: We are using History.getState() instead of event.state
+      //History.log(State.data, State.title, State.url);
+    });
+  })(window);
 }
 
 // Do we have a position to scroll to?
 core.suite.setScrollPosition = function() {
-	// If we've got a flash error, let's scroll to that
-	var flash = $('.flash.error');
-	if (flash.length > 0) {
-		$(window).scrollTop(flash);
-	} else {
-		var cookie = $.cookie('suiteScrollTop');
-		if (cookie) {
-			$(window).scrollTop(cookie);
-		}
-	}
+  // If we've got a flash error, let's scroll to that
+  var flash = $('.flash.error');
+  if (flash.length > 0) {
+    $(window).scrollTop(flash);
+  } else {
+    var cookie = $.cookie('suiteScrollTop');
+    if (cookie) {
+      $(window).scrollTop(cookie);
+    }
+  }
 }
 
 // Do we have a variant number in the URL?
 core.suite.checkForVariantNumber = function() {
-	var url = core.getUrlPathAsArray(); // Get the URL
-	var url_last_item = url[url.length - 1]; // Get the last item in the URL (should be the variant number)
-	var opt_values_data = $('.displayable-entity').data('variant-option-values'); // Get option values data from page
+  var url = core.getUrlPathAsArray(); // Get the URL
+  var url_last_item = url[url.length - 1]; // Get the last item in the URL (should be the variant number)
+  var opt_values_data = $('.displayable-entity').data('variant-option-values'); // Get option values data from page
 
-	if (opt_values_data != undefined) {
-		var opt_values = opt_values_data[url_last_item]; // Get option values for variant number
-		if (opt_values != undefined) {
-			$.each(opt_values, function(key, value) {
-				var list = $('.variant-option-values.' + value[0]); // e.g. value[0] == 'colour'
-				if (list != undefined) {
-					var link = list.find('a.' + value[1]) //e.g. value[1] == 'shacklewell-grey'
-					if (link != undefined) {
-						link.click();
-					}
-				}
-			})
-		}
-	}
+  if (opt_values_data != undefined) {
+    var opt_values = opt_values_data[url_last_item]; // Get option values for variant number
+    if (opt_values != undefined) {
+      $.each(opt_values, function(key, value) {
+        var list = $('.variant-option-values.' + value[0]); // e.g. value[0] == 'colour'
+        if (list != undefined) {
+          var link = list.find('a.' + value[1]) //e.g. value[1] == 'shacklewell-grey'
+          if (link != undefined) {
+            link.click();
+          }
+        }
+      })
+    }
+  }
 }
 
 core.suite.readyAjaxCarSpinner = function() {
@@ -267,7 +267,7 @@ core.suite.readyAjaxCarSpinner = function() {
     loader.fadeOut('slow', function(){
       cart_button.fadeIn('slow');
       if (!$('.flash').hasClass('error')) {
-      	checkout_button.fadeIn('slow');
+        checkout_button.fadeIn('slow');
       }
     });
   });
@@ -275,7 +275,7 @@ core.suite.readyAjaxCarSpinner = function() {
 
 core.suite.readyProductTabs = function () {
   $('.product-details-content').slimScroll({
-    height: '230px',
+    height: '450px',
     borderRadius: '0px',
     railOpacity: 1,
     opacity: 1,
@@ -317,59 +317,59 @@ core.suite.startCrossSales = function() {
 /* ----- New kit UI only ----- */
 
 core.suite.readyAssemblyMenus = function() {
-	var row = $('.row-assembly');
-	if (row.length == 0) return false; // Die if not new kit UI
+  var row = $('.row-assembly');
+  if (row.length == 0) return false; // Die if not new kit UI
 
-	row.find('.product-variants').on('click', function(e) {
-		e.stopPropagation();
-		$(this).siblings().removeClass('revealed').find('.variant-options').hide();
-		$(this).find('.variant-options').toggle();
-		$(this).toggleClass('revealed');
-	});
+  row.find('.product-variants').on('click', function(e) {
+    e.stopPropagation();
+    $(this).siblings().removeClass('revealed').find('.variant-options').hide();
+    $(this).find('.variant-options').toggle();
+    $(this).toggleClass('revealed');
+  });
 }
 
 core.suite.closeAssemblyMenus = function() {
-	$('.row-made-by-the-gang, .row-knit-your-own, .displayable-kit-entity').on('click', function() {
-		$(this).find('.product-variants.revealed').click();
-	});
+  $('.row-made-by-the-gang, .row-knit-your-own, .displayable-kit-entity').on('click', function() {
+    $(this).find('.product-variants.revealed').click();
+  });
 }
 
 // Ensure item names are clickable
 core.suite.readyAssemblyItemNames = function() {
-	var row = $('.row-assembly');
-	if (row.length == 0) return false; // Die if not new kit UI
+  var row = $('.row-assembly');
+  if (row.length == 0) return false; // Die if not new kit UI
 
-	row.find('.assembly-name').on('click', function(e) {
-	  e.stopPropagation();
-	  $(this).prev().click();
-	});
+  row.find('.assembly-name').on('click', function(e) {
+    e.stopPropagation();
+    $(this).prev().click();
+  });
 }
 
 // Make menu and image list items exactly the same height
 core.suite.setAssemblyListHeights = function() {
-	var row = $('.row-assembly');
-	if (row.length == 0) return false; // Die if not new kit UI
+  var row = $('.row-assembly');
+  if (row.length == 0) return false; // Die if not new kit UI
 
-	$.each($('.assembly-menus ol > li'), function(index, value) {
-		$('.assembly-images li').eq(index).css('height', $(this).outerHeight());
-	});
+  $.each($('.assembly-menus ol > li'), function(index, value) {
+    $('.assembly-images li').eq(index).css('height', $(this).outerHeight());
+  });
 }
 
 /* ----- New kit UI only ENDS ----- */
 
 core.suite.setAuthToken = function() {
-	var token = $("input[name='authenticity_token_fresh']").val();
-	$("input[name='authenticity_token']").val(token);
+  var token = $("input[name='authenticity_token_fresh']").val();
+  $("input[name='authenticity_token']").val(token);
 }
 
 /* ----- Non-init methods ----- */
 
 core.suite.handleZoomableImage = function(image) {
-	if (image.data('elevateZoom')) { // If image already has zoom instance, just change the zoom image...
-		$('.zoomWindowContainer div').stop().css('background-image', 'url(' + image.attr('src').replace('product', 'original') + ')');
-	} else { // Init zoom instance
-		image.elevateZoom({ responsive: true, zoomType: 'inner', cursor: 'crosshair', zoomWindowFadeIn: 250, zoomWindowFadeOut: 250 });
-	}
+  if (image.data('elevateZoom')) { // If image already has zoom instance, just change the zoom image...
+    $('.zoomWindowContainer div').stop().css('background-image', 'url(' + image.attr('src').replace('product', 'original') + ')');
+  } else { // Init zoom instance
+    image.elevateZoom({ responsive: true, zoomType: 'inner', cursor: 'crosshair', zoomWindowFadeIn: 250, zoomWindowFadeOut: 250 });
+  }
 }
 
 /* ----- Social widget vendor code ----- */
