@@ -23,5 +23,8 @@ FactoryGirl.define do
       is_promotable false
     end
 
+    trait :kit do
+      name 'kit'
+    end
   end
 end
