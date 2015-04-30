@@ -18,6 +18,22 @@ describe Spree::SuiteTabPresenter do
     its(:id) { should eq tab.id }
   end
 
+  describe "#ready_made?" do
+    let(:suite) { Spree::Suite.new(permalink: 'suite-permalink') }
+    let(:other_tab) { Spree::SuiteTab.new(suite: suite, tab_type: 'knit-your-own') }
+    let(:ready_made_tab) { Spree::SuiteTab.new(suite: suite, tab_type: 'made-by-the-gang') }
+
+    let!(:ready_made_presenter) { described_class.new(ready_made_tab, view, context) }
+    let!(:other_presenter) { described_class.new(other_tab, view, context) }
+
+    it "should return true if tab is of type made-by-the-gang" do
+      expect(ready_made_presenter.ready_made?).to be_truthy
+    end
+    it "should return false if tab is not of type made-by-the-gang" do
+      expect(other_presenter.ready_made?).to be_falsey
+    end
+  end
+
   describe "#in_stock?" do
     its(:in_stock?) { should eq tab.in_stock_cache }
   end
