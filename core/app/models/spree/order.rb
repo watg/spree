@@ -553,13 +553,13 @@ module Spree
 
     def gift_card_line_items
       self.line_items.
-      includes(:variant, product: [:product_type]).
-      # TODO: It would be great if this was more generic e.g. digital rather than
-      # gift_card, that way we can have a generic delviery behaviour with type
-      # deciding at the very end what is to be delivered
-      where("spree_product_types.name" => Spree::ProductType::GIFT_CARD).
-      reorder('spree_line_items.created_at ASC').
-      references(:variant, :product)
+        includes(:variant, product: [:product_type]).
+        # TODO: It would be great if this was more generic e.g. digital rather than
+        # gift_card, that way we can have a generic delviery behaviour with type
+        # deciding at the very end what is to be delivered
+        where("spree_product_types.name" => Spree::ProductType::TYPES[:gift_card]).
+        reorder('spree_line_items.created_at ASC').
+        references(:variant, :product)
     end
 
     def physical_line_items

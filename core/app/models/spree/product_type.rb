@@ -1,25 +1,34 @@
 module Spree
   class ProductType < ActiveRecord::Base
 
-    NORMAL    = 'normal'
-    GIFT_CARD = 'gift_card'
-    KIT       = 'kit'
-    PACKAGING = 'packaging'
-    DEFAULT   = NORMAL 
-
+    TYPES = {
+      normal:    'normal',
+      gift_card: 'gift_card',
+      kit:       'kit',
+      pattern:   'pattern',
+      packaging: 'packaging'
+    }
 
     scope :physical, -> { where(is_digital: false) }
 
+    def self.default
+      where(name: TYPES[:normal]).first
+    end
+
+    def normal?
+      name == TYPES[:normal]
+    end
+
     def kit?
-      name == KIT
+      name == TYPES[:kit]
+    end
+
+    def pattern?
+      name == TYPES[:pattern]
     end
 
     def gift_card?
-      name == GIFT_CARD
-    end
-
-    def self.default
-      where(name: DEFAULT).first
+      name == TYPES[:gift_card]
     end
 
     def requires_supplier?
@@ -27,6 +36,5 @@ module Spree
       !is_digital? and
       !is_assembly?
     end
-
   end
 end
