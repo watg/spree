@@ -31,10 +31,6 @@ module Spree
       @tab_type ||= suite_tab.tab_type
     end
 
-    def ready_made?
-      self.tab_type == "made-by-the-gang"
-    end
-
     def link_to
       @link_to ||= Spree::Core::Engine.routes.url_helpers.suite_url(
         id: suite.permalink, tab: suite_tab.tab_type)

@@ -98,13 +98,6 @@ module Spree
       classes.join(' ')
     end
 
-    def displayable_supplier_nickname
-      if self.displayable_suppliers.any?
-        self.displayable_suppliers.map(&:nickname).to_sentence
-      else
-        'WATG'
-      end
-    end
 
     def sale_price_classes
       classes = if variant.in_sale?
