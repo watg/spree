@@ -261,7 +261,7 @@ update_supplier_details = (entity, suppliers) ->
     for index, items of supplier
       names.push(items.nickname)
       if items.nickname != null
-        profiles.push('<strong>' + items.nickname + '</strong>: ' + items.profile)
+        profiles.push('<strong>' + items.nickname.toUpperCase() + '</strong>: ' + items.profile)
 
   # Prep names for output...
   if names.length > 1
@@ -278,7 +278,7 @@ update_supplier_details = (entity, suppliers) ->
   heading = entity.find('.suppliers')
   img = heading.find('img')
   heading.empty().append(img).append(names)
-  heading.next().html(profiles)
+  entity.find('.profiles').html(profiles)
 
 # Modify the images based on the selected variant
 toggle_images = (entity, variant_id) ->

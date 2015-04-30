@@ -27,6 +27,7 @@
             #madeunique <span>by <%= variant_presenter.displayable_supplier_nickname %> </span>
           </h5>
         </div>
+        <div class="profiles">
           <% variant_presenter.displayable_suppliers.each_with_index do |supplier, i| %>
             <% if (supplier.profile.size > 0) %>
               <h6><%= supplier.nickname.titlecase() %>:</h6>
@@ -36,6 +37,7 @@
               <% end %>
             <% end %>
           <% end %>
+        </div>
       <% end %>
     </div>
   </div>
