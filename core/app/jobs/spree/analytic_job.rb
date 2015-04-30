@@ -67,7 +67,7 @@ module Spree
         ti: o.number,
         tr: o.total.to_f,
         tt: o.display_tax_total.to_f,
-        ts: o.shipments.last.cost.to_f,
+        ts: o.shipments.to_a.sum(&:discounted_cost).to_f,
         cu: o.currency,
         cd1: original_cohort(o.email),
         cm1: latency(o.email),
