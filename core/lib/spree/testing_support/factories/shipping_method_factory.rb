@@ -3,7 +3,7 @@ FactoryGirl.define do
     zones { |a| [Spree::Zone.global] }
     name 'UPS Ground'
     code 'UPS_GROUND'
-    association :shipping_method_duration, factory: :shipping_method_duration, strategy: :build_stubbed
+    association :shipping_method_duration, factory: :shipping_method_duration
 
     before(:create) do |shipping_method, evaluator|
       if shipping_method.shipping_categories.empty?

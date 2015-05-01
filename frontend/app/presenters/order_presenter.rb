@@ -14,8 +14,14 @@ class OrderPresenter < Spree::BasePresenter
 
   def display_delivery_time
     order.shipments.map do |shipment|
-      "#{shipment.shipping_method.shipping_method_duration.description}"
+      shipping_method_duration = shipment.shipping_method.shipping_method_duration
+      shipping_method_duration.extend(ShippingMethodDurations::Description)
+      shipping_method_duration.dynamic_description
     end.join("<br/>")
+  end
+
+  def shipping_method_durations
+    order.shipments.map(&:shipping_method).shipping_method_duration
   end
 
   def total_label

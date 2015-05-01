@@ -4,14 +4,6 @@ module Admin
 
     delegate :id, :shipments, :state, :parcels_grouped_by_box, :invoice_print_job, :image_sticker_print_job, :batch_sticker_print_date, :batch_invoice_print_date, :important?, :batch_print_id, :updated_at, :created_at, :completed_at, :number, :considered_risky, :payment_state, :shipment_state, :user, :email, :display_total, :express?, to: :order
 
-    def to_param
-      @object.to_param
-    end
-
-    def to_key
-      @object.to_key
-    end
-
     def self.model_name
       Spree::Order.model_name
     end

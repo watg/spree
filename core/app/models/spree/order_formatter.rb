@@ -14,7 +14,7 @@ module Spree
         adjustments: taxes,
         promotions: promotions,
         adjustments_total: adjustments_total.to_html,
-        delivery_time: @order.delivery_time || 'soon',
+        delivery_time: delivery_time,
         currency: @order.currency,
         payment_total: order_total.to_html,
         digital_message: digital_message
@@ -22,6 +22,13 @@ module Spree
     end
 
     private
+
+    def delivery_time
+      if @order.shipments.any? && @order.shipments.first.shipping_method.present?
+        @order.shipments.first.shipping_method.shipping_method_duration.
+        extend(ShippingMethodDurations::Description).dynamic_description
+      end
+    end
 
     def shipment_coster
       ::Shipping::Coster.new(@order.shipments)

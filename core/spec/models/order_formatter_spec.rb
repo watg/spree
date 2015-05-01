@@ -45,26 +45,3 @@ describe Spree::OrderFormatter do
     end
   end
 end
-
-
-# def shipment_total
-#   format_money shipment_coster.final_price
-# end
-
-# def adjustments_total
-#   format_money @order.adjustment_total + shipment_coster.adjustment_total
-# end
-
-# def promotions
-#   adjustments = adjustments_selector.promotion.eligible.without_shipping_rate.group_by(&:label)
-#   # promotions = @order.all_adjustments.promotion.eligible.group_by(&:label)
-#   adjustments_template(adjustments)
-# end
-
-# def shipment_coster
-#   ::Shipping::Coster.new(@order.shipments)
-# end
-
-# def adjustments_selector
-#   ::Adjustments::Selector.new(@order.all_adjustments)
-# end

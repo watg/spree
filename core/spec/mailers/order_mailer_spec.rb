@@ -122,7 +122,6 @@ describe Spree::OrderMailer, :type => :mailer do
   context "sends all the required values" do
     let!(:confirmation_email) { Spree::OrderMailer.confirm_email(order) }
     it { expect(confirmation_email.body).to include order.email}
-    it { expect(confirmation_email.body).to include order.delivery_time}
   end
 
   context "when digital download present" do

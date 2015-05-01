@@ -114,7 +114,8 @@
     <fieldset class="shipping_method_durations no-border-bottom">
       <legend align="center"><%= Spree.t(:duration) %></legend>
       <%= f.field_container :categories do %>
-        <%= f.collection_select :shipping_method_duration_id, @shipping_method_durations, :id, :description, {}, :class => "select2 fullwidth" %>
+        <% shipping_method_durations = @shipping_method_durations.map{ |smd| admin_present(smd, {}) } %>
+        <%= f.collection_select :shipping_method_duration_id, shipping_method_durations, :id, :static_description, {}, :class => "select2 fullwidth" %>
         <%= error_message_on :shipping_method, :shipping_method_duration_id %>
       <% end %>
     </fieldset>

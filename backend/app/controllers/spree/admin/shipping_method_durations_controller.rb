@@ -5,7 +5,7 @@ module Spree
       end
 
       def permitted_resource_params
-        params.require(object_name).permit(:description)
+        params.require(object_name).permit(:min, :max)
       end
     end
   end

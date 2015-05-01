@@ -18,6 +18,13 @@ module Spree
       end
     end
 
+    def to_param
+      @object.to_param
+    end
+
+    def to_key
+      @object.to_key
+    end
     private
 
     def is_mobile?

@@ -5,7 +5,9 @@ module Spree
     delegate :name, :cost, :adjustment_total, to: :shipping_rate
 
     def duration
-      shipping_rate.shipping_method.duration_description || ""
+      description = shipping_rate.shipping_method.shipping_method_duration.
+      extend(ShippingMethodDurations::Description).dynamic_description
+      description || ""
     end
 
     def free?

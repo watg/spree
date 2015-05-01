@@ -259,13 +259,7 @@ module Spree
     def pre_tax_item_amount
       line_items.to_a.sum(&:pre_tax_amount)
     end
-
-    def delivery_time
-      if self.shipments.any? && self.shipments.first.shipping_method.present?
-        self.shipments.first.shipping_method.duration_description
-      end
-    end
-
+    
     def shipped_at
       shipments.first.shipped_at
     end

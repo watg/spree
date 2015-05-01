@@ -24,10 +24,6 @@ module Spree
 
     validate :at_least_one_shipping_category
 
-    def duration_description
-      self.shipping_method_duration.description if self.shipping_method_duration.present?
-    end
-
     def include?(address)
       return false unless address
       zones.any? do |zone|
