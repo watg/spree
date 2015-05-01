@@ -394,7 +394,7 @@ describe Spree::Shipment, :type => :model do
         end
 
         it 'dispatches email' do
-          expect(mailer).to receive(:delay).with({:run_at => 1.month.from_now}).and_return(mailer)
+          expect(mailer).to receive(:delay).with({:run_at => 30.days.from_now}).and_return(mailer)
           expect(mailer).to receive(:perform)
           shipment.update!(order)
         end
