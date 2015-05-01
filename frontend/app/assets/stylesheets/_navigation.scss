@@ -127,9 +127,11 @@
 }
 
 // Mobile .nav-primary
-@media only screen and (max-width: 28.75em) {
-	.nav-primary {
-		display: none;
+.mobile {
+	@media only screen and (max-width: 28.75em) {
+		.nav-primary {
+			display: none;
+		}
 	}
 }
 /*TODO: ^ WHEN FINISHED THIS CHANGE THIS CAN BE KILLED ^^^^*/
@@ -308,20 +310,25 @@
 }
 
 // Portrait Tablet //
-@media only screen and (min-width: 28.75em) and (max-width: 56em) {
-	.nav-primary-sub.expanded {
-		ul {
-			.only-landscape {
-				display: none !important;
-			}
-			h3.image-caption {
-				font-size: emCalc(16px);
-				right: -15px;
-				padding-bottom: emCalc(20px);
-			}
-			p.image-caption {
-				right: -15px;
-				font-size: emCalc(14px);
+.tablet {
+	@media only screen and (min-width: 28.75em) and (max-width: 56em) {
+		.nav-primary {
+		 	margin-top: 0;
+		}
+		.nav-primary-sub.expanded {
+			ul {
+				.only-landscape {
+					display: none !important;
+				}
+				h3.image-caption {
+					font-size: emCalc(16px);
+					right: -15px;
+					padding-bottom: emCalc(20px);
+				}
+				p.image-caption {
+					right: -15px;
+					font-size: emCalc(14px);
+				}
 			}
 		}
 	}
@@ -335,7 +342,7 @@
  */
 
 // Mobile .row-logo
-@media only screen and (max-width: 48em) {
+.mobile {
 	.row-logo {
 		padding: emCalc(20px) 0;
 		.large-10 { // Search container
