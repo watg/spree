@@ -266,6 +266,10 @@ module Spree
       end
     end
 
+    def shipped_at
+      shipments.first.shipped_at
+    end
+
     def currency
       self[:currency] || Spree::Config[:currency]
     end
