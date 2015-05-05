@@ -564,7 +564,7 @@
       }
       h2 {
         margin: 0;
-        font-size: emCalc(20px);
+        font-size: emCalc(18px);
         text-transform: uppercase;
         text-decoration: none;
         text-align: center;
@@ -573,18 +573,26 @@
           display: block;
           color: #666;
           span {
+            padding-top: 2px;
             padding-left: 40px;
             background-position: 0 -38px;
             background-repeat: no-repeat;
           }
           &.tab-made-by-the-gang {
             span {
-              background-image: image-url('product-group/icon-ready-made.png');
+              // padding-top: 2px;
+              background-image: image-url("product-group/icon-ready-made.png");
             }
           }
           &.tab-knit-your-own {
             span {
-              background-image: image-url('product-group/icon-knit-your-own.png');
+              background-image: image-url("product-group/icon-knit-your-own.png");
+            }
+          }
+          &.tab-crochet-your-own {
+            span {
+              // padding-top: 2px;
+              background-image: image-url("product-group/icon-crochet-your-own.png");
             }
           }
           // Mobile span
@@ -593,6 +601,7 @@
               padding: 0;
             }
             &.tab-made-by-the-gang,
+            &.tab-crochet-your-own,
             &.tab-knit-your-own {
               span {
                 background-image: none;

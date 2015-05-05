@@ -15,6 +15,7 @@ describe Spree::SuiteTab do
   describe "#tab_types" do
     it "returns all the tab types" do
       expect(described_class.tab_types).to eq [
+        "crochet-your-own",
         "knit-your-own",
         "made-by-the-gang",
         "gift-voucher",
@@ -36,6 +37,11 @@ describe Spree::SuiteTab do
     context "knit-your-own" do
       before { subject.tab_type = 'knit-your-own' }
       its(:presentation) { should eq 'KNIT YOUR OWN' }
+    end
+
+    context "crochet-your-own" do
+      before { subject.tab_type = 'crochet-your-own' }
+      its(:presentation) { should eq 'CROCHET YOUR OWN' }
     end
 
     context "default" do

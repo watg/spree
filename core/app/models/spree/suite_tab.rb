@@ -8,6 +8,7 @@ module Spree
 
     # please ensure that they are url-safe
     TAB_TYPES = {
+      'crochet-your-own' => ['CROCHET YOUR OWN', 'crochet_your_own'],
       'knit-your-own' => ['KNIT YOUR OWN', 'knit_your_own'],
       'made-by-the-gang' => ['READY MADE',DEFAULT_PARTIAL],
       'gift-voucher' => [DEFAULT_PRESENTATION, DEFAULT_PARTIAL],
