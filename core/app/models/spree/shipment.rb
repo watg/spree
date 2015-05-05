@@ -431,8 +431,8 @@ module Spree
 
     def after_ship
       shipment_handler.perform
-      Worker.enque(customer_feedback_mailer, 10.days)
-      Worker.enque(knitting_experience_mailer, 30.days)
+      Worker.enque(customer_feedback_mailer, 10.days.from_now)
+      Worker.enque(knitting_experience_mailer, 30.days.from_now)
     end
 
     def shipment_handler
