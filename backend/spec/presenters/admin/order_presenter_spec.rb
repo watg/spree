@@ -11,15 +11,15 @@ describe ::Admin::OrderPresenter, type: :presenter do
 
     describe ".delivery_type_class" do
       context "the order is express"  do
-        it "returns active" do
+        it "returns express_delivery" do
           allow(order).to receive(:express?).and_return(true)
-          expect(subject.delivery_type_class).to eq "active"
+          expect(subject.delivery_type_class).to eq "express-delivery"
         end
       end
       context "the order is normal"  do
-        it "returns inactive" do
+        it "returns normal_delivery" do
           allow_any_instance_of(Spree::Order).to receive(:express?).and_return(false)
-          expect(subject.delivery_type_class).to eq "inactive"
+          expect(subject.delivery_type_class).to eq "normal-delivery"
         end
       end
     end
