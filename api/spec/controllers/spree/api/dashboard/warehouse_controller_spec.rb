@@ -9,16 +9,16 @@ module Spree
           stub_authentication!
         end
 
-        describe "#today_orders"  do
+        describe "#today_orders_by_priority"  do
           it "runs the formatter" do
-            expect(::Api::Dashboard::Warehouse::FormatTodayOrders).
+            expect(::Api::Dashboard::Warehouse::FormatTodayOrdersByPriority).
               to receive(:new)
-            api_get :today_orders
+            api_get :today_orders_by_priority
           end
           it "runs the formatter" do
-            expect_any_instance_of(::Api::Dashboard::Warehouse::FormatTodayOrders).
+            expect_any_instance_of(::Api::Dashboard::Warehouse::FormatTodayOrdersByPriority).
               to receive(:run)
-            api_get :today_orders
+            api_get :today_orders_by_priority
           end
         end
 
@@ -35,16 +35,16 @@ module Spree
           end
         end
 
-        describe "#today_shipments"  do
+        describe "#today_shipments_by_priority"  do
           it "runs the formatter" do
-            expect(::Api::Dashboard::Warehouse::FormatTodayShipments).
+            expect(::Api::Dashboard::Warehouse::FormatTodayShipmentsByPriority).
               to receive(:new)
-            api_get :today_shipments
+            api_get :today_shipments_by_priority
           end
           it "runs the formatter" do
-            expect_any_instance_of(::Api::Dashboard::Warehouse::FormatTodayShipments).
+            expect_any_instance_of(::Api::Dashboard::Warehouse::FormatTodayShipmentsByPriority).
               to receive(:run)
-            api_get :today_shipments
+            api_get :today_shipments_by_priority
           end
         end
 

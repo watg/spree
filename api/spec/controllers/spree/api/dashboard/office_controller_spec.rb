@@ -35,16 +35,16 @@ module Spree
           end
         end
 
-        describe "#today_orders"  do
+        describe "#today_orders_by_priority"  do
           it "runs the formatter" do
-            expect(::Api::Dashboard::Office::FormatTodayOrders).
+            expect(::Api::Dashboard::Office::FormatTodayOrdersByPriority).
               to receive(:new)
-            api_get :today_orders
+            api_get :today_orders_by_priority
           end
           it "runs the formatter" do
-            expect_any_instance_of(::Api::Dashboard::Office::FormatTodayOrders).
+            expect_any_instance_of(::Api::Dashboard::Office::FormatTodayOrdersByPriority).
               to receive(:run)
-            api_get :today_orders
+            api_get :today_orders_by_priority
           end
         end
 
