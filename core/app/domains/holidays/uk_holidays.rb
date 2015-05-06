@@ -2,7 +2,7 @@ module Holidays
   # Uk public holidays feeder
   class UKHolidays
     def self.holidays_in(days)
-      range = Date.today..(Date.today + days)
+      range = Date.today..(Date.today + days.to_i)
       holidays_in = holidays.map do |holiday|
         holiday if range.include? Date.parse(holiday["date"])
       end
