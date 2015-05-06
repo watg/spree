@@ -39,9 +39,9 @@ describe OrderPresenter do
     it "displays estimated delivery time" do
       Spree::Shipment.any_instance.stub(:shipping_method).and_return(shipping_method)
       allow(shipping_method).to receive(:shipping_method_duration).and_return(duration)
-      allow(duration).to receive(:description).and_return("2 Days")
+      allow(duration).to receive(:dynamic_description).and_return("up to 2 days")
 
-      expect(subject.display_delivery_time).to include("2 Days")
+      expect(subject.display_delivery_time).to include("up to 2 days")
     end
   end
 

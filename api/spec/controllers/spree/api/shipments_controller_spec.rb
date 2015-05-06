@@ -33,20 +33,20 @@ describe Spree::Api::ShipmentsController, :type => :controller do
     # Start writing this spec a bit differently than before....
     describe 'POST #create' do
       let(:v) { stock_location.stock_items.first.variant }
-      let(:assembly_selection) do 
+      let(:assembly_selection) do
         {1 => 23, 3 => 1034}
       end
       let(:params) do
         {
-          variant_id: v.to_param,
-          order_id: order.number,
-          shipment: { order_id: order.number },
-          stock_location_id: stock_location.to_param,
-          selected_variants: assembly_selection
+        variant_id: v.to_param,
+        order_id: order.number,
+        shipment: { order_id: order.number },
+        stock_location_id: stock_location.to_param,
+        selected_variants: assembly_selection
         }
-      end 
-      
-      subject do 
+      end
+
+      subject do
         api_post :create, params
       end
 
@@ -144,7 +144,7 @@ describe Spree::Api::ShipmentsController, :type => :controller do
 
         before do
           # TODO: make old kits work with options
-        #  product.add_part(part1, 1, true)
+          #  product.add_part(part1, 1, true)
           product.add_part(required_part1, 2, false)
         end
 
@@ -234,6 +234,9 @@ describe Spree::Api::ShipmentsController, :type => :controller do
 
     context "can transition a shipment from ready to ship" do
       before do
+        WebMock.stub_request(:get, "https://www.gov.uk/bank-holidays.json")
+        .to_return(status: 200, body: "", headers: {})
+
         allow_any_instance_of(Spree::Order).to receive_messages(:paid? => true, :state => "complete", :complete? => true, :physical_line_items => [double])
         # For the shipment notification email
         Spree::Config[:mails_from] = "spree@example.com"

@@ -53,7 +53,7 @@ RSpec.describe Spree::ShippingRatePresenter do
     context "with a shipping_method_duration" do
       it "returns the duration description" do
         allow(rate)
-          .to receive_message_chain("shipping_method.dynamic_description")
+          .to receive_message_chain("shipping_method.shipping_method_duration.dynamic_description")
           .and_return("2-3 days")
         expect(presenter.duration).to eq("2-3 days")
       end
@@ -62,7 +62,7 @@ RSpec.describe Spree::ShippingRatePresenter do
     context "with no shipping_method_duration" do
       it "returns an empty string" do
         allow(rate)
-          .to receive_message_chain("shipping_method.dynamic_description")
+          .to receive_message_chain("shipping_method.shipping_method_duration.dynamic_description")
           .and_return(nil)
         expect(presenter.duration).to eq("")
       end
