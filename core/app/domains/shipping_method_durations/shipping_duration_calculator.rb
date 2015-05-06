@@ -9,11 +9,11 @@ module ShippingMethodDurations
     end
 
     def calc_max
-      raw_max.to_i + Holidays::UKHolidays.holidays_in(raw_max).size
+      raw_max + Holidays::UKHolidays.holidays_in(raw_max).size if raw_max.present?
     end
 
     def calc_min
-      raw_min.to_i + Holidays::UKHolidays.holidays_in(raw_min).size
+      raw_min + Holidays::UKHolidays.holidays_in(raw_min).size if raw_min.present?
     end
 
     private
