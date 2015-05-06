@@ -43,7 +43,7 @@ Spree::Core::Engine.add_routes do
         collection do
           get :last_bought_product
           get :today_sells
-          get :today_orders
+          get :today_orders_by_priority
           get :today_sells_by_type
           get :today_orders_by_hour
           get :today_items
@@ -52,9 +52,9 @@ Spree::Core::Engine.add_routes do
 
       resources :warehouse, :only=>[] do
         collection do
-          get :today_orders
+          get :today_orders_by_priority
           get :today_sells_by_marketing_type
-          get :today_shipments
+          get :today_shipments_by_priority
           get :today_shipments_by_country
           get :printed_orders
           get :printed_by_marketing_type

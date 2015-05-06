@@ -3,8 +3,8 @@ module Spree
     module Dashboard
       # Rest Interface for the wholesale dashboard
       class WarehouseController < Api::BaseController
-        def today_orders
-          today_orders = ::Api::Dashboard::Warehouse::FormatTodayOrders.new.run
+        def today_orders_by_priority
+          today_orders = ::Api::Dashboard::Warehouse::FormatTodayOrdersByPriority.new.run
           render json: today_orders.to_json
         end
 
@@ -13,8 +13,8 @@ module Spree
           render json: today_orders.to_json
         end
 
-        def today_shipments
-          today_shipments = ::Api::Dashboard::Warehouse::FormatTodayShipments.new.run
+        def today_shipments_by_priority
+          today_shipments = ::Api::Dashboard::Warehouse::FormatTodayShipmentsByPriority.new.run
           render json: today_shipments.to_json
         end
 

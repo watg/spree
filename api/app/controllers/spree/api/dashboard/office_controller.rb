@@ -13,8 +13,8 @@ module Spree
           render json: today_sells.to_json
         end
 
-        def today_orders
-          today_orders = ::Api::Dashboard::Office::FormatTodayOrders.new.run
+        def today_orders_by_priority
+          today_orders = ::Api::Dashboard::Office::FormatTodayOrdersByPriority.new.run
           render json: today_orders.to_json
         end
 
