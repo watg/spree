@@ -1,6 +1,6 @@
 module Holidays
   # Uk public holidays feeder
-  class UKHolidays
+  module UKHolidays
     def self.holidays_in(days)
       range = Date.today..(Date.today + days.to_i)
       holidays_in = holidays.map do |holiday|
@@ -10,7 +10,9 @@ module Holidays
     end
 
     def self.holidays
-      response = JSON.parse(RestClient.get("https://www.gov.uk/bank-holidays.json"))
+      response = Rails.cache.fetch("bank-holidays", expires_in: 12.hours) do
+        JSON.parse(RestClient.get("https://www.gov.uk/bank-holidays.json"))
+      end
       response = response["england-and-wales"]["events"]
     rescue
       response = []
