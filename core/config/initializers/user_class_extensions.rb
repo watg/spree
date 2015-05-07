@@ -28,7 +28,7 @@ Spree::Core::Engine.config.to_prepare do
 
       def self.find_or_create_unenrolled(email, tracking_cookie = nil)
         # if the same user is trying to register another e-mail address, we want to assign a different uuid
-        email = email.downcase
+        email = email.present? ? email.downcase : ""
         if !tracking_cookie or Spree.user_class.where(uuid: tracking_cookie).first
           tracking_cookie = UUID.generate
         end
