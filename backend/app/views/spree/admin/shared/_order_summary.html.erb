@@ -1,3 +1,4 @@
+<% admin_present(@order) do |order_presenter| %>
 <header id="order_tab_summary" data-hook>
   <dl class="additional-info">
     <% if @order.important? %>
@@ -5,6 +6,8 @@
     <% end %>
     <dt id="order_status" data-hook><%= Spree.t(:status) %>:</dt>
     <dd><span class="state <%= @order.state %>"><%= Spree.t(@order.state, :scope => :order_state) %></span></dd>
+    <dt id="delivery_type" data-hook><%= Spree.t(:delivery_type) %>:</dt>
+    <dd><span class="state <%= order_presenter.delivery_type_class %>"><%= Spree.t(order_presenter.delivery_type) %></span></dd>
     <dt data-hook='admin_order_tab_subtotal_title'><%= Spree.t(:subtotal) %>:</dt>
     <dd id='item_total'><%= @order.display_item_total.to_html %></dd>
     <% if checkout_steps.include?("delivery") && @order.ship_total > 0 %>
@@ -49,3 +52,4 @@
     <% end %>
   </dl>
 </header>
+<% end %>

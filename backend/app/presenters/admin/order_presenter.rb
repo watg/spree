@@ -22,17 +22,17 @@ module Admin
 
     def delivery_type_class
       if express?
-        'active'
+        "express-delivery"
       else
-        'inactive'
+        "normal-delivery"
       end
     end
 
     def delivery_type
       if express?
-        'express'
+        "express"
       else
-        'normal'
+        "normal"
       end
     end
     
