@@ -103,16 +103,14 @@ module Spree
     end
 
     def cross_sales_heading
-      case tab_type
-      when 'yarn-and-wool'
-        'What you can make'
-      when 'knitting-pattern'
-        'Knit this pattern'
-      when 'made-by-the-gang'
-        'More ready made goodness'
-      else
-        'More WATG goodness'
-      end
+      heading = {
+        'yarn-and-wool' => 'What you can make',
+        'knitting-pattern' => 'Knit this pattern',
+        'made-by-the-gang' => 'More ready made goodness'
+      }
+
+      default = 'More WATG goodness'
+      heading.fetch(tab_type, default)
     end
 
     private
