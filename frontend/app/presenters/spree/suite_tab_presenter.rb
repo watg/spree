@@ -5,6 +5,14 @@ module Spree
     attr_accessor :suite, :variants
     delegate :cross_sales, to: :suite_tab
 
+    CROSS_SALES_HEADING = {
+      'yarn-and-wool' => 'What you can make',
+      'knitting-pattern' => 'Knit this pattern',
+      'made-by-the-gang' => 'More ready made goodness'
+    }
+
+    CROSS_SALES_DEFAULT = 'More WATG goodness'
+
     def initialize(object, template, context={})
       super(object, template, context)
       @suite = context[:suite]
@@ -100,6 +108,10 @@ module Spree
 
     def meta_name
       suite.name
+    end
+
+    def cross_sales_heading
+      CROSS_SALES_HEADING.fetch(tab_type, CROSS_SALES_DEFAULT)
     end
 
     private

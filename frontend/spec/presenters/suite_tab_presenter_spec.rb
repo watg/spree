@@ -338,4 +338,37 @@ describe Spree::SuiteTabPresenter do
     end
   end
 
+  describe "#cross_sales_heading" do
+
+    context "when tab type is yarn-and-wool" do
+
+      before { tab.tab_type = 'yarn-and-wool' }
+      it "returns correct heading" do
+        expect(subject.cross_sales_heading).to eq 'What you can make'
+      end
+    end
+
+    context "when tab type is knitting-pattern" do
+
+      before { tab.tab_type = 'knitting-pattern' }
+      it "returns correct heading" do
+        expect(subject.cross_sales_heading).to eq 'Knit this pattern'
+      end
+    end
+
+    context "when tab type is made-by-the-gang" do
+
+      before { tab.tab_type = 'made-by-the-gang' }
+      it "returns correct heading" do
+        expect(subject.cross_sales_heading).to eq 'More ready made goodness'
+      end
+    end
+
+    context "when tab type is anything else" do
+      it "returns correct heading" do
+        expect(subject.cross_sales_heading).to eq 'More WATG goodness'
+      end
+    end
+  end
+
 end
