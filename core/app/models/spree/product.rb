@@ -38,7 +38,7 @@ module Spree
     has_many :product_targets, class_name: 'Spree::ProductTarget', dependent: :destroy
     has_many :targets, class_name: 'Spree::Target', through: :product_targets
 
-    has_many :videos, class_name: 'Video'
+    has_and_belongs_to_many :videos, class_name: 'Video', join_table: 'products_videos'
 
     belongs_to :tax_category,      class_name: 'Spree::TaxCategory'
     belongs_to :shipping_category, class_name: 'Spree::ShippingCategory', inverse_of: :products
@@ -402,7 +402,7 @@ module Spree
       values.each do |ids|
         variant = variants.create(
           option_value_ids: ids#,
-          # Not part of vanilla spree 
+          # Not part of vanilla spree
           # price: master.price
         )
         variant.prices = master.prices

@@ -51,6 +51,17 @@ describe Spree::Product do
     its(:first_variant_or_master) { should be_is_master }
   end
 
+  describe 'videos' do
+    let(:video)   { Video.new }
+    let(:video_2) { Video.new }
+    let(:videos)  { [video, video_2] }
+
+    context 'many' do
+      before { subject.videos = videos }
+      it     { expect(subject.videos).to eq(videos) }
+    end
+  end
+
   describe "#all_variants_or_master" do
     subject { create(:base_product) }
 
