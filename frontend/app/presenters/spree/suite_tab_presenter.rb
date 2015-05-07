@@ -5,13 +5,13 @@ module Spree
     attr_accessor :suite, :variants
     delegate :cross_sales, to: :suite_tab
 
-    X_SALE_HEADING = {
+    CROSS_SALES_HEADING = {
       'yarn-and-wool' => 'What you can make',
       'knitting-pattern' => 'Knit this pattern',
       'made-by-the-gang' => 'More ready made goodness'
     }
 
-    X_SALE_DEFAULT = 'More WATG goodness'
+    CROSS_SALES_DEFAULT = 'More WATG goodness'
 
     def initialize(object, template, context={})
       super(object, template, context)
@@ -111,7 +111,7 @@ module Spree
     end
 
     def cross_sales_heading
-      X_SALE_HEADING.fetch(tab_type, X_SALE_DEFAULT)
+      CROSS_SALES_HEADING.fetch(tab_type, CROSS_SALES_DEFAULT)
     end
 
     private
