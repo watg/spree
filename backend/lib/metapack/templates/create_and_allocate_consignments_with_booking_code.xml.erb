@@ -32,8 +32,8 @@
               <products soapenc:arrayType="ns2:Product[<%= parcel[:products].size %>]" xsi:type="soapenc:Array">
               <% parcel[:products].each do |product| %>
                 <item xsi:type="ns2:Product">
-                  <countryOfOrigin xsi:type="soapenc:string"><%= product[:origin] %></countryOfOrigin>
-                  <fabricContent xsi:type="soapenc:string"><%= product[:fabric] %></fabricContent>
+                  <countryOfOrigin xsi:type="soapenc:string"><%= escape product[:origin] %></countryOfOrigin>
+                  <fabricContent xsi:type="soapenc:string"><%= escape product[:fabric] %></fabricContent>
                   <harmonisedProductCode xsi:type="soapenc:string"><%= product[:harmonisation_code] %></harmonisedProductCode>
                   <productCode xsi:type="soapenc:string">1</productCode>
                   <productDescription xsi:type="soapenc:string"><%= escape product[:description] %></productDescription>
