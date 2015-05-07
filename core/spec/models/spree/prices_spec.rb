@@ -82,7 +82,7 @@ describe Spree::Price do
         "sale"=>false,
         "deleted_at"=>nil
       }
-      expect(Spree::Price.default_price.attributes).to eq expected
+      expect(Spree::Price.default_price.attributes).to include(expected)
     end
   end
 
