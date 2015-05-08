@@ -4,8 +4,6 @@ module Spree
 
     delegate :id, :name, :slug, :out_of_stock_override?, to: :product
 
-    ### Memoized accessors ###
-
     def has_variants?
       @has_variant ||= product.has_variants?
     end
@@ -87,8 +85,14 @@ module Spree
       @assembly_definition_parts ||= assembly_definition.parts
     end
 
-
     ### Regular methods ##
+    def video
+      videos.any? && videos.first.embed
+    end
+
+    def videos
+      @videos ||= product.videos
+    end
 
     def part_price_in_pence(part)
       method = (part.is_master ? :price_normal_in : :price_part_in)

@@ -59,6 +59,19 @@ describe Spree::ProductPresenter do
     its(:assembly_definition_parts) { should eq [assembly_definition_part] }
   end
 
+  describe '#video' do
+    let(:product) { create(:product) }
+
+    context 'product has video' do
+      before { product.videos.create(embed: "youtube embed") }
+      it     { expect(subject.video).to eq product.videos.first.embed }
+    end
+
+    context 'product does not have video' do
+      it { expect(subject.video).to be_falsey }
+    end
+  end
+
   describe "#part_price_in_pence" do
     before do
       price1 = variant.price_normal_in("USD").amount = 9.99
