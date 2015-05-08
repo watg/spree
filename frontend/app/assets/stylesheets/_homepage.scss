@@ -51,7 +51,7 @@ body.homepage {
 
 .home-main .leader-0 {
 	/* Small screen background */
-	background: #fd7e5d cdn-url("/homepage/2015-04-29/Homepage_HeyNow_MOBILE.jpg") top center no-repeat;
+	background: #fff cdn-url("/homepage/2015-05-08/Homepage_ShineBright_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
@@ -61,26 +61,15 @@ body.homepage {
 		line-height: 0;
 		font-size: 0;
 	}
-	.link-rm {
+	.link-jewellery {
 		width: 100%;
 		height: 100%;
 	}
-	.link-kyo {
-		width: 100%;
-		height: 45px;
-		// Positioning
-		bottom: 30px;
-		right: 0;
-	}
 	/* Large screen background */
 	@media only screen and (min-width: 28.750em) {
-		background: #fd7e5d cdn-url("/homepage/2015-04-29/Homepage_HeyNow_DESKTOP.jpg") top center no-repeat;
+		background: #fff cdn-url("/homepage/2015-05-08/Homepage_ShineBright_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
-		}
-		.link-kyo {
-			width: 50%;
-			// Positioning
 		}
 	}
 }
