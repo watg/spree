@@ -68,7 +68,7 @@ describe Spree::ProductPresenter do
     end
 
     context 'product does not have video' do
-      it     { expect(subject.video).to be_falsey }
+      it { expect(subject.video).to be_falsey }
     end
   end
 
@@ -81,7 +81,7 @@ describe Spree::ProductPresenter do
     end
 
     context 'product does not have video' do
-      it     { expect(subject.video?).to be_falsey }
+      it { expect(subject.video?).to be_falsey }
     end
   end
 
