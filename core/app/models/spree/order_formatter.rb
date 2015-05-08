@@ -1,5 +1,6 @@
 module Spree
   class OrderFormatter
+    using ShippingMethodDurations::Description
     def initialize(order)
       @order = order
     end
@@ -25,8 +26,7 @@ module Spree
 
     def delivery_time
       if @order.shipments.any? && @order.shipments.first.shipping_method.present?
-        @order.shipments.first.shipping_method.shipping_method_duration.
-        extend(ShippingMethodDurations::Description).dynamic_description
+        @order.shipments.first.shipping_method.shipping_method_duration.dynamic_description
       end
     end
 

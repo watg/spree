@@ -1,8 +1,8 @@
 require "spec_helper"
 describe ShippingMethodDurations::Description do
+  using ShippingMethodDurations::Description
   context "with holidays" do
-    let(:shipping_method_duration) { build_stubbed(:shipping_method_duration, min: 3, max:4) }
-    subject         { shipping_method_duration.extend(described_class) }
+    subject{ build_stubbed(:shipping_method_duration, min: 3, max:4) }
     let(:response) do
       '{"england-and-wales":{"division":"england-and-wales",
         "events":[
@@ -26,32 +26,28 @@ describe ShippingMethodDurations::Description do
     end
 
     context 'without a min value' do
-      let(:shipping_method_duration) {build_stubbed(:shipping_method_duration, min: nil , max: 4 )}
-      subject         { shipping_method_duration.extend(described_class) }
+      subject{build_stubbed(:shipping_method_duration, min: nil , max: 4 )}
       describe ".description" do
         it { expect(subject.static_description).to eq("up to 4 business days") }
       end
     end
 
     context 'without a max value' do
-      let(:shipping_method_duration) {build_stubbed(:shipping_method_duration, min: 4 , max: nil )}
-      subject         { shipping_method_duration.extend(described_class) }
+      subject {build_stubbed(:shipping_method_duration, min: 4 , max: nil )}
       describe ".description" do
         it { expect(subject.static_description).to eq("in a few days") }
       end
     end
 
     context 'without a max or a min value' do
-      let(:shipping_method_duration) {build_stubbed(:shipping_method_duration, min: nil , max: nil)}
-      subject         { shipping_method_duration.extend(described_class) }
+      subject {build_stubbed(:shipping_method_duration, min: nil , max: nil)}
       describe ".description" do
         it { expect(subject.static_description).to eq("in a few days") }
       end
     end
 
     context 'with a max and a min value' do
-      let(:shipping_method_duration) {build_stubbed(:shipping_method_duration, min: 3 , max: 4 )}
-      subject         { shipping_method_duration.extend(described_class) }
+      subject {build_stubbed(:shipping_method_duration, min: 3 , max: 4 )}
       describe ".description" do
         it { expect(subject.static_description).to eq("3-4 business days") }
       end

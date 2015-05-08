@@ -1,12 +1,12 @@
 module Spree
   # Wraps ShippingRate to add functionality used when displaying it.
   class ShippingRatePresenter < BasePresenter
+    using ShippingMethodDurations::Description
     presents :shipping_rate
     delegate :name, :cost, :adjustment_total, to: :shipping_rate
 
     def duration
-      description = shipping_rate.shipping_method.shipping_method_duration.
-      extend(ShippingMethodDurations::Description).dynamic_description
+      description = shipping_rate.shipping_method.shipping_method_duration.dynamic_description
       description || ""
     end
 
