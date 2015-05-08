@@ -34,6 +34,20 @@ describe Spree::SuiteTabPresenter do
     end
   end
 
+  describe '#display_videos?' do
+    let(:product) { create(:product) }
+    before        { tab.product = product }
+
+    context 'product has video' do
+      before { product.videos.create(embed: "youtube embed") }
+      it     { expect(subject.display_videos?).to be_truthy }
+    end
+
+    context 'product doesnt have video' do
+      it { expect(subject.display_videos?).to be_falsey }
+    end
+  end
+
   describe "#in_stock?" do
     its(:in_stock?) { should eq tab.in_stock_cache }
   end

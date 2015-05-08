@@ -86,16 +86,12 @@ module Spree
     end
 
     ### Regular methods ##
-    def video?
-      video
-    end
-
     def video
       videos.any? && videos.first.embed
     end
 
     def videos
-      product.videos
+      @videos ||= product.videos
     end
 
     def part_price_in_pence(part)

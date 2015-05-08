@@ -139,6 +139,10 @@ module Spree
       where.not(id: with_parts.uniq.map(&:id) )
     }
 
+    def videos?
+      videos.any?
+    end
+
     def assembly?
       self.assemblies_parts.any? ||
       self.assembly_definition

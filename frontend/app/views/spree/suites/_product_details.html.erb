@@ -1,7 +1,7 @@
 <div class='product-details-tabs'>
   <ul class='horizontal product-details'>
     <li class="tab-title active"><a href="#panel_contents">Description</a></li>
-    <% if !selected_tab_presenter.ready_made? && product_presenter.video? %>
+    <% if selected_tab_presenter.display_videos? %>
       <li class="tab-title"><a href="#panel_video">Video</a></li>
     <%end%>
     <li class="tab-title"><a href="#panel_delivery">Delivery info</a></li>
