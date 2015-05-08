@@ -69,7 +69,7 @@ module Spree
         context "bundle part requires more units than individual product" do
           before { order.contents.add_by_line_item(line_item, 5) }
 
-          let!(:bundle_item_quantity) { order.reload.find_line_item_by_variant(bundle_variant).quantity }
+          let!(:bundle_item_quantity) { line_item.quantity }
 
           it "calculates items quantity properly" do
             expect(bundle_item_quantity).to eq 6

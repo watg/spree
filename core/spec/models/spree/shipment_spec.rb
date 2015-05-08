@@ -790,7 +790,7 @@ describe Spree::Shipment, :type => :model do
   end
 
   context "set up new inventory units" do
-    # let(:line_item) { double(
+    let(:line_item) { mock_model(Spree::LineItem, variant: variant, inventory_units: []) }
     let(:line_item_part) { mock_model(Spree::LineItemPart, line_item: line_item, variant: variant) }
     let(:variant) { double("Variant", id: 9) }
 
@@ -798,15 +798,43 @@ describe Spree::Shipment, :type => :model do
     let(:supplier) { create(:supplier) }
 
     let(:params) do
-      { variant_id: variant.id, state: 'on_hand', order_id: order.id, line_item_id: line_item.id, supplier_id: supplier.id, line_item_part_id: line_item_part.id }
+      {
+        variant: variant,
+        state: "on_hand",
+        order: order,
+        line_item: line_item,
+        line_item_part: line_item_part
+      }
     end
+
+    let(:inventory_unit) { double }
 
     before { allow(shipment).to receive_messages inventory_units: inventory_units }
 
     it "associates variant and order" do
       expect(inventory_units).to receive(:create).with(params)
-      unit = shipment.set_up_inventory('on_hand', variant, order, line_item, supplier, line_item_part)
+      shipment.set_up_inventory('on_hand', variant, order, line_item, line_item_part)
     end
+
+    it "associates line_item" do
+      expect(inventory_units).to receive(:create).with(params).and_return(inventory_unit)
+      expect(line_item.inventory_units).to receive(:<<).with(inventory_unit)
+      shipment.set_up_inventory("on_hand", variant, order, line_item, line_item_part)
+    end
+
+    it "does not try to assoicate line_item with inventory_unit if association exists" do
+      allow(line_item).to receive_messages inventory_units: [inventory_unit]
+      expect(inventory_units).to receive(:create).with(params).and_return(inventory_unit)
+      expect(line_item.inventory_units).to_not receive(:<<)
+      shipment.set_up_inventory("on_hand", variant, order, line_item, line_item_part)
+    end
+
+    it "allows line_item_part to be optional" do
+      params[:line_item_part] = nil
+      expect(inventory_units).to receive(:create).with(params)
+      shipment.set_up_inventory('on_hand', variant, order, line_item)
+    end
+
   end
 
   # Regression test for #3349

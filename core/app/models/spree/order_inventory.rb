@@ -112,26 +112,25 @@ module Spree
     end
 
     def add_to_shipment(shipment, quantity, line_item_part=nil)
-
       inventory = []
       if variant.should_track_inventory?
         on_hand, backordered, awaiting_feed = shipment.stock_location.fill_status(variant, quantity)
 
         on_hand.times do
-          inventory << shipment.set_up_inventory('on_hand', variant, order, line_item)
+          inventory << shipment.set_up_inventory('on_hand', variant, order, line_item, line_item_part)
         end
 
         backordered.times do
-          inventory << shipment.set_up_inventory('backordered', variant, order, line_item)
+          inventory << shipment.set_up_inventory('backordered', variant, order, line_item, line_item_part)
         end
 
         awaiting_feed.times do
-          inventory << shipment.set_up_inventory('awaiting_feed', variant, order, line_item)
+          inventory << shipment.set_up_inventory('awaiting_feed', variant, order, line_item, line_item_part)
         end
 
       else
         quantity.times do
-          inventory << shipment.set_up_inventory('on_hand', variant, order, line_item)
+          inventory << shipment.set_up_inventory('on_hand', variant, order, line_item, line_item_part)
         end
       end
 
@@ -142,6 +141,7 @@ module Spree
 
       quantity
     end
+
 
     def remove_from_shipment(shipment, quantity)
       return 0 if quantity == 0 || shipment.shipped?

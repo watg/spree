@@ -294,18 +294,20 @@ module Spree
       shipping_rates.map(&:save)
     end
 
-    def set_up_inventory(state, variant, order, line_item, supplier=nil, line_item_part=nil)
-      create_params = {
+    def set_up_inventory(state, variant, order, line_item, line_item_part = nil)
+      inventory_unit = inventory_units.create(
         state: state,
-        variant_id: variant.id,
-        order_id: order.id,
-        line_item_id: line_item.id,
-      }
-      create_params.merge!(supplier_id: supplier.id) if !supplier.nil?
-      create_params.merge!(line_item_part_id: line_item_part.id) if !line_item_part.nil?
-      self.inventory_units.create create_params
+        variant: variant,
+        order: order,
+        line_item: line_item,
+        line_item_part: line_item_part ? line_item_part : nil
+      )
+      # Ensure that the inverse association is true
+      unless line_item.inventory_units.include?(inventory_unit)
+        line_item.inventory_units << inventory_unit
+      end
+      inventory_unit
     end
-    alias discounted_amount discounted_cost
 
     def shipped=(value)
       return unless value == '1' && shipped_at.nil?

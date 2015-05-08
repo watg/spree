@@ -16,8 +16,7 @@ FactoryGirl.define do
 
     factory :order_with_totals do
       after(:create) do |order, evaluator|
-        create(:line_item, order: order, price: evaluator.line_items_price)
-        order.line_items.reload # to ensure order.line_items is accessible after
+        order.line_items = [create(:line_item, order: order, price: evaluator.line_items_price)]
       end
     end
 
@@ -43,8 +42,7 @@ FactoryGirl.define do
       end
 
       after(:create) do |order, evaluator|
-        create_list(:line_item, evaluator.line_items_count, order: order, price: evaluator.line_items_price)
-        order.line_items.reload
+        order.line_items = create_list(:line_item, evaluator.line_items_count, order: order, price: evaluator.line_items_price)
 
         order.shipments << create(:shipment, order: order, cost: evaluator.shipment_cost)
 
