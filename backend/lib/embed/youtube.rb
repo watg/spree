@@ -1,21 +1,5 @@
 module Embed
-  class Youtube
-    attr_reader :video
-
-    WIDTH = 460
-
-    def initialize(video)
-      @video = video
-    end
-
-    def embed_code
-      %Q[<iframe src="#{uri}" width="#{WIDTH}" height="315" frameborder="0" #{opts}></iframe>]
-    end
-
-    def uri
-      parse(video.embed)
-    end
-
+  class Youtube < Base
     def parse(uri)
       uri.sub('watch?v=', 'embed/')
     end

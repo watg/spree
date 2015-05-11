@@ -8,8 +8,7 @@ class CreateVideoService
   end
 
   def run
-    @video.embed = embed
-    @video.save
+    video.update(embed: embed)
   end
 
   private
