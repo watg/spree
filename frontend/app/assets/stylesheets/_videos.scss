@@ -62,6 +62,15 @@
     iframe {
       margin-top: emCalc(30px);
     }
+    iframe {
+      min-height: 600px;
+    }
+    // Mobile iframe
+    @media only screen and (max-width: 48em) {
+      iframe {
+        min-height: initial;
+      }
+    }
   }
   .row-description {
     padding-bottom: emCalc(30px);
