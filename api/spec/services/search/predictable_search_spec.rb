@@ -10,7 +10,9 @@ describe Api::Search::PredictableSearch do
   let!(:suite_tab1) { create(:suite_tab, suite: hats_suite_1, product: product) }
   let!(:suite_tab2) { create(:suite_tab, suite: hats_suite_2, product: product) }
   let!(:suite_tab3) { create(:suite_tab, suite: caps_suite, product: product) }
-  let(:view_context) { double(:url_for => 'test_link') }
+  let(:view_context) do
+    double(image_path: "image_url", spree: double(suite_url: "test_link"))
+  end
   before do
     hats_suite_1.taxons << taxon
     hats_suite_2.taxons << taxon
@@ -23,18 +25,18 @@ describe Api::Search::PredictableSearch do
       subject {described_class.new("hat", view_context).results}
       it "returns suites with title that matches the name" do
         expect(subject.length).to eq(2)
-        expect(subject).to include({title: "Hats for test", url: "test_link"})
-        expect(subject).to include({title: "Hats for me too", url: "test_link"})
+        expect(subject).to include({title: "Hats for test", url: "test_link", :image_url=>"image_url", :target=>nil})
+        expect(subject).to include({title: "Hats for me too", url: "test_link", :image_url=>"image_url", :target=>nil})
       end
 
       it "not return suites with title does not match the search" do
         expect(subject.length).to eq(2)
-        expect(subject).to_not include ({title: "I prefer caps", url: "test_link"})
+        expect(subject).to_not include ({title: "I prefer caps", url: "test_link", :image_url=>"image_url", :target=>nil})
       end
 
       it "not return suites without suites_tabs" do
         expect(subject.length).to eq(2)
-        expect(subject).to_not include ({title: "Hats - inactive", url: "test_link"})
+        expect(subject).to_not include ({title: "Hats - inactive", url: "test_link", :image_url=>"image_url", :target=>nil})
       end
     end
   end

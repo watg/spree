@@ -71,6 +71,8 @@ describe "Delivery", type: :feature, js: true do
     end
 
     it "can switch between the shipping rates and recalculate the shipping cost" do
+      page.driver.set_cookie('signupPopKilled', 'true')
+      page.driver.set_cookie('showCookieMessage', 'true')
       visit spree.checkout_state_path("delivery")
 
       # default selected shippng rate
@@ -110,6 +112,8 @@ describe "Delivery", type: :feature, js: true do
       end
 
       it "applies to the relevant shipping rate" do
+        page.driver.set_cookie('signupPopKilled', 'true')
+        page.driver.set_cookie('showCookieMessage', 'true')
         visit spree.checkout_state_path("delivery")
 
         # default selected shippng rate
