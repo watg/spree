@@ -386,12 +386,11 @@
 }
 
 ul.autocomplete {
-  background-color: #fff;
+  background-color: $lightest;
   border: 1px solid #dadada;
   display: block;
   list-style-type: none;
   margin: 0;
-  min-height: 100px;
   padding: 2px;
   position: absolute;
   z-index: 1001;
@@ -408,7 +407,7 @@ ul.autocomplete {
       display: block;
       padding: 4px;
     }
-    border-top: 1px solid #aaa;
+    border-top: 1px solid #dadada;
     cursor: pointer;
     text-align: left;
 
@@ -421,7 +420,10 @@ ul.autocomplete {
       border-top: none;
     }
     &.active {
-      background-color: #fff;
+      background-color: $watg-tint-med;
+    }
+    em {
+      color: #999;
     }
     p {
       margin: 1px 4px;

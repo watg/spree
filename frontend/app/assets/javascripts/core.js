@@ -8,7 +8,6 @@ var readyCore = function() {
 	core.readyAlpacaAttack();
   core.readyAccordions();
   core.readyCustomScroll();
-  core.readyPredictableSearch();
 };
 
 $(document).ready(readyCore);
@@ -374,78 +373,4 @@ core.signupGetPromoDisclaimer = function() {
 
 core.clearFocus = function() {
   document.activeElement.blur();
-};
-
-core.readyPredictableSearch = function() {
-  /**
-   * Make a request for the api
-   * @param term - searched term
-   * @param onData - callback to pass the data
-   */
-  function getResults(term, onData){
-    $.ajax({
-      data: { keywords: term } ,
-      url: "/api/predictable_search/search"
-    }).done(function( data ) {
-      data.unshift({url:"/s" + '?keywords=' + term, title: term, image_url: "", target:""});
-      data = disambiguate(data);
-      onData(data)
-    });
-  }
-
-  /**
-   * Fix the title ambiguity by concatenating the target with the title on those.
-   * @param data - array with the result data
-   */
-  function disambiguate(data){
-    var disambiguated = data;
-    for (var j=0; j < data.length; j++) {
-      for (var i = 0; i < data.length; i++) {
-        if (data[i].target !==null && data[i].title == data[j].title) {
-          disambiguated[i].title = disambiguated[i].title +  " " + disambiguated[i].target;
-        }
-      }
-    }
-    return disambiguated
-  }
-
-  /**
-   * renders the result element
-   * @param dataItem - object with the matched term emphasized
-   * @param originalDataItem - original object
-   * @returns {string} - the html to be rendered
-   */
-  function renderOption(dataItem, originalDataItem){
-    var url = originalDataItem['url'],
-        title = dataItem['title'],
-        image_url = originalDataItem['image_url'];
-    var image = '';
-    if (image_url!==null && image_url.length > 0) {
-      image = '<img class="search-image" src="' + image_url +'"/>';
-    }
-    return '<a href="'+ url +'" class="ga-track-search"> ' + image + ' <span>' + title + '</span></a>';
-  }
-
-  $('#search-input').awesomecomplete({
-    noResultsMessage: '',
-    typingDelay:500,
-    resultLimit: 999,
-    dataMethod: function(term, awesomecomplete, onData) {
-      if (term.length >= 3) {
-        getResults(term, onData)
-      }else {
-        onData([])
-      }
-    },
-    sortFunction: function(a, b, term) {
-      return -1; // sorting is handled on api side
-    },
-    renderFunction: function(dataItem, topMatch, originalDataItem) {
-      return renderOption(dataItem, originalDataItem);
-    }
-  });
-
-  $(".search-form").on('click', '.ga-track-search', function(){
-    ga('send', 'pageview', '/s?search_category=autocomplete&keywords=' + $(this).find('span').text());
-  });
 };

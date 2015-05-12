@@ -30,6 +30,7 @@
 //= require core.static
 //= require core.navigation
 //= require core.checkout
+//= require core.search
 
 //= require spree/frontend
 //= require spree/frontend/checkout
