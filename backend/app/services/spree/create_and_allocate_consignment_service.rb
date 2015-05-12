@@ -25,7 +25,7 @@ module Spree
         end
 
       rescue Exception => error
-        Helpers::AirbrakeNotifier.notify(error.message)
+        Helpers::AirbrakeNotifier.notify(error.message, {order: order.number})
 
         Rails.logger.info '-'*80
         Rails.logger.info 'metapack: ' + error.message
