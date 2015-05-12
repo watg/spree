@@ -5,18 +5,8 @@ module Spree
 
     model :order, class: 'Spree::Order'
     string :tracking_cookie, default: nil
-
+    # disabled, because we will use the new ga api on frontend
     def execute
-      run_analytic_job(order, tracking_cookie)
-    end
-
-    def run_analytic_job(order, tracking_cookie)
-      analytic_job = Spree::AnalyticJob.new(
-        event: :transaction,
-        order: order,
-        user_id: tracking_cookie
-      )
-      ::Delayed::Job.enqueue(analytic_job, queue: 'analytics')
     end
 
 
