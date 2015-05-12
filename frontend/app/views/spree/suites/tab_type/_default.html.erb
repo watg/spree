@@ -1,4 +1,5 @@
 <%= render 'spree/suites/cart',  selected_tab_presenter: selected_tab_presenter, suite_presenter: suite_presenter%>
-<div class="widget-cross-sales">
+<% if selected_tab_presenter.cross_sales.any? %>
   <%= render partial: 'cross_sales', locals: { selected_tab_presenter: selected_tab_presenter, suite_presenter: suite_presenter } %>
-</div>
+<% end %>
+

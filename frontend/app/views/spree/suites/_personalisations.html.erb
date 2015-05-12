@@ -1,0 +1,7 @@
+<div class="personalisations">
+  <h5>Personalise</h5>
+  <% product_presenter.personalisations.each do |mp| %>
+    <%= render partial: "monogram", locals: { personalisation: mp } if mp.name == 'monogram' %>
+    <%= render partial: "dob", locals: { personalisation: mp } if mp.name == 'dob' %>
+  <% end %>
+</div>

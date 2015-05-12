@@ -1,0 +1,21 @@
+<p class="no-stock">Out Of Stock</p>
+<div class="cart-form" data-hook="cart_form">
+  <%= render 'prices', variant_presenter: variant_presenter %>
+
+  <div class="section-out-of-stock">
+    <h5 id="notice">Notify me when it's back in stock</h5>
+    <p class="success-message" id="success-message"> You will hear from us as soon as its back in stock
+      <% unless mobile_device? %>
+        <%= cdn_image_tag("raf/icon-completed.png", class: "icon-completed",  alt: "") %>
+      <% end %>
+    </p>
+
+    <%= form_tag spree.chimpy_subscribe_to_list_path, remote: true, :method => :post, :class => "out-of-stock-form" do %>
+      <%= text_field_tag 'signupEmail', nil, placeholder: 'Enter your email' %>
+      <%= text_field_tag 'source', "#{product_presenter.name} #{selected_tab_presenter.tab_type}", class: 'hide' %>
+      <%= hidden_field_tag(:list_name, "stock requests") %>
+      <%= hidden_field_tag(:product, product_presenter.name ) %>
+      <%= submit_tag("Submit") %>
+    <% end %>
+  </div>
+</div>

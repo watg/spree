@@ -3,11 +3,11 @@
     <li class="tab-title active"><a href="#panel_contents">Description</a></li>
     <% if selected_tab_presenter.display_videos? %>
       <li class="tab-title"><a href="#panel_video">Video</a></li>
-    <%end%>
+    <% end %>
     <li class="tab-title"><a href="#panel_delivery">Delivery info</a></li>
     <% if selected_tab_presenter.ready_made? && !product_presenter.assembly_definition %>
       <li class="tab-title"><a href="#panel_by_the_gang">#MADEUNIQUE</a></li>
-    <%end%>
+    <% end %>
   </ul>
   <hr/>
   <div id='panel_contents'>

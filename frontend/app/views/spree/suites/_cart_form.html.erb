@@ -45,15 +45,10 @@
 	<% end %>
 
   <% if product_presenter.personalisations.any? %>
-    <div class="personalisations">
-      <h5>Personalise</h5>
-      <% product_presenter.personalisations.each do |mp| %>
-        <%= render partial: "monogram", locals: { personalisation: mp } if mp.name == 'monogram' %>
-        <%= render partial: "dob", locals: { personalisation: mp } if mp.name == 'dob' %>
-      <% end %>
-    </div>
+    <%= render 'personalisations', product_presenter: product_presenter %>
   <% end %>
 
 </div>
+
 
 <%= render 'add_to_cart', product_presenter: product_presenter %>
