@@ -66,6 +66,12 @@ Spree::Core::Engine.add_routes do
       end
     end
 
+    resources :predictable_search, module: "search", :only=>[] do
+      collection do
+        get :search
+      end
+    end
+
     concern  :order_routes do
       member do
         put :cancel
