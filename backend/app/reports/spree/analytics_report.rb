@@ -15,15 +15,18 @@ module Spree
     #   1,2,3,4,[1,2-4]
     GROUPS ||= {
       rtw: %w(peruvian gang),
-      kit: %w(kit),
+      kit: %w(kit kit-crochet),
       sup: %w(yarn needle embellishment clasp),
       pat: %w(pattern)
     }
 
-    attr_accessor :marketing_types
+    COMPLETE_STATES = Spree::Order::COMPLETE_STATES.map {|str| "'#{str}'"}.join(',')
+
+    attr_accessor :marketing_types, :connection
 
     def initialize(marketing_types)
       @marketing_types = marketing_types || []
+      @connection = ActiveRecord::Base.connection.raw_connection
     end
 
     def self.run_all
@@ -68,6 +71,9 @@ module Spree
     # If there is a problem creating them, then refresh them
     def self.create_views
       ActiveRecord::Base.connection.execute(first_orders_view_sql)
+      #connection = ActiveRecord::Base.connection.raw_connection
+      #connection.prepare('first_orders_view', first_orders_view_sql)
+      #connection.exec_prepared('first_orders_view', [COMPLETE_STATES])
       ActiveRecord::Base.connection.execute(second_orders_view_sql)
       ActiveRecord::Base.connection.execute(email_marketing_types_view_sql)
     rescue => e
@@ -233,6 +239,7 @@ LEFT OUTER JOIN
     INNER JOIN spree_payments p on p.order_id=o.id
     INNER JOIN spree_payment_methods pm on p.payment_method_id=pm.id
     WHERE completed_at IS NOT NULL
+    AND state in (#{COMPLETE_STATES})
     AND pm.name IN ('Credit Card', 'PayPal')
     AND ot.name = 'regular'
     GROUP BY email, date
@@ -279,6 +286,7 @@ INNER JOIN spree_products pr ON v.product_id = pr.id
 INNER JOIN spree_payments p on p.order_id=o.id
 INNER JOIN spree_payment_methods pm on p.payment_method_id=pm.id
 WHERE o.completed_at is not null
+AND o.state in (#{COMPLETE_STATES})
 AND pm.name IN ('Credit Card', 'PayPal')
 AND ot.name = 'regular'
 GROUP BY marketing_type_id, email"
@@ -298,6 +306,7 @@ GROUP BY marketing_type_id, email"
     INNER JOIN spree_payments p2 on p2.order_id=o.id
     INNER JOIN spree_payment_methods pm2 on p2.payment_method_id=pm2.id
     WHERE completed_at is not null
+    AND state in (#{COMPLETE_STATES})
     AND pm2.name IN ('Credit Card', 'PayPal')
     AND ot2.name = 'regular'
     GROUP BY email
@@ -326,6 +335,7 @@ GROUP BY marketing_type_id, email"
       WHERE o2.id = o3.id
     )
     AND o2.completed_at is not null
+    AND o2.state in (#{COMPLETE_STATES})
     AND pm2.name IN ('Credit Card', 'PayPal')
     AND ot2.name = 'regular'
     GROUP BY email

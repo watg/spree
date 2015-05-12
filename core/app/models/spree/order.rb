@@ -107,10 +107,12 @@ module Spree
 
     SHIPPABLE_STATES = %w(complete resumed awaiting_return returned)
     STOCK_ALLOCATABLE_STATES = SHIPPABLE_STATES + %w(warehouse_on_hold customer_service_on_hold)
+    # This is used for reporting, so we can determine whether an order is really complete
+    # or has it been returned
+    COMPLETE_STATES = %w(complete resumed warehouse_on_hold customer_service_on_hold)
 
     class_attribute :line_item_comparison_hooks
     self.line_item_comparison_hooks = Set.new
-
 
     scope :created_between, ->(start_date, end_date) { where(created_at: start_date..end_date) }
     scope :completed_between, ->(start_date, end_date) { where(completed_at: start_date..end_date) }

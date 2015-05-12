@@ -66,7 +66,6 @@ module Spree
     end
 
     def retrieve_data
-      # This is from the old system
       previous_users = CSV.read(File.join(File.dirname(__FILE__), "unique_previous_users.csv"))
       previous_users = previous_users.flatten.to_set
 
@@ -101,7 +100,7 @@ module Spree
     private
 
     def loop_orders
-      valid_states = %w(complete resumed warehouse_on_hold customer_service_on_hold)
+      valid_states = Spree::Order::COMPLETE_STATES
 
       Spree::Order.includes(:shipments, line_items: [:line_item_parts])
         .where(state: valid_states, completed_at: @from..@to).find_each do |order|
