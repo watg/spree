@@ -446,6 +446,6 @@ core.readyPredictableSearch = function() {
   });
 
   $(".search-form").on('click', '.ga-track-search', function(){
-    ga('send', 'pageview', '/predicted_search?keywords=' + $(this).find('span').text());
+    ga('send', 'pageview', '/s?search_category=autocomplete&keywords=' + $(this).find('span').text());
   });
 };
