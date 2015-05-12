@@ -8,6 +8,8 @@ describe Spree::CreateAndAllocateConsignmentService do
 
   before do
     Spree::ProductGroup.any_instance.stub(:country).and_return country
+    # Test removal of the \n
+    Spree::ProductGroup.any_instance.stub(:content).and_return "10% Wool\n90% Cotton"
   end
 
   describe "::run" do

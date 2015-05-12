@@ -148,7 +148,7 @@ module Spree
         country = line[:country]
         {
           origin: country.iso,
-          fabric: group.contents,
+          fabric: group.contents.gsub(/\r|\n/, ' '),
           harmonisation_code: group.code,
           description: group.fabric,
           type_description: group.garment,
