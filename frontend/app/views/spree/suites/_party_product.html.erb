@@ -1,0 +1,39 @@
+<% present(selected_tab_presenter.product, @context) do |product_presenter| %>
+  <% present(product_presenter.sale_variant_or_first_variant_or_master, @context) do |variant_presenter| %>
+
+    <div class="row displayable-entity">
+      <div class="large-6 small-12 columns">
+        <div class="product-images" data-hook="product_images">
+          <div class="main-image">
+            <%= image_tag(variant_presenter.main_image_url, variant_presenter.main_image_options) %>
+          </div>
+          <div class="thumbnails" data-hook>
+            <%= render :partial => 'thumbnails', :locals => {variant_presenter: variant_presenter, product_presenter: product_presenter} %>
+          </div>
+        </div>
+      </div>
+
+      <div class="large-6 small-12 columns">
+        <h1><%= product_presenter.name %></h1>
+        <p class="stock-level">Low stock <span class="stock-value"></span></p>
+        <p class="digital-available">PDF + Printed Pattern</p>
+        <div class="cart-form" data-hook="cart_form">
+          <%= render 'prices', variant_presenter: variant_presenter %>
+        </div>
+        <p><%= product_presenter.clean_description %></p>
+
+        <div id="find-out-more" class="row-more">
+          <div class="large-4 push-4 columns">
+            <a href="/host-a-party" class="button">Find out More</a>
+          </div>
+        </div>
+      </div>
+    </div><!-- /row -->
+
+    <div class="row-social">
+      <div class="row">
+        <div class="large-12 columns"></div>
+      </div>
+    </div>
+  <% end # variant_presenter %>
+<% end # product_presenter %>

@@ -1,7 +1,7 @@
 core.suite.readyVariantOptions = (entity) ->
   master_tree = entity.data('tree')
   option_type_order = entity.data('option-type-order')
-  option_values = entity.data('option-values')
+  option_values = entity.data('option-values') || []
   variants_total_on_hand = entity.parents(".wrapper-product-group").data('variants-total-on-hand')
 
   # Once we have selected all the option values hopefully it will spit out

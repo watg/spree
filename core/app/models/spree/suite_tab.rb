@@ -10,6 +10,7 @@ module Spree
     TAB_TYPES = {
       'crochet-your-own' => ['CROCHET YOUR OWN', 'crochet_your_own'],
       'knit-your-own' => ['KNIT YOUR OWN', 'knit_your_own'],
+      'knit-party' => ['KNIT YOUR OWN', 'party'],
       'made-by-the-gang' => ['READY MADE',DEFAULT_PARTIAL],
       'gift-voucher' => [DEFAULT_PRESENTATION, DEFAULT_PARTIAL],
       'knitting-pattern' => [DEFAULT_PRESENTATION, DEFAULT_PARTIAL],

@@ -385,4 +385,36 @@ describe Spree::SuiteTabPresenter do
     end
   end
 
+  describe "#product_selector" do
+    context "selected product is in stock" do
+      it "returns in stock product selector partial name" do
+        allow(subject).to receive(:in_stock?).and_return true
+        expect(subject.product_selector).to eq("in_stock")
+      end
+    end
+
+    context "selected product is out of stock" do
+      it "returns out of stock product selector partial name" do
+        allow(subject).to receive(:in_stock?).and_return false
+        expect(subject.product_selector).to eq("out_of_stock")
+      end
+    end
+  end
+
+  describe "product_details" do
+    context "device is mobile" do
+      it "returns mobile partial name" do
+        allow(subject).to receive(:is_mobile?).and_return true
+        expect(subject.product_details).to eq("product_details_mobile")
+      end
+    end
+
+    context "device is not mobile" do
+      it "returns standard product details partial name" do
+        allow(subject).to receive(:is_mobile?).and_return false
+        expect(subject.product_details).to eq("product_details")
+      end
+    end
+  end
+
 end

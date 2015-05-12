@@ -83,12 +83,10 @@ module Spree
     end
 
     def product_selector
-      # TODO write specs
       in_stock? ? "in_stock" : "out_of_stock"
     end
 
     def product_details
-      # TODO write specs
       is_mobile? ? "product_details_mobile" : "product_details"
     end
 

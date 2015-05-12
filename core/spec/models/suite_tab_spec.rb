@@ -17,6 +17,7 @@ describe Spree::SuiteTab do
       expect(described_class.tab_types).to eq [
         "crochet-your-own",
         "knit-your-own",
+        "knit-party",
         "made-by-the-gang",
         "gift-voucher",
         "knitting-pattern",
