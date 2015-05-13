@@ -1,14 +1,12 @@
 module Api
   module Search
-    class PredictableSearch
-      delegate :url_for, to: :@view
-      def initialize(keywords, view_context)
-        @keywords = keywords
-        @view = view_context
-      end
+    class PredictableSearch < ActiveInteraction::Base
+      string :keywords
+      interface :view,
+                methods: %i[image_path spree]
 
-      def results
-        filtered_suites(keywords: @keywords).map do |s|
+      def execute
+        filtered_suites(keywords: keywords).map do |s|
           image =  if s.image.present?
                      s.image.attachment.url(:search)
                    else
@@ -16,7 +14,7 @@ module Api
                    end
           {
             title: s.title,
-            url: @view.spree.suite_url(id: s, tab: s.tabs.first.tab_type),
+            url: view.spree.suite_url(id: s, tab: s.tabs.first.tab_type),
             image_url: image,
             target: s.target.try(:name)
           }
@@ -25,7 +23,7 @@ module Api
 
       def filtered_suites(keywords: keywords, scoped_suites: scoped_suites = Spree::Suite.active)
         return [] if keywords.blank?
-        scoped_suites.where("title ~* ?", keywords).uniq
+        scoped_suites.includes(:image, :target, :tabs).where("title ~* ?", keywords).uniq
       end
     end
   end

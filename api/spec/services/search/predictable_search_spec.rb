@@ -22,7 +22,7 @@ describe Api::Search::PredictableSearch do
 
   context "with valid keywords" do
     describe ".search" do
-      subject {described_class.new("hat", view_context).results}
+      subject {described_class.run!(keywords: "hat", view: view_context)}
       it "returns suites with title that matches the name" do
         expect(subject.length).to eq(2)
         expect(subject).to include({title: "Hats for test", url: "test_link", :image_url=>"image_url", :target=>nil})
@@ -44,7 +44,7 @@ describe Api::Search::PredictableSearch do
   context "invalid keywords" do
     describe ".search" do
       def results_for(keywords)
-        described_class.new(keywords, view_context).results
+        described_class.run!(keywords: keywords, view: view_context)
       end
 
       it "returns empty array if no keyword is given" do

@@ -6,7 +6,7 @@ module Spree
         skip_before_filter :authenticate_user
         def search
           response = ::Api::Search::PredictableSearch.
-            new(params[:keywords], view_context).results
+            run!(keywords: params[:keywords], view: view_context)
           render json: response.to_json
         end
       end
