@@ -129,13 +129,9 @@ core.Navigation.readyTracking = function() {
       var event_path = path == undefined ? $(this).text().toLowerCase() : path;
 
       // Track
-      // --- Old style tracking...
-      var _gaq = _gaq || [];
-      _gaq.push(['_trackEvent', 'navigation', 'click', event_path]);
-      // --- New style tracking...
-      /*if (typeof ga !== 'undefined') {
-        ga('send', 'event', 'navigation', 'click', VALUE GOES HERE);
-      }*/
+      if (typeof ga !== 'undefined') {
+        ga('send', 'event', 'navigation', 'click', event_path);
+      }
 
       // Continue
       location.href = $(this).attr('href');
