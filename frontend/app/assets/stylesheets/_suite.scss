@@ -568,6 +568,9 @@
         text-transform: uppercase;
         text-decoration: none;
         text-align: center;
+        @media only screen and (max-width: 48em) {
+          font-size: emCalc(16px);
+        }
         a {
           padding: emCalc(15px) 0.9375em;
           display: block;
@@ -627,9 +630,6 @@
         a {
           padding: emCalc(15px) 0 !important;
           margin: 0 !important;
-          span {
-            font-size: emCalc(16px);
-          }
         }
       }
     }
