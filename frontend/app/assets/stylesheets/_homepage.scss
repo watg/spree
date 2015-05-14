@@ -51,7 +51,7 @@ body.homepage {
 
 .home-main .leader-0 {
 	/* Small screen background */
-	background: #fff cdn-url("/homepage/2015-05-08/Homepage_ShineBright_MOBILE_V1.jpg") top center no-repeat;
+	background: #e55811 cdn-url("/homepage/2015-05-14/01_Homepage_Crochet_Top_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
@@ -61,13 +61,13 @@ body.homepage {
 		line-height: 0;
 		font-size: 0;
 	}
-	.link-jewellery {
+	.link-crochet {
 		width: 100%;
 		height: 100%;
 	}
 	/* Large screen background */
 	@media only screen and (min-width: 28.750em) {
-		background: #fff cdn-url("/homepage/2015-05-08/Homepage_ShineBright_DESKTOP_V1.jpg") top center no-repeat;
+		background: #e55811 cdn-url("/homepage/2015-05-14/01_Homepage_Crochet_Top_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
@@ -76,7 +76,7 @@ body.homepage {
 
 .home-main .leader-1 {
 	/* Small screen background */
-	background: #f9bdbc cdn-url("/homepage/2015-02-19/Homepage_Lil_HTC_MOBILE.jpg") top center no-repeat;
+	background: #ff923b cdn-url("/homepage/2015-05-14/02_Homepage_Crochet_EASY_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
@@ -86,112 +86,56 @@ body.homepage {
 		line-height: 0;
 		font-size: 0;
 	}
-	.link-shop {
+	.link-videos {
 		width: 100%;
 		height: 100%;
 	}
-	.link-blog {
-		width: 100%;
-		height: 45px;
-		// Positioning
-		bottom: 15px;
-		right: 0;
-	}
 	/* Large screen background */
-	@media only screen and (min-width: 56em) {
-		background: #f9bdbc cdn-url("/homepage/2015-02-19/Homepage_Lil_HTC_DESKTOP.jpg") top center no-repeat;
+	@media only screen and (min-width: 28.750em) {
+		background: #ff923b cdn-url("/homepage/2015-05-14/02_Homepage_Crochet_EASY_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
-		}
-		.link-blog {
-			width: 238px;
-			height: 45px;
-			// Positioning
-			bottom: 100px;
-			left: 200px;
 		}
 	}
 }
 
 .home-main .leader-2 {
 	/* Small screen background */
-	background: #000 cdn-url("/homepage/2014-12-16/Homepage_15perc_Off_RTW_MOBILE_V1.jpg") top center no-repeat;
+	background: #fff cdn-url("/homepage/2015-05-14/03_Homepage_Crochet_MadeByYou_MOBILE_V1.jpg") top center no-repeat;
 	& > div {
 		height: 580px;
 	}
-	/*a {
+	a {
 		position: absolute;
 		display: block;
 		line-height: 0;
 		font-size: 0;
 	}
-	.link-collection {
+	.link-made-you {
 		width: 100%;
-		height: 100%;
+		height: 50%;
+		top: 0;
 	}
-	.link-lookbook {
-		width: 150px;
-		height: 45px;
-		// Positioning
-		bottom: 60px;
-		right: 0;
+	.link-made-gang {
+		width: 100%;
+		height: 50%;
+		bottom: 0;
 	}
-	.link-tutorials {
-		width: 150px;
-		height: 45px;
-		// Positioning
-		bottom: 12px;
-		right: 82px;
-	}*/
 	/* Large screen background */
-	@media only screen and (min-width: 56em) {
-		background: #000 cdn-url("/homepage/2014-12-16/Homepage_15perc_Off_RTW_DESKTOP_V1.jpg") top center no-repeat;
+	@media only screen and (min-width: 28.750em) {
+		background: #fff cdn-url("/homepage/2015-05-14/03_Homepage_Crochet_MadeByYou_DESKTOP_V1.jpg") top center no-repeat;
 		& > div {
 			height: 700px;
 		}
-		/*.link-lookbook {
-			width: 160px;
-			height: 45px;
-			// Positioning
-			bottom: 154px;
-			right: 80px;
+		.link-made-you {
+			width: 50%;
+			height: 100%;
+			left: 0;
 		}
-		.link-tutorials {
-			width: 160px;
-			height: 45px;
-			// Positioning
-			bottom: 90px;
-			right: 182px;
-		}*/
-	}
-}
-
-.home-main .leader-3 {
-	/* Small screen background */
-	background: #000 cdn-url("/homepage/2014-11-14/Homepage_Community_MOBILE_V1.jpg") top center no-repeat;
-	& > div {
-		height: 400px;
-	}
-	/* Large screen background */
-	@media only screen and (min-width: 48em) {
-		background: #000 cdn-url("/homepage/2014-11-14/Homepage_Community_DESKTOP_V1.jpg") top center no-repeat;
-		& > div {
-			height: 700px;
-		}
-	}
-}
-
-.home-main .leader-4 {
-	/* Small screen background */
-	background: #000 cdn-url("/homepage/2014-12-05/Homepage_GiftCard_MOBILE_V2.jpg") top center no-repeat;
-	& > div {
-		height: 400px;
-	}
-	/* Large screen background */
-	@media only screen and (min-width: 48em) {
-		background: #000 cdn-url("/homepage/2014-12-05/Homepage_GiftCard_DESKTOP_V2.jpg") top center no-repeat;
-		& > div {
-			height: 390px;
+		.link-made-gang {
+			width: 50%;
+			height: 100%;
+			right: 0;
 		}
 	}
 }
@@ -345,7 +289,7 @@ body.homepage {
 .home-main .row-madeunique {
 	padding: emCalc(100px) 0;
 	text-align: center;
-	background-color: #000;
+	background-color: #0b1844;
 	* {
 		color: #fff;
 	}
@@ -358,11 +302,12 @@ body.homepage {
 		display: inital;
 	}
 	h2 {
-		font-size: emCalc(60px);
+		margin-left: 90px;
+		font-size: emCalc(40px);
 		float: left;
 	}
 	img {
-		margin: 30px 0 0 120px;
+		margin: 30px 90px 0 120px;
 		float: right;
 	}
 	@media only screen and (max-width: 48em) {
