@@ -21,6 +21,7 @@ describe Spree::SuiteTab do
         "made-by-the-gang",
         "gift-voucher",
         "knitting-pattern",
+        "crochet-pattern",
         "yarn-and-wool",
         "knitting-supply",
         "default"

@@ -14,6 +14,7 @@ module Spree
       'made-by-the-gang' => ['READY MADE',DEFAULT_PARTIAL],
       'gift-voucher' => [DEFAULT_PRESENTATION, DEFAULT_PARTIAL],
       'knitting-pattern' => [DEFAULT_PRESENTATION, DEFAULT_PARTIAL],
+      'crochet-pattern' => [DEFAULT_PRESENTATION, DEFAULT_PARTIAL],
       'yarn-and-wool' => [DEFAULT_PRESENTATION, DEFAULT_PARTIAL],
       'knitting-supply' => [DEFAULT_PRESENTATION, DEFAULT_PARTIAL],
       'default' => [DEFAULT_PRESENTATION, DEFAULT_PARTIAL],
