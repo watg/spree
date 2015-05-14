@@ -454,13 +454,6 @@
   border: 0;
 }
 
-/* FF only */
-@-moz-document url-prefix() {
-	.search-button {
-		top: 20px;
-	}
-}
-
 .search-button:hover {
   background-position: 0 -35px;
 }
