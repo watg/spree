@@ -144,6 +144,12 @@ core.readyCustomScroll = function() {
 
 /* ----- Non-init methods ----- */
 
+// Test for less than tablet width
+core.isLessThanTabletWidth = function() {
+  var test = $(window).width() < 768 ? true : false;
+  return test;
+}
+
 // Test for tablet width or less
 core.isTabletWidthOrLess = function() {
   var test = $(window).width() <= 768 ? true : false;
