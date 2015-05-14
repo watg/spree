@@ -123,7 +123,7 @@
   }
 
   // We use this mixin to create panels.
-  @mixin cart_message($border_color, $background_color, $font_color) {
+  @mixin cart_message($border_color, $background_color, $font_color, $left_position) {
     position: relative;
     background-color: $background_color;
     border:solid 1px $border_color;
@@ -131,7 +131,7 @@
 
     &:after, &:before {
       bottom: 100%;
-      left: calc(100% - 40px);
+      left: $left_position;
       border: solid transparent;
       content: " ";
       height: 0;
@@ -167,7 +167,8 @@
       $border_color:  rgb(0, 186, 120);
       $background_color: rgb(247, 253, 251);
       $font_color: rgb(0, 186, 120);
-      @include cart_message($border_color, $background_color, $font_color);
+      $left_position: calc(100% - 145px);
+      @include cart_message($border_color, $background_color, $font_color, $left_position);
       padding: emCalc(15px);
       h5 {
         margin-bottom: emCalc(15px);
@@ -186,7 +187,8 @@
       $border_color:  rgb(255, 133, 0);
       $background_color: rgb(255, 251, 248);
       $font_color: rgb(255, 133, 0);
-      @include cart_message($border_color, $background_color, $font_color);
+      $left_position: calc(100% - 40px);
+      @include cart_message($border_color, $background_color, $font_color, $left_position);
     }
   }
   @media only screen and (max-width: 28.750em) {

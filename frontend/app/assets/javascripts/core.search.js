@@ -1,7 +1,10 @@
 core.Search = {};
 
 $(document).ready(function() {
-  core.Search.readyPredictableSearch();
+  // Only start predictable search on desktop
+  if (!(core.isLessThanTabletWidth() || $('body.mobile').length)) {
+    core.Search.readyPredictableSearch();
+  }
 });
 
 core.Search.readyPredictableSearch = function() {
