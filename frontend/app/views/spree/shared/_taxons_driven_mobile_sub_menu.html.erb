@@ -101,6 +101,31 @@
       </ul>
     </li>
   </ul>
+  <ul class="crochet-sub">
+    <li class="large-3 small-12 columns hidden">
+      <h3>
+        <a href="<%= seo_url(crochet) %>">Crochet</a>
+        <a href="#" class="sub-menu"><i class="fa fa-angle-down"></i></a>
+      </h3>
+      <ul class="dropdown">
+        <% type = find_child_taxon(crochet, 'crochet/type') %>
+        <h3 class="mobile-sub">
+        <a href="<%= seo_url(crochet) %>">Crochet</a>
+        </h3>
+        <ul>
+          <%= render_taxons_links(type) %>
+        </ul>
+        <% level = find_child_taxon(crochet, 'crochet/level') %>
+        <h3 class="mobile-sub">
+          <a href="<%= seo_url(knit_kits) %>">By Level</a>
+        </h3>
+        <ul>
+        POOBUM
+          <%= render_taxons_links(level) %>
+        </ul>
+      </ul>
+    </li>
+  </ul>
   <ul class="yarn-and-patterns-sub">
     <li class="large-3 small-12 columns hidden">
       <h3>

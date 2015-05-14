@@ -4,6 +4,7 @@
 <% women = @taxonomies.detect{ |taxonomy| taxonomy.root.permalink == 'women' }.root %>
 <% men = @taxonomies.detect{ |taxonomy| taxonomy.root.permalink == 'men' }.root %>
 <% knit_kits = @taxonomies.detect{ |taxonomy| taxonomy.root.permalink == 'knit-kits' }.root %>
+<% crochet = @taxonomies.detect{ |taxonomy| taxonomy.root.permalink == 'crochet' }.root %>
 <% yarn_and_patterns = @taxonomies.detect{ |taxonomy| taxonomy.root.permalink == 'yarn-and-patterns' }.root %>
 <% whats_new = @taxonomies.detect{ |taxonomy| taxonomy.root.permalink == 'whats-new' }.root %>
 <% collections = @taxonomies.detect{ |taxonomy| taxonomy.root.permalink == 'collections' }.root %>
@@ -34,6 +35,10 @@
 			<a href="<%= seo_url(knit_kits) %>"
 			data-path="<%= get_taxon_chain(knit_kits) %>">Knit kits</a>
 		</li><!--
+		--><li class="crochet">
+			<a href="<%= seo_url(crochet) %>"
+			data-path="<%= get_taxon_chain(crochet) %>">Crochet</a>
+		</li><!--
 		--><li class="yarn-and-patterns">
 			<a href="<%= seo_url(yarn_and_patterns) %>"
 			data-path="<%= get_taxon_chain(yarn_and_patterns) %>">Yarn &amp; patterns</a>
@@ -51,8 +56,8 @@
 
 <!-- Primary sub-navigation -->
 	<% if mobile_device? %>
-		<%= render 'spree/shared/taxons_driven_mobile_sub_menu', whats_new: whats_new, women: women, men: men, kids: kids, knit_kits: knit_kits, yarn_and_patterns: yarn_and_patterns, collections: collections %>
+		<%= render 'spree/shared/taxons_driven_mobile_sub_menu', whats_new: whats_new, women: women, men: men, kids: kids, knit_kits: knit_kits, crochet: crochet, yarn_and_patterns: yarn_and_patterns, collections: collections %>
 	<% else %>
-		<%= render 'spree/shared/taxons_driven_desktop_sub_menu', whats_new: whats_new, women: women, men: men, kids: kids, knit_kits: knit_kits, yarn_and_patterns: yarn_and_patterns, collections: collections %>
+		<%= render 'spree/shared/taxons_driven_desktop_sub_menu', whats_new: whats_new, women: women, men: men, kids: kids, knit_kits: knit_kits, crochet: crochet, yarn_and_patterns: yarn_and_patterns, collections: collections %>
 	<% end %>
 <% end %>
