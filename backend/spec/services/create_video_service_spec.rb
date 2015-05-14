@@ -1,37 +1,61 @@
 require 'spec_helper'
 
 describe CreateVideoService do
-  let(:video) { Video.new(embed: url ) }
+  let(:params) { { title: title, embed: url } }
+  let(:title)  { %[New Vid]}
+  let(:url)    { %[https://youtube.com/watch?v=111] }
 
-  context 'youtube' do
-    let(:url)	{ %[https://www.youtube.com/watch?v=Fh5x40Y2Bd0] }
-    let(:embed) { create_youtube_iframe('https://www.youtube.com/embed/Fh5x40Y2Bd0') }
+  context 'valid' do 
+    before         { described_class.run(params) }
+    let(:actual)   { Video.first.embed }
 
-    it 'creates youtube embed' do
-      described_class.new(video).run
-      expect(Video.first.embed).to eq embed
+    context 'youtube' do
+      let(:url)   { %[https://www.youtube.com/watch?v=Fh5x40Y2Bd0] }
+      let(:embed) { create_youtube_iframe('https://www.youtube.com/embed/Fh5x40Y2Bd0') }
+
+      it { expect(actual).to eq embed }
+    end
+
+    context 'vimeo url' do
+      let(:url)   { %[https://vimeo.com/118077207] }
+      let(:embed) { create_vimeo_iframe("https://player.vimeo.com/video/118077207") }
+
+      it { expect(actual).to eq embed }
     end
   end
 
-  context 'vimeo url' do
-    let(:url) { %[https://vimeo.com/118077207] }
-    let(:embed) { create_vimeo_iframe("https://player.vimeo.com/video/118077207") }
+  context 'invalid' do 
+    subject { described_class.run(new_params) }
 
-    it 'creates vimeo embed' do
-      described_class.new(video).run
-      expect(Video.first.embed).to eq embed
+    context 'not youtube or vimeo url'  do 
+      let(:new_params) { params.merge(embed: %[https://whatever.com]) }
+      it { is_expected.to_not be_valid  }
+    end
+
+    context 'duplicate title' do
+      let(:new_params) { params.merge(embed: %[https://vimeo.com/new] ) }
+      let(:errors)     { subject.errors.messages }
+      before { Video.create(params) }
+      it     { expect(errors).to eq({ :title=>['already exists'] }) }
+    end
+
+    context 'duplicate url' do
+      let(:new_params) { params.merge(title:  %[new version])  }
+      let(:errors)     { subject.errors.messages }
+      before { Video.create(params) }
+      it     { expect(errors).to eq({ :embed=>['already exists'] }) }
     end
   end
 
-  def create_youtube_iframe(uri, opts = "allowfullscreen")
+  def create_youtube_iframe(uri, opts = 'allowfullscreen')
     create_iframe(uri, opts)
   end
 
-  def create_vimeo_iframe(uri, opts = "webkitallowfullscreen mozallowfullscreen allowfullscreen")
+  def create_vimeo_iframe(uri, opts = 'webkitallowfullscreen mozallowfullscreen allowfullscreen')
     create_iframe(uri, opts)
   end
 
   def create_iframe(uri, opts)
-    %Q[<iframe src="#{uri}" width="460" height="315" frameborder="0" #{opts}></iframe>]
+    %Q[<iframe src="#{uri}" width="100%" height="315" frameborder="0" #{opts}></iframe>]
   end
 end

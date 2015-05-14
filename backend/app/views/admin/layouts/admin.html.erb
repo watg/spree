@@ -1,0 +1,35 @@
+<!doctype html>
+  <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.18.1/build/cssreset/cssreset-min.css">
+    <%= render :partial => 'spree/admin/shared/head' %>
+  </head>
+
+  <body class='admin'>
+    <div id='wrapper'>
+
+      <% if flash[:error] %>
+        <div class="alert error"><%= flash[:error] %></div>
+      <% end %>
+      <% if flash[:success] %>
+        <div class="flash success"><%= flash[:success] %></div>
+      <% end %>
+
+      <%= render :partial => 'spree/admin/shared/header' %>
+      <%= render :partial => 'spree/admin/shared/menu' %>
+      <%= render :partial => 'spree/admin/shared/sub_menu' %>
+      <%= render :partial => 'spree/admin/shared/content_header' %>
+
+      <div class="container">
+        <div class="row">
+          <div id="content">
+            <div class='sixteen columns'>
+              <%= yield %>
+            </div>
+            <%= render :partial => 'spree/admin/shared/sidebar' %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

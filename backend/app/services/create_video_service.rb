@@ -1,31 +1,35 @@
-class CreateVideoService
-  attr_reader :video
+class CreateVideoService < ActiveInteraction::Base
+  string    :title, :embed
+  validates :title, :embed, presence: true, uniqueness: true
+  validates :embed, format: { with: /\A(http).+.(youtube|vimeo)(.com)/ , 
+                              message: 'youtube or vimeo urls only' }, 
+                    :allow_blank => true
 
-  WIDTH = 460
-
-  def initialize(video)
-    @video = video
+  def execute
+    _video = Video.create(inputs)
+    _video.update(embed: embed_code)
+    _video
   end
 
-  def run
-    video.update(embed: embed)
+  def to_model
+    Video.new
   end
-
+  
   private
 
-  def embed
+  def embed_code
     if youtube?
-      Embed::Youtube.new(video).embed_code
+      Embed::Youtube.new(embed).embed_code
     elsif vimeo?
-      Embed::Vimeo.new(video).embed_code
+      Embed::Vimeo.new(embed).embed_code
     end
   end
 
   def youtube?
-    video.embed[/^(http).+.(youtube.com)/]
+    embed[/^(http).+.(youtube.com)/]
   end
 
   def vimeo?
-    video.embed[/^(http).+.(vimeo.com)/]
+    embed[/^(http).+.(vimeo.com)/]
   end
 end

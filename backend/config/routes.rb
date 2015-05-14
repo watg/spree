@@ -1,5 +1,5 @@
 Spree::Core::Engine.add_routes do
-
+  
   root :to => 'home#index'
   get '/admin', :to => 'admin/orders#index', :as => :admin
 
@@ -13,7 +13,6 @@ Spree::Core::Engine.add_routes do
       member do
         get :available_supply_products
       end
-
       resources :parts, :controller => 'assembly_definition_parts' do
         collection do
           post :update_positions
@@ -27,6 +26,8 @@ Spree::Core::Engine.add_routes do
         end
       end
     end
+
+    resources :videos, :controller => "/admin/videos"
 
     resources :assembly_definition_parts do
       member do
@@ -275,5 +276,4 @@ Spree::Core::Engine.add_routes do
     end
 
   end # end admin namespace
-
 end
