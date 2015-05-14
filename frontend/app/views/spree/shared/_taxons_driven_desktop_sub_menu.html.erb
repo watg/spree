@@ -164,6 +164,42 @@
       </a>
     </li>
   </ul>
+  <ul class="crochet-sub">
+    <li class="large-3 columns">
+      <h2>Ready Made <span>or Crochet Your Own</span></h2>
+    </li>
+    <li class="large-3 small-12 columns">
+      <% type = find_child_taxon(crochet, 'crochet/type') %>
+      <h3>
+        <a href="<%= seo_url(crochet) %>"
+        data-path="<%= get_taxon_chain(crochet) %>">Crochet</a>
+      </h3>
+      <ul>
+        <%= render_taxons_links(type) %>
+      </ul>
+      <% level = find_child_taxon(crochet, 'crochet/level') %>
+      <h3>
+        <a href="<%= seo_url(crochet) %>"
+        data-path="<%= get_taxon_chain(crochet) %>">By Level</a>
+      </h3>
+      <ul>
+        <%= render_taxons_links(level) %>
+      </ul>
+    </li>
+    <li class="large-3 columns">
+      <a href="/product/clash-pots/crochet-your-own">
+        <img src="<%= cdn_url('navigation/ClashPots.jpg') %>" width="230" height="294" alt="Clash Pots" />
+        <h3 class="image-caption">Clash Pots</h3>
+        <p class="image-caption">Shop now</p>
+      </a>
+    </li>    <li class="large-3 columns">
+      <a href="/product/jans-vase/crochet-your-own">
+        <img src="<%= cdn_url('navigation/JansVase.jpg') %>" width="230" height="294" alt="Jans Vase" />
+        <h3 class="image-caption">Jans Vase</h3>
+        <p class="image-caption">Shop now</p>
+      </a>
+    </li>
+  </ul>
   <ul class="yarn-and-patterns-sub">
     <li class="large-3 columns">
       <h2>All you need <br/><span>for your knitting project</span></h2>
