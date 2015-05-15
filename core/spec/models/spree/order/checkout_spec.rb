@@ -631,11 +631,11 @@ describe Spree::Order, :type => :model do
       Spree::PaymentMethod.destroy_all # TODO data is leaking between specs as database_cleaner or rspec 3 was broken in Rails 4.1.6 & 4.0.10
       # Turn off transactional fixtures so that we can test that
       # processing state is persisted.
+      DatabaseCleaner.clean # stop transaction
       DatabaseCleaner.strategy = :truncation
     end
 
     after do
-      DatabaseCleaner.clean
       # Turn on transactional fixtures again.
       self.use_transactional_fixtures = true
     end

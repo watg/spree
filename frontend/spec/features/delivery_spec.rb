@@ -12,6 +12,7 @@ describe "Delivery", type: :feature, js: true do
     order = OrderWalkthrough.up_to(:delivery)
     order.stub :confirmation_required? => true
     order.user = user
+    order.shipments = [create(:shipment, cost: 10)]
     order.update!
     order
   end

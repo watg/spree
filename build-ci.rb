@@ -42,7 +42,7 @@ class Project
   #   the success of the build
   def pass?
     chdir do
-      setup_test_app
+      # setup_test_app
       run_tests
     end
   end
