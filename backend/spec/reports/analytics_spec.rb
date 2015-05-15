@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe Spree::AnalyticsReport do
+describe Report::Analytics do
   let(:order_type) { create(:regular_order_type) }
   let(:payment_method) { create(:payment_method, name:'PayPal' ) }
   let(:bad_payment_method) { create(:payment_method, name:'foobar' ) }
@@ -24,13 +24,13 @@ describe Spree::AnalyticsReport do
   let!(:kit_product) { create(:base_product, marketing_type: kit_marketing_type) }
   let!(:kit_variant) { create(:base_variant, product: kit_product) }
 
-  let!(:order_peru_and_gang) { create(:order, user: peru_gang, order_type: order_type) }
+  let!(:order_peru_and_gang) { create(:order, user: peru_gang, order_type: order_type, state: 'complete') }
   let!(:payment1) { create(:payment, payment_method: payment_method, order: order_peru_and_gang) }
   let!(:gang_line_item) { create(:line_item, variant: gang_variant, order: order_peru_and_gang) }
   let!(:peru_line_item) { create(:line_item, variant: peru_variant, order: order_peru_and_gang) }
 
-  let!(:order_peru_and_gang_and_kit) { create(:order, user: peru_gang_kit, order_type: order_type) }
-  let!(:payment2) do 
+  let!(:order_peru_and_gang_and_kit) { create(:order, user: peru_gang_kit, order_type: order_type, state: 'complete') }
+  let!(:payment2) do
     create(:payment, payment_method: payment_method, order: order_peru_and_gang_and_kit)
   end
   let!(:kit_line_item_2) do
@@ -43,25 +43,27 @@ describe Spree::AnalyticsReport do
     create(:line_item, variant: peru_variant, order: order_peru_and_gang_and_kit)
   end
 
-  let!(:order_gang_only) { create(:order, user: gang, order_type: order_type) }
+  let!(:order_gang_only) { create(:order, user: gang, order_type: order_type, state: 'complete') }
   let!(:payment3) { create(:payment, payment_method: payment_method, order: order_gang_only) }
   let!(:gang_line_item_3) { create(:line_item, variant: gang_variant, order: order_gang_only) }
 
-  let!(:order_peru_only) { create(:order, user: peru, order_type: order_type) }
+  let!(:order_peru_only) { create(:order, user: peru, order_type: order_type, state: 'complete') }
   let!(:payment4) { create(:payment, payment_method: payment_method, order: order_peru_only) }
   let!(:peru_line_item_3) { create(:line_item, variant: peru_variant, order: order_peru_only) }
 
-  let!(:order_kit_only) { create(:order, user: kit, order_type: order_type) }
+  let!(:order_kit_only) { create(:order, user: kit, order_type: order_type, state: 'complete') }
   let!(:payment5) { create(:payment, payment_method: payment_method, order: order_kit_only) }
   let!(:kit_line_item) { create(:line_item, variant: kit_variant, order: order_kit_only) }
 
-  subject { Spree::AnalyticsReport.new([gang_marketing_type, peru_marketing_type]) }
+  let(:marketing_types) { [gang_marketing_type, peru_marketing_type] }
+
+  subject { Report::Analytics.new }
 
   before :all do
     begin
-      Spree::AnalyticsReport.drop_views
+      Report::ViewBuilder.drop_all
     ensure
-      Spree::AnalyticsReport.create_views
+      Report::ViewBuilder.create_all
     end
   end
 
@@ -71,7 +73,7 @@ describe Spree::AnalyticsReport do
     order_peru_only.update_column(:completed_at, "2014-01-01")
     order_gang_only.update_column(:completed_at, "2014-01-01")
     order_kit_only.update_column(:completed_at, "2014-01-01")
-    Spree::AnalyticsReport.refresh_views
+    Report::ViewBuilder.refresh_all
 
     allow(subject).to receive(:exchange_rate).with('GBP').and_return(1)
     allow(subject).to receive(:exchange_rate).with('USD').and_return(0.61)
@@ -108,8 +110,7 @@ describe Spree::AnalyticsReport do
 
   describe "email_marketing_types_sql" do
     it "returns the correct emails for a given marketing types" do
-      subject.marketing_types = [gang_marketing_type, peru_marketing_type]
-      sql = subject.send(:email_marketing_types_sql)
+      sql = subject.send(:email_marketing_types_sql, marketing_types)
       records = ActiveRecord::Base.connection.execute(sql).to_a
       expect(records.size).to eq 3
       expected = [peru_gang.email, peru.email, gang.email]
@@ -118,9 +119,8 @@ describe Spree::AnalyticsReport do
 
     context "wrong order type" do
       let(:order_type) { create(:order_type, name: "foobar") }
-
       it "returns no emails " do
-        sql = subject.send(:email_marketing_types_sql)
+        sql = subject.send(:email_marketing_types_sql, marketing_types)
         records = ActiveRecord::Base.connection.execute(sql).to_a
         expect(records.size).to eq 0
       end
@@ -130,7 +130,7 @@ describe Spree::AnalyticsReport do
       let(:payment_method) { create(:payment_method, name: "foobar") }
 
       it "returns no emails " do
-        sql = subject.send(:email_marketing_types_sql)
+        sql = subject.send(:email_marketing_types_sql, marketing_types)
         records = ActiveRecord::Base.connection.execute(sql).to_a
         expect(records.size).to eq 0
       end
@@ -148,8 +148,7 @@ describe Spree::AnalyticsReport do
       end
 
       it "returns the correct emails for a given marketing types" do
-        subject.marketing_types = [gang_marketing_type, peru_marketing_type]
-        sql = subject.send(:email_marketing_types_sql)
+        sql = subject.send(:email_marketing_types_sql, marketing_types)
         records = ActiveRecord::Base.connection.execute(sql).to_a
 
         expect(records.size).to eq 3
@@ -160,10 +159,10 @@ describe Spree::AnalyticsReport do
 
     context "wrong order type with a selected marketing type" do
       let(:order_type) { create(:order_type, name: "foobar") }
+      let(:marketing_type) { [gang_marketing_type] }
 
       it "returns no emails" do
-        subject.marketing_types = [gang_marketing_type]
-        sql = subject.send(:email_marketing_types_sql)
+        sql = subject.send(:email_marketing_types_sql, marketing_types)
         records = ActiveRecord::Base.connection.execute(sql).to_a
 
         expect(records.size).to eq 0
@@ -172,22 +171,21 @@ describe Spree::AnalyticsReport do
 
     context "wrong payment method with a selected marketing type" do
       let(:payment_method) { create(:payment_method, name: "foobar") }
+      let(:marketing_type) { [gang_marketing_type] }
 
       it "returns no emails" do
-        subject.marketing_types = [gang_marketing_type]
-        sql = subject.send(:email_marketing_types_sql)
+        sql = subject.send(:email_marketing_types_sql, marketing_types)
         records = ActiveRecord::Base.connection.execute(sql).to_a
 
         expect(records.size).to eq 0
       end
     end
-
   end
 
   describe "second_orders_view_sql" do
     before do
       create_first_order
-      Spree::AnalyticsReport.refresh_views
+      Report::ViewBuilder.refresh_all
     end
 
     it "returns the correct emails" do
@@ -198,8 +196,8 @@ describe Spree::AnalyticsReport do
 
   describe "life_time_value_sql" do
     it "returns the correct emails for a given marketing types" do
-      subject.marketing_types = [gang_marketing_type, peru_marketing_type]
-      data = subject.send(:fetch_data_for_life_time_value)
+      Report::ViewBuilder.refresh_all
+      data = subject.send(:fetch_data_for_life_time_value, marketing_types)
       expect(data.size).to eq 1
       expected = [
         {
@@ -218,12 +216,11 @@ describe Spree::AnalyticsReport do
         2.times do
           create_first_order
         end
-        Spree::AnalyticsReport.refresh_views
+        Report::ViewBuilder.refresh_all
       end
 
       it "returns the correct emails for a given marketing types" do
-        subject.marketing_types = [gang_marketing_type, peru_marketing_type]
-        data = subject.send(:fetch_data_for_life_time_value)
+        data = subject.send(:fetch_data_for_life_time_value, marketing_types)
         expect(data.size).to eq 4
 
         # The first one is from the setup, the next 4 entries are from the create_first_order
@@ -264,8 +261,8 @@ describe Spree::AnalyticsReport do
 
   describe "returning_customers_sql" do
     it "returns the correct emails for a given marketing types" do
-      subject.marketing_types = [gang_marketing_type, peru_marketing_type]
-      data = subject.send(:fetch_data_for_returning_customers)
+      marketing_types = [gang_marketing_type, peru_marketing_type]
+      data = subject.send(:fetch_data_for_returning_customers, marketing_types)
       expect(data.size).to eq 1
       expected = [
         {
@@ -282,12 +279,11 @@ describe Spree::AnalyticsReport do
         2.times do
           create_first_order
         end
-        Spree::AnalyticsReport.refresh_views
+        Report::ViewBuilder.refresh_all
       end
 
       it "returns the correct emails for a given marketing types" do
-        subject.marketing_types = [gang_marketing_type, peru_marketing_type]
-        data = subject.send(:fetch_data_for_returning_customers)
+        data = subject.send(:fetch_data_for_returning_customers, marketing_types)
         expect(data.size).to eq 2
         expected = [
           {
@@ -325,7 +321,7 @@ describe Spree::AnalyticsReport do
     it "retrieves formated data" do
       allow(subject).to receive(:fetch_data_for_returning_customers).and_return data
       data = []
-      subject.send(:formatted_data_for_returning_customers) do |r|
+      subject.send(:formatted_data_for_returning_customers, marketing_types) do |r|
         data << r
       end
       expect(data.size).to eq 2
@@ -339,12 +335,12 @@ describe Spree::AnalyticsReport do
         2.times do
           create_first_order
         end
-        Spree::AnalyticsReport.refresh_views
+        Report::ViewBuilder.refresh_all
       end
 
       it "returns the correct emails for a given marketing types" do
         data = []
-        subject.send(:formatted_data_for_life_time_value) do |r|
+        subject.send(:formatted_data_for_life_time_value, marketing_types) do |r|
           data << r
         end
         expect(data.size).to eq 4
@@ -392,25 +388,25 @@ describe Spree::AnalyticsReport do
     create(:payment, payment_method: payment_method, order: order)
     create(:line_item, variant: gang_variant, order: order)
     create(:line_item, variant: peru_variant, order: order)
-    order.update_column(:completed_at, "2014-02-01")
+    order.update_columns(completed_at: "2014-02-01", state: 'complete')
 
     # Second order
     order = create(:order, user: user, payment_total: 50, currency: "USD", order_type: order_type)
     create(:payment, payment_method: payment_method, order: order)
     create(:line_item, variant: kit_variant, order: order)
-    order.update_column(:completed_at, "2014-03-01")
+    order.update_columns(completed_at: "2014-03-01", state: 'complete')
 
     # Third order
     order = create(:order, user: user, payment_total: 50, currency: "GBP", order_type: order_type)
     create(:payment, payment_method: payment_method, order: order)
     create(:line_item, variant: kit_variant, order: order, currency: "GBP")
-    order.update_column(:completed_at, "2014-04-01")
+    order.update_columns(completed_at: "2014-04-01", state: 'complete')
 
     # Fourth order
     order = create(:order, user: user, payment_total: 50, currency: "EUR", order_type: order_type)
     create(:payment, payment_method: payment_method, order: order)
     create(:line_item, variant: kit_variant, order: order, currency: "EUR")
-    order.update_column(:completed_at, "2014-04-02")
+    order.update_columns(completed_at: "2014-04-02", state: 'complete')
 
     # Fifth order which has a bad payment type, hence we should ignore
     bad_order_type = create(:order_type, name: "foobar")
@@ -418,12 +414,12 @@ describe Spree::AnalyticsReport do
       create(:order, user: user, payment_total: 50, currency: "USD", order_type: bad_order_type)
     create(:payment, payment_method: payment_method, order: order)
     create(:line_item, variant: kit_variant, order: order)
-    order.update_column(:completed_at, "2014-03-01")
+    order.update_columns(completed_at: "2014-03-01", state: 'complete')
 
     # Sixth order which has a bad payment type, hence we should ignore
     order = create(:order, user: user, payment_total: 50, currency: "EUR", order_type: order_type)
     create(:payment, payment_method: bad_payment_method, order: order)
     create(:line_item, variant: kit_variant, order: order, currency: "EUR")
-    order.update_column(:completed_at, "2014-03-01")
+    order.update_columns(completed_at: "2014-03-01", state: 'complete')
   end
 end
