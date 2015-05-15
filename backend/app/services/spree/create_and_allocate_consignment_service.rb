@@ -25,7 +25,11 @@ module Spree
         end
 
       rescue Exception => error
-        Helpers::AirbrakeNotifier.notify(error.message, {order: order.number})
+        airbrake_params = {
+          backtrace: error.backtrace,
+          order: order.number,
+        }
+        Helpers::AirbrakeNotifier.notify(error.message, airbrake_params)
 
         Rails.logger.info '-'*80
         Rails.logger.info 'metapack: ' + error.message
@@ -144,7 +148,7 @@ module Spree
         country = line[:country]
         {
           origin: country.iso,
-          fabric: group.contents,
+          fabric: group.contents.gsub(/\r|\n/, ' '),
           harmonisation_code: group.code,
           description: group.fabric,
           type_description: group.garment,
