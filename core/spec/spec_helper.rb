@@ -60,10 +60,19 @@ RSpec.configure do |config|
   # instead of true.
   config.use_transactional_fixtures = true
 
-  config.before :each do
+  config.before(:suite) do
+    DatabaseCleaner.clean_with :truncation
+  end
+
+  config.before(:each) do
     Rails.cache.clear
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.start
     Spree::Money.enable_options_cache = false
-    reset_spree_preferences
+    WebMock.stub_request(:get, //).to_return(:status => 200, :body => "", :headers => {})
+  end
+  config.after(:each) do
+    DatabaseCleaner.clean
   end
 
   config.include FactoryGirl::Syntax::Methods

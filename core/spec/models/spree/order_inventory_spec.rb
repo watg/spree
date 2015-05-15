@@ -360,6 +360,8 @@ describe Spree::OrderInventory, :type => :model do
     let!(:container_part) { create(:part, quantity: 2, line_item: line_item, container: true) }
 
     before do
+      WebMock.stub_request(:get, "https://www.gov.uk/bank-holidays.json").
+              to_return(:status => 200, :body => "", :headers => {})
       parts.first.update_column(:quantity, 3)
       line_item.update_column(:quantity, 3)
       order.reload.create_proposed_shipments

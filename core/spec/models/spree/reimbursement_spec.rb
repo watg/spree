@@ -68,6 +68,9 @@ describe Spree::Reimbursement, :type => :model do
     subject { reimbursement.perform! }
 
     before do
+      WebMock.stub_request(:get, "https://www.gov.uk/bank-holidays.json").
+              to_return(:status => 200, :body => "", :headers => {})
+
       # Not part of vanilla spree, although this spec is such a hack
       # we have to put this in place, as the shipment stock adjuster will
       # correctly set the inventory_unit state to backordered otherwise

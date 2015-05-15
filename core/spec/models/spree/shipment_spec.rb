@@ -674,6 +674,8 @@ describe Spree::Shipment, :type => :model do
 
     context 'with Config.auto_capture_on_dispatch == true' do
       before do
+        WebMock.stub_request(:get, "https://www.gov.uk/bank-holidays.json").
+                to_return(:status => 200, :body => "", :headers => {})
         Spree::Config[:auto_capture_on_dispatch] = true
         @order = create :completed_order_with_pending_payment
         @shipment = @order.shipments.first

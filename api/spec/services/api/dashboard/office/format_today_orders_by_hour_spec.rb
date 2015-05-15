@@ -6,6 +6,10 @@ describe Api::Dashboard::Office::FormatTodayOrdersByHour, type: :interaction do
   subject { described_class.new }
 
   describe "execute" do
+    before do
+      new_time = Time.local(2015, 9, 1, 12, 0, 0)
+      Timecop.freeze(new_time)
+    end
     it "contains all the hours until one hour ago" do
       allow_any_instance_of(Api::Dashboard::Office::FindTodayValidOrders)
         .to receive(:run).and_return(Spree::Order.all)
