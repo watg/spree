@@ -1,6 +1,6 @@
 module Report
   module View
-    class CompletedOrders < Base
+    class CompletedOrders
 
       NAME = "completed_orders_view"
       # For completed orders will need to move out
