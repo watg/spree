@@ -5,31 +5,19 @@ class UpdateVideoService < ActiveInteraction::Base
   validates :embed, format: { with: /\A(http).+.(youtube|vimeo)(.com)/ , 
                               message: 'youtube or vimeo urls only' }, 
                     :allow_blank => true
-
+  
   def execute
     video.update(inputs)
     video.update(embed: embed_code)
   end
 
+  private 
+
   def video
     @video ||= Video.find(id)
   end
 
-  private
-
   def embed_code
-    if youtube?
-      Embed::Youtube.new(embed).embed_code
-    elsif vimeo?
-      Embed::Vimeo.new(embed).embed_code
-    end
-  end
-
-  def youtube?
-    embed[/^(http).+.(youtube.com)/]
-  end
-
-  def vimeo?
-    embed[/^(http).+.(vimeo.com)/]
+    Embed.build(embed).embed_code
   end
 end
