@@ -4,7 +4,6 @@ module Admin
     include Spree::Core::ControllerHelpers::Common
     include Spree::Core::ControllerHelpers::Store
     include Spree::Core::ControllerHelpers::Order
-    include Rails.application.routes.url_helpers
 
     layout '/admin/layouts/admin'
 
