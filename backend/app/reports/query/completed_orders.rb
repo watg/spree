@@ -5,6 +5,7 @@ module Report
       COMPLETE_FOR_REPORTING = %w(complete resumed warehouse_on_hold customer_service_on_hold)
       PAYMENT_METHODS = ['PayPal', 'Credit Card']
       ORDER_TYPES = %(regular)
+      ORDER_TYPES = %(regular)
 
       attr_accessor :relation, :order_types
 
