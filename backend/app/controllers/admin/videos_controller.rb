@@ -26,5 +26,20 @@ module Admin
         render :new
       end
     end
+
+    def edit
+      @video = Video.find(params[:id])
+    end
+
+    def update
+      @video = UpdateVideoService.run(params[:video])
+      if @video.valid?
+        flash[:success] = "Video created"
+        redirect_to '/admin/videos'
+      else
+        flash[:error] = "Could not create video"
+        render :new
+      end
+    end
   end
 end

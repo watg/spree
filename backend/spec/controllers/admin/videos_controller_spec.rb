@@ -47,5 +47,31 @@ module Admin
         end
       end
     end
+
+    describe '#edit' do 
+      before { spree_post :create, video: attributes }
+
+      context 'valid attributes' do 
+        let(:valid_attr) { { id: Video.first.id, title: 'New', embed: embed } }
+
+        it 'updates video' do 
+          spree_post :update, video: valid_attr
+          expect(Video.count).to eq 1
+          expect(Video.first.title).to eq 'New'
+          expect(response).to redirect_to '/admin/videos'
+          expect(flash[:success]).to eq 'Video created'
+        end
+      end
+
+      context 'invalid attributes' do 
+        let(:invalid_attr) { { id: Video.first.id, title: ' ', embed: embed } }
+
+        it 'notifies user' do 
+          spree_post :update, video: invalid_attr
+          expect(Video.count).to eq 1
+          expect(flash[:error]).to eq 'Could not create video'
+        end
+      end
+    end
   end
 end
