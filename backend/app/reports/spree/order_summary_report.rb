@@ -3,9 +3,13 @@ module Spree
   class OrderSummaryReport
     include BaseReport
 
+    attr_accessor :completed_orders, :first_order_checker
+
     def initialize(params)
       @from = params[:from].blank? ? Time.now.midnight : Time.parse(params[:from])
       @to = params[:to].blank? ? Time.now.tomorrow.midnight : Time.parse(params[:to])
+      @completed_orders = ::Report::Query::CompletedOrders.new( order_types: %w(regular party)).query
+      @first_order_checker = ::Report::Domain::FirstOrderChecker.new(@completed_orders)
     end
 
     def filename_uuid
@@ -66,11 +70,8 @@ module Spree
     end
 
     def retrieve_data
-      previous_users = CSV.read(File.join(File.dirname(__FILE__), "unique_previous_users.csv"))
-      previous_users = previous_users.flatten.to_set
-
       loop_orders do |order|
-        yield generate_csv_line(order, previous_users)
+        yield generate_csv_line(order)
       end
     end
 
@@ -100,10 +101,8 @@ module Spree
     private
 
     def loop_orders
-      valid_states = Spree::Order::COMPLETE_STATES
-
-      Spree::Order.includes(:shipments, line_items: [:line_item_parts])
-        .where(state: valid_states, completed_at: @from..@to).find_each do |order|
+      completed_orders.includes(:shipments, line_items: [:line_item_parts])
+        .where(completed_at: @from..@to).find_each do |order|
         yield order
       end
     end
@@ -112,7 +111,7 @@ module Spree
       Spree::MarketingType.all.map(&:name)
     end
 
-    def generate_csv_line(o, previous_users)
+    def generate_csv_line(o)
       shipped_at = ""
       unless o.shipments.last.nil?
         unless o.shipments.last.shipped_at.blank?
@@ -143,7 +142,7 @@ module Spree
         o.completed_at.try(:to_s, :db),
         shipped_at,
         o.shipping_address.country.name,
-        returning_customer(o, previous_users),
+        !first_order_checker.first_order?(o),
         o.internal?,
         o.order_type.title,
         o.currency,
@@ -204,27 +203,5 @@ module Spree
       end
     end
 
-    def returning_customer(order, previous_users)
-      rtn = !first_order(order)
-      rtn = true if (rtn == false) && previous_users.include?(order.email.to_s)
-      rtn
-    end
-
-    def first_order(order)
-      if order.user || order.email
-        orders_complete = completed_orders(order.user, order.email)
-        orders_complete.blank? || (orders_complete.order("completed_at asc").first == order)
-      else
-        false
-      end
-    end
-
-    def completed_orders(user, email)
-      if user
-        Spree::Order.where("email = ? or user_id = ?", email, user.id).complete
-      else
-        Spree::Order.where("email = ?", email).complete
-      end
-    end
   end
 end
