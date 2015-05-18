@@ -1,7 +1,8 @@
 class UniquenessValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
-    if Video.where(Hash[attribute,value]).count > 0
-      record.errors[attribute] << 'already exists'
+    video = Video.where(Hash[attribute,value]).first
+    if record.respond_to?(:id) && video && (video.id != record.id) || !record.respond_to?(:id) && video
+    	record.errors[attribute] << 'already exists'
     end
   end
 end
