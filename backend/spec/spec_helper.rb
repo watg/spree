@@ -1,3 +1,5 @@
+require 'pry'
+
 if ENV["COVERAGE"]
   # Run Coverage report
   require 'simplecov'

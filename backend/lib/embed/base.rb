@@ -1,11 +1,11 @@
 module Embed
   class Base
-    attr_reader :video
+    attr_reader :embed
 
-    WIDTH = 460
+    WIDTH = %[100%]
 
-    def initialize(video)
-      @video = video
+    def initialize(embed)
+      @embed = embed
     end
 
     def embed_code
@@ -13,7 +13,7 @@ module Embed
     end
 
     def uri
-      parse(video.embed)
+      parse(embed)
     end
   end
 end
