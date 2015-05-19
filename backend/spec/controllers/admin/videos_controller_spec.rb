@@ -27,11 +27,11 @@ module Admin
         end
       end
 
-      context 'embed missing' do 
-        let(:embed) { ' ' }
+      context 'url missing' do 
+        let(:url) { ' ' }
 
         it 'notifies user' do 
-          spree_post :create, video: { title: 'Stitched Up Video', embed: '' }
+          spree_post :create, video: attributes
           expect(Video.count).to eq 0
           expect(flash[:error]).to eq 'Could not create video'
         end
@@ -52,7 +52,7 @@ module Admin
       before { spree_post :create, video: attributes }
 
       context 'valid attributes' do 
-        let(:valid_attr) { { id: Video.first.id, title: 'New', embed: embed } }
+        let(:valid_attr) { { id: Video.first.id, title: 'New', url: url } }
 
         it 'updates video' do 
           spree_post :update, video: valid_attr
@@ -64,7 +64,7 @@ module Admin
       end
 
       context 'invalid attributes' do 
-        let(:invalid_attr) { { id: Video.first.id, title: ' ', embed: embed } }
+        let(:invalid_attr) { { id: Video.first.id, title: ' ', url: url } }
 
         it 'notifies user' do 
           spree_post :update, video: invalid_attr
