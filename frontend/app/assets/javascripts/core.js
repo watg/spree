@@ -369,7 +369,7 @@ core.signupGetPromoCode = function() {
 }
 
 core.signupGetPromoText = function() {
-  return '<strong>Get 20% off</strong> your items,<br/>Enter code when you check out:';
+  return '<strong>Get 15% off</strong> your items,<br/>Enter code when you check out:';
 }
 
 // optional, depending where veronica wants the disclaimer
