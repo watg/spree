@@ -11,6 +11,10 @@ class UpdateVideoService < ActiveInteraction::Base
     video.update(embed: embed_code)
   end
 
+  def to_model
+    Video.new
+  end
+
   private 
 
   def video

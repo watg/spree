@@ -1,0 +1,11 @@
+<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @video } %>
+
+<%= form_for [:admin, @video], url: "/admin/videos/#{@video.id}", method: :put do |f| %>
+  <%= render :partial => 'form', locals: { f: f, context: 'edit' } %> 
+  <%= hidden_field_tag("video[id]", @video.id) %>
+
+  <div class='form-buttons filter-actions actions'>
+    <%= button 'edit', 'ok', class: 'btn btn-default' %>
+    <%= link_to_with_icon 'remove', 'cancel', '/admin/videos', :class => 'button' %>
+  </div>
+<% end %>

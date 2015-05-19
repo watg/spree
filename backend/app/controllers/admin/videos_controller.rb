@@ -38,7 +38,7 @@ module Admin
         redirect_to '/admin/videos'
       else
         flash[:error] = "Could not create video"
-        render :new
+        render :edit
       end
     end
   end

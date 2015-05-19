@@ -1,19 +1,7 @@
 <%= render :partial => 'spree/shared/error_messages', :locals => { :target => @video } %>
 
 <%= form_for [:admin, @video], url: '/admin/videos', method: :post do |f| %>
-  <fieldset>
-    <legend> New Video </legend>
-    <div class="row">
-      <%= f.label :title, 'title' %> *
-      <%= f.text_field :title, :class => 'form-control' %>
-    </div>
-    
-    <div class="row">
-      <%= f.label :url, 'url' %> * 
-      <%= f.text_field :url, :class => 'form-control' %>
-    </div>
-  </fieldset>
-
+  <%= render partial: 'form', locals: { f: f, context: 'create' }  %>
   <div class='form-buttons filter-actions actions'>
     <%= button 'create', 'ok', class: 'btn btn-default' %>
     <%= link_to_with_icon 'remove', 'cancel', '/admin/videos', :class => 'button' %>
