@@ -31,13 +31,16 @@
         <p class="stock-level">Low stock <span class="stock-value"></span></p>
         <p class="digital-available">PDF + Printed Pattern</p>
 
+        <%# Template Dependency: spree/suites/in_stock %>
+        <%# Template Dependency: spree/suites/out_of_stock %>
         <%= render selected_tab_presenter.product_selector,
                       variant_presenter: variant_presenter,
                       product_presenter: product_presenter,
                       selected_tab_presenter: selected_tab_presenter,
                       suite_presenter: suite_presenter %>
 
-
+        <%# Template Dependency: spree/suites/product_details %>
+        <%# Template Dependency: spree/suites/product_details_mobile %>
         <%= render selected_tab_presenter.product_details,
                       variant_presenter: variant_presenter,
                       product_presenter: product_presenter,
