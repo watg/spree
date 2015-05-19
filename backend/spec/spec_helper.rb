@@ -91,6 +91,9 @@ RSpec.configure do |config|
     DatabaseCleaner.clean_with :truncation
   end
 
+  # Ensure presenters works
+  config.include ActionView::TestCase::Behavior, file_path: %r{spec/presenters}
+
   config.before(:each) do
     Rails.cache.clear
     WebMock.disable!

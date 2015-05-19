@@ -121,12 +121,10 @@ module Spree
       end
 
       def lowest_priced_variant(currency, in_sale: false )
-        selector = in_stock.active(currency).select('spree_prices.id').includes(:normal_prices)
-          .where('sale = ?', in_sale )
-
-        selector = selector.where('spree_variants.in_sale = ?', in_sale) if in_sale == true
-
-        selector.reorder('amount').first
+        selector     = in_stock.active(currency).select('spree_prices.id').includes(:normal_prices)
+        selector     = selector.where('spree_variants.in_sale = ?', in_sale) if in_sale == true
+        order_column = in_sale ? 'sale_amount' : 'amount'
+        selector.reorder(order_column).first
       end
 
     end
@@ -208,13 +206,13 @@ module Spree
     def price_types
       types = [:normal,:normal_sale]
       unless product.assembly?
-        types << [:part, :part_sale]
+        types << [:part]
       end
       types.flatten
     end
 
     def visible_price_types
-      Spree::Price::TYPES - [:part_sale]
+      Spree::Price::TYPES
     end
 
     def currency
@@ -241,31 +239,30 @@ module Spree
       self.send(price_in_method, currency_code )
     end
 
+    def currency_price(currency_code)
+      self.prices.where(currency: currency_code).first
+    end
+
     # --- new price getters --------
     def price_normal_in(currency_code)
       Spree::Price.find_normal_price(prices, currency_code) ||
-      self.prices.new(currency: currency_code, is_kit: false, sale: false)
+      self.prices.new(currency: currency_code, price_type: 'normal')
     end
 
     def price_normal_sale_in(currency_code)
       Spree::Price.find_sale_price(prices, currency_code) ||
-      self.prices.new(currency: currency_code, is_kit: false, sale: true)
+      self.prices.new(currency: currency_code, price_type: 'sale')
     end
 
     def price_part_in(currency_code)
       Spree::Price.find_part_price(prices, currency_code) ||
-      self.prices.new(currency: currency_code, is_kit: true, sale: false)
+      self.prices.new(currency: currency_code, price_type: 'part')
     end
 
-    def price_part_sale_in(currency_code)
-      Spree::Price.find_part_sale_price(prices, currency_code) ||
-      self.prices.new(currency: currency_code, is_kit: true, sale: true)
-    end
     # ------------------------------
 
-    def price_in(currency)
-      ActiveSupport::Deprecation.warn("variant#price_in is deprecated use price_normal_in instead")
-      price_normal_in(currency)
+    def price_in(currency_code)
+      Spree::Price.find_by_currency(prices, currency_code)
     end
 
     def kit_price_in(currency)
@@ -274,7 +271,6 @@ module Spree
     end
 
     def display_name
-
       # retrieve all the option type ids which are visible, we have to go up to the product to retrieve this information
       option_type_ids = self.product.product_option_types.where( visible: true ).joins(:option_type).map(&:option_type_id)
 

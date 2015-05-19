@@ -135,10 +135,7 @@ describe Spree::Product, :type => :model do
 
       context "with display_currency set to true" do
         before { Spree::Config[:display_currency] = true }
-
-        it "shows the currency" do
-          expect(product.display_price.to_s).to eq("$10.55 USD")
-        end
+        it { expect(product.display_price.to_s).to eq("$10.55 USD") }
       end
 
       context "with display_currency set to false" do

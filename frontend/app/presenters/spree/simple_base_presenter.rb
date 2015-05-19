@@ -1,5 +1,5 @@
 module Spree
-  # to inherit from when a presenter does not nessecarily accept an object
+  # to inherit from when a presenter does not necessarily accept an object
   class SimpleBasePresenter
     def initialize(view_context)
       @view_context = view_context
