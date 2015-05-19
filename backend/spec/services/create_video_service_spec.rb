@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe CreateVideoService do
-  let(:params) { { title: title, embed: url } }
+  let(:params) { { title: title, url: url } }
   let(:title)  { %[New Vid]}
   let(:url)    { %[https://youtube.com/watch?v=111] }
 
@@ -28,12 +28,12 @@ describe CreateVideoService do
     subject { described_class.run(new_params) }
 
     context 'not youtube or vimeo url'  do 
-      let(:new_params) { params.merge(embed: %[https://whatever.com]) }
+      let(:new_params) { params.merge(url: %[https://whatever.com]) }
       it { is_expected.to_not be_valid  }
     end
 
     context 'duplicate title' do
-      let(:new_params) { params.merge(embed: %[https://vimeo.com/new] ) }
+      let(:new_params) { params.merge(url: %[https://vimeo.com/new] ) }
       let(:errors)     { subject.errors.messages }
       before { Video.create(params) }
       it     { expect(errors).to eq({ :title=>['already exists'] }) }
@@ -43,7 +43,7 @@ describe CreateVideoService do
       let(:new_params) { params.merge(title:  %[new version])  }
       let(:errors)     { subject.errors.messages }
       before { Video.create(params) }
-      it     { expect(errors).to eq({ :embed=>['already exists'] }) }
+      it     { expect(errors).to eq({ :url=>['already exists'] }) }
     end
   end
 

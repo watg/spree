@@ -1,8 +1,8 @@
 class UpdateVideoService < ActiveInteraction::Base
   integer   :id
-  string    :title, :embed
-  validates :title, :embed, presence: true, uniqueness: true
-  validates :embed, format: { with: /\A(http).+.(youtube|vimeo)(.com)/ , 
+  string    :title, :url
+  validates :title, :url, presence: true, uniqueness: true
+  validates :url, format: { with: /\A(http).+.(youtube|vimeo)(.com)/ , 
                               message: 'youtube or vimeo urls only' }, 
                     :allow_blank => true
   
@@ -18,6 +18,6 @@ class UpdateVideoService < ActiveInteraction::Base
   end
 
   def embed_code
-    Embed.build(embed).embed_code
+    Embed.build(url).embed_code
   end
 end

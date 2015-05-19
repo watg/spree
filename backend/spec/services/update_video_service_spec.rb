@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe UpdateVideoService do 
-  let(:params) { {title: 'Crochet baby!', embed: 'https://vimeo.com/112213893'} }
+  let(:params) { {title: 'Crochet baby!', url: 'https://vimeo.com/112213893'} }
   
   context 'same params' do 
     let(:embed) { double(embed_code: '<iframe></iframe>') }
@@ -9,7 +9,7 @@ describe UpdateVideoService do
 
     before do 
       CreateVideoService.run(params) 
-      allow(Embed).to receive(:build).with(params[:embed]).and_return(embed)
+      allow(Embed).to receive(:build).with(params[:url]).and_return(embed)
       described_class.run(params.merge(id: Video.first.id))
     end
 
@@ -20,12 +20,12 @@ describe UpdateVideoService do
 
   context 'new params' do 
     let(:embed)      { double(embed_code: '<iframe></iframe>') }
-    let(:new_params) { params.merge(embed: 'https://vimeo.com/30821530', id: Video.first.id) }
+    let(:new_params) { params.merge(url: 'https://vimeo.com/30821530', id: Video.first.id) }
     let(:video)      { Video.first }
 
     before do 
       CreateVideoService.run(params) 
-      allow(Embed).to receive(:build).with(new_params[:embed]).and_return(embed)
+      allow(Embed).to receive(:build).with(new_params[:url]).and_return(embed)
       described_class.run(new_params)
     end
 
@@ -37,10 +37,10 @@ describe UpdateVideoService do
   context 'duplicate title' do 
     before do
       CreateVideoService.run(params)
-      CreateVideoService.run({title: 'Knit me', embed: 'https://vimeo.com/30821530'})
+      CreateVideoService.run({title: 'Knit me', url: 'https://vimeo.com/30821530'})
     end
 
-    let(:outcome) { described_class.run(params.merge(embed: 'https://vimeo.com/30821530', id: Video.last.id)) }
+    let(:outcome) { described_class.run(params.merge(url: 'https://vimeo.com/30821530', id: Video.last.id)) }
     let(:errors)  { outcome.errors.messages }
 
     it { expect(errors).to eq({:title=>["already exists"]}) }
@@ -48,25 +48,25 @@ describe UpdateVideoService do
 
   context 'title missing' do 
     before        { CreateVideoService.run(params) }
-    let(:outcome) { described_class.run({title: '', embed: 'https://vimeo.com/30821530', id: Video.last.id }) }
+    let(:outcome) { described_class.run({title: '', url: 'https://vimeo.com/30821530', id: Video.last.id }) }
     let(:errors)  { outcome.errors.messages }
 
     it { expect(errors).to eq({:title=>["can't be blank"]}) }
   end
 
-  context 'embed missing' do 
+  context 'url missing' do 
     before        { CreateVideoService.run(params) }
-    let(:outcome) { described_class.run({title: 'Crochet baby!', embed: '', id: Video.last.id }) }
+    let(:outcome) { described_class.run({title: 'Crochet baby!', url: '', id: Video.last.id }) }
     let(:errors)  { outcome.errors.messages }
 
-    it { expect(errors).to eq({:embed=>["can't be blank"]}) }
+    it { expect(errors).to eq({:url=>["can't be blank"]}) }
   end
 
   context 'not youtube or vimeo url'  do 
     before        { CreateVideoService.run(params) }
-    let(:outcome) { described_class.run(params.merge(embed: %[https://whatever.com], id: Video.last.id)) }
+    let(:outcome) { described_class.run(params.merge(url: %[https://whatever.com], id: Video.last.id)) }
     let(:errors)  { outcome.errors.messages } 
 
-    it { expect(errors).to eq({:embed=>["youtube or vimeo urls only"]}) }
+    it { expect(errors).to eq({:url=>["youtube or vimeo urls only"]}) }
   end
 end
