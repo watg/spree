@@ -2,9 +2,9 @@ require 'spec_helper'
 
 module Admin
   describe VideosController, type: :controller do 
-    let(:attributes) { { title: title, embed: embed } }
+    let(:attributes) { { title: title, url: url } }
     let(:title)      { 'Stitched Up Video' }
-    let(:embed)      { 'https://vimeo.com/112213893' } 
+    let(:url)        { 'https://vimeo.com/112213893' } 
 
     describe '#create' do 
       context 'valid attributes' do 
@@ -71,6 +71,17 @@ module Admin
           expect(Video.count).to eq 1
           expect(flash[:error]).to eq 'Could not create video'
         end
+      end
+    end
+
+    describe '#destroy' do 
+      before { spree_post :create, video: attributes }
+
+      it 'deletes video' do 
+        spree_post :destroy, id: Video.first.id 
+        expect(Video.count).to eq 0
+        expect(response).to redirect_to '/admin/videos'
+        expect(flash[:success]).to eq 'Video deleted'
       end
     end
   end

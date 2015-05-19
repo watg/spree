@@ -41,5 +41,11 @@ module Admin
         render :edit
       end
     end
+
+    def destroy
+      @video = DestroyVideoService.run(params)
+      @video.valid? && flash[:success] = "Video deleted" 
+      redirect_to '/admin/videos'
+    end
   end
 end
