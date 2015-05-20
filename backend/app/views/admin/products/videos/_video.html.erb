@@ -1,0 +1,9 @@
+<div class="row video">
+	<div class="col-md-4 title">
+    <h3><%= video.title.upcase %></h3>
+  </div>
+  <div class="col-md-7">
+  	<p><%= raw(video.embed) %><p>
+  </div>
+  <input class='col-md-1' type="checkbox" name="product[videos][]" value="<%= video.id %>" <%= video.status %>>
+</div>
