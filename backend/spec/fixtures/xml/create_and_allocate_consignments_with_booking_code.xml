@@ -33,7 +33,7 @@
                   <countryOfOrigin xsi:type="soapenc:string">UK</countryOfOrigin>
                   <fabricContent xsi:type="soapenc:string">50% Cotton 50% Wool</fabricContent>
                   <harmonisedProductCode xsi:type="soapenc:string">CODE012</harmonisedProductCode>
-                  <productCode xsi:type="soapenc:string">1</productCode>
+                  <productCode xsi:type="soapenc:string">SKU-1</productCode>
                   <productDescription xsi:type="soapenc:string">Knitted</productDescription>
                   <productTypeDescription xsi:type="soapenc:string">Sweater</productTypeDescription>
                   <productQuantity xsi:type="xsd:long">5</productQuantity>

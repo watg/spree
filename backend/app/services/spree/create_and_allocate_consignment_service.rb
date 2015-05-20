@@ -87,6 +87,7 @@ module Spree
         {
           line1:    addr.address1,
           line2:    addr.city,
+          line3:    addr.city,
           postcode: addr.zipcode,
           country:  addr.country.iso3,
         }
@@ -152,6 +153,7 @@ module Spree
           harmonisation_code: group.code,
           description: group.fabric,
           type_description: group.garment,
+          sku: product.sku,
           weight: product.weight.to_f,
           total_product_value: line[:total_price].to_f,
           product_quantity: line[:quantity]
