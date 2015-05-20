@@ -85,6 +85,8 @@ describe Spree::CreateAndAllocateConsignmentService do
       parcel_weight = (order.weight / order.parcels.size).round(2)
 
       p1,p2 = [order.parcels[0],order.parcels[1]]
+      sku1 = order.line_items.first.product.sku
+      sku2 = order.line_items.last.product.sku
       address = { line1: "10 Lovely Street", line2: "Northwest", line3: "Herndon", postcode: "35005", country: "USA" }
       parcel_value = order.total / 2
       expected  = {
@@ -96,11 +98,11 @@ describe Spree::CreateAndAllocateConsignmentService do
         order_number:  order.number,
         parcels:       [
                         {
-                          reference: p1.id, 
-                          height: p1.height.to_f, 
+                          reference: p1.id,
+                          height: p1.height.to_f,
                           value: parcel_value,
-                          depth: p1.depth.to_f, 
-                          width: p1.width.to_f,  
+                          depth: p1.depth.to_f,
+                          width: p1.width.to_f,
                           weight: parcel_weight,
                           products: [
                             {
@@ -109,6 +111,7 @@ describe Spree::CreateAndAllocateConsignmentService do
                             :harmonisation_code=>"CODE123",
                             :description=>"Knitted",
                             :type_description =>"Sweater",
+                            :sku => sku1,
                             :weight=>0.25,
                             :total_product_value=>10.0,
                             :product_quantity=>1
@@ -116,19 +119,20 @@ describe Spree::CreateAndAllocateConsignmentService do
                           ]
                         },
                         {
-                          reference: p2.id, 
-                          height: p2.height.to_f, 
+                          reference: p2.id,
+                          height: p2.height.to_f,
                           value: parcel_value,
-                          depth: p2.depth.to_f, 
-                          width: p2.width.to_f,  
+                          depth: p2.depth.to_f,
+                          width: p2.width.to_f,
                           weight: parcel_weight,
                           products: [
                             {
-                            :origin=> country.iso, 
+                            :origin=> country.iso,
                             :fabric=>"10% Wool 90% Cotton",
                             :harmonisation_code=>"CODE123",
                             :description=>"Knitted",
                             :type_description =>"Sweater",
+                            :sku => sku2,
                             :weight=>0.25,
                             :total_product_value=>10.0,
                             :product_quantity=>1
@@ -150,9 +154,16 @@ describe Spree::CreateAndAllocateConsignmentService do
 
       shipping_manifest = Spree::ShippingManifestService.run(order: order )
       expect(consignment.send(:allocation_hash, order, shipping_manifest.result )).to eql(expected)
+      expected[:recipient][:address] = address
 
       order.shipping_address.update_attributes(address2: nil)
-      address = { line1: "10 Lovely Street", line2: "Herndon", postcode: "35005", country: "USA" }
+      address = {
+        line1: "10 Lovely Street",
+        line2: "Herndon",
+        line3: "Herndon",
+        postcode: "35005",
+        country: "USA" 
+      }
       expected[:recipient][:address] = address
       expect(consignment.send(:allocation_hash, order, shipping_manifest.result )).to eql(expected)
     end

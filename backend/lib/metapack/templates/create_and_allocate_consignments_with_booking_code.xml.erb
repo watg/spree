@@ -35,7 +35,7 @@
                   <countryOfOrigin xsi:type="soapenc:string"><%= escape product[:origin] %></countryOfOrigin>
                   <fabricContent xsi:type="soapenc:string"><%= escape product[:fabric] %></fabricContent>
                   <harmonisedProductCode xsi:type="soapenc:string"><%= product[:harmonisation_code] %></harmonisedProductCode>
-                  <productCode xsi:type="soapenc:string">1</productCode>
+                  <productCode xsi:type="soapenc:string"><%= escape product[:sku] %></productCode>
                   <productDescription xsi:type="soapenc:string"><%= escape product[:description] %></productDescription>
                   <productTypeDescription xsi:type="soapenc:string"><%= escape product[:type_description] %></productTypeDescription>
                   <productQuantity xsi:type="xsd:long"><%= product[:product_quantity] %></productQuantity>

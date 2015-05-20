@@ -22,6 +22,7 @@ def consignment_hash
                             harmonisation_code: 'CODE012',
                             description: "Knitted",
                             type_description: "Sweater",
+                            sku: 'SKU-1',
                             weight: 0.2,
                             total_product_value: 23.17,
                             product_quantity: 5
