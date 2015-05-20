@@ -1,6 +1,6 @@
 core.Static = {}; // Extend from this core object
 
-$(document).ready(function() {
+$(document).on("ready page:load", function() {
   if (!$('body').hasClass('static')) return false;
   
   if ($('body').hasClass('vote-for-your-favourite')) {

@@ -1,11 +1,30 @@
-<script type="text/javascript">
-	function olaA(name) { var nameEQ = escape(name) + "="; var ca = document.cookie.split(';'); for (var i = 0; i < ca.length; i++) { var c = ca[i]; while (c.charAt(0) === ' ') c = c.substring(1, c.length); if (c.indexOf(nameEQ) === 0) return unescape(c.substring(nameEQ.length, c.length)); }; return null; }
-	var o_track = document.createElement("script");
-	var amount = "<%= order.total.to_s %>";
-	o_track.src = "https://widgets.photorank.me/register_checkout?customer_id=216176&amount="+amount+'&__olapicU='+olaA('__olapicU');
-	o_track.type = "text/javascript";
-	document.getElementsByTagName("head")[0].appendChild(o_track);
+<!-- Photorank checkout code -->
+<script type="text/javascript" data="olapic-checkout">
+  var olapicProducts = '';
+
+  var line_items= <%= raw order.line_items.to_json %>
+
+    line_items.forEach(function(line_item_object){
+      line_item = line_item_object.line_item
+      // Product loop starts. This is where you will store each product purchased info
+      olapicProducts += ((olapicProducts === '') ? '' : ',' ) +  '{"id":"'+encodeURIComponent(line_item.variant_id)+'","price":"'+encodeURIComponent(line_item.price)+'"}';
+      // Product loop ends.
+    });
+
+  window.onload = function() {
+    ;(function(w, d){
+      olapicProducts = '['+olapicProducts+']';
+      var olapicCheckout = d.createElement("script"); olapicCheckout.async = true;
+      olapicCheckout.setAttribute("olapicProducts", olapicProducts);
+      olapicCheckout.setAttribute("olapicApiKey", encodeURIComponent("11aa7ed151891f52782c3c345fa0d25159331c893eee49dd2b3a93d076bad452"));
+      olapicCheckout.setAttribute("olapicIdentifier", encodeURIComponent("<%= @order.email %>"));
+      olapicCheckout.setAttribute("olapicAmount", encodeURIComponent("<%= @order.amount.to_f %>"));
+      olapicCheckout.setAttribute("olapicTransactionId", encodeURIComponent("<%= @order.id %>"));
+      olapicCheckout.setAttribute("olapicEmail", encodeURIComponent("<%= @order.email %>"));
+      olapicCheckout.setAttribute("olapicName", encodeURIComponent("<%= @order.try(:bill_address).try(:full_name) %>"));
+      olapicCheckout.setAttribute("olapicCurrencyCode", encodeURIComponent("<%= @order.currency %>"));
+      olapicCheckout.src="//www.photorank.me/static/js/olapic.checkout.js";
+      d.body.appendChild(olapicCheckout);
+    })(window, document);
+  }
 </script>
-<noscript>
-   <img src="https://widgets.photorank.me/checkout?customer_id=216176&amount=<%= order.total.to_s %>&__olapicU=null" alt="" />
-</noscript>

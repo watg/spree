@@ -7,7 +7,7 @@
   <meta name="p:domain_verify" content="d55a740b763bcb14c5af217ac8eb2b21" />
   <title><%= content_for?(:title) ? yield(:title) : title || "Wool And The Gang" %></title>
   <%= content_for?(:meta) ? yield(:meta) : meta_data_tags.html_safe %>
-
+  <script type="text/javascript" src="https://photorankstatics-a.akamaihd.net/static/frontend/latest/build.min.js" async></script>
   <%= stylesheet_link_tag    "application" %>
   <%= javascript_include_tag "application" %>
 
@@ -17,6 +17,7 @@
   <%= render "spree/shared/frontend_routes" %>
   <%= yield :head %>
   <script type="text/javascript" src="//apis.google.com/js/plusone.js"></script>
+
 </head>
 
 <body id="<%= @body_id || 'default' %>" class="shop <%= body_class %> <%= device_class %>" data-hook="body">

@@ -1,6 +1,6 @@
 core.Checkout = {};
 
-$(document).ready(function() {
+$(document).on("ready page:load", function() {
     if ($('.shipping-methods').length > 0) {
         core.Checkout.readyShippingMethodChangeHandler();
     }

@@ -1,6 +1,6 @@
 core.Navigation = {}; 
 
-$(document).ready(function() {
+$(document).on("ready page:load", function() {
   core.Navigation.readyNavigation();
   core.Navigation.readyNavigationMobile();
   core.Navigation.readyFooterMobile();

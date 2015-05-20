@@ -176,6 +176,6 @@
 
   };
 
-  $(document).ready(function () { $('[data-toggle="tabslet"]').tabslet(); });
+  $(document).on('page:load ready', function() { $('[data-toggle="tabslet"]').tabslet(); });
 
 })(jQuery);

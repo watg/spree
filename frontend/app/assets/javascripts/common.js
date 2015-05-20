@@ -218,29 +218,7 @@ WATG.referral = {
 /* --- */
 
 // On document ready...
-$(function() {
-    // FAQ togglers
-    $('.faq-content').hide();
-    $('.faq-title').on('click', function() {
-        $(this).next().slideToggle();
-    });
-
-	// Career togglers
-    $('.career-content').hide();
-    $('.career-title').on('click', function() {
-        $(this).parent().next().slideToggle();
-    });
-
-	// Refer-your-friends competitions
-	if ($('body').hasClass('competition') ||
-		$('body').hasClass('free-patterns')) {
-		WATG.referral.init();
-	}
-
-});
-
-// On document fully loaded...
-$(window).bind('load', function() {
+$( document ).on("ready page:load",function() {
 	// Signup starts
 
 	WATG.signup.globals.signupForms = $('.signup-form');
@@ -250,5 +228,22 @@ $(window).bind('load', function() {
 
 	WATG.signup.init();
 	WATG.signup.begin();
-	// Signup ends
+
+	// FAQ togglers
+	$('.faq-content').hide();
+	$('.faq-title').on('click', function() {
+		$(this).next().slideToggle();
+	});
+
+	// Career togglers
+	$('.career-content').hide();
+	$('.career-title').on('click', function() {
+		$(this).parent().next().slideToggle();
+	});
+
+	// Refer-your-friends competitions
+	if ($('body').hasClass('competition') ||
+		$('body').hasClass('free-patterns')) {
+		WATG.referral.init();
+	}
 });
