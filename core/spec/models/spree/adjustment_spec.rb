@@ -48,6 +48,20 @@ describe Spree::Adjustment, :type => :model do
     end
   end
 
+  # IMPORTANT, the paypal extension reliese on shipping scope, so pleas be careful when modifying 
+  # this code
+  describe 'shipping scope' do
+    subject do
+      Spree::Adjustment.shipping.to_a
+    end
+
+    let!(:shipping_adjustment) { create(:adjustment, order: order, adjustable: create(:shipping_rate)) }
+
+    it 'select non-tax adjustments' do
+      expect(subject).to include shipping_adjustment
+    end
+  end
+
   context "adjustment state" do
     let(:adjustment) { create(:adjustment, order: order, state: 'open') }
 
