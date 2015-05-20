@@ -12,7 +12,7 @@ module Spree
     validates :amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: false
     validate :validate_amount_maximum
 
-    after_save :trigger_suite_tab_cache_rebuilder
+    after_save :trigger_suite_tab_cache_rebuilder, :unless => :skip_callbacks
 
     # Prevent duplicate prices from happening in the system, there is also a uniq
     # index on the database table to ensure there are no race conditions
