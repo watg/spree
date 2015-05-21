@@ -13,7 +13,7 @@ module Admin
       end
 
       context 'video does not belong to product' do 
-        it {  expect(subject.status).to be_nil }
+        it {  expect(subject.status).to be_falsey }
       end
     end
   end

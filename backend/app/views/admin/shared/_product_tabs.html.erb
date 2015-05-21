@@ -23,7 +23,7 @@
 
       <%= content_tag :li, :class => ('active' if current == 'Videos') do %> 
         <%= link_to_with_icon 'picture-o', 'videos', "/admin/products/#{@product.slug}/videos" %>
-      <% end if can?(:admin, Spree::Image) %>
+      <% end %>
       
       <%= content_tag :li, :class => ('active' if current == 'Product Properties') do %>
         <%= link_to_with_icon 'list', Spree.t(:product_properties), "/admin/products/#{@product.slug}/product_properties" %>

@@ -5,6 +5,7 @@ module Admin
     describe VideosController, type: :controller do 
       describe '#index' do 
         let(:product) { double }
+        let(:video)   { double(map: []) }
         let(:klass)   { Spree::Product }
 
         it 'calls product' do 
@@ -13,7 +14,7 @@ module Admin
         end
 
         it 'calls video' do 
-          expect(Video).to receive(:all)
+          expect(Video).to receive(:all).and_return(video)
           spree_post :index, { product_id: 'top-hat' }
         end
       end
