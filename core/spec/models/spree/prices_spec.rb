@@ -77,7 +77,8 @@ describe Spree::Price do
                        "sale"=>false,
                        "deleted_at"=>nil,
                        "sale_amount" => BigDecimal.new('0.0'),
-                       "part_amount" => BigDecimal.new('0.0')
+                       "part_amount" => BigDecimal.new('0.0'),
+                       "new_format" => true
                      }
                   }
     it { expect(Spree::Price.default_price.attributes).to eq expected }
