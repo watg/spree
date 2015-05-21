@@ -1,0 +1,14 @@
+<% content_for :page_title do %>
+  <%= @product.name %> / Videos
+<% end %>
+
+<div class='col-md-9'>
+   <div class='alert alert-info'>
+     <p>There are currenly no videos in the system,
+        click <a href='/admin/videos'>here</a> to add some.</p>
+    </div>
+</div>
+
+<div class='col-md-3'>
+  <%= render 'admin/shared/product_tabs', current: 'Videos' %>
+</div>

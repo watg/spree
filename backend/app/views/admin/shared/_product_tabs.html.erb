@@ -1,0 +1,71 @@
+<div id='sidebar'>
+  <h5 class='sidebar-title'>
+    <span class="sku"><%= @product.sku %></span>
+  </h5>
+
+  <nav class="menu">
+    <ul>
+      <%= content_tag :li, :class => ('active' if current == 'Product Details') do %>
+        <%= link_to_with_icon 'edit', Spree.t(:product_details), "/admin/products/#{@product.slug}/edit" %>
+      <% end if can?(:admin, Spree::Product) %>
+      
+      <%= content_tag :li, :class => ('active' if current == 'Product Images') do %>
+        <%= link_to_with_icon 'picture-o', Spree.t(:images), "/admin/products/#{@product.slug}/images" %>
+      <% end if can?(:admin, Spree::Image) %>
+      
+      <%= content_tag :li, :class => ('active' if current == 'Variants') do %>
+        <%= link_to_with_icon 'th-large', Spree.t(:variants), "/admin/products/#{@product.slug}/variants" %>
+      <% end if can?(:admin, Spree::Variant) %>
+      
+      <%= content_tag :li, :class => ('active' if current == 'Variants Images') do %>
+        <%= link_to_with_icon 'picture-o', Spree.t(:variant_images), "/admin/variants/#{@product.variants.first.id}/images" %>
+      <% end if can?(:admin, Spree::Image) && @product.variants.first %>
+
+      <%= content_tag :li, :class => ('active' if current == 'Videos') do %> 
+        <%= link_to_with_icon 'picture-o', 'videos', "/admin/products/#{@product.slug}/videos" %>
+      <% end %>
+      
+      <%= content_tag :li, :class => ('active' if current == 'Product Properties') do %>
+        <%= link_to_with_icon 'list', Spree.t(:product_properties), "/admin/products/#{@product.slug}/product_properties" %>
+      <% end if can?(:admin, Spree::ProductProperty) %>
+      
+      <%= content_tag :li, :class => ('active' if current == 'Stock Management') do %>
+        <%= link_to_with_icon 'cubes', Spree.t(:stock_management), "/admin/products/#{@product.slug}/stock" %>
+      <% end if can?(:stock, Spree::Product) %>
+
+      <%= content_tag :li, :class => ('active' if current == 'Prices') do %>
+        <%= link_to_with_icon 'money', t(:Prices), "/admin/products/#{@product.slug}/prices" %>
+      <% end if can?(:stock, Spree::Price) %>
+
+      <%= content_tag :li, :class => ('active' if current == 'Personalisations') do %>
+        <%= link_to_with_icon 'edit', t(:Personalisations), "/admin/products/#{@product.slug}/personalisations" %>
+      <% end if can?(:stock, Spree::Personalisation) %>
+
+      <% if @product.product_type.kit? %>
+        <li><hr></li>
+        <% if @product.master.assembly_definition %>
+          <%= content_tag :li, :class => ('active' if current == 'Assembly Definition') do %>
+              <%= link_to_with_icon 'sitemap', "Assembly Definition", "/admin/assembly_definitions/#{@product.master.assembly_definition.id}/edit" %>
+          <% end if can?(:stock, Spree::AssemblyDefinition) %>
+        <% else %>
+          <%= content_tag :li, :class => ('active' if current == 'Parts') do %>
+            <%= link_to_with_icon 'sitemap', Spree.t(:parts) + " (" + @product.assemblies_parts.count.to_s + ")", "/admin/products/#{@product.slug}/parts" %>
+          <% end if can?(:stock, Spree::Product) %>
+        <% end %>
+      <% end %>
+      <li <%= 'class=\"active\"' if current == "Digital Versions" %> >
+        <%= link_to "/admin/products/#{@product.slug}/digitals", class: 'icon_link with_tip fa fa-cloud' do %>
+          <span class="text"><%= Spree.t(:digital_versions, scope: 'digitals') %></span>
+        <% end %>
+      </li>
+    </ul>
+
+      <hr>
+      <div class="field">
+      <% Spree::SuiteTab.where(product: @product).each do |tab| %>
+        <%= link_to_with_icon 'external-link', tab.suite.name, "/admin/suites/#{tab.suite.permalink}/edit", target: :blank %>
+        <br>
+      <% end %>
+      </div>
+  </nav>
+</div>

@@ -1,0 +1,22 @@
+<% content_for :page_title do %>
+  <%= @product.name %> / Videos
+<% end %>
+
+<div class='col-md-9'>
+  <%= render :partial => 'spree/shared/error_messages', :locals => { :target => @video } %>
+
+  <%= form_for [:admin, @product], url: "/admin/products/#{@product.slug}/videos", method: :post do |f| %>
+    <fieldset> <%= render :partial => 'video', :collection => @videos %> </fieldset>
+    
+    <%= hidden_field_tag("product[id]", @product.id) %>
+
+    <div class='form-buttons filter-actions actions'>
+      <%= button 'update', 'ok', class: 'btn btn-default' %>
+      <%= link_to_with_icon 'remove', 'cancel', '/admin/videos', :class => 'button' %>
+    </div>
+  <% end %>
+</div>
+
+<div class='col-md-3'>
+  <%= render 'admin/shared/product_tabs', current: 'Videos' %>
+</div>

@@ -24,6 +24,10 @@
       <%= content_tag :li, :class => ('active' if current == 'Variants Images') do %>
         <%= link_to_with_icon 'picture-o', Spree.t(:variant_images), admin_variant_images_url(@product.variants.first) if @product.variants.any?%>
       <% end if can?(:admin, Spree::Image) %>
+
+      <%= content_tag :li, :class => ('active' if current == 'Videos') do %> 
+        <%= link_to_with_icon 'picture-o', 'videos', admin_product_videos_url(@product) %>
+      <% end if Features::video %>
       
       <%= content_tag :li, :class => ('active' if current == 'Product Properties') do %>
         <%= link_to_with_icon 'list', Spree.t(:product_properties), admin_product_product_properties_url(@product) %>

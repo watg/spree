@@ -90,6 +90,9 @@ Spree::Core::Engine.add_routes do
           post :update_positions
         end
       end
+
+      resources :videos, controller: '/admin/products/videos'
+
       member do
         get :clone
         get :stock

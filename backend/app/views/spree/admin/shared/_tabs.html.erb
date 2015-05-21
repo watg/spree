@@ -6,11 +6,13 @@
   <%= tab *Spree::BackendConfiguration::PRODUCT_TABS, icon: 'th-large' %>
 <% end %>
 
+<%= tab *Spree::BackendConfiguration::VIDEO_TABS, icon: 'video-camera' %>
+
 <% if can? :admin, Spree::Admin::ReportsController %>
   <%= tab *Spree::BackendConfiguration::REPORT_TABS, icon: 'file-excel-o'  %>
 <% end %>
 
-<%= tab *Spree::BackendConfiguration::CONFIGURATION_TABS, label: 'configuration', icon: 'wrench', url: spree.edit_admin_general_settings_path %>
+<%= tab *Spree::BackendConfiguration::CONFIGURATION_TABS, label: 'config', icon: 'wrench', url: spree.edit_admin_general_settings_path %>
 
 <% if can? :admin, Spree::Promotion %>
   <%= tab *Spree::BackendConfiguration::PROMOTION_TABS, url: spree.admin_promotions_path, icon: 'bullhorn' %>
