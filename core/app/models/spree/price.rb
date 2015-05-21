@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 module Spree
   class Price < Spree::Base
+    self.table_name = "spree_price_news"
     acts_as_paranoid
     belongs_to :variant, class_name: 'Spree::Variant', inverse_of: :prices, touch: true
 
