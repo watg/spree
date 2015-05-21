@@ -13,6 +13,8 @@ module Admin
                         .find_by_slug(params[:product_id]) 
         @videos  = Video.all
                          .map{ |v| VideoPresenter.new(v, @product) }
+
+        render template(@videos)
       end
 
       def create

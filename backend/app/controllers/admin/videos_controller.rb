@@ -10,6 +10,8 @@ module Admin
     def index
       @videos = Video.all
                      .order('created_at DESC')
+
+      render template(@videos)
     end
 
     def new
