@@ -112,7 +112,7 @@ module Spree
       end
 
       def active(currency = nil)
-        includes(:normal_prices).where(deleted_at: nil).where('spree_prices.currency' => currency || Spree::Config[:currency]).where('spree_prices.amount IS NOT NULL')
+        includes(:normal_prices).where(deleted_at: nil).where('spree_price_news.currency' => currency || Spree::Config[:currency]).where('spree_price_news.amount IS NOT NULL')
       end
 
       def options_by_product(product, option_value_name_list)
@@ -121,7 +121,7 @@ module Spree
       end
 
       def lowest_priced_variant(currency, in_sale: false )
-        selector     = in_stock.active(currency).select('spree_prices.id').includes(:normal_prices)
+        selector     = in_stock.active(currency).select('spree_price_news.id').includes(:normal_prices)
         selector     = selector.where('spree_variants.in_sale = ?', in_sale) if in_sale == true
         order_column = in_sale ? 'sale_amount' : 'amount'
         selector.reorder(order_column).first
