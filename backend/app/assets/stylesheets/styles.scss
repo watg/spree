@@ -1,25 +1,25 @@
 /** GENERAL **/
-.alert *{ 
-  color: black;
+.alert * { 
+  color: #000000;
 }
 
 /** VIDEOS **/
 
 .video { 
-   border-bottom: solid 1px #cee1f4;
-   margin-bottom: 8px !important;
+  border-bottom: solid 1px #cee1f4;
+  margin-bottom: 8px !important;
 
-	.title { 
-  	padding-left: 22px;
-	}
+  .title { 
+    padding-left: 22px;
+  }
 
-	h3{ 
-  	font-size :12px;
-  	font-weight: normal;
-  	text-decoration: underline;
-	}
+  h3 { 
+    font-size: 12px;
+    font-weight: normal;
+    text-decoration: underline;
+  }
 
-	&:last-child { 
-		border-bottom: none;
-	}
+  &:last-child { 
+    border-bottom: none;
+  }
 }
