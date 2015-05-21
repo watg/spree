@@ -6,9 +6,7 @@ var readyProductTop = function() {
 	core.productTop.readyBackground();
 };
 
-
-$(document).ready(readyProductTop);
-$(document).on('page:load', readyProductTop);
+$(document).on('page:load ready', readyProductTop);
 
 /* ----- Init methods ----- */
 

@@ -25,20 +25,6 @@
 
       <% cache [suite_presenter.suite, selected_tab_presenter.tab_type, suite_presenter.currency, device] do %>
 
-      	<div class="widget-social">
-          <h2 class="text-center">The way the gang rocks it</h2>
-      		<%= render partial: 'olapic' %>
-          <h4 class="text-center">
-            Follow <em>@woolandthegang</em> on
-            <a href="https://twitter.com/woolandthegang"><i class="fa fa-twitter"></i>&nbsp;</a>
-            <a href="https://www.facebook.com/woolandthegang"><i class="fa fa-facebook"></i>&nbsp;</a>
-            <a href="https://instagram.com/woolandthegang"><i class="fa fa-instagram"></i>&nbsp;</a>
-            and hashtag your pics <br/>
-            using <em>#shareyourknits.</em> Or <a class="upload-button" href="#"><em>upload yours
-            here</em></a>
-          </h4>
-      	</div>
-
       	<div class="row-hero <%= selected_tab_presenter.tab_type %>" data-hero-image="<%= selected_tab_presenter.banner_url %>">
       		<div class="row">
       			<div class="large-4 push-8 small-12 columns title <%= selected_tab_presenter.inverted_colour %>">

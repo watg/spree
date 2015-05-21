@@ -2,7 +2,8 @@
 
 //= require jquery
 //= require jquery_ujs
-// require turbolinks
+//= require turbolinks
+//= require jquery.turbolinks
 
 //= require lib/jquery.validate/jquery.validate.min
 //= require lib/onmediaquery.js
@@ -44,7 +45,7 @@
 //= require spree/frontend/core.product-top
 //= require spree/frontend/core.suite
 //= require spree/frontend/core.suites-index
-//= require spree/frontend/core.olapic-gallery
+
 
 //= require spree/frontend/product-option-values
 //= require spree/frontend/kit-option-values

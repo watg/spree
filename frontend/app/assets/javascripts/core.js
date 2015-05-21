@@ -1,4 +1,5 @@
 core = {}; // Extend from this core object
+var OlapicWidget; // olapic global object
 
 var readyCore = function() {
 	core.readyModals();
@@ -8,10 +9,11 @@ var readyCore = function() {
 	core.readyAlpacaAttack();
   core.readyAccordions();
   core.readyCustomScroll();
+  core.readyOlapic();
+  core.readyContactModal();
 };
 
-$(document).ready(readyCore);
-$(document).on('page:load', readyCore);
+$(document).on('page:load ready', readyCore);
 
 // On document fully loaded...
 $(window).bind('load', function() {
@@ -142,6 +144,37 @@ core.readyCustomScroll = function() {
   });
 }
 
+core.readyOlapic = function(){
+  OlapicWidget = function(settings){
+    if(!window.OlapicSDK){  //This if will ensure the OlapicSDK is available. If not, it will keep calling itself until OlapicSDK is available.
+      setTimeout(function(){
+        OlapicWidget(settings);
+      }, 500);
+    } else {
+      OlapicSDK.conf.set('apikey', '11aa7ed151891f52782c3c345fa0d25159331c893eee49dd2b3a93d076bad452'); // same value as data-apikey
+      OlapicSDK.conf.set('mode', 'development');
+      OlapicSDK.conf.set('viewer-asset', '//www.photorank.me/assets/woolandthegang/viewer2v2.html'); //same as data-viewer in a regular implementation. will be the web URL of the lightbox
+                                                     //please make sure you are using an actual URL for ADDRESS
+      OlapicSDK.conf.set('uploader-asset', '//www.photorank.me/assets/woolandthegang/Uploader1v2.html'); // same as data-uploader in an regular implemenation. It will be the web URL of the uploader
+                                                       //please make sure you are using an actual URL for ADDRESS
+      OlapicSDK.conf.set('uploader-version', 'Uploader1v2'); //same as data-uploader-version in a regular implementation. It will be the version of the uploader
+      window.olapic = new OlapicSDK.Olapic(function(o){
+        window.olapic = o;
+        window.olapic.prepareWidget(settings, {
+          'renderNow' : true,
+          'force': true,
+          'useOpi': false
+        });
+      });
+    }
+  };
+}
+core.readyContactModal = function () {
+  $('#contact-link').on('click', function(){
+    var iframe = $("#contact-iframe");
+    iframe.attr("src", iframe.data("src"));
+  });
+};
 /* ----- Non-init methods ----- */
 
 // Test for less than tablet width

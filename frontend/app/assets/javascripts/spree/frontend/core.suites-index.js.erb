@@ -15,8 +15,7 @@ var readySuitesIndex = function() {
 	core.suite.readyOutOfStock();
 };
 
-$(document).ready(readySuitesIndex);
-$(document).on('page:load', readySuitesIndex);
+$(document).on('page:load ready', readySuitesIndex);
 
 /* ----- Init methods ----- */
 

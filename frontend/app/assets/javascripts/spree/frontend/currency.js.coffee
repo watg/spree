@@ -1,4 +1,4 @@
-$ ->
+$(document).on 'ready page:load', ->
   window.selected_currency = $('#currency-select select').val()
   $('#currency-select select').change ->
     # console.log "selected country"

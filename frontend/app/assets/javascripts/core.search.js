@@ -1,6 +1,6 @@
 core.Search = {};
 
-$(document).ready(function() {
+$(document).on("ready page:load", function() {
   // Only start predictable search on desktop
   if (!(core.isLessThanTabletWidth() || $('body.mobile').length)) {
     core.Search.readyPredictableSearch();

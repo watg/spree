@@ -49,9 +49,24 @@
       </div>
     </div>
     </div><!-- /row -->
+
     <div class="row-social">
       <div class="row">
-        <div class="large-12 columns"></div>
+        <div class="large-12 columns">
+          <div class="widget-social">
+            <h2 class="text-center">The way the gang rocks it</h2>
+              <%= render partial: 'olapic_pdp_widget', locals: { olapic_product_id: @suite.permalink } %>
+            <h4 class="text-center">
+              Follow <em>@woolandthegang</em> on
+              <a href="https://twitter.com/woolandthegang"><i class="fa fa-twitter"></i>&nbsp;</a>
+              <a href="https://www.facebook.com/woolandthegang"><i class="fa fa-facebook"></i>&nbsp;</a>
+              <a href="https://instagram.com/woolandthegang"><i class="fa fa-instagram"></i>&nbsp;</a>
+              and hashtag your pics <br/>
+              using <em>#shareyourknits.</em> Or upload your photos
+              <em><a class="upload-button olapic-upload" href="#">here</a></em>
+            </h4>
+          </div>
+        </div>
       </div>
     </div>
   <% end # variant_presenter %>

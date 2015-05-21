@@ -2,7 +2,7 @@
 fb_root = null
 fb_events_bound = false
 
-$ ->
+$(document).on 'ready page:load', ->
   loadFacebookSDK()
   bindFacebookEvents() unless fb_events_bound
 
@@ -40,7 +40,7 @@ initializeFacebookSDK = ->
 ## Twitter
 twttr_events_bound = false
 
-$ ->
+$(document).on 'ready page:load', ->
   loadTwitterSDK()
   bindTwitterEventHandlers() unless twttr_events_bound
 
@@ -67,7 +67,7 @@ Pinterest =
     delete window["PIN_"+~~((new Date).getTime()/864e5)]
     $.getScript("//assets.pinterest.com/js/pinit.js")
 
-$ ->
+$(document).on 'ready page:load', ->
   Pinterest.load()
 
 # if you're using jquery.turbolinks, you don't need this binding
