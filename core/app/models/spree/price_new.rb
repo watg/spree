@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 module Spree
-  class Price < Spree::Base
+  class PriceNew < Spree::Base
     acts_as_paranoid
     belongs_to :variant, class_name: 'Spree::Variant', inverse_of: :prices, touch: true
 
