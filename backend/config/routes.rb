@@ -120,6 +120,15 @@ Spree::Core::Engine.add_routes do
       end
     end
 
+    resources :variants do
+      resources :part_images, controller: "variant_part_images" do
+        collection do
+          post :s3_callback
+          post :update_positions
+        end
+      end
+    end
+
 
     resources :option_types do
       collection do

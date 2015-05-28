@@ -1,0 +1,11 @@
+<% if @outcome.valid? %>
+  $('#upload_<%=params[:unique_id]%>').hide();
+  $('#images_table_body').append('<%= j render partial: "part_image", object: (@outcome.result) %>');
+  $('select.select2').select2({
+    allowClear: true,
+    dropdownAutoWidth: true
+  })
+  $('.no-objects-found').hide();
+<% else %>
+  show_flash('error', '<%= @outcome.errors.full_messages.to_sentence %>');
+<% end %>

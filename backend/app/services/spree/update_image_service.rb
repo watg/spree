@@ -1,7 +1,7 @@
 module Spree
   class UpdateImageService < ActiveInteraction::Base
 
-      model :image, class: 'Spree::Image'
+      interface :image, methods: %i[update_attributes]
 
       integer :variant_id, default: nil
       string :target_id, default: nil
