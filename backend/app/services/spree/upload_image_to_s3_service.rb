@@ -4,16 +4,20 @@ module Spree
     # Use the format #{bucket}.s3.amazonaws.com to allow for maximum host location flexibility
     DIRECT_UPLOAD_URL_FORMAT = %r{\Ahttps:\/\/#{Paperclip::Attachment.default_options[:bucket]}.s3.amazonaws.com\/(?<path>uploads\/.+\/(?<filename>.+))\z}.freeze
 
-    string  :direct_upload_url
-    model :image, class: 'Spree::Image'
+    interface :image, methods: %i[attachment processed update_attributes persisted? attachment_file_name attachment_file_size attachment_content_type processed?]
     transaction false
 
-    integer :attachment_file_size, default: nil
-    string :attachment_file_name, default: nil
-    string :attachment_content_type, default: nil
+    hash :params do
+      integer :filesize, default: nil
+      string :filename, default: nil
+      string :filetype, default: nil
+      hash :image do
+        string :direct_upload_url
+      end
+    end
+
 
     def execute
-      self.direct_upload_url = CGI.unescape(direct_upload_url)
       unless DIRECT_UPLOAD_URL_FORMAT.match(direct_upload_url)
         errors.add(:direct_upload_url, "Url not correctly formatted")
         return
@@ -26,12 +30,14 @@ module Spree
       # call to s3 to obtain details for the image (largely unneeded)
       # set_attachment_attributes_from_s3
       image.processed = false
-      image.update_attributes(inputs.except(:image))
-      if !image.persisted?
-        errors.add(:image, "Image was not persisted")
+      image.attachment_file_size = params[:filesize]
+      image.attachment_file_name = params[:filename]
+      image.attachment_content_type = params[:filetype]
+      image.direct_upload_url = direct_upload_url
+      unless image.save
+        errors.add(:image, "Image was not saved")
         return
       end
-
 
       job = Spree::UploadImage.new(image, DIRECT_UPLOAD_URL_FORMAT)
       ::Delayed::Job.enqueue(job, queue: 'images')
@@ -60,6 +66,9 @@ module Spree
         false
       end
     end
-  end
 
+    def direct_upload_url
+      CGI.unescape(params[:image][:direct_upload_url])
+    end
+  end
 end

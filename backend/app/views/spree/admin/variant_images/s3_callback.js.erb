@@ -7,6 +7,5 @@
   })
   $('.no-objects-found').hide();
 <% else %>
-  $('#upload_<%=params[:unique_id]%> div.progress').removeClass('active progress-striped').
-  addClass('progress-danger').append('<div><%= escape_javascript(@outcome.errors.message) %></div>');
+  show_flash('error', '<%= @outcome.errors.full_messages.to_sentence %>');
 <% end %>
