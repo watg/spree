@@ -467,7 +467,6 @@ describe Spree::Product, :type => :model do
     context "Assembly Definition" do
 
       let(:variant_assembly) { create(:variant) }
-      let(:assembly_definition) { create(:assembly_definition, variant: variant_assembly) }
       let(:variant_part)  { create(:base_variant) }
       
       let(:product_part)  { variant_part.product }
@@ -480,7 +479,7 @@ describe Spree::Product, :type => :model do
         Timecop.freeze(Time.local(2014))
         variant_assembly.product.update_column(:updated_at, 1.day.ago)
         product_part.reload.save
-        expect(variant_assembly.product.reload.updated_at).to Time.now
+        expect(variant_assembly.product.reload.updated_at).to eq Time.now
       end
     end
   end
