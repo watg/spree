@@ -480,6 +480,7 @@ describe Spree::Product, :type => :model do
         variant_assembly.product.update_column(:updated_at, 1.day.ago)
         product_part.reload.save
         expect(variant_assembly.product.reload.updated_at).to eq Time.now
+        Timecop.return
       end
     end
   end
