@@ -7,8 +7,10 @@ module Spree
         image = Image.new(viewable: @variant)
         @outcome = UploadImageToS3Service.run(
           image: image,
-          params: params
+          params: params,
+          partial: 'image'
         )
+        render 'spree/admin/shared/s3_callback'
       end
 
       def update

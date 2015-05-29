@@ -4,35 +4,26 @@ module Spree
       before_filter :load_data
 
       def s3_callback
-        image = PartImage.new(variant: @variant)
-        @outcome = Spree::UploadImageToS3Service.run(
-          image: image,
-          params: params
-        )
-      end
-
-      def update
-        invoke_callbacks(:update, :before)
-        image = ::PartImage.find(params[:id])
-
-        outcome = Spree::UpdateImageService.run!(
-          image: image,
-          variant_id: params[:variant_id]
-        )
-        if outcome.valid?
-          invoke_callbacks(:update, :after)
-          flash[:success] = flash_message_for(outcome.result, :successfully_updated)
-          respond_with(outcome.result) do |format|
-            format.html { redirect_to location_after_save }
-            format.js   { render :layout => false }
-          end
+        if @variant.part_image.blank?
+          trigger_image_upload
         else
-          invoke_callbacks(:update, :fails)
-          respond_with(outcome.errors.message_list)
+          render 'upload_error.js.erb'
         end
       end
 
       private
+
+      def trigger_image_upload
+        image = PartImage.new(variant: @variant)
+          @outcome = Spree::UploadImageToS3Service.run(
+            image: image,
+            params: params,
+            partial: 'part_image'
+          )
+
+        render 'spree/admin/shared/s3_callback'
+      end
+
       def model_class
         ::PartImage
       end

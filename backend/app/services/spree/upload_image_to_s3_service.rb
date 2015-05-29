@@ -3,8 +3,18 @@ module Spree
 
     # Use the format #{bucket}.s3.amazonaws.com to allow for maximum host location flexibility
     DIRECT_UPLOAD_URL_FORMAT = %r{\Ahttps:\/\/#{Paperclip::Attachment.default_options[:bucket]}.s3.amazonaws.com\/(?<path>uploads\/.+\/(?<filename>.+))\z}.freeze
+    INTERFACE_METHODS = []
 
-    interface :image, methods: %i[attachment processed update_attributes persisted? attachment_file_name attachment_file_size attachment_content_type processed?]
+    interface :image, methods: %i[attachment
+                                  processed
+                                  update_attributes
+                                  persisted?
+                                  attachment_file_name
+                                  attachment_file_size
+                                  attachment_content_type
+                                  processed?]
+
+    string :partial, default: 'image'
     transaction false
 
     hash :params do
@@ -16,6 +26,7 @@ module Spree
       end
     end
 
+    Result = Struct.new(:image, :partial)
 
     def execute
       unless DIRECT_UPLOAD_URL_FORMAT.match(direct_upload_url)
@@ -41,7 +52,7 @@ module Spree
 
       job = Spree::UploadImage.new(image, DIRECT_UPLOAD_URL_FORMAT)
       ::Delayed::Job.enqueue(job, queue: 'images')
-      image
+      Result.new(image, partial)
     end
 
     # Set attachment attributes from the direct upload
