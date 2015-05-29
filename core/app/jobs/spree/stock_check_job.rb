@@ -1,10 +1,10 @@
 module Spree
-
+  # Set the in stock cache variable on the master / variant based on whether the variant or
+  # the variant parts that make up the kit are in stock
   class VariantInStockCacheAdjuster
-
     attr_reader :variant, :cached_variants
 
-    def initialize(variant, cached_variants={})
+    def initialize(variant, cached_variants = {})
       @variant = variant
       @cached_variants = cached_variants
     end
@@ -15,19 +15,19 @@ module Spree
       elsif static_assembly?
         adjust_static_assembly
       else
-        set_in_stock_cache_for_variant
+        adjust_in_stock_cache_for_variant
       end
     end
 
     private
 
-    def set_in_stock_cache_for_variant
-      set_in_stock_cache(!variant.can_supply?)
+    def adjust_in_stock_cache_for_variant
+      adjust_in_stock_cache(!variant.can_supply?)
     end
 
     def static_assembly?
-      variant.product.assemblies_parts.any? ||
-      variant.assemblies_parts.any?
+      variant.product.static_assemblies_parts.any? ||
+        variant.static_assemblies_parts.any?
     end
 
     def dynamic_assembly?
@@ -38,7 +38,7 @@ module Spree
       out_of_stock = variant.required_parts.detect do |part|
         part_out_of_stock?(part)
       end
-      set_in_stock_cache(out_of_stock)
+      adjust_in_stock_cache(out_of_stock)
     end
 
     def adjust_dynamic_assembly
@@ -47,18 +47,18 @@ module Spree
           part_out_of_stock?(part_variant)
         end
       end
-      set_in_stock_cache(out_of_stock)
+      adjust_in_stock_cache(out_of_stock)
     end
 
     def part_out_of_stock?(part)
-      if cached_variants.any? && cached_variant = cached_variants[part]
-        !cached_variant.in_stock_cache?
+      if cached_variants[part]
+        !cached_variants[part].in_stock_cache?
       else
         !part.in_stock_cache?
       end
     end
 
-    def set_in_stock_cache(out_of_stock)
+    def adjust_in_stock_cache(out_of_stock)
       if out_of_stock
         disable_in_stock_cache
       else
@@ -83,18 +83,17 @@ module Spree
         false
       end
     end
-
   end
 
-
+  # Checks a variant and ajdusts it's in_stock_cache value, and also adjusts any upstream variants
+  # which it makes up as part of a kit
   class StockCheckJob
-
     attr_reader :variant_to_check, :adjusted_variants, :force
 
-    def initialize(variant, force=false)
+    def initialize(variant, force = false)
       @variant_to_check = variant
       @force = force
-      @adjusted_variants = Hash.new
+      @adjusted_variants = {}
     end
 
     def perform
@@ -110,45 +109,52 @@ module Spree
 
     def variant_in_stock_cache_adjuster(variant)
       updated = VariantInStockCacheAdjuster.new(variant, adjusted_variants).perform
-      add_to_adjusted_variants(variant) if (updated or force)
+      add_to_adjusted_variants(variant) if updated || force
     end
 
     def update_assemblies_in_stock_cache
-      parts_accumilator = [ variant_to_check ]
+      parts_accumilator = [variant_to_check]
 
-      while( parts_accumilator.any? )
+      while parts_accumilator.any?
         part = parts_accumilator.shift
 
         static_assemblies = fetch_static_assemblies(part)
-        set_in_stock_cache_of_static_assemblies(static_assemblies, part)
+        adjust_in_stock_cache_of_static_assemblies(static_assemblies, part)
         parts_accumilator += static_assemblies
 
         dynamic_assemblies = fetch_dynamic_assemblies(part)
-        set_in_stock_cache_of_dynamic_assemblies(dynamic_assemblies)
+        adjust_in_stock_cache_of_dynamic_assemblies(dynamic_assemblies)
         parts_accumilator += dynamic_assemblies.map(&:variant)
       end
     end
 
     def fetch_static_assemblies(part)
-      grouping = Spree::AssembliesPart.where(part_id: part.id, optional: false).group_by(&:assembly_type)
-      variant_list = (grouping['Spree::Variant'] ? grouping['Spree::Variant'].map(&:assembly_id) : [])
-      product_list = (grouping['Spree::Product'] ? grouping['Spree::Product'].map(&:assembly_id) : [])
+      grouped_assembly_parts =
+        Spree::StaticAssembliesPart.where(part_id: part.id, optional: false)
+        .group_by(&:assembly_type)
+
+      variant_assembly_parts = grouped_assembly_parts["Spree::Variant"]
+      variant_list = variant_assembly_parts ? variant_assembly_parts.map(&:assembly_id) : []
+
+      product_assembly_parts = grouped_assembly_parts["Spree::Product"]
+      product_list = product_assembly_parts ? product_assembly_parts.map(&:assembly_id) : []
+
       Spree::Variant.where("id IN (?) OR product_id IN (?)", variant_list, product_list)
     end
 
-    def set_in_stock_cache_of_static_assemblies(assemblies, part)
+    def adjust_in_stock_cache_of_static_assemblies(assemblies, part)
       if part.in_stock_cache
         adjust_static_assemblies(assemblies)
       else
         assemblies.each do |assembly|
-          if assembly.in_stock_cache or force
+          if assembly.in_stock_cache || force
             assembly.disable_in_stock_cache
             add_to_adjusted_variants(assembly)
           end
         end
       end
     end
-  
+
     def add_to_adjusted_variants(variant)
       @adjusted_variants[variant] = variant
     end
@@ -166,7 +172,7 @@ module Spree
       asm_def_variants.map(&:assembly_definition_part).map(&:assembly_definition).uniq.compact
     end
 
-    def set_in_stock_cache_of_dynamic_assemblies(assemblies)
+    def adjust_in_stock_cache_of_dynamic_assemblies(assemblies)
       assemblies.each do |assembly|
         variant_in_stock_cache_adjuster(assembly.variant)
       end
@@ -189,6 +195,5 @@ module Spree
     def rebuild_suite_tab_cache(product)
       Spree::SuiteTabCacheRebuilder.rebuild_from_product(product)
     end
-
   end
 end

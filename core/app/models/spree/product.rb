@@ -144,8 +144,7 @@ module Spree
     end
 
     def assembly?
-      self.assemblies_parts.any? ||
-      self.assembly_definition
+      static_assemblies_parts.any? || assembly_definition
     end
 
     def next_variant_in_stock

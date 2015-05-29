@@ -658,7 +658,7 @@ describe Spree::Variant, :type => :model do
     it "updates it's kit and assemblies_parts" do
       part = create(:variant)
       variant.add_part part
-      ap = Spree::AssembliesPart.where(part_id: part.id).first
+      ap = Spree::StaticAssembliesPart.where(part_id: part.id).first
       ap.update_column(:updated_at, 1.day.ago)
       variant.update_column(:updated_at, 1.day.ago)
       part.touch

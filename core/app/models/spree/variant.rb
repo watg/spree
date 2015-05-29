@@ -69,7 +69,7 @@ module Spree
     after_create { delay(:priority => 20).add_to_all_assembly_definitions }
 
     # This can take a while so run it asnyc with a low priority for now
-    after_touch { delay(:priority => 20).touch_assemblies_parts if self.assemblies.any? }
+    after_touch { delay(priority: 20).touch_assemblies_parts if static_assemblies.any? }
 
     after_save { delay(:priority => 20 ).touch_assembly_definition_variants if assembly_definition_variants.any? }
     after_touch { delay(:priority => 20 ).touch_assembly_definition_variants if assembly_definition_variants.any? }
@@ -483,7 +483,7 @@ module Spree
     end
 
     def touch_assemblies_parts
-      Spree::AssembliesPart.where(part_id: self.id).map(&:touch)
+      Spree::StaticAssembliesPart.where(part_id: id).map(&:touch)
     end
 
     def set_master_out_of_stock

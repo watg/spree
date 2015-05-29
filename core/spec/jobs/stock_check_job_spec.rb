@@ -92,10 +92,10 @@ describe Spree::StockCheckJob do
     let(:part) {create(:base_variant, in_stock_cache: true)}
     let(:another_part) {create(:base_variant, in_stock_cache: true)}
     let!(:ap) do
-      Spree::AssembliesPart.create(part_id: part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1, optional: false)
+      Spree::StaticAssembliesPart.create(part_id: part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1, optional: false)
     end
     let!(:another_ap) do
-      Spree::AssembliesPart.create(part_id: another_part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1, optional: false)
+      Spree::StaticAssembliesPart.create(part_id: another_part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1, optional: false)
     end
 
     before do
@@ -150,7 +150,7 @@ describe Spree::StockCheckJob do
     context "optional parts" do
 
       let!(:ap) do
-        Spree::AssembliesPart.create(part_id: part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1, optional: true)
+        Spree::StaticAssembliesPart.create(part_id: part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1, optional: true)
       end
       subject { Spree::StockCheckJob.new(part) }
 
@@ -435,7 +435,7 @@ describe Spree::StockCheckJob do
           let(:kit) {create(:base_variant, in_stock_cache: false)}
           let(:part) {create(:base_variant, in_stock_cache: false)}
           let!(:ap) do
-            Spree::AssembliesPart.create(part_id: part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1, optional: true)
+            Spree::StaticAssembliesPart.create(part_id: part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1, optional: true)
           end
 
 
@@ -844,7 +844,7 @@ describe Spree::StockCheckJob do
           let(:kit) {create(:base_variant, in_stock_cache: false)}
           let(:part) {create(:base_variant, in_stock_cache: false)}
           let!(:ap) do
-            Spree::AssembliesPart.create(part_id: part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1, optional: true)
+            Spree::StaticAssembliesPart.create(part_id: part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1, optional: true)
           end
 
           before do
@@ -898,7 +898,7 @@ describe Spree::StockCheckJob do
       let!(:static_kit) {create(:base_variant, in_stock_cache: true, product: product_part)}
       let!(:static_kit_part) {create(:base_variant, in_stock_cache: true)}
       let!(:ap) do
-        Spree::AssembliesPart.create(part_id: static_kit_part.id, assembly_id: static_kit.id, assembly_type: 'Spree::Variant', count: 1, optional: false)
+        Spree::StaticAssembliesPart.create(part_id: static_kit_part.id, assembly_id: static_kit.id, assembly_type: 'Spree::Variant', count: 1, optional: false)
       end
 
       let!(:assembly_definition) { create(:assembly_definition, variant: variant) }
