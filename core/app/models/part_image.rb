@@ -23,11 +23,6 @@ class PartImage < ActiveRecord::Base
   # we need to look at the write-queue for images which have not been saved yet
   after_post_process :find_dimensions
 
-  def self.with_target(target)
-    target_id = target ? target.id : nil
-    where(target_id: [nil, target_id])
-  end
-
   #used by admin products autocomplete
   def mini_url
     attachment.url(:mini, false)
