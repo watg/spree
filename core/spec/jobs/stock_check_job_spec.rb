@@ -694,7 +694,7 @@ describe Spree::StockCheckJob do
         context "more than 1 part" do
           let(:another_product_part)  { Spree::Product.new() }
           let(:another_variant_part)  { Spree::Variant.new(number: "V1111", product: another_product_part, in_stock_cache: false, updated_at: 2.days.ago) }
-          let(:another_adp) { Spree::AssemblyDefinitionPart.new(assembly_product: product, product: another_product_part, optional: false) }
+          let(:another_adp) { Spree::AssemblyDefinitionPart.new(assembly_product: product, part_product: another_product_part, optional: false) }
           let(:another_adv) { Spree::AssemblyDefinitionVariant.new(assembly_definition_part: adp, variant: variant_part) }
 
           before(:each) do
@@ -901,7 +901,7 @@ describe Spree::StockCheckJob do
         Spree::StaticAssembliesPart.create(part_id: static_kit_part.id, assembly_id: static_kit.id, assembly_type: 'Spree::Variant', count: 1, optional: false)
       end
       
-      let!(:adp) { Spree::AssemblyDefinitionPart.create(assembly_product: variant.product, product: product_part, optional: false, assembly_definition_id: 0) }
+      let!(:adp) { Spree::AssemblyDefinitionPart.create(assembly_product: variant.product, part_product: product_part, optional: false, assembly_definition_id: 0) }
       let!(:adv) { Spree::AssemblyDefinitionVariant.create(assembly_definition_part: adp, variant: static_kit) }
 
       subject { Spree::StockCheckJob.new(static_kit_part) }
@@ -970,7 +970,7 @@ describe Spree::StockCheckJob do
       end
     end
 
-    describe "fetch_dynamic_dynamice_master_variants" do
+    describe "fetch_dynamic_master_variants" do
       include_context "assembly definition"
 
       subject      { described_class.new(variant_part) }

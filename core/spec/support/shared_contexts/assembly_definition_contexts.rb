@@ -11,7 +11,7 @@ shared_context "assembly definition light" do
   end
 
   let(:adp) do
-    Spree::AssemblyDefinitionPart.new(assembly_product: product, product: product_part, optional: false, assembly_definition_id: 0)
+    Spree::AssemblyDefinitionPart.new(assembly_product: product, part_product: product_part, optional: false, assembly_definition_id: 0)
   end
 
   let(:adv) do
@@ -37,7 +37,7 @@ shared_context "assembly definition" do
 
   let(:adp) do
     Spree::AssemblyDefinitionPart.new(
-       assembly_product_id: product.id, product: product_part, optional: false, assembly_definition_id: 0
+       assembly_product_id: product.id, part_product: product_part, optional: false, assembly_definition_id: 0
     )
   end
   let(:adv) do
