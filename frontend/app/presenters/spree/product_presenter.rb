@@ -2,7 +2,7 @@ module Spree
   class ProductPresenter < BasePresenter
     presents :product
 
-    delegate :id, :name, :slug, :out_of_stock_override?, to: :product
+    delegate :id, :name, :slug, :out_of_stock_override?, :product_type, to: :product
 
     def has_variants?
       @has_variant ||= product.has_variants?
@@ -28,7 +28,6 @@ module Spree
       @optional_parts_for_display ||= product.optional_parts_for_display
     end
 
-    #### option value methods ####
     def variant_tree
       variant_options.tree
     end
@@ -48,8 +47,6 @@ module Spree
     def variant_option_values
       variant_options.variant_option_values
     end
-
-    #### Targetted accessors ###
 
     def variants
       @variants ||= product.variants_for(target).in_stock
@@ -71,8 +68,6 @@ module Spree
       is_mobile? ? :small : :product
     end
 
-
-    ### Assembly definition accessors ###
     def assembly_definition?
       !assembly_definition.nil?
     end
@@ -85,13 +80,16 @@ module Spree
       @assembly_definition_parts ||= assembly_definition.parts
     end
 
-    ### Regular methods ##
     def video
       videos.any? && videos.first.embed
     end
 
     def videos
       @videos ||= product.videos
+    end
+
+    def delivery_partial
+      pattern? ? 'delivery_pattern' : 'delivery_default'
     end
 
     def part_price_in_pence(part)
@@ -113,8 +111,6 @@ module Spree
       end
     end
 
-    ### Presenters ###
-
     def assembly_definition_presenter
       @assembly_definition_presenter ||= begin
         AssemblyDefinitionPresenter.new(assembly_definition, template, context) if assembly_definition
@@ -131,5 +127,8 @@ module Spree
       @variant_options ||= Spree::VariantOptions.new(variants, currency)
     end
 
+    def pattern?
+      product_type.pattern?
+    end
   end
 end

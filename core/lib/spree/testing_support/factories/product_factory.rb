@@ -24,6 +24,10 @@ FactoryGirl.define do
       product_group
     end
 
+    trait :pattern do
+      product_type { create(:product_type, :pattern) }
+    end
+
     transient do
       amount nil
       currency 'USD'
