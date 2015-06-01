@@ -72,6 +72,18 @@ describe Spree::ProductPresenter do
     end
   end
 
+  describe '#delivery_partial' do
+    context 'product is a pattern' do
+      let(:product) { create(:product, :pattern) }
+      it { expect(subject.delivery_partial).to eq %[delivery_pattern] }
+    end
+
+    context 'product is not a pattern' do
+      let(:product) { create(:product) }
+      it { expect(subject.delivery_partial).to eq %[delivery_default] }
+    end
+  end
+
   describe "#part_price_in_pence" do
     let(:variant) { Spree::Variant.new(prices: [price]) }
     let(:price)   { create(:price, sale: false, is_kit: true, amount: 9.99, part_amount: 5.99) }
