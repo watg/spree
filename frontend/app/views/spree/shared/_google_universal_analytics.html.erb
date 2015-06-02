@@ -1,16 +1,48 @@
 <% if production_or_staging? %>
-<% if tracker_id %>
-  <%= javascript_tag do %>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new
-  Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  
-  var uid = (function (n) {var m = n + "=";var ca = document.cookie.split(';');for (var i = 0; i < ca.length; i++) {var c = ca[i];while (c.charAt(0) == ' ') c = c.substring(1, c.length);if (c.indexOf(m) == 0) return c.substring(m.length, c.length);}return null;})('watgtc');
+  <% if tracker_id %>
+    <%= javascript_tag do %>
+      var gaq_count = 0; // prevent from duplicate transaction
 
-  ga('create', '<%= tracker_id %>', 'auto');
-  if (uid && uid != 'undefined') {ga('set', '&uid', uid);}
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new
+      Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      var uid = (function (n) {var m = n + "=";var ca = document.cookie.split(';');for (var i = 0; i < ca.length; i++) {var c = ca[i];while (c.charAt(0) == ' ') c = c.substring(1, c.length);if (c.indexOf(m) == 0) return c.substring(m.length, c.length);}return null;})('watgtc');
+
+      ga('create', '<%= tracker_id %>', 'auto');
+      if (uid && uid != 'undefined') {ga('set', '&uid', uid);}
+      ga('send', 'pageview');
+
+      // migration
+
+      ga('require', 'ecommerce');
+      <% if order_just_completed?(@order) && @order.bill_address %>
+        if (gaq_count === 0) {
+
+          ga('ecommerce:addTransaction', {
+            'id': "<%= j @order.number %>",  // Transaction ID. Required
+            'revenue': "<%= @order.total %>",               // Grand Total
+            'shipping': "<%= @order.shipments.to_a.sum(&:discounted_cost) %>",                  // Shipping
+            'tax': "<%= @order.all_adjustments.tax.sum(:amount) %>",                     // Tax
+            'currency': "<%= @order.currency %>"
+          }); // there is no more city, state or country
+
+        <% @order.line_items.each do |line_item| %>
+          ga('ecommerce:addItem', {
+                    id: "<%= j @order.number %>",        // Transaction ID*
+                   sku: "<%= j line_item.item_sku %>",         // Product SKU
+                  name: "<%= j line_item.variant.product.name %>",  // Product Name*
+              category: "<%= j line_item.variant.product.marketing_type.name %>",  // Product Category
+                 price: "<%= line_item.price %>",          // Price (individual price)
+              quantity: "<%= line_item.quantity %>"               // Quantity
+          });
+        <% end %>  
+          ga('ecommerce:send');
+          gaq_count++; // prevent from duplicate transaction
+        }
+      <% end %>
+    <% end %>
   <% end %>
-<% end %>
 <% end %>
