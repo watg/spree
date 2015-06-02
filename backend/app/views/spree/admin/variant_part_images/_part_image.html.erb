@@ -1,16 +1,16 @@
-<tr id="<%= spree_dom_id part_image %>" data-hook="images_row" class="<%= cycle('odd', 'even')%>">
-  <td class="no-border">
-    <span class="handle"></span>
-  </td>
-  <td>
-    <% if part_image.processed? %>
-      <%= link_to image_tag(part_image.attachment.url(:small), style: "max-width: 100px"), part_image.attachment.url(:product) %>
-    <% else %>
-      <%= link_to image_tag(part_image.direct_upload_url, style: "max-width: 100px"), part_image.attachment.url(:product) %>
-    <% end %>
-  </td>
-  <td class="actions">
-    <%= link_to '', '#', :class => 'save-item icon_link fa fa-ok no-text with-tip', :title => Spree.t('actions.save'), :onclick=>"$('#edit_part_image_#{part_image.id}').submit(); return false;" %>
-    <%= link_to_delete part_image, { :url => admin_variant_part_image_url(@variant, part_image), :no_text => true } %>
-  </td>
-</tr>
+<% admin_present(part_image) do |part_image| %>
+  <tr id="<%= spree_dom_id part_image %>" data-hook="images_row" class="<%= cycle('odd', 'even')%>">
+    <td class="no-border">
+      <span class="handle"></span>
+    </td>
+    <td>
+
+      <%= part_image.image_url %>
+
+    </td>
+    <td class="actions">
+      <%= link_to '', '#', :class => 'save-item icon_link fa fa-ok no-text with-tip', :title => Spree.t('actions.save'), :onclick=>"$('#edit_part_image_#{part_image.id}').submit(); return false;" %>
+      <%= link_to_delete part_image, { :url => admin_variant_part_image_url(@variant, part_image), :no_text => true } %>
+    </td>
+  </tr>
+<% end %>
