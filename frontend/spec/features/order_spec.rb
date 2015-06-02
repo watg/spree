@@ -68,7 +68,7 @@ describe 'orders', :type => :feature do
     pending "to fix - should be easy"
     visit spree.order_path(order)
 
-    within '#order_summary' do
+    within '#order-summary' do
       expect(page).to have_content("#{Spree.t(:order)} #{order.number}")
     end
   end
