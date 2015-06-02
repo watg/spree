@@ -80,7 +80,7 @@ describe "Delivery", type: :feature, js: true do
       expect(page).to have_content "UPS Ground"
       find_field("UPS Ground").should be_checked
 
-      within ".delivery_options" do
+      within ".delivery-options" do
         expect(page).to have_content "100.00"
         expect(page).to have_content "second shipping rate"
         find_field("second shipping rate").should_not be_checked
@@ -122,7 +122,7 @@ describe "Delivery", type: :feature, js: true do
         expect(find_field("UPS Ground")).to be_checked
 
         # unselected free delivery option
-        within ".delivery_options" do
+        within ".delivery-options" do
           expect(page).to have_content "second shipping rate"
           expect(page).to have_content "FREE"
           expect(find_field("second shipping rate")).to_not be_checked

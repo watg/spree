@@ -121,7 +121,7 @@
 .large-12 > #existing-customer,
 #forgot-password,
 #registration {
-  padding: 0 1.125em 2em 1.125em;
+  padding: 0 1.125em 2em;
   background: $watg-tint-light;
   h6 {
     padding: 1em 0;
@@ -146,7 +146,7 @@
     padding-right: 20%;
     background: $watg-tint-light image-url('watg-img/bg-login.jpg') left bottom no-repeat;
     h6 {
-      padding: 4em 0 1em 0;
+      padding: 4em 0 1em;
     }
   }
   #guest_checkout {
@@ -209,7 +209,7 @@
     margin: 1em 0 0.5em 0;
   }
 
-  .delivery_options {
+  .delivery-options {
     label {
       font-size: inherit;
     }
@@ -256,7 +256,7 @@
   .p-coupon-code {
     text-align: right;
   }
-  #cvv_link {
+  #cvv-link {
     font-size: 0.688em;
   }
 }
