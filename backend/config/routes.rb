@@ -121,7 +121,7 @@ Spree::Core::Engine.add_routes do
     end
 
     resources :variants do
-      resources :part_images, controller: "variant_part_images" do
+      resources :part_images, controller: "variant_part_images", except: [:update, :edit] do
         collection do
           post :s3_callback
           post :update_positions
