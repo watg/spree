@@ -161,13 +161,13 @@ module Spree
         (params[:type] || :invoice).to_sym
       end
 
-      def prepare_order_show
+      def prepare_show_order
         @order = Order.find_by_number!(params[:id])
       end
 
       def generate_order_pdf(order_object)
         send_data order_object.to_pdf,
-                  filename: "#{type}.pdf",
+                  filename: "#{order_type}.pdf",
                   type: "application/pdf",
                   disposition: :inline
       end
