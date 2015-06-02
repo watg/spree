@@ -24,7 +24,7 @@
   .no-svg & .delete {
     background-image: image-url('watg-img/touch-icon-close.gif');
   }
-  .assembly_parts, .personalisations {
+  .assembly-parts, .personalisations {
     @include zero-out-list;
   }
   .item-total {
@@ -110,9 +110,6 @@
   .cart-adjustment-header {
     border-top: 1px dotted $primary-color;
   }
-  .continue-shopping {
-  }
-
 }
 
 /* @end */

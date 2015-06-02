@@ -8,7 +8,7 @@
 
   <% if line_item.line_item_parts.required.not_operational.without_subparts.any? %>
     <h6>Parts:</h6>
-    <ul class='assembly_parts'>
+    <ul class='assembly-parts'>
       <% line_item.line_item_parts.required.not_operational.without_subparts.each do |o| %>
         <li class="line-item-option"><%= "#{[o.variant.name, o.variant.options_text].delete_if(&:empty?).join(' -- ')}" %></li>
       <% end %>
@@ -17,7 +17,7 @@
 
   <% if line_item.line_item_parts.optional.any? %>
     <h6>Optional Parts:</h6>
-    <ul class='assembly_parts'>
+    <ul class='assembly-parts'>
       <% line_item.line_item_parts.optional.each do |o| %>
         <li class="line-item-option"><%= "#{[o.variant.name, o.variant.options_text].delete_if(&:empty?).join(' -- ')}" %></li>
       <% end %>

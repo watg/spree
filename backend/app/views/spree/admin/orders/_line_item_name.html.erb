@@ -21,7 +21,7 @@
 <% end %>
 <% if item.line_item_parts.required.any? %>
   <h6>Parts</h6>
-  <ul class='assembly_parts' style="list-style:none;">
+  <ul class='assembly-parts' style="list-style:none;">
     <% item.line_item_parts.required.each do |part| %>
       <li><%= link_to "#{part.quantity} x #{part.variant.name} (#{part.variant.options_text})" , edit_admin_product_variant_path(part.variant.product, part.variant) %></li>
       <% part_units = inventory_units.select {|iu| iu.line_item_part == part} %>
@@ -34,7 +34,7 @@
 
 <% if item.line_item_parts.optional.any? %>
   <h6>Optional Parts</h6>
-  <ul class='assembly_parts' style="list-style:none;">
+  <ul class='assembly-parts' style="list-style:none;">
   <% item.line_item_parts.optional.each do |part| %>
     <li><%= link_to "#{part.quantity} x #{part.variant.name} (#{part.variant.options_text})" , edit_admin_product_variant_path(part.variant.product, part.variant) %></li>
     <% part_units = inventory_units.select {|iu| iu.line_item_part == part} %>
