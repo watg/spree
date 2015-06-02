@@ -1,22 +1,2 @@
-<h3>Free Shipping</h3>
-<h4>On all orders <strong>over <%= free_shipping_amount %></strong> to Spain</h4>
-<table>
-	<caption>Shipping to Spain</caption>
-	<tbody>
-		<tr>
-			<th>Delivery time</th>
-			<td>2-3 business days</td>
-		</tr>
-		<tr>
-			<th>Cost</th>
-			<td>€10</td>
-		</tr>
-		<tr>
-			<th>Spend over <%= free_shipping_amount %>*</th>
-			<td>Free</td>
-		</tr>
-	</tbody>
-</table>
-<p>Buying patterns only? We ship patterns free of charge &ndash; no order minimum.</p>
-<h5>*The use of multiple promos</h5>
-<p>Currently it's only possible to take advantage of one promotion at a time, when you check out our system will automagically apply the promo that gives you the best deal so that you don't miss out.</p>
+<%= render partial: 'spree/shared/shipping/free_shipping', 
+    locals: { free_shipping_amount: free_shipping_amount, location: 'Spain' }  %>
