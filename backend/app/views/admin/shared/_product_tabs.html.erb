@@ -49,7 +49,7 @@
           <% end if can?(:stock, Spree::AssemblyDefinition) %>
         <% else %>
           <%= content_tag :li, :class => ('active' if current == 'Parts') do %>
-            <%= link_to_with_icon 'sitemap', Spree.t(:parts) + " (" + @product.assemblies_parts.count.to_s + ")", "/admin/products/#{@product.slug}/parts" %>
+            <%= link_to_with_icon 'sitemap', Spree.t(:parts) + " (" + @product.static_assemblies_parts.count.to_s + ")", "/admin/products/#{@product.slug}/parts" %>
           <% end if can?(:stock, Spree::Product) %>
         <% end %>
       <% end %>
