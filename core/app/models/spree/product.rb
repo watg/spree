@@ -64,7 +64,9 @@ module Spree
     has_many :assembly_products, through: :assembly_definition_variants
     has_many :assembly_definition_parts
 
-    has_many :extra_parts, class_name: "Spree::AssemblyDefinitionPart", foreign_key: :assembly_product_id
+    has_many :extra_parts,
+             class_name: "Spree::AssemblyDefinitionPart",
+             foreign_key: :assembly_product_id
 
     after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
 
@@ -141,7 +143,7 @@ module Spree
     }
 
     scope :not_assembly, lambda{
-        where.not(id: assembly.select('spree_products.id').uniq.map(&:id) )
+      where.not(id: assembly.select("spree_products.id").uniq.map(&:id))
     }
 
     def videos?
@@ -374,7 +376,7 @@ module Spree
 
     private
 
-  	def touch_assembly_products
+    def touch_assembly_products
       assembly_products.uniq.map(&:touch)
     end
 

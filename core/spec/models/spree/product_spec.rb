@@ -468,9 +468,10 @@ describe Spree::Product, :type => :model do
 
       let(:variant_assembly) { create(:variant) }
       let(:variant_part)  { create(:base_variant) }
-      
+
       let(:product_part)  { variant_part.product }
-      let!(:adp)  { create(:assembly_definition_part, assembly_product: variant_assembly.product, part_product: product_part, assembly_definition_id: 0) }
+      let!(:adp)  { create(:assembly_definition_part, adp_opts) }
+      let(:adp_opts) { { assembly_product: variant_assembly.product, part_product: product_part } }
       let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
 
       before { adv.update(assembly_product: variant_assembly.product) }
@@ -498,5 +499,4 @@ describe Spree::Product, :type => :model do
     product = Spree::Product.new
     expect(product.master.is_master).to be true
   end
-
 end

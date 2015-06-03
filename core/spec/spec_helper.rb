@@ -1,4 +1,4 @@
-require 'pry'
+require "pry"
 
 if ENV["COVERAGE"]
   # Run Coverage report

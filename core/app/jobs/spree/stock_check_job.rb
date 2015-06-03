@@ -39,7 +39,6 @@ module Spree
         part_out_of_stock?(part)
       end
       adjust_in_stock_cache(out_of_stock)
-      set_in_stock_cache(out_of_stock)
     end
 
     def adjust_dynamic_assembly
@@ -113,21 +112,17 @@ module Spree
     end
 
     def update_assemblies_in_stock_cache
-      obj_accumilator = [ variant_to_check ]
+      obj_accumilator = [variant_to_check]
 
-      while( obj_accumilator.any? )
+      while obj_accumilator.any?
         obj = obj_accumilator.shift
         static_assemblies = fetch_static_assemblies(obj)
         adjust_in_stock_cache_of_static_assemblies(static_assemblies, obj)
         obj_accumilator += static_assemblies
 
-<<<<<<< HEAD
-        dynamic_master_variants = fetch_dynamic_master_variant(obj)
-        adjust_in_stock_cache_of_dynamic_assemblies(dynamic_master_variants)
-=======
         dynamic_master_variants = fetch_dynamic_master_variants(obj)
-        set_in_stock_cache_for_dynamic_master_variants(dynamic_master_variants)
->>>>>>> 059e35f... stock_check_job: improve variable and method naming
+        adjust_in_stock_cache_for_dynamic_master_variants(dynamic_master_variants)
+
         obj_accumilator += dynamic_master_variants
       end
     end
@@ -171,18 +166,18 @@ module Spree
 
     def fetch_dynamic_master_variants(obj)
       required_assembly_definition_variants(obj)
-         .map(&:assembly_product)
-         .uniq
-         .compact
-         .map(&:master)
+        .map(&:assembly_product)
+        .uniq
+        .compact
+        .map(&:master)
     end
 
     def required_assembly_definition_variants(obj)
       obj.assembly_definition_variants
-         .map(&:assembly_definition_part)
-         .select(&:required?)
+        .map(&:assembly_definition_part)
+        .select(&:required?)
     end
-      
+
     def adjust_in_stock_cache_for_dynamic_master_variants(variants)
       variants.each(&method(:variant_in_stock_cache_adjuster))
     end
