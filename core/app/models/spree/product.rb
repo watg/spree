@@ -63,6 +63,9 @@ module Spree
     has_many :assembly_definition_variants, through: :variants
     has_many :assembly_products, through: :assembly_definition_variants
     has_many :assembly_definition_parts
+
+    has_many :extra_parts, class_name: "Spree::AssemblyDefinitionPart", foreign_key: :assembly_product_id
+
     after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
 
     has_one :master,
@@ -133,10 +136,12 @@ module Spree
 
     alias :options :product_option_types
 
-    # Grab each set of products that have parts, then
-    scope :not_assembly, lambda {
-      with_parts = joins(variants_including_master: [:assembly_definition]).select('spree_products.id')
-      where.not(id: with_parts.uniq.map(&:id) )
+    scope :assembly, lambda{
+      joins(:assembly_definition_parts)
+    }
+
+    scope :not_assembly, lambda{
+        where.not(id: assembly.select('spree_products.id').uniq.map(&:id) )
     }
 
     def videos?
@@ -369,7 +374,7 @@ module Spree
 
     private
 
-	def touch_assembly_products
+  	def touch_assembly_products
       assembly_products.uniq.map(&:touch)
     end
 

@@ -16,8 +16,7 @@ describe Spree::Product do
 
   describe "#not_assembly" do
     it "excludes products with assembly definition" do
-      create(:assembly_definition, variant: subject.master)
-
+      create(:assembly_definition_part, product: subject, assembly_definition_id: 0)
       expect(Spree::Product.all).to eq [subject]
       expect(Spree::Product.all.not_assembly).to be_empty
     end

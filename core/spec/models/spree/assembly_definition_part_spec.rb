@@ -6,19 +6,8 @@ describe Spree::AssemblyDefinitionPart do
   let(:variant)  { create(:base_variant) }
   let(:assembly_product) { variant.product }
   let(:part)  { create(:base_product) }
-  let(:assembly_definition) { create(:assembly_definition, variant: variant) }
   let(:colour)   { create(:option_type, name: 'colour', position: 2 )}
-  subject { create(:assembly_definition_part, assembly_definition: assembly_definition, product: part, displayable_option_type: colour ) }
-
-
-  context "set_assembly_product" do
-    it "set assembly product before create" do
-      adp = Spree::AssemblyDefinitionPart.new(assembly_definition_id: assembly_definition.id, product_id: part.id,  displayable_option_type: colour )
-      expect(adp.assembly_product).to be_nil
-      adp.save
-      expect(adp.assembly_product).to_not be_nil
-    end
-  end
+  subject { create(:assembly_definition_part, assembly_product: assembly_product, assembly_definition_id: 0, product: part, displayable_option_type: colour ) }
 
   context "touch" do
 

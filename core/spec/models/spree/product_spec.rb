@@ -469,18 +469,20 @@ describe Spree::Product, :type => :model do
       let(:variant_assembly) { create(:variant) }
       let(:assembly_definition) { create(:assembly_definition, variant: variant_assembly) }
       let(:variant_part)  { create(:base_variant) }
+      
       let(:product_part)  { variant_part.product }
-      let(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: product_part) }
+      let!(:adp)  { create(:assembly_definition_part, assembly_product: variant_assembly.product, product: product_part, assembly_definition_id: 0) }
       let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
 
+      before { adv.update(assembly_product: variant_assembly.product) }
+
       it "touches assembly product after save" do
+        Timecop.freeze(Time.local(2014))
         variant_assembly.product.update_column(:updated_at, 1.day.ago)
         product_part.reload.save
-        expect(variant_assembly.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
+        expect(variant_assembly.product.reload.updated_at).to Time.now
       end
-
     end
-
   end
 
   # Regression spec for https://github.com/spree/spree/issues/5588

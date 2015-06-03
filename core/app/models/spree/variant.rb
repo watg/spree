@@ -141,6 +141,14 @@ module Spree
       self.is_master? and self.product.variants and self.product.variants.any?
     end
 
+    def extra_parts?
+      extra_parts.any?
+    end
+
+    def extra_parts
+      product.extra_parts
+    end
+
     def generate_variant_number(force: false)
       record = true
       while record
@@ -440,6 +448,12 @@ module Spree
 
     def tag_names
       self.tags.map(&:value)
+    end
+
+    def required_assembly_definition_variants
+      assembly_definition_variants.select do |asm_def_variant|
+        asm_def_variant.assembly_definition_part.required?
+      end
     end
 
     def option_types_and_values

@@ -2,8 +2,6 @@ module Spree
   class AssemblyDefinitionPart < ActiveRecord::Base
     acts_as_paranoid
 
-    acts_as_list scope: [:assembly_definition_id, :deleted_at]
-
     belongs_to :assembly_definition, class_name: "Spree::AssemblyDefinition", foreign_key: "assembly_definition_id"
     belongs_to :product, class_name: "Spree::Product", foreign_key: "product_id"
     belongs_to :assembly_product, class_name: "Spree::Product", foreign_key: "assembly_product_id", touch: true
@@ -17,8 +15,6 @@ module Spree
     has_many :option_values, -> { reorder(:position).uniq }, through: :variants
 
     accepts_nested_attributes_for :variants
-
-    before_create :set_assembly_product
 
     NO_THANKS = 'no_thanks'
 
@@ -37,10 +33,8 @@ module Spree
       self.option_values.where(option_type: displayable_option_type )
     end
 
-    private
-    def set_assembly_product
-      self.assembly_product = self.assembly_definition.variant.product
+    def required_assembly_definition_variants
+      assembly_definition_variants
     end
-
   end
 end

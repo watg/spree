@@ -6,8 +6,6 @@ class Spree::AssemblyDefinitionVariant < ActiveRecord::Base
 
   validates_presence_of :variant_id, :assembly_definition_part_id
 
-  before_create :set_assembly_product
-
   def part_prices
     variant.part_prices
   end
@@ -16,12 +14,6 @@ class Spree::AssemblyDefinitionVariant < ActiveRecord::Base
   # Fixes admin errors on assembly definition.
   def variant
     Spree::Variant.unscoped { super }
-  end
-
-  private
-
-  def set_assembly_product
-    self.assembly_product = self.assembly_definition_part.assembly_definition.variant.product
   end
 
 end

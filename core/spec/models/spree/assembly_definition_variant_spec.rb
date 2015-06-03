@@ -12,15 +12,6 @@ describe Spree::AssemblyDefinitionVariant do
   let(:variant_part)  { create(:base_variant) }
   subject { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
 
-  context "set_assembly_product" do
-    it "set assembly product before create" do
-      adv = Spree::AssemblyDefinitionVariant.new(assembly_definition_part: adp, variant: variant_part)
-      expect(adv.assembly_product).to be_nil
-      adv.save
-      expect(adv.assembly_product).to_not be_nil
-    end
-  end
-
   context '#part_prices' do
 
     it "should provide an error" do
