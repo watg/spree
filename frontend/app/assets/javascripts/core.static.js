@@ -1,6 +1,6 @@
 core.Static = {}; // Extend from this core object
 
-$(document).on("ready page:load", function() {
+$(document).on('ready page:load', function() {
   if (!$('body').hasClass('static')) return false;
 
   if ($('body').hasClass('vote-for-your-favourite')) {
@@ -25,7 +25,7 @@ $(document).on("ready page:load", function() {
 
   if ($('body').hasClass('hang-with-the-gang')) {
     core.Static.readyOlapicGallery();
-  };
+  }
 });
 
 $(window).bind('load', function() {
@@ -52,7 +52,7 @@ core.Static.showJobFromHash = function() {
 }
 
 core.Static.readyCarousel = function() {
-   $(".owl-carousel").owlCarousel({
+   $('.owl-carousel').owlCarousel({
     loop:true,
     responsiveClass:true,
     responsive:{
@@ -73,13 +73,13 @@ core.Static.readyOlapicGallery = function() {
     'id': '51215f5af67327b835d902d720009f06',
     'wrapper': 'olapic_specific_widget'
   });
-}
+};
 
 core.Static.readySignupCarousel = function() {
   // sets correct arrow images
-  var left_owl = document.getElementsByClassName("owl-prev");
+  var left_owl = document.getElementsByClassName('owl-prev');
   var left = new Image();
-  var right_owl = document.getElementsByClassName("owl-next");
+  var right_owl = document.getElementsByClassName('owl-next');
   var right = new Image();
   left.onload = function() {
     left_owl[0].appendChild(left);
@@ -93,7 +93,7 @@ core.Static.readySignupCarousel = function() {
   right.id = 'correct-right';
 
   // carousel settings
-  $(".owl-carousel").owlCarousel({
+  $('.owl-carousel').owlCarousel({
     loop:true,
     responsiveClass:true,
     responsive:{
