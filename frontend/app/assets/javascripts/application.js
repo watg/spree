@@ -39,7 +39,6 @@
 //= require spree/frontend/cart
 //= require spree/frontend/currency
 
-// Persist vertical scroll when navigating with turbolinks. Not used currently.
 // require spree/frontend/turbolinks-scroll-persister
 
 //= require spree/frontend/core.product-top
