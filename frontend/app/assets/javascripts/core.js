@@ -152,7 +152,6 @@ core.readyOlapic = function(){
       }, 500);
     } else {
       OlapicSDK.conf.set('apikey', '11aa7ed151891f52782c3c345fa0d25159331c893eee49dd2b3a93d076bad452'); // same value as data-apikey
-      OlapicSDK.conf.set('mode', 'development');
       OlapicSDK.conf.set('viewer-asset', '//www.photorank.me/assets/woolandthegang/viewer2v2.html'); //same as data-viewer in a regular implementation. will be the web URL of the lightbox
                                                      //please make sure you are using an actual URL for ADDRESS
       OlapicSDK.conf.set('uploader-asset', '//www.photorank.me/assets/woolandthegang/Uploader1v2.html'); // same as data-uploader in an regular implemenation. It will be the web URL of the uploader
@@ -162,7 +161,6 @@ core.readyOlapic = function(){
         window.olapic = o;
         window.olapic.prepareWidget(settings, {
           'renderNow' : true,
-          'force': true,
           'useOpi': false
         });
       });

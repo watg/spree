@@ -2,7 +2,7 @@ core.Static = {}; // Extend from this core object
 
 $(document).on("ready page:load", function() {
   if (!$('body').hasClass('static')) return false;
-  
+
   if ($('body').hasClass('vote-for-your-favourite')) {
     core.Static.randomiseBackgroundPosition();
   };
@@ -22,10 +22,14 @@ $(document).on("ready page:load", function() {
   if ($('body').hasClass('fancyboxmodal')) {
     core.Static.fancyboxModal();
   };
+
+  if ($('body').hasClass('hang-with-the-gang')) {
+    core.Static.readyOlapicGallery();
+  };
 });
 
 $(window).bind('load', function() {
-	
+
 });
 
 // Set a random background position (x-axis)
@@ -37,7 +41,7 @@ core.Static.randomiseBackgroundPosition = function() {
 
 core.Static.showJobFromHash = function() {
 	var hash = window.location.hash.toString();
-	
+
 	if (hash.length > 0) {
 		var job_id = $(hash);
 		if (job_id) {
@@ -61,6 +65,13 @@ core.Static.readyCarousel = function() {
         nav:true,
       }
     }
+  });
+}
+
+core.Static.readyOlapicGallery = function() {
+  OlapicWidget({
+    'id': '51215f5af67327b835d902d720009f06',
+    'wrapper': 'olapic_specific_widget'
   });
 }
 
