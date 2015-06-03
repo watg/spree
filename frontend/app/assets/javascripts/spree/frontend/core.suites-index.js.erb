@@ -1,18 +1,20 @@
 core.suitesIndex = {};
 
 var readySuitesIndex = function() {
-	if (!$('body').hasClass('suites-index')) return false;
+  if (!$('body').hasClass('suites-index')) return false;
 
-	// Kill existing event handlers before reassigning...
-	//$('.row-product').find('*').off();
+  // Kill existing event handlers before reassigning...
+  //$('.row-product').find('*').off();
 
-	if (core.isMobileWidthOrLess() === false) {
-		core.productOverlays();
-	}
+  if (core.isMobileWidthOrLess() === false) {
+    core.productOverlays();
+  }
 
-	core.suitesIndex.readyLazyLoadImages();
-	core.suitesIndex.extendClickableArea();
-	core.suite.readyOutOfStock();
+  core.suitesIndex.setScrollPosition();
+  core.suitesIndex.readyLazyLoadImages();
+  core.suitesIndex.extendClickableArea();
+  core.suitesIndex.readyPagination();
+  core.suite.readyOutOfStock();
 };
 
 $(document).on('page:load ready', readySuitesIndex);
@@ -21,37 +23,59 @@ $(document).on('page:load ready', readySuitesIndex);
 
 
 core.suitesIndex.readyLazyLoadImages = function() {
-	$('img.lazy-load').each(function() {
+  $('img.lazy-load').each(function() {
     $(this).lazyload({
-			load: function() {
-				// $(this).removeClass('lazy-load');
-			}
-		});
-	});
+      load: function() {
+              // $(this).removeClass('lazy-load');
+            }
+    });
+  });
 }
 
 // Where an index product has just one link on hover, extend the clickable area to the whole image
 core.suitesIndex.extendClickableArea = function() {
-	if (core.isTabletWidthOrLess() === false) {
-		var lists = $('.row-product ul');
+  if (core.isTabletWidthOrLess() === false) {
+    var lists = $('.row-product ul');
 
-		lists.each(function() {
-			var links = $(this).find('a');
+    lists.each(function() {
+      var links = $(this).find('a');
 
-			if (links.length == 1) {
-				$(this).css('cursor', 'pointer');
-				$(this).on('click', function(e) {
-					window.location.href = links.attr('href');
-				});
-			}
-		});
-	}
+      if (links.length == 1) {
+        $(this).css('cursor', 'pointer');
+        $(this).on('click', function(e) {
+          window.location.href = links.attr('href');
+        });
+      }
+    });
+  }
+}
+
+// Do we have a position to scroll to?
+core.suitesIndex.setScrollPosition = function() {
+  // If we've got a flash error, let's scroll to that
+  var flash = $('.flash.error');
+  if (flash.length > 0) {
+    $(window).scrollTop(flash);
+  } else {
+    var cookie = $.cookie('suitesIndexScrollTop');
+    if (cookie) {
+      $(window).scrollTop(cookie);
+    }
+  }
+}
+
+core.suitesIndex.readyPagination = function() {
+  var pagination_links = $('.pagination').find('a');
+
+  pagination_links.on('click', function(e) {
+    $.cookie('suitesIndexScrollTop', $(window).scrollTop());
+  });
 }
 
 core.suite.readyOutOfStock = function() {
-	if ($('.out-of-stock-form')) {
-		core.suite.requestOutOfStock();
-	}
+  if ($('.out-of-stock-form')) {
+    core.suite.requestOutOfStock();
+  }
 }
 
 core.suite.requestOutOfStock = function() {
@@ -68,7 +92,7 @@ core.suite.requestOutOfStock = function() {
     var email = form.find('input[name="signupEmail"]').val();
 
     if (!email) return false;
-	    form.fadeOut('slow');
+    form.fadeOut('slow');
 
     $.ajax({
       type: 'POST',
@@ -78,7 +102,7 @@ core.suite.requestOutOfStock = function() {
       success: function(e) {
 
         if (e.response !== 'success') {
-        	form.fadeOut('slow');
+          form.fadeOut('slow');
 
           heading_primary.text("Oops, something\'s gone wrong, please try again");
           form.fadeIn('slow');
@@ -93,8 +117,8 @@ core.suite.requestOutOfStock = function() {
           success_message.style.display = 'initial';
 
           // fade sections back in
-			    heading_primary.fadeIn('slow');
-			    heading_secondary.fadeIn('slow');
+          heading_primary.fadeIn('slow');
+          heading_secondary.fadeIn('slow');
         }
       }
     })

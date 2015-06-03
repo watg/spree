@@ -1,5 +1,5 @@
 # Persist scroll position on page updates.
-pagesWithPersistentScrolls = ['.suite']
+pagesWithPersistentScrolls = ['.suite', '.suites-index']
 
 # Storing scroll positions of scrollable elements.
 persistentScrollsPositions = {}
