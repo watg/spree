@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe Spree::Admin::VariantPartImagesController, type: :controller do
+describe ::Admin::VariantPartImagesController, type: :controller do
   stub_authorization!
 
   describe "#s3_callback" do

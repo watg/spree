@@ -1,9 +1,9 @@
-module Spree
-  module Admin
+module Admin
     # controller for variant part images
-    class VariantPartImagesController < ResourceController
+    class VariantPartImagesController < Spree::Admin::ResourceController
       before_filter :load_data
-
+      def index
+      end
       def s3_callback
         if @variant.part_image.blank?
           trigger_image_upload
@@ -41,9 +41,8 @@ module Spree
       end
 
       def load_data
-        @variant = Variant.find(params[:variant_id])
+        @variant = Spree::Variant.find(params[:variant_id])
         @product = @variant.product
       end
     end
   end
-end
