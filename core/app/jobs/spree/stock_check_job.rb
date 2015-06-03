@@ -170,14 +170,19 @@ module Spree
     end
 
     def fetch_dynamic_master_variants(obj)
-      obj.required_assembly_definition_variants
-         .map(&:assembly_definition_part)
+      required_assembly_definition_variants(obj)
+         .map(&:assembly_product)
          .uniq
          .compact
-         .map(&:assembly_product)
          .map(&:master)
     end
 
+    def required_assembly_definition_variants(obj)
+      obj.assembly_definition_variants
+         .map(&:assembly_definition_part)
+         .select(&:required?)
+    end
+      
     def adjust_in_stock_cache_for_dynamic_master_variants(variants)
       variants.each(&method(:variant_in_stock_cache_adjuster))
     end

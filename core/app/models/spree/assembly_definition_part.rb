@@ -32,9 +32,5 @@ module Spree
       return [] unless displayable_option_type
       self.option_values.where(option_type: displayable_option_type )
     end
-
-    def required_assembly_definition_variants
-      assembly_definition_variants
-    end
   end
 end

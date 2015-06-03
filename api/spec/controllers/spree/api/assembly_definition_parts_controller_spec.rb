@@ -11,7 +11,7 @@ describe Spree::Api::AssemblyDefinitionPartsController do
 
   let(:option_type)  { create(:option_type) }
 
-  let!(:ass_def_part) { Spree::AssemblyDefinitionPart.create(assembly_definition: assembly_definition, count: 3, product: product_part, optional: true, displayable_option_type: option_type) }
+  let!(:ass_def_part) { Spree::AssemblyDefinitionPart.create(assembly_definition: assembly_definition, count: 3, part_product: product_part, optional: true, displayable_option_type: option_type) }
 
   let!(:variants) { [create(:variant)] }
   let!(:attributes) { [:id, :options_text] }

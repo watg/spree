@@ -46,7 +46,7 @@ describe Spree::LineItemOptionsParser do
       let!(:assembly_definition) { create(:assembly_definition, variant: variant_assembly) }
       let!(:variant_part)  { create(:base_variant, product: product, prices: [price]) }
       let!(:price) { create(:price, price: 2.99, sale: false, is_kit: true, price_type: "part", currency: 'USD') }
-      let!(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: product, count: 2, assembled: true) }
+      let!(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, part_product: product, count: 2, assembled: true) }
       let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
 
       let(:expected_parts) { [
@@ -120,7 +120,7 @@ describe Spree::LineItemOptionsParser do
         let(:bogus_assembly_definition) { create(:assembly_definition, variant: bogus_variant_assembly) }
         let(:bogus_product_part)  { create(:base_product) }
         let(:bogus_variant_part)  { create(:base_variant, product: bogus_product_part) }
-        let(:bogus_adp) { create(:assembly_definition_part, assembly_definition: bogus_assembly_definition, product: bogus_product_part) }
+        let(:bogus_adp) { create(:assembly_definition_part, assembly_definition: bogus_assembly_definition, part_product: bogus_product_part) }
         let(:bogus_adv) { create(:assembly_definition_variant, assembly_definition_part: bogus_adp, variant: bogus_variant_part) }
 
         it "assembly variant must be valid" do
@@ -187,7 +187,7 @@ describe Spree::LineItemOptionsParser do
       context "when the part has parts of its own (old kit in an assembly)" do
         let(:other_product)  { create(:base_product) }
         let(:other_variant)  { create(:base_variant, product: other_product) }
-        let(:other_part) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: other_product, count: 1) }
+        let(:other_part) { create(:assembly_definition_part, assembly_definition: assembly_definition, part_product: other_product, count: 1) }
         let!(:other_part_variant) { create(:assembly_definition_variant, assembly_definition_part: other_part, variant: other_variant) }
 
         # Override the price to 0 as this is now a container

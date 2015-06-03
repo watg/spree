@@ -119,7 +119,7 @@ describe Spree::Api::ShipmentsController, :type => :controller do
         let!(:assembly_definition) { create(:assembly_definition, variant: variant_assembly) }
         let!(:variant_part)  { create(:base_variant, product: product, prices: [price]) }
         let(:price) { create(:price, price: 2.99, price_type: "part", currency: 'USD') }
-        let!(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: product, count: 2, assembled: true) }
+        let!(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, part_product: product, count: 2, assembled: true) }
         let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
 
         it 'can add and remove quantity' do

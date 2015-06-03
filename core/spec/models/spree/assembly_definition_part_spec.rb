@@ -7,7 +7,7 @@ describe Spree::AssemblyDefinitionPart do
   let(:assembly_product) { variant.product }
   let(:part)  { create(:base_product) }
   let(:colour)   { create(:option_type, name: 'colour', position: 2 )}
-  subject { create(:assembly_definition_part, assembly_product: assembly_product, assembly_definition_id: 0, product: part, displayable_option_type: colour ) }
+  subject { create(:assembly_definition_part, assembly_product: assembly_product, assembly_definition_id: 0, part_product: part, displayable_option_type: colour ) }
 
   context "touch" do
 

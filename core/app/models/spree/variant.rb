@@ -450,12 +450,6 @@ module Spree
       self.tags.map(&:value)
     end
 
-    def required_assembly_definition_variants
-      assembly_definition_variants.select do |asm_def_variant|
-        asm_def_variant.assembly_definition_part.required?
-      end
-    end
-
     def option_types_and_values
       option_values.includes(:option_type).references(:option_type).reorder( "spree_option_types.position", "spree_option_values.position" )
         .map{ |ov| [ ov.option_type.url_safe_name, ov.url_safe_name, ov.presentation] }
