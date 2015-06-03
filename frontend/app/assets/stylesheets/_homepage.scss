@@ -360,7 +360,7 @@ body.homepage {
 .homepage-au {
   .home-main .leader-0 {
     /* Small screen background */
-    background: #f9f9f9 cdn-url("/homepage/au/2015-05-29/Homepage_Australia_1_MOBILE_V1.jpg") top center no-repeat;
+    background: #f9f9f9 cdn-url("/homepage/au/2015-06-03/Homepage_Australia_MOBILE_V2.jpg") top center no-repeat;
     & > div {
       height: 580px;
     }
@@ -376,7 +376,7 @@ body.homepage {
     }
     /* Large screen background */
     @media only screen and (min-width: 28.750em) {
-      background: #f9f9f9 cdn-url("/homepage/au/2015-05-29/Homepage_Australia_1_DESKTOP_V1.jpg") top center no-repeat;
+      background: #f9f9f9 cdn-url("/homepage/au/2015-06-03/Homepage_Australia_DESKTOP_V2.jpg") top center no-repeat;
       & > div {
         height: 700px;
       }
