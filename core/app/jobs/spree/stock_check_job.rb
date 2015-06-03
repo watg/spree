@@ -121,8 +121,13 @@ module Spree
         adjust_in_stock_cache_of_static_assemblies(static_assemblies, obj)
         obj_accumilator += static_assemblies
 
+<<<<<<< HEAD
         dynamic_master_variants = fetch_dynamic_master_variant(obj)
         adjust_in_stock_cache_of_dynamic_assemblies(dynamic_master_variants)
+=======
+        dynamic_master_variants = fetch_dynamic_master_variants(obj)
+        set_in_stock_cache_for_dynamic_master_variants(dynamic_master_variants)
+>>>>>>> 059e35f... stock_check_job: improve variable and method naming
         obj_accumilator += dynamic_master_variants
       end
     end
@@ -164,7 +169,7 @@ module Spree
       end
     end
 
-    def fetch_dynamic_master_variant(obj)
+    def fetch_dynamic_master_variants(obj)
       obj.required_assembly_definition_variants
          .map(&:assembly_definition_part)
          .uniq
@@ -173,10 +178,8 @@ module Spree
          .map(&:master)
     end
 
-    def adjust_in_stock_cache_of_dynamic_assemblies(assemblies)
-      assemblies.each do |assembly|
-        variant_in_stock_cache_adjuster(assembly)
-      end
+    def adjust_in_stock_cache_for_dynamic_master_variants(variants)
+      variants.each(&method(:variant_in_stock_cache_adjuster))
     end
 
     def persist_updates

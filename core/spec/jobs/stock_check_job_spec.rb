@@ -970,17 +970,17 @@ describe Spree::StockCheckJob do
       end
     end
 
-    describe "fetch_dynamic_assemblies" do
+    describe "fetch_dynamic_dynamice_master_variants" do
       include_context "assembly definition"
 
       subject      { described_class.new(variant_part) }
       let(:master) { variant.product.master }
       
-      it { expect(subject.send(:fetch_dynamic_master_variant, adp)).to eq [master] }
+      it { expect(subject.send(:fetch_dynamic_master_variants, adp)).to eq [master] }
 
       context "when assemblies_definition is deleted" do
         before { adp.destroy! }
-        it     { expect(subject.send(:fetch_dynamic_master_variant, adp)).to be_empty }
+        it     { expect(subject.send(:fetch_dynamic_master_variants, adp)).to be_empty }
       end
     end
   end
