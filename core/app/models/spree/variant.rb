@@ -23,6 +23,7 @@ module Spree
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants, class_name: "Spree::OptionValue"
 
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
+    has_one :part_image, class_name: "PartImage"
 
     has_many :variant_targets, class_name: 'Spree::VariantTarget', dependent: :destroy
     has_many :targets, class_name: 'Spree::Target', through: :variant_targets
