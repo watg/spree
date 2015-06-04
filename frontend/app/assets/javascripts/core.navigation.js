@@ -81,9 +81,15 @@ core.Navigation.showSubNavigationMobile = function(e) {
 };
 
 core.Navigation.showSecondarySubNavigationMobile = function(e) {
-  $('.sub-menu').on({
+  var sub_menus = $('.sub-menu');
+
+  sub_menus.on({
     click: function(e) {
     e.preventDefault();
+      // Close all others first...
+      sub_menus.not(this).closest('li').removeClass('expanded').addClass('hidden');
+
+      // Open this one
       var dropdown = $(this).closest('li');
       dropdown.toggleClass('hidden');
       dropdown.toggleClass('expanded');
