@@ -11,9 +11,9 @@ module Spree
         @outcome = UploadImageToS3Service.run(
           image: image,
           params: params,
-          partial: 'image'
+          partial: "image"
         )
-        render 'spree/admin/shared/s3_callback'
+        render "spree/admin/shared/s3_callback"
       end
 
       def update

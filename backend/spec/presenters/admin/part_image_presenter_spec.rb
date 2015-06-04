@@ -15,10 +15,13 @@ describe ::Admin::PartImagePresenter, type: :presenter do
 
     context "image has been processed" do
       let(:attachment) { double(url: "image_url") }
-      it "returns processed image url" do
+
+      before do
         allow(part_image).to receive(:processed?).and_return(true)
         allow(part_image).to receive(:attachment).and_return(attachment)
+      end
 
+      it "returns processed image url" do
         expect(part_image).to receive(:attachment)
         subject.image_url
       end

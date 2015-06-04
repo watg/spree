@@ -11,13 +11,8 @@ module Admin
     end
 
     def image_url
-      if part_image.processed?
-        link_to image_tag(part_image.attachment.url(:small),
-                          style: "max-width: 100px"), product_attachment
-      else
-        link_to image_tag(part_image.direct_upload_url,
-                          style: "max-width: 100px"), product_attachment
-      end
+      img = part_image.processed? ? part_image.attachment.url(:small) : part_image.direct_upload_url
+      link_to image_tag(img, style: "max-width: 100px"), product_attachment
     end
 
     private

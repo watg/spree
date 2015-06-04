@@ -11,7 +11,7 @@ describe Spree::UploadImageToS3Service do
       "filesize" => "165405",
       "filetype" => "image/jpeg",
       "unique_id" => "booyeah",
-      "image" =>  {
+      "image" => {
         "direct_upload_url" => "https://watg-development.s3.amazonaws.com/uploads%2F1432291472710-booyeah-f334fdca469bb0d20e806988c733959d%2Fthefile.jpg"
       }
     }
@@ -46,7 +46,7 @@ describe Spree::UploadImageToS3Service do
             "filesize" => "165405",
             "filetype" => "image/jpeg",
             "unique_id" => "booyeah",
-            "image" =>  {
+            "image" => {
               "direct_upload_url" => "https://amazon%thefile.jpg"
             }
           }

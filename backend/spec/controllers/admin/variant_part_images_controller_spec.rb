@@ -7,6 +7,18 @@ describe ::Admin::VariantPartImagesController, type: :controller do
     let(:variant) { mock_model(Spree::Variant) }
     let(:product) { mock_model(Spree::Product) }
     let(:image) { mock_model(::PartImage) }
+    let(:params) do
+      {
+        format: "js",
+        filename: "foo",
+        filetype: "jpg",
+        filesize: 2,
+        part_image: {
+          direct_upload_url: "www.mysupercomputer.ninja"
+        },
+        variant_id: variant.id
+      }
+    end
 
     before do
       allow(variant).to receive(:id).and_return(1)
@@ -18,17 +30,6 @@ describe ::Admin::VariantPartImagesController, type: :controller do
         allow(variant).to receive(:part_image).and_return(image)
         allow(Spree::Variant).to receive(:find).and_return(variant)
 
-        params = {
-          format: "js",
-          filename: "foo",
-          filetype: "jpg",
-          filesize: 2,
-          part_image: {
-            direct_upload_url: "www.mysupercomputer.ninja"
-          },
-          variant_id: variant.id
-        }
-
         expect(Spree::UploadImageToS3Service).to_not receive(:run)
         spree_post :s3_callback, params
       end
@@ -39,18 +40,6 @@ describe ::Admin::VariantPartImagesController, type: :controller do
         allow(variant).to receive(:part_image).and_return(nil)
 
         allow(Spree::Variant).to receive(:find).and_return(variant)
-
-        params = {
-          format: "js",
-          filename: "foo",
-          filetype: "jpg",
-          filesize: 2,
-          part_image: {
-            direct_upload_url: "www.mysupercomputer.ninja"
-          },
-          variant_id: variant.id
-        }
-
         expect(Spree::UploadImageToS3Service).to receive(:run)
         spree_post :s3_callback, params
       end

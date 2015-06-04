@@ -1,13 +1,13 @@
 module Spree
   class UpdateImageService < ActiveInteraction::Base
 
-      interface :image, methods: %i[update_attributes]
+    interface :image, methods: %i[update_attributes]
 
-      integer :variant_id, default: nil
-      string :target_id, default: nil
-      string :personalisation_id, default: nil
-      string :activate_personalisation, default: nil
-      string :alt, default: nil
+    integer :variant_id, default: nil
+    string :target_id, default: nil
+    string :personalisation_id, default: nil
+    string :activate_personalisation, default: nil
+    string :alt, default: nil
 
     def execute
       if variant_id || personalisation_id

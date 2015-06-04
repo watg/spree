@@ -14,7 +14,7 @@ module Spree
                                   attachment_content_type
                                   processed?]
 
-    string :partial, default: 'image'
+    string :partial, default: "image"
     transaction false
 
     hash :params do
