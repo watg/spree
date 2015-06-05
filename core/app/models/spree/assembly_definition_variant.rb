@@ -6,6 +6,8 @@ class Spree::AssemblyDefinitionVariant < ActiveRecord::Base
 
   validates_presence_of :variant_id, :assembly_definition_part_id
 
+  before_create :set_assembly_product
+
   def part_prices
     variant.part_prices
   end
@@ -16,4 +18,11 @@ class Spree::AssemblyDefinitionVariant < ActiveRecord::Base
     Spree::Variant.unscoped { super }
   end
 
+  private
+
+  def set_assembly_product
+    if assembly_definition_part.assembly_definition
+      self.assembly_product = assembly_definition_part.assembly_definition.variant.product
+    end
+  end
 end
