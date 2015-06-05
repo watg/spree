@@ -26,6 +26,10 @@ $(document).on('ready page:load', function() {
   if ($('body').hasClass('hang-with-the-gang')) {
     core.Static.readyOlapicGallery();
   }
+
+  if ($('body').hasClass('gang-labs')) {
+    core.Static.readyTabs();
+  }
 });
 
 $(window).bind('load', function() {
@@ -118,6 +122,25 @@ core.Static.fancyboxModal = function() {
       closeEffect : 'none',
       helpers : {
       media : {}
+    }
+  });
+}
+
+core.Static.readyTabs = function() {
+  var tab_links = $('.row-tabs a');
+  var tab_content = $('.row-tab-content');
+
+  tab_links.on({
+    click: function(e) {
+      e.preventDefault();
+      tab_links.removeClass('selected');
+      $(this).addClass('selected');
+
+      var tab_id = $(this).attr('href');
+      if ($(tab_id)) {
+        tab_content.removeClass('selected');
+        $(tab_id).addClass('selected');
+      }
     }
   });
 }

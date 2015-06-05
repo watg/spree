@@ -1344,3 +1344,139 @@ body.thank-you {
 		}
 	}
 }
+
+/* Gang Labs #4 */
+.gang-labs {
+  .row-shipping-and-contact + .container > div.row {
+    max-width: none !important;
+  }
+  .row-intro, .row-tabs, .row-tab-content {
+		margin: 0 auto;
+		position: relative;
+		max-width: 62.5em;
+  }
+	a {
+		text-decoration: underline;
+	}
+
+	/* Hero row */
+	.row-hero {
+		margin-bottom: emCalc(60px);
+		min-height: 406px;
+		background: #fff url("https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/Gang_Labs_4_DESKTOP_banner.jpg") top center no-repeat;
+		/*background: #fff cdn-url("/static/Gang_Labs_4_DESKTOP_banner.jpg") top center no-repeat;*/
+		@media only screen and (max-width: 48em) {
+			min-height: 280px;
+			background: #fff url("https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/Gang_Labs_4_MOBILE_banner.jpg") top center no-repeat
+			/*background: #fff cdn-url("/static/Gang_Labs_4_MOBILE_banner.jpg") top center no-repeat;*/
+		}
+		h1 {
+			margin: 436px -0.1em 0 0;
+			padding-bottom: emCalc(5px);
+			font-size: emCalc(90px);
+			text-align: center;
+			letter-spacing: 0.1em;
+		}
+		@media only screen and (max-width: 48em) {
+			margin: 295px -0.1em 0 0;
+		}
+		hr {
+			margin: 0 auto;
+			width: 480px;
+			border: none;
+			height: 5px;
+			color: #222;
+			background-color: #222;
+		}
+		hr + p {
+			margin: -50px auto 0;
+			background-color: #fff;
+			font-family: $watg-font;
+			font-size: emCalc(60px);
+			text-align: center;
+			width: 100px;
+		}
+	}
+	/* Intro row */
+	.row-intro {
+		margin-bottom: emCalc(90px);
+		h2 {
+			font-family: $watg-font-secondary-light;
+			font-size: emCalc(30px);
+			text-align: center;
+			strong {
+				font-family: $watg-font-secondary;
+				font-weight: normal;
+			}
+		}
+	}
+	/* Tabs row */
+	.row-tabs {
+		margin-bottom: emCalc(90px);
+		ul {
+			li {
+				margin-right: 90px;
+				font-family: $watg-font;
+				font-size: emCalc(20px);
+				text-transform: uppercase;
+				display: inline-block;
+				text-align: center;
+				a {
+					padding-bottom: emCalc(5px);
+					text-decoration: none;
+					border-bottom: 5px solid transparent;
+					color: #808080;
+					outline: 0;
+				}
+				a:hover, a.selected {
+					border-bottom: 5px solid #222;
+					color: #222;
+				}
+			}
+			li:last-child {
+				margin-right: 0;
+			}
+		}
+	}
+	/* Tabbed row */
+	.row-tab-content {
+		margin-bottom: emCalc(60px);
+		display: none;
+		.large-3, .large-9 {
+			border-top: 3px solid #222;
+		}
+		.large-3 {
+			h3 {
+				margin: 0;
+				padding: emCalc(10px);
+				font-size: emCalc(22px);
+				text-align: center;
+				background-color: #222;
+				color: #fff;
+			}
+		}
+		.large-9 {
+			padding-top: emCalc(20px);
+			font-size: emCalc(18px);
+			ul {
+				i {
+					font-size: 2em;
+					min-width: 50px;
+					min-height: 50px;
+					text-align: center;
+				}
+			}
+		}
+		.box {
+			padding: emCalc(15px);
+			border: 2px solid #222;
+			p {
+				margin: 0;
+			}
+		}
+	}
+	.row-tab-content.selected {
+		display: inherit;
+	}
+}
+
