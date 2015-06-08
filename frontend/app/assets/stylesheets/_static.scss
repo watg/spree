@@ -1363,13 +1363,11 @@ body.thank-you {
 	.row-hero {
 		margin-bottom: emCalc(60px);
 		min-height: 406px;
-		background: #fff url("https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/Gang_Labs_4_DESKTOP_banner.jpg") top center no-repeat;
-		/*background: #fff cdn-url("/static/Gang_Labs_4_DESKTOP_banner.jpg") top center no-repeat;*/
+		background: #fff cdn-url("/static/Gang_Labs_4_DESKTOP_banner.jpg") top center no-repeat;
 		@media only screen and (max-width: 48em) {
 			margin-bottom: emCalc(30px);
 			min-height: 280px;
-			background: #fff url("https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/Gang_Labs_4_MOBILE_banner.jpg") top center no-repeat
-			/*background: #fff cdn-url("/static/Gang_Labs_4_MOBILE_banner.jpg") top center no-repeat;*/
+			background: #fff cdn-url("/static/Gang_Labs_4_MOBILE_banner.jpg") top center no-repeat;
 		}
 		h1 {
 			margin: 436px -0.1em 0 0;
