@@ -11,11 +11,9 @@ describe Spree::Variant do
       expect(variant_in_stock.in_stock?).to be true
       expect(variant.in_stock?).to be false
     end
-
   end
 
   context '#part_prices' do
-
     before do
       variant.prices.map { |p| p.amount = 1;  p.is_kit=true; p.save }
     end
@@ -24,7 +22,14 @@ describe Spree::Variant do
       variant.reload
       expect(variant.prices).to eq [variant.prices.first]
     end
+  end
 
+  context "#extra_parts" do
+    subject     { create(:variant) }
+    let!(:asp)  { create(:assembly_definition_part, assembly_product: subject.product) }
+    let!(:asp2) { create(:assembly_definition_part, assembly_product: subject.product) }
+
+    it { expect(subject.extra_parts).to match_array([asp, asp2]) }
   end
 
   describe '#total_on_hand' do
@@ -71,7 +76,6 @@ describe Spree::Variant do
       expect(variant).to receive(:inventory_units).and_return(inventory_units)
       variant.awaiting_feed
     end
-    
   end
 
   describe "#images_for" do

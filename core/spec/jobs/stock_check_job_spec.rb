@@ -43,7 +43,6 @@ describe Spree::StockCheckJob do
       expect(mock_variant).to receive(:touch)
       subject.send(:persist_updates)
     end
-    
   end
 
   describe "rebuild_suite_tab_cache" do
@@ -489,6 +488,8 @@ describe Spree::StockCheckJob do
         context "Kit is in stock but can supply if false" do
           before do
             variant.in_stock_cache = true
+            adp_opts = { assembly_product: variant.product, assembly_definition_id: 0 }
+            create(:assembly_definition_part, adp_opts)
             allow(variant).to receive(:can_supply?).and_return false
           end
 
@@ -684,23 +685,20 @@ describe Spree::StockCheckJob do
               subject.perform
               expect(variant.in_stock_cache).to be_truthy
             end
-
           end
-
-
         end
 
         context "more than 1 part" do
-
           let(:another_product_part)  { Spree::Product.new() }
           let(:another_variant_part)  { Spree::Variant.new(number: "V1111", product: another_product_part, in_stock_cache: false, updated_at: 2.days.ago) }
-          let(:another_adp) { Spree::AssemblyDefinitionPart.new(assembly_definition: assembly_definition, product: another_product_part, optional: false) }
+          let(:another_adp) { Spree::AssemblyDefinitionPart.new(adp_opts) }
+          let(:adp_opts) { { assembly_product: product, part_product: another_product_part } }
           let(:another_adv) { Spree::AssemblyDefinitionVariant.new(assembly_definition_part: adp, variant: variant_part) }
 
           before(:each) do
             another_variant_part.assembly_definition_variants << another_adv
             another_adp.variants << another_variant_part
-            assembly_definition.parts << another_adp
+            product.extra_parts << another_adp
           end
 
           context "and one of them is in stock (required) the other is out of stock ( required )" do
@@ -892,23 +890,26 @@ describe Spree::StockCheckJob do
 
     context "Dynamic kit where part is a static kit" do
       let!(:product) { create(:base_product, name: "My Product", description: "Product Description") }
-      let!(:variant) { create(:base_variant, product: product, in_stock_cache: true, number: "V1234", updated_at: 1.day.ago) }
+      let!(:variant) { create(:master_variant, variant_opts) }
+      let(:variant_opts) { { product: product, in_stock_cache: true, updated_at: 1.day.ago } }
 
       let!(:product_part)  { create(:base_product) }
-      let!(:static_kit) {create(:base_variant, in_stock_cache: true, product: product_part)}
-      let!(:static_kit_part) {create(:base_variant, in_stock_cache: true)}
+      let!(:static_kit) { create(:master_variant, static_kit_opts) }
+      let(:static_kit_opts) { { in_stock_cache: true, product: product_part, number: "99999" } }
+      let!(:static_kit_part) { create(:master_variant, in_stock_cache: true, number: "bite_me") }
       let!(:ap) do
         Spree::StaticAssembliesPart.create(part_id: static_kit_part.id, assembly_id: static_kit.id, assembly_type: 'Spree::Variant', count: 1, optional: false)
       end
 
-      let!(:assembly_definition) { create(:assembly_definition, variant: variant) }
-      let!(:adp) { Spree::AssemblyDefinitionPart.create(assembly_definition: assembly_definition, product: product_part, optional: false) }
+      let!(:adp) { create(:assembly_definition_part, adp_opts) }
+      let!(:adp_opts) { { assembly_product: variant.product, part_product: product_part } }
       let!(:adv) { Spree::AssemblyDefinitionVariant.create(assembly_definition_part: adp, variant: static_kit) }
 
       subject { Spree::StockCheckJob.new(static_kit_part) }
 
       before do
         allow(subject).to receive(:rebuild_suite_tab_cache)
+        product.master = variant
       end
 
       context "static kit part is going out of stock" do
@@ -923,7 +924,7 @@ describe Spree::StockCheckJob do
           expect(variant.reload.in_stock_cache).to be_falsey
         end
 
-        it "does rigger the suite_tab_cache_rebuilder" do
+        it "does trigger the suite_tab_cache_rebuilder" do
           expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
           subject.perform
         end
@@ -931,12 +932,11 @@ describe Spree::StockCheckJob do
       end
 
       context "is coming into stock" do
-        let!(:variant) { create(:base_variant, product: product, in_stock_cache: false, number: "V1234", updated_at: 1.day.ago) }
-        let!(:static_kit_part) {create(:base_variant, in_stock_cache: false)}
+        let(:variant)         { create(:master_variant, variant_opts) }
+        let(:variant_opts)    { { product: product, in_stock_cache: false, updated_at: 1.day.ago } }
+        let(:static_kit_part) { create(:base_variant, in_stock_cache: false) }
 
-        before do
-          allow(static_kit_part).to receive(:can_supply?).and_return true
-        end
+        before { allow(static_kit_part).to receive(:can_supply?).and_return true }
 
         it "set the in_stock value to true" do
           expect(variant.in_stock_cache).to be_falsey
@@ -944,7 +944,7 @@ describe Spree::StockCheckJob do
           expect(variant.reload.in_stock_cache).to be_truthy
         end
 
-        it "does rigger the suite_tab_cache_rebuilder" do
+        it "triggers the suite_tab_cache_rebuilder" do
           expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
           subject.perform
         end
@@ -969,23 +969,17 @@ describe Spree::StockCheckJob do
       end
     end
 
-    describe "fetch_dynamic_assemblies" do
+    describe "fetch_dynamic_master_variants" do
       include_context "assembly definition"
 
-      subject { described_class.new(variant_part) }
+      subject      { described_class.new(variant_part) }
+      let(:master) { variant.product.master }
 
-      it "returns no assemblies" do
-        expect(subject.send(:fetch_dynamic_assemblies, adp)).to eq [assembly_definition]
-      end
+      it { expect(subject.send(:fetch_dynamic_master_variants, adp)).to eq [master] }
 
       context "when assemblies_definition is deleted" do
-        before do
-          assembly_definition.delete
-        end
-
-        it "returns no assemblies" do
-          expect(subject.send(:fetch_dynamic_assemblies, adp)).to be_empty
-        end
+        before { adp.destroy! }
+        it     { expect(subject.send(:fetch_dynamic_master_variants, adp)).to be_empty }
       end
     end
   end

@@ -4,7 +4,7 @@ describe Spree::Jobs::AddVariantToAssemblyPart do
 
   let(:assembly_definition) { create(:assembly_definition, variant: create(:base_variant) ) }
   let(:assembly_definition_part) { create(:assembly_definition_part, assembly_definition: assembly_definition)}
-  let(:part_product) { assembly_definition_part.product }
+  let(:part_product) { assembly_definition_part.part_product }
 
   let(:variant) { create(:base_variant) }
 

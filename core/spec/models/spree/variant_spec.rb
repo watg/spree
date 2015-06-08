@@ -74,7 +74,6 @@ describe Spree::Variant, :type => :model do
         variant.save
       end
     end
-
   end
 
   context "physical" do
@@ -670,7 +669,8 @@ describe Spree::Variant, :type => :model do
       let(:assembly_definition) { create(:assembly_definition, variant: variant) }
       let(:variant_part)  { create(:variant) }
       let(:product_part)  { variant_part.product }
-      let(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: product_part) }
+      let(:adp)  { create(:assembly_definition_part, adp_opts) }
+      let(:adp_opts) { { assembly_product: variant.product, part_product: product_part } }
       let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
 
 

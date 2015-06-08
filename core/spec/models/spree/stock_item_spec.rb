@@ -441,6 +441,7 @@ describe Spree::StockItem, :type => :model do
   end
 
   describe "#after_touch" do
+    before { Timecop.return }
     it "touches its variant" do
       expect do
         subject.touch
