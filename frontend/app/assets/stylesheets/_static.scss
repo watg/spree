@@ -1459,19 +1459,35 @@ body.thank-you {
 			padding-top: emCalc(20px);
 			font-size: emCalc(18px);
 			ul {
-				i {
-					font-size: 2em;
-					min-width: 50px;
-					min-height: 50px;
-					text-align: center;
+				li {
+					overflow: hidden;
+					i {
+						font-size: 2em;
+						min-width: 50px;
+						min-height: 50px;
+						text-align: center;
+					}
+					img {
+						margin: 0 emCalc(20px) emCalc(10px) 0;
+						float: left;
+					}
 				}
 			}
-		}
-		.box {
-			padding: emCalc(15px);
-			border: 2px solid #222;
-			p {
-				margin: 0;
+			ol {
+				list-style-position: inside;
+				li {
+					margin-bottom: 1em;
+				}
+				li:last-child {
+					margin: 0;
+				}
+			}
+			.box {
+				padding: emCalc(15px);
+				border: 2px solid #222;
+				p {
+					margin: 0;
+				}
 			}
 		}
 	}
