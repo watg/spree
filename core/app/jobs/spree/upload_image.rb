@@ -1,4 +1,6 @@
 module Spree
+  include ::Images::S3Callbacks
+
   UploadImage = Struct.new(:image, :direct_upload_url_format) do
     def perform
       direct_upload_url_data = direct_upload_url_format.match(image.direct_upload_url)
@@ -10,7 +12,6 @@ module Spree
         Helpers::AirbrakeNotifier.notify(error.message)
         return
       end
-
       image.find_dimensions
       image.save!
 

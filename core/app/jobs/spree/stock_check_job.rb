@@ -31,7 +31,7 @@ module Spree
     end
 
     def dynamic_assembly?
-      !variant.assembly_definition.nil?
+      variant.extra_parts?
     end
 
     def adjust_static_assembly
@@ -42,7 +42,7 @@ module Spree
     end
 
     def adjust_dynamic_assembly
-      out_of_stock = variant.assembly_definition.parts.detect do |part|
+      out_of_stock = variant.extra_parts.detect do |part|
         part.required? && part.variants.all? do |part_variant|
           part_out_of_stock?(part_variant)
         end
@@ -100,7 +100,6 @@ module Spree
       variant_in_stock_cache_adjuster(variant_to_check)
 
       update_assemblies_in_stock_cache
-
       persist_updates
       rebuild_suite_tab_caches
     end
@@ -113,18 +112,18 @@ module Spree
     end
 
     def update_assemblies_in_stock_cache
-      parts_accumilator = [variant_to_check]
+      obj_accumilator = [variant_to_check]
 
-      while parts_accumilator.any?
-        part = parts_accumilator.shift
+      while obj_accumilator.any?
+        obj = obj_accumilator.shift
+        static_assemblies = fetch_static_assemblies(obj)
+        adjust_in_stock_cache_of_static_assemblies(static_assemblies, obj)
+        obj_accumilator += static_assemblies
 
-        static_assemblies = fetch_static_assemblies(part)
-        adjust_in_stock_cache_of_static_assemblies(static_assemblies, part)
-        parts_accumilator += static_assemblies
+        dynamic_master_variants = fetch_dynamic_master_variants(obj)
+        adjust_in_stock_cache_for_dynamic_master_variants(dynamic_master_variants)
 
-        dynamic_assemblies = fetch_dynamic_assemblies(part)
-        adjust_in_stock_cache_of_dynamic_assemblies(dynamic_assemblies)
-        parts_accumilator += dynamic_assemblies.map(&:variant)
+        obj_accumilator += dynamic_master_variants
       end
     end
 
@@ -165,17 +164,22 @@ module Spree
       end
     end
 
-    def fetch_dynamic_assemblies(part)
-      asm_def_variants = part.assembly_definition_variants.select do |asm_def_variant|
-        asm_def_variant.assembly_definition_part.required?
-      end
-      asm_def_variants.map(&:assembly_definition_part).map(&:assembly_definition).uniq.compact
+    def fetch_dynamic_master_variants(obj)
+      required_assembly_definition_variants(obj)
+        .map(&:assembly_product)
+        .uniq
+        .compact
+        .map(&:master)
     end
 
-    def adjust_in_stock_cache_of_dynamic_assemblies(assemblies)
-      assemblies.each do |assembly|
-        variant_in_stock_cache_adjuster(assembly.variant)
-      end
+    def required_assembly_definition_variants(obj)
+      obj.assembly_definition_variants
+        .map(&:assembly_definition_part)
+        .select(&:required?)
+    end
+
+    def adjust_in_stock_cache_for_dynamic_master_variants(variants)
+      variants.each(&method(:variant_in_stock_cache_adjuster))
     end
 
     def persist_updates

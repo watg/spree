@@ -23,6 +23,7 @@ module Spree
     has_and_belongs_to_many :option_values, join_table: :spree_option_values_variants, class_name: "Spree::OptionValue"
 
     has_many :images, -> { order(:position) }, as: :viewable, dependent: :destroy, class_name: "Spree::Image"
+    has_one :part_image, class_name: "PartImage"
 
     has_many :variant_targets, class_name: 'Spree::VariantTarget', dependent: :destroy
     has_many :targets, class_name: 'Spree::Target', through: :variant_targets
@@ -139,6 +140,14 @@ module Spree
 
     def is_master_but_has_variants?
       self.is_master? and self.product.variants and self.product.variants.any?
+    end
+
+    def extra_parts?
+      extra_parts.any?
+    end
+
+    def extra_parts
+      product.extra_parts
     end
 
     def generate_variant_number(force: false)

@@ -2,23 +2,12 @@
 require 'spec_helper'
 
 describe Spree::AssemblyDefinitionPart do
-
+  subject { create(:assembly_definition_part, adp_opts) }
+  let(:adp_opts) { { assembly_product: assembly_product, part_product: part } }
   let(:variant)  { create(:base_variant) }
   let(:assembly_product) { variant.product }
   let(:part)  { create(:base_product) }
-  let(:assembly_definition) { create(:assembly_definition, variant: variant) }
   let(:colour)   { create(:option_type, name: 'colour', position: 2 )}
-  subject { create(:assembly_definition_part, assembly_definition: assembly_definition, product: part, displayable_option_type: colour ) }
-
-
-  context "set_assembly_product" do
-    it "set assembly product before create" do
-      adp = Spree::AssemblyDefinitionPart.new(assembly_definition_id: assembly_definition.id, product_id: part.id,  displayable_option_type: colour )
-      expect(adp.assembly_product).to be_nil
-      adp.save
-      expect(adp.assembly_product).to_not be_nil
-    end
-  end
 
   context "touch" do
 
@@ -40,12 +29,8 @@ describe Spree::AssemblyDefinitionPart do
   end
 
   context "when add all variants is set to true (default)" do
-
     it 'sets add_all_available_variants to true by default' do
       expect(subject.add_all_available_variants).to be true
     end
-
   end
-
 end
-

@@ -13,18 +13,18 @@ describe Spree::LineItemOptionsParser do
     let(:monogram) { create(:personalisation_monogram, product: product) }
     let(:expected_personalisations) { [
       Spree::LineItemPersonalisation.new(
-        personalisation_id: monogram.id, 
-        line_item_id: nil, 
+        personalisation_id: monogram.id,
+        line_item_id: nil,
         amount: BigDecimal.new('10.0'),
-        data: {"colour"=>monogram.colours.first.id, "initials"=>"XXX"}, 
+        data: { "colour" => monogram.colours.first.id, "initials"=>"XXX" },
         created_at: nil,
         updated_at: nil)
     ] }
 
     it "calls order contents correctly" do
       params = {
-        :enabled_pp_ids=>[monogram.id], 
-        :pp_ids=>{
+        enabled_pp_ids: [monogram.id],
+        pp_ids: {
           monogram.id=>{
             "colour"=>monogram.colours.first.id,
             "initials"=>"XXX"
@@ -39,14 +39,18 @@ describe Spree::LineItemOptionsParser do
   end
 
   context "#parts" do
-
     context "dynamic kits" do
-
       let!(:variant_assembly) { create(:variant) }
-      let!(:assembly_definition) { create(:assembly_definition, variant: variant_assembly) }
+      let!(:assem_def) { create(:assembly_definition, variant: variant_assembly) }
       let!(:variant_part)  { create(:base_variant, product: product, prices: [price]) }
       let!(:price) { create(:price, price: 2.99, sale: false, is_kit: true, price_type: "part", currency: 'USD') }
-      let!(:adp) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: product, count: 2, assembled: true) }
+      let!(:adp) do
+        create(:assembly_definition_part,
+               assembly_definition: assem_def,
+               part_product: product,
+               count: 2,
+               assembled: true)
+      end
       let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
 
       let(:expected_parts) { [
@@ -87,9 +91,9 @@ describe Spree::LineItemOptionsParser do
           adp.assembled = true
           adp.optional = true
           adp.save
-          assembly_definition.reload
-          assembly_definition.main_part = adp
-          assembly_definition.save
+          assem_def.reload
+          assem_def.main_part = adp
+          assem_def.save
         end
 
         context "non required part" do
@@ -117,20 +121,21 @@ describe Spree::LineItemOptionsParser do
       context "valid params" do
 
         let(:bogus_variant_assembly) { create(:variant) }
-        let(:bogus_assembly_definition) { create(:assembly_definition, variant: bogus_variant_assembly) }
+        let(:bogus_ad) { create(:assembly_definition, variant: bogus_variant_assembly) }
         let(:bogus_product_part)  { create(:base_product) }
         let(:bogus_variant_part)  { create(:base_variant, product: bogus_product_part) }
-        let(:bogus_adp) { create(:assembly_definition_part, assembly_definition: bogus_assembly_definition, product: bogus_product_part) }
+        let(:bogus_adp) { create(:assembly_definition_part, bogus_adp_opts) }
+        let(:bogus_adp_opts) { { assembly_definition: bogus_ad, part_product: bogus_product_part } }
         let(:bogus_adv) { create(:assembly_definition_variant, assembly_definition_part: bogus_adp, variant: bogus_variant_part) }
 
         it "assembly variant must be valid" do
-          expect do 
+          expect do
             subject.dynamic_kit_parts(variant_assembly, {bogus_adp.id.to_s => variant_part.id})
           end.to raise_error
         end
 
         it "parts must be valid" do
-          expect do 
+          expect do
             subject.dynamic_kit_parts(variant_assembly, {bogus_adp.id.to_s => variant_part.id})
           end.to raise_error
         end
@@ -139,13 +144,13 @@ describe Spree::LineItemOptionsParser do
         let(:another_bogus_variant_part)  { create(:base_variant, product: product) }
 
         it "selected variant must be valid" do
-          expect do 
+          expect do
             subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => another_bogus_variant_part.id.to_s})
           end.to raise_error
         end
 
         it "selected variant can not be nil" do
-          expect do 
+          expect do
             subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => ""})
           end.to raise_error
         end
@@ -175,19 +180,18 @@ describe Spree::LineItemOptionsParser do
           end
 
           it "returns no missing parts if the value is set to no_thanks" do
-            outcome = subject.missing_parts(variant_assembly, 
+            outcome = subject.missing_parts(variant_assembly,
               {adp.id.to_s => Spree::AssemblyDefinitionPart::NO_THANKS})
             expect(outcome).to eq Hash.new
           end
-
         end
-
       end
 
       context "when the part has parts of its own (old kit in an assembly)" do
         let(:other_product)  { create(:base_product) }
         let(:other_variant)  { create(:base_variant, product: other_product) }
-        let(:other_part) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: other_product, count: 1) }
+        let(:other_part) { create(:assembly_definition_part, op_opts) }
+        let(:op_opts)  { { assembly_definition: assem_def, part_product: other_product, count: 1 } }
         let!(:other_part_variant) { create(:assembly_definition_variant, assembly_definition_part: other_part, variant: other_variant) }
 
         # Override the price to 0 as this is now a container
@@ -362,14 +366,6 @@ describe Spree::LineItemOptionsParser do
           expect(subject.send(:part_price_amount, variant)).to eq price.amount
         end
       end
-
-
- 
-
-
     end
-
   end
-
 end
-

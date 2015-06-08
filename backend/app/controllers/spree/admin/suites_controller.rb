@@ -6,10 +6,7 @@ module Spree
         image = SuiteImage.where(viewable: @suite).first_or_create
         @outcome = UploadImageToS3Service.run(
           image: image,
-          attachment_file_name: params[:filename],
-          attachment_content_type: params[:filetype],
-          attachment_file_size: params[:filesize],
-          direct_upload_url: params[:image][:direct_upload_url]
+          params: params
         )
       end
 

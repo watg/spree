@@ -1,6 +1,6 @@
 <% if @outcome.valid? %>
   <% snippet = nil %>
-  <% ActionView::Helpers::FormBuilder.new(:assembly_definition, @assembly_definition, self, {}).fields_for(:images, :child_index => @outcome.result.id) do |image_form| %>
+  <% ActionView::Helpers::FormBuilder.new(:assembly_definition, @assembly_definition, self, {}).fields_for(:images, :child_index => @outcome.result.image.id) do |image_form| %>
     <% snippet = capture do %>
       <%= render 'spree/admin/assembly_definition_images/image', :f => image_form %>
     <% end %>
@@ -11,6 +11,5 @@
   $('#images_table_body').append('<%= j snippet %>');
   activateSelect2();
 <% else %>
-  $('#upload_<%=params[:unique_id]%> div.progress').removeClass('active progress-striped').
-  addClass('progress-danger').append('<div><%= escape_javascript(@outcome.errors.message) %></div>');
+  show_flash('error', '<%= @outcome.errors.full_messages.to_sentence %>');
 <% end %>
