@@ -1489,6 +1489,9 @@ body.thank-you {
 					margin: 0;
 				}
 			}
+			img + .box {
+				margin-top: emCalc(30px);
+			}
 		}
 	}
 	.row-tab-content.selected {
