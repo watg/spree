@@ -1475,6 +1475,7 @@ body.thank-you {
 			padding-top: emCalc(45px);
 			font-size: emCalc(18px);
 			@media only screen and (max-width: 48em) {
+				padding-top: emCalc(20px);
 				font-size: emCalc(16px);
 			}
 			ul {
@@ -1489,12 +1490,20 @@ body.thank-you {
 							display: none;
 						}
 					}
-					img {
+					img:first-child {
 						margin: 0 emCalc(20px) emCalc(10px) 0;
 						float: left;
 						@media only screen and (max-width: 48em) {
 							margin-bottom: emCalc(40px);
 						}
+					}
+					img + a {
+						margin-top: emCalc(10px);
+						font-family: $watg-font;
+						font-size: emCalc(22px);
+						text-align: center;
+						text-transform: uppercase;
+						display: block;
 					}
 				}
 			}
