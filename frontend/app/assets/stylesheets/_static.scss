@@ -1498,10 +1498,6 @@ body.thank-you {
 						text-transform: uppercase;
 						display: block;
 					}
-					h5 + img,
-					h5 + p + img {
-						margin: emCalc(10px) 0;
-					}
 				}
 			}
 			ol {
@@ -1519,6 +1515,10 @@ body.thank-you {
 				p {
 					margin: 0;
 				}
+			}
+			h5 + img,
+			h5 + p + img {
+				margin: emCalc(10px) 0;
 			}
 			img + .box {
 				margin-top: emCalc(30px);
