@@ -1517,7 +1517,8 @@ body.thank-you {
 				}
 			}
 			h5 + img,
-			h5 + p + img {
+			h5 + a,
+			h5 + p + a {
 				margin: emCalc(10px) 0;
 			}
 			img + .box {
