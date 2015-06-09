@@ -3,10 +3,6 @@ module Spree
     class AssemblyDefinitionsController < ResourceController
       before_filter :load_data, :only => [:new, :create, :edit, :update]
 
-      def load_data
-        @product = @assembly_definition.variant.product
-      end
-
       def edit
         @assembly_definition = Spree::AssemblyDefinition.find(params[:id])
         @product = @assembly_definition.variant.product
@@ -38,7 +34,12 @@ module Spree
       def collection_url(opts={})
         edit_admin_assembly_definition_path(@assembly_definition)
       end
-      
+
+      private
+
+      def load_data
+        @product = @assembly_definition.variant.product
+      end
     end
   end
 end
