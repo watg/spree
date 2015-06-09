@@ -23,6 +23,20 @@ module Search
         expect(searcher.results.length).to eq(2)
       end
 
+      context "non indexable suites" do
+        before do
+          suite1.indexable = false
+          suite1.save
+        end
+
+        it "does not return suite that are not indexable" do
+          params = {}
+          searcher = described_class.new(params)
+          expect(searcher.results.length).to eq(1)
+          expect(searcher.results).to_not include(suite1)
+        end
+      end
+
       it "switches to next page according to the page parameter" do
         create(:suite, :with_tab, title: "RoR Pants")
 

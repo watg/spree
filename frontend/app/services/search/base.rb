@@ -18,7 +18,6 @@ module Search
     private
 
     def calc_per_page(params)
-
       @per_page = if params.key?(:per_page) && params[:per_page].to_i > 0
                     params[:per_page].to_i
                   else
@@ -35,7 +34,7 @@ module Search
       )
     end
 
-    def filtered_suites(scoped_suites = Spree::Suite.active, keywords = @keywords)
+    def filtered_suites(scoped_suites = Spree::Suite.active.indexable, keywords = @keywords)
       return scoped_suites.select("DISTINCT ON (spree_suites.id) spree_suites.*") if keywords.blank?
       # Wrap the query in a subquery, allowing the use of order on all fields
       subquery = scoped_suites.select("DISTINCT ON (spree_suites.id) spree_suites.*,
