@@ -36,6 +36,10 @@ module Spree
       option_values.where(option_type: displayable_option_type)
     end
 
+    def product
+      part_product
+    end
+
     def set_assembly_product
       self.assembly_product = assembly_definition.variant.product if assembly_definition
     end
