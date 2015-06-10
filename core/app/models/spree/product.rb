@@ -139,7 +139,7 @@ module Spree
     alias :options :product_option_types
 
     scope :assembly, lambda{
-      joins(:assembly_definition_parts)
+      joins(:extra_parts)
     }
 
     scope :not_assembly, lambda{

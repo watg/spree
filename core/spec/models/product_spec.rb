@@ -15,10 +15,12 @@ describe Spree::Product do
   end
 
   describe "#not_assembly" do
+    let(:part) { create(:product) }
+
     it "excludes products with assembly definition" do
-      create(:assembly_definition_part, part_product: subject, assembly_definition_id: 0)
-      expect(Spree::Product.all).to eq [subject]
-      expect(Spree::Product.all.not_assembly).to be_empty
+      create(:assembly_definition_part, assembly_product: subject, part_product: part)
+      expect(Spree::Product.all).to eq([part, subject])
+      expect(Spree::Product.all.not_assembly).to eq([part])
     end
 
     it "includes kits without assembly definition" do
