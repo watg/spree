@@ -4,6 +4,14 @@ module Spree
 
     delegate :id, :name, :slug, :out_of_stock_override?, :product_type, to: :product
 
+    SHIPPING_PARTIALS = { "CA" => "ca",
+                          "CH" => "ch",
+                          "ES" => "es",
+                          "FR" => "fr",
+                          "GB" => "gb",
+                          "KR" => "kr",
+                          "US" => "us" }
+
     def has_variants?
       @has_variant ||= product.has_variants?
     end
@@ -89,13 +97,21 @@ module Spree
     end
 
     def delivery_partial
-      pattern? ? 'delivery_pattern' : 'delivery_default'
+      pattern? ? "delivery_pattern" : country_specific_partial
+    end
+
+    def country_specific_partial
+      if SHIPPING_PARTIALS[h.current_country_code]
+        "delivery_#{SHIPPING_PARTIALS[h.current_country_code]}"
+      else
+        "delivery_default"
+      end
     end
 
     def part_price_in_pence(part)
       method = (part.is_master ? :price_normal_in : :price_part_in)
       price = part.send(method, currency).price
-      ( price * 100 * part_quantity(part) ).to_i
+      (price * 100 * part_quantity(part)).to_i
     end
 
     def part_quantity(part)

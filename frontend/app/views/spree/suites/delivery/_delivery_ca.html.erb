@@ -1,24 +1,13 @@
 <h6>Shipping to Canada</h6>
-<% if free_shipping? %>
-<p>Free shipping on all orders over <%= free_shipping_amount %>.</p>
-<% end %>
 <table>
-	<caption>Shipping to Canada</caption>
 	<tbody>
 		<tr>
-			<th>Delivery time</th>
-			<td>DHL 5 working days of dispatch</td>
-		</tr>
-		<tr>
-			<th>Cost</th>
+			<td>3 business days</td>
 			<td>$15</td>
 		</tr>
-		<% if free_shipping? %>
-		<tr>
-			<th>Spend over <%= free_shipping_amount %></th>
-			<td>Free</td>
-		</tr>
-		<% end %>
 	</tbody>
 </table>
+
+<a href="/faqs#delivery">Full list of shipping destinations</a><br/><br/>
+
 <%= render '/spree/suites/delivery/delivery_additional' %>

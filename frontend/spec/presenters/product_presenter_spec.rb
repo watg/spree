@@ -1,15 +1,14 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::ProductPresenter do
-
   let(:product) { Spree::Product.new }
   let(:target) { Spree::Target.new }
+  let(:template) { { current_country_code: "US" } }
   let(:device) { :desktop }
-  let(:context) { { currency: 'USD', target: target, device: device }}
+  let(:context) { { currency: "USD", target: target, device: device } }
   let(:variant) { Spree::Variant.new }
 
-  subject { described_class.new(product, view, context) }
-
+  subject { described_class.new(product, target, context) }
 
   its(:id) { should eq product.id }
   its(:name) { should eq product.name }
@@ -21,7 +20,6 @@ describe Spree::ProductPresenter do
   its(:personalisations) { should eq product.personalisations }
   its(:personalisation_images) { should eq product.personalisation_images }
   its(:optional_parts_for_display) { should eq product.optional_parts_for_display }
-
 
   it "#variants should return only targetted variants that are in_stock" do
     mocked_variants = double
@@ -45,7 +43,7 @@ describe Spree::ProductPresenter do
     subject.variant_images
   end
 
-  context 'with assembly definition' do
+  context "with assembly definition" do
     let(:assembly_definition) { Spree::AssemblyDefinition.new }
     let(:assembly_definition_part) { Spree::AssemblyDefinitionPart.new }
 
@@ -59,28 +57,43 @@ describe Spree::ProductPresenter do
     its(:assembly_definition_parts) { should eq [assembly_definition_part] }
   end
 
-  describe '#video' do
+  describe "#video" do
     let(:product) { create(:product) }
 
-    context 'product has video' do
+    context "product has video" do
       before { product.videos.create(embed: "youtube embed") }
       it     { expect(subject.video).to eq product.videos.first.embed }
     end
 
-    context 'product does not have video' do
+    context "product does not have video" do
       it { expect(subject.video).to be_falsey }
     end
   end
 
-  describe '#delivery_partial' do
-    context 'product is a pattern' do
+  describe "#delivery_partial" do
+    let(:product) { create(:product) }
+    let(:template) { { current_country_code: "US" } }
+    subject { described_class.new(product, template, context) }
+
+    context "product is a pattern" do
       let(:product) { create(:product, :pattern) }
-      it { expect(subject.delivery_partial).to eq %[delivery_pattern] }
+      it { expect(subject.delivery_partial).to eq %(delivery_pattern) }
     end
 
-    context 'product is not a pattern' do
-      let(:product) { create(:product) }
-      it { expect(subject.delivery_partial).to eq %[delivery_default] }
+    context "product is not a pattern" do
+      context "customer is browsing from America" do
+        it "returns US specific partial" do
+          allow(template).to receive(:current_country_code).and_return("US")
+          expect(subject.delivery_partial).to eq %(delivery_us)
+        end
+      end
+
+      context "customer is not browsing from key country" do
+        it "returns default partial" do
+          allow(template).to receive(:current_country_code).and_return("RU")
+          expect(subject.delivery_partial).to eq %(delivery_default)
+        end
+      end
     end
   end
 
@@ -88,12 +101,12 @@ describe Spree::ProductPresenter do
     let(:variant) { Spree::Variant.new(prices: [price]) }
     let(:price)   { create(:price, sale: false, is_kit: true, amount: 9.99, part_amount: 5.99) }
 
-    context 'when variant is master' do
+    context "when variant is master" do
       before { variant.is_master = true }
       it     { expect(subject.part_price_in_pence(variant)).to eq 999 }
     end
 
-    context 'when variant is master' do
+    context "when variant is master" do
       before { variant.is_master = false }
       it     { expect(subject.part_price_in_pence(variant)).to eq 599 }
     end
@@ -109,9 +122,7 @@ describe Spree::ProductPresenter do
     end
   end
 
-
   ## Presenters
-
 
   describe "#sale_variant_or_first_variant_or_master" do
     it "returns an the first variant in stock when variants are available" do
@@ -132,8 +143,6 @@ describe Spree::ProductPresenter do
   end
 
   describe "#image_style" do
-
-
     context "desktop" do
       it "returns an image image style for the main image" do
         expect(subject.image_style).to eq :product
@@ -150,24 +159,20 @@ describe Spree::ProductPresenter do
   end
 
   context "#variant_options" do
-
     it "instantiates a new VariantOption object" do
       expect(Spree::VariantOptions).to receive(:new).with(subject.variants, subject.currency)
       subject.send(:variant_options)
     end
-
   end
 
   context "methods that delegate to variant_options" do
-
-    let(:variant_options) { double('variant_options')}
+    let(:variant_options) { double("variant_options") }
 
     before do
       allow(subject).to receive(:variant_options).and_return(variant_options)
     end
 
     describe "#option_types_and_values" do
-
       it "delegates to variant_options" do
         expect(variant_options).to receive(:option_types_and_values_for).with(subject.sale_variant_or_first_variant_or_master)
         subject.option_types_and_values
@@ -175,7 +180,6 @@ describe Spree::ProductPresenter do
     end
 
     describe "#variant_tree" do
-
       it "delegates to variant_options" do
         expect(variant_options).to receive(:tree)
         subject.variant_tree
@@ -183,7 +187,6 @@ describe Spree::ProductPresenter do
     end
 
     describe "#option_type_order" do
-
       it "delegates to variant_options" do
         expect(variant_options).to receive(:option_type_order)
         subject.option_type_order
@@ -191,7 +194,6 @@ describe Spree::ProductPresenter do
     end
 
     describe "#variant_option_values" do
-
       it "delegates to variant_options" do
         expect(variant_options).to receive(:variant_option_values)
         subject.variant_option_values
@@ -199,15 +201,10 @@ describe Spree::ProductPresenter do
     end
 
     describe "#grouped_option_values_in_stock" do
-
       it "delegates to variant_options" do
         expect(variant_options).to receive(:grouped_option_values_in_stock)
         subject.grouped_option_values_in_stock
       end
     end
-
-
   end
-
-
 end

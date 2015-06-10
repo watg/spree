@@ -1,24 +1,18 @@
 <h6>Shipping to the US</h6>
-<% if free_shipping? %>
-<p>Free shipping on all orders over <%= free_shipping_amount %>.</p>
-<% end %>
 <table>
-	<caption>Shipping to the US</caption>
 	<tbody>
 		<tr>
-			<th>Delivery time</th>
-			<td>DHL 5 working days of dispatch</td>
+			<td>10 business days</td>
+			<td>$8</td>
 		</tr>
 		<tr>
-			<th>Cost</th>
+			<td>3-4 business days</td>
 			<td>$15</td>
 		</tr>
-		<% if free_shipping? %>
-		<tr>
-			<th>Spend over <%= free_shipping_amount %></th>
-			<td>Free</td>
-		</tr>
-		<% end %>
 	</tbody>
 </table>
+
+<a href="/faqs#delivery">Full list of shipping destinations</a><br/><br/>
+
 <%= render '/spree/suites/delivery/delivery_additional' %>
+
