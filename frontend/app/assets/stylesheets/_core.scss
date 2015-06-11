@@ -1,5 +1,16 @@
 /* VERY VERY base level settings - universal or fundamental layout / element / type styles / mixins for Wool and the Gang */
 
+/**
+ * Table of contents
+ *
+ * HTML elemt styles
+ * Shipping and contact
+ * Sitewide messageing (currency, cookies and errors)
+ * Modals
+ * Footer
+ * Pagination
+**/
+
 /* Browser highlight colour */
 ::selection {
   background: #fff200;
@@ -103,11 +114,6 @@ input[type="submit"].inverse {
   background-color: $body-bg;
   border-color: $primary-color;
 }
-input[type="submit"]:disabled {
-  color: $primary-color;
-  background-color: #f1f1f1;
-  border-color: #f1f1f1;
-}
 
 /* CSS only select list styling */
 
@@ -199,119 +205,6 @@ table.order-item-listing{
 
 /*************************************************************************************/
 
-/* Email signup block */
-.no-delay {
-  transition-delay: 0s !important;
-}
-.signup-promo {
-  height: 0em;
-  overflow: hidden;
-  text-align: center;
-  background-color: #fafafa;
-  -moz-transition: height 0.4s 2s cubic-bezier(0.230, 1.000, 0.320, 1.000);
-  -webkit-transition: height 0.4s 2s cubic-bezier(0.230, 1.000, 0.320, 1.000);
-  -o-transition: height 0.4s 2s cubic-bezier(0.230, 1.000, 0.320, 1.000);
-  transition: height 0.4s 2s cubic-bezier(0.230, 1.000, 0.320, 1.000);
-  &.open {
-    height: 15.375em;
-  }
-  .signup-close {
-    position: absolute;
-    z-index: 1;
-    top: 0.938em;
-    right: 0.938em;
-    width: 1.813em;
-    height: 1.813em;
-    overflow: hidden;
-    text-indent: -999em;
-    background: transparent image-url('watg-img/touch-icon-close.svg') no-repeat center;
-    -webkit-background-size: 50% 50%;
-    -moz-background-size: 50% 50%;
-    -o-background-size: 50% 50%;
-    background-size: 50% 50%;
-  }
-  label + div {
-    padding-top: 1em;
-  }
-  label {
-    display: block;
-    padding-top: 1em;
-    font-family: "Gill Sans W01 Light";
-    font-size: 1.563em;
-    line-height: 1.1;
-    text-transform: uppercase;
-  }
-  input {
-    float: left;
-    width: 65%;
-    margin-bottom: 0;
-  }
-  button {
-    float: right;
-    width: 30%;
-    margin-bottom: 0;
-    padding: 0.5em;
-    background: transparent;
-  }
-  .signup-response {
-    display: none;
-    p {
-      padding-top: 1em;
-      font-family: "Gill Sans W01 Light";
-      font-size: 1.563em;
-      line-height: 1.1;
-      text-transform: uppercase;
-    }
-  }
-  @media only screen and (min-width: 48em) {
-    &.open {
-      height: 14.375em;
-    }
-    label + div {
-      width: 22.375em;
-      margin: 0 auto;
-      padding-top: 1.875em;
-      text-align: left;
-      border-bottom: 1px solid #000;
-    }
-    input,
-    input:focus {
-      display: inline;
-      text-align: left;
-      vertical-align: bottom;
-      float: none;
-      padding-left: 0;
-      border: none;
-      background-color: transparent;
-      -webkit-box-shadow: none;
-      box-shadow: none;
-      -webkit-transition: none;
-      -moz-transition: none;
-      transition: none;
-    }
-    button {
-      margin-top: -6px;
-      display: inline;
-      vertical-align: bottom;
-      float: right;
-      width: auto;
-      padding: 0.5em;
-      border-bottom: none;
-    }
-  }
-}
-
-.marketing {
-  .signup-response {
-    display: none;
-    p {
-      font-family: "Gill Sans W01 Light";
-      font-size: 1.563em;
-      line-height: 1.1;
-      text-transform: uppercase;
-    }
-  }
-}
 /* Shipping and contact messages */
 .row-shipping-and-contact {
   padding: emCalc(15px) 0;
@@ -349,6 +242,90 @@ table.order-item-listing{
     }
   }
 }
+
+.nav-utility {
+  padding: 0.750em 1em 0 0;
+  text-transform: uppercase;
+  text-align: right;
+  ul {
+    @include zero-out-list;
+    display: inline;
+    line-height: 1;
+  }
+  li {
+    display: inline;
+    font-size: emCalc(12px);
+  }
+  a, label {
+    font-family: $watg-font;
+  }
+}
+#nav-bar {
+  li:after {
+    content: '/';
+    margin-left: 0.5em;
+  }
+  li:last-child:after {
+    content: '';
+    margin-left: 0;
+  }
+  li.worldwide,
+  li.telephone {
+    font-family: $watg-font-light;
+    letter-spacing: 0.5px;
+    min-height: 14px;
+  }
+  li:nth-last-child(2):after {
+    content: '' !important;
+    margin-left: 0 !important;
+  }
+}
+#search-bar {
+  display: none;
+}
+#cart #link-to-cart {
+  display: none;
+}
+@media #{$small} {
+  .nav-utility {
+    nav {
+      display: inline;
+    }
+  }
+  #link-to-cart:before {
+    content: '/';
+    margin-right: 0.5em;
+  }
+}
+
+/* @group currency settings */
+.currency-setting {
+  float: none !important;
+  margin-right: 0 !important;
+  form {
+    display: inline;
+    margin: 0;
+  }
+  label {
+    display: none;
+  }
+  select {
+    float: none;
+    display: inline;
+    width: auto;
+    border: none;
+    margin: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    font-family: $watg-font;
+    font-size: 1em;
+  }
+  &:before {
+    content: '/';
+  }
+}
+/* @end */
 
 /* Cookie message */
 .row-cookie {
@@ -408,6 +385,25 @@ table.order-item-listing{
     li {
       list-style-type: none;
     }
+  }
+}
+.flash {
+  color: inherit;
+  .errorExplanation, .error {
+    @include panel(pink, 15px);
+  }
+  .notice {
+    @include panel(#fff, 15px);
+  }
+  .success {
+    @include panel(#C3FFB7, 15px);
+  }
+  .out-of-stock {
+    font-weight: bold;
+    color: red;
+  }
+  .errorExplanation {
+    @include alert($alert-color);
   }
 }
 
@@ -570,83 +566,6 @@ table.order-item-listing{
     }
   }
 }
-// Xmas modal
-#modal-xmas {
-  text-transform: uppercase;
-  img {
-    margin: emCalc(15px) 0;
-  }
-  h4 {
-    font-size: 1.75em;
-    margin-bottom: 40px;
-  }
-  .list-dates {
-    margin-bottom: 40px;
-    font-size: 1.25em;
-    li {
-      padding: emCalc(10px) 0;
-      border-top: 1px solid #ccc;
-      font-family: $watg-font-secondary-light;
-      strong {
-        font-family: $watg-font-secondary;
-        font-weight: normal;
-      }
-    }
-    li:last-child {
-      border-bottom: 1px solid #ccc;
-    }
-  }
-  .list-links {
-    overflow: hidden;
-    margin-bottom: emCalc(15px);
-    li {
-      a {
-        margin-right: emCalc(15px);
-        padding: 10px;
-        display: block;
-        float: left;
-        font-family: $watg-font;
-        font-size: 20px;
-        color: #fff;
-        background-color: #000;
-      }
-    }
-    li:last-child {
-      a {
-        margin: 0;
-      }
-    }
-  }
-}
-// Mobile #modal-xmas
-@media only screen and (max-width: 48em) {
-  #modal-xmas {
-    .only-desktop {
-      display: none;
-    }
-    img {
-      margin: emCalc(25px) 0;
-    }
-    h4 {
-      font-size: 1.25em;
-      margin-bottom: 20px;
-    }
-    .list-dates {
-      font-size: 1em;
-      margin-bottom: 20px;
-    }
-    .list-links {
-      margin-bottom: emCalc(5px);
-      li {
-        a {
-          margin: 0 emCalc(10px) emCalc(10px) 0 ;
-          padding: 10px;
-          font-size: 15px;
-        }
-      }
-    }
-  }
-}
 
 /* Alpaca */
 .alpaca-attack {
@@ -656,6 +575,196 @@ table.order-item-listing{
   top: 0;
   left: 0;
 }
+
+
+/* ALL THINGS FOOTER RELATED  */
+
+.container > footer.row {
+  max-width: 60.625em;
+}
+
+
+.footer-global-unit {
+  padding-bottom: 32px;
+  padding-top: 32px;
+  font-size: emCalc(12px);
+  border-top: 1px solid #d9d9d9;
+  @media #{$small} {
+    padding-right: 0;
+  }
+}
+
+/* Marketing Footer - Newsletter signup and social media */
+.marketing {
+  padding-top: 27px;
+  padding-bottom: 32px;
+  border-top: 1px solid #d9d9d9;
+  @media #{$small} {
+    padding-left: 0;
+  }
+  .signup-response {
+    display: none;
+    p {
+      font-family: "Gill Sans W01 Light";
+      font-size: 1.563em;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+  }
+}
+
+.newsletter-subscribe {
+  margin: 0;
+  font-size: 0.750em;
+  @include clearfix;
+  label,
+  button {
+    text-transform: uppercase;
+    color: $body-font-color;
+    font-family: $watg-font;
+  }
+  label {
+    margin-bottom: 0.5em;
+    font-size: 1em;
+  }
+  input {
+    float: left;
+    width: 75%;
+    margin-bottom: 0;
+    font-size: 1em;
+    font-style: italic;
+  }
+  button {
+    float: right;
+    width: 20%;
+    margin-bottom: 0;
+    padding: 0.5em;
+    background: transparent;
+  }
+}
+@media #{$small} {
+  .newsletter-subscribe {
+    border-bottom: 1px solid $body-font-color;
+    label {
+      display: inline;
+    }
+    input,
+    input:focus {
+      display: inline;
+      float: none;
+      width: 22em;
+      border: none;
+      background-color: transparent;
+      -webkit-box-shadow: none;
+      box-shadow: none;
+      -webkit-transition: none;
+      -moz-transition: none;
+      transition: none;
+    }
+    button {
+      display: inline;
+      float: right;
+      width: auto;
+      padding: 0.75em;
+      border-bottom: none;
+    }
+  }
+}
+.social {
+  padding: 32px 0;
+  font-size: 0.750em;
+  h6 {
+    margin-right: 10px;
+    text-transform: uppercase;
+  }
+  a {
+    display: inline-block;
+    margin-left: 4px;
+    text-decoration: none;
+    font-size: 1.5em;
+  }
+}
+@media #{$small} {
+  .social h6 {
+    display: inline-block;
+  }
+}
+
+
+.mobile-marketing {
+  h6 {
+    font-size: (14px);
+    text-transform: uppercase;
+    display: inline-block;
+      }
+  .row {
+    margin: 0 emCalc(5px) 0 emCalc(10px);
+    padding-bottom: emCalc(16px);
+    padding-top: emCalc(16px);
+    border-bottom: 1px solid #d9d9d9;
+  }
+  .newsletter-subscribe {
+    margin: 0 emCalc(10px);
+    input {
+      padding: emCalc(5px) emCalc(15px);
+      text-transform: uppercase;
+      font-style: normal;
+    }
+    button {
+      background-color:#000000;
+      color:#ffffff ;
+    }
+  }
+  .mobile-social {
+    .social-icons {
+      text-align: center;
+      font-size: emCalc(20px);
+      a {
+        padding-left: emCalc(18px);
+      }
+      .first-icon {
+        padding: 0;
+      }
+    }
+  }
+  .mobile-raf {
+    font-family: $watg-font;
+    text-transform: uppercase;
+    font-size: 14px;
+    text-align: center;
+    .icon-smile, .icon-angle-right {
+      font-size: emCalc(20px);
+    }
+    h6 {
+      text-decoration: underline;
+    }
+  }
+  .row-button {
+    border: 0;
+    .button-inverse {
+      background-color: #fff;
+      color: #000000;
+    }
+    button {
+      margin: 0 10%;
+      width: 80%;
+      text-align: center;
+    }
+  }
+  .hidden {
+    display: none;
+    padding-left: emCalc(4px);
+    font-size: emCalc(12px);
+  }
+  .expanded {
+    display: inherit;
+  }
+  .footer-global-unit-mobile {
+    font-size: emCalc(14px);
+  }
+}
+
+
 /* RAF promo */
 p.promo-raf {
   font-family: $watg-font-light;
@@ -701,51 +810,62 @@ footer p.promo-raf {
   }
 }
 
-/**
- * Plugin overwrites
- *
- * @section plugins
- */
+/* Plugin overwrites */
 
 /* Slimscroll custom rule */
 .slimScrollRail, {
   display: none !important;
 }
-
 .slimScrollBar[style*="height"] + .slimScrollRail {
   display: block !important;
 }
-
 .slimScrollBar[style*="display: none;"] + .slimScrollRail {
   display: none !important;
 }
 
-/* ----- Animations ----- */
+// Pagination and Show all
 
-@-webkit-keyframes blink {
-  0% {
-    opacity: 0.2;
-  }
-
-  20% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0.2;
-  }
+.show-all {
+ padding: 0;
+ display: inline;
+ position: relative;
+ font-size: 0.75em;
+ float: right;
+ top: -0.313em;
 }
 
-@keyframes blink {
-  0% {
-    opacity: 0.2;
-  }
+.pagination {
+ margin: 0 auto;
+ padding: 0;
+ font-size: 0.750em;
+ text-align: center;
 
-  20% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0.2;
-  }
+ span {
+   display: inline-block;
+   margin: 0 4px;
+ }
+ a {
+   color: #666;
+   &:hover,
+   &:focus {
+     color: #000;
+   }
+ }
+ .current {
+   font-weight: bold;
+   color: #000;
+ }
+ .gap {
+   color: #ccc;
+ }
+ .first,
+ .last {
+   display: none;
+ }
 }
+
+.product-listing + .pagination {
+ margin-bottom: 1.313em;
+}
+/* @end */
+

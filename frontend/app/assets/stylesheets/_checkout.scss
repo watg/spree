@@ -1,0 +1,306 @@
+/* All pages relating to the checkout process */
+
+.order-item-listing,
+.stock-contents {
+  td {
+    vertical-align: top;
+  }
+  .line-item:first-child td {
+    border-top: none;
+  }
+  tfoot th {
+    text-align: right;
+    border-top: 1px dotted $primary-color;
+  }
+  .delete {
+    display: inline-block;
+    width: 1.813em;
+    height: 1.813em;
+    overflow: hidden;
+    text-indent: -999em;
+    background: transparent image-url('watg-img/touch-icon-close.svg') no-repeat center;
+    border: 1px solid $primary-color;
+  }
+  .no-svg & .delete {
+    background-image: image-url('watg-img/touch-icon-close.gif');
+  }
+  .assembly_parts, .personalisations {
+    @include zero-out-list;
+  }
+  .item-total {
+    font-weight: bold;
+  }
+}
+.item-description {
+  line-height: 1.4;
+}
+
+@media #{$small} {
+  .order-item-listing {
+    //font-size: 1em;
+    .item-image,
+    .item-description,
+    .item-quantity,
+    .item-delete {
+      display: table-cell;
+      vertical-align: top;
+      padding-right: 1em;
+    }
+    .item-total {
+      font-size: 1em;
+    }
+  }
+  .line-item {
+    h4 {
+      font-size: 2.083em;
+    }
+    h6 {
+      padding-top: 1em;
+    }
+  }
+}
+/* @end */
+
+
+/* @group Spree basket page */
+
+.shop {
+  .order-total {
+    font-weight: bold;
+    font-size: 1.125em;
+  }
+
+  #order_coupon_code {
+    max-width: 320px;
+    font-weight: bold;
+    display: inline-block;
+    /*color: #ff0054;*/
+  }
+  .coupons-updates {
+    padding: 1.8em;
+    text-align: center;
+    background-color: $watg-tint-med;
+    input, button {
+      margin-bottom: 0;
+    }
+  }
+
+  .subtotal,
+  .checkout-link {
+    text-align: right;
+    padding: 1em;
+    background-color: $watg-tint-light;
+  }
+
+  .subtotal {
+    font-size: 1.563em;
+    border-bottom: 1px dotted $primary-color;
+    .subtotal-label {
+      font-family: $watg-font;
+      text-transform: uppercase;
+      @media #{$small} {
+        margin-right: 12px;
+      }
+    }
+    .sub-total {
+      font-weight: normal;
+    }
+  }
+
+  .cart-adjustment-header {
+    border-top: 1px dotted $primary-color;
+  }
+  .continue-shopping {
+  }
+
+}
+
+/* @end */
+
+
+/* @group Spree checkout / login barriers */
+
+#new-customer,
+.large-12 > #existing-customer,
+#forgot-password,
+#registration {
+  padding: 0 1.125em 2em 1.125em;
+  background: $watg-tint-light;
+  h6 {
+    padding: 1em 0;
+    border-bottom: 1px dotted $primary-color;
+  }
+  label {
+    font-size: 1em;
+    display: inline-block;
+  }
+  a {
+    text-decoration: underline;
+  }
+}
+@media #{$small} {
+  #new-customer,
+  .large-12 > #existing-customer,
+  #forgot-password,
+  #registration {
+    margin-bottom: emCalc(30px);
+    min-height: 660px;
+    padding-left: 40%;
+    padding-right: 20%;
+    background: $watg-tint-light image-url('watg-img/bg-login.jpg') left bottom no-repeat;
+    h6 {
+      padding: 4em 0 1em 0;
+    }
+  }
+  #guest_checkout {
+    h6 {
+      padding-top: 2em;
+    }
+  }
+}
+
+/* @end */
+
+
+/* @group Spree checkout stages */
+
+#checkout {
+  padding-bottom: emCalc(30px);
+  .progress-steps {
+    padding: 1em 0;
+    border-top: 1px dotted $primary-color;
+    border-bottom: 1px dotted $primary-color;
+    li {
+      list-style: none;
+      display: inline-block;
+      margin-right: 2em;
+    }
+    .current-first,
+    .current {
+      font-weight: bold;
+    }
+  }
+  .edit_order fieldset {
+    border: none;
+    background-color: $watg-tint-light;
+  }
+  label {
+    display: inline-block;
+  }
+  .form-buttons {
+    padding: 1em 0 0 0;
+    text-align: right;
+    border-top: 1px dotted $primary-color;
+    border-bottom: 1px dotted $primary-color;
+  }
+  .checkout-summary-box {
+    padding-top: 0.5em;
+    text-align: right;
+    table {
+      float: right;
+    }
+  }
+
+  /* delivery */
+  .stock-shipping-method-title {
+    margin-top: 1em;
+  }
+  .shipping-methods {
+    @include zero-out-list;
+  }
+  .shipping-instructions label {
+    margin: 1em 0 0.5em 0;
+  }
+
+  .delivery_options {
+    label {
+      font-size: inherit;
+    }
+    input[type="radio"] {
+      margin: 0 1em 0 0;
+    }
+    .turnaround {
+      width: 50%;
+    }
+    .cost {
+      width: 30%;
+    }
+  }
+
+  /* payment */
+  .payment-method-tab {
+    display: inline-block;
+    padding: 1em 1em 0 1em;
+    margin-right: 5px;
+    background-color: $watg-tint-light;
+  }
+  .p-methods {
+    list-style: none;
+    margin: 0;
+    & > li > div {
+      padding: 1em;
+      margin-bottom: 1em;
+      min-height: 80px;
+      background-color: $watg-tint-light;
+    }
+    input {
+      display: inline-block;
+      max-width: 300px;
+    }
+    input[size="2"],
+    input[size="4"] {
+      max-width: 100px;
+    }
+    select {
+      display: inline-block;
+      width: auto;
+    }
+  }
+  .p-coupon-code {
+    text-align: right;
+  }
+  #cvv_link {
+    font-size: 0.688em;
+  }
+}
+
+@media #{$small} {
+  #checkout {
+    .stock-contents {
+      font-size: 1em;
+      .cart-item-image,
+      .cart-item-description {
+        display: table-cell;
+        vertical-align: top;
+        padding-right: 1em;
+      }
+    }
+  }
+}
+
+/* @end */
+
+/* @group Spree order confirmation */
+
+/* Order summary */
+#order_summary {
+  padding: 0;
+  border: none;
+  h1 {
+    border-bottom: 1px dotted $primary-color;
+  }
+  .vcard {
+    border: none;
+    padding: 0;
+    line-height: 1.4;
+  }
+}
+.delivery-method,
+.payment-method {
+  margin-bottom: 1em;
+  h6 {
+    padding-top: 1em;
+    border-top: 1px dotted $primary-color;
+  }
+}
+/* @end */

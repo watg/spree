@@ -12,9 +12,6 @@
  *= require_self
  */
 
-// General mixins
-@import "_mixins";
-
 // Import any web fonts...
 @import "_fonts";
 
@@ -61,49 +58,45 @@
 //@import "foundation/components/tooltips";
 //@import "foundation/components/dropdown";
 
-// onmediaquery classes
-@import "_onmediaquery";
-
-@import "_base";
-@import "_modules";
-
-// Site "B" interim styles
-@import "_fancybox";
-@import "_interim";
+@import "_core";
 // Navigation
 @import "_navigation";
-// Products
-@import "_product-top";
-@import "_suites-index";
-@import "_suite";
+// Checkout
+@import "_checkout";
+
+// suites styles
+@import "suites/_index";
+@import "suites/_suite";
 // Variant Options plugin style overrides
-@import "_variant-options";
-// @import "_product";
+@import "suites/_variant-options";
+
 // Static page styles
-@import "_static";
+@import "static/_core";
+// Static off grid page styles
+@import "static/_core-offgrid";
 // Static competition and free pattern styles
-@import "_static-signups";
+@import "static/_signups";
 // Static yarn pages
-@import "_static-yarn";
+@import "static/_yarn";
 // Homepage styles
-@import "_homepage";
+@import "static/_homepage";
 // Video pages styles
-@import "_videos";
-// Tooltipster plugin styles
-@import "_tooltipster";
+@import "static/_videos";
+
+// external library plugin stylesheets
+@import "lib/_fancybox";
 // Tag Manager plugin styles
-@import "_tagmanager";
+@import "lib/_tagmanager";
 // Olapic slider
-@import "_olapic";
+@import "lib/_olapic";
 // Flipclock plugin styles
-@import "_flipclock";
+@import "lib/_flipclock";
 // Owlcarousel plugin styles
-@import "_owlcarousel";
+@import "lib/_owlcarousel";
 
 // Refer-a-friend module
 @import "spree/frontend/spree_raf";
 
-//font awesome for icons
 // party module
 @import "spree/frontend/spree_party";
 @import "spree/frontend/_additional_tutorials";

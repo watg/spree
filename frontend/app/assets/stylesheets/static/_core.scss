@@ -1,5 +1,15 @@
 /* Static page elements - i.e. Meet The Gang, Contact Us etc... */
 
+.utility-main {
+	padding-bottom: 3em;
+	p {
+		font-size: 0.750em;
+	}
+	h3 {
+		font-size: 1em;
+	}
+}
+
 /* Terms and Conditions */
 .terms-and-conditions {
 	.utility-hero {
@@ -256,60 +266,6 @@ body.thank-you {
 	padding-top: 75px; /* Same value as iframe shift */
 	background-color: #fff;
 	text-align: center;
-}
-
-/* Autumn/Winter preview */
-.autumn-winter-preview .nav-primary-sub + .container .row:first-child {
-	max-width: none;
-	background-color: #eee;
-}
-
-.autumn-winter-preview .row-hero {
-	background: image-url('watg-img/hero-autumn-winter-mobile.jpg') center bottom no-repeat #eee;
-	height: 540px;
-
-	@media only screen and (min-width: 48em) {
-		background: image-url('watg-img/hero-autumn-winter.jpg') center bottom no-repeat #eee;
-		height: 460px;
-	}
-}
-
-.autumn-winter-preview .row-hero .intro {
-	position: absolute;
-	left: -999em;
-	top: -999em;
-}
-
-.autumn-winter-preview .row-form {
-	padding: 30px 0;
-	margin: 0 auto;
-	max-width: 62.5em;
-	min-height: 175px;
-	background-color: #eee;
-}
-
-.autumn-winter-preview .row-form p {
-	text-align: center;
-}
-
-/* Host a knit workshop */
-.host-a-knit-workshop {
-	.utility-page-subtitle img {
-		margin: 0 auto emCalc(15px);
-		display: block;
-	}
-	.utility-page-subtitle p {
-		text-align: center;
-		a {
-			text-transform: uppercase;
-			text-decoration: underline;
-			font-weight: bold;
-		}
-	}
-	iframe {
-		position: relative;
-		overflow: hidden;
-	}
 }
 
 .thank-you-for-your-application {
@@ -597,231 +553,6 @@ body.thank-you {
   }
 }
 
-/* Our story/Yarn/Knit party/meet our yarn  */
-/* e.g any design that breaks out of the grid... */
-.our-story,
-.yarn,
-.knit-party-landing,
-.meet-our-yarn {
-	/* Full width */
-	.row-shipping-and-contact + .container > div.row {
-		max-width: none !important;
-	}
-	.row-shipping-and-contact + .container > div.row > .columns {
-		padding: 0;
-	}
-	.wrapper-our-story div.row,
-	.wrapper-yarn div.row,
-	.wrapper-knit-party div.row,
-	.wrapper-meet-our-yarn div.row {
-		margin: 0 auto;
-		position: relative;
-		max-width: 62.5em;
-	}
-	.wrapper-our-story,
-	.wrapper-yarn,
-	.wrapper-knit-party,
-	.wrapper-meet-our-yarn {
-    .only-mobile {
-      display: none;
-    }
-		@media only screen and (max-width: 48em) {
-			.only-desktop {
-				display: none;
-			}
-      .only-mobile {
-        display: initial;
-      }
-		}
-		text-align: center;
-		h1 {
-			font-size: emCalc(70px);
-		}
-		@media only screen and (max-width: 48em) {
-			h1 {
-				font-size: (50px);
-			}
-		}
-		h2 {
-			font-size: emCalc(70px);
-			span {
-				font-family: $watg-font-secondary-light;
-				font-size: 0.5em;
-				display: block;
-			}
-		}
-		@media only screen and (max-width: 48em) {
-			h2 {
-				font-size: (50px);
-			}
-		}
-		h2.small {
-			font-size: emCalc(60px);
-		}
-		@media only screen and (max-width: 48em) {
-			h2.small {
-				font-size: (40px);
-			}
-		}
-		h3 {
-			font-family: $watg-font-secondary-light;
-			font-size: emCalc(30px);
-			strong {
-				font-family: $watg-font-secondary;
-				font-weight: normal;
-			}
-		}
-		@media only screen and (max-width: 48em) {
-			h3 {
-				font-size: (20px);
-			}
-		}
-		h4 {
-			text-transform: uppercase;
-		}
-		a {
-			text-decoration: underline;
-		}
-		p, li {
-			font-size: emCalc(18px);
-			margin-bottom: 0;
-		}
-		@media only screen and (max-width: 48em) {
-			p, li {
-				font-size: emCalc(16px);
-			}
-		}
-		ul {
-			margin-top: 2em;
-			li {
-				margin-bottom: 1em;
-			}
-		}
-		.inverted {
-			background-color: #000;
-			* {
-				color: #fff;
-			}
-		}
-		.spaced {
-			line-height: 1.8em;
-		}
-		.row-halves {
-			overflow: hidden;
-			.columns {
-				height: 600px;
-			}
-		}
-		.row-padding-large {
-			padding: emCalc(100px) 0;
-		}
-		.row-padding-medium {
-			padding: emCalc(80px) 0;
-		}
-		.row-padding-small {
-			padding: emCalc(60px) 0;
-		}
-		/* Row specific */
-		.row-made-differently,
-		.row-is-changing,
-		.row-with-care,
-		.row-knitting,
-		.row-materials {
-			height: 600px;
-		}
-		.row-made-differently {
-			background: cdn-url('/our-story/01_Fashion_Made_Differently.jpg') center center no-repeat;
-			h1 {
-				margin-top: 146px;
-			}
-		}
-		.row-is-changing {
-			background: cdn-url('/our-story/02_Fashion_Is_Changing.jpg') center center no-repeat;
-			h2 {
-				margin-top: 223px;
-			}
-		}
-		.row-with-care {
-			background: cdn-url('/our-story/10_Sourced_With_Care.jpg') center center no-repeat;
-			h2 {
-				margin-top: 111px;
-			}
-		}
-		.row-knitting {
-			background: cdn-url('/our-story/09_Knitting_Is_The_New_Yoga.jpg') center center no-repeat;
-		}
-		.row-madeunique {
-			h2, img {
-				float: left;
-			}
-			@media only screen and (max-width: 48em) {
-				h2, img {
-					margin: 30px 0 0 0 !important;
-					float: none;
-				}
-			}
-			img {
-				margin: 30px 0 0 120px;
-			}
-		}
-		/* Column specific */
-		.column-text {
-			padding: emCalc(60px) emCalc(30px);
-			img {
-				margin-bottom: emCalc(60px);
-			}
-		}
-		.column-by-you {
-			background: cdn-url('/our-story/03_Made_By_You.jpg') center center no-repeat;
-			h2 {
-				margin: 88px 0 0 0.5em; /* Slight offset left */
-				position: relative;
-				left: 50%;
-				z-index: 100;
-			}
-			@media only screen and (max-width: 48em) {
-				h2 {
-					margin: 485px 0 0;
-					left: 0;
-				}
-			}
-		}
-		.column-by-the-gang {
-			background: cdn-url('/our-story/04_Made_By_The_Gang.jpg') center center no-repeat;
-		}
-		.column-revolution {
-			background: cdn-url('/our-story/06_Revolution.jpg') center center no-repeat;
-		}
-		.column-revolution-heading {
-			h2 {
-				margin-top: 111px;
-			}
-		}
-		.column-maker {
-			background: cdn-url('/our-story/08_Maker.jpg') center center no-repeat;
-		}
-		.column-materials {
-			background: cdn-url('/our-story/11_Our_Materials.jpg') center center no-repeat;
-		}
-		.column-founders-heading {
-			h2 {
-				margin-top: 111px;
-			}
-		}
-		.column-founders-aurelie-jade {
-			background: cdn-url('/our-story/12_Meet_The_Founders_AJ.jpg') center center no-repeat;
-		}
-		.column-founders-elizabeth {
-			background: cdn-url('/our-story/13_Meet_The_Founders_ES.jpg') center center no-repeat;
-		}
-		.column-founders-elizabeth + .columns p {
-			strong {
-				text-transform: uppercase;
-			}
-		}
-	}
-}
-
 /*Knit Your Selfie*/
 .knit-your-selfie {
 
@@ -959,10 +690,10 @@ body.thank-you {
 		font-size: emCalc(20px);
 		text-align: center;
 		.row-padded {
-			padding-top: 60px; 
+			padding-top: 60px;
 		}
 		.row-padded-bottom {
-			padding-bottom: 60px; 			
+			padding-bottom: 60px;
 		}
 		.medium-padding {
 			padding-top: 30px;
@@ -1017,7 +748,7 @@ body.thank-you {
 		}
 		.inverted {
 			color: initial;
-		}	
+		}
 		.full-grey {
 			background-color: #f9f9f9;
 			/*padding-bottom: emCalc(8px);*/
@@ -1065,10 +796,10 @@ body.thank-you {
 				color: initial;
 			}
 			.row-padded, .social-mobile {
-				padding-top: 30px; 
-			}		
+				padding-top: 30px;
+			}
 			.row-padded-bottom {
-				padding-bottom: 30px; 			
+				padding-bottom: 30px;
 			}
 			.medium-padding {
 				padding-top: 30px;
@@ -1219,132 +950,6 @@ body.thank-you {
   	}
   }
 }
-
-.wrapper-knit-party {
-	h2.spaced {
-		margin-top: emCalc(20px);
-		color: #fff;
-	}
-	.button {
-		font-size: 1.25em;
-	}
-	.row-hero {
-		padding: emCalc(30px) 0;
-		h1 {
-			font-size: emCalc(100px);
-			line-height: 0.95em;
-		}
-		img {
-			margin: emCalc(30px) 0;
-		}
-	}
-	.row-testimonials {
-		padding: emCalc(30px) 0;
-		text-align: center;
-		h3 {
-			font-family: $watg-font;
-			font-weight: normal;
-			font-size: emCalc(40px);
-		}
-		.columns {
-			height: auto !important;
-		}
-		.column-text {
-			padding: emCalc(30px) emCalc(100px);
-			background-color: transparent;
-			img {
-				margin-bottom: emCalc(20px) !important;
-			}
-			p:after {
-				content: "" !important;
-			}
-			p + p {
-				margin-top: emCalc(20px);
-			}
-		}
-	}
-	.row-more {
-		padding: emCalc(30px) 0;
-		overflow: hidden;
-		h4 {
-			font-size: emCalc(30px)
-		}
-		form {
-			fieldset {
-				border: 0;
-			}
-		}
-		.pull-2 {
-			a {
-				position: relative;
-				top: emCalc(-30px);
-			}
-		}
-	}
-	.row-share {
-		padding: emCalc(40px) 0;
-		h2 {
-			font-size: emCalc(40px);
-		}
-	}
-	.column-text {
-		background: #f9f9f9;
-		p:after {
-			content: " \A — \A ";
-			white-space: pre;
-		}
-		p:last-child:after {
-			content: "";
-		}
-	}
-	.column-where + .column-text {
-		p {
-			margin-bottom: 1em;
-		}
-		p:after {
-			content: "";
-		}
-	}
-	.column-what {
-		background: cdn-url('party/2015-02-12/2_Whats_a_Knit_Party_DESKTOP.jpg') center center no-repeat;
-	}
-	.column-why {
-		background: cdn-url('party/2015-02-12/3_Why_Host_a_Party_DESKTOP.jpg') center center no-repeat;
-	}
-	.column-where {
-		background: cdn-url('party/2015-02-12/4_Host_at_home_or_work_DESKTOP.jpg') center center no-repeat;
-	}
-	@media only screen and (max-width: 28.75em) {
-		h2.spaced {
-			margin-top: emCalc(10px);
-		}
-		.row-hero {
-			h1 {
-				font-size: emCalc(50px);
-			}
-		}
-		.row-testimonials {
-			.column-text {
-				padding: emCalc(30px);
-			}
-		}
-		.row-share {
-			h2 {
-				font-size: emCalc(30px);
-			}
-		}
-		.column-what {
-			background: cdn-url('party/2015-02-12/2_Whats_a_Knit_Party_MOBILE.jpg') center center no-repeat;
-		}
-		.column-why {
-			background: cdn-url('party/2015-02-12/3_Why_Host_a_Party_MOBILE.jpg') center center no-repeat;
-		}
-		.column-where {
-			background: cdn-url('party/2015-02-12/4_Host_at_home_or_work_MOBILE.jpg') center center no-repeat;
-		}
-	}
-}
-
 /* Gang Labs #4 */
 .gang-labs {
   .row-shipping-and-contact + .container > div.row {
@@ -1538,4 +1143,3 @@ body.thank-you {
 		display: inherit;
 	}
 }
-
