@@ -365,7 +365,8 @@
   .no-stock {
     display: initial;
   }
-  h5.delivery + div, .product-details-content.delivery {
+  h5.delivery + div, .product-details-content.delivery,
+   .product-details-content.description {
     margin-bottom: 1.25em;
     a {
       text-decoration: underline;

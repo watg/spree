@@ -183,7 +183,9 @@ module Spree
     end
 
     def clean_string(string)
-      sanitized_string = Sanitize.clean(string, :elements => ['a', 'strong', 'br'], :attributes => {'a' => ['href', 'title', 'style', 'target']}) # I think we can remove the Sanitize gem?
+      elements = ["a", "strong", "br", "table", "tbody", "thead", "tfoot", "tr", "th", "td"]
+      attributes = { "a" => ["href", "title", "style", "target"], "table" => ["style"] }
+      sanitized_string = Sanitize.clean(string, elements: elements, attributes: attributes) # I think we can remove the Sanitize gem?
       sanitized_string ? sanitized_string.gsub(/(.*?)\r?\n\r?\n/m, '\1<br><br>').html_safe : ''
     end
 
