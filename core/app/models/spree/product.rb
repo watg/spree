@@ -143,8 +143,7 @@ module Spree
     }
 
     scope :not_assembly, lambda{
-      with_parts = joins(variants_including_master: [:assembly_definition]).select('spree_products.id')
-      where.not(id: with_parts.uniq.map(&:id) )
+      where.not(id: assembly.select('spree_products.id').uniq.map(&:id) )
     }
 
     def videos?
