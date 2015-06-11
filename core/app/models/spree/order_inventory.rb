@@ -17,13 +17,11 @@ module Spree
     # are always unstocked when the order is completed through +shipment.finalize+
     #
     def verify(shipment = nil)
-      if order.completed? || shipment.present?
-        if line_item.parts.any?
-          process_line_item_parts(@line_item, shipment)
-        else
-          process_line_item(@line_item, shipment)
-        end
-
+      return unless order.completed? || shipment.present?
+      if line_item.parts.any?
+        process_line_item_parts(@line_item, shipment)
+      else
+        process_line_item(@line_item, shipment)
       end
     end
 
@@ -42,7 +40,6 @@ module Spree
           self.variant = part.variant
           shipment = determine_target_shipment unless shipment
           add_to_shipment(shipment, quantity_of_parts, part)
-
         end
 
       elsif quantity_change < 0
@@ -52,17 +49,13 @@ module Spree
 
           # This is horrible code, and we must change it at some point
           self.variant = part.variant
-          remove_quantity_from_shipment(shipment, quantity_of_parts * -1 )
-
+          remove_quantity_from_shipment(shipment, quantity_of_parts * -1)
         end
 
-      else
-        # do nothing
       end
     end
 
     def process_line_item(line_item, shipment)
-
       quantity_change = line_item.quantity - inventory_units.size
 
       if quantity_change > 0
@@ -72,12 +65,9 @@ module Spree
 
       elsif quantity_change < 0
 
-        remove_quantity_from_shipment(shipment, quantity_change * -1 )
+        remove_quantity_from_shipment(shipment, quantity_change * -1)
 
-      else
-        # do nothing
       end
-
     end
 
     def inventory_units
@@ -106,31 +96,35 @@ module Spree
         s.waiting_to_ship? && s.include?(variant)
       end
 
-      shipment ||= order.shipments.detect do |s|
+      shipment || order.shipments.detect do |s|
         s.waiting_to_ship? && variant.stock_location_ids.include?(s.stock_location_id)
       end
     end
 
-    def add_to_shipment(shipment, quantity, line_item_part=nil)
+    def add_to_shipment(shipment, quantity, line_item_part = nil)
       inventory = []
       if variant.should_track_inventory?
         on_hand, backordered, awaiting_feed = shipment.stock_location.fill_status(variant, quantity)
 
         on_hand.times do
-          inventory << shipment.set_up_inventory('on_hand', variant, order, line_item, line_item_part)
+          inventory << shipment.set_up_inventory(
+            "on_hand", variant, order, line_item, line_item_part)
         end
 
         backordered.times do
-          inventory << shipment.set_up_inventory('backordered', variant, order, line_item, line_item_part)
+          inventory << shipment.set_up_inventory(
+            "backordered", variant, order, line_item, line_item_part)
         end
 
         awaiting_feed.times do
-          inventory << shipment.set_up_inventory('awaiting_feed', variant, order, line_item, line_item_part)
+          inventory << shipment.set_up_inventory(
+            "awaiting_feed", variant, order, line_item, line_item_part)
         end
 
       else
         quantity.times do
-          inventory << shipment.set_up_inventory('on_hand', variant, order, line_item, line_item_part)
+          inventory << shipment.set_up_inventory(
+            "on_hand", variant, order, line_item, line_item_part)
         end
       end
 
@@ -142,12 +136,12 @@ module Spree
       quantity
     end
 
-
     def remove_from_shipment(shipment, quantity)
       return 0 if quantity == 0 || shipment.shipped?
 
-      shipment_units = shipment.inventory_units_for_item(line_item, variant).reject do |variant_unit|
-        variant_unit.state == 'shipped'
+      shipment_inventory_units = shipment.inventory_units_for_item(line_item, variant)
+      shipment_units = shipment_inventory_units.reject do |variant_unit|
+        variant_unit.state == "shipped"
       end.sort_by(&:state)
 
       remove_units = []
