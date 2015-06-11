@@ -16,6 +16,7 @@ module Spree
         response = Metapack::Client.create_and_allocate_consignment_with_booking_code(allocation_hash(order, shipping_manifest))
         order.update_attributes!(order_attrs(response))
         update_parcels(order, response[:tracking])
+        update_shipments(order, response[:carrier])
         if order.metapack_allocated
           mark_order_as_shipped(order)
           Metapack::Client.create_labels_as_pdf(response[:metapack_consignment_code])
@@ -130,6 +131,12 @@ module Spree
           attrs.delete(:reference)
           parcel.update_attributes(attrs)
         end
+      end
+    end
+
+    def update_shipments(order, carrier)
+      order.shipments.each do |shipment|
+        shipment.update_attributes(carrier: carrier)
       end
     end
 

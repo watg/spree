@@ -1,5 +1,6 @@
 module Spree
   class ShipmentHandler
+    CARRIERS_SHIPPED_EMAIL_MAP = ["WNINT"]
     class << self
       def factory(shipment)
         # Do we have a specialized shipping-method-specific handler? e.g:
@@ -20,12 +21,17 @@ module Spree
     def perform
       @shipment.inventory_units.each &:ship!
       @shipment.process_order_payments if Spree::Config[:auto_capture_on_dispatch]
-      send_shipped_email
+      send_shipped_email unless shipped_email_sent_by_carrier
       @shipment.touch :shipped_at
       update_order_shipment_state
     end
 
     private
+
+    def shipped_email_sent_by_carrier
+      CARRIERS_SHIPPED_EMAIL_MAP.include?(@shipment.carrier)
+    end
+
     def send_shipped_email
       if @shipment.send_email?
         ShipmentMailer.shipped_email(@shipment.id).deliver
@@ -38,7 +44,7 @@ module Spree
       new_state = OrderUpdater.new(order).update_shipment_state
       order.update_columns(
                            shipment_state: new_state,
-                           updated_at: Time.now,
+                           updated_at: Time.now
                            )
     end
   end

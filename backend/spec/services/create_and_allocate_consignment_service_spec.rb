@@ -13,11 +13,20 @@ describe Spree::CreateAndAllocateConsignmentService do
   end
 
   describe "::run" do
-    let(:response) { {
-        metapack_consignment_code: '12345',
-        tracking: [{reference: order.parcels[0].id, metapack_tracking_code: '000023', metapack_tracking_url: 'http://carrier.com/tracking/000023'},
-                   {reference: order.parcels[1].id, metapack_tracking_code: '000045', metapack_tracking_url: 'http://carrier.com/tracking/000045'} ],
-        metapack_status: 'Allocated'} }
+    let(:response) do
+      {
+        metapack_consignment_code: "12345",
+        tracking: [{ reference: order.parcels[0].id,
+                     metapack_tracking_code: "000023",
+                     metapack_tracking_url: "http://carrier.com/tracking/000023" },
+                   { reference: order.parcels[1].id,
+                     metapack_tracking_code: "000045",
+                     metapack_tracking_url: "http://carrier.com/tracking/000045" }
+                  ],
+        metapack_status: "Allocated",
+        carrier: "WNINT"
+      }
+    end
 
     before do
       allow(Metapack::Client).to receive(:create_and_allocate_consignment_with_booking_code).and_return(response)
@@ -38,8 +47,12 @@ describe Spree::CreateAndAllocateConsignmentService do
 
       it "updates parcels tracking details" do
         p1 = order.parcels[0]
-        expect(p1.metapack_tracking_code).to eq('000023')
-        expect(p1.metapack_tracking_url).to  eq('http://carrier.com/tracking/000023')
+        expect(p1.metapack_tracking_code).to eq("000023")
+        expect(p1.metapack_tracking_url).to eq("http://carrier.com/tracking/000023")
+      end
+
+      it "updates the shipment with the carrier" do
+        expect(order.shipments.first.carrier).to eq("WNINT")
       end
 
       it "marked the order as shipped" do

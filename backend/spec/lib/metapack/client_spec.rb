@@ -34,14 +34,16 @@ describe Metapack::Client do
     }
 
     it "extracts the consignment details from the soap response" do
-      expect(Metapack::Client).to receive(:request).
-        with(:AllocationService, :create_and_allocate_consignments_with_booking_code, consignment: :consignment).
-        and_return(soap_response)
-      response = Metapack::Client.create_and_allocate_consignment_with_booking_code(:consignment)
-      expect(response).to eq({
+      expect(described_class).to receive(:request)
+        .with(:AllocationService, :create_and_allocate_consignments_with_booking_code, consignment: :consignment)
+        .and_return(soap_response)
+      response = described_class.create_and_allocate_consignment_with_booking_code(:consignment)
+      expect(response).to eq(
                                metapack_consignment_code: "DMC0H200CZ8W",
-                               tracking: [{reference: '45', metapack_tracking_code: '000000252', metapack_tracking_url: 'http://www.parcelforce.com/track-trace?trackNumber=000000252'}],
-                               metapack_status: 'Allocated'})
+                               tracking: [{ reference: "45", metapack_tracking_code: "000000252", metapack_tracking_url: "http://www.parcelforce.com/track-trace?trackNumber=000000252" }],
+                               metapack_status: "Allocated",
+                               carrier: "PLFCWI"
+                               )
     end
   end
 

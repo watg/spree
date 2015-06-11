@@ -7,7 +7,8 @@ module Metapack
       {
         metapack_consignment_code: response.find("consignmentCode"),
         tracking:                  tracking_info(response),
-        metapack_status:           response.find("status")
+        metapack_status:           response.find("status"),
+        carrier:                   response.find("carrierCode")
       }
     end
 
@@ -43,7 +44,7 @@ module Metapack
       if !response.success?
         Rails.logger.info(response.body)
         message = "/!\\ #{response.find('faultstring')} /!\\"
-        
+
         raise message
       end
 
