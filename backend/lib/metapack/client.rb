@@ -1,5 +1,7 @@
 module Metapack
   class Client
+    UNKOWN_TRACKING_URL = ["NotKnown"]
+
     def self.create_and_allocate_consignment_with_booking_code(consignment)
       response = request(:AllocationService, :create_and_allocate_consignments_with_booking_code, consignment: consignment)
       {
@@ -53,12 +55,17 @@ module Metapack
       parcels = result.find_all("parcels", ['reference', 'trackingCode', 'trackingUrl'])
       # there is parcels tag that is the list and each item is also called parcels! so there a double match
       parcels.drop(1).map {|p|
+        tracking_url = p["trackingUrl"].include?("UNKOWN_TRACKING_URL") ? nil : p["trackingUrl"]
           {
             reference:              p['reference'],
             metapack_tracking_code: p['trackingCode'],
-            metapack_tracking_url:  p['trackingUrl']
+            metapack_tracking_url:  tracking_url(p)
           }
         }
+    end
+
+    def self.tracking_url(parcel)
+      parcel["trackingUrl"].include?("UNKOWN_TRACKING_URL") ? nil : parcel["trackingUrl"]
     end
   end
 end
