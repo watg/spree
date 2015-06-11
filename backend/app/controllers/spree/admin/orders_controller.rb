@@ -61,12 +61,12 @@ module Spree
       end
 
       def show
-        object = get_pdf(@order, order_type)
-        if object.errors.any?
-          flash[:error] = object.errors.to_sentence
-          redirect_to :back
+        outcome = ::Pdf::GenerateService.run(order: @order, type: order_type)
+        if outcome.valid?
+          respond_to { |format| format.pdf { generate_order_pdf(outcome.result)  }  }
         else
-          respond_to { |format| format.pdf { generate_order_pdf(object) } }
+          flash[:error] = outcome.errors.full_messages.to_sentence
+          redirect_to :back
         end
       end
 
@@ -130,19 +130,6 @@ module Spree
       end
 
       private
-
-      def get_pdf(order, pdf_type)
-        case pdf_type
-        when :invoice
-          Spree::PDF::CommercialInvoice.new(order)
-        when :emergency_invoice
-          Spree::PDF::EmergencyCommercialInvoice.new(order)
-        when :packing_list
-          Spree::PDF::PackingList.new(order)
-        else
-          Spree::PDF::ImageSticker.new(order)
-        end
-      end
 
       def create_order_params
         params.require(:order).permit(:currency, :order_type_id, :internal)

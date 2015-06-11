@@ -16,7 +16,7 @@ module Spree
     def pdf
       if invoice?
 
-        orders_printer = Spree::PDF::OrdersPrinter.new(orders)
+        orders_printer = ::Pdf::OrdersPrinter.new(orders)
 
         # none will be returned and errors will be assigned if an error occurs
         printed_invoices = orders_printer.print_invoices_and_packing_lists
@@ -28,7 +28,7 @@ module Spree
         printed_invoices
 
       elsif image_sticker?
-        Spree::PDF::OrdersPrinter.new(orders).print_stickers
+        ::Pdf::OrdersPrinter.new(orders).print_stickers
       end
     end
 
