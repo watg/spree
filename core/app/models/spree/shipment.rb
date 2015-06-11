@@ -1,13 +1,12 @@
-require 'ostruct'
+require "ostruct"
 module Spree
-
   class Shipment < Spree::Base
-    belongs_to :address, class_name: 'Spree::Address', inverse_of: :shipments
-    belongs_to :order, class_name: 'Spree::Order', touch: true, inverse_of: :shipments
-    belongs_to :stock_location, class_name: 'Spree::StockLocation'
+    belongs_to :address, class_name: "Spree::Address", inverse_of: :shipments
+    belongs_to :order, class_name: "Spree::Order", touch: true, inverse_of: :shipments
+    belongs_to :stock_location, class_name: "Spree::StockLocation"
 
     has_many :inventory_units, dependent: :delete_all, inverse_of: :shipment
-    has_many :shipping_rates, -> { order('spree_shipping_rates.cost ASC') }, dependent: :delete_all
+    has_many :shipping_rates, -> { order("spree_shipping_rates.cost ASC") }, dependent: :delete_all
     has_many :shipping_methods, through: :shipping_rates
     has_many :state_changes, as: :stateful
 
@@ -19,22 +18,26 @@ module Spree
     accepts_nested_attributes_for :address
     accepts_nested_attributes_for :inventory_units
 
-    make_permalink field: :number, length: 11, prefix: 'H'
+    make_permalink field: :number, length: 11, prefix: "H"
 
-    scope :pending, -> { with_state('pending') }
-    scope :ready,   -> { with_state('ready') }
-    scope :shipped, -> { with_state('shipped') }
+    scope :pending, -> { with_state("pending") }
+    scope :ready,   -> { with_state("ready") }
+    scope :shipped, -> { with_state("shipped") }
     scope :trackable, -> { where("tracking IS NOT NULL AND tracking != ''") }
     scope :with_state, ->(*s) { where(state: s) }
-    # sort by most recent shipped_at, falling back to created_at. add "id desc" to make specs that involve this scope more deterministic.
-    scope :reverse_chronological, -> { order('coalesce(spree_shipments.shipped_at, spree_shipments.created_at) desc', id: :desc) }
+    # sort by most recent shipped_at, falling back to created_at. add "id desc" to make specs that
+    # involve this scope more deterministic.
+    scope :reverse_chronological, -> {
+      order("coalesce(spree_shipments.shipped_at, spree_shipments.created_at) desc", id: :desc)
+    }
 
-    # shipment state machine (see http://github.com/pluginaweek/state_machine/tree/master for details)
+    # shipment state machine 
+    # (see http://github.com/pluginaweek/state_machine/tree/master for details)
     state_machine initial: :pending, use_transactions: false do
       event :ready do
         transition from: :pending, to: :ready, if: lambda { |shipment|
           # Fix for #2040
-          shipment.determine_state(shipment.order) == 'ready'
+          shipment.determine_state(shipment.order) == "ready"
         }
       end
       after_transition to: :ready, do: :check_for_only_digital_and_ship
@@ -47,7 +50,7 @@ module Spree
         transition from: [:ready, :canceled], to: :shipped
       end
       # This was refactored due to the way we unstock an restock
-      #after_transition to: :shipped, do: :after_ship
+      # after_transition to: :shipped, do: :after_ship
       after_transition from: :ready, to: :shipped, do: :after_ship
       after_transition from: :canceled, to: :shipped, do: [:after_resume, :after_ship]
 
@@ -75,14 +78,14 @@ module Spree
         transition from: :ready, to: :ready
       end
       # This was refactored due to the way we unstock an restock
-      #after_transition from: :canceled, to: [:pending, :ready, canceled], do: :after_resume
+      # after_transition from: :canceled, to: [:pending, :ready, canceled], do: :after_resume
       after_transition from: :canceled, to: [:pending, :ready], do: :after_resume
 
       after_transition do |shipment, transition|
         shipment.state_changes.create!(
           previous_state: transition.from,
           next_state:     transition.to,
-          name:           'shipment',
+          name:           "shipment"
         )
       end
     end
@@ -96,11 +99,11 @@ module Spree
     end
 
     def backordered?
-      inventory_units.any? { |inventory_unit| inventory_unit.backordered? }
+      inventory_units.any?(&:backordered?)
     end
 
     def awaiting_feed?
-      inventory_units.any? { |inventory_unit| inventory_unit.awaiting_feed? }
+      inventory_units.any?(&:awaiting_feed?)
     end
 
     def waiting_to_ship?
@@ -117,12 +120,12 @@ module Spree
     # shipped    if already shipped (ie. does not change the state)
     # ready      all other cases
     def determine_state(order)
-      return 'canceled' if order.canceled?
-      return 'pending' unless order.can_ship?
-      return 'pending' if inventory_units.any?(&:backordered?)
-      return 'awaiting_feed' if inventory_units.any?(&:awaiting_feed?)
-      return 'shipped' if state == 'shipped'
-      order.paid? || Spree::Config[:auto_capture_on_dispatch] ? 'ready' : 'pending'
+      return "canceled" if order.canceled?
+      return "pending" unless order.can_ship?
+      return "pending" if inventory_units.any?(&:backordered?)
+      return "awaiting_feed" if inventory_units.any?(&:awaiting_feed?)
+      return "shipped" if state == "shipped"
+      order.paid? || Spree::Config[:auto_capture_on_dispatch] ? "ready" : "pending"
     end
 
     def cost
@@ -136,27 +139,23 @@ module Spree
     def discounted_cost
       shipping_coster.discounted_cost
     end
-    alias discounted_amount discounted_cost
+    alias_method :discounted_amount, :discounted_cost
 
     def display_cost
-      Spree::Money.new(cost, { currency: currency })
+      Spree::Money.new(cost,  currency: currency)
     end
-    alias display_amount display_cost
+    alias_method :display_amount, :display_cost
 
     def display_discounted_cost
-      Spree::Money.new(discounted_cost, { currency: currency })
+      Spree::Money.new(discounted_cost,  currency: currency)
     end
 
     def display_final_price
-      Spree::Money.new(final_price, { currency: currency })
+      Spree::Money.new(final_price,  currency: currency)
     end
 
     def display_item_cost
-      Spree::Money.new(item_cost, { currency: currency })
-    end
-
-    def editable_by?(user)
-      !shipped?
+      Spree::Money.new(item_cost,  currency: currency)
     end
 
     def express?
@@ -190,8 +189,10 @@ module Spree
     def inventory_units_for_item(line_item, variant = nil)
       # Vanilla spree has line_item.variant.id evaled first, this does not work for when we have
       # parts
-      # inventory_units.where(line_item_id: line_item.id, variant_id: line_item.variant.id || variant.id)
-      inventory_units.where(line_item_id: line_item.id, variant_id: variant.id || line_item.variant.id)
+      # inventory_units.where(
+      #   line_item_id: line_item.id, variant_id: line_item.variant.id || variant.id)
+      inventory_units.where(
+        line_item_id: line_item.id, variant_id: variant.id || line_item.variant.id)
     end
 
     def item_cost
@@ -207,9 +208,8 @@ module Spree
     def manifest
       # Grouping by the ID means that we don't have to call out to the association accessor
       # This makes the grouping by faster because it results in less SQL cache hits.
-      inventory_units.group_by(&:variant_id).map do |variant_id, units|
-        units.group_by(&:line_item_id).map do |line_item_id, units|
-
+      inventory_units.group_by(&:variant_id).map do |_variant_id, grouped_units|
+        grouped_units.group_by(&:line_item_id).map do |_line_item_id, units|
           states = {}
           units.group_by(&:state).each { |state, iu| states[state] = iu.count }
 
@@ -222,11 +222,11 @@ module Spree
 
     def process_order_payments
       pending_payments =  order.pending_payments
-                            .sort_by(&:uncaptured_amount).reverse
+                          .sort_by(&:uncaptured_amount).reverse
 
       # NOTE Do we really need to force orders to have pending payments on dispatch?
       if pending_payments.empty?
-        raise Spree::Core::GatewayError, Spree.t(:no_pending_payments)
+        fail Spree::Core::GatewayError, Spree.t(:no_pending_payments)
       else
         shipment_to_pay = final_price_with_items
         payments_amount = 0
@@ -254,7 +254,7 @@ module Spree
     end
 
     def delete_shipping_rates
-      self.shipping_rates.each { |sr| ::ShippingRates::Deleter.new(sr).delete }
+      shipping_rates.each { |sr| ::ShippingRates::Deleter.new(sr).delete }
       self.shipping_rates = []
     end
 
@@ -271,9 +271,9 @@ module Spree
       order.apply_free_shipping_promotions
 
       if shipping_method
-        selected_rate = shipping_rates.detect { |rate|
+        selected_rate = shipping_rates.detect do |rate|
           rate.shipping_method_id == original_shipping_method_id
-        }
+        end
         self.selected_shipping_rate_id = selected_rate.id if selected_rate
       end
 
@@ -310,7 +310,7 @@ module Spree
     end
 
     def shipped=(value)
-      return unless value == '1' && shipped_at.nil?
+      return unless value == "1" && shipped_at.nil?
       self.shipped_at = Time.now
     end
 
@@ -327,7 +327,8 @@ module Spree
 
     def to_package
       package = Stock::Package.new(stock_location)
-      inventory_units.includes(:variant).joins(:variant).group_by(&:state).each do |state, state_inventory_units|
+      units = inventory_units.includes(:variant).joins(:variant)
+      units.group_by(&:state).each do |state, state_inventory_units|
         package.add_multiple state_inventory_units, state.to_sym
       end
       package
@@ -347,62 +348,59 @@ module Spree
 
     # Update Shipment and make sure Order states follow the shipment changes
     def update_attributes_and_order(params = {})
-      if self.update_attributes params
-        if params.has_key? :selected_shipping_rate_id
-          # Changing the selected Shipping Rate won't update the cost (for now)
-          # so we persist the Shipment#cost before calculating order shipment
-          # total and updating payment state (given a change in shipment cost
-          # might change the Order#payment_state)
-          update_shipping_rate_adjustments
+      return unless update_attributes(params)
+      if params.key? :selected_shipping_rate_id
+        # Changing the selected Shipping Rate won't update the cost (for now)
+        # so we persist the Shipment#cost before calculating order shipment
+        # total and updating payment state (given a change in shipment cost
+        # might change the Order#payment_state)
+        update_shipping_rate_adjustments
 
-          order.updater.update_shipment_total
-          order.updater.update_payment_state
+        order.updater.update_shipment_total
+        order.updater.update_payment_state
 
-          # Update shipment state only after order total is updated because it
-          # (via Order#paid?) affects the shipment state (YAY)
-          self.update_columns(
-            state: determine_state(order),
-            updated_at: Time.now
-          )
+        # Update shipment state only after order total is updated because it
+        # (via Order#paid?) affects the shipment state (YAY)
+        update_columns(
+          state: determine_state(order),
+          updated_at: Time.now
+        )
 
-          # And then it's time to update shipment states and finally persist
-          # order changes
-          order.updater.update_shipment_state
-          order.updater.persist_totals
-        end
-
-        true
+        # And then it's time to update shipment states and finally persist
+        # order changes
+        order.updater.update_shipment_state
+        order.updater.persist_totals
       end
+      true
     end
 
-    # Updates various aspects of the Shipment while bypassing any callbacks.  Note that this method takes an explicit reference to the
-    # Order object.  This is necessary because the association actually has a stale (and unsaved) copy of the Order and so it will not
-    # yield the correct results.
+    # Updates various aspects of the Shipment while bypassing any callbacks.  Note that this method
+    # takes an explicit reference to the # Order object.  This is necessary because the association
+    # actually has a stale (and unsaved) copy of the Order and so it will not  yield the correct
+    # results.
     def update!(order)
       old_state = state
       new_state = determine_state(order)
       # TODO: only update if you need to, e.g. enable the if statement
-      #if old_state != new_state
-        update_columns(
-          state: new_state,
-          updated_at: Time.now,
-        )
-      #end
-      after_ship if new_state == 'shipped' and old_state != 'shipped'
+      # if old_state != new_state
+      update_columns(
+        state: new_state,
+        updated_at: Time.now
+      )
+      # end
+      after_ship if new_state == "shipped" && old_state != "shipped"
 
-      check_for_only_digital_and_ship if new_state == 'ready' and old_state != 'ready'
+      check_for_only_digital_and_ship if new_state == "ready" && old_state != "ready"
     end
 
     def transfer_to_location(variant, quantity, stock_location)
-      if quantity <= 0
-        raise ArgumentError
-      end
+      fail ArgumentError if quantity <= 0
 
       transaction do
         new_shipment = order.shipments.create!(stock_location: stock_location)
 
-        order.contents.remove(variant, quantity, {shipment: self})
-        order.contents.add(variant, quantity, {shipment: new_shipment})
+        order.contents.remove(variant, quantity, shipment: self)
+        order.contents.add(variant, quantity, shipment: new_shipment)
 
         refresh_rates
         save!
@@ -411,16 +409,11 @@ module Spree
     end
 
     def transfer_to_shipment(variant, quantity, shipment_to_transfer_to)
-      quantity_already_shipment_to_transfer_to = shipment_to_transfer_to.manifest.find{|mi| mi.line_item.variant == variant}.try(:quantity) || 0
-      final_quantity = quantity + quantity_already_shipment_to_transfer_to
-
-      if (quantity <= 0 || self == shipment_to_transfer_to)
-        raise ArgumentError
-      end
+      fail ArgumentError if quantity <= 0 || self == shipment_to_transfer_to
 
       transaction do
-        order.contents.remove(variant, quantity, {shipment: self})
-        order.contents.add(variant, quantity, {shipment: shipment_to_transfer_to})
+        order.contents.remove(variant, quantity, shipment: self)
+        order.contents.add(variant, quantity, shipment: shipment_to_transfer_to)
 
         refresh_rates
         save!
@@ -442,11 +435,11 @@ module Spree
     end
 
     def customer_feedback_mailer
-      Shipping::CustomerFeedbackMailer.new(self.order)
+      Shipping::CustomerFeedbackMailer.new(order)
     end
 
     def knitting_experience_mailer
-      Shipping::KnittingExperienceMailer.new(self.order)
+      Shipping::KnittingExperienceMailer.new(order)
     end
 
     def shipping_coster
@@ -474,24 +467,20 @@ module Spree
     end
 
     def check_for_only_digital_and_ship
-      if order.line_items.any? && order.physical_line_items.empty?
-        self.ship!
-      end
+      self.ship! if order.line_items.any? && order.physical_line_items.empty?
     end
 
     def send_shipped_email
-      ShipmentMailer.shipped_email(self.id).deliver
+      ShipmentMailer.shipped_email(id).deliver
     end
-    handle_asynchronously :send_shipped_email, :run_at => Proc.new { Date.tomorrow.to_time }
+    handle_asynchronously :send_shipped_email, run_at: proc { Date.tomorrow.to_time }
 
     def set_cost_zero_when_nil
-      self.cost = 0 unless self.cost
+      self.cost = 0 unless cost
     end
 
     def update_adjustments
-      if cost_changed? && state != 'shipped'
-        recalculate_adjustments
-      end
+      recalculate_adjustments if cost_changed? && state != "shipped"
     end
   end
 end
