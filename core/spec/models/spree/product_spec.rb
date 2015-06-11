@@ -263,9 +263,22 @@ describe Spree::Product, :type => :model do
 
         expect(product2.slug).to eq 'test-456'
       end
+    end
+  end
 
+  context 'parts' do
+    subject         { create(:product) }
+    let(:part)      { create(:product) }
+
+    before { create(:assembly_definition_part, product: subject, part: part) }
+
+    describe '#parts' do
+      it { expect(subject.parts).to eq [part] }
     end
 
+    describe '#products' do
+      it { expect(part.products).to eq [subject] }
+    end
   end
 
   context "properties" do
