@@ -142,14 +142,6 @@ module Spree
       self.is_master? and self.product.variants and self.product.variants.any?
     end
 
-    def extra_parts?
-      extra_parts.any?
-    end
-
-    def extra_parts
-      product.extra_parts
-    end
-
     def generate_variant_number(force: false)
       record = true
       while record

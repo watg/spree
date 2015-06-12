@@ -1,0 +1,437 @@
+require 'spec_helper'
+
+describe 'Spree::DynamicStockCheckJob' do
+  describe "Dynamic Kit ( Assembly Defintion )" do
+    include_context "assembly definition light"
+
+    let(:klass)          { Spree::StockCheckJob }
+    let!(:variant)       { create(:master_variant, product: product, in_stock_cache: variant_status) }
+    let!(:product)       { create(:product) }
+    let(:variant_status) { in_stock }
+    let(:in_stock)       { true }
+    let(:out_of_stock)   { false }
+    let!(:part_product)  { create(:product) }
+    let!(:pv)            { create(:variant, product: part_product, in_stock_cache: pv_status) }
+    let(:pv_status)      { in_stock }
+    let!(:adp)           { create(:assembly_definition_part, product: variant.product, part: part_product) }
+    let!(:adv)           { create(:assembly_definition_variant, assembly_definition_part: adp, variant: pv) }
+
+    describe "stock check for the the Assembly Definition variant e.g. Kit itself" do
+      subject  { klass.new(variant) }
+
+      context "Kit is in stock but can supply if false" do
+        let(:variant_status) { in_stock }
+
+        before { allow(variant).to receive(:can_supply?).and_return false }
+
+        it "in stock cache does not change" do
+          subject.perform
+          expect(variant.in_stock_cache).to be_truthy
+        end
+
+        it "triggers the suite_tab_cache_rebuilder" do
+          expect(subject).to_not receive(:rebuild_suite_tab_cache).with(variant.product)
+          subject.perform
+        end
+      end
+
+      context "Kit is out of stock and has missing required parts, but can supply is true" do
+        let(:variant_status) { out_of_stock }
+        let(:pv_status)      { out_of_stock }
+
+        before { allow(variant).to receive(:can_supply?).and_return true }
+
+        it "in stock cache does not change" do
+          subject.perform
+          expect(variant.in_stock_cache).to be_falsey
+        end
+
+        it "triggers the suite_tab_cache_rebuilder" do
+          expect(subject).to_not receive(:rebuild_suite_tab_cache).with(variant.product)
+          subject.perform
+        end
+      end
+    end
+
+    describe "check stock for the assembly parts" do
+      subject { klass.new(pv) }
+
+      before  { allow(pv).to receive(:can_supply?).and_return true }
+
+      context "Kit is out of stock but has all required parts in stock" do
+        let(:variant_status) { out_of_stock }
+        let(:pv_status)      { in_stock }
+
+        before do
+          allow(pv).to receive(:can_supply?).and_return true
+        end
+
+        it "puts the kit back in stock" do
+          expect(variant.in_stock_cache).to be_falsey
+          subject.perform
+          expect(variant.reload.in_stock_cache).to be_truthy
+        end
+
+        it "triggers the suite_tab_cache_rebuilder" do
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
+          subject.perform
+        end
+      end
+
+      context "Kit is in stock and has all required parts in stock" do
+        let(:variant_status) { in_stock }
+        let(:pv_status)      { in_stock }
+
+        before { allow(pv).to receive(:can_supply?).and_return true }
+
+        it "does not change stock status of kit" do
+          expect(variant.in_stock_cache).to be_truthy
+          subject.perform
+          expect(variant.in_stock_cache).to be_truthy
+        end
+
+        it "does not trigger the suite_tab_cache_rebuilder" do
+          expect(subject).to_not receive(:rebuild_suite_tab_cache).with(variant.product)
+          subject.perform
+        end
+      end
+
+      context "Kit is out of stock and required part has just come into stock" do
+        let(:variant_status) { out_of_stock }
+        let(:pv_status)      { out_of_stock }
+
+        before do
+          allow(pv).to receive(:can_supply?).and_return true
+          allow(subject).to receive(:rebuild_suite_tab_cache)
+        end
+
+        it "does not change stock status of kit" do
+          expect(variant.in_stock_cache).to be_falsey
+          subject.perform
+          expect(variant.reload.in_stock_cache).to be_truthy
+        end
+
+        it "does not trigger the suite_tab_cache_rebuilder" do
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
+          subject.perform
+        end
+      end
+
+      context "Kit is in stock and required part has just gone out of stock" do
+        let(:variant_status) { in_stock }
+        let(:pv_status)      { in_stock }
+
+        before do
+          allow(pv).to receive(:can_supply?).and_return false
+          allow(subject).to receive(:rebuild_suite_tab_cache)
+        end
+
+        it "does not change stock status of kit" do
+          expect(variant.in_stock_cache).to be_truthy
+          subject.perform
+          expect(variant.reload.in_stock_cache).to be_falsey
+        end
+
+        it "does not trigger the suite_tab_cache_rebuilder" do
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
+          subject.perform
+        end
+
+      end
+
+      context "more than 1 variant" do
+        let(:pv_status)  { in_stock }
+        let(:pv2)        { create(:variant, product: part_product, in_stock_cache: pv2_status) }
+        let(:pv2_status) { out_of_stock }
+        let(:adv_2)      { create(:assembly_definition_variant, assembly_definition_part: adp, variant: pv2) }
+
+        before { variant.product.update(master: variant) }
+
+        context "required part has 1 variant in stock another out of stock" do
+          let(:variant_status) { out_of_stock }
+
+          it "puts the kit back in stock" do
+            expect(variant.in_stock_cache).to be_falsey
+            subject.perform
+            expect(variant.reload.in_stock_cache).to be_truthy
+          end
+
+          it "triggers the suite_tab_cache_rebuilder" do
+            expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
+            subject.perform
+          end
+        end
+
+        context "required part has 1 variant out of stock another going out of stock" do
+          let(:variant_status) { in_stock }
+          let(:pv_status)      { in_stock }
+          let(:pv2_status)     { out_of_stock }
+
+          before do
+            allow(pv).to receive(:can_supply?).and_return false
+            allow(subject).to receive(:rebuild_suite_tab_cache)
+          end
+
+          it "puts the kit out of stock" do
+            expect(variant.in_stock_cache).to be_truthy
+            subject.perform
+            expect(variant.reload.in_stock_cache).to be_falsey
+          end
+
+          it "triggers the suite_tab_cache_rebuilder" do
+            expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
+            subject.perform
+          end
+        end
+
+        context "required part has 1 variant in stock another going out of stock" do
+          let(:variant_status) { in_stock }
+          let(:pv_status)      { in_stock }
+          let(:pv2_status)     { in_stock }
+
+          before do
+            allow(pv).to receive(:can_supply?).and_return false
+            allow(pv2).to receive(:can_supply?).and_return true
+          end
+
+          it "puts the kit back in stock" do
+            expect(variant.in_stock_cache).to be_truthy
+            subject.perform
+            expect(variant.in_stock_cache).to be_truthy
+          end
+        end
+      end
+
+      context "more than 1 part" do
+        let(:variant_status) { in_stock }
+        let(:pv_status)      { in_stock }
+        let(:part_2)         { create(:product) }
+        let(:pv2)            { create(:variant, product: part_2, in_stock_cache: pv2_status) }
+        let(:pv2_status)     { out_of_stock }
+        let(:adp_2)          { create(:assembly_definition_part, product: product, part: part_2) }
+        let!(:adv2)          { create(:assembly_definition_variant, adv2_opts) }
+        let(:adv2_opts)      { { assembly_definition_part: adp_2, variant: pv2 } }
+
+        context "and one of them is in stock (required) the other is out of stock ( required )" do
+          before { allow(pv2).to receive(:can_supply?).and_return false }
+
+          context "kit is originaly out of stock" do
+            let(:variant_status) { out_of_stock }
+
+            it "does not put the assembly back in stock" do
+              subject.perform
+              expect(variant.in_stock_cache).to be_falsey
+            end
+
+            it "does not trigger the suite_tab_cache_rebuilder" do
+              expect(subject).to_not receive(:rebuild_suite_tab_cache).with(variant.product)
+              subject.perform
+            end
+          end
+
+          context "kit is originaly in stock" do
+            let(:variant_status) { in_stock }
+
+            it "does put the assembly back in stock" do
+              subject.perform
+              expect(variant.reload.in_stock_cache).to be_falsey
+            end
+
+            it "does trigger the suite_tab_cache_rebuilder" do
+              expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
+              subject.perform
+            end
+          end
+        end
+
+        context "and one of them is in stock (required) the other is out of stock ( optional )" do
+          let(:adp_2)      { create(:assembly_definition_part, adp_2_opts) }
+          let(:adp_2_opts) { { product: product, part: part_2, optional: true } }
+
+          before           { allow(pv2).to receive(:can_supply?).and_return false }
+
+          context "kit is originaly out of stock" do
+            let(:variant_status) { out_of_stock }
+
+            it "puts the assembly back in stock" do
+              subject.perform
+              expect(variant.reload.in_stock_cache).to be_truthy
+            end
+
+            it "does trigger the suite_tab_cache_rebuilder" do
+              expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
+              subject.perform
+            end
+          end
+
+          context "kit is originaly in stock" do
+            before { variant.in_stock_cache = true }
+
+            it "does not change the in_stock value" do
+              subject.perform
+              expect(variant.in_stock_cache).to be_truthy
+            end
+
+            it "does not trigger the suite_tab_cache_rebuilder" do
+              expect(subject).to_not receive(:rebuild_suite_tab_cache).with(variant.product)
+              subject.perform
+            end
+          end
+        end
+      end
+    end
+
+    context "check the kit and then traverse its parts" do
+      subject { klass.new(variant) }
+
+      context "Kit is out of stock with all required parts" do
+        let(:variant_status) { out_of_stock }
+        let(:pv_status)      { in_stock }
+
+        it "sets the kit to in stock" do
+          expect(variant.in_stock_cache).to be_falsey
+          subject.perform
+          expect(variant.in_stock_cache).to be_truthy
+        end
+
+        it "does trigger the suite_tab_cache_rebuilder" do
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
+          subject.perform
+        end
+      end
+
+      context "Kit is in stock with a required part out of stock" do
+        let(:variant_status) { in_stock }
+        let(:pv_status)      { out_of_stock }
+
+        it "sets the kit to in stock" do
+          expect(variant.in_stock_cache).to be_truthy
+          subject.perform
+          expect(variant.in_stock_cache).to be_falsey
+        end
+
+        it "does trigger the suite_tab_cache_rebuilder" do
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
+          subject.perform
+        end
+      end
+
+      context "Kit is out of stock with a optional part out of stock" do
+        let(:kit)  { create(:base_variant, in_stock_cache: false) }
+        let(:part) { create(:base_variant, in_stock_cache: false) }
+        let!(:ap) do
+          Spree::StaticAssembliesPart.create(part_id: part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1, optional: true)
+        end
+
+        before do
+          variant.in_stock_cache = false
+          variant_part.in_stock_cache = false
+          adp.optional = true
+        end
+
+        it "sets the kit to in stock" do
+          expect(variant.in_stock_cache).to be_falsey
+          subject.perform
+          expect(variant.in_stock_cache).to be_truthy
+        end
+
+        it "does trigger the suite_tab_cache_rebuilder" do
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
+          subject.perform
+        end
+      end
+
+      context "nothing changes" do
+        let(:variant_status) { in_stock }
+        let(:pv_status)      { in_stock }
+
+        it "sets the kit to in stock" do
+          expect(variant.in_stock_cache).to be_truthy
+          subject.perform
+          expect(variant.in_stock_cache).to be_truthy
+        end
+
+        it "does not trigger the suite_tab_cache_rebuilder" do
+          expect(subject).to_not receive(:rebuild_suite_tab_cache).with(variant.product)
+          subject.perform
+        end
+      end
+    end
+  end
+
+  context "Dynamic kit where part is a static kit" do
+    let!(:product) { create(:base_product, name: "My Product", description: "Product Description") }
+    let!(:variant) { create(:master_variant, variant_opts) }
+    let(:variant_opts) { { product: product, in_stock_cache: true, updated_at: 1.day.ago } }
+
+    let!(:product_part)  { create(:base_product) }
+    let!(:static_kit) { create(:master_variant, static_kit_opts) }
+    let(:static_kit_opts) { { in_stock_cache: true, product: product_part, number: "99999" } }
+    let!(:static_kit_part) { create(:master_variant, in_stock_cache: true, number: "bite_me") }
+    let!(:ap) do
+      Spree::StaticAssembliesPart.create(part_id: static_kit_part.id, assembly_id: static_kit.id, assembly_type: 'Spree::Variant', count: 1, optional: false)
+    end
+
+    let!(:adp) { create(:assembly_definition_part, adp_opts) }
+    let!(:adp_opts) { { product: variant.product, part: product_part } }
+    let!(:adv) { Spree::AssemblyDefinitionVariant.create(assembly_definition_part: adp, variant: static_kit) }
+
+    subject { Spree::StockCheckJob.new(static_kit_part) }
+
+    before do
+      allow(subject).to receive(:rebuild_suite_tab_cache)
+      product.master = variant
+    end
+
+    context "static kit part is going out of stock" do
+      before do
+        allow(static_kit_part).to receive(:can_supply?).and_return false
+      end
+
+      it "set the in_stock value to false" do
+        expect(variant.in_stock_cache).to be_truthy
+        subject.perform
+        expect(variant.reload.in_stock_cache).to be_falsey
+      end
+
+      it "does trigger the suite_tab_cache_rebuilder" do
+        expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
+        subject.perform
+      end
+    end
+
+    context "is coming into stock" do
+      let(:variant)         { create(:master_variant, variant_opts) }
+      let(:variant_opts)    { { product: product, in_stock_cache: false, updated_at: 1.day.ago } }
+      let(:static_kit_part) { create(:base_variant, in_stock_cache: false) }
+
+      before { allow(static_kit_part).to receive(:can_supply?).and_return true }
+
+      it "set the in_stock value to true" do
+        expect(variant.in_stock_cache).to be_falsey
+        subject.perform
+        expect(variant.reload.in_stock_cache).to be_truthy
+      end
+
+      it "triggers the suite_tab_cache_rebuilder" do
+        expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
+        subject.perform
+      end
+    end
+
+    context "multiple variants of which one is going out of stock" do
+      let!(:another_static_kit) {create(:base_variant, in_stock_cache: false, product: product_part)}
+      let!(:another_adv) { Spree::AssemblyDefinitionVariant.create(assembly_definition_part: adp, variant: another_static_kit) }
+
+      before do
+        allow(static_kit_part).to receive(:can_supply?).and_return false
+      end
+
+      it "set the in_stock value to false" do
+        expect(variant.in_stock_cache).to be_truthy
+        subject.perform
+        expect(variant.reload.in_stock_cache).to be_falsey
+      end
+    end
+  end
+end

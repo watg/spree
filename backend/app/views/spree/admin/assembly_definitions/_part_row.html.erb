@@ -1,4 +1,4 @@
-<% part = f.object %>
+<% part = f.object.part %>
 <tr id="<%= spree_dom_id f.object %>">
   <td><span class="handle"></span></td>
   <td class="presentation">
@@ -6,13 +6,13 @@
       <%= f.label :presentation %>
       <%= f.text_field :presentation %>
       <span class="info">
-        <%= link_to_with_icon 'external-link', part.product.name, edit_admin_product_path(part.product), target: :blank %>
+        <%= link_to_with_icon 'external-link', part.name, edit_admin_product_path(part), target: :blank %>
       </span>
     </div>
 
     <div class="field">
       <%= f.label :displayable_option_type_id, 'Displayable Type' %> <span class="required">*</span>
-      <%= f.collection_select(:displayable_option_type_id, part.product.option_types, :id, :name, {include_blank: true}, :class => 'fullwidth', :required => true ) %>
+      <%= f.collection_select(:displayable_option_type_id, part.option_types, :id, :name, {include_blank: true}, :class => 'fullwidth', :required => true ) %>
     </div
 
     <br><br>
@@ -23,10 +23,10 @@
 
   </td>
   <td>
-    <% if part.product.variants.any? %>
-      <%= f.select(:variant_ids, part.product.variants.collect { |v| [v.options_text, v.id] }, {}, multiple: true, class: 'select2 fullwidth', required: true) %>
+    <% if part.variants.any? %>
+      <%= f.select(:variant_ids, part.variants.collect { |v| [v.options_text, v.id] }, {}, multiple: true, class: 'select2 fullwidth', required: true) %>
     <% else %>
-      <%= f.select(:variant_ids, [[ 'master', part.product.master.id]], {}, multiple: true, class: 'select2 fullwidth', :required => true) %>
+      <%= f.select(:variant_ids, [[ 'master', part.master.id]], {}, multiple: true, class: 'select2 fullwidth', :required => true) %>
     <% end %>
     <span class="info alignright"><input type="checkbox" class="check_all" >Check all</span>
   </td>

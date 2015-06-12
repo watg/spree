@@ -8,12 +8,22 @@ module Spree
 
       describe "#edit" do
         let(:ad)       { create(:assembly_definition) }
+        let(:product)  { create(:product) }
+        let(:part)     { create(:product) }
         let!(:adp)     { create(:assembly_definition_part, adp_opts) }
-        let(:adp_opts) { { assembly_definition: ad, presentation: "Choose your weapon"} }
+        let(:adp_opts) do
+          {
+            assembly_definition: ad,
+            product: product,
+            part: part,
+            presentation: "Choose your weapon"
+          }
+        end
 
         it "renders view successfully" do
           spree_get :edit, id: ad.id
           expect(response.body).to include "Choose your weapon"
+          expect(response.body).to include part.name
         end
       end
     end

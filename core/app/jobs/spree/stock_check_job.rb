@@ -30,8 +30,12 @@ module Spree
         variant.static_assemblies_parts.any?
     end
 
+    def configurations
+      variant.product.configurations
+    end
+
     def dynamic_assembly?
-      variant.extra_parts?
+      configurations.any?
     end
 
     def adjust_static_assembly
@@ -42,12 +46,17 @@ module Spree
     end
 
     def adjust_dynamic_assembly
-      out_of_stock = variant.extra_parts.detect do |part|
-        part.required? && part.variants.all? do |part_variant|
-          part_out_of_stock?(part_variant)
-        end
-      end
       adjust_in_stock_cache(out_of_stock)
+    end
+
+    def out_of_stock
+      required_configurations.detect do |config|
+        config.variants.all?(&method(:part_out_of_stock?))
+      end
+    end
+
+    def required_configurations
+      configurations.select(&:required?)
     end
 
     def part_out_of_stock?(part)
@@ -68,7 +77,7 @@ module Spree
 
     def disable_in_stock_cache
       if variant.in_stock_cache
-        variant.disable_in_stock_cache
+        variant.update(in_stock_cache: false)
         true
       else
         false
@@ -77,7 +86,7 @@ module Spree
 
     def enable_in_stock_cache
       if !variant.in_stock_cache
-        variant.enable_in_stock_cache
+        variant.update(in_stock_cache: true)
         true
       else
         false
@@ -165,17 +174,7 @@ module Spree
     end
 
     def fetch_dynamic_master_variants(obj)
-      required_assembly_definition_variants(obj)
-        .map(&:assembly_product)
-        .uniq
-        .compact
-        .map(&:master)
-    end
-
-    def required_assembly_definition_variants(obj)
-      obj.assembly_definition_variants
-        .map(&:assembly_definition_part)
-        .select(&:required?)
+      obj.product.products.map(&:master)
     end
 
     def adjust_in_stock_cache_for_dynamic_master_variants(variants)
