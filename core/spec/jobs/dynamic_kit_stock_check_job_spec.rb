@@ -62,9 +62,7 @@ describe 'Spree::DynamicStockCheckJob' do
         let(:variant_status) { out_of_stock }
         let(:pv_status)      { in_stock }
 
-        before do
-          allow(pv).to receive(:can_supply?).and_return true
-        end
+        before { allow(pv).to receive(:can_supply?).and_return true }
 
         it "puts the kit back in stock" do
           expect(variant.in_stock_cache).to be_falsey
@@ -100,10 +98,7 @@ describe 'Spree::DynamicStockCheckJob' do
         let(:variant_status) { out_of_stock }
         let(:pv_status)      { out_of_stock }
 
-        before do
-          allow(pv).to receive(:can_supply?).and_return true
-          allow(subject).to receive(:rebuild_suite_tab_cache)
-        end
+        before { allow(pv).to receive(:can_supply?).and_return true }
 
         it "does not change stock status of kit" do
           expect(variant.in_stock_cache).to be_falsey
@@ -112,6 +107,7 @@ describe 'Spree::DynamicStockCheckJob' do
         end
 
         it "does not trigger the suite_tab_cache_rebuilder" do
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(pv.product)
           expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
           subject.perform
         end
@@ -121,10 +117,7 @@ describe 'Spree::DynamicStockCheckJob' do
         let(:variant_status) { in_stock }
         let(:pv_status)      { in_stock }
 
-        before do
-          allow(pv).to receive(:can_supply?).and_return false
-          allow(subject).to receive(:rebuild_suite_tab_cache)
-        end
+        before { allow(pv).to receive(:can_supply?).and_return false }
 
         it "does not change stock status of kit" do
           expect(variant.in_stock_cache).to be_truthy
@@ -133,6 +126,7 @@ describe 'Spree::DynamicStockCheckJob' do
         end
 
         it "does not trigger the suite_tab_cache_rebuilder" do
+          expect(subject).to receive(:rebuild_suite_tab_cache).with(pv.product)
           expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
           subject.perform
         end
@@ -167,10 +161,7 @@ describe 'Spree::DynamicStockCheckJob' do
           let(:pv_status)      { in_stock }
           let(:pv2_status)     { out_of_stock }
 
-          before do
-            allow(pv).to receive(:can_supply?).and_return false
-            allow(subject).to receive(:rebuild_suite_tab_cache)
-          end
+          before { allow(pv).to receive(:can_supply?).and_return false }
 
           it "puts the kit out of stock" do
             expect(variant.in_stock_cache).to be_truthy
@@ -179,6 +170,7 @@ describe 'Spree::DynamicStockCheckJob' do
           end
 
           it "triggers the suite_tab_cache_rebuilder" do
+            expect(subject).to receive(:rebuild_suite_tab_cache).with(pv.product)
             expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
             subject.perform
           end
@@ -378,10 +370,7 @@ describe 'Spree::DynamicStockCheckJob' do
 
     subject { Spree::StockCheckJob.new(static_kit_part) }
 
-    before do
-      allow(subject).to receive(:rebuild_suite_tab_cache)
-      product.master = variant
-    end
+    before { product.master = variant }
 
     context "static kit part is going out of stock" do
       before do
@@ -395,6 +384,8 @@ describe 'Spree::DynamicStockCheckJob' do
       end
 
       it "does trigger the suite_tab_cache_rebuilder" do
+        expect(subject).to receive(:rebuild_suite_tab_cache).with(static_kit_part.product)
+        expect(subject).to receive(:rebuild_suite_tab_cache).with(static_kit.product)
         expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
         subject.perform
       end
@@ -414,6 +405,8 @@ describe 'Spree::DynamicStockCheckJob' do
       end
 
       it "triggers the suite_tab_cache_rebuilder" do
+        expect(subject).to receive(:rebuild_suite_tab_cache).with(static_kit_part.product)
+        # expect(subject).to receive(:rebuild_suite_tab_cache).with(static_kit.product)
         expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
         subject.perform
       end

@@ -7,8 +7,6 @@ describe Spree::StockCheckJob do
     subject { Spree::StockCheckJob.new(variant_not_part) }
 
     before do
-      allow(subject).to receive(:rebuild_suite_tab_cache)
-      allow(subject).to receive(:persist_updates)
       allow(variant_not_part).to receive(:can_supply?).and_return true
       variant_not_part.in_stock_cache = false
     end
