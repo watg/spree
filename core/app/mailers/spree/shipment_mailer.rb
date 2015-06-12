@@ -46,8 +46,13 @@ module Spree
     def shipment_data
       order_data.merge(
         {
-          parcel_details: tracking_details
+          parcel_details: tracking
         })
+    end
+
+    def tracking
+      tracking = @shipment.order.parcels.map(&:metapack_tracking_url)
+      tracking ? tracking_details : ""
     end
 
     def tracking_details

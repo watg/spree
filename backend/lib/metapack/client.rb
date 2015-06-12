@@ -1,11 +1,14 @@
 module Metapack
   class Client
+    UNKOWN_TRACKING_URL = ["NotKnown"]
+
     def self.create_and_allocate_consignment_with_booking_code(consignment)
       response = request(:AllocationService, :create_and_allocate_consignments_with_booking_code, consignment: consignment)
       {
         metapack_consignment_code: response.find("consignmentCode"),
         tracking:                  tracking_info(response),
-        metapack_status:           response.find("status")
+        metapack_status:           response.find("status"),
+        carrier:                   response.find("carrierCode")
       }
     end
 
@@ -41,7 +44,7 @@ module Metapack
       if !response.success?
         Rails.logger.info(response.body)
         message = "/!\\ #{response.find('faultstring')} /!\\"
-        
+
         raise message
       end
 
@@ -56,9 +59,13 @@ module Metapack
           {
             reference:              p['reference'],
             metapack_tracking_code: p['trackingCode'],
-            metapack_tracking_url:  p['trackingUrl']
+            metapack_tracking_url:  tracking_url(p)
           }
         }
+    end
+
+    def self.tracking_url(parcel)
+      parcel["trackingUrl"].include?("UNKOWN_TRACKING_URL") ? nil : parcel["trackingUrl"]
     end
   end
 end
