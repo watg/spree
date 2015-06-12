@@ -1,8 +1,13 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::CreateAndAllocateConsignmentService do
-  subject { Spree::CreateAndAllocateConsignmentService }
-  let!(:order) { create(:order_ready_to_be_consigned_and_allocated, :with_product_group, line_items_count: 1) }
+  subject { described_class }
+  let!(:order) do
+    create(:order_ready_to_be_consigned_and_allocated,
+           :with_product_group,
+           line_items_count: 1)
+  end
+
   let(:country) { create(:country) }
   let(:shipping_method) { order.shipments.first.shipping_method }
 
@@ -29,8 +34,9 @@ describe Spree::CreateAndAllocateConsignmentService do
     end
 
     before do
-      allow(Metapack::Client).to receive(:create_and_allocate_consignment_with_booking_code).and_return(response)
-      allow(Metapack::Client).to receive(:create_labels_as_pdf).with('12345').and_return(:pdf)
+      allow(Metapack::Client).to receive(:create_and_allocate_consignment_with_booking_code)
+        .and_return(response)
+      allow(Metapack::Client).to receive(:create_labels_as_pdf).with("12345").and_return(:pdf)
       @outcome = subject.run(order_id: order.id)
       order.reload
     end
@@ -42,7 +48,7 @@ describe Spree::CreateAndAllocateConsignmentService do
 
       it "updates order with metapack consignment code" do
         expect(order.metapack_allocated).to be true
-        expect(order.metapack_consignment_code).to eql('12345')
+        expect(order.metapack_consignment_code).to eql("12345")
       end
 
       it "updates parcels tracking details" do
@@ -77,82 +83,92 @@ describe Spree::CreateAndAllocateConsignmentService do
     it "returns the label PDF" do
       expect(@outcome.result).to eq(:pdf)
     end
-
   end
 
   context "#allocation_hash" do
-    let(:consignment) { Spree::CreateAndAllocateConsignmentService.new }
-    let(:product_group) { create(:product_group, origin: "UK", fabric: "Knitted", code: "CODE123", contents: "10% Wool 90% Cotton", garment: "Sweater") }
+    let(:consignment) { described_class.new }
+    let(:product_group) do
+      create(:product_group,
+             origin: "UK",
+             fabric: "Knitted",
+             code: "CODE123",
+             contents: "10% Wool 90% Cotton",
+             garment: "Sweater")
+    end
 
     before do
       order.line_items.first.product.update_column(:product_group_id, product_group.id)
     end
 
     before do
-      shipping_method.metapack_booking_code = '@GLOBALZONE'
+      shipping_method.metapack_booking_code = "@GLOBALZONE"
       shipping_method.save
     end
 
     it "builds all data necessary to create consignment allocation on metapack" do
-      variants_weight = order.line_items.map{ |li| li.variant.weight * li.quantity }.sum
+      variants_weight = order.line_items.map { |li| li.variant.weight * li.quantity }.sum
       parcel_weight = (order.weight / order.parcels.size).round(2)
 
-      p1,p2 = [order.parcels[0],order.parcels[1]]
+      p1, p2 = [order.parcels[0], order.parcels[1]]
       sku1 = order.line_items.first.product.sku
       sku2 = order.line_items.last.product.sku
-      address = { line1: "10 Lovely Street", line2: "Northwest", line3: "Herndon", postcode: "35005", country: "USA" }
+      address = { line1: "10 Lovely Street",
+                  line2: "Northwest",
+                  line3: "Herndon",
+                  postcode: "35005",
+                  country: "USA" }
       parcel_value = order.total / 2
       expected  = {
         value:         order.total,
         currency:      order.currency,
         currencyRate:  Helpers::CurrencyConversion::TO_GBP_RATES[order.currency],
-        weight:        ( variants_weight.to_f + 0.6 ).round(2),
+        weight:        (variants_weight.to_f + 0.6).round(2),
         max_dimension: 40.0,
         order_number:  order.number,
         parcels:       [
-                        {
-                          reference: p1.id,
-                          height: p1.height.to_f,
-                          value: parcel_value,
-                          depth: p1.depth.to_f,
-                          width: p1.width.to_f,
-                          weight: parcel_weight,
-                          products: [
-                            {
-                            :origin=> country.iso, 
-                            :fabric=>"10% Wool 90% Cotton",
-                            :harmonisation_code=>"CODE123",
-                            :description=>"Knitted",
-                            :type_description =>"Sweater",
-                            :sku => sku1,
-                            :weight=>0.25,
-                            :total_product_value=>10.0,
-                            :product_quantity=>1
-                            }
-                          ]
-                        },
-                        {
-                          reference: p2.id,
-                          height: p2.height.to_f,
-                          value: parcel_value,
-                          depth: p2.depth.to_f,
-                          width: p2.width.to_f,
-                          weight: parcel_weight,
-                          products: [
-                            {
-                            :origin=> country.iso,
-                            :fabric=>"10% Wool 90% Cotton",
-                            :harmonisation_code=>"CODE123",
-                            :description=>"Knitted",
-                            :type_description =>"Sweater",
-                            :sku => sku2,
-                            :weight=>0.25,
-                            :total_product_value=>10.0,
-                            :product_quantity=>1
-                            }
-                          ]
-                        }
-                       ],
+          {
+            reference: p1.id,
+            height: p1.height.to_f,
+            value: parcel_value,
+            depth: p1.depth.to_f,
+            width: p1.width.to_f,
+            weight: parcel_weight,
+            products: [
+              {
+                origin: country.iso,
+                fabric: "10% Wool 90% Cotton",
+                harmonisation_code: "CODE123",
+                description: "Knitted",
+                type_description: "Sweater",
+                sku: sku1,
+                weight: 0.25,
+                total_product_value: 10.0,
+                product_quantity: 1
+              }
+            ]
+          },
+          {
+            reference: p2.id,
+            height: p2.height.to_f,
+            value: parcel_value,
+            depth: p2.depth.to_f,
+            width: p2.width.to_f,
+            weight: parcel_weight,
+            products: [
+              {
+                origin: country.iso,
+                fabric: "10% Wool 90% Cotton",
+                harmonisation_code: "CODE123",
+                description: "Knitted",
+                type_description: "Sweater",
+                sku: sku2,
+                weight: 0.25,
+                total_product_value: 10.0,
+                product_quantity: 1
+              }
+            ]
+          }
+        ],
         recipient: {
           address:   address,
           phone:     "123-456-7890",
@@ -161,12 +177,12 @@ describe Spree::CreateAndAllocateConsignmentService do
           lastname:  "Doe",
           name:      "John Doe"
         },
-        terms_of_trade_code: 'DDP',
-        booking_code: '@GLOBALZONE',
+        terms_of_trade_code: "DDP",
+        booking_code: "@GLOBALZONE"
       }
 
-      shipping_manifest = Spree::ShippingManifestService.run(order: order )
-      expect(consignment.send(:allocation_hash, order, shipping_manifest.result )).to eql(expected)
+      shipping_manifest = Spree::ShippingManifestService.run(order: order)
+      expect(consignment.send(:allocation_hash, order, shipping_manifest.result)).to eql(expected)
       expected[:recipient][:address] = address
 
       order.shipping_address.update_attributes(address2: nil)
@@ -175,11 +191,10 @@ describe Spree::CreateAndAllocateConsignmentService do
         line2: "Herndon",
         line3: "Herndon",
         postcode: "35005",
-        country: "USA" 
+        country: "USA"
       }
       expected[:recipient][:address] = address
-      expect(consignment.send(:allocation_hash, order, shipping_manifest.result )).to eql(expected)
+      expect(consignment.send(:allocation_hash, order, shipping_manifest.result)).to eql(expected)
     end
-
   end
 end

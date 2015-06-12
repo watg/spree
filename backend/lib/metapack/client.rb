@@ -56,7 +56,6 @@ module Metapack
       parcels = result.find_all("parcels", ['reference', 'trackingCode', 'trackingUrl'])
       # there is parcels tag that is the list and each item is also called parcels! so there a double match
       parcels.drop(1).map {|p|
-        tracking_url = p["trackingUrl"].include?("UNKOWN_TRACKING_URL") ? nil : p["trackingUrl"]
           {
             reference:              p['reference'],
             metapack_tracking_code: p['trackingCode'],
