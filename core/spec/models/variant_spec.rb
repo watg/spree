@@ -24,14 +24,6 @@ describe Spree::Variant do
     end
   end
 
-  context "#extra_parts" do
-    subject     { create(:variant) }
-    let!(:asp)  { create(:assembly_definition_part, assembly_product: subject.product) }
-    let!(:asp2) { create(:assembly_definition_part, assembly_product: subject.product) }
-
-    it { expect(subject.extra_parts).to match_array([asp, asp2]) }
-  end
-
   describe '#total_on_hand' do
     it 'should be infinite if track_inventory_levels is false' do
       Spree::Config[:track_inventory_levels] = false

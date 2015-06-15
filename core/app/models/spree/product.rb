@@ -62,11 +62,14 @@ module Spree
     # this product
     has_many :assembly_definition_variants, through: :variants
     has_many :assembly_products, through: :assembly_definition_variants
+
     has_many :assembly_definition_parts
 
-    has_many :extra_parts,
-             class_name: "Spree::AssemblyDefinitionPart",
-             foreign_key: :assembly_product_id
+    has_many :configurations, foreign_key: "assembly_product_id", class_name: "Spree::AssemblyDefinitionPart"
+    has_many :configurators, foreign_key: "product_id", class_name: "Spree::AssemblyDefinitionPart"
+
+    has_many :parts, through: :configurations
+    has_many :products, through: :configurators
 
     after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
 
@@ -139,7 +142,7 @@ module Spree
     alias :options :product_option_types
 
     scope :assembly, lambda{
-      joins(:extra_parts)
+      joins(:configurations)
     }
 
     scope :not_assembly, lambda{

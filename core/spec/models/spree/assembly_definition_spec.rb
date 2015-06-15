@@ -61,7 +61,7 @@ describe Spree::AssemblyDefinition do
 
     end
 
-    context "no assmebled parts but main part set" do
+    context "no assembled parts but main part set" do
 
       before do
         part.assembled = true
