@@ -6,7 +6,7 @@ module Spree
     belongs_to :part_product, class_name: "Spree::Product", foreign_key: "assembly_product_id"
     belongs_to :part, class_name: "Spree::Product", foreign_key: "product_id"
     belongs_to :assembly_product, class_name: "Spree::Product", foreign_key: "product_id", touch: true
-    belongs_to :product, class_name: "Spree::Product", foreign_key: "assembly_product_id", touch: true
+    belongs_to :product, class_name: "Spree::Product", foreign_key: "assembly_product_id"
     belongs_to :displayable_option_type, class_name: "Spree::OptionType", foreign_key: "displayable_option_type_id"
 
     has_many :assembly_definition_variants,

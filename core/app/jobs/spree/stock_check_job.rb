@@ -77,7 +77,7 @@ module Spree
 
     def disable_in_stock_cache
       if variant.in_stock_cache
-        variant.update(in_stock_cache: false)
+        variant.disable_in_stock_cache
         true
       else
         false
@@ -86,7 +86,7 @@ module Spree
 
     def enable_in_stock_cache
       if !variant.in_stock_cache
-        variant.update(in_stock_cache: true)
+        variant.enable_in_stock_cache
         true
       else
         false
