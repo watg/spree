@@ -2,8 +2,6 @@ require "spec_helper"
 
 describe Spree::StockCheckJob do
   describe "Dynamic Kit ( Assembly Defintion )" do
-    include_context "assembly definition light"
-
     let(:klass)          { Spree::StockCheckJob }
     let!(:variant)       { create(:master_variant, variant_opts) }
     let(:variant_opts)   { { product: product, in_stock_cache: variant_status } }
@@ -312,16 +310,9 @@ describe Spree::StockCheckJob do
       end
 
       context "Kit is out of stock with a optional part out of stock" do
-        let(:kit)     { create(:base_variant, in_stock_cache: false) }
-        let(:part)    { create(:base_variant, in_stock_cache: false) }
-        let!(:ap)     { Spree::StaticAssembliesPart.create(ap_opts) }
-        let(:ap_opts) { { part_id: part.id, assembly_id: kit.id, assembly_type: "Spree::Variant" } }
-
-        before do
-          variant.in_stock_cache = false
-          variant_part.in_stock_cache = false
-          adp.optional = true
-        end
+        let(:variant_status) { out_of_stock }
+        let(:pv_status)      { out_of_stock }
+        let(:adp_opts)       { { product: variant.product, part: part_product, optional: true } }
 
         it "sets the kit to in stock" do
           expect(variant.in_stock_cache).to be_falsey
