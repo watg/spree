@@ -2,7 +2,11 @@
 	<ul id="nav-bar" data-hook>
   <% unless mobile_device? %>
     <li class="worldwide"><i class="fa fa-plane"></i> We ship worldwide</li>
-    <li class="telephone"><i class="fa fa-phone"></i> UK +44 (0) 207 241 6420</li>
+    <% if session[:country_code] == "US" %>
+      <li class="telephone"><i class="fa fa-phone"></i> US 1-844-742-4037</li>
+    <% else %>
+      <li class="telephone"><i class="fa fa-phone"></i> UK +44 (0) 207 241 6420</li>
+    <% end %>
   <% end %>
   <li id="search-bar" data-hook></li>
 	</ul>
