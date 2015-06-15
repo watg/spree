@@ -65,8 +65,8 @@ module Spree
 
     has_many :assembly_definition_parts
 
-    has_many :configurations, foreign_key: 'assembly_product_id', class_name: "Spree::AssemblyDefinitionPart"
-    has_many :configurators, foreign_key: 'product_id', class_name: "Spree::AssemblyDefinitionPart"
+    has_many :configurations, foreign_key: "assembly_product_id", class_name: "Spree::AssemblyDefinitionPart"
+    has_many :configurators, foreign_key: "product_id", class_name: "Spree::AssemblyDefinitionPart"
 
     has_many :parts, through: :configurations
     has_many :products, through: :configurators

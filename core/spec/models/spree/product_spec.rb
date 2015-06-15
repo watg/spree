@@ -266,17 +266,17 @@ describe Spree::Product, :type => :model do
     end
   end
 
-  context 'parts' do
+  context "parts" do
     subject         { create(:product) }
     let(:part)      { create(:product) }
 
     before { create(:assembly_definition_part, product: subject, part: part) }
 
-    describe '#parts' do
+    describe "#parts" do
       it { expect(subject.parts).to eq [part] }
     end
 
-    describe '#products' do
+    describe "#products" do
       it { expect(part.products).to eq [subject] }
     end
   end

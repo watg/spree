@@ -1,11 +1,12 @@
-require 'spec_helper'
+require "spec_helper"
 
-describe 'Spree::DynamicStockCheckJob' do
+describe Spree::StockCheckJob do
   describe "Dynamic Kit ( Assembly Defintion )" do
     include_context "assembly definition light"
 
     let(:klass)          { Spree::StockCheckJob }
-    let!(:variant)       { create(:master_variant, product: product, in_stock_cache: variant_status) }
+    let!(:variant)       { create(:master_variant, variant_opts) }
+    let(:variant_opts)   { { product: product, in_stock_cache: variant_status } }
     let!(:product)       { create(:product) }
     let(:variant_status) { in_stock }
     let(:in_stock)       { true }
@@ -13,8 +14,10 @@ describe 'Spree::DynamicStockCheckJob' do
     let!(:part_product)  { create(:product) }
     let!(:pv)            { create(:variant, product: part_product, in_stock_cache: pv_status) }
     let(:pv_status)      { in_stock }
-    let!(:adp)           { create(:assembly_definition_part, product: variant.product, part: part_product) }
-    let!(:adv)           { create(:assembly_definition_variant, assembly_definition_part: adp, variant: pv) }
+    let!(:adp)           { create(:assembly_definition_part, adp_opts) }
+    let(:adp_opts)       { { product: variant.product, part: part_product } }
+    let!(:adv)           { create(:assembly_definition_variant, adv_opts) }
+    let(:adv_opts)       { { assembly_definition_part: adp, variant: pv } }
 
     describe "stock check for the the Assembly Definition variant e.g. Kit itself" do
       subject  { klass.new(variant) }
@@ -130,14 +133,14 @@ describe 'Spree::DynamicStockCheckJob' do
           expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
           subject.perform
         end
-
       end
 
       context "more than 1 variant" do
         let(:pv_status)  { in_stock }
         let(:pv2)        { create(:variant, product: part_product, in_stock_cache: pv2_status) }
         let(:pv2_status) { out_of_stock }
-        let(:adv_2)      { create(:assembly_definition_variant, assembly_definition_part: adp, variant: pv2) }
+        let(:adv_2)      { create(:assembly_definition_variant, adv2_opts) }
+        let(:adv_2_opts) { { assembly_definition_part: adp, variant: pv2 } }
 
         before { variant.product.update(master: variant) }
 
@@ -309,11 +312,10 @@ describe 'Spree::DynamicStockCheckJob' do
       end
 
       context "Kit is out of stock with a optional part out of stock" do
-        let(:kit)  { create(:base_variant, in_stock_cache: false) }
-        let(:part) { create(:base_variant, in_stock_cache: false) }
-        let!(:ap) do
-          Spree::StaticAssembliesPart.create(part_id: part.id, assembly_id: kit.id, assembly_type: 'Spree::Variant', count: 1, optional: true)
-        end
+        let(:kit)     { create(:base_variant, in_stock_cache: false) }
+        let(:part)    { create(:base_variant, in_stock_cache: false) }
+        let!(:ap)     { Spree::StaticAssembliesPart.create(ap_opts) }
+        let(:ap_opts) { { part_id: part.id, assembly_id: kit.id, assembly_type: "Spree::Variant" } }
 
         before do
           variant.in_stock_cache = false
@@ -357,24 +359,24 @@ describe 'Spree::DynamicStockCheckJob' do
     let(:variant_opts) { { product: product, in_stock_cache: true, updated_at: 1.day.ago } }
 
     let!(:product_part)  { create(:base_product) }
-    let!(:static_kit) { create(:master_variant, static_kit_opts) }
+    let!(:sk) { create(:master_variant, static_kit_opts) }
     let(:static_kit_opts) { { in_stock_cache: true, product: product_part, number: "99999" } }
-    let!(:static_kit_part) { create(:master_variant, in_stock_cache: true, number: "bite_me") }
-    let!(:ap) do
-      Spree::StaticAssembliesPart.create(part_id: static_kit_part.id, assembly_id: static_kit.id, assembly_type: 'Spree::Variant', count: 1, optional: false)
-    end
+    let!(:skp) { create(:master_variant, in_stock_cache: true, number: "bite_me") }
+    let!(:ap) { Spree::StaticAssembliesPart.create(ap_opts) }
+    let(:ap_opts) { { part_id: skp.id, assembly_id: sk.id, assembly_type: "Spree::Variant" } }
 
     let!(:adp) { create(:assembly_definition_part, adp_opts) }
     let!(:adp_opts) { { product: variant.product, part: product_part } }
-    let!(:adv) { Spree::AssemblyDefinitionVariant.create(assembly_definition_part: adp, variant: static_kit) }
+    let!(:adv) { adv_klass.create(assembly_definition_part: adp, variant: sk) }
+    let(:adv_klass) { Spree::AssemblyDefinitionVariant }
 
-    subject { Spree::StockCheckJob.new(static_kit_part) }
+    subject { Spree::StockCheckJob.new(skp) }
 
     before { product.master = variant }
 
     context "static kit part is going out of stock" do
       before do
-        allow(static_kit_part).to receive(:can_supply?).and_return false
+        allow(skp).to receive(:can_supply?).and_return false
       end
 
       it "set the in_stock value to false" do
@@ -384,8 +386,8 @@ describe 'Spree::DynamicStockCheckJob' do
       end
 
       it "does trigger the suite_tab_cache_rebuilder" do
-        expect(subject).to receive(:rebuild_suite_tab_cache).with(static_kit_part.product)
-        expect(subject).to receive(:rebuild_suite_tab_cache).with(static_kit.product)
+        expect(subject).to receive(:rebuild_suite_tab_cache).with(skp.product)
+        expect(subject).to receive(:rebuild_suite_tab_cache).with(sk.product)
         expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
         subject.perform
       end
@@ -394,9 +396,9 @@ describe 'Spree::DynamicStockCheckJob' do
     context "is coming into stock" do
       let(:variant)         { create(:master_variant, variant_opts) }
       let(:variant_opts)    { { product: product, in_stock_cache: false, updated_at: 1.day.ago } }
-      let(:static_kit_part) { create(:base_variant, in_stock_cache: false) }
+      let(:skp) { create(:base_variant, in_stock_cache: false) }
 
-      before { allow(static_kit_part).to receive(:can_supply?).and_return true }
+      before { allow(skp).to receive(:can_supply?).and_return true }
 
       it "set the in_stock value to true" do
         expect(variant.in_stock_cache).to be_falsey
@@ -405,20 +407,18 @@ describe 'Spree::DynamicStockCheckJob' do
       end
 
       it "triggers the suite_tab_cache_rebuilder" do
-        expect(subject).to receive(:rebuild_suite_tab_cache).with(static_kit_part.product)
-        # expect(subject).to receive(:rebuild_suite_tab_cache).with(static_kit.product)
+        expect(subject).to receive(:rebuild_suite_tab_cache).with(skp.product)
         expect(subject).to receive(:rebuild_suite_tab_cache).with(variant.product)
         subject.perform
       end
     end
 
     context "multiple variants of which one is going out of stock" do
-      let!(:another_static_kit) {create(:base_variant, in_stock_cache: false, product: product_part)}
-      let!(:another_adv) { Spree::AssemblyDefinitionVariant.create(assembly_definition_part: adp, variant: another_static_kit) }
+      let!(:static_kit_2) { create(:base_variant, in_stock_cache: false, product: product_part) }
+      let!(:adv_3)        { adv_klass.create(assembly_definition_part: adp, variant: static_kit_2) }
+      let(:adv_klass)     { Spree::AssemblyDefinitionVariant }
 
-      before do
-        allow(static_kit_part).to receive(:can_supply?).and_return false
-      end
+      before { allow(skp).to receive(:can_supply?).and_return false }
 
       it "set the in_stock value to false" do
         expect(variant.in_stock_cache).to be_truthy

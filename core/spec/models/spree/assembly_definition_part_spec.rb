@@ -9,7 +9,7 @@ describe Spree::AssemblyDefinitionPart do
   let(:part)  { create(:base_product) }
   let(:colour)   { create(:option_type, name: 'colour', position: 2 )}
 
-  describe 'save' do
+  describe "save" do
     let(:ad)  { build(:assembly_definition, variant: variant) }
     let(:adp) { create(:assembly_definition_part, product_id: part.id, assembly_definition: ad) }
     it        { expect(adp.product).to eq assembly_product }
