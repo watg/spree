@@ -30,12 +30,12 @@ module Spree
         variant.static_assemblies_parts.any?
     end
 
-    def configurations
-      variant.product.configurations
+    def dynamic_assembly?
+      product_parts.any?
     end
 
-    def dynamic_assembly?
-      configurations.any?
+    def product_parts
+      variant.product.product_parts
     end
 
     def adjust_static_assembly
@@ -50,13 +50,13 @@ module Spree
     end
 
     def out_of_stock
-      required_configurations.detect do |config|
-        config.variants.all?(&method(:part_out_of_stock?))
+      required_product_parts.detect do |product_part|
+        product_part.variants.all?(&method(:part_out_of_stock?))
       end
     end
 
-    def required_configurations
-      configurations.select(&:required?)
+    def required_product_parts
+      product_parts.select(&:required?)
     end
 
     def part_out_of_stock?(part)
