@@ -8,5 +8,11 @@
 
 <div class="form-buttons" data-hook="buttons">
   <%= submit_tag Spree.t(:place_order), :class => 'continue button primary' %>
-  <script>Spree.disableSaveOnClick();</script>
+  <script>
+    var disableSaveOnClick = function(e) {
+        Spree.disableSaveOnClick();
+    };
+    document.addEventListener("DOMContentLoaded", disableSaveOnClick);
+    document.addEventListener("page:load", disableSaveOnClick);
+  </script>
 </div>

@@ -33,6 +33,7 @@
 //= require core.checkout
 //= require core.search
 
+
 //= require spree/frontend
 //= require spree/frontend/checkout
 //= require spree/frontend/checkout/address
@@ -44,7 +45,7 @@
 //= require spree/frontend/core.product-top
 //= require spree/frontend/core.suite
 //= require spree/frontend/core.suites-index
-
+//= require spree/frontend/core.payment
 
 //= require spree/frontend/product-option-values
 //= require spree/frontend/kit-option-values

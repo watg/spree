@@ -50,7 +50,11 @@
          ].join.gsub('"', "'").gsub("\n", "")
       %>
       <%= javascript_tag do -%>
-        $('#<%="#{address_id}state" %>').append("<%== state_elements %>");
+        var appendAdressState = function(e) {
+            $('#<%="#{address_id}state" %>').append("<%== state_elements %>");
+        };
+        document.addEventListener("DOMContentLoaded", appendAdressState);
+        document.addEventListener("page:load", appendAdressState);
       <% end %>
     </p>
       <noscript>
