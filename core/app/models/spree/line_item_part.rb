@@ -14,7 +14,6 @@ class Spree::LineItemPart < ActiveRecord::Base
   scope :required, lambda { where(optional: false) }
   scope :containers, lambda { where(container: true) }
   scope :stock_tracking, lambda { where(container: [false, nil]) }
-  scope :assembled, lambda { where(assembled: true) }
   scope :without_subparts, lambda { where(parent_part_id: nil) }
 
   scope :not_operational, lambda { joins(variant: [product: :product_type]).merge(Spree::ProductType.where(is_operational: [nil, false])) }
@@ -35,16 +34,6 @@ class Spree::LineItemPart < ActiveRecord::Base
 
   def children
     Spree::LineItemPart.where(parent_part: self)
-  end
-
-  def main_part=(value)
-    value ||= false
-    write_attribute(:main_part, value)
-  end
-
-  def assembled=(value)
-    value ||= false
-    write_attribute(:assembled, value)
   end
 
   def container=(value)

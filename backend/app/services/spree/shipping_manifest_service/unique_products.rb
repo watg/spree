@@ -1,128 +1,59 @@
 module Spree
-
   class ShippingManifestService::UniqueProducts < ActiveInteraction::Base
-
-    model :order, class: 'Spree::Order'
-    model :order_total, class: 'BigDecimal'
-    model :shipping_costs, class: 'BigDecimal'
+    model :order, class: "Spree::Order"
+    model :order_total, class: "BigDecimal"
+    model :shipping_costs, class: "BigDecimal"
 
     def execute
-      products = gather_order_products
-      unique_products = get_unqiue_products(products) unless errors.any?
-      compute_prices(unique_products) unless errors.any?
+      product_units = order.line_items.physical.not_operational.flat_map do |line|
+        line_units, part_units = partition_units(line)
+        build_product_units(line_units, part_units)
+      end
+
+      validate_product_units(product_units)
+      grouped_product_units = group_product_units(product_units) unless errors.any?
+      compute_prices(grouped_product_units) unless errors.any?
     end
 
     private
 
-    # Within the gathering process, information about the products
-    # along with weighted prices is send to the aggregating method
-    # add_to_products
-    # Optional and required parts' prices are separetely computed
-    # to arrive at a more accurate allocation of the actual cost
-    # of each.
-    def gather_order_products
-
-      products = []
-
-      order.line_items.physical.not_operational.each do |line|
-
-        inventory_units = line.inventory_units.dup.to_a
-
-        if line.parts.any?
-          products << process_line_item_parts(line, inventory_units)
-        else
-          products << process_line_item(line, inventory_units)
-        end
-
+    def partition_units(line)
+      line_units, part_units = line.inventory_units.partition { |iu| !iu.line_item_part }
+      if line.variant.product.assemble?
+        # Use the first assembly_defintion_part for the line unit if it is not defined
+        line_units = first_part_units(line, part_units) unless line_units.any?
+        part_units = []
       end
-
-      products.flatten
-
+      [line_units, part_units]
     end
 
-    def variant_has_ignorable_product_type(variant)
-      variant.product.product_type.is_operational? ||
-      variant.product.product_type.is_digital?
+    def first_part_units(line, part_units)
+      first_adp = line.product.product_parts.sort_by(&:position).first
+      part_units.select do |pu|
+        pu.line_item_part.assembly_definition_part == first_adp
+      end
     end
 
-
-    def process_line_item(line, inventory_units)
-      products = []
-      inventory_units.each do |unit|
-        products << {product: unit.variant.product,
-                     price: unit.line_item.base_price,
-                     supplier: unit.supplier }
-      end
-      products
+    def validate_product_units(product_units)
+      missing_supplier_unit = product_units.detect { |pu| pu.supplier.nil? }
+      return unless missing_supplier_unit
+      product = missing_supplier_unit.product
+      errors.add(:missing_supplier,
+                 "for product: #{product.name} (ID: #{product.id}) for order ##{order.number}")
     end
 
-    def process_line_item_parts(line, inventory_units)
-      products = []
-      parts = line.parts.stock_tracking.where("(assembled = ? and main_part = ?) or assembled = ?", true, true, false)
-
-      total_price_of_required_parts = parts.required.to_a.sum do |p|
-        p.price * p.quantity * line.quantity
+    def group_product_units(units)
+      grouped_units = units.group_by { |u| [u.product, u.supplier.mid_code, u.supplier.country] }
+      grouped_units.map do |(product, mid_code, country), product_units|
+        {
+          product: product,
+          group: product.product_group,
+          quantity: product_units.size,
+          total_price: product_units.sum(&:price),
+          mid_code: mid_code,
+          country: country
+        }
       end
-      proportion = ( line.base_price * line.quantity ) / total_price_of_required_parts
-
-      line.quantity.times do
-        parts.each do |part|
-          part.quantity.times do
-
-            index = inventory_units.index{|iu| iu.variant_id == part.variant_id }
-            unit = inventory_units.slice!(index)
-
-            next if variant_has_ignorable_product_type(unit.variant)
-
-            if part.required?
-              weighted_price =  part.price * proportion
-              products << {product: unit.variant.product,
-                           price: weighted_price,
-                           supplier: unit.supplier }
-            else
-              products << {product: unit.variant.product,
-                           price: part.price,
-                           supplier: unit.supplier }
-            end
-
-          end
-        end
-      end
-      products
-    end
-
-    def get_unqiue_products(order_products)
-      order_products.inject({}) do |unique_products,order_product|
-
-        product = order_product[:product]
-
-        supplier = order_product[:supplier]
-        unless supplier
-          errors.add(:missing_supplier, "for product: #{product.name} (ID: #{product.id}) for order ##{order.number}")
-          return
-        end
-
-        price = order_product[:price]
-
-        key = [product.id, supplier.mid_code]
-
-        if unique_products.has_key?(key)
-          unique_products[key][:quantity] += 1
-          unique_products[key][:total_price] += price
-        else
-          unique_products[key] = {
-            product: product,
-            group: product.product_group,
-            quantity: 1,
-            total_price: price,
-            mid_code: supplier.mid_code,
-            country: supplier.country
-          }
-        end
-
-        unique_products
-
-      end.values
     end
 
     def compute_prices(unique_products)
@@ -141,6 +72,32 @@ module Spree
       unique_products
     end
 
-  end
+    def invalid_product_type(inventory_unit)
+      product_type = inventory_unit.variant.product.product_type
+      product_type.is_operational? || product_type.is_digital?
+    end
 
+    ProductUnit  = Struct.new(:product, :price, :optional, :supplier)
+    def build_product_units(line_units, part_units)
+      products = line_units.map do |unit|
+        ProductUnit.new(
+          unit.variant.product,
+          unit.line_item.base_price,
+          false,
+          unit.supplier
+        )
+      end
+
+      products += part_units.reject { |u| invalid_product_type(u) }.map do |unit|
+        ProductUnit.new(
+          unit.variant.product,
+          unit.line_item_part.price,
+          unit.line_item_part.optional?,
+          unit.supplier
+        )
+      end
+
+      products
+    end
+  end
 end

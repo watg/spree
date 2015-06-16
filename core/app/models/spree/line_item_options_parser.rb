@@ -45,8 +45,6 @@ module Spree
     def dynamic_kit_parts(variant, params)
       return [] if !variant.assembly_definition or params.nil?
 
-      main_part_id = variant.assembly_definition.main_part_id
-
       parts = []
       params.each do |part_id, selected_part_variant_id|
 
@@ -65,9 +63,7 @@ module Spree
             optional:                    assembly_definition_part.optional,
             price:                       part_price_amount(selected_part_variant),
             currency:                    currency,
-            assembled:                   assembly_definition_part.assembled,
-            container:                   true,
-            main_part:                   (assembly_definition_part.id == main_part_id)
+            container:                   true
           )
           parts << parent
 
@@ -80,7 +76,6 @@ module Spree
               optional:                    false,
               price:                       part_price_amount(sub_part),
               currency:                    currency,
-              assembled:                   assembly_definition_part.assembled,
               parent_part:                 parent,
             )
 
@@ -93,9 +88,7 @@ module Spree
             quantity:                    assembly_definition_part.count,
             optional:                    assembly_definition_part.optional,
             price:                       part_price_amount(selected_part_variant),
-            currency:                    currency,
-            assembled:                   assembly_definition_part.assembled,
-            main_part:                   (assembly_definition_part.id == main_part_id)
+            currency:                    currency
           )
         end
       end

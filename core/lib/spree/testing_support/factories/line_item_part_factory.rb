@@ -4,7 +4,6 @@ FactoryGirl.define do
     price { BigDecimal.new('4.99') }
     line_item
     variant
-    main_part false
     container false
   end
 end

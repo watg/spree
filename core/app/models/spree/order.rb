@@ -528,21 +528,27 @@ module Spree
       consider_risk
 
       # temporary notification until we implement the Assembly State Machine
-      mark_as_internal_and_send_email_if_assembled
+      mark_as_internal_and_send_email_if_assemble
     end
 
     # temporary notification until we implement the Assembly State Machine
-    def mark_as_internal_and_send_email_if_assembled
-      if self.line_item_parts.assembled.any?
-        self.update_column(:internal, true)
-        order_url = Spree::Core::Engine.routes.url_helpers.edit_admin_order_url(self)
-        customisation_numbers = self.line_item_parts.where(main_part: true).map(&:id).join(", ")
-        message = "Hello,\n
-          Order <a href='#{order_url}'>##{self.number}</a> contains customisation(s) with number(s): <b>#{customisation_numbers}</b>.\n
+    def mark_as_internal_and_send_email_if_assemble
+      return unless line_items.detect { |li| li.variant.product.assemble? }
+      update_column(:internal, true)
+      order_url = Spree::Core::Engine.routes.url_helpers.edit_admin_order_url(self)
+      products = line_items.select { |li| li.variant.product.assemble? }.map do |li|
+        li.variant.product.name
+      end.join(", ")
+      message = "Hello,\n
+          Order <a href='#{order_url}'>##{self.number}</a> contains customisation(s):\n
+          <b>#{products}</b>.\n
           It has been marked as internal.\n
           Thank you."
-        Spree::NotificationMailer.delay.send_notification(message, Rails.application.config.personalisation_email_list,'Customisation Order #' + self.number.to_s)
-      end
+      Spree::NotificationMailer.delay.send_notification(
+        message,
+        Rails.application.config.personalisation_email_list,
+        "Customisation Order #" + self.number.to_s
+      )
     end
 
     def has_gift_card?

@@ -19,7 +19,6 @@
     <col style="width: 5%">
     <col style="width: 35%">
     <col style="width: 30%">
-    <col style="width: 10%;">
     <col style="width: 5%;">
     <col style="width: 5%">
       <thead>
@@ -27,7 +26,6 @@
           <th></th>
           <th colspan="2">Presentation</th>
           <th>Quantity</th>
-          <th>Assembled</th>
           <th>Optional</th>
           <th class="actions"></th>
         </tr>
@@ -44,18 +42,6 @@
         <% end %>
       </tbody>
     </table>
-  </fieldset>
-
-  <fieldset>
-    <legend align="center">Main Part</legend>
-    <div class="row">
-      <div class="eft six columns alpha">
-      <%= f.label :main_part_id, "Main Part" %> <span class="required">*</span><br />
-      <%= f.collection_select(:main_part_id, @assembly_definition.parts, :id, :presentation, {:include_blank => true},{
-        :class => 'select2 fullwidth'}) %>
-      <%= f.error_message_on :main_part_id %>
-      </div>
-    </div>
   </fieldset>
 
   <fieldset>
