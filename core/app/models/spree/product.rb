@@ -65,11 +65,11 @@ module Spree
 
     has_many :assembly_definition_parts
 
-    has_many :configurations, foreign_key: "assembly_product_id", class_name: "Spree::AssemblyDefinitionPart"
-    has_many :configurators, foreign_key: "product_id", class_name: "Spree::AssemblyDefinitionPart"
+    has_many :product_parts, foreign_key: "assembly_product_id", class_name: "Spree::AssemblyDefinitionPart"
+    has_many :part_products, foreign_key: "product_id", class_name: "Spree::AssemblyDefinitionPart"
 
-    has_many :parts, through: :configurations
-    has_many :products, through: :configurators
+    has_many :parts, through: :product_parts
+    has_many :products, through: :part_products
 
     after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
 
