@@ -17,6 +17,8 @@ describe Spree::StockCheckJob do
     let!(:adv)           { create(:assembly_definition_variant, adv_opts) }
     let(:adv_opts)       { { assembly_definition_part: adp, variant: pv } }
 
+    before               { variant.product.master =  variant }
+
     describe "stock check for the the Assembly Definition variant e.g. Kit itself" do
       subject  { klass.new(variant) }
 
@@ -139,8 +141,6 @@ describe Spree::StockCheckJob do
         let(:pv2_status) { out_of_stock }
         let(:adv_2)      { create(:assembly_definition_variant, adv2_opts) }
         let(:adv_2_opts) { { assembly_definition_part: adp, variant: pv2 } }
-
-        before { variant.product.update(master: variant) }
 
         context "required part has 1 variant in stock another out of stock" do
           let(:variant_status) { out_of_stock }
