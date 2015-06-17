@@ -35,7 +35,7 @@ describe Spree::AssemblyDefinitionPartPresenter do
   end
 
   context "#product_name" do
-    before { assembly_definition_part.part_product = product }
+    before { assembly_definition_part.part = product }
 
     its(:product_name) { should eq "Product Name" }
   end

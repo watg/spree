@@ -12,7 +12,7 @@ module Spree
     end
 
     def product_name
-      @product_name ||= assembly_definition_part.part_product.name
+      @product_name ||= assembly_definition_part.part.name
     end
 
     def displayable_option_type
