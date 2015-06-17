@@ -1,3 +1,7 @@
 <script>
-Spree.routes.cart_link = "<%= spree.cart_link_url %>"
+  var setCartLink = function(e) {
+    Spree.routes.cart_link = "<%= spree.cart_link_url %>"
+  };
+  document.addEventListener("DOMContentLoaded", setCartLink);
+  document.addEventListener("page:load", setCartLink);
 </script>

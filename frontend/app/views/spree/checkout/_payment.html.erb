@@ -33,11 +33,13 @@
   </div>
 <% end %>
 
-
+<script>
+  document.getElementsByTagName('body')[0].className+=' payment';
+</script>
 
 <div id="payment" data-hook>
 	<div data-hook="checkout_payment_step">
-	
+
 		<div class="small-12 columns">
 			<% @order.available_payment_methods.each do |method| %>
 			<div class="payment-method-tab">
@@ -48,7 +50,7 @@
 			</div>
 			<% end %>
 		</div>
-		
+
 		<ul id="payment-methods" data-hook class="p-methods small-12 columns">
 			<% @order.available_payment_methods.each do |method| %>
 			<li id="payment_method_<%= method.id %>" class="<%= "payment-method #{(method == @order.available_payment_methods.last ? 'last' : nil)}" %>" data-hook>
@@ -64,6 +66,5 @@
 <div class="small-12 columns">
 	<div class="form-buttons" data-hook="buttons">
 		<%= submit_tag Spree.t(:place_order), :class => 'continue button primary' %>
-		<script>$( document ).ready(function(){ Spree.paymentMethods(); Spree.disableSaveOnClick(); })</script>
 	</div>
 </div>

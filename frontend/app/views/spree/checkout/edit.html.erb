@@ -32,10 +32,14 @@
 </div>
 
 <script>
-Spree.current_order_id = "<%= @order.number %>"
-Spree.current_order_token = "<%= @order.guest_token %>"
+  var setOrderDetails = function(e) {
+    Spree.current_order_id = "<%= @order.number %>"
+    Spree.current_order_token = "<%= @order.guest_token %>"
+  };
+  document.addEventListener("DOMContentLoaded", setOrderDetails);
+  document.addEventListener("page:load", setOrderDetails);
 </script>
 
 <% if I18n.locale != :en %>
-  <%= javascript_include_tag 'jquery.validate/localization/messages_' + I18n.locale.to_s.downcase.gsub('-', '') %>
+  <%= javascript_include_tag 'jquery.validate/localization/messages_' + I18n.locale.to_s.downcase.gsub('-', ''), defer: true  %>
 <% end %>

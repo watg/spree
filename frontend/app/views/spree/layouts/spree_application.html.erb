@@ -8,16 +8,15 @@
   <title><%= content_for?(:title) ? yield(:title) : title || "Wool And The Gang" %></title>
   <%= content_for?(:meta) ? yield(:meta) : meta_data_tags.html_safe %>
   <script type="text/javascript" src="https://photorankstatics-a.akamaihd.net/static/frontend/latest/build.min.js" async></script>
-  <%= stylesheet_link_tag    "application" %>
-  <%= javascript_include_tag "application" %>
+
+  <%= stylesheet_link_tag    "application", cache: true %>
+  <%= javascript_include_tag "application", defer: true%>
 
   <%= yield(:javascript_include) %>
 
   <%= csrf_meta_tags %>
   <%= render "spree/shared/frontend_routes" %>
   <%= yield :head %>
-  <script type="text/javascript" src="//apis.google.com/js/plusone.js"></script>
-
 </head>
 
 <body id="<%= @body_id || 'default' %>" class="shop <%= body_class %> <%= device_class %>" data-hook="body">
@@ -44,7 +43,11 @@
   </div>
 
   <script>
-    Spree.api_key = <%= raw(try_spree_current_user.try(:spree_api_key).to_s.inspect) %>;
+    var setApiKey = function(e) {
+        Spree.api_key = <%= raw(try_spree_current_user.try(:spree_api_key).to_s.inspect) %>;
+    };
+    document.addEventListener("DOMContentLoaded", setApiKey);
+    document.addEventListener("page:load", setApiKey);
   </script>
 
   <%= render :partial => 'spree/shared/facebook_pixel' %>

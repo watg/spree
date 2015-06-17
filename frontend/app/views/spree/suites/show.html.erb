@@ -14,7 +14,7 @@
 
     <% unless mobile_device? %>
       <% content_for :javascript_include do %>
-        <%= javascript_include_tag "spree/frontend/suites" %>
+        <%= javascript_include_tag "spree/frontend/suites" , defer: true %>
       <% end %>
     <% end %>
 
