@@ -8,7 +8,7 @@ describe Spree::AssemblyDefinitionVariant do
   let(:part)  { create(:base_product) }
   let(:assembly_definition) { create(:assembly_definition, variant: variant) }
   let(:adp) { create(:assembly_definition_part, adp_opts) }
-  let(:adp_opts) { { assembly_definition: assembly_definition, part_product: part } }
+  let(:adp_opts) { { assembly_definition: assembly_definition, part: part } }
 
   let(:variant_part)  { create(:base_variant) }
   subject { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }

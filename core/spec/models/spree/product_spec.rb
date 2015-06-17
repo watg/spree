@@ -484,7 +484,7 @@ describe Spree::Product, :type => :model do
 
       let(:product_part)  { variant_part.product }
       let!(:adp)  { create(:assembly_definition_part, adp_opts) }
-      let(:adp_opts) { { assembly_product: variant_assembly.product, part_product: product_part } }
+      let(:adp_opts) { { product: variant_assembly.product, part: product_part } }
       let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
 
       before { adv.update(assembly_product: variant_assembly.product) }

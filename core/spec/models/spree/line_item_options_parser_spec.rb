@@ -47,7 +47,7 @@ describe Spree::LineItemOptionsParser do
       let!(:adp) do
         create(:assembly_definition_part,
                assembly_definition: assem_def,
-               part_product: product,
+               part: product,
                count: 2)
       end
       let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
@@ -119,7 +119,7 @@ describe Spree::LineItemOptionsParser do
         let(:bogus_product_part)  { create(:base_product) }
         let(:bogus_variant_part)  { create(:base_variant, product: bogus_product_part) }
         let(:bogus_adp) { create(:assembly_definition_part, bogus_adp_opts) }
-        let(:bogus_adp_opts) { { assembly_definition: bogus_ad, part_product: bogus_product_part } }
+        let(:bogus_adp_opts) { { assembly_definition: bogus_ad, part: bogus_product_part } }
         let(:bogus_adv) { create(:assembly_definition_variant, assembly_definition_part: bogus_adp, variant: bogus_variant_part) }
 
         it "assembly variant must be valid" do
@@ -185,7 +185,7 @@ describe Spree::LineItemOptionsParser do
         let(:other_product)  { create(:base_product) }
         let(:other_variant)  { create(:base_variant, product: other_product) }
         let(:other_part) { create(:assembly_definition_part, op_opts) }
-        let(:op_opts)  { { assembly_definition: assem_def, part_product: other_product, count: 1 } }
+        let(:op_opts)  { { assembly_definition: assem_def, part: other_product, count: 1 } }
         let!(:other_part_variant) { create(:assembly_definition_variant, assembly_definition_part: other_part, variant: other_variant) }
 
         # Override the price to 0 as this is now a container
