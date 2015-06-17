@@ -1,30 +1,54 @@
-require 'spec_helper'
+require "spec_helper"
 
-describe Spree::LineItem, :type => :model do
+describe Spree::LineItem, type: :model do
   let(:order) { create :order_with_line_items, line_items_count: 1 }
   let(:line_item) { order.line_items.first }
 
   describe "#item_sku" do
-    subject {line_item}
+    subject { line_item }
     context "dynamic kit" do
       # sku's are important as we do a sort on the sku when generating
       # the item_sku
-      let(:variant11) { create(:variant, weight: 11, sku: 'c') }
-      let(:variant10) { create(:variant, weight: 10, sku: 'a') }
-      let(:variant8)  { create(:variant, weight: 8, sku: 'b') }
+      let(:variant11) { create(:variant, weight: 11, sku: "c") }
+      let(:variant10) { create(:variant, weight: 10, sku: "a") }
+      let(:variant8)  { create(:variant, weight: 8, sku: "b") }
       let(:variant7)  { create(:variant, weight: 7) }
       let(:option_type)  { create(:option_type) }
 
-      let(:dynamic_kit_variant) {
+      let(:dynamic_kit_variant) do
         pdt = create(:product, product_type: create(:product_type_kit))
         v = create(:variant, product_id: pdt.id, cost_price: 0, weight: 0)
         v.assembly_definition = Spree::AssemblyDefinition.create(variant_id: v.id)
         v
-      }
-      let(:part1) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant11.product_id, optional: false, displayable_option_type: option_type)}
-      let(:part2) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant10.product_id, optional: false, displayable_option_type: option_type)}
-      let(:part3) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant8.product_id, optional: false, displayable_option_type: option_type)}
-      let(:part4) {dynamic_kit_variant.assembly_definition.parts.create(count: 1, product_id: variant7.product_id, optional: true, displayable_option_type: option_type)}
+      end
+      let(:part1) do
+        dynamic_kit_variant.assembly_definition.parts.create(
+          count: 1,
+          part_id: variant11.product_id,
+          optional: false,
+          displayable_option_type: option_type)
+      end
+      let(:part2) do
+        dynamic_kit_variant.assembly_definition.parts.create(
+          count: 1,
+          part_id: variant10.product_id,
+          optional: false,
+          displayable_option_type: option_type)
+      end
+      let(:part3) do
+        dynamic_kit_variant.assembly_definition.parts.create(
+          count: 1,
+          part_id: variant8.product_id,
+          optional: false,
+          displayable_option_type: option_type)
+      end
+      let(:part4) do
+        dynamic_kit_variant.assembly_definition.parts.create(
+          count: 1,
+          part_id: variant7.product_id,
+          optional: true,
+          displayable_option_type: option_type)
+      end
 
       before do
         subject.variant = dynamic_kit_variant
@@ -46,21 +70,21 @@ describe Spree::LineItem, :type => :model do
     end
   end
 
-  context '#cost_price' do
+  context "#cost_price" do
     let(:variant10) { create(:variant, cost_price: 10) }
     let(:variant7)  { create(:variant, cost_price: 7) }
     let(:variant3)  { create(:variant, cost_price: 3) }
-    let(:kit_variant) {
+    let(:kit_variant) do
       pdt = create(:product, product_type: create(:product_type_kit))
       v = create(:variant, product_id: pdt.id, cost_price: 2, weight: 0)
       v
-    }
+    end
     before do
       line_item.quantity = 2
     end
     it "for simple variant" do
       line_item.variant = variant10
-      expect(line_item.cost_price).to eq (2*10.0) #20.0
+      expect(line_item.cost_price).to eq (2 * 10.0) # 20.0
     end
 
     it "for kit variant no option" do
@@ -89,9 +113,9 @@ describe Spree::LineItem, :type => :model do
       line_item.line_item_parts.create(quantity: 2, price: 1, variant_id: variant10.id, optional: false)
       line_item.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: false)
       line_item.line_item_parts.create(quantity: 1, price: 10, variant_id: variant3.id, optional: true)
-      # 2 * 17 ( variant10.product.master.cost_price ) 
-      # 1 * 7 ( variant7.cost_price ) 
-      # 1 * 3 ( variant3.cost_price ) 
+      # 2 * 17 ( variant10.product.master.cost_price )
+      # 1 * 7 ( variant7.cost_price )
+      # 1 * 3 ( variant3.cost_price )
       # => 44
       # 1 * 2 ( line_item.variant.cost_price )
       # => 46
@@ -99,7 +123,6 @@ describe Spree::LineItem, :type => :model do
       # => 92
       expect(line_item.cost_price).to eq 92.0
     end
-
 
     it "notifies if both part variant and master cost_price is nil and defaults to 0" do
       line_item.variant = kit_variant
@@ -114,21 +137,21 @@ describe Spree::LineItem, :type => :model do
     end
   end
 
-  context '#weight' do
+  context "#weight" do
     let(:variant10) { create(:variant, weight: 10) }
     let(:variant7)  { create(:variant, weight: 7) }
     let(:variant3)  { create(:variant, weight: 3) }
-    let!(:kit_variant) {
+    let!(:kit_variant) do
       pdt = create(:product, product_type: create(:product_type_kit))
       v = create(:variant, product_id: pdt.id, cost_price: 0, weight: 1)
       v
-    }
+    end
     before do
       line_item.quantity = 2
     end
     it "for simple variant" do
       line_item.variant = variant10
-      expect(line_item.weight).to eq (2*10.0) #20.0
+      expect(line_item.weight).to eq (2 * 10.0) # 20.0
     end
 
     it "for kit variant no option" do
@@ -153,7 +176,6 @@ describe Spree::LineItem, :type => :model do
       expect(line_item.weight).to eq 23.0
     end
 
-
     it "notifies if both part variant and master weight is nil and defaults to 0" do
       line_item.variant = kit_variant
       variant10.update_column(:weight, nil)
@@ -165,17 +187,16 @@ describe Spree::LineItem, :type => :model do
       expect(Rails.logger).to receive(:warn).with("The weight of variant id: #{variant10.id} is nil for line_item_part: #{lio.id}")
       expect(line_item.weight).to eq 22.0
     end
-
   end
 
-  context '#save' do
-    it 'touches the order' do
+  context "#save" do
+    it "touches the order" do
       expect(line_item.order).to receive(:touch)
       line_item.save
     end
   end
 
-  context '#destroy' do
+  context "#destroy" do
     before do
       line_item.save
     end
@@ -234,7 +255,6 @@ describe Spree::LineItem, :type => :model do
         expect(line_item).to receive(:recalculate_adjustments)
         line_item.save
       end
-
     end
 
     context "verify invetory" do
@@ -242,7 +262,7 @@ describe Spree::LineItem, :type => :model do
         line_item.save
       end
 
-      it "should trigger if changes are made" do
+      it "triggers if changes are made" do
         line_item.updated_at = Time.now
         expect_any_instance_of(Spree::OrderInventory).to receive(:verify)
         line_item.save
@@ -255,7 +275,6 @@ describe Spree::LineItem, :type => :model do
       #   Spree::OrderInventory.any_instance.should_not_receive(:verify)
       #   line_item.save
       # end
-
     end
 
     context "line item does not change" do
@@ -278,8 +297,8 @@ describe Spree::LineItem, :type => :model do
     let(:variant) { create(:variant) }
 
     before do
-      variant.price_normal_in('USD').amount = 19.99
-      create(:tax_rate, :zone => order.tax_zone, :tax_category => variant.tax_category)
+      variant.price_normal_in("USD").amount = 19.99
+      create(:tax_rate, zone: order.tax_zone, tax_category: variant.tax_category)
     end
 
     it "verifies order_inventory" do
@@ -310,12 +329,11 @@ describe Spree::LineItem, :type => :model do
         line_item = order.contents.add(variant)
         expect(line_item.adjustments.tax.count).to eq(0)
       end
-
     end
   end
 
   # Test for #3391
-  context '#copy_price' do
+  context "#copy_price" do
     it "copies over a variant's prices" do
       line_item.price = nil
       line_item.cost_price = nil
@@ -330,7 +348,7 @@ describe Spree::LineItem, :type => :model do
   # TODO, if it is in the sale, we should change the price to reflect that
 
   # Test for #3481
-  context '#copy_tax_category' do
+  context "#copy_tax_category" do
     it "copies over a variant's tax category" do
       line_item.tax_category = nil
       line_item.copy_tax_category
@@ -338,7 +356,7 @@ describe Spree::LineItem, :type => :model do
     end
   end
 
-  describe '.discounted_amount' do
+  describe ".discounted_amount" do
     it "returns the amount minus any discounts" do
       line_item.price = 10
       line_item.quantity = 2
@@ -348,14 +366,14 @@ describe Spree::LineItem, :type => :model do
   end
 
   describe "#discounted_money" do
-    it "should return a money object with the discounted amount" do
+    it "returns a money object with the discounted amount" do
       expect(line_item.discounted_money.to_s).to eq "$10.00"
     end
   end
 
-  describe '.currency' do
-    it 'returns the globally configured currency' do
-      line_item.currency == 'USD'
+  describe ".currency" do
+    it "returns the globally configured currency" do
+      line_item.currency == "USD"
     end
   end
 
@@ -369,7 +387,6 @@ describe Spree::LineItem, :type => :model do
     it "returns a Spree::Money representing the total for this line item" do
       expect(line_item.normal_display_amount.to_s).to eq("$7.00")
     end
-
   end
 
   describe ".sale_display_amount" do
@@ -387,9 +404,7 @@ describe Spree::LineItem, :type => :model do
       line_item.in_sale = true
       expect(line_item.sale_display_amount.to_s).to eq("$5.00")
     end
-
   end
-
 
   describe ".money" do
     before do
@@ -402,14 +417,14 @@ describe Spree::LineItem, :type => :model do
     end
   end
 
-  describe '.single_money' do
+  describe ".single_money" do
     before { line_item.price = 3.50 }
     it "returns a Spree::Money representing the price for one variant" do
       expect(line_item.single_money.to_s).to eq("$3.50")
     end
   end
 
-  describe '.has_gift_card?' do
+  describe ".has_gift_card?" do
     it "returns false when has no gift card" do
       expect(line_item).not_to be_has_gift_card
     end
@@ -421,7 +436,7 @@ describe Spree::LineItem, :type => :model do
   end
 
   describe ".sufficient_stock?" do
-    let(:line_item) { Spree::LineItem.new }
+    let(:line_item) { described_class.new }
 
     it "variant out of stock across order" do
       line_item.errors[:quantity] << "Insufficient stock error"
@@ -436,7 +451,7 @@ describe Spree::LineItem, :type => :model do
   end
 
   context "has inventory (completed order so items were already unstocked)" do
-    let(:order) { Spree::Order.create(email: 'spree@example.com') }
+    let(:order) { Spree::Order.create(email: "spree@example.com") }
     let(:variant) { create(:variant) }
     let(:supplier) { create(:supplier) }
 
@@ -444,10 +459,12 @@ describe Spree::LineItem, :type => :model do
       let(:container) { create(:variant) }
       let(:part1) { create(:variant) }
       let(:part2) { create(:variant) }
-      let(:parts) { [
-       Spree::LineItemPart.new(variant_id: part1.id, optional: false, quantity: 2, price: 1),
-       Spree::LineItemPart.new(variant_id: part2.id, optional: true, quantity: 1, price: 1),
-      ] }
+      let(:parts) do
+        [
+          Spree::LineItemPart.new(variant_id: part1.id, optional: false, quantity: 2, price: 1),
+          Spree::LineItemPart.new(variant_id: part2.id, optional: true, quantity: 1, price: 1)
+        ]
+      end
 
       before do
         create(:product_type_gift_card)
@@ -532,8 +549,6 @@ describe Spree::LineItem, :type => :model do
         expect(line_item.errors_on(:quantity).size).to eq(1)
       end
     end
-
-
   end
 
   context "currency same as order.currency" do
@@ -569,11 +584,11 @@ describe Spree::LineItem, :type => :model do
     # This is disabled for the time being, as we set the price
     # in the order_contents model for line item options
     #
-    #it "updates the price based on the options provided" do
+    # it "updates the price based on the options provided" do
     #  expect(line_item).to receive(:gift_wrap=).with(true)
     #  expect(line_item.variant).to receive(:gift_wrap_price_modifier_amount_in).with("USD", true).and_return 1.99
     #  line_item.options = { gift_wrap: true }
     #  expect(line_item.price).to eq 21.98
-    #end
+    # end
   end
 end
