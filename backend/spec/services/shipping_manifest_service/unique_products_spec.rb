@@ -10,6 +10,7 @@ describe Spree::ShippingManifestService::UniqueProducts do
   let(:order_total) { BigDecimal.new(110) }
 
   let(:variant) { create(:base_variant) }
+  let(:product) { variant.product }
   let(:supplier) { create(:supplier) }
   let(:line_item_1) { create(:base_line_item, order: order, variant: variant) }
 
@@ -158,9 +159,9 @@ describe Spree::ShippingManifestService::UniqueProducts do
     end
     let(:variant_2) { create(:variant) }
     let(:supplier_2) { create(:supplier, mid_code: "supplier_2_mid_code") }
-    let(:adp1) { create(:assembly_definition_part, position: 1) }
-    let(:adp2) { create(:assembly_definition_part, position: 2) }
-    let(:adp3) { create(:assembly_definition_part, position: 3) }
+    let(:adp1) { create(:assembly_definition_part, position: 1, product: product) }
+    let(:adp2) { create(:assembly_definition_part, position: 2, product: product) }
+    let(:adp3) { create(:assembly_definition_part, position: 3, product: product) }
     let!(:part1) do
       create(:line_item_part,
              optional: false,
