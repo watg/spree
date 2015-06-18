@@ -67,7 +67,7 @@ describe Spree::LineItemOptionsParser do
         ) ] }
 
       it "can parse parts from the options" do
-        parts = subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => variant_part.id})
+        parts = subject.dynamic_kit_parts(variant_assembly.reload, adp.id.to_s => variant_part.id)
         expect(parts.map(&:attributes)).to match_array expected_parts.map(&:attributes)
       end
 
@@ -111,7 +111,8 @@ describe Spree::LineItemOptionsParser do
           end
 
           it "creates the correct params" do
-            parts = subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => variant_part.id})
+            parts = subject.dynamic_kit_parts(variant_assembly.reload,
+                                              adp.id.to_s => variant_part.id)
             expect(parts.map(&:attributes)).to match_array expected_parts.map(&:attributes)
           end
 
@@ -163,7 +164,7 @@ describe Spree::LineItemOptionsParser do
         context "#missing_parts" do
 
           it "returns empty hash if all parts are present" do
-            outcome = subject.missing_parts(variant_assembly, {adp.id.to_s => variant_part.id})
+            outcome = subject.missing_parts(variant_assembly.reload, adp.id.to_s => variant_part.id)
             expect(outcome).to eq Hash.new
           end
 
@@ -180,7 +181,7 @@ describe Spree::LineItemOptionsParser do
           end
 
           it "returns no missing parts if the value is set to no_thanks" do
-            outcome = subject.missing_parts(variant_assembly,
+            outcome = subject.missing_parts(variant_assembly.reload,
               {adp.id.to_s => Spree::AssemblyDefinitionPart::NO_THANKS})
             expect(outcome).to eq Hash.new
           end
@@ -254,7 +255,9 @@ describe Spree::LineItemOptionsParser do
             container: false,
             main_part: false)
 
-          parts = subject.dynamic_kit_parts(variant_assembly, {adp.id.to_s => variant_part.id.to_s, other_part.id.to_s => other_variant.id.to_s})
+          parts = subject.dynamic_kit_parts(variant_assembly.reload,
+                                            adp.id.to_s =>        variant_part.id.to_s,
+                                            other_part.id.to_s => other_variant.id.to_s)
           expect(parts.map(&:attributes)).to match_array [lip1,lip2,lip3,lip4].map(&:attributes)
         end
       end
