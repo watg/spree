@@ -297,7 +297,7 @@ describe Spree::ShippingManifestService::UniqueProducts do
                   )
           end
         end
-        line_item_1.product.assembly_definition_parts = [adp1, adp2, adp3]
+        line_item_1.product_parts = [adp1, adp2, adp3]
       end
 
       it "uses the first line_item_part as the main part" do

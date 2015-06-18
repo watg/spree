@@ -181,7 +181,7 @@ describe Spree::Order do
     end
   end
 
-  describe "#mark_as_internal_and_send_email_if_assemble" do
+  describe "#send_notification_if_assembly_required" do
     let(:supplier) { create(:supplier) }
     subject { create(:order_with_line_items, line_items_count: 1) }
 

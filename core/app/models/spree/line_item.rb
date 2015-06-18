@@ -20,6 +20,8 @@ module Spree
     has_many :line_item_parts#, dependent: :destroy
     alias parts line_item_parts
 
+    has_many :product_parts, through: :line_item_parts
+
     before_validation :copy_price
     before_validation :copy_tax_category
 

@@ -1,15 +1,36 @@
 module Spree
+  # TODO: move this into lib
+  class LineItemUnitsPartitioner
+
+    attr_accessor :line
+
+    def initialize(line)
+      @line = line
+    end
+
+    def run
+      line_units, part_units = line.inventory_units.partition { |iu| !iu.line_item_part }
+      if line.variant.product.assemble?
+        # Use the first assembly_defintion_part for the line unit if it is not defined
+        line_units = first_part_units(part_units) unless line_units.any?
+        part_units = []
+      end
+      [line_units, part_units]
+    end
+
+    def first_part_units(part_units)
+      first_line_item_part = line.line_item_parts.sort_by(&:position).first
+      part_units.select { |pu| pu.line_item_part == first_line_item_part }
+    end
+  end
+
   class ShippingManifestService::UniqueProducts < ActiveInteraction::Base
     model :order, class: "Spree::Order"
     model :order_total, class: "BigDecimal"
     model :shipping_costs, class: "BigDecimal"
 
     def execute
-      product_units = order.line_items.physical.not_operational.flat_map do |line|
-        line_units, part_units = partition_units(line)
-        build_product_units(line_units, part_units)
-      end
-
+      product_units = build_product_units
       validate_product_units(product_units)
       grouped_product_units = group_product_units(product_units) unless errors.any?
       compute_prices(grouped_product_units) unless errors.any?
@@ -17,21 +38,13 @@ module Spree
 
     private
 
-    def partition_units(line)
-      line_units, part_units = line.inventory_units.partition { |iu| !iu.line_item_part }
-      if line.variant.product.assemble?
-        # Use the first assembly_defintion_part for the line unit if it is not defined
-        line_units = first_part_units(line, part_units) unless line_units.any?
-        part_units = []
-      end
-      [line_units, part_units]
-    end
-
-    def first_part_units(line, part_units)
-      first_adp = line.product.product_parts.sort_by(&:position).first
-      part_units.select do |pu|
-        pu.line_item_part.assembly_definition_part == first_adp
-      end
+    ProductUnit  = Struct.new(:product, :price, :optional, :supplier)
+    def build_product_units
+      order.line_items.physical.not_operational.each_with_object([]) do |line, units|
+        line_units, part_units = Spree::LineItemUnitsPartitioner.new(line).run
+        units << build_line_product_units(line_units)
+        units << build_parts_product_units(part_units)
+      end.flatten
     end
 
     def validate_product_units(product_units)
@@ -57,18 +70,12 @@ module Spree
     end
 
     def compute_prices(unique_products)
-      unique_products = unique_products.dup
-
-      total_price = unique_products.sum do |up|
-        up[:total_price].to_f
-      end
+      total_price = unique_products.sum { |up| up[:total_price].to_f }
       order_total_without_shipping = order_total.to_f - shipping_costs.to_f
 
       proportion = order_total_without_shipping / total_price
 
-      unique_products.map do |up|
-        up[:total_price] = up[:total_price] * proportion
-      end
+      unique_products.map { |up| up[:total_price] = up[:total_price] * proportion }
       unique_products
     end
 
@@ -77,9 +84,8 @@ module Spree
       product_type.is_operational? || product_type.is_digital?
     end
 
-    ProductUnit  = Struct.new(:product, :price, :optional, :supplier)
-    def build_product_units(line_units, part_units)
-      products = line_units.map do |unit|
+    def build_line_product_units(line_units)
+      line_units.map do |unit|
         ProductUnit.new(
           unit.variant.product,
           unit.line_item.base_price,
@@ -87,17 +93,18 @@ module Spree
           unit.supplier
         )
       end
+    end
 
-      products += part_units.reject { |u| invalid_product_type(u) }.map do |unit|
+    def build_parts_product_units(part_units)
+      valid_part_units =  part_units.reject { |u| invalid_product_type(u) }
+      valid_part_units.map do |part_unit|
         ProductUnit.new(
-          unit.variant.product,
-          unit.line_item_part.price,
-          unit.line_item_part.optional?,
-          unit.supplier
+          part_unit.variant.product,
+          part_unit.line_item_part.price,
+          part_unit.line_item_part.optional?,
+          part_unit.supplier
         )
       end
-
-      products
     end
   end
 end

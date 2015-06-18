@@ -528,17 +528,31 @@ module Spree
       consider_risk
 
       # temporary notification until we implement the Assembly State Machine
-      mark_as_internal_and_send_email_if_assemble
+      send_notification_if_assembly_required
     end
 
     # temporary notification until we implement the Assembly State Machine
-    def mark_as_internal_and_send_email_if_assemble
-      return unless line_items.detect { |li| li.variant.product.assemble? }
+    def send_notification_if_assembly_required
+      return unless line_items_require_assembly?
+      make_order_internal
+      AssemblyRequiredMailer.new(order).send
+    end
+
+    def make_order_internal
       update_column(:internal, true)
+    end
+
+    def line_items_require_assembly?
+      line_items.detect { |li| li.variant.product.assemble? }
+    end
+
+    def line_items_requiring_assembly
+      line_items.select { |li| li.variant.product.assemble? }
+    end
+
+    def send_assembly_required_notification
       order_url = Spree::Core::Engine.routes.url_helpers.edit_admin_order_url(self)
-      products = line_items.select { |li| li.variant.product.assemble? }.map do |li|
-        li.variant.product.name
-      end.join(", ")
+      products = line_items_requiring_assembly.map { |li| li.variant.product.name }.join(", ")
       message = "Hello,\n
           Order <a href='#{order_url}'>##{self.number}</a> contains customisation(s):\n
           <b>#{products}</b>.\n
