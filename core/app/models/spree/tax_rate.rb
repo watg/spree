@@ -33,7 +33,6 @@ module Spree
     def self.match(order_tax_zone, order_currency)
       return [] unless order_tax_zone
       rates = includes(zone: { zone_members: :zoneable }).load.select do |rate|
-    
         # Apply only the rates for the order currency. This is not for performance
         # but because vanilla spree does not deal with currencies and different
         # tax rates well
@@ -88,7 +87,8 @@ module Spree
       relevant_items, non_relevant_items = items.partition { |item| tax_categories.include?(item.tax_category) }
 
       if relevant_items.present?
-        Spree::Adjustment.where(adjustable: relevant_items).tax.destroy_all # using destroy_all to ensure adjustment destroy callback fires.
+        # using destroy_all to ensure adjustment destroy callback fires.
+        Spree::Adjustment.where(adjustable: relevant_items).tax.destroy_all
       end
 
       relevant_items.each do |item|
