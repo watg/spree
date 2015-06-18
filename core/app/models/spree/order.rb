@@ -533,21 +533,21 @@ module Spree
 
     # temporary notification until we implement the Assembly State Machine
     def send_notification_if_assembly_required
-      return unless line_items_require_assembly?
+      return unless line_items_requiring_assembly?
       make_order_internal
-      AssemblyRequiredMailer.new(order).send
+      AssemblyRequiredMailer.new(self).send
     end
 
     def make_order_internal
       update_column(:internal, true)
     end
 
-    def line_items_require_assembly?
-      line_items.detect { |li| li.variant.product.assemble? }
+    def line_items_requiring_assembly?
+      line_items.any?(&:assemble?)
     end
 
     def line_items_requiring_assembly
-      line_items.select { |li| li.variant.product.assemble? }
+      line_items.select(&:assemble?)
     end
 
     def send_assembly_required_notification
