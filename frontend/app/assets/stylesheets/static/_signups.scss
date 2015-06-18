@@ -1,35 +1,72 @@
 /* Competitions - using spree-chimpy refer a friend */
 .competition {
+  .row-shipping-and-contact + .container > div.row {
+    max-width: none !important;
+  }
+  .row-shipping-and-contact + .container > div.row > .columns {
+    padding: 0;
+  }
+  .wrapper-competitions div.row {
+    margin: 0 auto;
+    position: relative;
+    max-width: 62.5em;
+  }
+  .grey-background {
+    background-color: #f7f7f7;
+    max-width: 100% !important;
+  }
+
   h1 {
     text-align: center;
     font-size: emCalc(60px);
-    padding: 60px 0;
+    padding: 60px 0 60px;
     margin: 0;
   }
-
+  h2 {
+    font-family: $watg-font-secondary-light;
+    text-align: center;
+  }
+  h2.header {
+    padding-bottom: 60px;
+    margin: 0;
+  }
+  h2 strong {
+    font-family: $watg-font-secondary;
+  }
+  h4 {
+    text-align: center;
+  }
   .link {
     text-decoration: underline;
   }
+  .descritpion {
+    padding: 20px 0 60px;
+    h3 {
+      font-family: $watg-font-secondary;
+      text-transform: none;
+      font-size: emCalc(16px);
+      strong {
+        font-family: $watg-font;
+      }
+    }
+  }
 
   .row-referral {
-    /*min-height: 654px;*/
     margin: -3em 0 3em;
+    text-align: center;
+    .sign-up-header {
+      padding-top: 30px;
+    }
+
     form {
       h3 {
+        text-align: left;
         font-family: "Gill Sans W01 Light";
         font-size: 1.25em;
       }
       .error {
         margin: 2.75em 0 -1.75em;
       }
-      // .wait, p.thanks {
-      //   margin: 2.75em 0 3em;
-      //   font-family: "Gill Sans W01 Light";
-      //   font-size: 1.5em;
-      //   line-height: 1.25em;
-      //   text-align: center;
-      //   text-transform: uppercase;
-      // }
       fieldset:nth-child(0) {
         margin-top: 2em;
       }
@@ -59,7 +96,6 @@
         }
       }
       #refereeForm {
-        text-align: center;
         fieldset {
           margin-top: 0;
           margin-bottom: 3em;
@@ -97,6 +133,15 @@
       text-transform: uppercase;
       text-align: center;
       font-family: $watg-font-secondary-light !important;
+    }
+  }
+}
+
+// T&C pages
+.terms-and-conditions {
+  .wrapper-competitions {
+    h1 {
+      text-align: center;
     }
   }
 }
