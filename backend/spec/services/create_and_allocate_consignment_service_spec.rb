@@ -181,7 +181,7 @@ describe Spree::CreateAndAllocateConsignmentService do
         booking_code: "@GLOBALZONE"
       }
 
-      shipping_manifest = Spree::ShippingManifestService.run(order: order)
+      shipping_manifest = ShippingManifest::BuilderService.run(order: order)
       expect(consignment.send(:allocation_hash, order, shipping_manifest.result)).to eql(expected)
       expected[:recipient][:address] = address
 
