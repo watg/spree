@@ -13,16 +13,8 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
   accepts_nested_attributes_for :images
   accepts_nested_attributes_for :assembly_definition_parts
 
-  before_create :set_assembly_product
-
   def images_for(target)
     images.with_target(target)
-  end
-
-  private
-
-  def set_assembly_product
-    self.assembly_product = self.variant.product
   end
 
 end

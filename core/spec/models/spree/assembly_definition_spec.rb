@@ -8,15 +8,6 @@ describe Spree::AssemblyDefinition do
 
   subject { described_class.create(variant_id: assembly.id) }
 
-  describe "set_assembly_product" do
-    it "set assembly product before create" do
-      ad = described_class.new(variant_id: assembly.id)
-      expect(ad.assembly_product).to be_nil
-      ad.save
-      expect(ad.assembly_product).to_not be_nil
-    end
-  end
-
   describe "#images_for" do
     let(:target) { create(:target) }
     let(:target_2) { create(:target) }
