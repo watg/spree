@@ -15,27 +15,6 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
 
   before_create :set_assembly_product
 
-  def selected_variants_out_of_stock
-    Spree::AssemblyDefinitionVariant.joins(:assembly_definition_part, :variant).
-      where("spree_variants.in_stock_cache='f'").
-      where("spree_assembly_definition_parts.assembly_definition_id = ?", self.id).inject({}) do |hash,adv|
-        hash[adv.assembly_definition_part_id] ||= []
-        hash[adv.assembly_definition_part_id] << adv.variant_id
-        hash
-      end
-  end
-
-  def selected_variants_out_of_stock_option_values
-    Spree::AssemblyDefinitionVariant.joins(:assembly_definition_part, :variant).
-      includes(variant: [:option_values]).
-      where("spree_variants.in_stock_cache='f'").
-      where("spree_assembly_definition_parts.assembly_definition_id = ?", self.id).inject({}) do |hash,adv|
-        hash[adv.assembly_definition_part_id] ||= []
-        hash[adv.assembly_definition_part_id] << adv.variant.option_values.map(&:id)
-        hash
-      end
-  end
-
   def images_for(target)
     images.with_target(target)
   end
