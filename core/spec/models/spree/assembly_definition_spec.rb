@@ -2,7 +2,7 @@ require "spec_helper"
 
 describe Spree::AssemblyDefinition do
   let(:assembly) { create(:variant) }
-  let(:assembly_product) { assembly.product }
+  let(:product) { assembly.product }
   let(:part) { create(:base_product) }
   let(:option_type) { create(:option_type) }
 
@@ -28,20 +28,4 @@ describe Spree::AssemblyDefinition do
     end
   end
 
-  describe "touch" do
-    before { Timecop.freeze }
-    after { Timecop.return }
-
-    it "touches assembly product after touch" do
-      assembly_product.update_column(:updated_at, 1.day.ago)
-      subject.touch
-      expect(assembly_product.reload.updated_at).to be_within(1.seconds).of(Time.now)
-    end
-
-    it "touches assembly product after save" do
-      assembly_product.update_column(:updated_at, 1.day.ago)
-      subject.touch
-      expect(assembly_product.reload.updated_at).to be_within(1.seconds).of(Time.now)
-    end
-  end
 end
