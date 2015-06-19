@@ -39,5 +39,6 @@ module Spree
     def set_assembly_product
       self.product = assembly_definition.variant.product if assembly_definition
     end
+
   end
 end

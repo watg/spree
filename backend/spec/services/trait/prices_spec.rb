@@ -43,7 +43,7 @@ describe Spree::ServiceTrait::Prices do
   let(:new_prices) { {
   :normal=>{"GBP"=>"£39.00", "USD"=>"$49.00", "EUR"=>"€47.00"},
   :normal_sale=>{"GBP"=>"£111.00", "USD"=>"$12.00", "EUR"=>"€0.00"},
-  :part=>{"GBP"=>"£22.00", "USD"=>"$0.00", "EUR"=>"€0.00"}
+  :part=>{"GBP"=>"£22.00", "USD"=>"$11.00", "EUR"=>"€11.00"}
   } }
 
   let(:dummy_class) {  OpenStruct.new.extend(Spree::ServiceTrait::Prices) }
@@ -63,8 +63,8 @@ describe Spree::ServiceTrait::Prices do
       variant.price_for_type(:normal_sale, 'EUR').amount.should == 0.00
 
       variant.price_for_type(:part, 'GBP').amount.should == 22.00
-      variant.price_for_type(:part, 'USD').amount.should == 0.00
-      variant.price_for_type(:part, 'EUR').amount.should == 0.00
+      variant.price_for_type(:part, 'USD').amount.should == 11.00
+      variant.price_for_type(:part, 'EUR').amount.should == 11.00
     end
 
   end
@@ -77,7 +77,8 @@ describe Spree::ServiceTrait::Prices do
     end
 
     it "does not accept missing currencies for normal" do
-      dummy_class.should_receive(:add_error).with(:variant, :price, "price not set for type: normal, currency: GBP")
+      dummy_class.should_receive(:add_error)
+        .with(:variant, :price, "price not set for type: normal, currency: GBP")
       new_prices[:normal].delete 'GBP'
       dummy_class.validate_prices(new_prices)
     end
@@ -89,10 +90,28 @@ describe Spree::ServiceTrait::Prices do
     end
 
     it "does not accept 0 amount for normal price" do
-      dummy_class.should_receive(:add_error).with(:variant, :price, "amount can not be <= 0 for currency: GBP and normal price")
+      dummy_class.should_receive(:add_error)
+        .with(:variant, :price, "amount can not be <= 0 for type: normal, currency: GBP")
       new_prices[:normal]['GBP'] = '£0'
       dummy_class.validate_prices(new_prices)
     end
 
+    context "part prices" do
+
+      it "does not accept missing currencies" do
+        dummy_class.should_receive(:add_error)
+          .with(:variant, :price, "price not set for type: part, currency: GBP")
+        new_prices[:part].delete 'GBP'
+        dummy_class.validate_prices(new_prices)
+      end
+
+      it "does not accept 0 amount" do
+        dummy_class.should_receive(:add_error)
+          .with(:variant, :price, "amount can not be <= 0 for type: part, currency: GBP")
+        new_prices[:part]['GBP'] = '£0'
+        dummy_class.validate_prices(new_prices)
+      end
+
+    end
   end
 end

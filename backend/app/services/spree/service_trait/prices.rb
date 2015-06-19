@@ -14,17 +14,20 @@ module Spree
 
       def validate_prices(prices)
         Spree::Config[:supported_currencies].split(',').each do |currency|
-          p = prices[:normal][currency]
-          if p.nil?
-            add_error(:variant, :price, "price not set for type: normal, currency: #{currency}") 
-          else
-            if Spree::LocalizedNumber.parse(p) <= 0
-              add_error(:variant, :price, "amount can not be <= 0 for currency: #{currency} and normal price")
-            end
-          end
+          validate_price(prices, :normal, currency)
+          validate_price(prices, :part, currency)
         end
       end
 
+      def validate_price(prices, type, currency)
+        price = prices[type][currency]
+        if price.nil?
+          add_error(:variant, :price, "price not set for type: #{type}, currency: #{currency}")
+        elsif Spree::LocalizedNumber.parse(price) <= 0
+          add_error(:variant,
+                    :price, "amount can not be <= 0 for type: #{type}, currency: #{currency}")
+        end
+      end
     end
   end
 end

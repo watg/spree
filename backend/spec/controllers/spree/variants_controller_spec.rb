@@ -77,7 +77,7 @@ describe Spree::Admin::VariantsController, type: :controller do
       "prices"=>{
         "normal"      => {"GBP"=>"£39.00", "USD"=>"$49.00", "EUR"=>"€47.00"},
         "normal_sale" => {"GBP"=>"£111.00", "USD"=>"$12.00", "EUR"=>"€0.00"},
-        "part"        => {"GBP"=>"£22.00", "USD"=>"$0.00", "EUR"=>"€0.00"}
+        "part"        => {"GBP"=>"£22.00", "USD"=>"$22.00", "EUR"=>"€22.00"}
       },
       "stock_thresholds" => { "#{active_location.id}"=>"0" },
     }

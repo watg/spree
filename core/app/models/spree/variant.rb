@@ -458,10 +458,6 @@ module Spree
       assembly_definition.try(:assembly_definition_parts) || []
     end
 
-    def part_prices
-      prices.select{ |price| (price.sale == false) && (price.is_kit == true) }
-    end
-
     def create_sku
       sku_parts = [ product.master.sku ] + self.option_values.map { |ov| [ ov.option_type.sku_part, ov.sku_part ] }
       self.sku = sku_parts.flatten.join('-')

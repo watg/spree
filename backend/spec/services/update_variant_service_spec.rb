@@ -25,7 +25,7 @@ describe Spree::UpdateVariantService do
   let(:prices) { {
     :normal=>{"GBP"=>"£39.00", "USD"=>"$49.00", "EUR"=>"€47.00"},
     :normal_sale=>{"GBP"=>"£111.00", "USD"=>"$12.00", "EUR"=>"€0.00"},
-    :part=>{"GBP"=>"£22.00", "USD"=>"$0.00", "EUR"=>"€0.00"}
+    :part=>{"GBP"=>"£22.00", "USD"=>"$22.00", "EUR"=>"€22.00"}
   } }
 
   context "#run" do
@@ -46,7 +46,8 @@ describe Spree::UpdateVariantService do
       bad_prices[:normal]['GBP'] = '£0'
       outcome = subject.run(variant: variant, details: valid_params, prices: bad_prices)
       expect(outcome.valid?).to be_falsey
-      expect(outcome.errors.full_messages.to_sentence).to eq 'Variant amount can not be <= 0 for currency: GBP and normal price'
+      expect(outcome.errors.full_messages.to_sentence)
+        .to eq 'Variant amount can not be <= 0 for type: normal, currency: GBP'
     end
 
     it "sets the prices on the master" do

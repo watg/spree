@@ -13,17 +13,6 @@ describe Spree::Variant do
     end
   end
 
-  context '#part_prices' do
-    before do
-      variant.prices.map { |p| p.amount = 1;  p.is_kit=true; p.save }
-    end
-
-    it "should provide an error" do
-      variant.reload
-      expect(variant.prices).to eq [variant.prices.first]
-    end
-  end
-
   describe '#total_on_hand' do
     it 'should be infinite if track_inventory_levels is false' do
       Spree::Config[:track_inventory_levels] = false

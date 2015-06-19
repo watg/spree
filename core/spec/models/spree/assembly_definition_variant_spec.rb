@@ -13,15 +13,6 @@ describe Spree::AssemblyDefinitionVariant do
   let(:variant_part)  { create(:base_variant) }
   subject { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
 
-  context '#part_prices' do
-
-    it "should provide an error" do
-      expect(subject.variant).to receive(:part_prices)
-      subject.part_prices
-    end
-
-  end
-
   context "touch" do
 
     before { Timecop.freeze }

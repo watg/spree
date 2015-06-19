@@ -8,10 +8,6 @@ class Spree::AssemblyDefinitionVariant < ActiveRecord::Base
 
   before_create :set_assembly_product
 
-  def part_prices
-    variant.part_prices
-  end
-
   # Return variant, even if deleted
   # Fixes admin errors on assembly definition.
   def variant

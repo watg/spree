@@ -6,22 +6,6 @@ module Spree
     let(:part) { create(:variant) }
     let(:variant) { create(:variant, id: 123) }
 
-    context "validate_prices" do
-      before do
-        variant.prices.map do |p|
-          p.amount = 0
-          p.is_kit = true
-          p.save
-        end
-      end
-
-      it "provides an error" do
-        ap = product.static_assemblies_parts.create(
-          part_id: variant.id, optional: true, count: 1)
-        expect(ap.errors.any?).to be true
-      end
-    end
-
     describe "touching" do
       before do
         product.static_parts.push part
