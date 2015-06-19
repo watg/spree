@@ -6,7 +6,7 @@ class Spree::LineItemPart < ActiveRecord::Base
   belongs_to :variant, class_name: "Spree::Variant"
   belongs_to :line_item, class_name: "Spree::LineItem", inverse_of: :line_item_parts
   belongs_to :parent_part, class_name: "Spree::LineItemPart"
-   
+
   belongs_to :assembly_definition_part
   belongs_to :product_part, class_name: "Spree::AssemblyDefinitionPart",
     foreign_key: :assembly_definition_part_id
@@ -21,17 +21,11 @@ class Spree::LineItemPart < ActiveRecord::Base
 
   scope :not_operational, lambda { joins(variant: [product: :product_type]).merge(Spree::ProductType.where(is_operational: [nil, false])) }
 
+  delegate :position, to: :product_part
+  delegate :product, to: :variant
+
   def required?
     !optional?
-  end
-
-  def position
-    product_part.position
-  end
-
-  # Remove product default_scope `deleted_at: nil`
-  def product
-    variant.product
   end
 
   # Remove variant default_scope `deleted_at: nil`
