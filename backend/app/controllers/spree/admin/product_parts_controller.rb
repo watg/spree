@@ -7,8 +7,6 @@ module Spree
       def index
       end
 
-      # TODO: Remove all of the assembly_definition controllers
-      # TODO: move specs
       # TODO: Delete assem def
       # TODO: Rename models
       # TODO: Rename assembly_defintiion_variant
