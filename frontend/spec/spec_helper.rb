@@ -1,5 +1,4 @@
 require 'pry'
-
 if ENV["COVERAGE"]
   # Run Coverage report
   require 'simplecov'
@@ -50,8 +49,18 @@ require 'alchemy/seeder'
 
 require 'paperclip/matchers'
 
-Capybara.register_driver :poltergeist_custom do |app|
-  Capybara::Poltergeist::Driver.new(app, { debug: false, timeout: 30 })
+# features
+require "selenium-webdriver"
+require 'capybara/poltergeist'
+
+
+Capybara.register_driver :poltergeist do |app|
+  Capybara::Poltergeist::Driver.new(app, { debug: false, # change this to true to troubleshoot
+                                           window_size: [1300, 1000], # this can affect dynamic layout
+                                           js_errors: false,
+                                           timeout: 60,
+                                           :phantomjs_options => ['--load-images=no']
+  })
 end
 
 if ENV['WEBDRIVER'] == 'accessible'
@@ -59,7 +68,7 @@ if ENV['WEBDRIVER'] == 'accessible'
   Capybara.javascript_driver = :accessible
 else
   require 'capybara/poltergeist'
-  Capybara.javascript_driver = :poltergeist_custom
+  Capybara.javascript_driver = :poltergeist
 end
 
 RSpec.configure do |config|
@@ -102,7 +111,7 @@ RSpec.configure do |config|
   config.include ActionView::TestCase::Behavior, file_path: %r{spec/presenters}
 
   config.before(:each) do
-    WebMock.disable!
+    WebMock.disable_net_connect!(:allow_localhost => true)
     if RSpec.current_example.metadata[:js]
       DatabaseCleaner.strategy = :truncation
     else
@@ -115,6 +124,8 @@ RSpec.configure do |config|
     end
     DatabaseCleaner.start
     reset_spree_preferences
+    Spree.user_class = "Spree::User"
+
     Delayed::Worker.delay_jobs = true
   end
 
@@ -134,6 +145,8 @@ RSpec.configure do |config|
 
   config.before(:each) do
     reset_spree_preferences
+    Spree.user_class = "Spree::User"
+
   end
 
   # After each spec the database gets cleaned. (via rollback or truncate for feature specs)
@@ -155,5 +168,11 @@ RSpec.configure do |config|
 
   config.include Paperclip::Shoulda::Matchers
 
+
+  config.include Spree::TestingSupport::ControllerRequests, :type => :controller
+  config.include Devise::TestHelpers, :type => :controller
+  config.include Rack::Test::Methods, :type => :feature
+  config.include Capybara::DSL
+  config.include FeatureHelpers
   config.fail_fast = ENV['FAIL_FAST'] || false
 end
