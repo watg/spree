@@ -1,13 +1,19 @@
-require 'spec_helper'
+require "feature_helper"
 
 describe 'orders', :type => :feature do
   let(:order) { OrderWalkthrough.up_to(:complete) }
   let(:user) { create(:user) }
 
   before do
+    WebMock.stub_request(:get, "https://www.gov.uk/bank-holidays.json")
+      .to_return(status: 200, body: "", headers: {})
+  end
+
+  before do
     order.update_attribute(:user_id, user.id)
     order.shipments.destroy_all
-    allow_any_instance_of(Spree::OrdersController).to receive_messages(:try_spree_current_user => user)
+    allow_any_instance_of(Spree::OrdersController)
+    .to receive_messages(:try_spree_current_user => user)
   end
 
   it "can visit an order" do

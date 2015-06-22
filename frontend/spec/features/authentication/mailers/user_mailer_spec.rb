@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "feature_helper"
 
 RSpec.describe Spree::UserMailer, type: :mailer do
 

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "feature_helper"
 
 RSpec.feature 'Sign In', type: :feature do
 

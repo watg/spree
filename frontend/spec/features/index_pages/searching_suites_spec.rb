@@ -1,4 +1,4 @@
-require "spec_helper"
+require "feature_helper"
 
 feature "searching" do
   let(:taxon) { create(:taxon, name: "Taxon Name") }

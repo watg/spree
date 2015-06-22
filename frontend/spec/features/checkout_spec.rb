@@ -1,4 +1,4 @@
-# require 'spec_helper'
+# require "feature_helper"
 
 # describe "Checkout", inaccessible: true do
 
@@ -8,7 +8,7 @@
 #   let!(:stock_location) { create(:stock_location) }
 #   let!(:payment_method) { create(:payment_method) }
 #   let!(:zone) { Spree::Zone.first || create(:zone) }
-  
+
 #   let!(:suite) { create(:suite) }
 #   let!(:mug) { create(:product_with_stock_and_prices, :name => "RoR Mug") }
 
@@ -164,7 +164,7 @@
 
 #   context "and likes to double click buttons" do
 #     let!(:user) { create(:user) }
-    
+
 #     let!(:order) do
 #       order = OrderWalkthrough.up_to(:delivery)
 #       order.stub :confirmation_required? => true

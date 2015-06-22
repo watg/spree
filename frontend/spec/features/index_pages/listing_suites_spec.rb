@@ -1,4 +1,4 @@
-require "spec_helper"
+require "feature_helper"
 
 feature "visiting a taxon" do
   let(:taxon) { create(:taxon, permalink: "test") }

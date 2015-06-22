@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "feature_helper"
 
 feature 'video' do
   let!(:hat)     { create(:product, :with_marketing_type, name: 'hat', slug: 'hat-1') }

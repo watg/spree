@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "feature_helper"
 
 describe "Sign Out" do
   let!(:user) do

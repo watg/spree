@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "feature_helper"
 
 describe "Rewards", inaccessible: true do
 
@@ -35,7 +35,7 @@ describe "Rewards", inaccessible: true do
 
       it "collects the reward" do
         visit spree.raf_rewards_path
-        
+
         click_link 'Redeem your rewards'
         expect(page).to have_content "Yay! You've just redeemed your earnings"
       end

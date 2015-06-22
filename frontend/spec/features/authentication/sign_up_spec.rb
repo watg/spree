@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "feature_helper"
 
 describe "Sign Up" do
   context "with valid data" do
@@ -12,7 +12,7 @@ describe "Sign Up" do
       expect(Spree::User.where(email: 'email@person.com', enrolled: true, subscribed: nil)).to exist
     end
   end
-  
+
   context "with subscribed checked" do
     it "should create a new user" do
       visit spree.signup_path

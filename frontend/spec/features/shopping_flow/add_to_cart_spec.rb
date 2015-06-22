@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "feature_helper"
 
 
 feature 'adding product to cart', inaccessible: true do

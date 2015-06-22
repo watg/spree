@@ -1,4 +1,4 @@
-require "spec_helper"
+require "feature_helper"
 
 RSpec.feature "Prices", type: :feature do
   let!(:user)        { create(:user) }

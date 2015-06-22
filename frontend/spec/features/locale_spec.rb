@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "feature_helper"
 
 describe "setting locale" , :type => :feature do
   before do

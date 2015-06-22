@@ -1,4 +1,4 @@
-require 'pry'
+require "pry"
 if ENV["COVERAGE"]
   # Run Coverage report
   require 'simplecov'
@@ -14,7 +14,7 @@ end
 
 # This file is copied to ~/spec when you run 'ruby script/generate rspec'
 # from the project root directory.
-ENV["RAILS_ENV"] ||= 'test'
+ENV["RAILS_ENV"] ||= 'features'
 
 begin
   require File.expand_path("../../../../../config/environment", __FILE__)
@@ -55,12 +55,7 @@ require 'capybara/poltergeist'
 
 
 Capybara.register_driver :poltergeist do |app|
-  Capybara::Poltergeist::Driver.new(app, { debug: false, # change this to true to troubleshoot
-                                           window_size: [1300, 1000], # this can affect dynamic layout
-                                           js_errors: false,
-                                           timeout: 60,
-                                           :phantomjs_options => ['--load-images=no']
-  })
+  Capybara::Poltergeist::Driver.new(app, { debug: false, timeout: 60 })
 end
 
 if ENV['WEBDRIVER'] == 'accessible'
@@ -70,6 +65,11 @@ else
   require 'capybara/poltergeist'
   Capybara.javascript_driver = :poltergeist
 end
+
+# Capybara.register_driver :chrome do |app|
+#   Capybara::Selenium::Driver.new(app, :browser => :chrome)
+# end
+# Capybara.javascript_driver = :chrome
 
 RSpec.configure do |config|
   config.color = true
@@ -96,6 +96,7 @@ RSpec.configure do |config|
   # phantomjs is used.
   config.before(:all, :type => :feature) do
     if ENV['RSPEC_RETRY_COUNT']
+      Spree.user_class = 'Spree::User'
       config.verbose_retry       = true # show retry status in spec process
       config.default_retry_count = ENV['RSPEC_RETRY_COUNT'].to_i
     end
@@ -124,8 +125,6 @@ RSpec.configure do |config|
     end
     DatabaseCleaner.start
     reset_spree_preferences
-    Spree.user_class = "Spree::User"
-
     Delayed::Worker.delay_jobs = true
   end
 
@@ -145,8 +144,6 @@ RSpec.configure do |config|
 
   config.before(:each) do
     reset_spree_preferences
-    Spree.user_class = "Spree::User"
-
   end
 
   # After each spec the database gets cleaned. (via rollback or truncate for feature specs)

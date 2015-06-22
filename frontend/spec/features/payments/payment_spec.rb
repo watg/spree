@@ -1,6 +1,7 @@
-require "spec_helper"
+require "feature_helper"
 RSpec.feature "Payment", type: :feature do
   let(:user) do
+    Spree.user_class = 'Spree::User'
     create(:user, email: "email@person.com", password: "secret", password_confirmation: "secret")
   end
 
@@ -44,8 +45,8 @@ RSpec.feature "Payment", type: :feature do
     create(:base_variant, product: hat_product, option_values: [red], in_stock_cache: true)
   end
 
-  let!(:credit_card_payment_method) { create(:adyen_payment_method) }
-  let!(:paypal_test_payment_method) { create(:paypal_test_payment_method) }
+  let!(:credit_card_payment_method) { create(:adyen_payment_method, environment: :features) }
+  let!(:paypal_test_payment_method) { create(:paypal_test_payment_method, environment: :features) }
 
   before do
     kill_popups

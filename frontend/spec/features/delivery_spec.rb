@@ -1,4 +1,4 @@
-require "spec_helper"
+require "feature_helper"
 
 describe "Delivery", type: :feature, js: true do
   let!(:country) { create(:country, states_required: true) }
@@ -18,6 +18,7 @@ describe "Delivery", type: :feature, js: true do
   end
 
   before(:each) do
+    WebMock.disable!
     allow(Flip).to receive(:on?).with(:shipping_options).and_return(true)
     allow(Flip).to receive(:on?).with(:suites_feature).and_return(false)
 
@@ -37,8 +38,7 @@ describe "Delivery", type: :feature, js: true do
 
     it "applies to the relevant shipping rate" do
       visit spree.checkout_state_path("delivery")
-
-      # default selected shippng rate
+      # default selected shipping rate
       expect(page).to have_content "UPS Ground"
       expect(find_field("UPS Ground")).to be_checked
 

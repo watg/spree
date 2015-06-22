@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "feature_helper"
 
 describe "Adding an order", inaccessible: true do
 

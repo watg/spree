@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "feature_helper"
 
 describe "Newsletter subscription", inaccessible: true do
 
@@ -9,7 +9,7 @@ describe "Newsletter subscription", inaccessible: true do
       fill_in "signupEmail", :with => "email@person.com"
       click_button "I'm in!"
       expect(page).to have_content("Wool respect")
-      
+
       expect(Spree::User.where(email: 'email@person.com', enrolled: false, subscribed: true)).to exist
     end
   end
@@ -27,7 +27,7 @@ describe "Newsletter subscription", inaccessible: true do
         click_button "Submit"
       end
       expect(page).to have_content("Wool respect")
-      
+
       expect(Spree::User.where(email: 'email@person.com', enrolled: false, subscribed: true)).to exist
     end
   end

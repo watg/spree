@@ -1,4 +1,4 @@
-require "spec_helper"
+require "feature_helper"
 
 feature "when visiting a page" do
   let!(:zone) do

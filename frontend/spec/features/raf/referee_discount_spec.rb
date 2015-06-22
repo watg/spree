@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "feature_helper"
 
 describe "Referee Discount", inaccessible: true do
   let(:token) { 'REF_TOKEN_01' }

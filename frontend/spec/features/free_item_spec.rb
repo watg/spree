@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "feature_helper"
 
 # Gigantic regression test for #2191
 describe "Free shipping promotions", :type => :feature, :js => true do

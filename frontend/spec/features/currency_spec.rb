@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "feature_helper"
 
 describe "Switching currencies in backend", :type => :feature do
   before do
