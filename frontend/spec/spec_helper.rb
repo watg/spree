@@ -14,7 +14,7 @@ end
 
 # This file is copied to ~/spec when you run 'ruby script/generate rspec'
 # from the project root directory.
-ENV["RAILS_ENV"] ||= 'features'
+ENV["RAILS_ENV"] ||= 'test'
 
 begin
   require File.expand_path("../../../../../config/environment", __FILE__)
@@ -112,7 +112,7 @@ RSpec.configure do |config|
   config.include ActionView::TestCase::Behavior, file_path: %r{spec/presenters}
 
   config.before(:each) do
-    WebMock.disable_net_connect!(:allow_localhost => true)
+    WebMock.disable!
     if RSpec.current_example.metadata[:js]
       DatabaseCleaner.strategy = :truncation
     else
@@ -136,7 +136,6 @@ RSpec.configure do |config|
   config.after(:each, :type => :feature) do |example|
     missing_translations = page.body.scan(/translation missing: #{I18n.locale}\.(.*?)[\s<\"&]/)
     if missing_translations.any?
-      #binding.pry
       puts "Found missing translations: #{missing_translations.inspect}"
       puts "In spec: #{example.location}"
     end
@@ -165,11 +164,5 @@ RSpec.configure do |config|
 
   config.include Paperclip::Shoulda::Matchers
 
-
-  config.include Spree::TestingSupport::ControllerRequests, :type => :controller
-  config.include Devise::TestHelpers, :type => :controller
-  config.include Rack::Test::Methods, :type => :feature
-  config.include Capybara::DSL
-  config.include FeatureHelpers
   config.fail_fast = ENV['FAIL_FAST'] || false
 end

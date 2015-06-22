@@ -56,7 +56,7 @@ RSpec.feature "Payment", type: :feature do
     colour_variant_two.stock_items.first.set_count_on_hand(1)
     colour_variant_two.stock_items.first.update_column(:backorderable, false)
   end
-
+  let!(:response) {double('sucess?'=> true)}
   scenario "pays with card(adyen)", js: true do
     buy_and_checkout
     choose("Adyen Test Gateway")
@@ -68,7 +68,7 @@ RSpec.feature "Payment", type: :feature do
     # If it calls this method it means that the javascript is loaded
     expect_any_instance_of(Spree::Gateway::AdyenPaymentEncrypted)
       .to receive(:authorize_on_card)
-      .and_call_original
+      .and_return(response)
     click_button("Place Order")
   end
 
