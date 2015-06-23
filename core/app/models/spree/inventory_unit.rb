@@ -9,6 +9,7 @@ module Spree
     belongs_to :supplier, class_name: "Spree::Supplier", inverse_of: :inventory_units
 
     has_many :return_items, inverse_of: :inventory_unit
+    has_one :product_part, through: :line_item_part
     has_one :original_return_item, class_name: "Spree::ReturnItem", foreign_key: :exchange_inventory_unit_id
 
     scope :non_pending, -> { where pending: false }

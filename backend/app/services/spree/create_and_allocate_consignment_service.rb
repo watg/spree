@@ -8,7 +8,7 @@ module Spree
       order = Spree::Order.find(order_id)
       return unless valid_consignment?(order)
 
-      shipping_manifest = compose(Spree::ShippingManifestService, order: order)
+      shipping_manifest = compose(ShippingManifest::BuilderService, order: order)
 
       # Do not be tempted to rescue the whole block as it breaks the way compose propogates
       # errors

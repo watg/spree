@@ -3,7 +3,6 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
   belongs_to :variant, class_name: "Spree::Variant"
   belongs_to :assembly_product, class_name: "Spree::Product", foreign_key: "assembly_product_id", touch: true
 
-  belongs_to :main_part, class_name: 'Spree::AssemblyDefinitionPart'
   has_many :assembly_definition_parts,  -> { order(:position) }, dependent: :delete_all, class_name: 'Spree::AssemblyDefinitionPart'
   alias_method :parts, :assembly_definition_parts
 
@@ -16,15 +15,7 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
 
   before_create :set_assembly_product
 
-  validate :validate_main_part
   validate :validate_part_prices
-
-  def validate_main_part
-    # if we have a assembled we need a main part
-    if self.assembly_definition_parts.detect(&:assembled).present? != self.main_part_id.present?
-      errors.add(:assembly_definition, "can not have assembled parts without a main part")
-    end
-  end
 
   def validate_part_prices
     bad_parts = self.assembly_definition_parts.map do |adp|

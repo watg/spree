@@ -6,12 +6,6 @@ module Spree
       @images ||= assembly_definition.images.with_target(target)
     end
 
-    def displayable_suppliers
-      part = assembly_definition.main_part || assembly_definition.parts.first
-      variant = part.variants.first if part
-      variant ? variant.suppliers.displayable_with_nickname : []
-    end
-
   end
 end
 

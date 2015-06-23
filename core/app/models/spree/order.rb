@@ -528,21 +528,26 @@ module Spree
       consider_risk
 
       # temporary notification until we implement the Assembly State Machine
-      mark_as_internal_and_send_email_if_assembled
+      send_notification_if_assembly_required
     end
 
     # temporary notification until we implement the Assembly State Machine
-    def mark_as_internal_and_send_email_if_assembled
-      if self.line_item_parts.assembled.any?
-        self.update_column(:internal, true)
-        order_url = Spree::Core::Engine.routes.url_helpers.edit_admin_order_url(self)
-        customisation_numbers = self.line_item_parts.where(main_part: true).map(&:id).join(", ")
-        message = "Hello,\n
-          Order <a href='#{order_url}'>##{self.number}</a> contains customisation(s) with number(s): <b>#{customisation_numbers}</b>.\n
-          It has been marked as internal.\n
-          Thank you."
-        Spree::NotificationMailer.delay.send_notification(message, Rails.application.config.personalisation_email_list,'Customisation Order #' + self.number.to_s)
-      end
+    def send_notification_if_assembly_required
+      return unless line_items_requiring_assembly?
+      make_order_internal
+      AssemblyRequiredMailer.new(self).send
+    end
+
+    def make_order_internal
+      update_column(:internal, true)
+    end
+
+    def line_items_requiring_assembly?
+      line_items.any?(&:assemble?)
+    end
+
+    def line_items_requiring_assembly
+      line_items.select(&:assemble?)
     end
 
     def has_gift_card?

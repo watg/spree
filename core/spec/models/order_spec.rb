@@ -181,14 +181,14 @@ describe Spree::Order do
     end
   end
 
-  describe "#mark_as_internal_and_send_email_if_assembled" do
+  describe "#send_notification_if_assembly_required" do
     let(:supplier) { create(:supplier) }
     subject { create(:order_with_line_items, line_items_count: 1) }
 
     before do
       Delayed::Worker.delay_jobs = false
       line_item = subject.line_items.first
-      create(:part, line_item: line_item, variant_id: 0, assembled: true)
+      line_item.variant.product.update_attributes(assemble: true)
       Spree::StockItem.all.each { |si| si.update_attributes(supplier: supplier) }
     end
 

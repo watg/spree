@@ -20,6 +20,8 @@ module Spree
     has_many :line_item_parts#, dependent: :destroy
     alias parts line_item_parts
 
+    has_many :product_parts, through: :line_item_parts
+
     before_validation :copy_price
     before_validation :copy_tax_category
 
@@ -54,8 +56,8 @@ module Spree
 
     after_create :update_tax_charge
 
-    
     delegate :name, :description, :sku, :should_track_inventory?, to: :variant
+    delegate :assemble?, to: :product
 
     attr_accessor :options_with_qty
     attr_accessor :target_shipment

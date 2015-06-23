@@ -33,7 +33,6 @@
   <td>
     <%= f.number_field :count %>
   </td>
-  <td style="text-align: center;"><%= f.check_box :assembled %></td>
   <td style="text-align: center;"><%= f.check_box :optional %></td>
   <td class="actions">
     <%= link_to_delete part, :url => admin_assembly_definition_part_path(@assembly_definition, f.object), :no_text => true %>

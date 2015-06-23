@@ -48,8 +48,7 @@ describe Spree::LineItemOptionsParser do
         create(:assembly_definition_part,
                assembly_definition: assem_def,
                part_product: product,
-               count: 2,
-               assembled: true)
+               count: 2)
       end
       let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
 
@@ -61,9 +60,7 @@ describe Spree::LineItemOptionsParser do
           optional: adp.optional,
           price: price.amount,
           currency: "USD",
-          assembled: true,
-          container: false,
-          main_part: false
+          container: false
         ) ] }
 
       it "can parse parts from the options" do
@@ -81,18 +78,14 @@ describe Spree::LineItemOptionsParser do
             optional: adp.optional,
             price: price.amount,
             currency: "USD",
-            assembled: true,
-            container: false,
-            main_part: true
+            container: false
           )
         ] }
 
         before do
-          adp.assembled = true
           adp.optional = true
           adp.save
           assem_def.reload
-          assem_def.main_part = adp
           assem_def.save
         end
 
@@ -216,9 +209,7 @@ describe Spree::LineItemOptionsParser do
             optional: adp.optional,
             price: price.part_amount,
             currency: "USD",
-            assembled: true,
-            container: true,
-            main_part: false)
+            container: true)
 
           lip2 = Spree::LineItemPart.new(
             assembly_definition_part_id: other_part.id,
@@ -227,9 +218,7 @@ describe Spree::LineItemOptionsParser do
             optional: false,
             price: BigDecimal.new('0.00'),
             currency: "USD",
-            assembled: false,
-            container: false,
-            main_part: false)
+            container: false)
 
           lip3 = Spree::LineItemPart.new(
             assembly_definition_part_id: adp.id,
@@ -238,10 +227,8 @@ describe Spree::LineItemOptionsParser do
             optional: adp.optional,
             price: part_product_price.part_amount,
             currency: "USD",
-            assembled: true,
             parent_part: lip1, # the id refers to the parent container index
-            container: false,
-            main_part: false)
+            container: false)
 
           lip4 = Spree::LineItemPart.new(
             assembly_definition_part_id: adp.id,
@@ -250,10 +237,8 @@ describe Spree::LineItemOptionsParser do
             optional: adp.optional,
             price: part_variant_price.part_amount,
             currency: "USD",
-            assembled: true,
             parent_part: lip1, # the id refers to the parent container index
-            container: false,
-            main_part: false)
+            container: false)
 
           parts = subject.dynamic_kit_parts(variant_assembly.reload,
                                             adp.id.to_s =>        variant_part.id.to_s,
@@ -279,8 +264,7 @@ describe Spree::LineItemOptionsParser do
           optional: false,
           price: required_part1_price.part_amount,
           currency: "USD",
-          container: false,
-          main_part: false
+          container: false
         ) ] }
 
       let(:expected_optional_parts) { [
@@ -291,8 +275,7 @@ describe Spree::LineItemOptionsParser do
           optional: true,
           price: part1_price.part_amount,
           currency: "USD",
-          container: false,
-          main_part: false
+          container: false
         )
       ] }
 

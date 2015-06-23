@@ -43,41 +43,6 @@ describe Spree::AssemblyDefinition do
 
   end
 
-  context "validate_main_part" do
-
-    let(:assembly_definition) { create(:assembly_definition) }
-    let(:part) { create(:assembly_definition_part, assembly_definition: assembly_definition) }
-
-    context "no main part but assembled parts set" do
-
-      before do
-        assembly_definition.main_part = part
-      end
-
-      it "should provide an error" do
-        assembly_definition.save
-        expect(assembly_definition.errors.any?).to be true
-      end
-
-    end
-
-    context "no assembled parts but main part set" do
-
-      before do
-        part.assembled = true
-        part.save
-        assembly_definition.reload
-      end
-
-      it "should provide an error" do
-        assembly_definition.save
-        expect(assembly_definition.errors.any?).to be true
-      end
-
-    end
-
-  end
-
   describe "set_assembly_product" do
     it "set assembly product before create" do
       ad = Spree::AssemblyDefinition.new(variant_id: assembly.id)
