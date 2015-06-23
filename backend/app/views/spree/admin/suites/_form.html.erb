@@ -33,6 +33,11 @@
       <%= f.collection_select(:target_id, Spree::Target.all, :id, :name, {include_blank: true},  { class: 'select2 fullwidth'}) %>
     <% end %>
 
+    <%= f.field_container :category do %>
+      <%= f.label :category_id, "Category" %><br>
+      <%= f.collection_select(:category_id, SuiteCategory.all, :id, :name, {include_blank: true},  { class: 'select2 fullwidth'}) %>
+    <% end %>
+
     <%= f.field_container :indexable do %>
       <%= f.label :indexable, Spree.t(:indexable) %><br/>
       <%= f.check_box :indexable %> (discoverable by robots and search)<br/><br/>
