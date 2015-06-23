@@ -50,12 +50,18 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
   def update_all
     if parent.update_attributes(params[model_name])
       flash[:success] = flash_message_for(parent, :successfully_updated)
+      respond_with(parent) do |format|
+        format.html { redirect_to location_after_save }
+        format.js   { render layout: false }
+      end
     else
-      flash.now[:error] = parent.errors.full_messages.join(", ")
-    end
-    respond_with(parent) do |format|
-      format.html { redirect_to location_after_save }
-      format.js   { render :layout => false }
+      respond_with(parent) do |format|
+        format.html do
+          flash.now[:error] = parent.errors.full_messages.join(", ")
+          render action: 'index'
+        end
+        format.js { render layout: false }
+      end
     end
   end
 

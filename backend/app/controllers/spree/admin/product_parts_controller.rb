@@ -7,10 +7,6 @@ module Spree
       def index
       end
 
-      # TODO: Delete assem def
-      # TODO: Rename models
-      # TODO: Rename assembly_defintiion_variant
-      
       # TODO: move into a presenter
       def available
         @product = Spree::Product.find_by_slug(params[:product_id])

@@ -43,7 +43,7 @@ module Spree
     end
 
     def dynamic_kit_parts(variant, params)
-      return [] if !variant.assembly_definition or params.nil?
+      return [] if variant.product.parts.empty? or params.nil?
 
       parts = []
       params.each do |part_id, selected_part_variant_id|
@@ -96,18 +96,19 @@ module Spree
       parts
     end
 
+    # parts => product_part.id => variant.id
     def missing_parts(variant, parts)
-      part_ids = variant.assembly_definition.parts.map(&:id)
-      variant_ids = variant.assembly_definition.assembly_definition_variants.map(&:variant_id)
+      product_part_ids = variant.product.product_parts.map(&:id)
+      variant_ids = variant.product.product_part_variants.map(&:variant_id)
 
-      parts.reject do |part_id, asm_variant_id|
-        part_ok = part_ids.include?(part_id.to_i)
-        variant_not_required = (asm_variant_id == Spree::AssemblyDefinitionPart::NO_THANKS )
+      parts.reject do |product_part_id, variant_id|
+        part_ok = product_part_ids.include?(product_part_id.to_i)
+        variant_not_required = (variant_id == Spree::AssemblyDefinitionPart::NO_THANKS )
 
         if variant_not_required
           part_ok
         else
-          variant_ok = variant_ids.include?(asm_variant_id.to_i)
+          variant_ok = variant_ids.include?(variant_id.to_i)
           part_ok && variant_ok
         end
 
@@ -127,7 +128,7 @@ module Spree
     end
 
     def valid_part( variant, part_id )
-      variant.assembly_definition.parts.detect{|p| p.id == part_id}
+      variant.product.product_parts.detect{|p| p.id == part_id}
     end
 
     def valid_selected_part_variant( assembly_definition_part, selected_part_variant_id )

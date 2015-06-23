@@ -25,14 +25,15 @@ describe ApplicationHelper, type: :helper do
         allow(suite_tab_class).to receive(:find_by).with(id: 22).and_return tab
       end
 
-      context "when assembly definition is not present on the variant" do
+      context "when variant is not the master" do
+        before {variant.is_master = false }
         it "should give a full link to suite tab with the variant number" do
           expect(subject).to eq spree.suite_path(id: 'suite-perma', tab: 'tab-type', variant_id: 'V1234')
         end
       end
 
-      context "when assembly definition is present on the variant" do
-        before {variant.assembly_definition = Spree::AssemblyDefinition.new }
+      context "when variant is the master" do
+        before {variant.is_master = true }
 
         it "should give a link to suite tab without the variant" do
           expect(subject).to eq spree.suite_path(id: 'suite-perma', tab: 'tab-type')

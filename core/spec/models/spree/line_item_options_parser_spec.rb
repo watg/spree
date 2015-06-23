@@ -41,12 +41,12 @@ describe Spree::LineItemOptionsParser do
   context "#parts" do
     context "dynamic kits" do
       let!(:variant_assembly) { create(:variant) }
-      let!(:assem_def) { create(:assembly_definition, variant: variant_assembly) }
+      let!(:product_assembly) { variant_assembly.product }
       let!(:variant_part)  { create(:base_variant, product: product, prices: [price]) }
       let!(:price) { create(:price, price: 2.99, sale: false, is_kit: true, price_type: "part", currency: 'USD') }
       let!(:adp) do
         create(:assembly_definition_part,
-               assembly_definition: assem_def,
+               product: product_assembly,
                part: product,
                count: 2)
       end
@@ -83,10 +83,9 @@ describe Spree::LineItemOptionsParser do
         ] }
 
         before do
+          product_assembly.reload
           adp.optional = true
           adp.save
-          assem_def.reload
-          assem_def.save
         end
 
         context "non required part" do
@@ -115,11 +114,11 @@ describe Spree::LineItemOptionsParser do
       context "valid params" do
 
         let(:bogus_variant_assembly) { create(:variant) }
-        let(:bogus_ad) { create(:assembly_definition, variant: bogus_variant_assembly) }
+        let(:bogus_product) { bogus_variant_assembly.product }
         let(:bogus_product_part)  { create(:base_product) }
         let(:bogus_variant_part)  { create(:base_variant, product: bogus_product_part) }
         let(:bogus_adp) { create(:assembly_definition_part, bogus_adp_opts) }
-        let(:bogus_adp_opts) { { assembly_definition: bogus_ad, part: bogus_product_part } }
+        let(:bogus_adp_opts) { { product: bogus_product, part: bogus_product_part } }
         let(:bogus_adv) { create(:assembly_definition_variant, assembly_definition_part: bogus_adp, variant: bogus_variant_part) }
 
         it "assembly variant must be valid" do
@@ -185,7 +184,7 @@ describe Spree::LineItemOptionsParser do
         let(:other_product)  { create(:base_product) }
         let(:other_variant)  { create(:base_variant, product: other_product) }
         let(:other_part) { create(:assembly_definition_part, op_opts) }
-        let(:op_opts)  { { assembly_definition: assem_def, part: other_product, count: 1 } }
+        let(:op_opts)  { { product: variant_assembly.product, part: other_product, count: 1 } }
         let!(:other_part_variant) { create(:assembly_definition_variant, assembly_definition_part: other_part, variant: other_variant) }
 
         # Override the price to 0 as this is now a container

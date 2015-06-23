@@ -9,7 +9,7 @@ module Spree
 
     delegate_belongs_to :product, :name, :description, :slug, :available_on,
                         :shipping_category_id, :meta_description, :meta_keywords,
-                        :shipping_category
+                        :shipping_category, :product_parts
 
     has_many :inventory_units, inverse_of: :variant
     has_many :line_items, inverse_of: :variant
@@ -39,14 +39,10 @@ module Spree
       class_name: 'Spree::StockThreshold',
       dependent: :destroy
 
-    has_one :assembly_definition
-
     has_many :taggings, as: :taggable
     has_many :tags, -> { order(:value) }, through: :taggings
 
     delegate_belongs_to :default_price, :display_price, :display_amount, :currency
-
-    delegate_belongs_to :product, :assembly_definitions
 
     has_many :prices,
       class_name: 'Spree::Price',
@@ -67,7 +63,7 @@ module Spree
     after_create :create_stock_items
     after_create :set_position
     after_create :set_master_out_of_stock, unless: :is_master?
-    after_create { delay(:priority => 20).add_to_all_assembly_definitions }
+    after_create { delay(:priority => 20).add_variant_to_product_parts }
 
     # This can take a while so run it asnyc with a low priority for now
     after_touch { delay(priority: 20).touch_assemblies_parts if static_assemblies.any? }
@@ -566,8 +562,8 @@ module Spree
       ::Delayed::Job.enqueue Spree::StockCheckJob.new(self), queue: 'stock_check', priority: 10
     end
 
-    def add_to_all_assembly_definitions
-      Spree::Jobs::AddVariantToAssemblyPart.new(self).perform
+    def add_variant_to_product_parts
+      Spree::Jobs::AddVariantToProductParts.new(self).perform
     end
 
   end

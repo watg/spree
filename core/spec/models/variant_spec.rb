@@ -102,7 +102,7 @@ describe Spree::Variant do
     end
   end
 
-  describe "#add_to_all_assembly_definitions" do
+  describe "#add_to_all_product_parts" do
     context 'after creating a new variant' do
       let(:variant) { build(:base_variant) }
 
@@ -112,10 +112,10 @@ describe Spree::Variant do
 
       after { Delayed::Worker.delay_jobs = true }
 
-      it 'is automatically added to all assembly definition variants' do
-        mock = double(Spree::Jobs::AddVariantToAssemblyPart)
+      it 'is automatically added to all product parts variants' do
+        mock = double(Spree::Jobs::AddVariantToProductParts)
 
-        expect(Spree::Jobs::AddVariantToAssemblyPart).to receive(:new).once.with(variant).and_return(mock)
+        expect(Spree::Jobs::AddVariantToProductParts).to receive(:new).once.with(variant).and_return(mock)
         expect(mock).to receive(:perform).once
 
         variant.save

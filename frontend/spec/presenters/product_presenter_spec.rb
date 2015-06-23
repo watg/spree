@@ -43,18 +43,23 @@ describe Spree::ProductPresenter do
     subject.variant_images
   end
 
-  context "with assembly definition" do
-    let(:assembly_definition) { Spree::AssemblyDefinition.new }
-    let(:assembly_definition_part) { Spree::AssemblyDefinitionPart.new }
-
-    before do
-      assembly_definition.parts << assembly_definition_part
-      product.master.assembly_definition = assembly_definition
+  describe "#parts?" do
+    it "returns the true if there are product_parts" do
+      allow(product).to receive(:product_parts).and_return([double(:product_part)])
+      expect(subject.parts?).to eq true
     end
 
-    its(:assembly_definition) { should eq assembly_definition }
-    its(:assembly_definition?) { should eq true }
-    its(:assembly_definition_parts) { should eq [assembly_definition_part] }
+    it "returns the false if there are no product_parts" do
+      allow(product).to receive(:product_parts).and_return([])
+      expect(subject.parts?).to eq false
+    end
+  end
+
+  describe "#product_parts" do
+    it "returns the product_parts" do
+      expect(product).to receive(:product_parts)
+      subject.product_parts
+    end
   end
 
   describe "#video" do

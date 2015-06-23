@@ -39,16 +39,6 @@
                 <td><strong>On Hand</strong></td>
                 <td class="on_hand"><%= variant.total_on_hand %></td>
               </tr>
-              <% unless variant.assembly_definition %>
-              <tr>
-                <td><strong>Backordered</strong></td>
-                <td class="backordered"><%= variant.backordered.count %></td>
-              </tr>
-              <tr>
-                <td><strong>Awaiting Feed</strong></td>
-                <td class="awaiting_feed"><%= variant.awaiting_feed.count %></td>
-              </tr>
-              <% end %>
             </table>
             <%= form_tag admin_product_variants_including_master_path(@product, variant, format: :js), method: :put, class: 'toggle_variant_track_inventory' do %>
                 <%= check_box_tag 'track_inventory', 1, variant.track_inventory?,

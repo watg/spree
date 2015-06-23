@@ -70,17 +70,6 @@ module Spree
         end
       end
 
-      def create_assembly_definition
-        if @product.product_type.kit?
-          @product.master.build_assembly_definition.save!
-          @product.variants.select { |v| v.assembly_definition.blank? }.map(&:delete)
-          flash[:success] = "Assembly definition successfully added!"
-        else
-          flash[:error] = "Cannot create an assembly definition for a non-kit product."
-        end
-        redirect_to edit_admin_product_url(@product)
-      end
-
       protected
 
       def find_resource

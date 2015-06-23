@@ -71,7 +71,8 @@ module Spree
 
       if is_quantity_reasonable?(quantity)
 
-        variant = Spree::Variant.includes(assembly_definition: [:assembly_definition_variants, assembly_definition_parts: [:assembly_definition_variants]]).find(variant_id)
+        variant = Spree::Variant.includes(assembly_definition_variants: :assembly_definition_parts)
+          .find(variant_id)
 
         parts = params.delete(:parts)
         missing_parts = options_parser.missing_parts(variant, parts)
@@ -80,15 +81,16 @@ module Spree
           params[:parts] = options_parser.dynamic_kit_parts(variant, parts)
           attempt_cart_add(variant, quantity, params || {})
         else
-          missing_parts_as_params = missing_parts.inject({}) do |hash, (part_id,variant_id)| 
-            hash[part_id] = variant_id
+          missing_parts_hash = missing_parts.inject({}) do |hash, missing_part|
+            (missing_part_id, missing_variant_id) = missing_part
+            hash[missing_part_id] = missing_variant_id
             hash
           end
 
           notifier_params = params.merge(
             order_id: order.id,
             parts: parts,
-            missing_parts_and_variants: missing_parts_as_params
+            missing_parts_and_variants: missing_parts_hash
           )
 
           Helpers::AirbrakeNotifier.notify("Some required parts are missing", notifier_params)

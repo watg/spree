@@ -221,15 +221,8 @@ module Spree
         let!(:product_part)  { create(:base_product) }
         let!(:variant_part)  { create(:base_variant, number: "V5678", product: product_part, in_stock_cache: true, updated_at: 2.days.ago) }
 
-        let!(:ass_def) { create(:assembly_definition, variant: variant) }
         let!(:adp)     { Spree::AssemblyDefinitionPart.create(adp_opts) }
-        let(:adp_opts) do
-          {
-            assembly_definition: ass_def,
-            part: product_part,
-            product: product,
-            product_id: 0 }
-        end
+        let(:adp_opts) { { part: product_part, product: product } }
         let!(:adv) { Spree::AssemblyDefinitionVariant.create(assembly_definition_part: adp, variant: variant_part) }
 
         it "can add a new line item to an existing order with options" do

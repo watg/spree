@@ -113,23 +113,25 @@ describe Spree::Api::ShipmentsController, :type => :controller do
 
       context "dynamic kits" do
 
-        let(:variant) { create(:variant, amount: 60.00) }
-        let(:product) { variant.product }
-        let!(:variant_assembly) { create(:variant) }
-        let!(:ass_def) { create(:assembly_definition, variant: variant_assembly) }
-        let!(:variant_part)  { create(:base_variant, product: product, prices: [price]) }
+        #let(:variant) { create(:variant, amount: 60.00) }
+        let!(:variant_part)  { create(:base_variant, prices: [price]) }
+        let(:part) { variant_part.product }
+
+        let!(:variant) { create(:base_variant) }
+        let!(:product) { variant.product }
+
         let(:price) { create(:price, price: 2.99, price_type: "part", currency: 'USD') }
         let!(:adp) { create(:assembly_definition_part, adp_opts) }
-        let(:adp_opts) { { assembly_definition: ass_def, product: product, count: 2 } }
+        let(:adp_opts) { { part: part,  product: product, count: 2 } }
         let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
 
         it 'can add and remove quantity' do
           assembly_selection = {adp.id.to_s => variant_part.id}
-          api_put :add, { variant_id: variant_assembly.to_param, quantity: 2, selected_variants: assembly_selection }
+          api_put :add, { variant_id: variant.to_param, quantity: 2, selected_variants: assembly_selection }
           expect(response.status).to eq(200)
           expect(json_response['manifest'].detect { |h| h['variant']['id'] == variant_part.id }["quantity"]).to eq(4) # line_item quantity: 2 x 2
 
-          api_put :remove, { variant_id: variant_assembly.to_param, quantity: 1, selected_variants: assembly_selection }
+          api_put :remove, { variant_id: variant.to_param, quantity: 1, selected_variants: assembly_selection }
           expect(response.status).to eq(200)
           expect(json_response['manifest'].detect { |h| h['variant']['id'] == variant_part.id }["quantity"]).to eq(2) # line_item quantity: 2 x 2
         end

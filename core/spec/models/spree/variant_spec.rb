@@ -665,8 +665,7 @@ describe Spree::Variant, :type => :model do
       expect(variant.reload.updated_at).to be_within(3.seconds).of(Time.now)
     end
 
-    context "Assembly Definition" do
-      let(:assembly_definition) { create(:assembly_definition, variant: variant) }
+    context "#touch" do
       let(:variant_part)  { create(:variant) }
       let(:product_part)  { variant_part.product }
       let(:adp)  { create(:assembly_definition_part, adp_opts) }
@@ -687,7 +686,6 @@ describe Spree::Variant, :type => :model do
       end
 
     end
-
   end
 
   describe "#should_track_inventory?" do

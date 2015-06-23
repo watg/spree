@@ -1,5 +1,4 @@
 <% if @outcome.valid? %>
-  <% d { @outcome.result.image.id } %>
   <% snippet = nil %>
   <% ActionView::Helpers::FormBuilder.new(:product, @product, self, {}).fields_for(:product_parts_images, :child_index => @outcome.result.image.id) do |image_form| %>
     <% snippet = capture do %>

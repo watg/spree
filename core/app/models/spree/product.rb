@@ -53,8 +53,6 @@ module Spree
 
     has_many :personalisations, dependent: :destroy
 
-    has_many :assembly_definitions, -> { order "position" }, class_name: "Spree::AssemblyDefinition", foreign_key: :assembly_id
-
     has_many :suite_tabs,  class_name: 'Spree::SuiteTab', inverse_of: :product
     after_touch { delay(:priority => 20).touch_suite_tabs }
 
@@ -67,6 +65,8 @@ module Spree
     has_many :assembly_definition_parts
 
     has_many :product_parts, -> { order(:position)  }, foreign_key: "product_id", class_name: "Spree::AssemblyDefinitionPart"
+    has_many :product_part_variants, through: :product_parts
+
     has_many :part_products, foreign_key: "part_id", class_name: "Spree::AssemblyDefinitionPart"
 
     has_many :parts, through: :product_parts
@@ -122,8 +122,6 @@ module Spree
     before_validation :normalize_slug, on: :update
     before_validation :validate_master
 
-    delegate :assembly_definition, to: :master
-
     has_many :variant_images, -> { order(:viewable_id, :position) }, source: :images, through: :variants
     has_many :personalisation_images, -> { order(:position) }, source: :images, through: :personalisations
 
@@ -159,7 +157,7 @@ module Spree
     end
 
     def assembly?
-      static_assemblies_parts.any? || assembly_definition
+      static_assemblies_parts.any? || parts.any?
     end
 
     def next_variant_in_stock

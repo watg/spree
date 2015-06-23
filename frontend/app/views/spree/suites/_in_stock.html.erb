@@ -14,7 +14,7 @@
 
     <%= render 'prices', variant_presenter: variant_presenter %>
 
-    <% if product_presenter.assembly_definition? %>
+    <% if product_presenter.parts? %>
       <%= render 'cart_kit_form', variant_presenter: variant_presenter, product_presenter: product_presenter %>
     <% else %>
       <%= render 'cart_form', variant_presenter: variant_presenter, product_presenter: product_presenter %>

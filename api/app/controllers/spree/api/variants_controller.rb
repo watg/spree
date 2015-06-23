@@ -26,11 +26,10 @@ module Spree
       def index
         @variants = scope.includes(
             { option_values: :option_type },
-            :product,
+            { product: :product_parts },
             :images,
             :prices,
-            { stock_items: :stock_location },
-            {assembly_definition: :assembly_definition_parts}
+            { stock_items: :stock_location }
           ).ransack(params[:q]).result.page(params[:page]).per(params[:per_page])
         respond_with(@variants)
       end

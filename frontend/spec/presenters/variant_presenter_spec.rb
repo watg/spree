@@ -129,6 +129,9 @@ describe Spree::VariantPresenter do
   end
 
   describe '#normal_price_classes' do
+    let(:part) { build_stubbed(:base_product) }
+
+
     context 'when variant is not in sale' do
       before { variant.in_sale = false }
       its(:normal_price_classes) { should eq 'normal-price price' }
@@ -139,19 +142,19 @@ describe Spree::VariantPresenter do
       its(:normal_price_classes) { should eq 'normal-price price was' }
     end
 
-    context 'when product is not in sale and has an assembly_definition' do
+    context 'when product is not in sale and has an parts' do
       before do
         variant.in_sale = false
-        allow(product).to receive(:assembly_definition).and_return true
+        allow(product).to receive(:parts).and_return [part]
       end
 
       its(:normal_price_classes) { should eq 'normal-price price unselected' }
     end
 
-    context 'when product is in sale and has an assembly_definition' do
+    context 'when product is in sale and has an parts' do
       before do
         variant.in_sale = true
-        allow(product).to receive(:assembly_definition).and_return true
+        allow(product).to receive(:parts).and_return [part]
       end
 
       its(:normal_price_classes) { should eq 'normal-price price was unselected' }
@@ -159,6 +162,8 @@ describe Spree::VariantPresenter do
   end
 
   describe '#sale_price_classes' do
+    let(:part) { build_stubbed(:base_product) }
+
     context 'when variant is not in sale' do
       before { variant.in_sale = false }
       its(:sale_price_classes) { should eq 'sale-price price hide' }
@@ -169,19 +174,19 @@ describe Spree::VariantPresenter do
       its(:sale_price_classes) { should eq 'sale-price price' }
     end
 
-    context 'when product is not in sale and has an assembly_definition' do
+    context 'when product is not in sale and has an parts' do
       before do
         variant.in_sale = false
-        allow(product).to receive(:assembly_definition).and_return true
+        allow(product).to receive(:parts).and_return [part]
       end
 
       its(:sale_price_classes) { should eq 'sale-price price hide unselected' }
     end
 
-    context 'when product is in sale and has an assembly_definition' do
+    context 'when product is in sale and has an parts' do
       before do
         variant.in_sale = true
-        allow(product).to receive(:assembly_definition).and_return true
+        allow(product).to receive(:parts).and_return [part]
       end
 
       its(:sale_price_classes) { should eq 'sale-price price unselected' }

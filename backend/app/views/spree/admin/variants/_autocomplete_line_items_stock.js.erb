@@ -48,11 +48,11 @@
                 {{/if}}
               {{/unless}}
             </tr>
-          {{#if variant.assembly_definition_parts}}
+          {{#if variant.product_parts}}
             <tr><td colspan="3" style="text-align: center;"><strong>Assembly Definition Parts</strong></td></tr>
             <tr><th>Presentation</th><th>Variant</th><th>Optional?</th></tr>
 
-            {{#each variant.assembly_definition_parts }}
+            {{#each variant.product_parts }}
             <tr>
               <td>{{this.presentation}}</td>
               <td>

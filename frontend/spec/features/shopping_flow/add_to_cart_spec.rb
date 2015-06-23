@@ -27,24 +27,18 @@ feature 'adding product to cart', inaccessible: true do
   end
 
 
-  feature 'when product is an assembly definition' do
+  feature 'when product has parts' do
 
     # creates some colour variants for the hat
     let!(:part) { create(:base_product, sku: 'some-wool', name: 'wool') }
     let!(:colour_variant_one) { create(:base_variant, product: part, option_values: [blue], in_stock_cache: true) }
     let!(:colour_variant_two) { create(:base_variant, product: part, option_values: [red], in_stock_cache: true) }
 
-    # creates an assembly definition for the hat
-    let!(:assembly_definition) { create(:assembly_definition, variant: hat_variant) }
-    let!(:assembly_definition_part) { create(:assembly_definition_part, adp_opts) }
-    let(:adp_opts) do
-      { assembly_definition: assembly_definition,
-        product: part,
-        displayable_option_type: colour }
-    end
+    let!(:assembly_definition_part) { create(:assembly_definition_part, part: part, product: hat_variant.product, displayable_option_type: colour ) }
+
     # links the colour variants to the hat through assemble definition
-    let!(:assembly_definition_variant) { create(:assembly_definition_variant, variant: colour_variant_one, assembly_definition_part: assembly_definition_part, assembly_product: part) }
-    let!(:assembly_definition_variant_two) { create(:assembly_definition_variant, variant: colour_variant_two, assembly_definition_part: assembly_definition_part, assembly_product: part) }
+    let!(:assembly_definition_variant) { create(:assembly_definition_variant, variant: colour_variant_one, assembly_definition_part: assembly_definition_part) }
+    let!(:assembly_definition_variant_two) { create(:assembly_definition_variant, variant: colour_variant_two, assembly_definition_part: assembly_definition_part) }
 
     scenario 'user selects variant and add to cart', js: true do
 
@@ -90,7 +84,7 @@ feature 'adding product to cart', inaccessible: true do
     end
 
 
-    feature 'and assembly definition has a part that is a static kit', js: true do
+    feature 'and parts has a part that is a static kit', js: true do
 
       let!(:static_kit_part_for_product) { create(:base_variant, name: 'static kit part product') }
       let!(:static_kit_part_for_variant) { create(:base_variant, name: 'static kit part variant') }

@@ -30,7 +30,7 @@ module ApplicationHelper
     tab = Spree::SuiteTab.unscoped.find_by(id: line_item.suite_tab_id)
     tab_type = tab.try(:tab_type)
 
-    if !tab_type || variant.assembly_definition.present?
+    if !tab_type || variant.is_master?
       spree.suite_path(id: permalink, tab: tab_type)
     else
       spree.suite_path(id: permalink, tab: tab_type, variant_id: variant.number)

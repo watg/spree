@@ -24,6 +24,8 @@ Spree::Core::Engine.add_routes do
       end
     end
 
+    resources :suite_categories, controller: '/admin/suite_categories'
+
     resources :product_groups
 
     resources :suppliers
@@ -56,7 +58,7 @@ Spree::Core::Engine.add_routes do
 
       resources :product_parts, only: [:index, :create, :destroy] do
         collection do
-          patch :update_all
+          put :update_all
           get :available
           post :update_positions
         end
@@ -86,7 +88,6 @@ Spree::Core::Engine.add_routes do
       member do
         get :clone
         get :stock
-        get :create_assembly_definition
       end
       resources :variants do
         member do

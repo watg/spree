@@ -76,20 +76,17 @@ module Spree
       is_mobile? ? :small : :product
     end
 
+    def parts?
+      product_parts.any?
+    end
+
     def product_parts_images
       @product_parts_images ||= product.product_parts_images.with_target(target)
     end
 
-    def assembly_definition?
-      !assembly_definition.nil?
-    end
 
-    def assembly_definition
-      @asem_def ||= product.assembly_definition
-    end
-
-    def assembly_definition_parts
-      @assembly_definition_parts ||= assembly_definition.parts
+    def product_parts
+      @product_parts ||= product.product_parts
     end
 
     def video
@@ -128,12 +125,6 @@ module Spree
     def sale_variant_or_first_variant_or_master
       @first_variant_or_master ||= begin
         variants.detect(&:in_sale) || variants.first || product.master
-      end
-    end
-
-    def assembly_definition_presenter
-      @assembly_definition_presenter ||= begin
-        AssemblyDefinitionPresenter.new(assembly_definition, template, context) if assembly_definition
       end
     end
 

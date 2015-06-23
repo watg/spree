@@ -18,32 +18,31 @@ describe Spree::LineItem, type: :model do
       let(:dynamic_kit_variant) do
         pdt = create(:product, product_type: create(:product_type_kit))
         v = create(:variant, product_id: pdt.id, cost_price: 0, weight: 0)
-        v.assembly_definition = Spree::AssemblyDefinition.create(variant_id: v.id)
         v
       end
       let(:part1) do
-        dynamic_kit_variant.assembly_definition.parts.create(
+        dynamic_kit_variant.product.product_parts.create(
           count: 1,
           part_id: variant11.product_id,
           optional: false,
           displayable_option_type: option_type)
       end
       let(:part2) do
-        dynamic_kit_variant.assembly_definition.parts.create(
+        dynamic_kit_variant.product.product_parts.create(
           count: 1,
           part_id: variant10.product_id,
           optional: false,
           displayable_option_type: option_type)
       end
       let(:part3) do
-        dynamic_kit_variant.assembly_definition.parts.create(
+        dynamic_kit_variant.product.product_parts.create(
           count: 1,
           part_id: variant8.product_id,
           optional: false,
           displayable_option_type: option_type)
       end
       let(:part4) do
-        dynamic_kit_variant.assembly_definition.parts.create(
+        dynamic_kit_variant.product.product_parts.create(
           count: 1,
           part_id: variant7.product_id,
           optional: true,

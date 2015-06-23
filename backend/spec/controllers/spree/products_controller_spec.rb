@@ -31,26 +31,6 @@ describe Spree::Admin::ProductsController, type: :controller do
     end
   end
 
-
-  context "#create_assembly_definition" do
-    let(:product) { create(:product_with_variants, product_type: create(:product_type_kit)) }
-    let(:params) { { id: product.slug } }
-    let(:variant) { product.variants.first}
-    let!(:assembly_definition) { create(:assembly_definition, variant: variant) }
-
-    it "should not delete any variants which have an assembly defintiion" do
-
-      spree_put :create_assembly_definition, params
-
-      expect(response.status).to eq(302)
-      expect(product.master.assembly_definition).not_to be_nil
-      expect(product.variants.size).to eq(1)
-      expect(product.variants.first).to eq variant
-    end
-
-  end
-
-
   # ------------------------------------------------------
 
   def to_params(product)

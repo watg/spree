@@ -21,9 +21,7 @@ Spree::Core::Engine.add_routes do
     get 'pinterest' => 'pinterest#show', :as => 'pinterest'
 
     resources :olapic, :only => [:index]
-    get 'assembly_definition_parts/:id/variants' => 'assembly_definition_parts#variants', :as => 'assembly_definition_part_variants'
-    get 'assembly_definitions/:id/out_of_stock_variants' => 'assembly_definitions#out_of_stock_variants', :as => 'assembly_definitions_variant_out_of_stock'
-    get 'assembly_definitions/:id/out_of_stock_option_values' => 'assembly_definitions#out_of_stock_option_values', :as => 'assembly_definitions_option_values_out_of_stock'
+    get 'product_parts/:id/variants' => 'product_parts#variants', :as => 'product_part_variants'
 
     resources :tags
     resources :targets

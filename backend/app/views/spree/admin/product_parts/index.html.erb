@@ -11,7 +11,7 @@
 <br>
 <div id="search_hits"></div>
 
-<%= form_for(@product, url: update_all_admin_product_product_parts_path(@product)) do |f| %>
+<%= form_for(@product, url: update_all_admin_product_product_parts_path(@product), method: :PUT ) do |f| %>
   <fieldset>
     <legend align="center">Product Parts</legend>
     <table class="index sortable" data-sortable-link="<%= update_positions_admin_product_product_parts_path(@product) %>">
@@ -74,7 +74,7 @@
           </div>
         <% else %>
           <%= f.fields_for :product_parts_images do |image_form| %>
-            <%= render 'spree/admin/products/product_parts_image', f: image_form %>
+            <%= render 'spree/admin/product_parts_images/image', f: image_form %>
           <% end %>
         <% end %>
       </tbody>

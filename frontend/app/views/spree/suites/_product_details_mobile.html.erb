@@ -1,7 +1,7 @@
 <h5 class="reveal-title revealed">Description</h5>
 <p class="reveal-content"><%= product_presenter.clean_description %></p>
 
-<% unless product_presenter.assembly_definition %>
+<% unless product_presenter.parts? %>
   <h5 class="reveal-title suppliers">
     <%= cdn_image_tag("static/made-by-the-gang.png", alt: "", width: "40", height: "40") %>
     #madeunique <span>by <%= variant_presenter.displayable_supplier_nickname %> </span>

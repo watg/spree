@@ -6,8 +6,6 @@ class Spree::AssemblyDefinitionVariant < ActiveRecord::Base
 
   validates_presence_of :variant_id, :assembly_definition_part_id
 
-  before_create :set_assembly_product
-
   # Return variant, even if deleted
   # Fixes admin errors on assembly definition.
   def variant
@@ -15,10 +13,4 @@ class Spree::AssemblyDefinitionVariant < ActiveRecord::Base
   end
 
   private
-
-  def set_assembly_product
-    if assembly_definition_part.assembly_definition
-      self.assembly_product = assembly_definition_part.assembly_definition.variant.product
-    end
-  end
 end

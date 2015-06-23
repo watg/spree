@@ -94,7 +94,7 @@ module Spree
       else
         ['normal-price', 'price']
       end
-      classes << 'unselected' if product.assembly_definition
+      classes << 'unselected' if product.parts.any?
       classes.join(' ')
     end
 
@@ -112,7 +112,7 @@ module Spree
       else
         ['sale-price', 'price', 'hide']
       end
-      classes << 'unselected' if product.assembly_definition
+      classes << 'unselected' if product.parts.any?
       classes.join(' ')
     end
 
