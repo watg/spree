@@ -8,32 +8,7 @@ Spree::Core::Engine.add_routes do
     get '/products_overview', :to => 'products_overview#index'
     post '/products_overview', :to => 'products_overview#update'
 
-    resources :assembly_definitions do
-      member do
-        get :available_supply_products
-      end
-      resources :parts, :controller => 'assembly_definition_parts' do
-        collection do
-          post :update_positions
-        end
-      end
-
-      resources :images, :controller => 'assembly_definition_images' do
-        collection do
-          post :s3_callback
-          post :update_positions
-        end
-      end
-    end
-    resources :suite_categories, controller: '/admin/suite_categories'
-
     resources :videos, :controller => "/admin/videos"
-
-    resources :assembly_definition_parts do
-      member do
-        get :available_parts
-      end
-    end
 
     resources :gift_cards
 
@@ -71,6 +46,21 @@ Spree::Core::Engine.add_routes do
     resources :tax_categories
 
     resources :products do
+
+      resources :product_parts_images do
+        collection do
+          post :s3_callback
+          post :update_positions
+        end
+      end
+
+      resources :product_parts, only: [:index, :create, :destroy] do
+        collection do
+          patch :update_all
+          get :available
+          post :update_positions
+        end
+      end
 
       resources :prices, :only => [:index, :create]
       resources :personalisations do

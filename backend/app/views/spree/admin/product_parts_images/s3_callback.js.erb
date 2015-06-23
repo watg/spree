@@ -1,8 +1,9 @@
 <% if @outcome.valid? %>
+  <% d { @outcome.result.image.id } %>
   <% snippet = nil %>
-  <% ActionView::Helpers::FormBuilder.new(:assembly_definition, @assembly_definition, self, {}).fields_for(:images, :child_index => @outcome.result.image.id) do |image_form| %>
+  <% ActionView::Helpers::FormBuilder.new(:product, @product, self, {}).fields_for(:product_parts_images, :child_index => @outcome.result.image.id) do |image_form| %>
     <% snippet = capture do %>
-      <%= render 'spree/admin/assembly_definition_images/image', :f => image_form %>
+      <%= render 'spree/admin/product_parts_images/image', :f => image_form %>
     <% end %>
   <% end %>
 

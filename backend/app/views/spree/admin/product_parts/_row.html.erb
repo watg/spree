@@ -1,6 +1,10 @@
 <% part = f.object.part %>
 <tr id="<%= spree_dom_id f.object %>">
-  <td><span class="handle"></span></td>
+  <td>
+    <span class="handle">
+      <%= f.hidden_field :position %>
+    </span>
+  </td>
   <td class="presentation">
     <div class="field">
       <%= f.label :presentation %>
@@ -35,6 +39,6 @@
   </td>
   <td style="text-align: center;"><%= f.check_box :optional %></td>
   <td class="actions">
-    <%= link_to_delete part, :url => admin_assembly_definition_part_path(@assembly_definition, f.object), :no_text => true %>
+    <%= link_to_delete part, :url => admin_product_product_part_path(@product, f.object), :no_text => true %>
   </td>
 </tr>

@@ -17,36 +17,38 @@
       </tr>
   </thead>
   <tbody>
-    <% @available_products.each do |product| %>
-      <tr id="<%= dom_id(product) %>">
-        <td data-product-id="<%= product.id %>"><%= product.name %><br><small>(<%= product.product_type.name %>)</small></td>
+    <% @available_parts.each do |part| %>
+      <tr id="<%= dom_id(part) %>">
+        <td data-part-id="<%= part.id %>"><%= part.name %><br><small>(<%= part.product_type.name %>)</small></td>
         <td class="presentation"><%= text_field_tag "part[presentation]", '' %></td>
         <td class="count"><%= text_field_tag "part[count]", 1 %></td>
         <td class="optional"><%= check_box_tag( "part[optional]", false ) %></td>
         <td class="actions">
           <%= image_tag "spinner.gif", :style => "display:none", :class => "spinner" %>
             <%= link_to(icon('add') + ' ' + t('select'),
-                      admin_assembly_definition_parts_path(@assembly_definition),
-                      :class => "add_assembly_definition_part_link") %>
+                      admin_product_product_parts_path(@product),
+                      :class => "add_part_link") %>
             </td>
       </tr>
     <% end %>
-    <% if @available_products.empty? %>
+    <% if @available_parts.empty? %>
      <tr><td colspan="3"><%= t('no_match_found') %>.</td></tr>
     <% end %>
   </tbody>
-</table>
+  </table>
 
-<%= javascript_tag do %>
-  $("a.add_assembly_definition_part_link").click(function(){
-    var pid = $(this).parents('tr').find('td[data-product-id]').data('product-id');
-    params = {
-               part_product_id :  pid,
-               part_type: 'product',
-               part_count :  $(this).parents('tr').find(".count :text").val(),
-               part_optional : $('#part_optional:checked', $(this).parent().parent()).length > 0 ? 'true' : 'false',
-               part_presentation: $(this).parents('tr').find(".presentation :text").val()
-             };
+  <%= javascript_tag do %>
+    $("a.add_part_link").click(function(){
+      var pid = $(this).parents('tr').find('td[data-part-id]').data('part-id');
+      params =  {
+        product_part:
+        {
+          part_id :  pid,
+          count :  $(this).parents('tr').find(".count :text").val(),
+          optional : $('#part_optional:checked', $(this).parent().parent()).length > 0 ? 'true' : 'false',
+          presentation: $(this).parents('tr').find(".presentation :text").val()
+        }
+      };
     return make_post_request($(this), params);
   });
 <% end %>

@@ -2,7 +2,7 @@
 
 <%= render :partial => 'spree/admin/shared/product_tabs', :locals => {:current => "Assembly Definition"} %>
 
-<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @assembly_definition } %>
+<%= render :partial => 'spree/shared/error_messages', :locals => { :target => @product } %>
 
 <%= form_tag('#') do %>
 <label><%= t('search') %>:</label>
@@ -11,11 +11,10 @@
 <br>
 <div id="search_hits"></div>
 
-<%= form_for [:admin, @assembly_definition] do |f| %>
-
+<%= form_for(@product, url: update_all_admin_product_product_parts_path(@product)) do |f| %>
   <fieldset>
-    <legend align="center">Assembly Definition</legend>
-    <table class="index sortable" data-sortable-link="<%= update_positions_admin_assembly_definition_parts_path(@assembly_definition) %>">
+    <legend align="center">Product Parts</legend>
+    <table class="index sortable" data-sortable-link="<%= update_positions_admin_product_product_parts_path(@product) %>">
     <col style="width: 5%">
     <col style="width: 35%">
     <col style="width: 30%">
@@ -31,13 +30,13 @@
         </tr>
       </thead>
       <tbody id="parts_table_body">
-        <% unless @assembly_definition.parts.any? %>
+        <% unless @product.parts.any? %>
           <div class="no-objects-found">
             No parts were found.
           </div>
         <% else %>
-          <%= f.fields_for :assembly_definition_parts do |part_form| %>
-            <%= render 'spree/admin/assembly_definitions/part_row', f: part_form %>
+          <%= f.fields_for :product_parts do |product_part_form| %>
+            <%= render 'spree/admin/product_parts/row', f: product_part_form %>
           <% end %>
         <% end %>
       </tbody>
@@ -54,8 +53,7 @@
       </div>
     </script>
 
-
-    <table class="index sortable" data-hook="images_table" data-sortable-link="<%= update_positions_admin_assembly_definition_images_path(@assembly_definition) %>">
+    <table class="index sortable" data-hook="images_table" data-sortable-link="<%= update_positions_admin_product_product_parts_images_path(@product) %>">
       <colgroup>
         <col style="width: 5%">
         <col style="width: 50%">
@@ -70,13 +68,13 @@
         </tr>
       </thead>
       <tbody id="images_table_body">
-        <% unless @assembly_definition.images.any? %>
+        <% unless @product.product_parts_images.any? %>
           <div class="no-objects-found">
             <%= Spree.t(:no_images_found) %>.
           </div>
         <% else %>
-          <%= f.fields_for :images do |image_form| %>
-            <%= render 'spree/admin/assembly_definition_images/image', f: image_form %>
+          <%= f.fields_for :product_parts_images do |image_form| %>
+            <%= render 'spree/admin/products/product_parts_image', f: image_form %>
           <% end %>
         <% end %>
       </tbody>
@@ -86,7 +84,7 @@
   </fieldset>
 <% end %>
 
-<%= render 'spree/admin/shared/image_upload_form', s3_callback_path: s3_callback_admin_assembly_definition_images_path(@assembly_definition) %>
+<%= render 'spree/admin/shared/image_upload_form', s3_callback_path: s3_callback_admin_product_product_parts_images_path(@product) %>
 
 <script>
   activateCheckAll = function () {
@@ -122,7 +120,7 @@
        $('#search_hits').show();
      },
      type: 'GET',
-     url: '<%= available_supply_products_admin_assembly_definition_url(@assembly_definition) %>'
+     url: '<%= available_admin_product_product_parts_url(@product) %>'
     });
   }
 
@@ -138,11 +136,6 @@
   $("#searchtext").delayedObserver(function(element, value) {
     search_for_parts();
   }, 0.75);
-
-
-  function make_patch_request(link, post_params){
-    return make_request(link, post_params, "PATCH");
-  }
 
   function make_post_request(link, post_params){
     return make_request(link, post_params, "POST");

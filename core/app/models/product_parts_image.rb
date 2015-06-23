@@ -3,7 +3,8 @@ class ProductPartsImage < ActiveRecord::Base
   acts_as_paranoid
 
   validate :no_attachment_errors
-  belongs_to :target, class_name: "Spree::Target", inverse_of: :images
+  belongs_to :target, class_name: "Spree::Target", inverse_of: :product_parts_images
+  belongs_to :product, class_name: "Spree::Product", inverse_of: :product_parts_images
 
   has_attached_file :attachment,
                     styles: {

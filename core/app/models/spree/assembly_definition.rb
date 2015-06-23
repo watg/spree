@@ -8,10 +8,4 @@ class Spree::AssemblyDefinition < ActiveRecord::Base
 
   has_many :assembly_definition_variants, through: :assembly_definition_parts
 
-  accepts_nested_attributes_for :assembly_definition_parts
-
-  def images_for(target)
-    images.with_target(target)
-  end
-
 end

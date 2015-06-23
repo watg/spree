@@ -47,6 +47,18 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
     end
   end
 
+  def update_all
+    if parent.update_attributes(params[model_name])
+      flash[:success] = flash_message_for(parent, :successfully_updated)
+    else
+      flash.now[:error] = parent.errors.full_messages.join(", ")
+    end
+    respond_with(parent) do |format|
+      format.html { redirect_to location_after_save }
+      format.js   { render :layout => false }
+    end
+  end
+
   def create
     invoke_callbacks(:create, :before)
     @object.attributes = permitted_resource_params

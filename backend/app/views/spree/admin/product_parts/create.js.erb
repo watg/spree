@@ -1,0 +1,12 @@
+<% snippet = nil %>
+<% ActionView::Helpers::FormBuilder.new(:product, @product, self, {}).fields_for(:product_parts, :child_index => Time.now.to_i) do |product_part_form| %>
+  <% snippet = capture do %>
+    <% d { "11111111111111111111111111111111111111111111111"  } %>
+    <%= render 'spree/admin/product_parts/row', :f => product_part_form %>
+  <% end %>
+<% end %>
+
+$("#search_hits").hide();
+$("#parts_table_body").append("<%= j snippet %>");
+activateSelect2();
+activateCheckAll();

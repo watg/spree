@@ -66,7 +66,7 @@ module Spree
     has_many :product_parts_images, -> { order(:position) }, class_name: "ProductPartsImage"
     has_many :assembly_definition_parts
 
-    has_many :product_parts, foreign_key: "product_id", class_name: "Spree::AssemblyDefinitionPart"
+    has_many :product_parts, -> { order(:position)  }, foreign_key: "product_id", class_name: "Spree::AssemblyDefinitionPart"
     has_many :part_products, foreign_key: "part_id", class_name: "Spree::AssemblyDefinitionPart"
 
     has_many :parts, through: :product_parts
@@ -139,6 +139,10 @@ module Spree
     attr_accessor :option_values_hash
 
     accepts_nested_attributes_for :product_properties, allow_destroy: true, reject_if: lambda { |pp| pp[:property_name].blank? }
+
+    # TODO: kill this and to it properly
+    accepts_nested_attributes_for :product_parts
+    accepts_nested_attributes_for :product_parts_images
 
     alias :options :product_option_types
 

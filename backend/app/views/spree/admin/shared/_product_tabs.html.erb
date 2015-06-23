@@ -48,19 +48,16 @@
       <%= content_tag :li, :class => ('active' if current == 'Personalisations') do %>
         <%= link_to_with_icon 'edit', t(:Personalisations),  admin_product_personalisations_url(@product) %>
       <% end if can?(:stock, Spree::Personalisation) %>
-
-      <% if @product.product_type.kit? %>
         <li><hr></li>
-        <% if @product.master.assembly_definition %>
-          <%= content_tag :li, :class => ('active' if current == 'Assembly Definition') do %>
-              <%= link_to_with_icon 'sitemap', "Assembly Definition", edit_admin_assembly_definition_url(@product.master.assembly_definition) %>
-          <% end if can?(:stock, Spree::AssemblyDefinition) %>
+        <% if @product.product_parts %>
+          <%= content_tag :li, :class => ('active' if current == 'Product Parts') do %>
+              <%= link_to_with_icon 'sitemap', "Product Parts", admin_product_product_parts_url(@product) %>
+          <% end if can?(:stock, Spree::Product) %>
         <% else %>
           <%= content_tag :li, :class => ('active' if current == 'Parts') do %>
             <%= link_to_with_icon 'sitemap', Spree.t(:parts) + " (" + @product.static_assemblies_parts.count.to_s + ")", admin_product_parts_url(@product) %>
           <% end if can?(:stock, Spree::Product) %>
         <% end %>
-      <% end %>
     </ul>
 
       <hr>
