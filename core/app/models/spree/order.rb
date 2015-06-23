@@ -550,21 +550,6 @@ module Spree
       line_items.select(&:assemble?)
     end
 
-    def send_assembly_required_notification
-      order_url = Spree::Core::Engine.routes.url_helpers.edit_admin_order_url(self)
-      products = line_items_requiring_assembly.map { |li| li.variant.product.name }.join(", ")
-      message = "Hello,\n
-          Order <a href='#{order_url}'>##{self.number}</a> contains customisation(s):\n
-          <b>#{products}</b>.\n
-          It has been marked as internal.\n
-          Thank you."
-      Spree::NotificationMailer.delay.send_notification(
-        message,
-        Rails.application.config.personalisation_email_list,
-        "Customisation Order #" + self.number.to_s
-      )
-    end
-
     def has_gift_card?
       gift_card_line_items.any?
     end
