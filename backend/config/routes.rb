@@ -25,7 +25,7 @@ Spree::Core::Engine.add_routes do
         end
       end
     end
-    resources :suite_categories, :controller => '/admin/suite_categories'
+    resources :suite_categories, controller: '/admin/suite_categories'
 
     resources :videos, :controller => "/admin/videos"
 
