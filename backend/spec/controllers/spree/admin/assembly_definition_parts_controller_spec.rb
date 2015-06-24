@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::Admin::AssemblyDefinitionPartsController do
   stub_authorization!
@@ -8,18 +8,24 @@ describe Spree::Admin::AssemblyDefinitionPartsController do
   let!(:ass_def)           { create(:assembly_definition, variant: variant_assembly) }
 
   let(:variant_part)       { create(:base_variant) }
-  let(:product_part)       { variant_part.product }
+  let(:part)               { variant_part.product }
 
   let(:params) do
-    { part_product_id:  product_part.id,
+    { part_product_id:  part.id,
       part_type:  "product",
       part_count:   "1",
       assembly_definition_id:  ass_def.id
     }
   end
 
-  it "list available variants for an assembly definition part" do
-    xhr :spree_post, :create, params
-    expect(Spree::AssemblyDefinitionPart.first.part).to eq product_part
+  let(:actual)             { Spree::AssemblyDefinitionPart.first }
+
+  describe '#create' do
+    it "creates an assembly definition part" do
+      xhr :spree_post, :create, params
+      expect(actual.part).to eq part
+      expect(actual.product).to eq product
+      expect(actual.product_id).to eq product.id
+    end
   end
 end

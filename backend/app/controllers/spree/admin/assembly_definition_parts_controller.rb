@@ -15,7 +15,7 @@ module Spree
       end
 
       def create_attrs
-        update_attrs.merge(part_id: params[:part_product_id].to_i, product_id: 0)
+        update_attrs.merge(required_attrs)
       end
 
       def update_attrs
@@ -24,6 +24,13 @@ module Spree
           count:        params[:part_count].to_i,
           presentation: params[:part_presentation],
           variants:     Spree::Variant.where(id: params[:part_variants] )
+        }
+      end
+
+      def required_attrs
+        {
+          part_id: params[:part_product_id].to_i,
+          product_id: @assembly_definition.variant.product.id
         }
       end
     end

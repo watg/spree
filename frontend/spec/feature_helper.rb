@@ -1,6 +1,6 @@
 ENV["RAILS_ENV"] = 'features'
 require "spec_helper"
-require 'devise'
+require "devise"
 
 RSpec.configure do |config|
   config.include Spree::TestingSupport::ControllerRequests, :type => :controller
