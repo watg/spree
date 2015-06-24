@@ -1,1 +1,5 @@
-<%= my_bag_link %>
+<% if mobile_device? %>
+  <%= my_bag_link_mobile %>
+<% else %>
+  <%= my_bag_link %>
+<% end %>

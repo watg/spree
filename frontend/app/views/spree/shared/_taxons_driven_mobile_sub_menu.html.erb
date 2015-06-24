@@ -1,4 +1,8 @@
 <nav id="navPrimarySub" class="row mobile-navigation nav-primary-sub">
+  <div class="user-controls">
+    <%= render :partial => 'spree/shared/nav_bar' %>
+    <%= render :partial => 'spree/shared/main_nav_bar' %>
+  </div>
   <ul class="sale-sub">
     <li class="large-3 small-12 columns hidden">
       <% sale = Spree::Taxon.find_by_permalink('sale/made-by-the-gang') %>

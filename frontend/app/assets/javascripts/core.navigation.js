@@ -5,8 +5,11 @@ $(document).on("ready page:load", function() {
   core.Navigation.readyNavigationMobile();
   core.Navigation.readyFooterMobile();
   core.Navigation.readyTracking();
-});
 
+  if (core.isMobileWidthOrLess() === true) {
+    core.Navigation.readySearchMobile();
+  }
+});
 
 core.Navigation.readyNavigation = function() {
   if (Modernizr.touch) {
@@ -67,6 +70,7 @@ core.Navigation.readyNavigationMobile = function() {
   $('.link-nav-primary-sub').on({
     click: function(e) {
       e.preventDefault();
+      $(this).toggleClass('active');
       core.Navigation.showSubNavigationMobile();
     }
   });
@@ -75,6 +79,15 @@ core.Navigation.readyNavigationMobile = function() {
 // Show sub primary navigation for mobile
 core.Navigation.showSubNavigationMobile = function(e) {
   $('.nav-primary-sub').toggleClass('expanded');
+
+  // Close search if open...
+  var link = $('.nav-top .link-search');
+  var search = $('.nav-search');
+  if (search.hasClass('expanded')) {
+    link.removeClass('active');
+    search.removeClass('expanded');
+  }
+
   $(".nav-primary-sub [class$='-sub']").show();
   $('.nav-primary-sub .columns').not('.small-12').hide();
   core.Navigation.showSecondarySubNavigationMobile();
@@ -141,6 +154,35 @@ core.Navigation.readyTracking = function() {
 
       // Continue
       location.href = $(this).attr('href');
+    }
+  });
+}
+
+core.Navigation.readySearchMobile = function() {
+  var link = $('.nav-top .link-search');
+  var search = $('.nav-search');
+  var input = $('#search-input');
+
+  link.on({
+    click: function(e) {
+      e.preventDefault();
+      $(this).toggleClass('active');
+      search.toggleClass('expanded');
+
+      // Close menu if open...
+      var link = $('.link-nav-primary-sub');
+      var menu = $('.nav-primary-sub');
+      if (menu.hasClass('expanded')) {
+        link.removeClass('active');
+        menu.removeClass('expanded');
+      }
+
+      // Focus/blur
+      if ($(this).hasClass('active')) {
+        input.focus();
+      } else {
+        input.blur();
+      }
     }
   });
 }

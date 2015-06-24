@@ -1,5 +1,4 @@
-
 <%= form_tag spree.search_path, :method => :get, autocomplete: :off, class:"search-form" do %>
   <%= search_field_tag :keywords, params[:keywords], :placeholder => Spree.t(:type_to_search), id: "search-input" %>
-  <div class="search-button-container">  <%= button_tag Spree.t(:search), :name => nil, class: "button search-button" %></div>
+  <div class="search-button-container"><%= button_tag Spree.t(:search), :name => nil, class: "button search-button" %></div>
 <% end %>
