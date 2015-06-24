@@ -13,7 +13,7 @@ describe Spree::StockCheckJob do
     let!(:pv)            { create(:variant, product: part_product, in_stock_cache: pv_status) }
     let(:pv_status)      { in_stock }
     let!(:adp)           { create(:assembly_definition_part, adp_opts) }
-    let(:adp_opts)       { { product: variant.product, part: part_product } }
+    let(:adp_opts)       { { assembly_product_id: variant.product.id, part: part_product } }
     let!(:adv)           { create(:assembly_definition_variant, adv_opts) }
     let(:adv_opts)       { { assembly_definition_part: adp, variant: pv } }
 
@@ -201,7 +201,8 @@ describe Spree::StockCheckJob do
         let(:part_2)         { create(:product) }
         let(:pv2)            { create(:variant, product: part_2, in_stock_cache: pv2_status) }
         let(:pv2_status)     { out_of_stock }
-        let(:adp_2)          { create(:assembly_definition_part, product: product, part: part_2) }
+        let(:adp_2)          { create(:assembly_definition_part, adp_2_opts) }
+        let(:adp_2_opts)     { { assembly_product_id: product.id, part: part_2 } }
         let!(:adv2)          { create(:assembly_definition_variant, adv2_opts) }
         let(:adv2_opts)      { { assembly_definition_part: adp_2, variant: pv2 } }
 
@@ -239,7 +240,7 @@ describe Spree::StockCheckJob do
 
         context "and one of them is in stock (required) the other is out of stock ( optional )" do
           let(:adp_2)      { create(:assembly_definition_part, adp_2_opts) }
-          let(:adp_2_opts) { { product: product, part: part_2, optional: true } }
+          let(:adp_2_opts) { { assembly_product_id: product.id, part: part_2, optional: true } }
 
           before           { allow(pv2).to receive(:can_supply?).and_return false }
 
@@ -312,7 +313,9 @@ describe Spree::StockCheckJob do
       context "Kit is out of stock with a optional part out of stock" do
         let(:variant_status) { out_of_stock }
         let(:pv_status)      { out_of_stock }
-        let(:adp_opts)       { { product: variant.product, part: part_product, optional: true } }
+        let(:adp_opts) do
+          { assembly_product_id: variant.product, part: part_product, optional: true }
+        end
 
         it "sets the kit to in stock" do
           expect(variant.in_stock_cache).to be_falsey
@@ -357,7 +360,7 @@ describe Spree::StockCheckJob do
     let(:ap_opts) { { part_id: skp.id, assembly_id: sk.id, assembly_type: "Spree::Variant" } }
 
     let!(:adp) { create(:assembly_definition_part, adp_opts) }
-    let!(:adp_opts) { { product: variant.product, part: product_part } }
+    let!(:adp_opts) { { assembly_product_id: variant.product.id, part: product_part } }
     let!(:adv) { adv_klass.create(assembly_definition_part: adp, variant: sk) }
     let(:adv_klass) { Spree::AssemblyDefinitionVariant }
 
