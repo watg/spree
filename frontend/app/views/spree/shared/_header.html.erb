@@ -1,26 +1,46 @@
 <header class="container">
-  <div class="row nav-top">
-    <div class="large-2 small-2 columns">
-      <a class="link-nav-primary-sub" href="#navPrimarySub">Menu</a>
+  <% unless mobile_device? %>
+    <div class="row nav-top">
+      <!-- ADJUST THIS BEFORE GO-LIVE -->
+      <div class="large-2 small-2 columns">
+          <!-- HELLO, NOTHING HERE... -->
+      </div>
+      <div class="large-10 small-10 columns">
+        <%= render :partial => 'spree/shared/nav_bar' %>
+        <%= render :partial => 'spree/shared/main_nav_bar' %>
+      </div>
     </div>
-    <div class="large-10 small-10 columns">
-      <%= render :partial => 'spree/shared/nav_bar' %>
-      <%= render :partial => 'spree/shared/main_nav_bar' %>
-    </div>
-  </div>
-  <div class="row row-logo">
-    <div class="large-2 columns">
-      <%= link_to root_path do %>
-        <% unless mobile_device? %>
-          <img src="<%= image_path("logo-watg-135x99.png") %>" width="116" height="85" alt="Wool And The Gang" />
-        <% else %>
-          <img src="<%= image_path("logo-watg-135x99.png") %>" width="68" height="50" alt="Wool And The Gang" />
+    <div class="row row-logo">
+      <div class="large-2 columns">
+        <%= link_to root_path do %>
+          <% unless mobile_device? %>
+            <img src="<%= image_path("logo-watg-135x99.png") %>" width="116" height="85" alt="Wool And The Gang" />
+          <% else %>
+            <img src="<%= image_path("logo-watg-135x99.png") %>" width="68" height="50" alt="Wool And The Gang" />
+          <% end %>
         <% end %>
-      <% end %>
+      </div>
+      <div class="large-10 columns text-right">
+        <%= render :partial => 'spree/shared/search' %>
+      </div>
     </div>
-
-    <div class="large-10 columns text-right">
-      <%= render :partial => 'spree/shared/search' %>
+  <% else %>
+    <div class="row nav-top">
+      <div class="small-4 columns">
+        <a class="link-nav-primary-sub" href="#navPrimarySub">Menu</a>
+      </div>
+      <div class="small-4 columns">
+        <a class="link-home" href="<%= root_path %>">Home</a>
+      </div>
+      <div class="small-4 columns">
+        <a class="link-search" href="#">Search</a>
+        <span id="link-to-cart"><%= my_bag_link_mobile %></span>
+      </div>
     </div>
-  </div>
+    <div class="row nav-search">
+      <div class="small-12 columns">
+        <%= render :partial => 'spree/shared/search' %>
+      </div>
+    </div>
+  <% end %>
 </header>
