@@ -1,0 +1,54 @@
+@charset "UTF-8";
+/**
+ * WATG
+ *
+ * Internationalisation CSS file
+ *
+ */
+
+ /**
+ * Table of contents
+ *
+ * Sitewide
+ * Page overwrites
+ */
+
+/**
+ * Sitewide
+ *
+ * @section sitewide
+ */
+
+#default .wrapper-jp {
+  h1, h2, h3, h4, h5, h6, p, a, ol, ul, li {
+    font-family: $watg-font-jp-medium;
+  }
+  strong {
+    font-family: $watg-font-jp-bold;
+  }
+}
+
+#default .wrapper-kr {
+  h1, h2, h3, h4, h5, h6, p, a, ol, ul, li {
+    font-family: $watg-font-kr-medium;
+  }
+  strong {
+    font-family: $watg-font-jp-bold;
+  }
+}
+
+/**
+ * Page overwrites
+ *
+ * @section page-overwrites
+ */
+
+#default .wrapper-jp.wrapper-party-tutorial,
+#default .wrapper-kr.wrapper-party-tutorial {
+  h1, .row-social-shares h3 {
+    font-family: $watg-font;
+  }
+  .row-social-shares h5 {
+    font-family: $watg-font-secondary;
+  }
+}
