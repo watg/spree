@@ -63,7 +63,7 @@ module Spree
     has_many :assembly_definition_variants, through: :variants
     has_many :assembly_products, through: :assembly_definition_variants
 
-    has_many :assembly_definition_parts, foreign_key: 'part_id'
+    has_many :assembly_definition_parts, foreign_key: "part_id"
 
     has_many :product_parts, foreign_key: "assembly_product_id", class_name: "Spree::AssemblyDefinitionPart"
     has_many :part_products, foreign_key: "part_id", class_name: "Spree::AssemblyDefinitionPart"

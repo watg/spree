@@ -14,7 +14,7 @@ module Spree
         let(:adp_opts) do
           {
             assembly_definition: ad,
-            product: product,
+            assembly_product_id: product.id,
             part: part,
             presentation: "Choose your weapon"
           }

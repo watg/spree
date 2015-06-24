@@ -15,7 +15,7 @@ module Spree
       end
 
       def create_attrs
-        update_attrs.merge(product_id: params[:part_product_id].to_i)
+        update_attrs.merge(part_id: params[:part_product_id].to_i, product_id: 0)
       end
 
       def update_attrs
