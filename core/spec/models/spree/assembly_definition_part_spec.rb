@@ -3,7 +3,7 @@ require 'spec_helper'
 
 describe Spree::AssemblyDefinitionPart do
   subject { create(:assembly_definition_part, adp_opts) }
-  let(:adp_opts) { { assembly_product_id: product.id, part_id: part.id } }
+  let(:adp_opts) { { product: product, part_id: part } }
   let(:variant)  { create(:base_variant) }
   let(:product) { variant.product }
   let(:part)  { create(:base_product) }

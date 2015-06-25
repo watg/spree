@@ -227,7 +227,7 @@ module Spree
           {
             assembly_definition: ass_def,
             part: product_part,
-            assembly_product_id: product.id,
+            product: product,
             product_id: 0 }
         end
         let!(:adv) { Spree::AssemblyDefinitionVariant.create(assembly_definition_part: adp, variant: variant_part) }

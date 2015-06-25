@@ -18,7 +18,7 @@ describe Spree::Product do
     let(:part) { create(:product) }
 
     it "excludes products with assembly definition" do
-      create(:assembly_definition_part, assembly_product_id: subject.id, part: part, product_id: 0)
+      create(:assembly_definition_part, product_id: subject.id, part: part)
       expect(Spree::Product.all).to match_array([part, subject])
       expect(Spree::Product.all.not_assembly).to eq([part])
     end

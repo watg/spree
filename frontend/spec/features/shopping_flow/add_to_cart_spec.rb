@@ -39,7 +39,7 @@ feature 'adding product to cart', inaccessible: true do
     let!(:assembly_definition_part) { create(:assembly_definition_part, adp_opts) }
     let(:adp_opts) do
       { assembly_definition: assembly_definition,
-        assembly_product_id: part.id,
+        product: part,
         displayable_option_type: colour }
     end
     # links the colour variants to the hat through assemble definition
