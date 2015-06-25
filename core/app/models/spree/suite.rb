@@ -5,7 +5,7 @@ module Spree
     has_one :indexed_search, foreign_key: :suite_id, class_name: "IndexedSearch"
 
     validates_uniqueness_of :name, :permalink
-    validates_presence_of :name, :permalink, :title
+    validates_presence_of :name, :permalink, :title, :category_id
     belongs_to :category, class: SuiteCategory, foreign_key: :category_id
     belongs_to :target
     has_one :image, as: :viewable, dependent: :destroy, class_name: "Spree::SuiteImage"

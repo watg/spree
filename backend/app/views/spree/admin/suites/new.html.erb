@@ -16,6 +16,11 @@
           <%= f.text_field :title, :class => 'fullwidth title' %>
           <%= f.error_message_on :title %>
         <% end %>
+
+        <%= f.field_container :category do %>
+          <%= f.label :category_id, "Category" %><br>
+          <%= f.collection_select(:category_id, SuiteCategory.all, :id, :name, {include_blank: true},  { class: 'select2 fullwidth'}) %>
+        <% end %>
       </div>
     </div>
     <%= render :partial => 'spree/admin/shared/new_resource_links' %>
