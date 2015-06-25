@@ -670,9 +670,8 @@ describe Spree::Variant, :type => :model do
       let(:variant_part)  { create(:variant) }
       let(:product_part)  { variant_part.product }
       let(:adp)  { create(:assembly_definition_part, adp_opts) }
-      let(:adp_opts) { { product: variant.product, part: product_part } }
+      let(:adp_opts) { { assembly_product_id: variant.product.id, part: product_part } }
       let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
-
 
       # This is not needed for the time being
       it "touches assembly product after touch" do

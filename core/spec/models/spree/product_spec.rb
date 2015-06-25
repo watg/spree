@@ -270,7 +270,7 @@ describe Spree::Product, :type => :model do
     subject         { create(:product) }
     let(:part)      { create(:product) }
 
-    before { create(:assembly_definition_part, product: subject, part: part) }
+    before { create(:assembly_definition_part, assembly_product_id: subject.id, part_id: part.id) }
 
     describe "#parts" do
       it { expect(subject.parts).to eq [part] }
@@ -484,7 +484,7 @@ describe Spree::Product, :type => :model do
 
       let(:product_part)  { variant_part.product }
       let!(:adp)  { create(:assembly_definition_part, adp_opts) }
-      let(:adp_opts) { { product: variant_assembly.product, part: product_part } }
+      let(:adp_opts) { { assembly_product_id: variant_assembly.product.id, part_id: product_part.id } }
       let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
 
       before { adv.update(assembly_product: variant_assembly.product) }
