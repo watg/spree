@@ -1,8 +1,8 @@
 module Spree
   module FrontendHelper
 
-    def my_bag_link_mobile()
-      if simple_current_order.nil? or simple_current_order.item_count.zero?
+    def my_bag_link_mobile
+      if simple_current_order.nil? || simple_current_order.item_count.zero?
         text = "0"
       else
         text = "#{simple_current_order.item_count}"
