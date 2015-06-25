@@ -19,6 +19,7 @@ module Spree
             format.js   { render :layout => false }
           end
         else
+          invoke_callbacks(:update, :fails)
           respond_with(@suite)
         end
       end
