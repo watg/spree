@@ -2,6 +2,9 @@ core = {}; // Extend from this core object
 var OlapicWidget; // olapic global object
 
 var readyCore = function() {
+  // Turbolinks progress bar
+  Turbolinks.enableProgressBar(true);
+
 	core.readyModals();
 	core.readyTooltips();
 	core.readyCarousels();

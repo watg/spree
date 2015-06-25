@@ -3,7 +3,9 @@
 /**
  * Table of contents
  *
- * HTML elemt styles
+ * Turbolinks progress bar
+ * Browser highlight
+ * HTML element styles
  * Shipping and contact
  * Sitewide messageing (currency, cookies and errors)
  * Modals
@@ -11,6 +13,15 @@
  * Pagination
  * Animations
 **/
+
+/* Turbolinks progress bar */
+html.turbolinks-progress-bar::before {
+  background-color: #8224e3 !important;
+  height: 5px !important;
+  @media only screen and (max-width: 28.750em) {
+    height: 3px !important;
+  }
+}
 
 /* Browser highlight colour */
 ::selection {
