@@ -40,7 +40,7 @@ describe Spree::AssemblyDefinition do
     let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: part, variant: variant) }
 
     before do
-      variant.prices.map { |p| p.amount = 0;  p.is_kit = true; p.save }
+      variant.prices.map { |p| p.update_columns(amount: 0, is_kit: true) }
     end
 
     it "provides an error" do
