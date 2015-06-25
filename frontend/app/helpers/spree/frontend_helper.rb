@@ -2,12 +2,7 @@ module Spree
   module FrontendHelper
 
     def my_bag_link_mobile
-      if simple_current_order.nil? || simple_current_order.item_count.zero?
-        text = "0"
-      else
-        text = "#{simple_current_order.item_count}"
-      end
-
+      text = simple_current_order.nil? ? 0 : simple_current_order.item_count.to_i
       link_to text.html_safe, spree.cart_path, :class => "link-cart"
     end
 
