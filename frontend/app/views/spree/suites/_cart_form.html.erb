@@ -23,8 +23,6 @@
 			</div>
 			<% index += 1 %>
 			<% end %>
-
-			<input class="variant_id" type="hidden" name="products[<%= product_presenter.id %>]" value="<%= variant_presenter.try(:id) %>" />
 		</div>
 
 		<% unless product_presenter.optional_parts_for_display.blank? %>
@@ -33,7 +31,7 @@
 			<ul>
 				<% product_presenter.optional_parts_for_display.each do |opart| %>
 				<li>
-          <%= check_box_tag "products[options][]", opart.id, false, 'data-price' => product_presenter.part_price_in_pence(opart), 'data-quantity' => product_presenter.part_quantity(opart),  'data-currency' => current_currency, id: "products_options_#{opart.id}", class: "kit-option" %>
+          <%= check_box_tag "options[optional_static_parts][]", opart.id, false, 'data-price' => product_presenter.part_price_in_pence(opart), 'data-quantity' => product_presenter.part_quantity(opart),  'data-currency' => current_currency, id: "products_options_#{opart.id}", class: "kit-option" %>
 					<label for="<%= ['products', 'options', opart.id].join('_') %>">
 						<span class="optional-part-label"><%= "#{product_presenter.part_quantity(opart)} X #{opart.label_or_product_name}" %></span>
 					</label>

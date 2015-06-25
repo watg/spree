@@ -100,7 +100,7 @@ module Spree
 
       parts.reject do |product_part_id, variant_id|
         part_ok = product_part_ids.include?(product_part_id.to_i)
-        variant_not_required = (variant_id == Spree::ProductPart::NO_THANKS )
+        variant_not_required = (variant_id == Spree::ProductPart::NO_THANKS)
 
         if variant_not_required
           part_ok
@@ -125,7 +125,7 @@ module Spree
       variant.product.product_parts.detect{ |p| p.id == part_id }
     end
 
-    def valid_selected_part_variant( product_part, selected_part_variant_id )
+    def valid_selected_part_variant(product_part, selected_part_variant_id)
       boolean = product_part.product_part_variants.detect do |v|
         v.variant_id == selected_part_variant_id
       end
@@ -149,6 +149,7 @@ module Spree
     #     "initials"=>"XXXX"
     #   }
     # }
+    # TODO: delete this
     def parse_personalisations(params)
       return [] unless params[:enabled_pp_ids]
       params[:enabled_pp_ids].map do |pp_id|
