@@ -36,10 +36,10 @@ describe Spree::OrderPopulator, :type => :model do
         let!(:lip1) { mock_model(Spree::LineItemPart) }
         let!(:lip2) { mock_model(Spree::LineItemPart) }
 
-        let!(:adp1) { mock_model(Spree::AssemblyDefinitionPart) }
-        let!(:adp2) { mock_model(Spree::AssemblyDefinitionPart) }
-        let!(:adv1) { mock_model(Spree::AssemblyDefinitionVariant) }
-        let!(:adv2) { mock_model(Spree::AssemblyDefinitionVariant) }
+        let!(:adp1) { mock_model(Spree::ProductPart) }
+        let!(:adp2) { mock_model(Spree::ProductPart) }
+        let!(:adv1) { mock_model(Spree::ProductPartVariant) }
+        let!(:adv2) { mock_model(Spree::ProductPartVariant) }
 
         before do
           options[:parts] = match_array [lip1, lip2]
@@ -55,7 +55,7 @@ describe Spree::OrderPopulator, :type => :model do
 
 
         context "missing_parts" do
-          let(:part) { mock_model(Spree::AssemblyDefinitionPart)}
+          let(:part) { mock_model(Spree::ProductPart)}
 
           before do
             allow(subject.options_parser).to receive(:missing_parts).and_return({part.id => variant.id})

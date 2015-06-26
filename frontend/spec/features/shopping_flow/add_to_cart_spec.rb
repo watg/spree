@@ -34,11 +34,11 @@ feature 'adding product to cart', inaccessible: true do
     let!(:colour_variant_one) { create(:base_variant, product: part, option_values: [blue], in_stock_cache: true) }
     let!(:colour_variant_two) { create(:base_variant, product: part, option_values: [red], in_stock_cache: true) }
 
-    let!(:assembly_definition_part) { create(:assembly_definition_part, part: part, product: hat_variant.product, displayable_option_type: colour ) }
+    let!(:product_part) { create(:product_part, part: part, product: hat_variant.product, displayable_option_type: colour ) }
 
     # links the colour variants to the hat through assemble definition
-    let!(:assembly_definition_variant) { create(:assembly_definition_variant, variant: colour_variant_one, assembly_definition_part: assembly_definition_part) }
-    let!(:assembly_definition_variant_two) { create(:assembly_definition_variant, variant: colour_variant_two, assembly_definition_part: assembly_definition_part) }
+    let!(:product_part_variant) { create(:product_part_variant, variant: colour_variant_one, product_part: product_part) }
+    let!(:product_part_variant_two) { create(:product_part_variant, variant: colour_variant_two, product_part: product_part) }
 
     scenario 'user selects variant and add to cart', js: true do
 

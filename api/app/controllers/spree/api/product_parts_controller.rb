@@ -7,7 +7,7 @@ module Spree
       end
       private
       def product_part
-        @product_part ||= Spree::AssemblyDefinitionPart.find(params[:id])
+        @product_part ||= Spree::ProductPart.find(params[:id])
       end
     end
   end

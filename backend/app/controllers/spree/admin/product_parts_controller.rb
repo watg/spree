@@ -7,7 +7,6 @@ module Spree
       def index
       end
 
-      # TODO: move into a presenter
       def available
         @product = Spree::Product.find_by_slug(params[:product_id])
         if params[:q].blank?
@@ -27,16 +26,6 @@ module Spree
       end
 
       private
-
-      def model_class
-        # TODO: remove once we we rename AssemDefPart
-        AssemblyDefinitionPart
-      end
-
-        # TODO: remove once we we rename AssemDefPart
-      def collection_url(opts = {})
-        spree.admin_product_product_parts_url(params[:product_id], opts)
-      end
 
       def permit_attributes
         params.require(:product).permit!

@@ -270,7 +270,7 @@ describe Spree::Product, :type => :model do
     subject         { create(:product) }
     let(:part)      { create(:product) }
 
-    before { create(:assembly_definition_part, product: subject, part: part) }
+    before { create(:product_part, product: subject, part: part) }
 
     describe "#parts" do
       it { expect(subject.parts).to eq [part] }
@@ -477,17 +477,14 @@ describe Spree::Product, :type => :model do
     before { Delayed::Worker.delay_jobs = false }
     after { Delayed::Worker.delay_jobs = true }
 
-    context "Assembly Definition" do
+    context "touch_products_containing_this_part" do
 
       let(:variant_assembly) { create(:variant) }
       let(:variant_part)  { create(:base_variant) }
 
       let(:product_part)  { variant_part.product }
-      let!(:adp)  { create(:assembly_definition_part, adp_opts) }
-      let(:adp_opts) { { product: variant_assembly.product, part_id: product_part.id } }
-      let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
-
-      before { adv.update(assembly_product: variant_assembly.product) }
+      let(:adp_opts) { { product: variant_assembly.product, part: product_part } }
+      let!(:adp)  { create(:product_part, adp_opts) }
 
       it "touches assembly product after save" do
         Timecop.freeze(Time.local(2014))

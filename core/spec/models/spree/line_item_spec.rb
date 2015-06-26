@@ -51,10 +51,10 @@ describe Spree::LineItem, type: :model do
 
       before do
         subject.variant = dynamic_kit_variant
-        subject.line_item_parts.create(quantity: 1, price: 1, variant_id: variant11.id, optional: false, assembly_definition_part_id: part1.id)
-        subject.line_item_parts.create(quantity: 1, price: 1, variant_id: variant10.id, optional: false, assembly_definition_part_id: part2.id)
-        subject.line_item_parts.create(quantity: 2, price: 1, variant_id: variant8.id, optional: false, assembly_definition_part_id: part3.id)
-        subject.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: true, assembly_definition_part_id: part4.id)
+        subject.line_item_parts.create(quantity: 1, price: 1, variant_id: variant11.id, optional: false, product_part_id: part1.id)
+        subject.line_item_parts.create(quantity: 1, price: 1, variant_id: variant10.id, optional: false, product_part_id: part2.id)
+        subject.line_item_parts.create(quantity: 2, price: 1, variant_id: variant8.id, optional: false, product_part_id: part3.id)
+        subject.line_item_parts.create(quantity: 1, price: 1, variant_id: variant7.id, optional: true, product_part_id: part4.id)
         subject.save
       end
 

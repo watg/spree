@@ -20,7 +20,7 @@ module Spree
       end
 
       describe "#index" do
-        let!(:adp)     { create(:assembly_definition_part, adp_opts) }
+        let!(:adp)     { create(:product_part, adp_opts) }
         it "renders view successfully" do
           spree_get :index, product_id: product.slug
           expect(response.body).to include "Choose your weapon"
@@ -57,7 +57,7 @@ module Spree
       end
 
       describe "#update_all" do
-        let!(:adp)     { create(:assembly_definition_part, adp_opts) }
+        let!(:adp)     { create(:product_part, adp_opts) }
 
         context "adding a variant" do
           let(:option_type) { create(:option_type) }
@@ -107,7 +107,7 @@ module Spree
         end
 
         context "flash errors" do
-          let!(:adp)     { create(:assembly_definition_part, adp_opts) }
+          let!(:adp)     { create(:product_part, adp_opts) }
           let(:params) do
             {
               "product" => {

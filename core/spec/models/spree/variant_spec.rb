@@ -634,20 +634,20 @@ describe Spree::Variant, :type => :model do
       expect(variant.product.reload.updated_at).to be_within(3.seconds).of(Time.now)
     end
 
-    context "assembly_definition_variants" do
+    context "product_part_variants" do
 
-      let(:assembly_definition_variant) { mock_model(Spree::AssemblyDefinitionVariant) }
+      let(:product_part_variant) { mock_model(Spree::ProductPartVariant) }
       before do
-        allow(variant).to receive(:assembly_definition_variants).and_return [ assembly_definition_variant ]
+        allow(variant).to receive(:product_part_variants).and_return [ product_part_variant ]
       end
 
-      it "calls touch_assembly_definition_variants after touch" do
-        expect(variant).to receive(:touch_assembly_definition_variants)
+      it "calls touch_product_part_variants after touch" do
+        expect(variant).to receive(:touch_product_part_variants)
         variant.touch
       end
 
-      it "touches it assembly_definition_variants" do
-        expect(assembly_definition_variant).to receive(:touch)
+      it "touches it product_part_variants" do
+        expect(product_part_variant).to receive(:touch)
         variant.touch
       end
     end
@@ -668,9 +668,9 @@ describe Spree::Variant, :type => :model do
     context "#touch" do
       let(:variant_part)  { create(:variant) }
       let(:product_part)  { variant_part.product }
-      let(:adp)  { create(:assembly_definition_part, adp_opts) }
+      let(:adp)  { create(:product_part, adp_opts) }
       let(:adp_opts) { { product: variant.product, part: product_part } }
-      let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
+      let!(:adv) { create(:product_part_variant, product_part: adp, variant: variant_part) }
 
       # This is not needed for the time being
       it "touches assembly product after touch" do

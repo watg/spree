@@ -12,10 +12,10 @@ describe Spree::StockCheckJob do
     let!(:part_product)  { create(:product) }
     let!(:pv)            { create(:variant, product: part_product, in_stock_cache: pv_status) }
     let(:pv_status)      { in_stock }
-    let!(:adp)           { create(:assembly_definition_part, adp_opts) }
+    let!(:adp)           { create(:product_part, adp_opts) }
     let(:adp_opts)       { { product: variant.product, part: part_product } }
-    let!(:adv)           { create(:assembly_definition_variant, adv_opts) }
-    let(:adv_opts)       { { assembly_definition_part: adp, variant: pv } }
+    let!(:adv)           { create(:product_part_variant, adv_opts) }
+    let(:adv_opts)       { { product_part: adp, variant: pv } }
 
     before               { variant.product.master =  variant }
 
@@ -139,8 +139,8 @@ describe Spree::StockCheckJob do
         let(:pv_status)  { in_stock }
         let(:pv2)        { create(:variant, product: part_product, in_stock_cache: pv2_status) }
         let(:pv2_status) { out_of_stock }
-        let(:adv_2)      { create(:assembly_definition_variant, adv2_opts) }
-        let(:adv_2_opts) { { assembly_definition_part: adp, variant: pv2 } }
+        let(:adv_2)      { create(:product_part_variant, adv2_opts) }
+        let(:adv_2_opts) { { product_part: adp, variant: pv2 } }
 
         context "required part has 1 variant in stock another out of stock" do
           let(:variant_status) { out_of_stock }
@@ -201,10 +201,9 @@ describe Spree::StockCheckJob do
         let(:part_2)         { create(:product) }
         let(:pv2)            { create(:variant, product: part_2, in_stock_cache: pv2_status) }
         let(:pv2_status)     { out_of_stock }
-        let(:adp_2)          { create(:assembly_definition_part, adp_2_opts) }
-        let(:adp_2_opts)     { { product: product, part: part_2 } }
-        let!(:adv2)          { create(:assembly_definition_variant, adv2_opts) }
-        let(:adv2_opts)      { { assembly_definition_part: adp_2, variant: pv2 } }
+        let(:adp_2)          { create(:product_part, product: product, part: part_2) }
+        let!(:adv2)          { create(:product_part_variant, adv2_opts) }
+        let(:adv2_opts)      { { product_part: adp_2, variant: pv2 } }
 
         context "and one of them is in stock (required) the other is out of stock ( required )" do
           before { allow(pv2).to receive(:can_supply?).and_return false }
@@ -239,7 +238,7 @@ describe Spree::StockCheckJob do
         end
 
         context "and one of them is in stock (required) the other is out of stock ( optional )" do
-          let(:adp_2)      { create(:assembly_definition_part, adp_2_opts) }
+          let(:adp_2)      { create(:product_part, adp_2_opts) }
           let(:adp_2_opts) { { product: product, part: part_2, optional: true } }
 
           before           { allow(pv2).to receive(:can_supply?).and_return false }
@@ -359,10 +358,10 @@ describe Spree::StockCheckJob do
     let!(:ap) { Spree::StaticAssembliesPart.create(ap_opts) }
     let(:ap_opts) { { part_id: skp.id, assembly_id: sk.id, assembly_type: "Spree::Variant" } }
 
-    let!(:adp) { create(:assembly_definition_part, adp_opts) }
-    let!(:adp_opts) { { product: product, part: product_part } }
-    let!(:adv) { adv_klass.create(assembly_definition_part: adp, variant: sk) }
-    let(:adv_klass) { Spree::AssemblyDefinitionVariant }
+    let!(:adp) { create(:product_part, adp_opts) }
+    let!(:adp_opts) { { product: variant.product, part: product_part } }
+    let!(:adv) { adv_klass.create(product_part: adp, variant: sk) }
+    let(:adv_klass) { Spree::ProductPartVariant }
 
     subject { Spree::StockCheckJob.new(skp) }
 
@@ -409,8 +408,8 @@ describe Spree::StockCheckJob do
 
     context "multiple variants of which one is going out of stock" do
       let!(:static_kit_2) { create(:base_variant, in_stock_cache: false, product: product_part) }
-      let!(:adv_3)        { adv_klass.create(assembly_definition_part: adp, variant: static_kit_2) }
-      let(:adv_klass)     { Spree::AssemblyDefinitionVariant }
+      let!(:adv_3)        { adv_klass.create(product_part: adp, variant: static_kit_2) }
+      let(:adv_klass)     { Spree::ProductPartVariant }
 
       before { allow(skp).to receive(:can_supply?).and_return false }
 

@@ -214,20 +214,19 @@ module Spree
 
       context "Dynamic" do
         # TODO: turn this into a factory
-
         let(:product) { create(:base_product, name: "My Product", description: "Product Description") }
         let(:variant) { create(:base_variant, product: product, in_stock_cache: true, number: "V1234", updated_at: 1.day.ago) }
 
         let!(:product_part)  { create(:base_product) }
         let!(:variant_part)  { create(:base_variant, number: "V5678", product: product_part, in_stock_cache: true, updated_at: 2.days.ago) }
 
-        let!(:adp)     { Spree::AssemblyDefinitionPart.create(adp_opts) }
+        let!(:adp)     { Spree::ProductPart.create(adp_opts) }
         let(:adp_opts) { { part: product_part, product: product } }
-        let!(:adv) { Spree::AssemblyDefinitionVariant.create(assembly_definition_part: adp, variant: variant_part) }
+        let!(:adv) { Spree::ProductPartVariant.create(product_part: adp, variant: variant_part) }
 
         it "can add a new line item to an existing order with options" do
 
-          options = { :parts => {adp.id.to_s => variant_part.id} }
+          options = { :parts => { adp.id.to_s => variant_part.id } }
           api_post :create,
             line_item: {
             variant_id: variant.to_param,

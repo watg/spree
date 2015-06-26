@@ -16,7 +16,7 @@ module Spree
         options = Spree::Variant.find(params)
         options.each do |o|
           parts << Spree::LineItemPart.new(
-            assembly_definition_part_id: nil,
+            product_part_id: nil,
             variant_id: o.id,
             quantity:   part_quantity(variant, o),
             optional:   true,
@@ -45,19 +45,19 @@ module Spree
 
       parts = []
       params.each do |part_id, selected_part_variant_id|
-        next if selected_part_variant_id == Spree::AssemblyDefinitionPart::NO_THANKS
+        next if selected_part_variant_id == Spree::ProductPart::NO_THANKS
 
-        assembly_definition_part = valid_part(variant, part_id.to_i)
-        selected_part_variant = valid_selected_part_variant(assembly_definition_part, selected_part_variant_id.to_i)
+        product_part = valid_part(variant, part_id.to_i)
+        selected_part_variant = valid_selected_part_variant(product_part, selected_part_variant_id.to_i)
 
         if selected_part_variant.required_parts_for_display.any?
 
           # Adding the container. It may be optional.
           parent = Spree::LineItemPart.new(
-            assembly_definition_part_id: assembly_definition_part.id,
+            product_part_id: product_part.id,
             variant_id:                  selected_part_variant.id,
-            quantity:                    assembly_definition_part.count,
-            optional:                    assembly_definition_part.optional,
+            quantity:                    product_part.count,
+            optional:                    product_part.optional,
             price:                       part_price_amount(selected_part_variant),
             currency:                    currency,
             container:                   true
@@ -67,9 +67,9 @@ module Spree
           # Adding the parts of the container. They are always required.
           selected_part_variant.required_parts_for_display.each do |sub_part|
             child = Spree::LineItemPart.new(
-              assembly_definition_part_id: assembly_definition_part.id,
+              product_part_id: product_part.id,
               variant_id:                  sub_part.id,
-              quantity:                    sub_part.count_part * assembly_definition_part.count,
+              quantity:                    sub_part.count_part * product_part.count,
               optional:                    false,
               price:                       part_price_amount(sub_part),
               currency:                    currency,
@@ -80,10 +80,10 @@ module Spree
           end
         else
           parts << Spree::LineItemPart.new(
-            assembly_definition_part_id: assembly_definition_part.id,
+            product_part_id: product_part.id,
             variant_id:                  selected_part_variant.id,
-            quantity:                    assembly_definition_part.count,
-            optional:                    assembly_definition_part.optional,
+            quantity:                    product_part.count,
+            optional:                    product_part.optional,
             price:                       part_price_amount(selected_part_variant),
             currency:                    currency
           )
@@ -100,7 +100,7 @@ module Spree
 
       parts.reject do |product_part_id, variant_id|
         part_ok = product_part_ids.include?(product_part_id.to_i)
-        variant_not_required = (variant_id == Spree::AssemblyDefinitionPart::NO_THANKS)
+        variant_not_required = (variant_id == Spree::ProductPart::NO_THANKS )
 
         if variant_not_required
           part_ok
@@ -125,8 +125,8 @@ module Spree
       variant.product.product_parts.detect{ |p| p.id == part_id }
     end
 
-    def valid_selected_part_variant(assembly_definition_part, selected_part_variant_id)
-      boolean = assembly_definition_part.assembly_definition_variants.detect do |v|
+    def valid_selected_part_variant( product_part, selected_part_variant_id )
+      boolean = product_part.product_part_variants.detect do |v|
         v.variant_id == selected_part_variant_id
       end
       if boolean

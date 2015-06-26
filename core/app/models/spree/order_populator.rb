@@ -71,7 +71,7 @@ module Spree
 
       if is_quantity_reasonable?(quantity)
 
-        variant = Spree::Variant.includes(assembly_definition_variants: :assembly_definition_parts)
+        variant = Spree::Variant.includes(product_part_variants: :product_parts)
           .find(variant_id)
 
         parts = params.delete(:parts)

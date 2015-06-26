@@ -5,7 +5,7 @@ describe Spree::VariantUuid do
 
   let(:parts) {[
     OpenStruct.new(
-      assembly_definition_part_id: 1,
+      product_part_id: 1,
       variant_id: variant.id,
       quantity:   4,
       optional:   false,
@@ -13,7 +13,7 @@ describe Spree::VariantUuid do
       currency:   'GBP'
     ),
     OpenStruct.new(
-      assembly_definition_part_id: 2,
+      product_part_id: 2,
       variant_id: variant.id,
       quantity:   1,
       optional:   false,
@@ -21,7 +21,7 @@ describe Spree::VariantUuid do
       currency:   'GBP'
     ),
     OpenStruct.new(
-      assembly_definition_part_id: nil,
+      product_part_id: nil,
       variant_id: variant.id,
       quantity:   1,
       optional:   true,
@@ -34,7 +34,7 @@ describe Spree::VariantUuid do
   subject { Spree::VariantUuid.fetch(variant, parts, personalisations) }
 
   before do
-    allow(Spree::AssemblyDefinitionPart).to receive(:find).and_return(double)
+    allow(Spree::ProductPart).to receive(:find).and_return(double)
 
   end
 

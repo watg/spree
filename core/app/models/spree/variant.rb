@@ -28,7 +28,7 @@ module Spree
     has_many :variant_targets, class_name: 'Spree::VariantTarget', dependent: :destroy
     has_many :targets, class_name: 'Spree::Target', through: :variant_targets
 
-    has_many :assembly_definition_variants, class_name: 'Spree::AssemblyDefinitionVariant'
+    has_many :product_part_variants, class_name: 'Spree::ProductPartVariant'
 
     has_one :default_price,
       -> { where currency: Spree::Config[:currency] },
@@ -68,8 +68,8 @@ module Spree
     # This can take a while so run it asnyc with a low priority for now
     after_touch { delay(priority: 20).touch_assemblies_parts if static_assemblies.any? }
 
-    after_save { delay(:priority => 20 ).touch_assembly_definition_variants if assembly_definition_variants.any? }
-    after_touch { delay(:priority => 20 ).touch_assembly_definition_variants if assembly_definition_variants.any? }
+    after_save { delay(:priority => 20 ).touch_product_part_variants if product_part_variants.any? }
+    after_touch { delay(:priority => 20 ).touch_product_part_variants if product_part_variants.any? }
 
     after_touch :clear_in_stock_cache
     after_save  :check_stock
@@ -450,10 +450,6 @@ module Spree
       self.track_inventory? && Spree::Config.track_inventory_levels
     end
 
-    def assembly_definition_parts
-      assembly_definition.try(:assembly_definition_parts) || []
-    end
-
     def create_sku
       sku_parts = [ product.master.sku ] + self.option_values.map { |ov| [ ov.option_type.sku_part, ov.sku_part ] }
       self.sku = sku_parts.flatten.join('-')
@@ -471,8 +467,8 @@ module Spree
 
     private
 
-    def touch_assembly_definition_variants
-      assembly_definition_variants.map(&:touch)
+    def touch_product_part_variants
+      product_part_variants.map(&:touch)
     end
 
     def touch_assemblies_parts

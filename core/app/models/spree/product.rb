@@ -58,24 +58,20 @@ module Spree
 
     # Ensure that we blow the cache for any assemblies that have a part which belongs to
     # this product
-    has_many :assembly_definition_variants, through: :variants
-    has_many :assembly_products, through: :assembly_definition_variants
+    has_many :product_part_variants, through: :variants
 
     has_many :product_parts_images, -> { order(:position) }, class_name: "ProductPartsImage"
-    has_many :assembly_definition_parts
 
-    has_many :product_parts, -> { order(:position) },
-      foreign_key: "product_id", 
-      class_name: "Spree::AssemblyDefinitionPart"
-
+    has_many :product_parts, -> { order(:position) }, foreign_key: "product_id", 
+      class_name: "Spree::ProductPart"
     has_many :product_part_variants, through: :product_parts
 
-    has_many :part_products, foreign_key: "part_id", class_name: "Spree::AssemblyDefinitionPart"
+    has_many :part_products, foreign_key: "part_id", class_name: "Spree::ProductPart"
 
     has_many :parts, through: :product_parts
     has_many :products, through: :part_products
 
-    after_save { delay(:priority => 20 ).touch_assembly_products if assembly_products.any? }
+    after_save { delay(:priority => 20 ).touch_products_containing_this_part if part_products.any? }
 
     has_one :master,
       -> { where is_master: true },
@@ -387,8 +383,8 @@ module Spree
 
     private
 
-    def touch_assembly_products
-      assembly_products.uniq.map(&:touch)
+    def touch_products_containing_this_part
+      products.map(&:touch)
     end
 
     def touch_suite_tabs

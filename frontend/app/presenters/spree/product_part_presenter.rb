@@ -1,10 +1,10 @@
 module Spree
-  class AssemblyDefinitionPartPresenter < BasePresenter
-    presents :assembly_definition_part
-    delegate :id, :optional?, :count, :presentation, to: :assembly_definition_part
+  class ProductPartPresenter < BasePresenter
+    presents :product_part
+    delegate :id, :optional?, :count, :presentation, to: :product_part
 
     def variants
-      @variants ||= assembly_definition_part.variants.in_stock
+      @variants ||= product_part.variants.in_stock
     end
 
     def first_variant
@@ -12,11 +12,11 @@ module Spree
     end
 
     def product_name
-      @product_name ||= assembly_definition_part.part.name
+      @product_name ||= product_part.part.name
     end
 
     def displayable_option_type
-      @displayable_option_type ||= assembly_definition_part.displayable_option_type
+      @displayable_option_type ||= product_part.displayable_option_type
     end
 
     #### option value methods ####

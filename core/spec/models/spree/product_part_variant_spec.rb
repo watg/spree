@@ -1,16 +1,16 @@
 # encoding: utf-8
 require 'spec_helper'
 
-describe Spree::AssemblyDefinitionVariant do
+describe Spree::ProductPartVariant do
 
   let(:variant)  { create(:base_variant) }
   let(:product) { variant.product }
   let(:part)  { create(:base_product) }
-  let(:adp) { create(:assembly_definition_part, adp_opts) }
+  let(:adp) { create(:product_part, adp_opts) }
   let(:adp_opts) { { product: product, part: part } }
 
   let(:variant_part)  { create(:base_variant) }
-  subject { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
+  subject { create(:product_part_variant, product_part: adp, variant: variant_part) }
 
   context "touch" do
 

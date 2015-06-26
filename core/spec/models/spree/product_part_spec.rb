@@ -1,16 +1,16 @@
 # encoding: utf-8
 require 'spec_helper'
 
-describe Spree::AssemblyDefinitionPart do
-  subject { create(:assembly_definition_part, adp_opts) }
-  let(:adp_opts) { { product: product, part_id: part } }
+describe Spree::ProductPart do
+  subject { create(:product_part, adp_opts) }
+  let(:adp_opts) { { product: product, part: part } }
   let(:variant)  { create(:base_variant) }
   let(:product) { variant.product }
   let(:part)  { create(:base_product) }
   let(:colour)   { create(:option_type, name: 'colour', position: 2 )}
 
   describe "save" do
-    let(:adp) { create(:assembly_definition_part, part: part, product: product) }
+    let(:adp) { create(:product_part, part: part, product: product) }
     it        { expect(adp.product).to eq product }
   end
 

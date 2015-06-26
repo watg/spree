@@ -38,7 +38,7 @@ module Spree
       def format_parts(parts)
         parts.map do |p|
           {
-            part_id: p.assembly_definition_part_id.to_i,
+            part_id: p.product_part_id.to_i,
             quantity: p.quantity.to_i,
             variant_id: p.variant_id.to_i
           }
@@ -61,7 +61,7 @@ module Spree
 
     def parts
       @parts ||= JSON.parse((self.recipe[:parts]||"[]")).map do|hsh|
-        part = Spree::AssemblyDefinitionPart.find(hsh['part_id']) if hsh['part_id']
+        part = Spree::ProductPart.find(hsh['part_id']) if hsh['part_id']
         OpenStruct.new(
                         part: part,
                         variant: Spree::Variant.find(hsh['variant_id'])

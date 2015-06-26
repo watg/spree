@@ -1,20 +1,16 @@
 module Spree
-  class AssemblyDefinitionPart < ActiveRecord::Base
+  class ProductPart < ActiveRecord::Base
     acts_as_paranoid
 
     belongs_to :product, class_name: "Spree::Product", foreign_key: "product_id", touch: true
     belongs_to :part, class_name: "Spree::Product", foreign_key: "part_id"
     belongs_to :displayable_option_type, class_name: "Spree::OptionType", foreign_key: "displayable_option_type_id"
 
-    has_many :assembly_definition_variants,
-             dependent: :delete_all,
-             class_name: 'Spree::AssemblyDefinitionVariant'
-
     has_many :product_part_variants,
-      dependent: :delete_all,
-      class_name: 'Spree::AssemblyDefinitionVariant'
+             dependent: :delete_all,
+             class_name: 'Spree::ProductPartVariant'
 
-    has_many :variants, through: :assembly_definition_variants
+    has_many :variants, through: :product_part_variants
     alias_method :selected_variants, :variants
 
     has_many :option_values, -> { reorder(:position).uniq }, through: :variants

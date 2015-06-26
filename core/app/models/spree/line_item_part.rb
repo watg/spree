@@ -7,9 +7,7 @@ class Spree::LineItemPart < ActiveRecord::Base
   belongs_to :line_item, class_name: "Spree::LineItem", inverse_of: :line_item_parts
   belongs_to :parent_part, class_name: "Spree::LineItemPart"
 
-  belongs_to :assembly_definition_part
-  belongs_to :product_part, class_name: "Spree::AssemblyDefinitionPart",
-    foreign_key: :assembly_definition_part_id
+  belongs_to :product_part, class_name: "Spree::ProductPart", foreign_key: :product_part_id
 
   has_many :inventory_units, inverse_of: :line_item_part
 

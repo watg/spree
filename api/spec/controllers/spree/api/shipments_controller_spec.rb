@@ -121,9 +121,9 @@ describe Spree::Api::ShipmentsController, :type => :controller do
         let!(:product) { variant.product }
 
         let(:price) { create(:price, price: 2.99, price_type: "part", currency: 'USD') }
-        let!(:adp) { create(:assembly_definition_part, adp_opts) }
+        let!(:adp) { create(:product_part, adp_opts) }
         let(:adp_opts) { { part: part,  product: product, count: 2 } }
-        let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
+        let!(:adv) { create(:product_part_variant, product_part: adp, variant: variant_part) }
 
         it 'can add and remove quantity' do
           assembly_selection = {adp.id.to_s => variant_part.id}
