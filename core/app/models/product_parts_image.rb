@@ -2,9 +2,7 @@ class ProductPartsImage < ActiveRecord::Base
   include ::Images::S3Callbacks
   acts_as_paranoid
 
-  # TODO: dry this up with images
   validate :no_attachment_errors
-
   belongs_to :target, class_name: "Spree::Target", inverse_of: :images
 
   has_attached_file :attachment,
