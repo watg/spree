@@ -1,7 +1,5 @@
 module Spree
-
   class LineItemOptionsParser
-
     attr_accessor :currency
 
     def initialize(currency)
@@ -14,16 +12,16 @@ module Spree
 
     def static_kit_optional_parts(variant, params)
       parts = []
-      if params and params.any?
+      if params && params.any?
         options = Spree::Variant.find(params)
         options.each do |o|
           parts << Spree::LineItemPart.new(
             assembly_definition_part_id: nil,
             variant_id: o.id,
-            quantity:   part_quantity(variant,o),
+            quantity:   part_quantity(variant, o),
             optional:   true,
             price:      part_price_amount(o),
-            currency:   currency,
+            currency:   currency
           )
         end
       end
@@ -43,15 +41,14 @@ module Spree
     end
 
     def dynamic_kit_parts(variant, params)
-      return [] if variant.product.parts.empty? or params.nil?
+      return [] if variant.product.parts.empty? || params.nil?
 
       parts = []
       params.each do |part_id, selected_part_variant_id|
-
         next if selected_part_variant_id == Spree::AssemblyDefinitionPart::NO_THANKS
 
-        assembly_definition_part = valid_part( variant, part_id.to_i )
-        selected_part_variant = valid_selected_part_variant( assembly_definition_part, selected_part_variant_id.to_i )
+        assembly_definition_part = valid_part(variant, part_id.to_i)
+        selected_part_variant = valid_selected_part_variant(assembly_definition_part, selected_part_variant_id.to_i)
 
         if selected_part_variant.required_parts_for_display.any?
 
@@ -76,7 +73,7 @@ module Spree
               optional:                    false,
               price:                       part_price_amount(sub_part),
               currency:                    currency,
-              parent_part:                 parent,
+              parent_part:                 parent
             )
 
             parts << child
@@ -103,7 +100,7 @@ module Spree
 
       parts.reject do |product_part_id, variant_id|
         part_ok = product_part_ids.include?(product_part_id.to_i)
-        variant_not_required = (variant_id == Spree::AssemblyDefinitionPart::NO_THANKS )
+        variant_not_required = (variant_id == Spree::AssemblyDefinitionPart::NO_THANKS)
 
         if variant_not_required
           part_ok
@@ -111,13 +108,10 @@ module Spree
           variant_ok = variant_ids.include?(variant_id.to_i)
           part_ok && variant_ok
         end
-
       end
     end
 
-
     private
-
 
     def part_price_amount(part)
       price = part.price_part_in(currency).amount
@@ -127,11 +121,11 @@ module Spree
       price
     end
 
-    def valid_part( variant, part_id )
-      variant.product.product_parts.detect{|p| p.id == part_id}
+    def valid_part(variant, part_id)
+      variant.product.product_parts.detect{ |p| p.id == part_id }
     end
 
-    def valid_selected_part_variant( assembly_definition_part, selected_part_variant_id )
+    def valid_selected_part_variant(assembly_definition_part, selected_part_variant_id)
       boolean = assembly_definition_part.assembly_definition_variants.detect do |v|
         v.variant_id == selected_part_variant_id
       end
@@ -143,7 +137,7 @@ module Spree
     end
 
     def part_quantity(variant, option)
-      variant.product.optional_parts_for_display.detect{|e| e.id == option.id}.count_part
+      variant.product.optional_parts_for_display.detect{ |e| e.id == option.id }.count_part
     end
 
     # This will return an array of hashes in case
@@ -160,16 +154,14 @@ module Spree
       params[:enabled_pp_ids].map do |pp_id|
         pp_params = params[:pp_ids][pp_id]
         pp = Spree::Personalisation.find pp_id
-        safe_params = pp.validate( pp_params )
+        safe_params = pp.validate(pp_params)
 
         Spree::LineItemPersonalisation.new(
           personalisation_id: pp_id,
           amount: pp.prices[currency] || BigDecimal.new(0),
-          data: safe_params,
+          data: safe_params
         )
       end
     end
-
   end
-
 end

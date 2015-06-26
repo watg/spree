@@ -4,7 +4,6 @@ module Spree
 
     delegate :id, :name, :product, :in_sale?, to: :variant
 
-
     ### Memoized accessors ###
 
     def option_types_and_values
@@ -12,7 +11,7 @@ module Spree
     end
 
     def level
-      @level ||= variant.product.property('level')
+      @level ||= variant.product.property("level")
     end
 
     def displayable_suppliers
@@ -22,7 +21,7 @@ module Spree
     ### Images ##
 
     def placeholder_image
-      h.image_path('product-group/placeholder-470x600.gif')
+      h.image_path("product-group/placeholder-470x600.gif")
     end
 
     def first_image
@@ -34,10 +33,10 @@ module Spree
       return @first_image_url[style] if @first_image_url[style]
       image = first_image
       @first_image_url[style] = if image.present?
-        image.attachment.url(style)
-      else
-        h.image_path('product-group/placeholder-470x600.gif')
-      end
+                                  image.attachment.url(style)
+                                else
+                                  h.image_path("product-group/placeholder-470x600.gif")
+                                end
       @first_image_url[style]
     end
 
@@ -47,10 +46,10 @@ module Spree
     end
 
     def main_image_options
-      options = { itemprop: 'image' }
+      options = { itemprop: "image" }
       if is_desktop?
         options.merge!(
-          class: 'zoomable',
+          class: "zoomable",
           data: { zoomable: first_image_url(:original) }
         )
       end
@@ -58,7 +57,6 @@ module Spree
     end
 
     ### Prices ##
-
 
     def price
       @price ||= variant.price_normal_in(currency)
@@ -90,33 +88,33 @@ module Spree
 
     def normal_price_classes
       classes = if variant.in_sale?
-        ['normal-price','price', 'was']
-      else
-        ['normal-price', 'price']
-      end
-      classes << 'unselected' if product.parts.any?
-      classes.join(' ')
+                  ["normal-price", "price", "was"]
+                else
+                  ["normal-price", "price"]
+                end
+      classes << "unselected" if product.parts.any?
+      classes.join(" ")
     end
 
     def displayable_supplier_nickname
-      if self.displayable_suppliers.any?
-        self.displayable_suppliers.map(&:nickname).to_sentence
+      if displayable_suppliers.any?
+        displayable_suppliers.map(&:nickname).to_sentence
       else
-        'WATG'
+        "WATG"
       end
     end
 
     def sale_price_classes
       classes = if variant.in_sale?
-        ['sale-price','price']
-      else
-        ['sale-price', 'price', 'hide']
-      end
-      classes << 'unselected' if product.parts.any?
-      classes.join(' ')
+                  ["sale-price", "price"]
+                else
+                  ["sale-price", "price", "hide"]
+                end
+      classes << "unselected" if product.parts.any?
+      classes.join(" ")
     end
 
-  private
+    private
 
     def images
       @images ||= begin
@@ -125,7 +123,5 @@ module Spree
         images
       end
     end
-
   end
 end
-

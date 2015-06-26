@@ -64,7 +64,10 @@ module Spree
     has_many :product_parts_images, -> { order(:position) }, class_name: "ProductPartsImage"
     has_many :assembly_definition_parts
 
-    has_many :product_parts, -> { order(:position)  }, foreign_key: "product_id", class_name: "Spree::AssemblyDefinitionPart"
+    has_many :product_parts, -> { order(:position) },
+      foreign_key: "product_id", 
+      class_name: "Spree::AssemblyDefinitionPart"
+
     has_many :product_part_variants, through: :product_parts
 
     has_many :part_products, foreign_key: "part_id", class_name: "Spree::AssemblyDefinitionPart"

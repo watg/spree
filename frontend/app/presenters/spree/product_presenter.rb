@@ -84,7 +84,6 @@ module Spree
       @product_parts_images ||= product.product_parts_images.with_target(target)
     end
 
-
     def product_parts
       @product_parts ||= product.product_parts
     end

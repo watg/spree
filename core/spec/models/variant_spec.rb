@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::Variant do
   let!(:variant) { create(:variant) }
@@ -13,13 +13,13 @@ describe Spree::Variant do
     end
   end
 
-  describe '#total_on_hand' do
-    it 'should be infinite if track_inventory_levels is false' do
+  describe "#total_on_hand" do
+    it "is infinite if track_inventory_levels is false" do
       Spree::Config[:track_inventory_levels] = false
       expect(build(:variant).total_on_hand).to eql(Float::INFINITY)
     end
 
-    it 'should match quantifier total_on_hand' do
+    it "matches quantifier total_on_hand" do
       variant = build(:variant)
       expect(variant.total_on_hand).to eq(Spree::Stock::Quantifier.new(variant).total_on_hand)
     end
@@ -28,14 +28,13 @@ describe Spree::Variant do
   describe "total_awaiting_feed" do
     it "uses the value from inventory unit" do
       variant = build(:variant)
-      allow(Spree::InventoryUnit).to receive(:total_awaiting_feed_for).
-        with(variant).and_return(3)
+      allow(Spree::InventoryUnit).to receive(:total_awaiting_feed_for)
+        .with(variant).and_return(3)
       expect(variant.total_awaiting_feed).to eq(3)
     end
   end
 
   describe "#backordered" do
-
     it "calls the correct method chain" do
       non_pending = double
       inventory_units = double
@@ -44,11 +43,9 @@ describe Spree::Variant do
       expect(variant).to receive(:inventory_units).and_return(inventory_units)
       variant.backordered
     end
-
   end
 
   describe "awaiting_feed" do
-
     it "calls the correct method chain" do
       non_pending = double
       inventory_units = double
@@ -65,7 +62,9 @@ describe Spree::Variant do
     let(:target) { create(:target) }
 
     context "with a VariantTarget" do
-      let(:variant_target_images) { create_list(:image, 1, viewable: variant, target: target, position: 3) }
+      let(:variant_target_images) do
+        create_list(:image, 1, viewable: variant, target: target, position: 3)
+      end
       let!(:images) { variant_images + variant_target_images }
 
       it "returns all images linked to the VariantTarget and Variant" do
@@ -80,7 +79,9 @@ describe Spree::Variant do
     end
 
     context "with a position" do
-      let(:variant_target_images) { create_list(:image, 1, viewable: variant, target: target, position: 1) }
+      let(:variant_target_images) do
+        create_list(:image, 1, viewable: variant, target: target, position: 1)
+      end
       let!(:images) { variant_target_images + variant_images }
 
       it "returns all images linked to the VariantTarget and Variant" do
@@ -103,7 +104,7 @@ describe Spree::Variant do
   end
 
   describe "#add_to_all_product_parts" do
-    context 'after creating a new variant' do
+    context "after creating a new variant" do
       let(:variant) { build(:base_variant) }
 
       before do
@@ -112,15 +113,15 @@ describe Spree::Variant do
 
       after { Delayed::Worker.delay_jobs = true }
 
-      it 'is automatically added to all product parts variants' do
+      it "is automatically added to all product parts variants" do
         mock = double(Spree::Jobs::AddVariantToProductParts)
 
-        expect(Spree::Jobs::AddVariantToProductParts).to receive(:new).once.with(variant).and_return(mock)
+        expect(Spree::Jobs::AddVariantToProductParts).to receive(:new)
+          .once.with(variant).and_return(mock)
         expect(mock).to receive(:perform).once
 
         variant.save
       end
-
     end
   end
 
@@ -159,7 +160,7 @@ describe Spree::Variant do
       variant3.stock_thresholds.create(stock_location: london, value: 0)
       variant4.stock_thresholds.create(stock_location: london, value: 100)
 
-      expect(Spree::Variant.with_stock_threshold_for(london)).to match_array([variant1, variant4])
+      expect(described_class.with_stock_threshold_for(london)).to match_array([variant1, variant4])
     end
   end
 end

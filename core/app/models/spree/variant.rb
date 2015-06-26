@@ -63,7 +63,7 @@ module Spree
     after_create :create_stock_items
     after_create :set_position
     after_create :set_master_out_of_stock, unless: :is_master?
-    after_create { delay(:priority => 20).add_variant_to_product_parts }
+    after_create { delay(priority: 20).add_variant_to_product_parts }
 
     # This can take a while so run it asnyc with a low priority for now
     after_touch { delay(priority: 20).touch_assemblies_parts if static_assemblies.any? }
