@@ -76,6 +76,10 @@ module Spree
       is_mobile? ? :small : :product
     end
 
+    def product_parts_images
+      @product_parts_images ||= product.product_parts_images.with_target(target)
+    end
+
     def assembly_definition?
       !assembly_definition.nil?
     end

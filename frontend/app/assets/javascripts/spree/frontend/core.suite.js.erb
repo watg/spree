@@ -368,7 +368,7 @@ core.suite.readyStartOlapic = function() {
 
 core.suite.handleZoomableImage = function(image) {
   if (image.data('elevateZoom')) { // If image already has zoom instance, just change the zoom image...
-    $('.zoomWindowContainer div').stop().css('background-image', 'url(' + image.attr('src').replace('product', 'original') + ')');
+    $('.zoomWindowContainer div').stop().css('background-image', 'url(' + image.attr('src').replace('/product/', '/original/') + ')');
   } else { // Init zoom instance
     image.elevateZoom({ responsive: true, zoomType: 'inner', cursor: 'crosshair', zoomWindowFadeIn: 250, zoomWindowFadeOut: 250 });
   }

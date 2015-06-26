@@ -13,8 +13,8 @@ core.suite.readyKitVariantOptions = (entity) ->
       return false
 
     # Show thumbs and change main image
-    thumbs = entity.find('ul.thumbnails li.tmb-assembly-definition')
-    thumbs.show()
+    thumbs = entity.find('ul.thumbnails li.tmb-product-parts')
+    console.log(thumbs)
     thumb_href = thumbs.first().find('a').attr('href')
     main_image = entity.find('.main-image')
     main_image.find('img').attr('src', thumb_href)

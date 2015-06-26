@@ -1,5 +1,6 @@
 module Spree
   class AssemblyDefinitionImage < Image
+    # Delete me when you next see me as I am no longer used
 
     has_attached_file :attachment,
       :styles => { mini: '66x84>', :listing => '150x192>', small: '310x396>', product: '470x600>', large: '940x1200>' },

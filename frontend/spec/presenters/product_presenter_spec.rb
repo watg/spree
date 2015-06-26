@@ -70,6 +70,16 @@ describe Spree::ProductPresenter do
     end
   end
 
+  context "#product_parts_images" do
+    let(:product_parts_images) { double() }
+
+    it "should call #images and pass a target" do
+      expect(product_parts_images).to receive(:with_target).with(target).and_return true
+      expect(product).to receive(:product_parts_images).and_return(product_parts_images)
+      expect(subject.product_parts_images).to eq true
+    end
+  end
+
   describe "#delivery_partial" do
     let(:product) { create(:product) }
     let(:template) { { current_country_code: "US" } }
