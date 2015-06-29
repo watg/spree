@@ -267,17 +267,23 @@ core.suite.readyAjaxCarSpinner = function() {
 };
 
 core.suite.readyProductTabs = function () {
-  $('.product-details-content').slimScroll({
-    height: '450px',
-    borderRadius: '0px',
-    railOpacity: 1,
-    opacity: 1,
-    railColor : '#F1F1F1',
-    railBorderRadius : '0px',
-    railVisible : true,
-    alwaysVisible : true
-  });
-
+  var element = $('.product-details-content'),
+      height = "450px";
+  if ($.browser.webkit){
+    element.css("height", height);
+    element.addClass("customscroll")
+  }else {
+    element.slimScroll({
+      height: height,
+      borderRadius: '0px',
+      railOpacity: 1,
+      opacity: 1,
+      railColor : '#F1F1F1',
+      railBorderRadius : '0px',
+      railVisible : true,
+      alwaysVisible : true
+    });
+  }
   $('.product-details-tabs').tabslet({});
 };
 
@@ -312,7 +318,6 @@ core.suite.startCrossSales = function() {
 core.suite.readyAssemblyMenus = function() {
   var row = $('.row-assembly');
   if (row.length == 0) return false; // Die if not new kit UI
-
   row.find('.product-variants').on('click', function(e) {
     e.stopPropagation();
     $(this).siblings().removeClass('revealed').find('.variant-options').hide();

@@ -24,6 +24,7 @@
 //= require lib/jquery.owlcarousel.min.js
 //= require lib/jquery.tabslet.js
 //= require lib/jquery.slimscroll.js
+//= require lib/jquery.browser.js
 //= require lib/jquery.awesomecomplete.js
 
 //= require common

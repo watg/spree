@@ -776,7 +776,23 @@ table.order-item-listing{
   }
 }
 
+/* scroll customization */
+.customscroll {
+  overflow-y: scroll;
+}
+.customscroll::-webkit-scrollbar {
+  width: 7px;
+}
 
+.customscroll::-webkit-scrollbar-track {
+  background: rgb(241, 241, 241);
+  border-radius: 10px;
+}
+
+.customscroll::-webkit-scrollbar-thumb {
+  border-radius: 0;
+  background: rgb(0, 0, 0);
+}
 /* RAF promo */
 p.promo-raf {
   font-family: $watg-font-light;

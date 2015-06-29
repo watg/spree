@@ -134,17 +134,23 @@ core.readyAccordions = function() {
 }
 
 core.readyCustomScroll = function() {
-  var height = core.isMobileWidthOrLess() ? '320px' : '300px'; // Alternative height for mobile
-  $('.slimscroll').slimScroll({
-    height: height,
-    borderRadius: '0px',
-    railOpacity: 1,
-    opacity: 1,
-    railColor : '#f1f1f1',
-    railBorderRadius : '0px',
-    railVisible : true,
-    alwaysVisible : true
-  });
+  var height = core.isMobileWidthOrLess() ? '320px' : '300px', // Alternative height for mobile
+      element = $('.slimscroll');
+  if ($.browser.webkit){
+    element.css("height", height);
+    element.addClass("customscroll")
+  }else {
+    element.slimScroll({
+      height: height,
+      borderRadius: '0px',
+      railOpacity: 1,
+      opacity: 1,
+      railColor : '#f1f1f1',
+      railBorderRadius : '0px',
+      railVisible : true,
+      alwaysVisible : true
+    });
+  }
 }
 
 core.readyOlapic = function(){
