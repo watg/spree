@@ -82,7 +82,7 @@
       }
       .link-nav-primary-sub {
         top: 7px;
-        background-image: cdn-url("/sitewide/mobile/menu.png");
+        background-image: cdn-url("/sitewide/for_mobile/menu.png");
         width: 18px;
         height: 15px;
         &.active {
@@ -90,12 +90,12 @@
         }
       }
       .link-home {
-        background-image: cdn-url("/sitewide/mobile/home.png");
+        background-image: cdn-url("/sitewide/for_mobile/home.png");
         width: 41px;
         height: 30px;
       }
       .link-search {
-        background-image: cdn-url("/sitewide/mobile/search.png");
+        background-image: cdn-url("/sitewide/for_mobile/search.png");
         width: 40px;
         height: 40px;
         background-position: 0 -9px;
@@ -106,7 +106,7 @@
       .link-cart {
         top: 2px;
         margin-left: 10px;
-        background-image: cdn-url("/sitewide/mobile/cart.png");
+        background-image: cdn-url("/sitewide/for_mobile/cart.png");
         width: 22px;
         height: 25px;
         text-indent: 0;
@@ -167,7 +167,7 @@
           background-position: 0 2px;
           background-repeat: no-repeat;
           background-color: transparent;
-          background-image: cdn-url("/sitewide/mobile/search_small.png");
+          background-image: cdn-url("/sitewide/for_mobile/search_small.png");
           height: 15px;
           width: 15px;
         }

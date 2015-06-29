@@ -10,11 +10,13 @@ module Spree
       # This will not update taxons as we have deleted them from
       # the params, this will be updated below manually
       suite_params = format_tab_attributes(params)
-      suite.update_attributes!(suite_params)
-
-      update_suites(suite, taxon_ids, existing_taxon_ids)
-      fix_classification_positions
-      rebuild_suite_tabs_cache(suite)
+      if suite.update_attributes(suite_params)
+        update_suites(suite, taxon_ids, existing_taxon_ids)
+        fix_classification_positions
+        rebuild_suite_tabs_cache(suite)
+      else
+        errors.merge!(suite.errors)
+      end
     end
 
     private

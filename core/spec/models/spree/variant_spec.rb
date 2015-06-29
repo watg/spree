@@ -673,7 +673,6 @@ describe Spree::Variant, :type => :model do
       let(:adp_opts) { { product: variant.product, part: product_part } }
       let!(:adv) { create(:assembly_definition_variant, assembly_definition_part: adp, variant: variant_part) }
 
-
       # This is not needed for the time being
       it "touches assembly product after touch" do
         variant.product.update_column(:updated_at, 1.day.ago)

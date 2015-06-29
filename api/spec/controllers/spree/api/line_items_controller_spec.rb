@@ -223,7 +223,13 @@ module Spree
 
         let!(:ass_def) { create(:assembly_definition, variant: variant) }
         let!(:adp)     { Spree::AssemblyDefinitionPart.create(adp_opts) }
-        let(:adp_opts) { { assembly_definition: ass_def, part: product_part, product: product } }
+        let(:adp_opts) do
+          {
+            assembly_definition: ass_def,
+            part: product_part,
+            product: product,
+            product_id: 0 }
+        end
         let!(:adv) { Spree::AssemblyDefinitionVariant.create(assembly_definition_part: adp, variant: variant_part) }
 
         it "can add a new line item to an existing order with options" do

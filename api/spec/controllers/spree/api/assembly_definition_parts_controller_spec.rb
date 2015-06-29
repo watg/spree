@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::Api::AssemblyDefinitionPartsController do
   render_views
@@ -10,7 +10,7 @@ describe Spree::Api::AssemblyDefinitionPartsController do
   let(:variant_part)  { create(:base_variant) }
   let(:product_part)  { variant_part.product }
 
-  let!(:ass_def_part) { Spree::AssemblyDefinitionPart.create(opts) }
+  let!(:ass_def_part) { create(:assembly_definition_part, opts) }
   let(:opts)          { { assembly_definition: ass_def, part: product_part, product: product } }
   let!(:variants)     { [create(:variant)] }
   let!(:attributes)   { [:id, :options_text] }

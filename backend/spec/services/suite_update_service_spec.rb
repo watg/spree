@@ -1,7 +1,7 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::SuiteUpdateService do
-  subject { Spree::SuiteUpdateService.run(suite: suite, params: params) }
+  subject { described_class.run(suite: suite, params: params) }
 
   let(:suite) { create(:suite) }
   let(:taxon) { create(:taxon) }
@@ -13,11 +13,11 @@ describe Spree::SuiteUpdateService do
   before do
     taxon.children << taxon_child
     taxon_child.children << taxon_childs_child
-    suite.taxons = [ taxon, taxon_child ]
+    suite.taxons = [taxon, taxon_child]
   end
 
   describe "run" do
-    subject { Spree::SuiteUpdateService.run(suite: suite, params: params) }
+    subject { described_class.run(suite: suite, params: params) }
 
     it "returns valid if correct params" do
       expect(subject.valid?).to be true
@@ -39,29 +39,26 @@ describe Spree::SuiteUpdateService do
       end
 
       context "when another classification exists " do
-
         let(:another_suite) { create(:suite) }
 
         it "adds the new classification at the the top" do
-          expect(suite.classifications.map(&:position)).to eq [1,1]
-          Spree::SuiteUpdateService.run(suite: another_suite, params: params)
+          expect(suite.classifications.map(&:position)).to eq [1, 1]
+          described_class.run(suite: another_suite, params: params)
 
-          expect(suite.classifications.reload.map(&:position)).to eq [2,2]
-          expect(another_suite.classifications.map(&:position)).to eq [1,1,1]
+          expect(suite.classifications.reload.map(&:position)).to eq [2, 2]
+          expect(another_suite.classifications.map(&:position)).to eq [1, 1, 1]
         end
       end
 
       context "anscstor already has suite" do
-
         before do
-          Spree::Classification.create( taxon: taxon_child, suite: suite)
+          Spree::Classification.create(taxon: taxon_child, suite: suite)
         end
 
         it "does not duplicate the classification" do
           expect(taxon_child.suites.select { |s| s == suite }.size).to eq 1
           expect(taxon.suites.reload.select { |s| s == suite }.size).to eq 1
         end
-
       end
     end
 
@@ -69,7 +66,7 @@ describe Spree::SuiteUpdateService do
       let!(:params) { { taxon_ids: [taxon.id, taxon_child.id] } }
 
       before do
-        suite.taxons << taxon_childs_child  
+        suite.taxons << taxon_childs_child
       end
 
       context "taxon that has both parent and child is removed" do
@@ -102,7 +99,7 @@ describe Spree::SuiteUpdateService do
           let(:suite_2) { create(:suite) }
 
           before do
-            taxon.suites << suite_2 
+            taxon.suites << suite_2
           end
 
           it "destroys just the descendents classifications" do
@@ -118,10 +115,10 @@ describe Spree::SuiteUpdateService do
           let(:suite_2) { create(:suite) }
 
           before do
-            suite_2.taxons = [ taxon, taxon_child, taxon_childs_child ] 
+            suite_2.taxons = [taxon, taxon_child, taxon_childs_child]
           end
 
-          it "should not be affected" do
+          it "does not be affected" do
             expect(subject.valid?).to be true
             expect(taxon.suites.count).to eq 1
             expect(taxon.suites.include?(suite_2)).to be true
@@ -130,9 +127,7 @@ describe Spree::SuiteUpdateService do
             expect(taxon_childs_child.suites.count).to eq 1
             expect(taxon_childs_child.suites.include?(suite_2)).to be true
           end
-
         end
-
       end
 
       context "taxon that is a child of a child is removed" do
@@ -164,7 +159,7 @@ describe Spree::SuiteUpdateService do
           let(:suite_2) { create(:suite) }
 
           before do
-            taxon.suites << suite_2 
+            taxon.suites << suite_2
           end
 
           it "destroys just the descendents classifications" do
@@ -180,10 +175,10 @@ describe Spree::SuiteUpdateService do
           let(:suite_2) { create(:suite) }
 
           before do
-            suite_2.taxons = [ taxon, taxon_child, taxon_childs_child ] 
+            suite_2.taxons = [taxon, taxon_child, taxon_childs_child]
           end
 
-          it "should not be affected" do
+          it "does not be affected" do
             expect(subject.valid?).to be true
             expect(taxon.suites.count).to eq 1
             expect(taxon.suites.include?(suite_2)).to be true
@@ -192,17 +187,12 @@ describe Spree::SuiteUpdateService do
             expect(taxon_childs_child.suites.count).to eq 1
             expect(taxon_childs_child.suites.include?(suite_2)).to be true
           end
-
         end
-
       end
-
     end
-
   end
 
   context "rebuild_suite_tabs_cache" do
-
     let!(:suite) { build(:suite) }
     let!(:product_1) { build(:base_product) }
     let!(:product_2) { build(:base_product) }
@@ -210,7 +200,7 @@ describe Spree::SuiteUpdateService do
     let!(:tab_2) { build(:suite_tab, product: product_2) }
 
     before do
-      allow(suite).to receive(:update_attributes!)
+      allow(suite).to receive(:update_attributes).and_return(true)
       allow_any_instance_of(Spree::SuiteTabCacheRebuilder).to receive(:update_suites)
       suite.tabs = [tab_1, tab_2]
     end
@@ -220,10 +210,5 @@ describe Spree::SuiteUpdateService do
       expect(Spree::SuiteTabCacheRebuilder).to receive(:rebuild_from_product).with(product_2)
       expect(subject.valid?).to be true
     end
-
   end
-
-
 end
-
-

@@ -36,8 +36,12 @@ feature 'adding product to cart', inaccessible: true do
 
     # creates an assembly definition for the hat
     let!(:assembly_definition) { create(:assembly_definition, variant: hat_variant) }
-    let!(:assembly_definition_part) { create(:assembly_definition_part, assembly_definition: assembly_definition, product: part, displayable_option_type: colour ) }
-
+    let!(:assembly_definition_part) { create(:assembly_definition_part, adp_opts) }
+    let(:adp_opts) do
+      { assembly_definition: assembly_definition,
+        product: part,
+        displayable_option_type: colour }
+    end
     # links the colour variants to the hat through assemble definition
     let!(:assembly_definition_variant) { create(:assembly_definition_variant, variant: colour_variant_one, assembly_definition_part: assembly_definition_part, assembly_product: part) }
     let!(:assembly_definition_variant_two) { create(:assembly_definition_variant, variant: colour_variant_two, assembly_definition_part: assembly_definition_part, assembly_product: part) }
