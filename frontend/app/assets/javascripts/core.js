@@ -139,7 +139,7 @@ core.readyCustomScroll = function() {
   if ($.browser.webkit){
     element.css("height", height);
     element.addClass("customscroll")
-  }else {
+  } else {
     element.slimScroll({
       height: height,
       borderRadius: '0px',
