@@ -30,22 +30,24 @@ describe Spree::OrdersController, type: :controller do
         }
       end
 
+      let(:item) { double("Item", errors: []) }
+      let(:populator) { double("OrderPopulator", populate: item) }
+
       it "creates a new order when none specified" do
-        spree_post :populate, {}, {}
+        expect(Spree::OrderPopulator).to receive(:new).and_return(populator)
+        spree_post :populate, params
         expect(cookies.signed[:guest_token]).not_to be_blank
         expect(Spree::Order.find_by_guest_token(cookies.signed[:guest_token])).to be_persisted
       end
 
       it "creates a new order when none specified upon ajax call" do
-        spree_post :populate, format: :js
-        puts session.to_a
+        expect(Spree::OrderPopulator).to receive(:new).and_return(populator)
+        spree_post :populate, params, format: :js
         expect(cookies.signed[:guest_token]).not_to be_blank
         expect(Spree::Order.find_by_guest_token(cookies.signed[:guest_token])).to be_persisted
       end
 
       context "with order" do
-        let(:item) { double("Item", errors: []) }
-        let(:populator) { double("OrderPopulator", populate: item) }
 
         before do
           allow(controller).to receive :check_authorization
@@ -85,54 +87,6 @@ describe Spree::OrdersController, type: :controller do
             spree_post :populate, params.merge(order_id: order.id), format: :js
             expect(response).to redirect_to(spree.root_path)
           end
-        end
-      end
-    end
-
-    context "#old_populate" do
-      it "creates a new order when none specified" do
-        spree_post :populate, {}, {}
-        expect(cookies.signed[:guest_token]).not_to be_blank
-        expect(Spree::Order.find_by_guest_token(cookies.signed[:guest_token])).to be_persisted
-      end
-
-      it "creates a new order when none specified upon ajax call" do
-        spree_post :populate, format: :js
-        puts session.to_a
-        expect(cookies.signed[:guest_token]).not_to be_blank
-        expect(Spree::Order.find_by_guest_token(cookies.signed[:guest_token])).to be_persisted
-      end
-
-      context "with Variant" do
-        let(:item) { double("Item") }
-        let(:populator) { double("OldOrderPopulator", valid?: true, item: item) }
-
-        before do
-          expect(Spree::OldOrderPopulator).to receive(:new).and_return(populator)
-        end
-
-        it "handles population" do
-          populator.should_receive(:populate).with("variants" => { 1 => "2" }, "target_id" => "3", "suite_id" => "5", "suite_tab_id" => "7").and_return(true)
-          spree_post :populate,  order_id: 1, variants: { 1 => 2 }, suite_id: 5, suite_tab_id: 7, target_id: 3
-          response.should redirect_to spree.cart_path
-          assigns[:item].should == item
-        end
-
-        it "handles ajax population" do
-          populator.should_receive(:populate).with("variants" => { 1 => "2" }, "target_id" => "3", "suite_id" => "5", "suite_tab_id" => "7").and_return(true)
-          spree_post :populate, { order_id: 1, variants: { 1 => 2 }, suite_id: 5, suite_tab_id: 7, target_id: 3 },  format: :js
-          response.should redirect_to spree.cart_path
-          assigns[:item].should == item
-        end
-
-        it "shows an error when population fails" do
-          request.env["HTTP_REFERER"] = spree.root_path
-          populator.should_receive(:populate)
-          populator.should_receive(:valid?).and_return(false)
-          populator.stub_chain(:errors, :full_messages).and_return(["Order population failed"])
-          spree_post :populate, { order_id: 1, variants: { 1 => 2 }, quantity: 5 },  format: :js
-          expect(flash[:error]).to eq("Order population failed")
-          expect(response).to redirect_to(spree.root_path)
         end
       end
     end

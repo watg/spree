@@ -19,6 +19,9 @@ module Spree
       before do
         allow(controller).to receive_messages :current_order => order
         allow(controller).to receive_messages :spree_current_user => user
+        item = double(:item, variant: mock_model(Spree::Variant), quantity: 1)
+        outcome = double(:outcome, valid?: true, result: item )
+        allow(::Orders::PopulateService).to receive(:run).and_return(outcome)
       end
 
       context '#populate' do
