@@ -23,6 +23,5 @@ module Orders
       target = params[:target_id]
       params[:target_id] = target == "" ? nil : target
     end
-
   end
 end

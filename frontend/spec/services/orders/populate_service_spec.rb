@@ -62,7 +62,7 @@ describe Orders::PopulateService do
         quantity: quantity,
         target_id: target_id,
         suite_tab_id: 2,
-        suite_id: suite_id,
+        suite_id: suite_id
       }
     end
 
@@ -80,7 +80,6 @@ describe Orders::PopulateService do
       expect(subject.valid?).to eq true
     end
   end
-
 
   context "no target" do
     let(:order) { build_stubbed(:order) }

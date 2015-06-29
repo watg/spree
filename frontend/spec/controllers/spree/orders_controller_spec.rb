@@ -75,8 +75,8 @@ describe Spree::OrdersController, type: :controller do
         end
 
         context "Validation error with service" do
-          let(:errors) { double(full_messages: ['foobar']) }
-          let(:outcome) { OpenStruct.new(:valid? => false, :errors =>  errors )  }
+          let(:errors) { double(full_messages: ["foobar"]) }
+          let(:outcome) { OpenStruct.new(:valid? => false, :errors =>  errors)  }
           before { allow(Orders::PopulateService).to receive(:run).and_return(outcome) }
 
           it "shows an error when population fails" do

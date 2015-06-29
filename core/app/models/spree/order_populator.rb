@@ -51,14 +51,12 @@ module Spree
 
     def check_for_missing_parts(parts)
       missing_parts = options_parser.missing_parts(variant, parts)
-      missing_parts_hash = missing_parts.inject({}) do |hash, missing_part|
+      missing_parts_hash = missing_parts.each_with_object({}) do |missing_part, hash|
         (missing_part_id, missing_variant_id) = missing_part
         hash[missing_part_id] = missing_variant_id
-        hash
       end
-      if missing_parts_hash.any?
-        notifications << "Some required parts are missing: #{missing_parts_hash.inspect}"
-      end
+      return unless missing_parts_hash.any?
+      notifications << "Some required parts are missing: #{missing_parts_hash.inspect}"
     end
 
     def send_notifications

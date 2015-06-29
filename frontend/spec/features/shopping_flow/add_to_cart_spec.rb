@@ -165,7 +165,7 @@ feature 'adding product to cart', inaccessible: true do
         check('Add a monogram')
       end
       expect(page).to have_content('MAX. 2 CHARACTERS')
-      fill_in 'options_personalisations__data_initials', :with => 'HP'
+      fill_in "options_personalisations__data_initials", with: "HP"
 
       # add to cart and check contents
       find_button('Add To My Bag').click
