@@ -17,6 +17,7 @@ module Spree
         add_image_to_base(base, variant)
         add_prices_to_base(base, variant)
         add_supplier_to_base(base, variant)
+        add_digitals_to_base(base, variant)
         hash
       end
     end
@@ -76,6 +77,10 @@ module Spree
       @images ||= Spree::Image.where(viewable_id: variants, viewable_type: 'Spree::Variant')
     end
 
+    def digitals
+      @digitals ||= Spree::Digital.where(variant_id: variants)
+    end
+
     def stock_items
       @stock_items ||= StockItem.from_available_locations.
         where(variant_id: variants).includes(:supplier).references(:supplier)
@@ -99,7 +104,7 @@ module Spree
       base['variant']['id'] = variant.id
       base['variant']['in_stock'] = variant.in_stock_cache
       base['variant']['number'] = variant.number
-      base['variant']['is_digital'] = variant.digital?
+      # base['variant']['is_digital'] = variant.digital?
     end
 
     def add_prices_to_base(base, variant)
@@ -122,6 +127,11 @@ module Spree
       if variant_images.any?
         base['variant']['image_url'] = variant_images.first.attachment.url(:mini)
       end
+    end
+
+    def add_digitals_to_base(base, variant)
+      digital_variant = digitals.any? { |d| d.variant_id == variant.id }
+      base['variant']['is_digital'] = digital_variant
     end
 
     def variant_stock_items(variant)
