@@ -250,7 +250,7 @@
     }
     .owl-controls {
       height: 0;
-      .owl-nav {
+      .owl-buttons {
         display: none;
       }
     }
@@ -308,6 +308,15 @@
 // mobile views
 .free-patterns.mobile {
   .wrapper-free-patterns {
+    .row-hero {
+      background: cdn-url('static/free-knitting-patterns/free-pattern-mobile-hero.jpg') center 0 no-repeat;
+
+      h1 {
+        margin-top: 23px;
+        font-size: emCalc(35px);
+        color: #000000;
+      }
+    }
     h3 {
       font-size: emCalc(18px);
     }
@@ -349,36 +358,19 @@
         .owl-item img {
           width: initial !important;
           position: relative;
-          left: 20%;
         }
-        .owl-controls {
-          .owl-nav {
-            display: inline;
-            height: 0;
-            .owl-prev {
-              display: inline;
-              img {
-                display: none;
-              }
-              #correct-left {
-                display: initial;
-                position: relative;
-                bottom: 215px;
-                left: -110px;
-              }
-            }
-            .owl-next {
-              display: inline;
-              img {
-                display: none;
-              }
-              #correct-right {
-                display: initial;
-                position: relative;
-                bottom: 215px;
-                left: 110px;
-              }
-            }
+        .owl-controls .owl-buttons {
+          display: initial;
+          div {
+            position: absolute;
+          }
+          .owl-prev {
+            left: 0;
+            top: 75px;
+          }
+          .owl-next {
+            right: 0;
+            top: 75px;
           }
         }
       }

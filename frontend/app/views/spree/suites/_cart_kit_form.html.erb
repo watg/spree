@@ -9,7 +9,7 @@
             <!--- if it is not optional -->
     			  <% if part_presenter.optional? %>
               <%= render 'optional_parts', part_presenter: part_presenter %>
-            <% else # optional %>
+            <% else %>
               <%= render 'no_optional_parts', part_presenter: part_presenter %>
 
             <% end %>

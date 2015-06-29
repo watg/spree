@@ -1,0 +1,22 @@
+<h5 class="reveal-title">Description</h5>
+<p class="reveal-content"><%= product_presenter.clean_description %></p>
+
+<% unless product_presenter.parts? %>
+  <h5 class="reveal-title suppliers">
+    <%#= cdn_image_tag("static/made-by-the-gang.png", alt: "", width: "40", height: "40") %>
+    #madeunique
+  </h5>
+  <div class="profiles reveal-content">
+    <!-- This is populated from product-option-values.js.coffe -
+    'update supplier details' -->
+  </div>
+
+<% end %>
+
+<h5 class="delivery reveal-title">Delivery info</h5>
+
+<div class="reveal-content">
+  <%= render "/spree/suites/delivery/delivery_default" %>
+</div>
+
+<%= render 'social_icons', variant_presenter: variant_presenter %>

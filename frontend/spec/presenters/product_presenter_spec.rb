@@ -43,15 +43,37 @@ describe Spree::ProductPresenter do
     subject.variant_images
   end
 
+  describe "#complex_carousel?" do
+    context "when variant has option values and images" do
+      let(:variant_options) { double("variant_options") }
+
+      before do
+        allow(subject).to receive(:variant_option_values).and_return(variant_options)
+        allow(subject).to receive(:variant_images).and_return(["image"])
+      end
+
+      its(:complex_carousel?) { should eq true }
+    end
+
+    context "when variant has no option values or image" do
+      its(:complex_carousel?) { should eq false }
+    end
+  end
+
   describe "#parts?" do
     it "returns the true if there are product_parts" do
       allow(product).to receive(:product_parts).and_return([double(:product_part)])
       expect(subject.parts?).to eq true
     end
 
-    it "returns the false if there are no product_parts" do
-      allow(product).to receive(:product_parts).and_return([])
-      expect(subject.parts?).to eq false
+    context "with assembly definition" do
+      let(:assembly_definition) { Spree::AssemblyDefinition.new }
+      let(:assembly_definition_part) { Spree::AssemblyDefinitionPart.new }
+
+      it "returns the false if there are no product_parts" do
+        allow(product).to receive(:product_parts).and_return([])
+        expect(subject.parts?).to eq false
+      end
     end
   end
 

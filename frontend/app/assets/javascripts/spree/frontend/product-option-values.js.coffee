@@ -59,8 +59,11 @@ core.suite.readyVariantOptions = (entity) ->
       update_supplier_details(entity, variant_details['suppliers'])
       set_stock_level(entity, variants_total_on_hand, variant_details['number'])
       set_is_digital(entity, variant_details['is_digital'])
-      toggle_images(entity, variant_details['id'])
       set_prices(entity, variant_details['id'], variant_details['normal_price'], variant_details['sale_price'], variant_details['in_sale'])
+      if core.isMobileWidthOrLess() == true
+        toggle_carousel_images(entity, variant_details['id'])
+      else
+        toggle_images(entity, variant_details['id'])
 
     # I am so sorry for the following code.
     #
@@ -227,14 +230,20 @@ set_prices = (entity, variant_id, normal_price, sale_price, in_sale) ->
 set_stock_level = (entity, variants_total_on_hand, variant_number ) ->
   total_on_hand = variants_total_on_hand[variant_number]
   if total_on_hand
-    entity.find('.stock-level').css('display', 'initial')
+    if core.isMobileWidthOrLess() == false
+      entity.find('.stock-level').css('display', 'initial')
+    else
+      entity.find('.stock-level').css('display', 'block')
     entity.find('.stock-value').text(total_on_hand + ' left')
   else
     entity.find('.stock-level').css('display', 'none')
 
 set_is_digital = (entity, is_digital) ->
   if is_digital
-    entity.find('.digital-available').css('display', 'initial')
+    if core.isMobileWidthOrLess() == false
+      entity.find('.digital-available').css('display', 'initial')
+    else
+      entity.find('.digital-available').css('display', 'block')
   else
     entity.find('.digital-available').css('display', 'none')
 
@@ -261,14 +270,19 @@ update_supplier_details = (entity, suppliers) ->
     for index, items of supplier
       names.push(items.nickname)
       if items.nickname != null
-        profiles.push('<strong>' + items.nickname.toUpperCase() + '</strong>: ' + items.profile)
+        profiles.push('<h6>' + items.nickname.toUpperCase() +
+                      '</h6> ' + '<p>' + items.profile + '</p>')
 
   # Prep names for output...
-  if names.length > 1
-    names = names.slice(0, names.length - 1).join(', ') + " and " + names.slice(-1)
+  if core.isMobileWidthOrLess() == true
+    names = ' #madeunique'
+  else if names.length > 1
+    mNames = names.slice(0, names.length - 1)
+    .join(', ') + " and " + names.slice(-1)
+
+    names = ' #madeunique <span>by ' + mNames + '</span>'
   else
-    names = 'WATG'
-  names = ' #madeunique <span>by ' + names + '</span>'
+    names = ' #madeunique <span>by WATG</span>'
 
   # Prep profiles for output...
   if profiles.length > 1
@@ -293,15 +307,33 @@ toggle_images = (entity, variant_id) ->
     thumb = entity.find('ul.thumbnails li').eq(0)
   change_main_image(entity, thumb)
 
+toggle_carousel_images = (entity, variant_id) ->
+  variant_thumbs = entity.find('li.tmb-' + variant_id)
+  owl = $('#carousel')
+  textholder = undefined
+  booleanValue = false
+  # remove all of the old images - if any present
+  num_images = $('#carousel').data('owlCarousel').itemsAmount
+  i = 0
+  while i < num_images
+    owl.data('owlCarousel').removeItem 0
+    i++
+  # Add relevant images
+  variant_thumbs.toArray().forEach (image) ->
+    image = $(image).find('img')
+    owl.data('owlCarousel').addItem image.clone()
+
 change_main_image = (entity, thumb) ->
   newImg = thumb.find('a').attr('href')
-  entity.find('ul.thumbnails li').removeClass('selected')
-  thumb.addClass('selected')
-  entity.find('.main-image img').attr('src', newImg)
-  entity.find('.main-image img').attr('data-zoomable', newImg.replace('/product/', '/original/')) # Update zoomable
-  entity.find('.main-image a').attr('href', newImg)
-  entity.find(".main-image").data('selectedThumb', newImg)
-  #$("#main-image").data('selectedThumbId', thumb.attr('id'))
+  if newImg
+    entity.find('ul.thumbnails li').removeClass('selected')
+    thumb.addClass('selected')
+    entity.find('.main-image img').attr('src', newImg)
+    entity.find('.main-image img')
+    .attr('data-zoomable', newImg.replace('product', 'original'))
+    entity.find('.main-image a').attr('href', newImg)
+    entity.find(".main-image").data('selectedThumb', newImg)
+    #$("#main-image").data('selectedThumbId', thumb.attr('id'))
 
 toggle_personalisation_option_value = (entity, element, event) ->
   event.preventDefault()

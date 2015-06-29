@@ -21,7 +21,7 @@
 //= require lib/jquery.typeahead.min.js
 //= require lib/jquery.jcarousel.min.js
 //= require lib/jquery.elevatezoom.min.js
-//= require lib/jquery.owlcarousel.min.js
+//= require lib/jquery.owlcarousel.js
 //= require lib/jquery.tabslet.js
 //= require lib/jquery.slimscroll.js
 //= require lib/jquery.browser.js

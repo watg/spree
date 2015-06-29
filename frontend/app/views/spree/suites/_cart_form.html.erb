@@ -4,7 +4,7 @@
 		<div class="product-variants">
 			<% index = 0 %>
 			<% product_presenter.grouped_option_values_in_stock.each do |type, values|  %>
-			<div class="variant-options index-<%= index %> <%= type.url_safe_name.downcase %>">
+			<div class="variant-options index-<%= index %> <%= type.url_safe_name.downcase %>" id="variant-options-container">
 
 				<h5 class="variant-option-type"><%= type.presentation %>
 					<% if %['colour' 'icon colour'].include?(type.name.downcase) %>
@@ -12,7 +12,7 @@
 					<% end %>
 				</h5>
 
-				<ul class="variant-option-values <%= type.url_safe_name.downcase %>">
+				<ul class="variant-option-values <%= type.url_safe_name.downcase %> kyo">
 					<% values.sort_by(&:position).each do |value| %>
 					<% classes = ["option-value", value.url_safe_name, type.url_safe_name] %>
 					<li>
@@ -48,5 +48,8 @@
 
 </div>
 
-
-<%= render 'add_to_cart', product_presenter: product_presenter %>
+<% if mobile_device? %>
+	<%= render 'spree/suites/mobile/add_to_cart', product_presenter: product_presenter %>
+<% else %>
+	<%= render 'add_to_cart', product_presenter: product_presenter %>
+<% end %>

@@ -1,0 +1,35 @@
+<!-- If we have only one variant and it is not optional then it becomes mandatory -->
+  <% if part_presenter.variants.size == 1 %>
+    <input class="selected-parts" type="hidden" name="parts[<%= part_presenter.id %>]" value="<%= part_presenter.first_variant.id %>"/>
+
+  <% else %>
+    <% option_values = part_presenter.displayable_option_values %>
+    <% type = part_presenter.displayable_option_type %>
+    <% product_name = part_presenter.product_name %>
+
+      <!-- render parts -->
+      <li class="product-variants required" data-tree="<%= part_presenter.variant_tree.to_json %>" data-adjustment="0"  data-quantity="<%=part_presenter.count%>" data-adp-id="<%= part_presenter.id %>">
+          <div class="part-description">
+            <span class="mobile-product-presentation"><%= part_presenter.presentation %></span>
+            <span class="color-value"></span>
+          </div>
+
+          <div class="part-thumbnail">
+            <span class="part-image part-image-<%= part_presenter.id %>"></span>
+          </div>
+
+          <div class="part-arrow">
+            <button>Open menu</button>
+          </div>
+
+        <div class="variant-options required <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
+          <p><%= product_name %></p>
+          <ul class="variant-option-values <%= type.url_safe_name.downcase %><% if type.url_safe_name.downcase == 'colour' %> slimscroll<% end %>">
+
+            <%= render 'spree/suites/part', type: type, option_values: option_values, product_name: product_name %>
+          </ul>
+        </div>
+        <input class="selected-parts" type="hidden" name="parts[<%= part_presenter.id %>]" value="" />
+      </li>
+      <!-- render parts -->
+  <% end %>

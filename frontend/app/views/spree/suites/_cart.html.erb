@@ -15,21 +15,16 @@
     <% end %>
 
     <div class="row">
-      <div class="large-6 small-12 columns">
+      <div class="large-6 small-12 columns images-column">
         <div class="product-images" data-hook="product_images">
-          <div class="main-image">
-            <%= image_tag(variant_presenter.main_image_url, variant_presenter.main_image_options) %>
-          </div>
-          <div class="thumbnails" data-hook>
-            <%= render :partial => 'thumbnails', :locals => {variant_presenter: variant_presenter, product_presenter: product_presenter} %>
-          </div>
+          <%= render selected_tab_presenter.product_images,
+                      variant_presenter: variant_presenter,
+                      product_presenter: product_presenter %>
         </div>
       </div>
 
       <div class="large-6 small-12 columns">
-        <h1><%= product_presenter.name %></h1>
-        <p class="stock-level">Low stock <span class="stock-value"></span></p>
-        <p class="digital-available">PDF + Printed Pattern</p>
+        <h1 class="product-name"><%= product_presenter.name %></h1>
 
         <%# Template Dependency: spree/suites/in_stock %>
         <%# Template Dependency: spree/suites/out_of_stock %>

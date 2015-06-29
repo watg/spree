@@ -1,8 +1,5 @@
 <div id="cart-ajax-message">
   <div class="flash success">
-    <div class="message-icon">
-      <%= cdn_image_tag("product-group/icon-completed.png", width: "30", height: "30", alt: "Request completed") %>
-    </div>
     <h5><%= Spree.t(:added_to_your_cart) %></h5>
     <span><%= "#{[@item.variant.name, @item.variant.options_text].compact.join(', ')}"%></span>
   </div>

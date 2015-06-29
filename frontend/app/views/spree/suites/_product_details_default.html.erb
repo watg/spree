@@ -35,15 +35,8 @@
           </h5>
         </div>
         <div class="profiles">
-          <% variant_presenter.displayable_suppliers.each_with_index do |supplier, i| %>
-            <% if (supplier.profile.size > 0) %>
-              <h6><%= supplier.nickname.titlecase() %>:</h6>
-              <p><%= supplier.profile %></p>
-              <% if (i < variant_presenter.displayable_suppliers.size - 1) %>
-                <br/><br/>
-              <% end %>
-            <% end %>
-          <% end %>
+          <!--  This is populated from product-option-values.js.coffe -
+          'update supplier details'  -->
         </div>
       <% end %>
     </div>

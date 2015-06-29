@@ -246,12 +246,7 @@ table.order-item-listing{
 
 @media only screen and (max-width: 56em) {
   .row-shipping-and-contact {
-    padding: emCalc(10px) 0;
-    .columns {
-      p {
-        text-align: center;
-      }
-    }
+    padding: 0;
   }
 }
 
@@ -587,6 +582,14 @@ table.order-item-listing{
   top: 0;
   left: 0;
 }
+
+/* Header */
+@media only screen and (max-width: 28.75em) {
+  header {
+    border-bottom: 1px solid #cccccc;
+  }
+}
+
 
 
 /* ALL THINGS FOOTER RELATED  */

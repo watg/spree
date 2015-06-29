@@ -1,5 +1,4 @@
 core.suite.readyKitVariantOptions = (entity) ->
-
   entity.find('.option-value').click (event)->
     event.preventDefault()
     option_value = $(this)
@@ -27,7 +26,12 @@ core.suite.readyKitVariantOptions = (entity) ->
     option_value.addClass('selected')
 
     # Set the option value text
-    product_variants.find('span:not(.optional)').eq(0).text(selected_presentation)
+    presentation_spans = product_variants.find('span:not(.optional)')
+    if core.isMobileWidthOrLess() == false
+      presentation_spans.eq(0).text(selected_presentation)
+    else
+      presentation_spans.not(".mobile-product-presentation")
+      .eq(0).text(selected_presentation)
 
     # Walk the tree to get a variant id
     tree = product_variants.data('tree')
@@ -49,7 +53,13 @@ core.suite.readyKitVariantOptions = (entity) ->
 
       if variant['image_url']
         part_id = product_variants.data('adp-id')
-        $('.assembly-images li.part-image-' + part_id).css('background-image', 'url(' + variant['image_url'] + ')')
+        if core.isMobileWidthOrLess() == false
+          $('.assembly-images li.part-image-' + part_id)
+          .css('background-image', 'url(' + variant['image_url'] + ')')
+        else
+          $('span.part-image-' + part_id)
+          .css('background-image', 'url(' + variant['image_url'] + ')')
+
 
     else
       $('.assembly-images li').eq(product_variants.index()).css('background-image', 'none')

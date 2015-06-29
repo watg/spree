@@ -1,0 +1,33 @@
+<!-- This has not been refactored into two partials - as its easier to understand with both types present -->
+<% if product_presenter.complex_carousel? %>
+    <div id="carousel" class="product-carousel">
+      <div class="item main-image">
+        <%= image_tag(variant_presenter.main_image_url, variant_presenter.main_image_options) %>
+      </div>
+    </div>
+
+    <!-- thumbnails need to be on the page - in order to pull into the carousel at the right point -->
+    <ul class="product-thumbnails thumbnails" data-hook>
+      <% if product_presenter.has_variants? %>
+        <% product_presenter.variant_images.each do |i| %>
+          <% next if product_presenter.images.include?(i) %>
+          <li class="vtmb tmb-<%= i.viewable_id %>" style="<%= show_thumb(i, variant_presenter.variant)%>">
+            <a href="<%= i.attachment.url(product_presenter.image_style) %>" style="display:none">
+              <%= image_tag(i.attachment) %>
+            </a>
+          </li>
+        <% end %>
+      <% end %>
+    </ul>
+
+<% else %>
+
+  <div id="carousel" class="product-carousel">
+    <% product_presenter.all_images.each do |i| %>
+      <div class="item">
+          <%= image_tag(i.attachment) %>
+      </div>
+    <% end %>
+  </div>
+
+<% end %>

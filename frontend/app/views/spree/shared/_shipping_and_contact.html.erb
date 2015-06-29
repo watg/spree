@@ -1,27 +1,30 @@
-<% Spree::GlobalFreeShippingPresenter.new(self).present do |presenter| %>
-  <% cache presenter.cache_key, expires_in: 10.minutes do %>
-  <!-- The modal for shipping can be found in the footer -->
-  <div class="row-shipping-and-contact">
-    <div class="row">
-      <% if presenter.eligible? %>
-        <% if mobile_device? %>
-          <div class="small-12 columns column-shipping">
-            <p><a data-rel="modal" href="#modal-shipping"><strong>Free shipping over <%= presenter.amount %></strong></a></p>
-          </div>
-        <% else %>
-          <div class="large-6 small-6 columns column-shipping">
-            <p><strong>Free shipping</strong> on orders over <%= presenter.amount %> <a data-rel="modal" href="#modal-shipping">Find out more</a></p>
-          </div>
-          <div class="large-6 small-6 columns column-contact">
-            <p><strong>We're happy if you're happy</strong> <a data-rel="modal" id="contact-link" href="#modal-contact">contact us</a> if you need our help</p>
-          </div>
-        <% end %>
-      <% else %>
-        <div class="large-12 small-12 columns column-contact">
-          <p><strong>We're happy if you're happy</strong> <a data-rel="modal" href="#modal-contact">contact us</a> if you need our help</p>
-        </div>
-      <% end %>
-    </div>
+<div class="row-shipping-and-contact">
+  <div class="row">
+    <% unless mobile_device? %>
+
+      <% Spree::GlobalFreeShippingPresenter.new(self).present do |presenter| %>
+        <% cache presenter.cache_key, expires_in: 10.minutes do %>
+        <!-- The modal for shipping can be found in the footer -->
+
+          <% if presenter.eligible? %>
+              <div class="large-6 small-6 columns column-shipping">
+                <p><strong>Free shipping</strong> on orders over <%= presenter.amount %> <a data-rel="modal" href="#modal-shipping">Find out more</a></p>
+              </div>
+              <div class="large-6 small-6 columns column-contact">
+                <p><strong>We're happy if you're happy</strong> <a data-rel="modal" id="contact-link" href="#modal-contact">contact us</a> if you need our help</p>
+              </div>
+          <% else %>
+            <div class="large-12 small-12 columns column-contact">
+              <p><strong>We're happy if you're happy</strong> <a data-rel="modal" href="#modal-contact">contact us</a> if you need our help</p>
+            </div>
+          <% end %>
+
+        <% end %> <!-- cache key -->
+      <% end %> <!-- presenter -->
+    <% end %> <!-- mobile sniffer -->
+
   </div>
-  <% end %>
-<% end %>
+</div>
+
+
+

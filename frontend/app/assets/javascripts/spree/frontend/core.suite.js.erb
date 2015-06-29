@@ -6,6 +6,11 @@ var readySuite = function() {
   // Don't initialise zoom for mobile devices
   if (core.isMobileWidthOrLess() === false) {
     core.suite.readyZoomableImages();
+    core.suite.readyAjaxCarSpinner();
+  }
+  if (core.isMobileWidthOrLess() === true) {
+    core.suite.readyMobileProductCarousel();
+    core.suite.readyMobileQuantityButtons();
   }
 
   core.suite.setScrollPosition();
@@ -29,7 +34,10 @@ var readySuite = function() {
   core.suite.setAssemblyListHeights();
 
   /* ----- Ajax cart animation ----- */
-  core.suite.readyAjaxCarSpinner();
+  if (core.isMobileWidthOrLess() === true) {
+    core.suite.readyMobileAjaxCarSpinner();
+    core.suite.readyStickyPrice();
+  }
 };
 
 $(document).on('page:load ready', readySuite);
@@ -216,6 +224,32 @@ core.suite.setScrollPosition = function() {
   }
 }
 
+core.suite.readyStickyPrice = function() {
+  var $window = $(window),
+    $mainMenuBar = $('#scroller'),
+    $nextSibling = $mainMenuBar.nextAll().not(":hidden").first(),
+    $mainMenuBarAnchor = $('#scroller-anchor');
+
+    // Run this on scroll events.
+    $window.scroll(function() {
+        var window_top = $window.scrollTop();
+        var div_top = $mainMenuBarAnchor.offset().top;
+        if (window_top > div_top) {
+            // Make the div sticky.
+            $mainMenuBar.addClass('stick');
+            // negate jumpy colour options when sticky price applied
+            $nextSibling.addClass('stick-sibling');
+            $mainMenuBarAnchor.height($mainMenuBar.height());
+        }
+        else {
+            // Unstick the div.
+            $mainMenuBar.removeClass('stick');
+            $nextSibling.removeClass('stick-sibling');
+            $mainMenuBarAnchor.height(0);
+        }
+    });
+};
+
 // Do we have a variant number in the URL?
 core.suite.checkForVariantNumber = function() {
   var url = core.getUrlPathAsArray(); // Get the URL
@@ -234,6 +268,8 @@ core.suite.checkForVariantNumber = function() {
           }
         }
       })
+    }else {
+      $('.option-value.selected').click();
     }
   }
 }
@@ -266,6 +302,52 @@ core.suite.readyAjaxCarSpinner = function() {
   });
 };
 
+core.suite.readyMobileAjaxCarSpinner = function() {
+  var form = $('.add_to_cart_form'),
+      cart_button = $('.add_to_cart_form .add-to-cart-button'),
+      checkout_button = $('.add_to_cart_form .checkout-now-button')
+      loader = $('#waiting-loader');
+
+  form.on('submit', function(){
+    cart_button.prop('disabled', true);
+    cart_button.toggleClass('active')
+    $('#cart-ajax-message .flash').fadeOut('slow');
+    cart_button.toggleClass('inverted')
+    cart_button.blur();
+    cart_button.text('Adding to bag ...');
+  });
+
+  form.on('ajax:complete',function(xhr, status){
+    $('#cart-ajax-message .flash').css('display','none');
+      cart_button.prop('disabled', false);
+      cart_button.toggleClass('active')
+      cart_button.toggleClass('inverted')
+      cart_button.text('Add to Bag');
+
+
+    if (!$('.flash').hasClass('error')) {
+      core.suite.showMobileSuccessMessage(checkout_button, cart_button);
+    }
+
+    core.suite.showFlashMessage(cart_button);
+  });
+};
+
+core.suite.showMobileSuccessMessage = function (checkout_button, cart_button) {
+  $.scrollTo($('.add-to-cart'), 1000, {axis: 'y', easing: 'swing'});
+  checkout_button.css('display','block');
+}
+
+core.suite.showFlashMessage = function (cart_button) {
+  $('#cart-ajax-message .flash').slideDown('slow');
+  cart_button.toggleClass('inverted')
+  cart_button.text('Add to Bag');
+
+  setTimeout(function(){
+      $('#cart-ajax-message .flash').slideUp('slow');
+    }, 3000);
+}
+
 core.suite.readyProductTabs = function () {
   var element = $('.product-details-content'),
       height = "450px";
@@ -287,15 +369,59 @@ core.suite.readyProductTabs = function () {
   $('.product-details-tabs').tabslet({});
 };
 
+/* product carousel */
+core.suite.readyMobileProductCarousel = function() {
+  $('.product-carousel').owlCarousel({
+    slideSpeed : 300,
+    pagination: true,
+    paginationSpeed : 400,
+    singleItem:true,
+    lazyLoad: true
+  });
+}
+
+core.suite.readyMobileQuantityButtons = function() {
+  var plus = $('.plus-button');
+  var minus = $('.minus-button');
+
+  plus.on('click', function(e) {
+    e.preventDefault();
+    core.suite.addQuantity();
+
+  });
+
+  minus.on('click', function(e) {
+    e.preventDefault();
+    core.suite.minusQuantity();
+  });
+}
+
+core.suite.addQuantity = function() {
+  var counter = $('#qty');
+  var value = parseInt(counter.val())
+  counter.val(value + 1)
+}
+
+core.suite.minusQuantity = function() {
+  var counter = $('#qty');
+  var value = parseInt(counter.val())
+  if (value > 1) {
+    counter.val(value - 1)
+  }
+}
+
 /* Cross Sales Widget */
 core.suite.startCrossSales = function() {
   $(".owl-carousel").owlCarousel({
+    navigation: true,
     loop:true,
-    responsiveClass:true,
-    navText: [
-      "<img src='https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/free-knitting-patterns/free-patterns-arrow-left-thin.jpg'>",
-      "<img src='https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/free-knitting-patterns/free-patterns-arrow-right-thin.jpg'>"
-
+    items: 3,
+    rewindNav: false,
+    responsive:true,
+    responsiveRefreshRate: 200,
+    navigationText: [
+      '<%= cdn_prefix %>' + '/static/free-knitting-patterns/free-patterns-arrow-left-thin.jpg',
+      '<%= cdn_prefix %>' + '/static/free-knitting-patterns/free-patterns-arrow-right-thin.jpg'
     ],
     responsive:{
       0:{

@@ -6,14 +6,14 @@ module Spree
     delegate :cross_sales, to: :suite_tab
 
     CROSS_SALES_HEADING = {
-      'yarn-and-wool' => 'What you can make',
-      'knitting-pattern' => 'Knit this pattern',
-      'made-by-the-gang' => 'More ready made goodness'
+      "yarn-and-wool" => "What you can make",
+      "knitting-pattern" => "Knit this pattern",
+      "made-by-the-gang" => "More ready made goodness"
     }
 
-    CROSS_SALES_DEFAULT = 'More WATG goodness'
+    CROSS_SALES_DEFAULT = "More WATG goodness"
 
-    def initialize(object, template, context={})
+    def initialize(object, template, context = {})
       super(object, template, context)
       @suite = context[:suite]
       @variants = context[:variants]
@@ -28,7 +28,7 @@ module Spree
     end
 
     def cart_partial
-      File.join('spree/suites/tab_type', suite_tab.partial)
+      File.join("spree/suites/tab_type", suite_tab.partial)
     end
 
     def id
@@ -40,7 +40,7 @@ module Spree
     end
 
     def ready_made?
-      self.tab_type == "made-by-the-gang"
+      tab_type == "made-by-the-gang"
     end
 
     def display_videos?
@@ -58,7 +58,7 @@ module Spree
     end
 
     def inverted_colour
-      @inverted_colour ||= (suite_tab.position % 2 == 0) ? 'inverted' : nil
+      @inverted_colour ||= (suite_tab.position % 2 == 0) ? "inverted" : nil
     end
 
     def lowest_prices
@@ -83,17 +83,33 @@ module Spree
     end
 
     def product_selector
-      in_stock? ? "in_stock" : "out_of_stock"
+      if is_mobile?
+        if in_stock?
+          File.join("spree/suites/mobile/in_stock")
+        else
+          File.join("spree/suites/mobile/out_of_stock")
+        end
+      else
+        in_stock? ? "in_stock" : "out_of_stock"
+      end
     end
 
     def product_details
-      is_mobile? ? "product_details_mobile" : "product_details"
+      is_mobile? ? File.join("spree/suites/mobile/product_details") : "product_details_default"
+    end
+
+    def product_images
+      if is_mobile?
+        File.join("spree/suites/mobile/images")
+      else
+        "images_default"
+      end
     end
 
     def variants_total_on_hand
-      product.variants.inject({}) do |hash,v|
+      product.variants.inject({}) do |hash, v|
         total_on_hand = Spree::Stock::Quantifier.new(v).total_on_hand
-        if total_on_hand < 6 and total_on_hand > 0
+        if total_on_hand < 6 && total_on_hand > 0
           hash[v.number] = total_on_hand
         end
         hash
@@ -103,19 +119,20 @@ module Spree
     def meta_title
       suite_title = suite.meta_title.blank? ? suite.title : suite.meta_title
       marketing_meta_title = product.marketing_type.meta_title || product.marketing_type.title
-      [suite_title, marketing_meta_title, 'WOOL AND THE GANG'].join(' | ')
+      [suite_title, marketing_meta_title, "WOOL AND THE GANG"].join(" | ")
     end
 
     def meta_keywords
-       keywords = %w{Knitwear Knitting Knitted Wool Unique Handmade }
-       keywords += ['Sustainable yarn', 'How to knit', 'Learn to knit']
-       keywords << suite.title
-       keywords << product.marketing_type.title
-       keywords << product.meta_keywords
-       keywords.uniq.join(", ")
+      keywords = %w(Knitwear Knitting Knitted Wool Unique Handmade)
+      keywords += ["Sustainable yarn", "How to knit", "Learn to knit"]
+      keywords << suite.title
+      keywords << product.marketing_type.title
+      keywords << product.meta_keywords
+      keywords.uniq.join(", ")
     end
+
     def meta_description
-      h.truncate(product.description, length: 160, separator: ' ')
+      h.truncate(product.description, length: 160, separator: " ")
     end
 
     def meta_name
@@ -141,7 +158,7 @@ module Spree
     end
 
     def money_options
-      {currency: currency}
+      { currency: currency }
     end
 
     def in_sale
@@ -150,12 +167,12 @@ module Spree
 
     def render_prices(normal_amount, sale_amount)
       normal_money_amount = "from #{Spree::Money.new(normal_amount, money_options)}"
-      if in_sale && sale_amount && ( sale_amount < normal_amount )
+      if in_sale && sale_amount && (sale_amount < normal_amount)
         sale_money_amount = "from #{Spree::Money.new(sale_amount, money_options)}"
-        h.content_tag(:span, normal_money_amount.to_html, class: 'price was', itemprop: 'price') +
-          h.content_tag(:span, sale_money_amount.to_html, class: 'price now')
+        h.content_tag(:span, normal_money_amount.to_html, class: "price was", itemprop: "price") +
+          h.content_tag(:span, sale_money_amount.to_html, class: "price now")
       else
-        h.content_tag(:span, normal_money_amount.to_html, class: 'price now', itemprop: 'price')
+        h.content_tag(:span, normal_money_amount.to_html, class: "price now", itemprop: "price")
       end
     end
   end

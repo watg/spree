@@ -56,17 +56,25 @@ core.Static.showJobFromHash = function() {
 }
 
 core.Static.readyCarousel = function() {
-   $('.owl-carousel').owlCarousel({
+  $('.owl-carousel').owlCarousel({
+    navigation: true,
     loop:true,
-    responsiveClass:true,
+    items: 3,
+    rewindNav: false,
+    responsive:true,
+    responsiveRefreshRate: 200,
+    navigationText: [
+      '<%= cdn_prefix %>' + '/static/yarn/Big_Arrows_Left.png',
+      '<%= cdn_prefix %>' + '/static/yarn/Big_Arrows_Right.png'
+    ],
     responsive:{
       0:{
         items:1,
         nav:true
       },
-      700:{
+      900:{
         items:3,
-        nav:true,
+        nav:true
       }
     }
   });
@@ -80,34 +88,26 @@ core.Static.readyOlapicGallery = function() {
 };
 
 core.Static.readySignupCarousel = function() {
-  // sets correct arrow images
-  var left_owl = document.getElementsByClassName('owl-prev');
-  var left = new Image();
-  var right_owl = document.getElementsByClassName('owl-next');
-  var right = new Image();
-  left.onload = function() {
-    left_owl[0].appendChild(left);
-  };
-  right.onload = function() {
-    right_owl[0].appendChild(right);
-  };
-  left.src = 'https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/free-knitting-patterns/free-patterns-arrow-left-thin.jpg';
-  left.id = 'correct-left';
-  right.src = 'https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/free-knitting-patterns/free-patterns-arrow-right-thin.jpg';
-  right.id = 'correct-right';
-
   // carousel settings
   $('.owl-carousel').owlCarousel({
+    navigation: true,
     loop:true,
-    responsiveClass:true,
+    items: 5,
+    rewindNav: false,
+    responsive:true,
+    responsiveRefreshRate: 200,
+    navigationText: [
+      '<%= cdn_prefix %>' + '/static/free-knitting-patterns/free-patterns-arrow-left-thin.jpg',
+      '<%= cdn_prefix %>' + '/static/free-knitting-patterns/free-patterns-arrow-right-thin.jpg'
+    ],
     responsive:{
       0:{
-        items:1,
+        items:2,
         nav:true
       },
-      700:{
-        items:5,
-        nav:true,
+      900:{
+        items:3,
+        nav:true
       }
     }
   });

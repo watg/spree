@@ -1,0 +1,25 @@
+<div class="row row-assembly" data-ad-id="<%= product_presenter.id %>">
+  <div class="assembly-menus large-10 small-12 column">
+
+    <ol>
+      <% product_presenter.product_parts.each do |part| %>
+        <% cache [part, product_presenter.currency, device] do %>
+          <% present(part, @context) do |part_presenter| %>
+
+            <!--- if it is not optional -->
+            <% if part_presenter.optional? %>
+              <%= render 'spree/suites/mobile/optional_part', part_presenter: part_presenter %>
+            <% else # optional %>
+              <%= render 'spree/suites/mobile/required_part', part_presenter: part_presenter, product_presenter: product_presenter %>
+
+            <% end %>
+
+          <% end # part_presenter %>
+        <% end # cache %>
+      <% end # each parts %>
+    </ol>
+
+    <%= render 'spree/suites/mobile/add_to_cart', product_presenter: product_presenter %>
+
+  </div>
+</div><!-- /.row -->

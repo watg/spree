@@ -1,8 +1,5 @@
 <div id="cart-ajax-message">
   <div class="flash error">
-    <div class="message-icon">
-      <%= cdn_image_tag("product-group/icon-error-v2.png", width: "30", height: "30", alt: "Request completed") %>
-    </div>
     <%= @item.errors.to_sentence.html_safe %>
   </div>
 </div>

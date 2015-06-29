@@ -1,3 +1,9 @@
+<% if variant_presenter.level %>
+  <p class="level">
+    <span><%= variant_presenter.level %></span></p>
+<% end %>
+
+<%= render 'prices', variant_presenter: variant_presenter %>
 <p class="stock-level">Low stock <span class="stock-value"></span></p>
 <p class="digital-available">PDF + Printed Pattern</p>
 
@@ -6,21 +12,9 @@
     <%= hidden_field_tag "suite_id", suite_presenter.id %>
     <%= hidden_field_tag "suite_tab_id", selected_tab_presenter.id %>
     <%= hidden_field_tag "target_id", suite_presenter.target.try(:id) %>
-    <%= hidden_field_tag "variant_id", variant_presenter.try(:id), class: "variant_id" %>
-
-    <% unless Rails.env.production? %>
-      <a class="link-admin" href="<%= spree.edit_admin_product_variant_url(product_presenter.slug,variant_presenter.id) %>">Goto admin</a>
-    <% end %>
-
-    <% if variant_presenter.level %>
-      <p class="level">
-        Level <span><%= variant_presenter.level %></span></p>
-    <% end %>
-
-      <%= render 'prices', variant_presenter: variant_presenter %>
 
     <% if product_presenter.parts? %>
-      <%= render 'cart_kit_form', variant_presenter: variant_presenter, product_presenter: product_presenter %>
+      <%= render "spree/suites/mobile/cart_kit_form", variant_presenter: variant_presenter, product_presenter: product_presenter %>
     <% else %>
       <%= render 'cart_form', variant_presenter: variant_presenter, product_presenter: product_presenter %>
     <% end %>

@@ -1,0 +1,42 @@
+<% option_values = part_presenter.displayable_option_values %>
+<% type = part_presenter.displayable_option_type %>
+<% product_name = part_presenter.product_name %>
+
+<!-- render parts -->
+  <li class="product-variants optional" data-tree="<%= part_presenter.variant_tree.to_json %>" data-adjustment="0" data-quantity="<%=part_presenter.count%>" data-adp-id="<%= part_presenter.id %>">
+    <div class="part-description">
+      <span class="mobile-product-presentation"><%= part_presenter.presentation %><span class="optional"> (Optional)</span></span>
+      <span class="color-value"></span>
+    </div>
+
+    <div class="part-thumbnail">
+      <span class="part-image part-image-<%= part_presenter.id %>"></span>
+    </div>
+
+    <div class="part-arrow">
+      <button>Open menu</button>
+    </div>
+
+    <div class="variant-options optional <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
+
+      <p><%= product_name %></p>
+      <ul class="variant-option-values <%= type.url_safe_name.downcase %><% if type.url_safe_name.downcase == 'colour' %> slimscroll<% end %>">
+
+        <%= render 'spree/suites/part', type: type, option_values: option_values, product_name: product_name %>
+
+        <li class="no-thanks">
+          <% if option_values.any? %>
+            <a class="option-value" href="#" title="No thanks" data-value="" data-type="<%= type.url_safe_name %>" data-presentation=""><span>No&nbsp;thanks</span></a>
+            <% if option_values[0].has_image? %>
+              <p class="assembly-name">No&nbsp;thanks</p>
+            <% end %>
+          <% else %>
+            <p>No&nbsp;stock</p>
+          <% end %>
+        </li>
+
+      </ul>
+    </div>
+    <input class="selected-parts" type="hidden" name="parts[<%= part_presenter.id %>]" value="<%= Spree::ProductPart::NO_THANKS %>" data-original-value="<%= Spree::ProductPart::NO_THANKS %>" />
+  </li>
+<!-- render parts -->

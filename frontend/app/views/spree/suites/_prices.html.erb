@@ -1,4 +1,5 @@
-<div class="product-price prices" data-hook="product_price" data-in-sale="<%=variant_presenter.in_sale?%>">
+<div id="scroller-anchor"></div>
+<div id="scroller" class="product-price prices" data-hook="product_price" data-in-sale="<%=variant_presenter.in_sale?%>">
   <% if variant_presenter.price.present? %>
     <span class="<%=variant_presenter.normal_price_classes %>" data-price="<%= variant_presenter.price_in_subunit %>" data-currency="<%= variant_presenter.currency_symbol %>"><%= variant_presenter.price_html %></span>
     <span class="<%=variant_presenter.sale_price_classes %>" data-price="<%= variant_presenter.sale_price_in_subunit %>" data-currency="<%= variant_presenter.currency_symbol %>"><%= variant_presenter.sale_price_html %></span>

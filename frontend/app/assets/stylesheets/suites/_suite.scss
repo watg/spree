@@ -152,12 +152,6 @@
       border-width: 16px;
       margin-left: -16px;
     }
-    .message-icon{
-      float: right;
-      margin-top: -67px;
-      margin-right: 10px;
-      position: relative;
-    }
   }
 
   /* Ajax cart styling */
@@ -191,21 +185,10 @@
       @include cart_message($border_color, $background_color, $font_color, $left_position);
     }
   }
-  @media only screen and (max-width: 28.750em) {
-    #cart-ajax-message {
-      margin-top: 30px;
-    }
-  }
-
   /* Something of a hack to pull up the cart message for kits */
   .displayable-kit-entity {
     #cart-ajax-message {
       margin-top: -35px;
-    }
-    @media only screen and (max-width: 28.750em) {
-      #cart-ajax-message {
-        margin-top: 30px;
-      }
     }
   }
 
@@ -234,9 +217,11 @@
     margin-top: -1em;
     border-top: 0;
   }
-  // Open first item...
-  .cart-form + .reveal-title + .reveal-content {
-    display: block;
+  // Open first item... on tablet and desktop
+  @media only screen and (min-width: 28.750em) {
+    .cart-form + .reveal-title + .reveal-content {
+      display: block;
+    }
   }
   /* Social */
   .icons-social {
@@ -267,22 +252,6 @@
         background-position: 0 -14px;
       }
     }
-    @media only screen and (max-width: 28.750em) {
-      li {
-        a {
-          display: none;
-          &.twitter {
-            background: none;
-          }
-          &.facebook {
-            background: none;
-          }
-          &.pinterest {
-            background: none;
-          }
-        }
-      }
-    }
   }
   ul.icons-social-variant {
     font-size: 1px;
@@ -309,17 +278,7 @@
       width: 110px;
     }
 
-    /* Adjust the widths individually if you like */
-    .google {
-      width: 33px !important;
-    }
-
   }
-  /* This gets Facebook to fall into place */
-  /*.icons-social-variant iframe,.social>span {
-    vertical-align: middle;
-    border: 1px solid red;
-  }*/
   .icons-facebook-social {
     margin-top: 10px;
     li {
@@ -363,7 +322,7 @@
     margin-top: 5px;
   }
   .no-stock {
-    display: initial;
+    // display: initial;
   }
   h5.delivery + div, .product-details-content.delivery,
    .product-details-content.description {
@@ -406,8 +365,8 @@
         }
       }
     }
-    p { 
-      span { 
+    p {
+      span {
         font-weight: bold;
       }
 
@@ -446,9 +405,6 @@
   }
 }
 
-
-
-
 /**
  * Hero
  *
@@ -463,11 +419,6 @@
     background-repeat: no-repeat;
     background-color: #f9f9f9;
     background-size: cover;
-    @media only screen and (max-width: 28.750em) {
-      min-height: 270px;
-      background-size: 100% !important;
-      background-position: 0 100% !important;
-    }
     .title {
       margin-top: emCalc(60px);
       padding: emCalc(30px);
@@ -509,39 +460,12 @@
       .social {
         margin-top: 1em;
       }
-      /*title on mobile*/
-      @media only screen and (max-width: 28.750em) {
-        h1 {
-          &.medium {
-            font-size: emCalc(50px);
-            line-height: 0.9em;
-          }
-          &.small {
-            font-size: emCalc(30px);
-            line-height: 0.95em;
-          }
-          &.mini {
-            font-size: emCalc(25px);
-            line-height: 0.9em;
-          }
-        }
-        p {
-          font-size: 0.9em;
-        }
-      }
     }
     .title p:before {
       content: "– ";
     }
     .title p:after {
       content: " –";
-    }
-    // Mobile .title
-    @media only screen and (max-width: 28.750em) {
-      .title {
-        margin-top: 0;
-        padding: emCalc(30px) 0;
-      }
     }
     // Tablet (portrait)
     @media only screen and (max-width: 768px) {
@@ -568,20 +492,14 @@
       padding: 0;
       background-color: #e1e1e1;
       min-height: emCalc(60px);
-      @media only screen and (max-width: 48em) {
-        min-height: emCalc(40px);
-      }
       h2 {
         margin: 0;
         font-size: emCalc(18px);
         text-transform: uppercase;
         text-decoration: none;
         text-align: center;
-        @media only screen and (max-width: 48em) {
-          font-size: emCalc(16px);
-        }
         a {
-          padding: emCalc(15px) 1.11em;
+          padding: emCalc(20px) 1.11em;
           display: block;
           color: #666;
           span {
@@ -592,7 +510,6 @@
           }
           &.tab-made-by-the-gang {
             span {
-              // padding-top: 2px;
               background-image: image-url("product-group/icon-ready-made.png");
             }
           }
@@ -603,21 +520,7 @@
           }
           &.tab-crochet-your-own {
             span {
-              // padding-top: 2px;
               background-image: image-url("product-group/icon-crochet-your-own.png");
-            }
-          }
-          // Mobile span
-          @media only screen and (max-width: 48em) {
-            span {
-              padding: 0;
-            }
-            &.tab-made-by-the-gang,
-            &.tab-crochet-your-own,
-            &.tab-knit-your-own {
-              span {
-                background-image: none;
-              }
             }
           }
         }
@@ -634,38 +537,17 @@
         }
       }
     }
-    @media only screen and (max-width: 48em) {
-      h2 {
-        a {
-          padding: emCalc(15px) 0 !important;
-          margin: 0 !important;
-        }
-      }
-    }
     .push-3 {
       left: 24%;
     }
     .pull-3 {
       right: 24%;
     }
-    // Mobile .push-3/.pull-3
-    @media only screen and (max-width: 48em) {
-      .push-3 {
-        left: 0%;
-      }
-      .pull-3 {
-        right: 0%;
-      }
-    }
     // Tablet (portrait)
     @media only screen and (max-width: 768px) {
       .small-6 {
         width: 50%;
       }
-    }
-    // pull up row tabs on mobile
-    @media only screen and (max-width: 48em) {
-      margin-top: 0 !important; /* Pull up to hero row */
     }
   }
 
@@ -676,17 +558,17 @@
     .owl-carousel .inverted {
       color: $white;
     }
-    .owl-controls .owl-nav {
+    .owl-controls .owl-buttons {
       div {
         position: absolute;
       }
       .owl-prev {
         left: -45px;
-        top: 55px;
+        top: 75px;
       }
       .owl-next {
         right: -45px;
-        top: 55px;
+        top: 75px;
       }
     }
     .row-carousel .row h2 {
@@ -718,29 +600,8 @@
       font-size: 1.3em;
     }
   }
-  @media(max-width: 750px) {
-    .cross-sales .row-carousel .row h2.small {
-      font-size: 1em;
-    }
-  }
 }
 
-/* cross sales no margin on mobile */
-body.mobile.suite .widget-cross-sales {
-  margin: 0;
-}
-
-// Main images and varians
-@media only screen and (max-width: 48em) {
-  .product-images {
-    margin-top: emCalc(30px);
-    .main-image {
-      img {
-        vertical-align: middle;
-      }
-    }
-  }
-}
 
 /* If we're missing the tabs, let's give ourselves some margin. */
 .suite {
@@ -749,6 +610,7 @@ body.mobile.suite .widget-cross-sales {
     padding-top: emCalc(40px);
   }
 }
+
 
 /**
  * Ready Made
@@ -828,12 +690,6 @@ body.mobile.suite .widget-cross-sales {
         }
       }
     }
-    // Mobile .menu-variants
-    @media only screen and (max-width: 28.750em) {
-      .menu-variants {
-        width: 100%;
-      }
-    }
     /* Variant menus end */
 
     /* Variant details */
@@ -850,15 +706,6 @@ body.mobile.suite .widget-cross-sales {
       .large-6:last-child {
         padding-right: emCalc(60px);
       }
-      // Mobile .large-6:first/.large-6:last
-      @media only screen and (max-width: 28.750em) {
-        .large-6:first-child {
-          padding-left: 0.9375em;
-        }
-        .large-6:last-child {
-          padding-right: 0.9375em;
-        }
-      }
       .arrow {
         margin-top: -20px;
         display: block;
@@ -867,7 +714,6 @@ body.mobile.suite .widget-cross-sales {
         font-size: 0;
         line-height: 0;
         position: absolute;
-        /*top: 50%;*/
         top: 300px; // Fix the arrows in place
         z-index: 1;
           filter:alpha(opacity=80);
@@ -885,12 +731,6 @@ body.mobile.suite .widget-cross-sales {
           right: 0;
         }
       }
-      // Mobile .arrow
-      @media only screen and (max-width: 28.750em) {
-        .arrow {
-          display: none;
-        }
-      }
       .close {
         display: block;
         height: 40px;
@@ -906,12 +746,6 @@ body.mobile.suite .widget-cross-sales {
         &:hover {
           filter:alpha(opacity=100);
           opacity: 1;
-        }
-      }
-      // Mobile .close
-      @media only screen and (max-width: 28.750em) {
-        .close {
-          margin-right: 0.9375em;
         }
       }
       .reveal-title {
@@ -938,14 +772,6 @@ body.mobile.suite .widget-cross-sales {
       opacity: 0;
       display: none;
     }
-    // Mobile .variant
-    @media only screen and (max-width: 28.750em) {
-      .variant {
-        margin-left: 0; /* Negates inline-block whitespace bug */
-        width: 100%;
-      }
-    }
-    /* Variants end */
   }
   & .active {
     display: block;
@@ -960,21 +786,6 @@ body.mobile.suite .widget-cross-sales {
     right: 24%;
     .menu-variants {
       margin-left: -0.9375em;
-    }
-  }
-  // Mobile .push-3/.pull-3
-  @media only screen and (max-width: 28.750em) {
-    .push-3 {
-      left: 0%;
-      .menu-variants {
-        margin-right: 0;
-      }
-    }
-    .pull-3 {
-      right: 0%;
-      .menu-variants {
-        margin-left: 0;
-      }
     }
   }
   // Tablet (portrait)
@@ -1049,24 +860,6 @@ body.mobile.suite .widget-cross-sales {
   & .active {
     display: block;
   }
-  @media only screen and (max-width: 28.750em) {
-    .row-knit-your-own-supporting {
-      padding: emCalc(20px) 0 emCalc(10px);
-      .row {
-        margin-bottom: 0 !important;
-      }
-    }
-    .knitting-is-easy {
-      font-size: 1.3em !important;
-      line-height: 1.2em;
-    }
-    a {
-      margin-top: emCalc(5px) !important;
-    }
-    .button {
-      margin-top: emCalc(10px);
-    }
-  }
 }
 
 
@@ -1078,7 +871,6 @@ body.mobile.suite .widget-cross-sales {
 
 .suite {
   .row-social {
-    //		padding-top: emCalc(30px);
     background-color: #f9f9f9;
     .widget-social {
       margin-left: -0.25em;
@@ -1153,7 +945,6 @@ body.mobile.suite .widget-cross-sales {
     .viewer-next a {
       margin-top: -100px;
       height: 160px;
-      /*width: 160px;*/
       width: 30px;
     }
     .viewer-previous {
@@ -1315,6 +1106,7 @@ body.mobile.suite .widget-cross-sales {
       float: left;
     }
   }
+
   /* Image partial */
   /* Cart form partial */
   .cart-form {
@@ -1327,11 +1119,6 @@ body.mobile.suite .widget-cross-sales {
       padding-bottom: 1em;
       border-bottom: 1px dotted #333;
       font-size: 1.375em;
-      @media only screen and (max-width: 28.750em) {
-        margin-top: 0.25em;
-        margin-bottom: 0.5em;
-        padding-bottom: 0.5em;
-      }
     }
     .product-title {
       margin: 0;
@@ -1418,17 +1205,12 @@ body.mobile.suite .widget-cross-sales {
         font-size: emCalc(16.5px);
         top: 1px;
       }
-      @media only screen and (max-width: 28.750em) {
-        .checkout-now-button {
-          top: 10px;
-        }
-      }
-
       label,
       input {
         display: inline-block;
         margin: emCalc(10px) 0;
         width: 4em;
+        text-align: center;
       }
       label {
         font-family: $watg-font-light;
@@ -1442,18 +1224,24 @@ body.mobile.suite .widget-cross-sales {
         margin-left: 5px;
         display: inline;
         margin-top: 0.54em;
+        &.active {
+          background-color: #fff;
+          color: #333;
+        }
       }
-      button:hover {
+      button:active {
         background-color: #fff;
         color: #333;
       }
     }
+
+
     /* Personalisations */
     .personalisations {
-      margin: 1em 0 0 !important;
-      padding: 1em 0 0 !important;
-      border: 0 !important;
-      border-top: 1px dotted #333 !important;
+      margin: 1em 0 0;
+      padding: 1em 0 0;
+      border: 0;
+      border-top: 1px dotted #333;
       label, input {
         font-size: emCalc(12px);
       }
@@ -1480,6 +1268,8 @@ body.mobile.suite .widget-cross-sales {
         }
       }
     }
+
+
     /* Assembly */
     .row-assembly {
       .assembly-menus {
@@ -1569,18 +1359,6 @@ body.mobile.suite .widget-cross-sales {
                     color: #ff0054 !important;
                   }
                 }
-                // Mobile li
-                @media only screen and (max-width: 28.750em) {
-                  li {
-                    width: 100%;
-                  }
-                  li:nth-child(-n+2) {
-                    border-top: 1px dotted #dadada;
-                  }
-                  li:first-child {
-                    border: 0;
-                  }
-                }
               }
             }
           }
@@ -1629,28 +1407,6 @@ body.mobile.suite .widget-cross-sales {
           line-height: 1.25em;
         }
       }
-      /*mobile variant*/
-      @media only screen and (max-width: 28.750em) {
-        margin-top: emCalc(20px) !important;
-        .assembly-menus {
-          ol {
-            font-size: 0.9em;
-            margin-bottom: 0;
-            .product-variants {
-              padding: emCalc(10px) emCalc(20px) emCalc(10px) emCalc(10px);
-              .variant-options {
-                width: 100%;
-              }
-            }
-          }
-        }
-        .add-to-cart {
-          input {
-            margin: emCalc(5px) 0;
-          }
-        }
-      }
-      /*end of mobile variant*/
     }
   }
 }

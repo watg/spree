@@ -72,6 +72,16 @@ module Spree
       @variant_images ||= product.variant_images_for(target)
     end
 
+    def all_images
+      images + variant_images if variant_images.any?
+      images + personalisation_images if personalisation_images.any?
+      images.uniq
+    end
+
+    def complex_carousel?
+      variant_option_values && variant_images.any?
+    end
+
     def image_style
       is_mobile? ? :small : :product
     end

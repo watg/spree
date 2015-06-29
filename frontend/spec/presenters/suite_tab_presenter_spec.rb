@@ -386,17 +386,36 @@ describe Spree::SuiteTabPresenter do
   end
 
   describe "#product_selector" do
-    context "selected product is in stock" do
-      it "returns in stock product selector partial name" do
-        allow(subject).to receive(:in_stock?).and_return true
-        expect(subject.product_selector).to eq("in_stock")
+    context "device is mobile" do
+      before { allow(subject).to receive(:is_mobile?).and_return true }
+
+      context "selected product is in stock" do
+        it "returns in stock product selector partial name" do
+          allow(subject).to receive(:in_stock?).and_return true
+          expect(subject.product_selector).to eq("spree/suites/mobile/in_stock")
+        end
+      end
+      context "selected product is out of stock" do
+        it "returns out of stock product selector partial name" do
+          allow(subject).to receive(:in_stock?).and_return false
+          expect(subject.product_selector).to eq("spree/suites/mobile/out_of_stock")
+        end
       end
     end
 
-    context "selected product is out of stock" do
-      it "returns out of stock product selector partial name" do
-        allow(subject).to receive(:in_stock?).and_return false
-        expect(subject.product_selector).to eq("out_of_stock")
+    context "device is not mobile" do
+      context "selected product is in stock" do
+        it "returns in stock product selector partial name" do
+          allow(subject).to receive(:in_stock?).and_return true
+          expect(subject.product_selector).to eq("in_stock")
+        end
+      end
+
+      context "selected product is out of stock" do
+        it "returns out of stock product selector partial name" do
+          allow(subject).to receive(:in_stock?).and_return false
+          expect(subject.product_selector).to eq("out_of_stock")
+        end
       end
     end
   end
@@ -405,14 +424,30 @@ describe Spree::SuiteTabPresenter do
     context "device is mobile" do
       it "returns mobile partial name" do
         allow(subject).to receive(:is_mobile?).and_return true
-        expect(subject.product_details).to eq("product_details_mobile")
+        expect(subject.product_details).to eq("spree/suites/mobile/product_details")
       end
     end
 
     context "device is not mobile" do
       it "returns standard product details partial name" do
         allow(subject).to receive(:is_mobile?).and_return false
-        expect(subject.product_details).to eq("product_details")
+        expect(subject.product_details).to eq("product_details_default")
+      end
+    end
+  end
+
+  describe "product_images" do
+    context "device is mobile" do
+      it "returns mobile partial name" do
+        allow(subject).to receive(:is_mobile?).and_return true
+        expect(subject.product_images).to eq("spree/suites/mobile/images")
+      end
+    end
+
+    context "device is not mobile" do
+      it "returns standard product details partial name" do
+        allow(subject).to receive(:is_mobile?).and_return false
+        expect(subject.product_images).to eq("images_default")
       end
     end
   end

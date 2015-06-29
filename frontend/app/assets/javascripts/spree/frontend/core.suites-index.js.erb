@@ -110,13 +110,16 @@ core.suite.requestOutOfStock = function() {
           // select exact text
           var heading_primary_text = document.getElementById('notice');
           var success_message = document.getElementById('success-message');
-
+          var img = $('.icon-completed');
           // change text + styling
           heading_primary.text("Thanks " + email);
           heading_primary_text.className = "green";
           success_message.style.display = 'initial';
 
           // fade sections back in
+          if (core.isMobileWidthOrLess() === true) {
+            img.fadeIn('slow');
+          }
           heading_primary.fadeIn('slow');
           heading_secondary.fadeIn('slow');
         }

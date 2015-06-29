@@ -1,0 +1,9 @@
+<div class="main-image">
+  <%= image_tag(variant_presenter.main_image_url, variant_presenter.main_image_options) %>
+</div>
+<div class="thumbnails" data-hook>
+  <%= render :partial =>  "thumbnails", locals: {
+                                       variant_presenter: variant_presenter,
+                                       product_presenter: product_presenter
+                                     } %>
+</div>
