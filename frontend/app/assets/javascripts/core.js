@@ -136,7 +136,7 @@ core.readyAccordions = function() {
 core.readyCustomScroll = function() {
   var height = core.isMobileWidthOrLess() ? '320px' : '300px', // Alternative height for mobile
       element = $('.slimscroll');
-  if ($.browser.webkit){
+  if ($.browser.webkit) {
     element.css("height", height);
     element.addClass("customscroll")
   } else {
