@@ -82,7 +82,8 @@ describe Spree::OrdersController, type: :controller do
           before { allow(Orders::PopulateService).to receive(:run).and_return(outcome) }
 
           it "shows an error when population fails" do
-            expect(Helpers::AirbrakeNotifier).to receive(:notify).with("Populate Errors", "foobar")
+            error_message = "Populate Error: foobar"
+            expect(Helpers::AirbrakeNotifier).to receive(:notify).with(error_message, kind_of(Hash))
             request.env["HTTP_REFERER"] = spree.root_path
             spree_post :populate, params.merge(order_id: order.id), format: :js
             expect(response).to redirect_to(spree.root_path)

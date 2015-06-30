@@ -62,7 +62,7 @@ module Spree
       else
         errors = outcome.errors.full_messages.join(" ")
         Rails.logger.error("Populator Error: #{errors}")
-        Helpers::AirbrakeNotifier.notify("Populate Errors", errors)
+        Helpers::AirbrakeNotifier.notify("Populate Error: #{errors}", params)
         respond_with(@order) do |format|
           format.js { render :layout => false }
           flash[:error] = 'something went wrong, please try again'

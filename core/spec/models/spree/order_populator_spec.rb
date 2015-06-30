@@ -78,7 +78,7 @@ describe Spree::OrderPopulator, type: :model do
         let(:part) { mock_model(Spree::ProductPart) }
         let(:missing_parts) { { part.id => variant.id } }
         let(:error) { "Some required parts are missing: #{missing_parts}" }
-        let(:notify_params) { params.merge(order_id: order.id, error: error) }
+        let(:notify_params) { params.merge(order_id: order.id) }
 
         before do
           allow(subject.options_parser).to receive(:missing_parts).and_return(missing_parts)
@@ -86,8 +86,7 @@ describe Spree::OrderPopulator, type: :model do
 
         it "sends a notication if parts are missing" do
           expect(order.contents).to_not receive(:add)
-          expect(Helpers::AirbrakeNotifier).to receive(:notify)
-            .with(notify_params)
+          expect(Helpers::AirbrakeNotifier).to receive(:notify).with(error, notify_params)
           item = subject.populate
           expect(item.variant).to eq variant
           expect(item.quantity).to eq quantity

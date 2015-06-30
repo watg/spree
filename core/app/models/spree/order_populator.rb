@@ -60,12 +60,9 @@ module Spree
     end
 
     def send_notifications
-      notifier_params = params.merge(
-        order_id: order.id,
-        error: notifications.to_sentence
-      )
+      notifier_params = params.merge(order_id: order.id)
       Rails.logger.error(notifier_params.inspect)
-      Helpers::AirbrakeNotifier.notify(notifier_params)
+      Helpers::AirbrakeNotifier.notify(notifications.to_sentence, notifier_params)
     end
 
     def add_parts(item)
