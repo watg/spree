@@ -1,6 +1,7 @@
 module Spree
   class ProductPart < ActiveRecord::Base
     acts_as_paranoid
+    acts_as_list scope: [:product_id, :deleted_at]
 
     belongs_to :product, class_name: "Spree::Product", foreign_key: "product_id", touch: true
     belongs_to :part, class_name: "Spree::Product", foreign_key: "part_id"
@@ -8,7 +9,7 @@ module Spree
 
     has_many :product_part_variants,
              dependent: :delete_all,
-             class_name: 'Spree::ProductPartVariant'
+             class_name: "Spree::ProductPartVariant"
 
     has_many :variants, through: :product_part_variants
     alias_method :selected_variants, :variants
@@ -17,7 +18,7 @@ module Spree
 
     accepts_nested_attributes_for :variants
 
-    NO_THANKS = 'no_thanks'
+    NO_THANKS = "no_thanks"
 
     class << self
       def required
@@ -33,6 +34,5 @@ module Spree
       return [] unless displayable_option_type
       option_values.where(option_type: displayable_option_type)
     end
-
   end
 end
