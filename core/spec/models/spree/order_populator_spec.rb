@@ -1,266 +1,215 @@
-require 'spec_helper'
+require "spec_helper"
 
-describe Spree::OrderPopulator, :type => :model do
-
-  let(:order) { mock_model(Spree::Order, currency: 'USD') }
-  subject { Spree::OrderPopulator.new(order, "USD") }
+describe Spree::OrderPopulator, type: :model do
+  let(:order) { mock_model(Spree::Order, currency: "USD") }
+  subject { described_class.new(order, params) }
 
   let(:variant) { create(:variant, amount: 60.00) }
   let(:product) { variant.product }
   let(:target_id) { 45 }
+  let(:params) {}
+
+  let!(:order_contents_options) do
+    {
+      target_id: target_id,
+      suite_tab_id: 2,
+      suite_id: 1
+    }
+  end
+
+  let(:options) { {} }
+  let(:quantity) { 2 }
+
+  let(:params) do
+    {
+      variant_id: variant.id,
+      quantity: quantity,
+      target_id: target_id,
+      suite_tab_id: 2,
+      suite_id: 1,
+      options: options
+    }
+  end
 
   context "#populate" do
-
     before do
-      allow(order).to receive(:line_items).and_return([])
-      expect(order).to receive(:contents).at_least(:once).and_return(Spree::OrderContents.new(order))
+      allow(order).to receive(:line_items).and_return(order_contents_options)
+      order_contents = Spree::OrderContents.new(order)
+      expect(order).to receive(:contents).at_least(:once).and_return(order_contents)
       allow(subject.options_parser).to receive(:missing_parts).and_return({})
     end
 
-    context "with variants parameters" do
-
-      let!(:options) { {
-        target_id: target_id,
-        suite_tab_id: 2,
-        suite_id: 1,
-        parts: []
-      }}
-
-      it "can take a list of products and add them to the order" do
-        expect(order.contents).to receive(:add).with(variant, 2, options).and_return double.as_null_object
-        subject.populate(:variants => { variant.id => 2 }, :target_id => 45, :suite_id => 1, :suite_tab_id => 2)
+    context "variant no parts" do
+      it "calls order contents correctly" do
+        expect(order.contents).to receive(:add).with(variant, 2, order_contents_options)
+          .and_return double.as_null_object
+        item = subject.populate
+        expect(item.variant).to eq variant
+        expect(item.quantity).to eq quantity
       end
-
-      context "with parts" do
-
-        let!(:lip1) { mock_model(Spree::LineItemPart) }
-        let!(:lip2) { mock_model(Spree::LineItemPart) }
-
-        let!(:adp1) { mock_model(Spree::ProductPart) }
-        let!(:adp2) { mock_model(Spree::ProductPart) }
-        let!(:adv1) { mock_model(Spree::ProductPartVariant) }
-        let!(:adv2) { mock_model(Spree::ProductPartVariant) }
-
-        before do
-          options[:parts] = match_array [lip1, lip2]
-          allow(subject.options_parser).to receive(:missing_parts).and_return({})
-        end
-
-        it "calls order contents correctly" do
-          expect(order.contents).to receive(:add).with(variant, 2, options).and_return double.as_null_object
-          part_params = {adp1.id => adv1.id, adp2.id => adv2.id}
-          expect(subject.options_parser).to receive(:dynamic_kit_parts).with(variant, part_params).and_return [lip1, lip2]
-          subject.populate(:variants => { variant.id => 2 }, :parts => part_params, :target_id => 45, :suite_id => 1, :suite_tab_id => 2)
-        end
-
-
-        context "missing_parts" do
-          let(:part) { mock_model(Spree::ProductPart)}
-
-          before do
-            allow(subject.options_parser).to receive(:missing_parts).and_return({part.id => variant.id})
-          end
-
-          it "adds error on order when some assembly definition parts are missing" do
-            expect(order.contents).to_not receive(:add)
-            part_params = {adp1.id => adv1.id, adp2.id => adv2.id}
-            subject.populate(:variants => { variant.id => 2 }, :parts => part_params, :target_id => 45, :suite_id => 1, :suite_tab_id => 2)
-            expect(subject.errors.full_messages.join("")).to eq 'Some required parts are missing'
-          end
-
-          it "sends an airbrake notification" do
-            expect(order.contents).to_not receive(:add)
-            part_params = {adp1.id => adv1.id, adp2.id => adv2.id}
-            notifier = double
-            notification_params = {
-              :target_id           => options[:target_id],
-              :suite_id     => options[:suite_id],
-              :suite_tab_id => options[:suite_tab_id],
-              :order_id            => order.id,
-              :parts               => part_params,
-              :missing_parts_and_variants => {part.id => variant.id},
-            }
-            #expect(notifier).to receive(:notify).with("Some required parts are missing", notification_params)
-            #expect(Helpers::AirbrakeNotifier).to receive(:delay).and_return(notifier)
-            #Comment out the below and uncomment the above if we want to get this working async
-            expect(Helpers::AirbrakeNotifier).to receive(:notify).with("Some required parts are missing", notification_params)
-            subject.populate(:variants => { variant.id => 2 }, :parts => part_params, :target_id => 45, :suite_id => 1, :suite_tab_id => 2)
-          end
-        end
-      end
-
     end
 
-    context "with products parameters" do
+    context "variant with parts" do
+      let!(:lip1) { mock_model(Spree::LineItemPart, quantity: 1) }
+      let!(:lip2) { mock_model(Spree::LineItemPart, quantity: 2) }
 
-      let!(:options) { {
-        personalisations: [],
-        target_id: target_id,
-        suite_tab_id: 2,
-        suite_id: 1,
-        parts: []
-      }}
+      let!(:adp1) { mock_model(Spree::ProductPart, quantity: 1) }
+      let!(:adp2) { mock_model(Spree::ProductPart, quantity: 2) }
+      let!(:adv1) { mock_model(Spree::ProductPartVariant) }
+      let!(:adv2) { mock_model(Spree::ProductPartVariant) }
+      let(:part_params) { { adp1.id => adv1.id, adp2.id => adv2.id } }
+      let(:options) { { parts: part_params } }
 
-      it "can take a list of products and add them to the order" do
-        expect(order.contents).to receive(:add).with(variant, 1, options).and_return double.as_null_object
-        subject.populate(:products => { product.id => variant.id }, :quantity => 1, :target_id => 45, :suite_id => 1, :suite_tab_id => 2)
+      it "calls order contents correctly" do
+        order_contents_options.merge!(parts: match_array([lip1, lip2]))
+
+        expect(order.contents).to receive(:add).with(variant, 2, order_contents_options)
+          .and_return double.as_null_object
+
+        expect(subject.options_parser).to receive(:dynamic_kit_parts).with(variant, part_params)
+          .and_return [lip1, lip2]
+
+        item = subject.populate
+        expect(item.variant).to eq variant
+        expect(item.quantity).to eq quantity
       end
 
-      context "with required_parts" do
-
-        let!(:lip1) { mock_model(Spree::LineItemPart) }
-        let!(:lip2) { mock_model(Spree::LineItemPart) }
+      context "missing parts" do
+        let(:part) { mock_model(Spree::ProductPart) }
+        let(:missing_parts) { { part.id => variant.id } }
+        let(:error) { "Some required parts are missing: #{missing_parts}" }
+        let(:notify_params) { params.merge(order_id: order.id, error: error) }
 
         before do
-          options[:parts] = match_array [lip1, lip2]
+          allow(subject.options_parser).to receive(:missing_parts).and_return(missing_parts)
         end
 
-        it "calls order contents correctly" do
-          expect(order.contents).to receive(:add).with(variant, 1, options).and_return double.as_null_object
-          expect(subject.options_parser).to receive(:static_kit_required_parts).with(variant).and_return [lip1, lip2]
-          expect(subject.options_parser).to receive(:static_kit_optional_parts).with(variant,[]).and_return []
-          subject.populate(:products => { product.id => variant.id, :options => [] }, :quantity => 1, :target_id => 45, :suite_id => 1, :suite_tab_id => 2)
-        end
-
-      end
-
-      context "with optional_parts" do
-
-        let!(:lip1) { mock_model(Spree::LineItemPart) }
-        let!(:lip2) { mock_model(Spree::LineItemPart) }
-
-        let!(:variant1) { mock_model(Spree::Variant) }
-        let!(:variant2) { mock_model(Spree::Variant) }
-
-        before do
-          options[:parts] = match_array [lip1, lip2]
-        end
-
-        it "calls order contents correctly" do
-          expect(order.contents).to receive(:add).with(variant, 1, options).and_return double.as_null_object
-          expect(subject.options_parser).to receive(:static_kit_required_parts).with(variant).and_return []
-          expect(subject.options_parser).to receive(:static_kit_optional_parts).with(variant,[variant1.id, variant2.id]).and_return [lip1, lip2]
-          subject.populate(:products => { product.id => variant.id, :options => [variant1.id, variant2.id] }, :quantity => 1, :target_id => 45, :suite_id => 1, :suite_tab_id => 2)
-        end
-
-      end
-
-      context "with personalisations" do
-
-        let!(:personalisation) { mock_model(Spree::LineItemPersonalisation) }
-        let(:monogram) { create(:personalisation_monogram, product: product) }
-
-        before do
-          options[:personalisations] = match_array [personalisation]
-        end
-
-        it "calls order contents correctly" do
-          expected_params = {
-            :enabled_pp_ids=>[monogram.id], 
-            :pp_ids=>{
-              monogram.id=>{
-                "colour"=>monogram.colours.first.id,
-                "initials"=>"XXX"
-              }
-            }
-          }
-          expect(subject.options_parser).to receive(:personalisations).with(expected_params).and_return [personalisation]
-          expect(order.contents).to receive(:add).with(variant, 1, options).and_return double.as_null_object
-
-          subject.populate(:products => {
-            product.id => variant.id,
-            enabled_pp_ids: [monogram.id],
-            pp_ids: { monogram.id => {
-              "colour" => monogram.colours.first.id,
-              "initials" => "XXX"}}
-          }, 
-          :suite_tab_id=>2,
-          :suite_id=>1,
-          :quantity => 1, :target_id => 45)
-        end
-
-      end
-
-      context "variant out of stock" do
-        before do
-          line_item = double("LineItem", valid?: false)
-          allow(line_item).to receive(:errors).and_return [double]
-          allow(line_item).to receive_message_chain(:errors, messages: { quantity: ["error message"] })
-          allow(order.contents).to receive_messages(add: line_item)
-        end
-
-        it "adds an error when trying to populate" do
-          subject.populate(:products => { product.id => variant.id }, :quantity => 1)
-          expect(subject).not_to be_valid
-          expect(subject.errors.full_messages.join).to eql "error message"
-        end
-      end
-
-      context "products params" do
-        # Regression test for #2695
-        it "restricts quantities to reasonable sizes (less than 2.1 billion, seriously)" do
+        it "sends a notication if parts are missing" do
           expect(order.contents).to_not receive(:add)
-          subject.populate(:products => { product.id => variant.id }, :quantity => 2_147_483_648)
-          expect(subject).not_to be_valid
-          output = "Please enter a reasonable quantity."
-          expect(subject.errors.full_messages.join("")).to eq(output)
-        end
-
-        it "does not add any products if a quantity is set to 0" do
-          expect(order.contents).to_not receive(:add)
-          subject.populate(:products => { product.id => variant.id }, :quantity => 0)
-        end
-
-
-      end
-
-      context "variants params" do
-        it "restricts quantities to reasonable sizes (less than 2.1 billion, seriously)" do
-          expect(order.contents).to_not receive(:add)
-          subject.populate(:variants => {variant.id => 2_147_483_648 } )
-          expect(subject).not_to be_valid
-          output = "Please enter a reasonable quantity."
-          expect(subject.errors.full_messages.join("")).to eq(output)
-        end
-
-        it "does not add any products if a quantity is set to 0" do
-          expect(order.contents).to_not receive(:add)
-          subject.populate(:variants => {variant.id => 0 } )
+          expect(Helpers::AirbrakeNotifier).to receive(:notify)
+            .with(notify_params)
+          item = subject.populate
+          expect(item.variant).to eq variant
+          expect(item.quantity).to eq quantity
         end
       end
-
     end
 
-  end
+    context "variant with static parts" do
+      let!(:static_part) { create(:base_variant) }
+      let!(:optional_static_part) { create(:base_variant) }
 
-  describe "#item" do
-
-    it "should return nil if populate has not been called succesfully" do
-      expect(subject.item).to be_nil
-    end
-
-
-    context "item has been added to cart" do
-
-      let(:variant) { Spree::Variant.new }
-      let(:quantity) { 2 }
+      let(:part_params) { [optional_static_part] }
+      let(:options) { { optional_static_parts: part_params } }
 
       before do
-        allow(order).to receive(:line_items).and_return([])
-        expect(order).to receive(:contents).at_least(:once).and_return(Spree::OrderContents.new(order))
-        line_item = double(:line_item, errors: [])
-        expect(order.contents).to receive(:add).and_return(line_item)
-        subject.attempt_cart_add(variant, quantity, {})
+        variant.add_part(static_part, 1, false)
+        product.add_part(optional_static_part, 2, true)
       end
 
-      it "should return an Item Struct with variant and quantity" do
-        expect(subject.item.variant).to eq variant
-        expect(subject.item.quantity).to eq quantity
-      end
+      it "calls order contents correctly" do
+        matcher_1 = have_attributes(quantity: 1, optional: false, variant: static_part)
+        matcher_2 = have_attributes(quantity: 2, optional: true, variant: optional_static_part)
+        order_contents_options.merge!(parts: match_array([matcher_1, matcher_2]))
 
+        expect(order.contents).to receive(:add).with(variant, 2, order_contents_options)
+          .and_return double.as_null_object
+
+        item = subject.populate
+        expect(item.variant).to eq variant
+        expect(item.quantity).to eq quantity
+      end
     end
 
+    context "variant with personalisations" do
+      let!(:personalisation) { mock_model(Spree::LineItemPersonalisation) }
+      let(:monogram) { create(:personalisation_monogram, product: product) }
+      let(:enabled) { true }
+
+      let(:personalisation_params) do
+        [
+          {
+            id: monogram.id,
+            enabled: enabled,
+            data: {
+              "colour" => monogram.colours.first.id,
+              "initials" => "XXX"
+            }
+          }
+        ]
+      end
+
+      let(:options) { { personalisations: personalisation_params } }
+
+      it "calls order contents correctly" do
+        attributes = {
+          personalisation_id: monogram.id,
+          amount: BigDecimal.new(10),
+          data: { "colour" => monogram.colours.first.id.to_s, "initials" => "XXX" }
+        }
+        matcher = have_attributes(attributes)
+        order_contents_options.merge!(personalisations: match_array([matcher]))
+
+        expect(order.contents).to receive(:add).with(variant, 2, order_contents_options)
+          .and_return double.as_null_object
+
+        item = subject.populate
+        expect(item.variant).to eq variant
+        expect(item.quantity).to eq quantity
+      end
+
+      context "disabled personalisation" do
+        let(:enabled) { false }
+
+        it "calls order contents correctly" do
+          expect(order.contents).to receive(:add).with(variant, 2, order_contents_options)
+            .and_return double.as_null_object
+
+          item = subject.populate
+          expect(item.variant).to eq variant
+          expect(item.quantity).to eq quantity
+        end
+      end
+    end
   end
 
+  context "#populate with errors" do
+    context "quantity to low" do
+      let(:quantity) { 0 }
+      it "returns a error" do
+        item = subject.populate
+        expect(item).to_not be_nil
+        output = "Please enter a reasonable quantity."
+        expect(item.errors).to eq([output])
+      end
+    end
 
+    context "quantity to high" do
+      let(:quantity) { 100_000_000_000_000_000 }
+      it "returns a error" do
+        item = subject.populate
+        expect(item).to_not be_nil
+        output = "Please enter a reasonable quantity."
+        expect(item.errors).to eq([output])
+      end
+    end
+
+    context "variant out of stock" do
+      before do
+        order_contents = Spree::OrderContents.new(order)
+        expect(order).to receive(:contents).at_least(:once).and_return(order_contents)
+        line_item = double("LineItem", valid?: false)
+        allow(line_item).to receive(:errors).and_return [double]
+        error_message = { quantity: ["error message"] }
+        allow(line_item).to receive_message_chain(:errors, messages: error_message)
+        allow(order.contents).to receive_messages(add: line_item)
+      end
+
+      it "adds an error when trying to populate" do
+        item = subject.populate
+        expect(item).to_not be_nil
+        expect(item.errors).to eql ["error message"]
+      end
+    end
+  end
 end

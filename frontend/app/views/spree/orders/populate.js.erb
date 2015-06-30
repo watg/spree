@@ -1,5 +1,5 @@
 $('#cart-ajax-message').remove();
-<% if @errors %>
+<% if @item.errors.any? %>
     $('<%= escape_javascript(render :partial => "add_to_cart_ajax_error") %>').insertAfter('.cart-form');
 <% else %>
     Spree.fetch_cart();

@@ -3,7 +3,8 @@
 <% price = personalisation.subunit_price_in(current_currency) %>
 <div class="personalisation monogram" data-price=<%= price %> >
 	<label>
-		<%= check_box_tag "products[enabled_pp_ids][]", pp_id, false, data: { price: price } %> 
+    <%= hidden_field_tag "options[personalisations][][id]", pp_id, :class => "hidden" %>
+    <%= check_box_tag "options[personalisations][][enabled]", true, false, data: { price: price  } %> 
 		Add a monogram 
 	</label>
 	<div class="personalisation-options colour">
@@ -22,12 +23,12 @@
 			</li>
 			<% end %>
 		</ul>
-		<%= hidden_field_tag "products[pp_ids][#{pp_id}][colour]", selected_colour_value.id, :class => "hidden personalisation-colour" %>
+     <%= hidden_field_tag "options[personalisations][][data][colour]", selected_colour_value.id, :class => "hidden personalisation-colour" %>
 	</div>
 	<div class="personalisation-options characters">
 		<h5>Max. <%= personalisation.max_initials %> Characters</h5>
 		<ul class="personalisation-option-values characters">
-			<li> <%= text_field_tag "products[pp_ids][#{pp_id}][initials]", nil, maxlength: personalisation.max_initials, size: 10%> </li>
+      <li> <%= text_field_tag "options[personalisations][][data][initials]", nil, maxlength: personalisation.max_initials, size: 10%> </li>
 		</ul>
 	</div>
 	<div class="clearing"></div>

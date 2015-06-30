@@ -2,7 +2,7 @@
   <div class="add-to-cart">
     <% if !product_presenter.out_of_stock_override? %>
       <label>Quantity</label>
-      <%= number_field_tag (product_presenter.parts? ? "variants[#{product_presenter.master.id}]" : :quantity ), 1, :id => 'qty', :min => 1 %>
+      <%= number_field_tag :quantity, 1, :id => 'qty', :min => 1 %>
       <%= button_tag :class => 'add-to-cart-button small disabled', :type => :submit, :style => "opacity: 0.5", :title => "Please select above options" do %>
         <%= Spree.t(:add_to_cart) %>
       <% end %>

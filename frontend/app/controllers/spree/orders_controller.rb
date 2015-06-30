@@ -49,9 +49,39 @@ module Spree
       associate_user
     end
 
+    def new_populate
+      order = current_order(create_order_if_necessary: true)
+      outcome = ::Orders::PopulateService.run(order: order, params: params)
+
+      if outcome.valid?
+        @item = outcome.result
+        respond_with(@order) do |format|
+          format.js { render :layout => false }
+          format.html { redirect_to cart_path }
+        end
+      else
+        errors = outcome.errors.full_messages.join(" ")
+        Rails.logger.error("Populator Error: #{errors}")
+        Helpers::AirbrakeNotifier.notify("Populate Errors", errors)
+        respond_with(@order) do |format|
+          format.js { render :layout => false }
+          flash[:error] = 'something went wrong, please try again'
+          format.html do
+            redirect_back_or_default(:back)
+          end
+        end
+      end
+    end
+
     # Adds a new item to the order (creating a new order if none already exists)
     def populate
-      populator = Spree::OrderPopulator.new(current_order(create_order_if_necessary: true), current_currency)
+      params[:variant_id] ? new_populate : old_populate
+    end
+
+    # Please delete me
+    def old_populate
+      order = current_order(create_order_if_necessary: true)
+      populator = Spree::OldOrderPopulator.new(order, current_currency)
       populator.populate(params.slice(:products, :variants, :quantity, :parts, :target_id, :suite_id, :suite_tab_id))
 
       if populator.valid?
