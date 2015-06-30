@@ -100,38 +100,37 @@ module Spree
     end
 
     def add_generic_details_to_base(base, variant)
-      base['variant'] ||= {}
-      base['variant']['id'] = variant.id
-      base['variant']['in_stock'] = variant.in_stock_cache
-      base['variant']['number'] = variant.number
-      # base['variant']['is_digital'] = variant.digital?
+      base["variant"] ||= {}
+      base["variant"]["id"] = variant.id
+      base["variant"]["in_stock"] = variant.in_stock_cache
+      base["variant"]["number"] = variant.number
     end
 
     def add_prices_to_base(base, variant)
       variant_prices = prices.select { |p| p.variant_id == variant.id }
 
-      base['variant']['normal_price'] = normal_price(variant_prices)
-      base['variant']['sale_price'] = sale_price(variant_prices)
-      base['variant']['part_price'] = part_price(variant_prices)
-      base['variant']['in_sale'] = variant.in_sale
+      base["variant"]["normal_price"] = normal_price(variant_prices)
+      base["variant"]["sale_price"] = sale_price(variant_prices)
+      base["variant"]["part_price"] = part_price(variant_prices)
+      base["variant"]["in_sale"] = variant.in_sale
     end
 
     def add_supplier_to_base(base, variant)
       variant_stock_items = stock_items.select { |s| s.variant_id == variant.id }
       suppliers = variant_stock_items.map(&:supplier).uniq
-      base['variant']['suppliers'] = suppliers
+      base["variant"]["suppliers"] = suppliers
     end
 
     def add_image_to_base(base,variant)
       variant_images = images.select { |i| i.viewable_id == variant.id }.sort_by(&:position)
       if variant_images.any?
-        base['variant']['image_url'] = variant_images.first.attachment.url(:mini)
+        base["variant"]["image_url"] = variant_images.first.attachment.url(:mini)
       end
     end
 
     def add_digitals_to_base(base, variant)
       digital_variant = digitals.any? { |d| d.variant_id == variant.id }
-      base['variant']['is_digital'] = digital_variant
+      base["variant"]["is_digital"] = digital_variant
     end
 
     def variant_stock_items(variant)
