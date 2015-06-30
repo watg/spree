@@ -137,12 +137,12 @@ core.Navigation.showSubFooterMobile = function(e) {
 }
 
 core.Navigation.readyTracking = function() {
-  var links = $('.nav-primary, .nav-primary-sub').find('a');
+  var links = $('.nav-primary, .nav-primary-sub').find('a:not([href*=#])');
   links.on({
     click: function(e) {
       // Stop
       e.preventDefault();
-
+      
       // Get the data path, or just pass link name in its absence
       var path = $(this).data('path');
       var event_path = path == undefined ? $(this).text().toLowerCase() : path;
