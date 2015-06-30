@@ -49,7 +49,7 @@ module Spree
       associate_user
     end
 
-    def new_populate
+    def populate
       order = current_order(create_order_if_necessary: true)
       outcome = ::Orders::PopulateService.run(order: order, params: params)
 
@@ -67,36 +67,6 @@ module Spree
           format.js { render :layout => false }
           flash[:error] = 'something went wrong, please try again'
           format.html do
-            redirect_back_or_default(:back)
-          end
-        end
-      end
-    end
-
-    # Adds a new item to the order (creating a new order if none already exists)
-    def populate
-      params[:variant_id] ? new_populate : old_populate
-    end
-
-    # Please delete me
-    def old_populate
-      order = current_order(create_order_if_necessary: true)
-      populator = Spree::OldOrderPopulator.new(order, current_currency)
-      populator.populate(params.slice(:products, :variants, :quantity, :parts, :target_id, :suite_id, :suite_tab_id))
-
-      if populator.valid?
-        @item = populator.item
-        current_order.ensure_updated_shipments
-        respond_with(@order) do |format|
-          format.js { render :layout => false }
-          format.html { redirect_to cart_path }
-        end
-      else
-        @errors = populator.errors.full_messages.join(" ")
-        respond_with(@order) do |format|
-          format.js { render :layout => false }
-          format.html do
-            flash[:error] = @errors
             redirect_back_or_default(:back)
           end
         end
