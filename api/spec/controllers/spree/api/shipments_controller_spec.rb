@@ -125,6 +125,8 @@ describe Spree::Api::ShipmentsController, :type => :controller do
         let(:adp_opts) { { part: part,  product: product, count: 2 } }
         let!(:adv) { create(:product_part_variant, product_part: adp, variant: variant_part) }
 
+        before { product.product_type.update_column(:name, "kit") }
+
         it 'can add and remove quantity' do
           assembly_selection = {adp.id.to_s => variant_part.id}
           api_put :add, { variant_id: variant.to_param, quantity: 2, selected_variants: assembly_selection }
@@ -148,6 +150,7 @@ describe Spree::Api::ShipmentsController, :type => :controller do
         before do
           # TODO: make old kits work with options
           #  product.add_part(part1, 1, true)
+          product.product_type.update_column(:name, "kit")
           product.add_part(required_part1, 2, false)
         end
 

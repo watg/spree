@@ -230,16 +230,23 @@ describe Spree::LineItem, type: :model do
       order.finalize!
     end
 
-    it "destroys units along with line item" do
-      expect(Spree::OrderInventory.new(line_item.order, line_item).inventory_units).not_to be_empty
-      line_item.destroy_along_with_units
-      expect(Spree::InventoryUnit.where(line_item_id: line_item.id).to_a).to be_empty
+    describe "#destroy_along_with_units" do
+      let(:order_inventory) { Spree::OrderInventory.new(line_item.order, line_item) }
+      let(:inventory_units) { order_inventory.send(:inventory_units) }
+
+      it "destroys units along with line item" do
+        expect(inventory_units).not_to be_empty
+        line_item.destroy_along_with_units
+        expect(Spree::InventoryUnit.where(line_item_id: line_item.id).to_a).to be_empty
+      end
     end
 
-    it "destroys its line_item_parts" do
-      line_item.destroy
-      expect { parts.first.reload }.to raise_error(ActiveRecord::RecordNotFound)
-      expect { parts.last.reload }.to raise_error(ActiveRecord::RecordNotFound)
+    describe "#destroy" do
+      it "destroys its line_item_parts" do
+        line_item.destroy
+        expect { parts.first.reload }.to raise_error(ActiveRecord::RecordNotFound)
+        expect { parts.last.reload }.to raise_error(ActiveRecord::RecordNotFound)
+      end
     end
   end
 
