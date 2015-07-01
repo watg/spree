@@ -18,73 +18,63 @@ module Spree
     #
     def verify(shipment = nil)
       return unless order.completed? || shipment.present?
-      if line_item.parts.any?
-        process_line_item_parts(@line_item, shipment)
-      else
-        process_line_item(@line_item, shipment)
-      end
-    end
-
-    def process_line_item_parts(line_item, shipment)
-      parts = line_item.parts.reject(&:container?)
-
-      old_quantity = (inventory_units.size == 0) ? 0 : inventory_units.size / parts.sum(&:quantity)
-      quantity_change = line_item.quantity - old_quantity
-
-      if quantity_change > 0
-
-        parts.each do |part|
-          quantity_of_parts = part.quantity * quantity_change
-
-          # This is horrible code, and we must change it at some point
-          self.variant = part.variant
-          shipment = determine_target_shipment unless shipment
-          add_to_shipment(shipment, quantity_of_parts, part)
-        end
-
-      elsif quantity_change < 0
-
-        parts.each do |part|
-          quantity_of_parts = part.quantity * quantity_change
-
-          # This is horrible code, and we must change it at some point
-          self.variant = part.variant
-          remove_quantity_from_shipment(shipment, quantity_of_parts * -1)
-        end
-
-      end
-    end
-
-    def process_line_item(line_item, shipment)
-      quantity_change = line_item.quantity - inventory_units.size
-
-      if quantity_change > 0
-
-        shipment = determine_target_shipment unless shipment
-        add_to_shipment(shipment, quantity_change)
-
-      elsif quantity_change < 0
-
-        remove_quantity_from_shipment(shipment, quantity_change * -1)
-
-      end
-    end
-
-    def inventory_units
-      line_item.inventory_units
+      @shipment = shipment
+      process_line_item(@line_item, shipment) if ready_to_wear
+      process_line_item_parts(shipment)
     end
 
     private
 
-    def remove_quantity_from_shipment(shipment, quantity)
-      if shipment.present?
-        remove_from_shipment(shipment, quantity)
+    def process_line_item(line_item, shipment)
+      quantity_change = line_item.quantity - inventory_units.size
+      if quantity_change > 0
+        add_to_shipment(quantity_change, nil, line_item.variant)
+      elsif quantity_change < 0
+        remove_quantity_from_shipment(shipment, quantity_change * -1, line_item.variant)
+      end
+    end
+
+    def add_to_shipment(quantity, line_item_part = nil, variant = nil)
+      inventory = []
+      if variant.should_track_inventory?
+        on_hand, backordered, awaiting_feed = fill_status(variant, quantity)
+
+        on_hand.times do
+          inventory << target_shipment.set_up_inventory(
+            "on_hand", variant, order, line_item, line_item_part)
+        end
+
+        backordered.times do
+          inventory << target_shipment.set_up_inventory(
+            "backordered", variant, order, line_item, line_item_part)
+        end
+
+        awaiting_feed.times do
+          inventory << target_shipment.set_up_inventory(
+            "awaiting_feed", variant, order, line_item, line_item_part)
+        end
+
       else
-        order.shipments.each do |s|
-          break if quantity == 0
-          quantity -= remove_from_shipment(s, quantity)
+        quantity.times do
+          inventory << target_shipment.set_up_inventory(
+            "on_hand", variant, order, line_item, line_item_part)
         end
       end
+
+      # adding to this shipment, and removing from stock_location
+      if order.can_allocate_stock?
+        Stock::Allocator.new(target_shipment).unstock(variant, inventory)
+      end
+
+      quantity
+    end
+
+    def fill_status(variant, quantity)
+      target_shipment.stock_location.fill_status(variant, quantity)
+    end
+
+    def target_shipment
+      @shipment || determine_target_shipment
     end
 
     # Returns either one of the shipment:
@@ -101,42 +91,55 @@ module Spree
       end
     end
 
-    def add_to_shipment(shipment, quantity, line_item_part = nil)
-      inventory = []
-      if variant.should_track_inventory?
-        on_hand, backordered, awaiting_feed = shipment.stock_location.fill_status(variant, quantity)
+    def process_line_item_parts(shipment)
+      return unless parts.any?
 
-        on_hand.times do
-          inventory << shipment.set_up_inventory(
-            "on_hand", variant, order, line_item, line_item_part)
+      if quantity_change > 0
+        parts.each do |part|
+          quantity_of_parts = part.quantity * quantity_change
+          add_to_shipment(quantity_of_parts, part, part.variant)
         end
 
-        backordered.times do
-          inventory << shipment.set_up_inventory(
-            "backordered", variant, order, line_item, line_item_part)
-        end
-
-        awaiting_feed.times do
-          inventory << shipment.set_up_inventory(
-            "awaiting_feed", variant, order, line_item, line_item_part)
-        end
-
-      else
-        quantity.times do
-          inventory << shipment.set_up_inventory(
-            "on_hand", variant, order, line_item, line_item_part)
+      elsif quantity_change < 0
+        parts.each do |part|
+          quantity_of_parts = part.quantity * quantity_change
+          remove_quantity_from_shipment(shipment, quantity_of_parts * -1, part.variant)
         end
       end
-
-      # adding to this shipment, and removing from stock_location
-      if order.can_allocate_stock?
-        Stock::Allocator.new(shipment).unstock(variant, inventory)
-      end
-
-      quantity
     end
 
-    def remove_from_shipment(shipment, quantity)
+    def parts
+      @parts ||= line_item.parts.stock_tracking
+    end
+
+    def quantity_change
+      @quantity_change ||= line_item.quantity - old_quantity
+    end
+
+    def old_quantity
+      (inventory_units.size == 0) ? 0 : inventory_units.size / parts.sum(:quantity)
+    end
+
+    def inventory_units
+      line_item.inventory_units
+    end
+
+    def ready_to_wear
+      !line_item.variant.product.product_type.kit?
+    end
+
+    def remove_quantity_from_shipment(shipment, quantity, variant = nil)
+      if shipment.present?
+        remove_from_shipment(shipment, quantity, variant)
+      else
+        order.shipments.each do |s|
+          break if quantity == 0
+          quantity -= remove_from_shipment(s, quantity, variant)
+        end
+      end
+    end
+
+    def remove_from_shipment(shipment, quantity, variant)
       return 0 if quantity == 0 || shipment.shipped?
 
       shipment_inventory_units = shipment.inventory_units_for_item(line_item, variant)

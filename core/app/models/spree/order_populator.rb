@@ -25,11 +25,6 @@ module Spree
 
     private
 
-    def validate_params
-      check_for_missing_parts(parts) if parts
-      send_notifications if notifications.any?
-    end
-
     def build_item
       # Ideally this would not go into options but be set explicitly on the item
       options = {
@@ -41,12 +36,17 @@ module Spree
       Item.new(variant, quantity, options, errors)
     end
 
-    def add_to_cart(item)
-      add_parts(item) if parts
-      add_static_parts(item)
-      add_personalisations(item) if personalisation_params
-      line_item = order.contents.add(variant, quantity, item.options)
-      item.errors << line_item.errors.messages.values.join(" ") if line_item.errors.any?
+    def validate_quantity(item)
+      add_reasonable_quantity_error(item) unless quantity < 2_147_483_647 && quantity >= 1
+    end
+
+    def add_reasonable_quantity_error(item)
+      item.errors << Spree.t(:please_enter_reasonable_quantity, scope: :order_populator)
+    end
+
+    def validate_params
+      check_for_missing_parts(parts) if parts
+      send_notifications if notifications.any?
     end
 
     def check_for_missing_parts(parts)
@@ -63,6 +63,14 @@ module Spree
       notifier_params = params.merge(order_id: order.id)
       Rails.logger.error(notifier_params.inspect)
       Helpers::AirbrakeNotifier.notify(notifications.to_sentence, notifier_params)
+    end
+
+    def add_to_cart(item)
+      add_parts(item) if parts
+      add_static_parts(item)
+      add_personalisations(item) if personalisation_params
+      line_item = order.contents.add(variant, quantity, item.options)
+      item.errors << line_item.errors.messages.values.join(" ") if line_item.errors.any?
     end
 
     def add_parts(item)
@@ -89,13 +97,6 @@ module Spree
       item.options[:personalisations] = personalisations if personalisations.any?
     end
 
-    def validate_quantity(item)
-      add_reasonable_quantity_error(item) unless quantity < 2_147_483_647 && quantity >= 1
-    end
-
-    def add_reasonable_quantity_error(item)
-      item.errors << Spree.t(:please_enter_reasonable_quantity, scope: :order_populator)
-    end
 
     def quantity
       @quantity ||= params[:quantity].to_i

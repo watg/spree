@@ -8,7 +8,6 @@ module Spree
     end
 
     def restock(variant, inventory_units)
-
       restockable_inventory_units = inventory_units.select do |iu|
         iu.on_hand? && !iu.pending
       end
@@ -16,7 +15,7 @@ module Spree
       restock_on_hand(variant, restockable_inventory_units)
 
       # Do not be tempted to do update_all, as this will not trigger the cache purge
-      # for the total_on_hand, also it is important we set pending = true for all 
+      # for the total_on_hand, also it is important we set pending = true for all
       # inventory_units regardless of state ( on_hand, backordered, etc. )
       inventory_units.each do |iu|
         iu.supplier_id = nil
@@ -36,7 +35,7 @@ module Spree
       unstock_on_hand(variant, unstockable_inventory_units)
 
       # Do not be tempted to do update_all, as this will not trigger the cache purge
-      # for the total_on_hand, also it is important we set pending = true for all 
+      # for the total_on_hand, also it is important we set pending = true for all
       # inventory_units regardless of state ( on_hand, backordered, etc. )
       inventory_units.each do |iu|
         iu.pending = false
@@ -53,7 +52,6 @@ module Spree
     end
 
     def unstock_on_hand(variant, on_hand)
-
       # Deal with on_hand items.
       problem_on_hand = allocate_from_on_hand_stock(variant, on_hand)
 
@@ -75,7 +73,6 @@ module Spree
         # the stock to be negative somewhere.
         unstock_stock_item(all_stock_items(variant).first, problem_on_hand)
       end
-
     end
 
     private
@@ -92,6 +89,20 @@ module Spree
         unstock_stock_item(stock_item, slice)
       end
       units
+    end
+
+    def on_hand_stock_items(variant)
+      available_items(variant).select { |ai| ai.count_on_hand > 0 }
+    end
+
+    def available_items(variant)
+      @available_items ||= {}
+      @available_items[variant] ||= available_stock_items(variant)
+      @available_items[variant]
+    end
+
+    def available_stock_items(variant)
+      stock_location.available_stock_items(variant).order("last_unstocked_at NULLS FIRST")
     end
 
     def allocate_from_feeder_stock(variant, inventory_units)
@@ -121,10 +132,6 @@ module Spree
       end
     end
 
-    def on_hand_stock_items(variant)
-      available_items(variant).select { |ai| ai.count_on_hand > 0 }
-    end
-
     def backorderable_stock_item(variant)
       available_items(variant).detect(&:backorderable?)
     end
@@ -132,13 +139,6 @@ module Spree
     def feeder_stock_items(variant)
       stock_location.feeder_items(variant)
     end
-
-    def available_items(variant)
-      @available_items ||= {}
-      @available_items[variant] ||= stock_location.available_stock_items(variant).order('last_unstocked_at NULLS FIRST')
-      @available_items[variant]
-    end
-
     def all_stock_items(variant)
       stock_location.stock_items.where(variant: variant).active.order('last_unstocked_at NULLS FIRST')
     end
@@ -174,7 +174,5 @@ module Spree
       # should only happen when a shipment is involved
       stock_item.update_column(:last_unstocked_at, Time.now)
     end
-
   end
-
 end

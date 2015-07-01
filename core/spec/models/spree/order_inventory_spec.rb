@@ -11,9 +11,10 @@ describe Spree::OrderInventory, type: :model do
 
     it "creates the proper number of inventory units" do
       subject.verify
-      expect(subject.inventory_units.count).to eq 2
+      expect(subject.send(:inventory_units).count).to eq 2
     end
   end
+
   context "#add_to_shipment" do
     let(:shipment) { order.shipments.first }
     let!(:variant) { subject.variant }
@@ -32,7 +33,7 @@ describe Spree::OrderInventory, type: :model do
 
       it "doesn't unstock items" do
         expect_any_instance_of(Spree::Stock::Allocator).to_not receive(:unstock)
-        expect(subject.send(:add_to_shipment, shipment, 5)).to eq(5)
+        expect(subject.send(:add_to_shipment, 5, nil, line_item.variant)).to eq(5)
       end
     end
 
@@ -46,7 +47,7 @@ describe Spree::OrderInventory, type: :model do
       it "unstocks items" do
         expect(shipment.stock_location).to receive(:fill_status).with(subject.variant, 2)
           .and_return([2, 0, 0])
-        expect(subject.send(:add_to_shipment, shipment, 2)).to eq(2)
+        expect(subject.send(:add_to_shipment, 2, nil, line_item.variant)).to eq(2)
         expect(allocator).to have_received(:unstock).with(variant, [inventory_unit, inventory_unit])
       end
     end
@@ -59,7 +60,7 @@ describe Spree::OrderInventory, type: :model do
       end
 
       it "is nil for non assembly items" do
-        expect(subject.send(:add_to_shipment, shipment, 5)).to eq(5)
+        expect(subject.send(:add_to_shipment, 5, nil, line_item.variant)).to eq(5)
         units = shipment.inventory_units_for(subject.variant).select { |u| !u.line_item_part.nil? }
         expect(units.size).to eq 0
       end
@@ -75,7 +76,7 @@ describe Spree::OrderInventory, type: :model do
         expect(shipment.stock_location).to receive(:fill_status).with(subject.variant, 6)
           .and_return(rtn)
 
-        expect(subject.send(:add_to_shipment, shipment, 6)).to eq(6)
+        expect(subject.send(:add_to_shipment, 6, nil, line_item.variant)).to eq(6)
 
         units = shipment.inventory_units_for(subject.variant).group_by(&:state)
         expect(units["backordered"].size).to eq(2)
@@ -119,6 +120,24 @@ describe Spree::OrderInventory, type: :model do
     end
   end
 
+  describe "#verify" do
+    context "ready to wear item with parts" do
+      let!(:part)       { create(:part, line_item: line_item) }
+      let!(:part2)      { create(:part, line_item: line_item) }
+      let(:units)       { line_item.inventory_units }
+      let(:variant_ids) { [line_item.variant.id, part.variant.id, part2.variant.id] }
+      let(:states)      { ["backordered"] * 3 }
+
+      before           { Spree::InventoryUnit.delete_all }
+
+      it "creates inventory units for ready to wear item & its parts" do
+        subject.verify
+        expect(units.map(&:variant_id)).to match_array(variant_ids)
+        expect(units.map(&:state)).to match_array(states)
+      end
+    end
+  end
+
   context "#determine_target_shipment" do
     let(:stock_location) { create :stock_location }
     let(:variant) { line_item.variant }
@@ -145,7 +164,7 @@ describe Spree::OrderInventory, type: :model do
     context "when no shipments already contain this varint" do
       before do
         subject.line_item.reload
-        subject.inventory_units.destroy_all
+        subject.send(:inventory_units).destroy_all
       end
 
       it "selects first non-shipped shipment that leaves from same stock_location" do
@@ -187,7 +206,7 @@ describe Spree::OrderInventory, type: :model do
 
     it "decreases the number of inventory units" do
       subject.verify
-      expect(subject.inventory_units.count).to eq 2
+      expect(subject.send(:inventory_units).count).to eq 2
     end
   end
 
@@ -204,7 +223,7 @@ describe Spree::OrderInventory, type: :model do
 
       it "doesn't restock items" do
         expect_any_instance_of(Spree::Stock::Allocator).to_not receive(:restock)
-        expect(subject.send(:remove_from_shipment, shipment, 1)).to eq(1)
+        expect(subject.send(:remove_from_shipment, shipment, 1, line_item.variant)).to eq(1)
       end
     end
 
@@ -219,12 +238,12 @@ describe Spree::OrderInventory, type: :model do
       it "doesn't restock items" do
         expect_any_instance_of(Spree::Stock::Allocator).to receive(:restock)
           .with(variant, [mock_inventory_unit])
-        expect(subject.send(:remove_from_shipment, shipment, 1)).to eq(1)
+        expect(subject.send(:remove_from_shipment, shipment, 1, line_item.variant)).to eq(1)
       end
     end
 
     it "creates stock_movement" do
-      expect(subject.send(:remove_from_shipment, shipment, 1)).to eq(1)
+      expect(subject.send(:remove_from_shipment, shipment, 1, line_item.variant)).to eq(1)
       stock_item = shipment.stock_location.stock_item(variant)
       movement = stock_item.stock_movements.last
       # Originator will be missing as the shipment will be deteleted
@@ -250,7 +269,7 @@ describe Spree::OrderInventory, type: :model do
       expect(shipment.inventory_units_for_item[1]).not_to receive(:destroy)
       expect(shipment.inventory_units_for_item[2]).to receive(:destroy)
 
-      expect(subject.send(:remove_from_shipment, shipment, 2)).to eq(2)
+      expect(subject.send(:remove_from_shipment, shipment, 2, line_item.variant)).to eq(2)
     end
 
     it "destroys unshipped units first" do
@@ -265,7 +284,7 @@ describe Spree::OrderInventory, type: :model do
       expect(shipment.inventory_units_for_item[0]).not_to receive(:destroy)
       expect(shipment.inventory_units_for_item[1]).to receive(:destroy)
 
-      expect(subject.send(:remove_from_shipment, shipment, 1)).to eq(1)
+      expect(subject.send(:remove_from_shipment, shipment, 1, line_item.variant)).to eq(1)
     end
 
     it "only attempts to destroy as many units as are eligible, and return amount destroyed" do
@@ -281,17 +300,17 @@ describe Spree::OrderInventory, type: :model do
       expect(shipment.inventory_units_for_item[0]).not_to receive(:destroy)
       expect(shipment.inventory_units_for_item[1]).to receive(:destroy)
 
-      expect(subject.send(:remove_from_shipment, shipment, 1)).to eq(1)
+      expect(subject.send(:remove_from_shipment, shipment, 1, line_item.variant)).to eq(1)
     end
 
     it "destroys self if not inventory units remain" do
       allow(shipment.inventory_units).to receive_messages(count: 0)
       expect(shipment).to receive(:delete)
 
-      expect(subject.send(:remove_from_shipment, shipment, 1)).to eq(1)
+      expect(subject.send(:remove_from_shipment, shipment, 1, line_item.variant)).to eq(1)
     end
 
-    context "inventory unit line item and variant points to different products" do
+    context "inventory unit `item and variant points to different products" do
       let(:different_line_item) { create(:line_item) }
 
       let!(:different_inventory) do
@@ -299,10 +318,11 @@ describe Spree::OrderInventory, type: :model do
       end
 
       context "completed order" do
-        before { order.touch :completed_at }
+        let(:opts) { [shipment, shipment.inventory_units.count, line_item.variant] }
+        before     { order.touch :completed_at }
 
         it "removes only units that match both line item and variant" do
-          subject.send(:remove_from_shipment, shipment, shipment.inventory_units.count)
+          subject.send(:remove_from_shipment, *opts)
           expect(different_inventory.reload).to be_persisted
         end
       end
@@ -341,6 +361,8 @@ describe Spree::OrderInventory, type: :model do
     end
 
     before do
+      line_item_1.variant.product.product_type.update(name: "kit")
+      line_item_2.variant.product.product_type.update(name: "kit")
       si_1.set_count_on_hand(1)
       si_2.set_count_on_hand(1)
       line_item_1.reload
@@ -356,7 +378,6 @@ describe Spree::OrderInventory, type: :model do
       described_class.new(order, line_item_2).verify
       expect(line_item_1.reload.inventory_units.size).to eq 1
       expect(line_item_2.reload.inventory_units.size).to eq 1
-
       expect(line_item_1.inventory_units.first.supplier)
         .to_not eq line_item_2.inventory_units.first.supplier
       expect([supplier_1, supplier_2]).to include(line_item_1.inventory_units.first.supplier)
@@ -384,26 +405,29 @@ describe Spree::OrderInventory, type: :model do
 
       WebMock.stub_request(:get, "https://www.gov.uk/bank-holidays.json")
         .to_return(status: 200, body: "", headers: {})
+      line_item.variant.product.product_type.update_column(:name, "kit")
       parts.first.update_column(:quantity, 3)
       line_item.update_column(:quantity, 3)
-      subject.inventory_units.delete_all
+      subject.send(:inventory_units).delete_all
     end
 
     context "inventory units count" do
       it "calculates the proper value for all physical parts (without the line item itself or containers)" do
         expected_units_count = line_item.quantity * parts.to_a.sum(&:quantity)
         subject.verify(shipment)
-        expect(subject.inventory_units.count).to eql(expected_units_count)
+        expect(subject.send(:inventory_units).count).to eql(expected_units_count)
       end
     end
 
     context "inventory units line_item_part_id" do
+      let(:inventory_units) { subject.send(:inventory_units) }
+
       it "is nil for non assembly items" do
         subject.verify(shipment)
-        units_1 = (subject.inventory_units).select { |u| u.line_item_part == parts[0] }
-        units_2 = (subject.inventory_units).select { |u| u.line_item_part == parts[1] }
-        units_3 = (subject.inventory_units).select { |u| u.line_item_part == parts[2] }
-        units_4 = (subject.inventory_units).select { |u| u.line_item_part.nil? }
+        units_1 = (inventory_units).select { |u| u.line_item_part == parts[0] }
+        units_2 = (inventory_units).select { |u| u.line_item_part == parts[1] }
+        units_3 = (inventory_units).select { |u| u.line_item_part == parts[2] }
+        units_4 = (inventory_units).select { |u| u.line_item_part.nil? }
         expect(units_1.size).to eq 9
         expect(units_2.size).to eq 3
         expect(units_3.size).to eq 3
@@ -412,8 +436,12 @@ describe Spree::OrderInventory, type: :model do
     end
 
     context "verify line item units" do
-      let(:original_units_count) { subject.inventory_units.count }
-      before { subject.verify(shipment) }
+      let(:original_units_count) { subject.send(:inventory_units).count }
+
+      before do
+        subject.verify(shipment)
+        subject.instance_variable_set("@quantity_change", nil)
+      end
 
       context "quantity increases" do
         before { subject.line_item.quantity += 1 }
@@ -421,7 +449,7 @@ describe Spree::OrderInventory, type: :model do
         it "inserts new inventory units for every bundle part with disregard to the line item itself" do
           expected_units_count = original_units_count + parts.to_a.sum(&:quantity)
           subject.verify(shipment)
-          expect(subject.inventory_units.count).to eql(expected_units_count)
+          expect(subject.send(:inventory_units).count).to eql(expected_units_count)
         end
       end
 
@@ -431,7 +459,7 @@ describe Spree::OrderInventory, type: :model do
         it "remove inventory units for every bundle part with disregard to the line item itself" do
           expected_units_count = original_units_count - parts.to_a.sum(&:quantity)
           subject.verify(shipment)
-          expect(subject.inventory_units.count).to eql(expected_units_count)
+          expect(subject.send(:inventory_units).count).to eql(expected_units_count)
         end
       end
 
@@ -440,7 +468,7 @@ describe Spree::OrderInventory, type: :model do
 
         it "remove inventory all units for every bundle part" do
           subject.verify(shipment)
-          expect(subject.inventory_units.count).to eql(0)
+          expect(subject.send(:inventory_units).count).to eql(0)
         end
       end
     end
@@ -484,7 +512,7 @@ describe Spree::OrderInventory, type: :model do
 
       it "removes only units associated with provided line item" do
         expect do
-          subject.send(:remove_from_shipment, shipment, 5)
+          subject.send(:remove_from_shipment, shipment, 5, line_item.variant)
         end.not_to change { guitar_item.inventory_units.count }
       end
     end
