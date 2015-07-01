@@ -19,7 +19,7 @@ module Spree
     def verify(shipment = nil)
       return unless order.completed? || shipment.present?
       @shipment = shipment
-      process_line_item(@line_item, shipment) if ready_to_wear
+      process_line_item(@line_item, shipment) unless kit
       process_line_item_parts(shipment)
     end
 
@@ -124,8 +124,8 @@ module Spree
       line_item.inventory_units
     end
 
-    def ready_to_wear
-      !line_item.variant.product.product_type.kit?
+    def kit
+      line_item.variant.product.product_type.kit?
     end
 
     def remove_quantity_from_shipment(shipment, quantity, variant = nil)
