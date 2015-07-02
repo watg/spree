@@ -41,6 +41,9 @@ module Spree
           end
 
           def render_404(exception = nil)
+            if exception
+              Rails.logger.error("404 Error: #{exception.inspect}\n #{exception.backtrace.join("\n")}")
+            end
             respond_to do |type|
               type.html { render :status => :not_found, :file    => "#{::Rails.root}/public/404", :formats => [:html], :layout => nil}
               type.all  { render :status => :not_found, :nothing => true }
