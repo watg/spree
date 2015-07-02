@@ -42,6 +42,7 @@ core.suite.readyKitVariantOptions = (entity) ->
         if selected_value of tree[selected_type]
          tree = tree[selected_type][selected_value]
 
+    part_id = product_variants.data('adp-id')
     if 'variant' of tree
       variant = tree['variant']
 
@@ -52,17 +53,10 @@ core.suite.readyKitVariantOptions = (entity) ->
       product_variants.data('adjustment', variant['part_price'])
 
       if variant['image_url']
-        part_id = product_variants.data('adp-id')
-        if core.isMobileWidthOrLess() == false
-          $('.assembly-images li.part-image-' + part_id)
-          .css('background-image', 'url(' + variant['image_url'] + ')')
-        else
-          $('span.part-image-' + part_id)
-          .css('background-image', 'url(' + variant['image_url'] + ')')
-
+        $('.part-image-' + part_id).css('background-image', 'url(' + variant['image_url'] + ')')
 
     else
-      $('.assembly-images li').eq(product_variants.index()).css('background-image', 'none')
+      $('.part-image-' + part_id).css('background-image', 'none')
       selected_parts = product_variants.find('.selected-parts')
       selected_parts.val(selected_parts.data('original-value'))
       product_variants.data('adjustment', 0)

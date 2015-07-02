@@ -12,6 +12,7 @@
     <%= hidden_field_tag "suite_id", suite_presenter.id %>
     <%= hidden_field_tag "suite_tab_id", selected_tab_presenter.id %>
     <%= hidden_field_tag "target_id", suite_presenter.target.try(:id) %>
+    <%= hidden_field_tag "variant_id", variant_presenter.try(:id), class: "variant_id" %>
 
     <% if product_presenter.parts? %>
       <%= render "spree/suites/mobile/cart_kit_form", variant_presenter: variant_presenter, product_presenter: product_presenter %>
