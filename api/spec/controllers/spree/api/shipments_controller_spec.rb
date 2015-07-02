@@ -207,11 +207,11 @@ describe Spree::Api::ShipmentsController, :type => :controller do
         end
 
         context "kit" do
-
           let(:variant_part) { create(:base_variant) }
 
           before do
             line_item.update_column(:quantity,  2)
+            line_item.variant.product.product_type.update_column(:name, "kit")
             Spree::InventoryUnit.delete_all
             create(:line_item_part, optional: false, line_item: line_item, variant: variant_part, quantity: 3)
             create(:line_item_part, optional: true, line_item: line_item, variant: variant_part, quantity: 1)

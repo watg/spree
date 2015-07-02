@@ -136,7 +136,7 @@ describe Spree::OrderInventory, type: :model do
         expect(units.map(&:state)).to match_array(states)
       end
 
-      it 'is idempotent' do
+      it "is idempotent" do
         subject.verify
         subject.verify
         expect(units.map(&:variant_id)).to match_array(variant_ids)
