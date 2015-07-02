@@ -1,0 +1,14 @@
+
+<%
+  line_items = order.line_items.sort_by(&:variant_id)
+  variant_ids = line_items.map(&:variant_id)
+  mid = 40554 # provided by rakuten
+  ord = order.number
+  skulist = Spree::Variant.where(id: variant_ids).sort_by(&:id).map(&:sku).join("|")
+  qlist = line_items.map(&:quantity).join("|")
+  amtlist = line_items.map{ |ln| (ln.pre_tax_amount*100).to_i }.join("|")
+  cur = order.currency
+  namelist =URI.escape(line_items.map(&:product).map(&:name).join("|"))
+  rakuten_params = "mid=#{mid}&ord=#{ord}&skulist=#{skulist}&qlist=#{qlist}&amtlist=#{amtlist}&cur=#{cur}&img=1&namelist=#{namelist}"
+%>
+<img src="http://track.linksynergy.com/ep?<%=rakuten_params %>">
