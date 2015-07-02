@@ -15,10 +15,12 @@ module Spree
       let(:part1) { Spree::LineItemPart.new(variant_id: variant_id, quantity: 3) }
       let(:part2) { Spree::LineItemPart.new(variant_id: extra_variant.id, quantity: 4) }
       let!(:container_part) { Spree::LineItemPart.new(variant_id: extra_variant.id, quantity: 10) }
-      let(:expected_item) { Spree::Stock::OrderItemBuilder::Item.new(variant.id, line_item, 2) }
-      let(:expected_item_1) { Spree::Stock::OrderItemBuilder::Item.new(variant.id, line_item, 6) }
-      let(:expected_item_2) { Spree::Stock::OrderItemBuilder::Item.new(extra_variant.id, line_item, 8) }
-      let(:expected_item_3) { Spree::Stock::OrderItemBuilder::Item.new(extra_variant.id, extra_line_item, 1) }
+
+      let(:expected_item)   { OrderItemBuilder::Item.new(variant.id, line_item, 2) }
+      let(:expected_item_1) { OrderItemBuilder::Item.new(variant.id, line_item, 6) }
+      let(:expected_item_2) { OrderItemBuilder::Item.new(extra_variant.id, line_item, 8) }
+      let(:expected_item_3) { OrderItemBuilder::Item.new(extra_variant.id, extra_line_item, 1) }
+
 
       before do
         allow(part1).to receive(:container?).and_return false
@@ -32,7 +34,7 @@ module Spree
         line_items << extra_line_item
       end
 
-      context 'ready to wear with parts' do
+      context "ready to wear with parts" do
         context do
           it "builds items for line item and parts" do
             items = subject.items
@@ -74,8 +76,8 @@ module Spree
         end
       end
 
-      context 'kit' do
-        before { line_item.variant.product.product_type.update_column(:name, 'kit') }
+      context "kit" do
+        before { line_item.variant.product.product_type.update_column(:name, "kit") }
 
         context do
           it "builds items for parts only" do

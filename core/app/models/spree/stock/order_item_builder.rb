@@ -43,7 +43,7 @@ module Spree::Stock
     end
 
     def required_parts(line_item)
-      line_item.parts.reject{ |part| part.container? }
+      line_item.parts.reject(&:container?)
     end
 
     def kit(line_item)
