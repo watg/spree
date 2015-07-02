@@ -18,7 +18,8 @@ module Spree
     #
     def verify(shipment = nil)
       return unless order.completed? || shipment.present?
-      @shipment = shipment
+      @shipment        = shipment
+      @quantity_change = nil
       process_line_item(@line_item, shipment) unless kit
       process_line_item_parts(shipment)
     end
@@ -26,12 +27,27 @@ module Spree
     private
 
     def process_line_item(line_item, shipment)
-      quantity_change = line_item.quantity - inventory_units.size
-      if quantity_change > 0
-        add_to_shipment(quantity_change, nil, line_item.variant)
-      elsif quantity_change < 0
-        remove_quantity_from_shipment(shipment, quantity_change * -1, line_item.variant)
+      if total_quantity_change > 0
+        add_to_shipment(line_item_quantity_change, nil, line_item.variant)
+      elsif total_quantity_change < 0
+        remove_quantity_from_shipment(shipment, line_item_quantity_change * -1, line_item.variant)
       end
+    end
+
+    def total_quantity_change
+      total_quantity - inventory_units.size
+    end
+
+    def total_quantity
+      (line_item.parts.count + 1) * line_item.quantity
+    end
+
+    def line_item_quantity_change
+      line_item.quantity - line_item_inventory_units.size
+    end
+
+    def line_item_inventory_units
+      inventory_units.select{ |x| x.variant_id == line_item.variant_id }
     end
 
     def add_to_shipment(quantity, line_item_part = nil, variant = nil)
@@ -93,19 +109,19 @@ module Spree
 
     def process_line_item_parts(shipment)
       return unless parts.any?
-
       if quantity_change > 0
-        parts.each do |part|
-          quantity_of_parts = part.quantity * quantity_change
-          add_to_shipment(quantity_of_parts, part, part.variant)
-        end
-
+        parts.each(&method(:add_parts_to_shipment))
       elsif quantity_change < 0
         parts.each do |part|
           quantity_of_parts = part.quantity * quantity_change
           remove_quantity_from_shipment(shipment, quantity_of_parts * -1, part.variant)
         end
       end
+    end
+
+    def add_parts_to_shipment(part)
+      quantity_of_parts = part.quantity * quantity_change
+      add_to_shipment(quantity_of_parts, part, part.variant)
     end
 
     def parts

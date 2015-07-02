@@ -128,9 +128,16 @@ describe Spree::OrderInventory, type: :model do
       let(:variant_ids) { [line_item.variant.id, part.variant.id, part2.variant.id] }
       let(:states)      { ["backordered"] * 3 }
 
-      before           { Spree::InventoryUnit.delete_all }
+      before            { Spree::InventoryUnit.delete_all }
 
       it "creates inventory units for ready to wear item & its parts" do
+        subject.verify
+        expect(units.map(&:variant_id)).to match_array(variant_ids)
+        expect(units.map(&:state)).to match_array(states)
+      end
+
+      it 'is idempotent' do
+        subject.verify
         subject.verify
         expect(units.map(&:variant_id)).to match_array(variant_ids)
         expect(units.map(&:state)).to match_array(states)
