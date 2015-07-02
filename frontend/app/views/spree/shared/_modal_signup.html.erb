@@ -8,7 +8,16 @@ Hurry, offer ends in <strong>3 days!</strong></h4>
 <form action="/subscribe_to_list" method="post">
   <fieldset>
     <input name="signupEmail" id="signupEmail" type="email" placeholder="Your email address" />
-    <button type="submit">Sign up</button>
+    <!-- on click of ga tracking -->
+    <button type="submit"
+      onClick="if (typeof ga !== 'undefined') {
+        ga('send', 'event', {
+          eventCategory: 'newsletter_sign_up',
+          eventAction: 'newsletter_sign_up',
+          eventLabel: 'newsletter_sign_up'
+        });
+      };">Sign up</button>
+
     <input type="hidden" name="list_name" value="Wool and the Gang" />
     <input type="hidden" name="source" value="10% DISCOUNT CAMPAIGN - POP UP OVERLAY" />
   </fieldset>

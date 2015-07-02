@@ -3,7 +3,15 @@
       <label>Sign up for wooly news</label>
       <input type="email" value="" name="signupEmail" placeholder="Enter your email here" />
       <input type="hidden" name="source" value="Website - Footer" />
-      <button type="submit">Submit</button>
+      <button type="submit"
+        onClick="if (typeof ga !== 'undefined') {
+          ga('send', 'event', {
+            eventCategory: 'newsletter_sign_up',
+            eventAction: 'newsletter_sign_up',
+            eventLabel: 'newsletter_sign_up'
+          });
+        };"
+      >Submit</button>
     </form>
     <div class="signup-response">
       <div>
