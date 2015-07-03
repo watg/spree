@@ -363,6 +363,7 @@ describe Spree::OrderInventory, type: :model do
 
     let!(:supplier_1) { create(:supplier) }
     let!(:supplier_2) { create(:supplier) }
+    let(:kit_product_type) { create(:product_type_kit) }
 
     let!(:shipment) { create(:base_shipment, order: order, stock_location: stock_location) }
     let!(:si_1) do
@@ -381,8 +382,10 @@ describe Spree::OrderInventory, type: :model do
     end
 
     before do
-      line_item_1.variant.product.product_type.update(name: "kit")
-      line_item_2.variant.product.product_type.update(name: "kit")
+      product_1 = line_item_1.variant.product
+      product_1.update_column(:product_type_id, kit_product_type.id)
+      product_2 = line_item_2.variant.product
+      product_2.update_column(:product_type_id, kit_product_type.id)
       si_1.set_count_on_hand(1)
       si_2.set_count_on_hand(1)
       line_item_1.reload
@@ -419,13 +422,16 @@ describe Spree::OrderInventory, type: :model do
     let(:kit_product_type) { create(:product_type_kit) }
 
     before do
+      line_item.variant.product.update_column(:product_type_id, kit_product_type.id)
+
       container_part_product = container_part.variant.product
       container_part_product.product_type = kit_product_type
       container_part_product.save
 
       WebMock.stub_request(:get, "https://www.gov.uk/bank-holidays.json")
         .to_return(status: 200, body: "", headers: {})
-      line_item.variant.product.product_type.update_column(:name, "kit")
+
+
       parts.first.update_column(:quantity, 3)
       line_item.update_column(:quantity, 3)
       subject.send(:inventory_units).delete_all

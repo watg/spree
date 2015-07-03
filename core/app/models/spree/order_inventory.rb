@@ -19,7 +19,7 @@ module Spree
     #
     def verify
       return unless order.completed? || @shipment.present?
-      process_line_item(@line_item) unless kit
+      process_line_item(@line_item) unless @line_item.container?
       process_line_item_parts
     end
 
@@ -110,15 +110,11 @@ module Spree
     end
 
     def parts
-      @parts ||= line_item.parts.stock_tracking
+      @parts ||= line_item.parts.reject(&:container?)
     end
 
     def inventory_units
       line_item.inventory_units
-    end
-
-    def kit
-      line_item.variant.product.product_type.kit?
     end
 
     def remove_quantity_from_shipment(quantity, variant = nil)
