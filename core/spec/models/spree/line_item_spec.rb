@@ -225,6 +225,7 @@ describe Spree::LineItem, type: :model do
     let(:parts) { (1..2).map { create(:line_item_part) } }
 
     before do
+      line_item.product.product_type.update_column(:container, true)
       line_item.parts << parts
       order.create_proposed_shipments
       order.finalize!
