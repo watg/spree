@@ -51,7 +51,7 @@ module Spree
 
       # from spree product assembly
       context "order shares variant as individual and within bundle" do
-        let(:line_item) { order.line_items.first }
+        let!(:line_item) { order.line_items.first }
         let(:second_line_item) { create(:line_item, order: order) }
         let!(:parts) { (1..3).map { create(:part, line_item: line_item) } }
 
@@ -61,6 +61,7 @@ module Spree
 
         before do
           expect(bundle_variant).to_not eql common_product
+          line_item.product.product_type.update_column(:container, true)
 
           # at this point the parts table should contain 4 items (3 parts + 1 common product)
           create(:part, line_item: line_item, variant: common_product)
@@ -96,6 +97,8 @@ module Spree
         let(:bundle_variant) { line_item.variant }
 
         let(:bundle_item_quantity) { order.find_line_item_by_variant(bundle_variant).quantity }
+
+        before { allow(line_item).to receive(:container?).and_return(true) }
 
         it "calculates items quantity properly" do
           expect(bundle_item_quantity).to eq 1
