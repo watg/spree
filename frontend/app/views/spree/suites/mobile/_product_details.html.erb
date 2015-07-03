@@ -1,7 +1,7 @@
 <h5 class="reveal-title">Description</h5>
 <p class="reveal-content"><%= product_presenter.clean_description %></p>
 
-<% unless product_presenter.parts? %>
+<% if selected_tab_presenter.ready_made? && !product_presenter.parts? %>
   <h5 class="reveal-title suppliers">
     <%#= cdn_image_tag("static/made-by-the-gang.png", alt: "", width: "40", height: "40") %>
     #madeunique

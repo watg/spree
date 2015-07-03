@@ -32,9 +32,9 @@
     .tab {
       min-height: emCalc(40px);
       h2 {
-        font-size: emCalc(20px);
+        font-size: emCalc(16px);
         a {
-          padding: emCalc(15px) 0 !important;
+          padding: emCalc(20px) 0 !important;
           margin: 0 !important;
           span {
             padding: 0;
@@ -61,7 +61,7 @@
           border-right: 20px solid transparent;
           border-top: 20px solid #ffffff;
           left: 40%;
-          top: 53px;
+          top: 52px;
           z-index: 99;
         }
         .arrow-border {
@@ -72,7 +72,7 @@
           border-right: 18px solid transparent;
           border-top: 18px solid #cccccc;
           left: 41%;
-          top: 56px;
+          top: 55px;
           z-index: 98;
         }
       }
@@ -89,7 +89,7 @@
           border-right: 20px solid transparent;
           border-top: 20px solid #ffffff;
           left: 40%;
-          top: 53px;
+          top: 52px;
           z-index: 99;
         }
           .arrow-border {
@@ -100,7 +100,7 @@
             border-right: 18px solid transparent;
             border-top: 18px solid #cccccc;
             left: 41%;
-            top: 56px;
+            top: 55px;
             z-index: 98;
           }
       }
@@ -175,7 +175,7 @@
     width: 100%;
     display: block;
     text-align: center;
-    margin: 0 0 30px;
+    margin: 0 0 25px;
     background-color: #f7f7f7;
     padding: 0;
     font-size: 1.250em;
@@ -187,6 +187,7 @@
   .level {
     font-size: 1.250em;
     margin-top: 5px;
+    margin-bottom: -10px;
     text-align: center;
     span:before {
       content: "";
@@ -210,11 +211,13 @@
       margin-right: -0.9375em;
       position: fixed;
       top: 0;
+      left: 0;
+      right: 0;
       text-align: center !Important;
       background-color: #ffffff;
       border-bottom: 1px dotted #333;
       padding: 15px 0;
-      width: 92%;
+      width: 100%;
       margin-bottom: 94px;
     }
   }
@@ -302,7 +305,7 @@
         font-size: 1em;
       }
       .variant-option-values {
-        margin-bottom: 30px;
+        // margin-bottom: 30px;
         font-size: 1em;
 
         &.size li,
@@ -478,7 +481,7 @@
         text-decoration: none;
       }
       input {
-        padding-left: 12px;
+        padding-left: 0; // looks wrong on chrome - but apparntly correct on phone
         padding-right: 0;
         padding-bottom: 10px;
         margin-bottom: 0 !important;
@@ -488,7 +491,7 @@
         width: 35px;
       }
       .add-to-cart-button-container {
-        margin: 20px 0 50px;
+        margin: 30px 0 50px;
         .add-to-cart-button {
           margin: 0;
           width: 100%;

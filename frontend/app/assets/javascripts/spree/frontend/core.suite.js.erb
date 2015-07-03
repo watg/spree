@@ -416,21 +416,18 @@ core.suite.minusQuantity = function() {
 /* Cross Sales Widget */
 core.suite.startCrossSales = function() {
   $(".owl-carousel").owlCarousel({
+    slideSpeed : 300,
+    pagination: true,
+    paginationSpeed : 400,
+    lazyLoad: true,
     navigation: true,
     loop:true,
     items: 3,
-    rewindNav: false,
-    responsive:true,
-    responsiveRefreshRate: 200,
     navigationText: [
-      '<%= cdn_prefix %>' + '/static/free-knitting-patterns/free-patterns-arrow-left-thin.jpg',
-      '<%= cdn_prefix %>' + '/static/free-knitting-patterns/free-patterns-arrow-right-thin.jpg'
+      "<img src='https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/free-knitting-patterns/free-patterns-arrow-left-thin.jpg'>",
+      "<img src='https://s3-eu-west-1.amazonaws.com/assetswoolandthegangcom/static/free-knitting-patterns/free-patterns-arrow-right-thin.jpg'>"
     ],
     responsive:{
-      0:{
-        items:2,
-        nav:true
-      },
       900:{
         items:3,
         nav:true
