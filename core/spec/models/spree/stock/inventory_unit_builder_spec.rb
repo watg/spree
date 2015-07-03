@@ -42,6 +42,10 @@ module Spree
               line_item_2.product.product_type.update_column(:container, true)
             end
 
+            it "builds the inventory units as pending" do
+              expect(subject.units.map(&:pending).uniq).to eq [true]
+            end
+
             it "returns an inventory unit for each quantity for the order's line items" do
               units = subject.units
               expect(units.count).to eq 5
@@ -63,6 +67,10 @@ module Spree
               line_item_2.parts << part2
               line_item_2.parts << part3
               allow(part3).to receive(:container?).and_return true
+            end
+
+            it "builds the inventory units as pending" do
+              expect(subject.units.map(&:pending).uniq).to eq [true]
             end
 
             it "returns an inventory unit for each quantity for the order's line items" do
