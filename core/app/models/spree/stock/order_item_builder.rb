@@ -33,7 +33,7 @@ module Spree::Stock
     end
 
     def build_item(line_item)
-      Item.new(line_item.variant_id, line_item, line_item.quantity) unless kit(line_item)
+      Item.new(line_item.variant_id, line_item, line_item.quantity) unless line_item.container?
     end
 
     def build_items_from_parts(parts)
@@ -46,8 +46,5 @@ module Spree::Stock
       line_item.parts.reject(&:container?)
     end
 
-    def kit(line_item)
-      line_item.variant.product.product_type.kit?
-    end
   end
 end

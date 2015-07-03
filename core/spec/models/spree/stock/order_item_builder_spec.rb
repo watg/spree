@@ -12,7 +12,7 @@ module Spree
       let(:extra_line_item) { Spree::LineItem.new(variant: extra_variant, quantity: 1) }
       let(:line_items) {[]}
 
-      let(:part1) { Spree::LineItemPart.new(variant_id: variant_id, quantity: 3) }
+      let(:part1) { Spree::LineItemPart.new(variant_id: variant.id, quantity: 3) }
       let(:part2) { Spree::LineItemPart.new(variant_id: extra_variant.id, quantity: 4) }
       let!(:container_part) { Spree::LineItemPart.new(variant_id: extra_variant.id, quantity: 10) }
 
@@ -77,7 +77,8 @@ module Spree
       end
 
       context "kit" do
-        before { line_item.variant.product.product_type.update_column(:name, "kit") }
+        let(:kit_product_type) { create(:product_type_kit) }
+        before { line_item.variant.product.update_column(:product_type_id, kit_product_type.id) }
 
         context do
           it "builds items for parts only" do
