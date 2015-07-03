@@ -1,37 +1,55 @@
 module Spree
   module Stock
     class InventoryUnitBuilder
+      attr_reader :line_items, :order
+
       def initialize(order)
-        @order = order
+        @order      = order
+        @line_items = order.line_items
       end
 
       def units
-        built_units = @order.line_items.flat_map do |line_item|
-          line_item.quantity.times.map do |i|
-            parts = line_item.parts.reject(&:container?)
-            if parts.any?
-              parts.map do |part|
-                part.quantity.times.map do |p|
-                @order.inventory_units.build(
-                  pending: true,
-                  variant: part.variant,
-                  line_item: line_item,
-                  line_item_part: part
-                )
-                end
-              end
-            else
-              @order.inventory_units.build(
-                pending: true,
-                variant: line_item.variant,
-                line_item: line_item
-              )
-            end
-          end
-        end
-        built_units.flatten
+        line_items
+          .flat_map{ |line_item| build(line_item) }
+          .flatten
       end
 
+      private
+
+      def build(line_item)
+        line_item.quantity.times.map do |i|
+          [build_units_for_line_item(line_item), build_units_for_parts(line_item)].compact.flatten
+        end
+      end
+
+      def parts(line_item)
+        line_item.parts.reject(&:container?)
+      end
+
+      def build_units_for_parts(line_item)
+        parts(line_item).map do |part|
+          part.quantity.times.map do
+            build_unit(variant: part.variant, line_item: line_item, line_item_part: part)
+          end
+        end
+      end
+
+      def build_units_for_line_item(line_item)
+        build_unit(variant: line_item.variant, line_item: line_item) unless line_item.container?
+      end
+
+      def build_unit(opts)
+        opts = default_opts.merge(opts)
+        inventory_units.build(opts)
+      end
+
+      def inventory_units
+        order.inventory_units
+      end
+
+      def default_opts
+        { pending: true }
+      end
     end
   end
 end
