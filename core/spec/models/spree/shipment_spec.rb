@@ -816,9 +816,10 @@ describe Spree::Shipment, type: :model do
   end
 
   context "set up new inventory units" do
-    let(:line_item) { mock_model(Spree::LineItem, variant: variant, inventory_units: []) }
-    let(:line_item_part) { mock_model(Spree::LineItemPart, line_item: line_item, variant: variant) }
-    let(:variant) { double("Variant", id: 9) }
+    let(:line_item)           { mock_model(Spree::LineItem, variant: variant, inventory_units: []) }
+    let(:line_item_part)      { mock_model(Spree::LineItemPart, line_item_part_opts) }
+    let(:line_item_part_opts) { { line_item: line_item, variant: variant, inventory_units: [] } }
+    let(:variant)             { double("Variant", id: 9) }
 
     let(:inventory_units) { double }
     let(:supplier) { create(:supplier) }
