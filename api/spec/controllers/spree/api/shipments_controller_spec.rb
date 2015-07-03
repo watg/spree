@@ -116,6 +116,7 @@ describe Spree::Api::ShipmentsController, :type => :controller do
         #let(:variant) { create(:variant, amount: 60.00) }
         let!(:variant_part)  { create(:base_variant, prices: [price]) }
         let(:part) { variant_part.product }
+        let(:product_type) { create(:product_type_kit) }
 
         let!(:variant) { create(:base_variant) }
         let!(:product) { variant.product }
@@ -125,7 +126,7 @@ describe Spree::Api::ShipmentsController, :type => :controller do
         let(:adp_opts) { { part: part,  product: product, count: 2 } }
         let!(:adv) { create(:product_part_variant, product_part: adp, variant: variant_part) }
 
-        before { product.product_type.update_column(:name, "kit") }
+        before { product.update_column(:product_type_id, product_type.id ) }
 
         it 'can add and remove quantity' do
           assembly_selection = {adp.id.to_s => variant_part.id}
@@ -145,12 +146,13 @@ describe Spree::Api::ShipmentsController, :type => :controller do
         let(:variant) { create(:variant, amount: 60.00) }
         let(:product) { variant.product }
         let!(:required_part1) { create(:variant) }
+        let(:product_type) { create(:product_type_kit) }
         #let(:part1) { create(:variant) }
 
         before do
           # TODO: make old kits work with options
           #  product.add_part(part1, 1, true)
-          product.product_type.update_column(:name, "kit")
+          product.update_column(:product_type_id, product_type.id ) 
           product.add_part(required_part1, 2, false)
         end
 
@@ -208,14 +210,14 @@ describe Spree::Api::ShipmentsController, :type => :controller do
 
         context "kit" do
           let(:variant_part) { create(:base_variant) }
+          let(:product_type) { create(:product_type_kit) }
 
           before do
             line_item.update_column(:quantity,  2)
-            line_item.variant.product.product_type.update_column(:name, "kit")
+            line_item.variant.product.update_column(:product_type_id, product_type.id )
             Spree::InventoryUnit.delete_all
             create(:line_item_part, optional: false, line_item: line_item, variant: variant_part, quantity: 3)
             create(:line_item_part, optional: true, line_item: line_item, variant: variant_part, quantity: 1)
-            line_item.save
           end
 
           it 'adds a line_item to a shipment' do
