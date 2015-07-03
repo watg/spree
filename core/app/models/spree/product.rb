@@ -46,6 +46,7 @@ module Spree
 
     belongs_to :marketing_type, class_name: 'Spree::MarketingType'
     belongs_to :product_type, class_name: 'Spree::ProductType'
+    delegate :container?, to: :product_type
 
     validates :product_group_id, :presence => true
     validates :marketing_type_id, :presence => true
@@ -101,6 +102,8 @@ module Spree
     delegate_belongs_to :master, :cost_price
 
     delegate :images, to: :master, prefix: true
+
+
     alias_method :images, :master_images
 
     has_many :variant_images, -> { order(:position) }, source: :images, through: :variants_including_master
@@ -116,7 +119,6 @@ module Spree
     after_save :save_master
     after_save :run_touch_callbacks, if: :anything_changed?
     after_save :reset_nested_changes
-#    after_touch :touch_taxons
 
     before_validation :normalize_slug, on: :update
     before_validation :validate_master

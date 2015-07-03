@@ -54,7 +54,7 @@ describe Spree::ProductType do
     end
 
     context "has an assembly definition" do
-      before { allow_any_instance_of(described_class).to receive_messages is_assembly?: true }
+      before { allow_any_instance_of(described_class).to receive_messages container?: true }
 
       it "is false" do
         expect(subject.requires_supplier?).to be false

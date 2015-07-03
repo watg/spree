@@ -229,7 +229,7 @@ describe Spree::UpdateVariantService do
       context "when an assembly" do
 
         before do
-          variant.product.product_type.is_assembly = true
+          variant.product.product_type.container = true
         end
 
         it "sets defaults" do

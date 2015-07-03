@@ -40,12 +40,8 @@ module Spree
 
     private
 
-    # TODO: this should be maybe in the product type?
     def set_product_type_defaults(variant)
-      if variant.product.product_type.is_assembly?
-        variant.in_stock_cache = true
-        variant.track_inventory = false
-      end
+      variant.track_inventory = false if variant.product.container?
     end
 
     # Allows us to use the price trait

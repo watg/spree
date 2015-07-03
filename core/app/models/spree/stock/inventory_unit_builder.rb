@@ -8,7 +8,7 @@ module Spree
       def units
         built_units = @order.line_items.flat_map do |line_item|
           line_item.quantity.times.map do |i|
-            parts = line_item.parts.stock_tracking
+            parts = line_item.parts.reject(&:container?)
             if parts.any?
               parts.map do |part|
                 part.quantity.times.map do |p|

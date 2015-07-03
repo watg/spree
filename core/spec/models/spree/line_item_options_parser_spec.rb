@@ -60,8 +60,7 @@ describe Spree::LineItemOptionsParser do
             quantity: adp.count,
             optional: adp.optional,
             price: price.amount,
-            currency: "USD",
-            container: false
+            currency: "USD"
           )
         ]
       end
@@ -193,8 +192,7 @@ describe Spree::LineItemOptionsParser do
             quantity: 2,
             optional: adp.optional,
             price: price.part_amount,
-            currency: "USD",
-            container: true)
+            currency: "USD")
 
           lip2 = Spree::LineItemPart.new(
             product_part_id: other_part.id,
@@ -202,8 +200,7 @@ describe Spree::LineItemOptionsParser do
             quantity: 1,
             optional: false,
             price: BigDecimal.new("0.00"),
-            currency: "USD",
-            container: false)
+            currency: "USD")
 
           lip3 = Spree::LineItemPart.new(
             product_part_id: adp.id,
@@ -212,8 +209,7 @@ describe Spree::LineItemOptionsParser do
             optional: adp.optional,
             price: part_product_price.part_amount,
             currency: "USD",
-            parent_part: lip1, # the id refers to the parent container index
-            container: false)
+            parent_part: lip1) # the id refers to the parent container index
 
           lip4 = Spree::LineItemPart.new(
             product_part_id: adp.id,
@@ -222,8 +218,7 @@ describe Spree::LineItemOptionsParser do
             optional: adp.optional,
             price: part_variant_price.part_amount,
             currency: "USD",
-            parent_part: lip1, # the id refers to the parent container index
-            container: false)
+            parent_part: lip1) # the id refers to the parent container index
 
           parts = subject.dynamic_kit_parts(variant_assembly.reload,
                                             adp.id.to_s =>        variant_part.id.to_s,
@@ -247,8 +242,7 @@ describe Spree::LineItemOptionsParser do
             quantity: 2,
             optional: false,
             price: required_part1_price.part_amount,
-            currency: "USD",
-            container: false
+            currency: "USD"
           )
         ]
       end
@@ -261,8 +255,7 @@ describe Spree::LineItemOptionsParser do
             quantity: 1,
             optional: true,
             price: part1_price.part_amount,
-            currency: "USD",
-            container: false
+            currency: "USD"
           )
         ]
       end

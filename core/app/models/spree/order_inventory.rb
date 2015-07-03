@@ -26,9 +26,9 @@ module Spree
     end
 
     def process_line_item_parts(line_item, shipment)
-      parts = line_item.parts.stock_tracking
+      parts = line_item.parts.reject(&:container?)
 
-      old_quantity = (inventory_units.size == 0) ? 0 : inventory_units.size / parts.sum(:quantity)
+      old_quantity = (inventory_units.size == 0) ? 0 : inventory_units.size / parts.sum(&:quantity)
       quantity_change = line_item.quantity - old_quantity
 
       if quantity_change > 0

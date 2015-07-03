@@ -374,9 +374,14 @@ describe Spree::OrderInventory, type: :model do
     let(:line_item) { order.line_items.first }
     let(:bundle) { line_item.product }
     let(:parts) { (1..3).map { create(:part, line_item: line_item) } }
-    let!(:container_part) { create(:part, quantity: 2, line_item: line_item, container: true) }
+    let(:container_part) { create(:part, quantity: 2, line_item: line_item) }
+    let(:kit_product_type) { create(:product_type_kit) }
 
     before do
+      container_part_product = container_part.variant.product
+      container_part_product.product_type = kit_product_type
+      container_part_product.save
+
       WebMock.stub_request(:get, "https://www.gov.uk/bank-holidays.json")
         .to_return(status: 200, body: "", headers: {})
       parts.first.update_column(:quantity, 3)

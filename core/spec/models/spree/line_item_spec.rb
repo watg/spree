@@ -458,14 +458,19 @@ describe Spree::LineItem, type: :model do
       let(:container) { create(:variant) }
       let(:part1) { create(:variant) }
       let(:part2) { create(:variant) }
+      let!(:product_type) { build_stubbed(:product_type) }
+      let!(:kit_product_type) { build_stubbed(:product_type_kit) }
       let(:parts) do
         [
-          Spree::LineItemPart.new(variant_id: part1.id, optional: false, quantity: 2, price: 1),
-          Spree::LineItemPart.new(variant_id: part2.id, optional: true, quantity: 1, price: 1)
+          Spree::LineItemPart.new(variant: part1, optional: false, quantity: 2, price: 1),
+          Spree::LineItemPart.new(variant: part2, optional: true, quantity: 1, price: 1)
         ]
       end
 
       before do
+        container.product.product_type = kit_product_type
+        part1.product.product_type = product_type
+        part2.product.product_type = product_type
         create(:product_type_gift_card)
         container.stock_items.update_all count_on_hand: 50, backorderable: false, supplier_id: supplier.id
         part1.stock_items.update_all count_on_hand: 10, backorderable: false, supplier_id: supplier.id

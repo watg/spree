@@ -1,6 +1,6 @@
 <% shipment.line_items.sort_by(&:created_at).each do |item| %>
   <% line_item_units = item.inventory_units.select { |iu| iu.shipment == shipment } %>
-  <% denominator = item.parts.any? ? item.line_item_parts.stock_tracking.sum(:quantity) : 1 %>
+  <% denominator = item.parts.any? ? item.line_item_parts.reject(&:container?).sum(&:quantity) : 1 %>
   <% quantity = line_item_units.count / denominator %>
   <tr class="stock-item" data-item-quantity="<%= quantity %>">
     <td class="item-type"> <%= item.variant.product.marketing_type.name %> </td>

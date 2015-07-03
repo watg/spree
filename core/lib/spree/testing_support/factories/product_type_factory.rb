@@ -4,11 +4,11 @@ FactoryGirl.define do
     is_digital false
     is_operational false
     is_promotable true
-    is_assembly false
+    container false
 
     factory :product_type_kit do
       name 'kit'
-      is_assembly true
+      container true
     end
 
     factory :product_type_gift_card do

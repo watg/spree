@@ -52,19 +52,16 @@ module Spree
 
         if selected_part_variant.required_parts_for_display.any?
 
-          # Adding the container. It may be optional.
           parent = Spree::LineItemPart.new(
             product_part_id: product_part.id,
             variant_id:                  selected_part_variant.id,
             quantity:                    product_part.count,
             optional:                    product_part.optional,
             price:                       part_price_amount(selected_part_variant),
-            currency:                    currency,
-            container:                   true
+            currency:                    currency
           )
           parts << parent
 
-          # Adding the parts of the container. They are always required.
           selected_part_variant.required_parts_for_display.each do |sub_part|
             child = Spree::LineItemPart.new(
               product_part_id: product_part.id,

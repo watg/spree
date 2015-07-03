@@ -88,8 +88,12 @@ feature 'adding product to cart', inaccessible: true do
 
       let!(:static_kit_part_for_product) { create(:base_variant, name: 'static kit part product') }
       let!(:static_kit_part_for_variant) { create(:base_variant, name: 'static kit part variant') }
+      let(:kit_product_type) { create(:product_type_kit) }
 
       before do
+        colour_variant_one.product.update_column(:product_type_id, kit_product_type.id)
+        colour_variant_two.product.update_column(:product_type_id, kit_product_type.id)
+
         colour_variant_one.product.add_part(static_kit_part_for_product,2, false)
         colour_variant_one.add_part(static_kit_part_for_variant,1, false)
 
@@ -144,7 +148,6 @@ feature 'adding product to cart', inaccessible: true do
         expect(parts[0].container?).to be false
         expect(parts[1].container?).to be false
         expect(parts[2].container?).to be true
-    #     # sleep 100
       end
     end
   end

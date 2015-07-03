@@ -1,12 +1,11 @@
 module Spree
   class ProductType < ActiveRecord::Base
-
     TYPES = {
-      normal:    'normal',
-      gift_card: 'gift_card',
-      kit:       'kit',
-      pattern:   'pattern',
-      packaging: 'packaging'
+      normal:    "normal",
+      gift_card: "gift_card",
+      kit:       "kit",
+      pattern:   "pattern",
+      packaging: "packaging"
     }
 
     scope :physical, -> { where(is_digital: false) }
@@ -32,9 +31,15 @@ module Spree
     end
 
     def requires_supplier?
-      !is_operational? and
-      !is_digital? and
-      !is_assembly?
+      !is_operational? &&
+        !is_digital? &&
+        !container?
     end
+
+    # this method is depricated, please remove 
+    def is_assembly?
+      container?
+    end
+
   end
 end

@@ -34,8 +34,19 @@ module Spree
         context "with parts" do
 
           let(:variant) { create(:variant) }
+          let(:variant2) { create(:variant) }
           let!(:part1) { create(:part, variant: variant, quantity: 2, line_item: line_item_2) }
           let!(:part2) { create(:part, variant: variant, quantity: 1, line_item: line_item_2) }
+          let!(:part3) { create(:part, variant: variant2, quantity: 1, line_item: line_item_2) }
+
+          before do
+            line_item_2.parts << part1
+            line_item_2.parts << part2
+            line_item_2.parts << part3
+            allow(part1).to receive(:container?).and_return false
+            allow(part2).to receive(:container?).and_return false
+            allow(part3).to receive(:container?).and_return true
+          end
 
           it "returns an inventory unit for each quantity for the order's line items" do
             units = subject.units
@@ -49,7 +60,6 @@ module Spree
             expect(units.select { |u| u.variant == variant }.size).to eq 6
             expect(units.select { |u| u.line_item_part == part1 }.size).to eq 4
             expect(units.select { |u| u.line_item_part == part2 }.size).to eq 2
-
           end
 
         end
