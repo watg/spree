@@ -266,13 +266,23 @@
                 attributes[:payments_attributes].first[:payment_method_id] = credit_card.payment_method_id
                 attributes[:payments_attributes].first.delete :source_attributes
               end
+              valid_payment_method = true
+              payment_atttributes = params[:order].try(:[], :payments_attributes)
+              if payment_atttributes.try(:all?) { |pa| pa.try(:[], :payment_method_id) }
+                valid_payment_method = payment_atttributes.all? do |pa|
+                  available_payment_methods.map(&:id).include? pa[:payment_method_id].to_i
+                end
+              end
 
               if attributes[:payments_attributes]
                 attributes[:payments_attributes].first[:request_env] = request_env
               end
-
-              success = self.update_attributes(attributes)
-              set_shipments_cost if self.shipments.any?
+              if valid_payment_method
+                success = update_attributes(attributes)
+                set_shipments_cost if shipments.any?
+              else
+                errors.add(:base, "Not a valid payment method")
+              end
             end
 
             @updating_params = nil
