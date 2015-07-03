@@ -236,7 +236,6 @@ describe Spree::UpdateVariantService do
           outcome = subject.run(variant: variant, details: valid_params, prices: prices)
           expect(outcome.valid?).to be true
           expect(variant.track_inventory).to be false
-          expect(variant.in_stock_cache).to be true
         end
 
       end

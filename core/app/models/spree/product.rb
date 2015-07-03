@@ -103,7 +103,6 @@ module Spree
 
     delegate :images, to: :master, prefix: true
 
-
     alias_method :images, :master_images
 
     has_many :variant_images, -> { order(:position) }, source: :images, through: :variants_including_master
