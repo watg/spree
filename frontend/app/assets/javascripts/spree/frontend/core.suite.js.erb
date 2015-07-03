@@ -314,7 +314,9 @@ core.suite.readyMobileAjaxCarSpinner = function() {
     $('#cart-ajax-message .flash').fadeOut('slow');
     cart_button.toggleClass('inverted')
     cart_button.blur();
-    cart_button.text('Adding to bag ...');
+    cart_button.text('');
+    cart_button.toggleClass('waiting-message');
+    cart_button.append('Adding to bag <span>.</span><span>.</span><span>.</span>');
   });
 
   form.on('ajax:complete',function(xhr, status){
@@ -322,6 +324,7 @@ core.suite.readyMobileAjaxCarSpinner = function() {
       cart_button.prop('disabled', false);
       cart_button.toggleClass('active')
       cart_button.toggleClass('inverted')
+      cart_button.toggleClass('wating-message');
       cart_button.text('Add to Bag');
 
 

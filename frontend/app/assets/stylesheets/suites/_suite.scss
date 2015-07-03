@@ -1170,27 +1170,25 @@
       .waiting-message {
         display: inline-block;
         margin-left: 5px;
-        h5 {
-          span {
-            -webkit-animation: blink;
-            -webkit-animation-duration: 1.4s;
-            -webkit-animation-iteration-count: infinite;
-            -webkit-animation-fill-mode: both;
-            animation: blink;
-            animation-duration: 1.4s;
-            animation-iteration-count: infinite;
-            animation-fill-mode: both;
-          }
+        span {
+          -webkit-animation: blink;
+          -webkit-animation-duration: 1.4s;
+          -webkit-animation-iteration-count: infinite;
+          -webkit-animation-fill-mode: both;
+          animation: blink;
+          animation-duration: 1.4s;
+          animation-iteration-count: infinite;
+          animation-fill-mode: both;
+        }
 
-          span:nth-child(2) {
-            -webkit-animation-delay: 0.2s;
-            animation-delay: 0.2s;
-          }
+        span:nth-child(2) {
+          -webkit-animation-delay: 0.2s;
+          animation-delay: 0.2s;
+        }
 
-          span:nth-child(3) {
-            -webkit-animation-delay: 0.4s;
-            animation-delay: 0.4s;
-          }
+        span:nth-child(3) {
+          -webkit-animation-delay: 0.4s;
+          animation-delay: 0.4s;
         }
       }
       .add-to-cart-button {
