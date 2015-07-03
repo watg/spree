@@ -31,7 +31,7 @@ module Spree
       order("coalesce(spree_shipments.shipped_at, spree_shipments.created_at) desc", id: :desc)
     }
 
-    # shipment state machine 
+    # shipment state machine
     # (see http://github.com/pluginaweek/state_machine/tree/master for details)
     state_machine initial: :pending, use_transactions: false do
       event :ready do
@@ -306,6 +306,11 @@ module Spree
       unless line_item.inventory_units.include?(inventory_unit)
         line_item.inventory_units << inventory_unit
       end
+
+      if line_item_part && !line_item_part.inventory_units.include?(inventory_unit)
+        line_item_part.inventory_units << inventory_unit
+      end
+
       inventory_unit
     end
 

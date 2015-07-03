@@ -237,7 +237,7 @@ module Spree
         end
       end
 
-      # This will trigger inventory units to be deleted via update_inventory 
+      # This will trigger inventory units to be deleted via update_inventory
       def set_quantity_to_zero
         self.quantity = 0 unless self.quantity == 0
       end
@@ -247,7 +247,7 @@ module Spree
       #line_item in a nested model callback, hence by the time changed? is evaluated it is false
       # if (changed? || target_shipment.present?)
         if self.order.has_checkout_step?("delivery")
-          Spree::OrderInventory.new(self.order, self).verify(target_shipment)
+          Spree::OrderInventory.new(self.order, self, target_shipment).verify
         end
       # end
       end

@@ -1,10 +1,11 @@
 require "spec_helper"
 
 describe Spree::OrderInventory, type: :model do
-  let(:order) { create :completed_order_with_totals }
-  let(:line_item) { order.line_items.first }
+  let!(:order)     { create :completed_order_with_totals }
+  let!(:line_item) { order.line_items.first }
+  let(:shipment)   { order.shipments.first }
 
-  subject { described_class.new(order, line_item) }
+  subject { described_class.new(order, line_item, shipment) }
 
   context "when order is missing inventory units" do
     before { line_item.update_column(:quantity, 2) }
@@ -111,7 +112,7 @@ describe Spree::OrderInventory, type: :model do
 
       it "creates only on hand inventory units" do
         line_item = order.contents.add(variant, 1, {})
-        subject.verify(shipment)
+        subject.verify
 
         units = shipment.inventory_units_for(line_item.variant)
         expect(units.count).to eq 1
@@ -121,7 +122,7 @@ describe Spree::OrderInventory, type: :model do
   end
 
   describe "#verify" do
-    context "ready to wear item with parts" do
+    context "parts" do
       let!(:part)       { create(:part, line_item: line_item) }
       let!(:part2)      { create(:part, line_item: line_item) }
       let(:units)       { line_item.inventory_units }
@@ -130,7 +131,7 @@ describe Spree::OrderInventory, type: :model do
 
       before            { Spree::InventoryUnit.delete_all }
 
-      it "creates inventory units for ready to wear item & its parts" do
+      it "creates inventory units for line item & its parts" do
         subject.verify
         expect(units.map(&:variant_id)).to match_array(variant_ids)
         expect(units.map(&:state)).to match_array(states)
@@ -141,6 +142,18 @@ describe Spree::OrderInventory, type: :model do
         subject.verify
         expect(units.map(&:variant_id)).to match_array(variant_ids)
         expect(units.map(&:state)).to match_array(states)
+      end
+    end
+
+    context "no parts" do
+      let(:units) { line_item.inventory_units }
+
+      before      { Spree::InventoryUnit.delete_all }
+
+      it "create inventory unit for line item" do
+        subject.verify
+        expect(units.map(&:variant_id)).to eq([line_item.variant.id])
+        expect(units.map(&:state)).to eq(["backordered"])
       end
     end
   end
@@ -421,7 +434,7 @@ describe Spree::OrderInventory, type: :model do
     context "inventory units count" do
       it "calculates the proper value for all physical parts (without the line item itself or containers)" do
         expected_units_count = line_item.quantity * parts.to_a.sum(&:quantity)
-        subject.verify(shipment)
+        subject.verify
         expect(subject.send(:inventory_units).count).to eql(expected_units_count)
       end
     end
@@ -430,7 +443,7 @@ describe Spree::OrderInventory, type: :model do
       let(:inventory_units) { subject.send(:inventory_units) }
 
       it "is nil for non assembly items" do
-        subject.verify(shipment)
+        subject.verify
         units_1 = (inventory_units).select { |u| u.line_item_part == parts[0] }
         units_2 = (inventory_units).select { |u| u.line_item_part == parts[1] }
         units_3 = (inventory_units).select { |u| u.line_item_part == parts[2] }
@@ -445,18 +458,19 @@ describe Spree::OrderInventory, type: :model do
     context "verify line item units" do
       let(:original_units_count) { subject.send(:inventory_units).count }
 
-      before do
-        subject.verify(shipment)
-        subject.instance_variable_set("@quantity_change", nil)
-      end
+      before { subject.verify }
 
       context "quantity increases" do
-        before { subject.line_item.quantity += 1 }
+        before do
+          line_item.quantity += 1
+        end
+
+        let(:expected_units_count) { 20 }
+        let(:order_inventory)      { described_class.new(order, line_item, shipment) }
 
         it "inserts new inventory units for every bundle part with disregard to the line item itself" do
-          expected_units_count = original_units_count + parts.to_a.sum(&:quantity)
-          subject.verify(shipment)
-          expect(subject.send(:inventory_units).count).to eql(expected_units_count)
+          order_inventory.verify
+          expect(order_inventory.send(:inventory_units).count).to eql(expected_units_count)
         end
       end
 
@@ -465,7 +479,7 @@ describe Spree::OrderInventory, type: :model do
 
         it "remove inventory units for every bundle part with disregard to the line item itself" do
           expected_units_count = original_units_count - parts.to_a.sum(&:quantity)
-          subject.verify(shipment)
+          subject.verify
           expect(subject.send(:inventory_units).count).to eql(expected_units_count)
         end
       end
@@ -474,7 +488,7 @@ describe Spree::OrderInventory, type: :model do
         before { subject.line_item.quantity = 0 }
 
         it "remove inventory all units for every bundle part" do
-          subject.verify(shipment)
+          subject.verify
           expect(subject.send(:inventory_units).count).to eql(0)
         end
       end
@@ -482,14 +496,10 @@ describe Spree::OrderInventory, type: :model do
   end
 
   context "same variant within bundle and as regular product" do
-    let(:order) { Spree::Order.create }
-
-    subject { described_class.new(order, order.line_items.first) }
     let(:contents) { Spree::OrderContents.new(order) }
-    let(:guitar) { create(:variant) }
-    let(:bass) { create(:variant) }
-
-    let(:bundle) { create(:product) }
+    let(:guitar)   { create(:variant) }
+    let(:bass)     { create(:variant) }
+    let(:bundle)   { create(:product) }
     let(:line_item_parts) do
       [
         Spree::LineItemPart.new(

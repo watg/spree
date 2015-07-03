@@ -1,11 +1,12 @@
 module Spree
   class OrderInventory
-    attr_accessor :order, :line_item, :variant
+    attr_accessor :order, :line_item, :shipment, :variant
 
-    def initialize(order, line_item)
-      @order = order
-      @line_item = line_item
-      @variant = line_item.variant
+    def initialize(order, line_item, shipment = nil)
+      @order           = order
+      @line_item       = line_item
+      @shipment        = shipment
+      @variant         = line_item.variant
     end
 
     # Only verify inventory for completed orders (as orders in frontend checkout
@@ -16,30 +17,20 @@ module Spree
     # restock items if the order is completed. That is so because stock items
     # are always unstocked when the order is completed through +shipment.finalize+
     #
-    def verify(shipment = nil)
-      return unless order.completed? || shipment.present?
-      @shipment        = shipment
-      @quantity_change = nil
-      process_line_item(@line_item, shipment) unless kit
-      process_line_item_parts(shipment)
+    def verify
+      return unless order.completed? || @shipment.present?
+      process_line_item(@line_item) unless kit
+      process_line_item_parts
     end
 
     private
 
-    def process_line_item(line_item, shipment)
-      if total_quantity_change > 0
+    def process_line_item(line_item)
+      if line_item_quantity_change > 0
         add_to_shipment(line_item_quantity_change, nil, line_item.variant)
-      elsif total_quantity_change < 0
-        remove_quantity_from_shipment(shipment, line_item_quantity_change * -1, line_item.variant)
+      elsif line_item_quantity_change < 0
+        remove_quantity_from_shipment(line_item_quantity_change * -1, line_item.variant)
       end
-    end
-
-    def total_quantity_change
-      total_quantity - inventory_units.size
-    end
-
-    def total_quantity
-      (line_item.parts.count + 1) * line_item.quantity
     end
 
     def line_item_quantity_change
@@ -47,10 +38,10 @@ module Spree
     end
 
     def line_item_inventory_units
-      inventory_units.select{ |x| x.variant_id == line_item.variant_id }
+      inventory_units.select{ |iu| iu.variant_id == line_item.variant_id }
     end
 
-    def add_to_shipment(quantity, line_item_part = nil, variant = nil)
+    def add_to_shipment(quantity, line_item_part = nil, variant)
       inventory = []
       if variant.should_track_inventory?
         on_hand, backordered, awaiting_feed = fill_status(variant, quantity)
@@ -107,33 +98,19 @@ module Spree
       end
     end
 
-    def process_line_item_parts(shipment)
-      return unless parts.any?
-      if quantity_change > 0
-        parts.each(&method(:add_parts_to_shipment))
-      elsif quantity_change < 0
-        parts.each do |part|
-          quantity_of_parts = part.quantity * quantity_change
-          remove_quantity_from_shipment(shipment, quantity_of_parts * -1, part.variant)
+    def process_line_item_parts
+      parts.each do |part|
+        quantity_of_parts = (part.quantity * line_item.quantity) - part.inventory_units.size
+        if quantity_of_parts > 0
+          add_to_shipment(quantity_of_parts, part, part.variant)
+        elsif quantity_of_parts < 0
+          remove_quantity_from_shipment(quantity_of_parts * -1, part.variant)
         end
       end
     end
 
-    def add_parts_to_shipment(part)
-      quantity_of_parts = part.quantity * quantity_change
-      add_to_shipment(quantity_of_parts, part, part.variant)
-    end
-
     def parts
       @parts ||= line_item.parts.stock_tracking
-    end
-
-    def quantity_change
-      @quantity_change ||= line_item.quantity - old_quantity
-    end
-
-    def old_quantity
-      (inventory_units.size == 0) ? 0 : inventory_units.size / parts.sum(:quantity)
     end
 
     def inventory_units
@@ -144,7 +121,7 @@ module Spree
       line_item.variant.product.product_type.kit?
     end
 
-    def remove_quantity_from_shipment(shipment, quantity, variant = nil)
+    def remove_quantity_from_shipment(quantity, variant = nil)
       if shipment.present?
         remove_from_shipment(shipment, quantity, variant)
       else
