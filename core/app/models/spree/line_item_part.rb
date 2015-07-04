@@ -11,7 +11,7 @@ class Spree::LineItemPart < ActiveRecord::Base
 
   has_many :inventory_units, inverse_of: :line_item_part
 
-  has_one :product, through: :variant
+  has_one :product, through: :variant, autosave: false
 
   scope :optional, lambda { where(optional: true) }
   scope :required, lambda { where(optional: false) }

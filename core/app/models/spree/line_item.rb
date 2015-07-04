@@ -9,7 +9,7 @@ module Spree
     belongs_to :suite, class_name: "Spree::Suite"
     belongs_to :suite_tab, class_name: "Spree::SuiteTab"
 
-    has_one :product, through: :variant
+    has_one :product, through: :variant, autosave: false
 
     has_many :adjustments, as: :adjustable, dependent: :destroy
     has_many :inventory_units, inverse_of: :line_item
