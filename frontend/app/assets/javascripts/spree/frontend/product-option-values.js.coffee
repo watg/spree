@@ -62,9 +62,8 @@ core.suite.readyVariantOptions = (entity) ->
       set_prices(entity, variant_details['id'], variant_details['normal_price'], variant_details['sale_price'], variant_details['in_sale'])
       if core.isMobileWidthOrLess() == true
         # if option values had the class langauge when is was clicked - dont toggle
-        if entity.find('.options-value.language')
-          return false
-        toggle_carousel_images(entity, variant_details['id'])
+        if entity.find('.option-value.language').length <= 0
+          toggle_carousel_images(entity, variant_details['id'])
       else
         toggle_images(entity, variant_details['id'])
 
