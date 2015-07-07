@@ -26,6 +26,10 @@ body.homepage {
   }
   a {
     outline: 0;
+
+    &.text-link {
+      text-decoration: underline;
+    }
   }
 }
 
