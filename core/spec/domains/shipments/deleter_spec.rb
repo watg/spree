@@ -1,3 +1,4 @@
+require "spec_helper"
 describe Shipments::Deleter do
   let!(:shipment) { mock_model(Spree::Shipment, shipping_rates: []) }
   let!(:shipping_rate_1) { mock_model(Spree::ShippingRate, selected: true, adjustments: []) }

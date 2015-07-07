@@ -8,12 +8,13 @@ class FakesController < ApplicationController
 end
 
 describe Spree::Core::ControllerHelpers::SSL, type: :controller do
-
+  before(:all) do
+    Rails.cache.clear # avoid parallel_tests from given false fails
+  end
   describe 'redirect to http' do
     before { Spree::Config[:redirect_https_to_http] = true  }
     after  { Spree::Config[:redirect_https_to_http] = false }
     before { request.env['HTTPS'] = 'on' }
-
     describe 'allowed two actions' do
       controller(FakesController) do
         ssl_allowed :index

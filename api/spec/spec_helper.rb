@@ -59,5 +59,9 @@ RSpec.configure do |config|
     Spree::Api::Config[:requires_authentication] = true
   end
 
+  config.after :each do
+    Timecop.return
+  end
+
   config.use_transactional_fixtures = true
 end

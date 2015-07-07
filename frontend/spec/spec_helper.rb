@@ -129,8 +129,13 @@ RSpec.configure do |config|
   end
 
   config.before(:suite) do
+    DatabaseCleaner.strategy = :truncation
     DatabaseCleaner.clean
     Alchemy::Seeder.seed!
+  end
+
+  config.after :each do
+    Timecop.return
   end
 
   config.after(:each, :type => :feature) do |example|

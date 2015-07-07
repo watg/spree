@@ -78,6 +78,14 @@ RSpec.configure do |config|
     DatabaseCleaner.clean
   end
 
+  config.after :each do
+    Timecop.return
+  end
+  
+  config.before(:all) do
+    Rails.cache.clear
+  end
+
   config.include FactoryGirl::Syntax::Methods
   config.include Spree::TestingSupport::Preferences
 end

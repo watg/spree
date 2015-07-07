@@ -112,6 +112,10 @@ RSpec.configure do |config|
     reset_spree_preferences
   end
 
+  config.after :each do
+    Timecop.return
+  end
+
   config.after(:each) do
     # Ensure js requests finish processing before advancing to the next test
     wait_for_ajax if RSpec.current_example.metadata[:js]

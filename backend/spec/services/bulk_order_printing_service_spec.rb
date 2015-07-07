@@ -15,7 +15,7 @@ describe Spree::BulkOrderPrintingService do
       expect(outcome.result[0,4]).to eq('%PDF')
 
       job = @unprinted_invoices.first.invoice_print_job
-      expect(job.reload.print_time).to be_within(1.second).of(Time.now)
+      expect(job.reload.print_time).to be_within(5.second).of(Time.now)
       expect(job.job_type).to eq("invoice")
       expect(job.orders).to match_array(@unprinted_invoices)
     end
