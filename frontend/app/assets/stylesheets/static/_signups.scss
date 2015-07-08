@@ -50,6 +50,7 @@
       text-align: center;
       strong {
         font-family: $watg-font;
+        text-transform: uppercase;
       }
     }
   }
@@ -129,17 +130,34 @@
       text-align: center;
       text-transform: uppercase;
     }
+    p.thanks {
+      font-size: 1em;
+    }
+    p.thanks a {
+      text-decoration: underline;
+    }
   }
   .terms {
     h4 {
       font-size: emCalc(15px);
-      text-transform: uppercase;
+      text-transform: none;
       text-align: center;
       font-family: $watg-font-secondary-light !important;
     }
   }
 }
 
+.competition.mobile {
+  h1 {
+    padding: 30px 0;
+    font-size: emCalc(25px);
+  }
+  h2 {
+    padding-top: 10px;
+    font-size: emCalc(20px);
+  }
+
+}
 // T&C pages
 .terms-and-conditions {
   .wrapper-competitions {
