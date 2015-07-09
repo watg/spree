@@ -34,7 +34,7 @@
 //= require core.navigation
 //= require core.checkout
 //= require core.search
-
+//= require core.rakuten_tracking_pixel
 
 //= require spree/frontend
 //= require spree/frontend/checkout
