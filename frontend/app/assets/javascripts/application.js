@@ -26,6 +26,7 @@
 //= require lib/jquery.slimscroll.js
 //= require lib/jquery.browser.js
 //= require lib/jquery.awesomecomplete.js
+//= require lib/jquery.doubletaptogo
 
 //= require common
 //= require core

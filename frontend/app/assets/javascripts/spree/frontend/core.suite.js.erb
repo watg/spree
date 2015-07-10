@@ -11,6 +11,7 @@ var readySuite = function() {
   if (core.isMobileWidthOrLess() === true) {
     core.suite.readyMobileProductCarousel();
     core.suite.readyMobileQuantityButtons();
+    core.suite.readySelectorDoubleTap();
   }
 
   core.suite.setScrollPosition();
@@ -467,6 +468,10 @@ core.suite.readyAssemblyItemNames = function() {
     e.stopPropagation();
     $(this).prev().click();
   });
+}
+// FIX SAFARI DOUBLE TAP PROBLEM
+core.suite.readySelectorDoubleTap = function (){
+  $('.cart-form li *').doubleTapToGo();
 }
 
 // Make menu and image list items exactly the same height
