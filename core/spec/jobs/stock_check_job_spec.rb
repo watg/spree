@@ -1,6 +1,56 @@
 require 'spec_helper'
 
 describe Spree::StockCheckJob do
+  describe 'ready to wear product with parts' do
+    subject              { Spree::StockCheckJob.new(variant) }
+    let(:variant)        { create(:master_variant, in_stock_cache: true) }
+    let(:product)        { variant.product }
+    let(:part)           { create(:product) }
+    let(:part2)          { create(:product) }
+    let(:part_variant)   { create(:master_variant, product: part, in_stock_cache: true) }
+    let(:part2_variant)  { create(:master_variant, product: part2, in_stock_cache: true) }
+    let(:ppv)            { create(:product_part_variant, ppv_opts) }
+    let(:ppv_opts)       { { variant: part_variant, product_part: product.product_parts.first } }
+    let(:ppv2)           { create(:product_part_variant, ppv2_opts) }
+    let(:ppv2_opts)      { { variant: part2_variant, product_part: product.product_parts.last } }
+
+    before do
+      variant.product.parts = [part, part2]
+      product.product_parts.first.product_part_variants = [ppv]
+      product.product_parts.last.product_part_variants = [ppv2]
+    end
+
+    context 'variant is out of stock' do
+      before { expect(variant).to receive(:can_supply?).and_return(false) }
+
+      it 'updates the variants stock cache' do
+        subject.perform
+        expect(variant.in_stock_cache).to be false
+      end
+
+      it 'blows the suite tab cache' do
+        expect(Spree::SuiteTabCacheRebuilder).to receive(:rebuild_from_product).with(product)
+        subject.perform
+      end
+    end
+
+    context 'required part is out of stock' do
+      subject              { Spree::StockCheckJob.new(part_variant) }
+      let(:part_variant)   { create(:master_variant, product: part, in_stock_cache: false) }
+
+      before               { expect(part_variant).to receive(:can_supply?).and_return(false) }
+
+      it 'updates the variants stock cache' do
+        subject.perform
+        expect(variant.reload.in_stock_cache).to be false
+      end
+
+      it 'blows the suite tab cache' do
+        expect(Spree::SuiteTabCacheRebuilder).to receive(:rebuild_from_product).with(product)
+        subject.perform
+      end
+    end
+  end
 
   describe "variant, which is not part of any kit" do
     let(:variant_not_part) {create(:variant, in_stock_cache: true, updated_at: 1.day.ago)}
@@ -229,11 +279,10 @@ describe Spree::StockCheckJob do
     end
 
     context "kit in_stock" do
+      subject   { Spree::StockCheckJob.new(part) }
+      let(:kit) { create(:base_variant, in_stock_cache: true) }
 
-      let(:kit) {create(:base_variant, in_stock_cache: true)}
-      subject { Spree::StockCheckJob.new(part) }
       context "with all required parts in stock" do
-
         it "Does not alter the in_stock_cache" do
           expect(kit.in_stock_cache).to be_truthy
           subject.perform
@@ -244,11 +293,10 @@ describe Spree::StockCheckJob do
           expect(subject).to_not receive(:rebuild_suite_tab_cache).with(kit.product)
           subject.perform
         end
-
       end
 
       context "with one required part out of stock" do
-        let(:another_part) {create(:base_variant, in_stock_cache: false)}
+        let(:another_part) { create(:base_variant, in_stock_cache: false) }
 
         before do
           allow(another_part).to receive(:can_supply?).and_return false
@@ -286,7 +334,7 @@ describe Spree::StockCheckJob do
       end
 
       context "with one required part going out of stock" do
-        let(:part) {create(:base_variant, in_stock_cache: true)}
+        let(:part) { create(:base_variant, in_stock_cache: true) }
 
         before do
           allow(part).to receive(:can_supply?).and_return false
@@ -307,11 +355,10 @@ describe Spree::StockCheckJob do
     end
 
     context "kit out of stock" do
-      let(:kit) {create(:base_variant, in_stock_cache: false)}
-      subject { Spree::StockCheckJob.new(part) }
+      subject   { Spree::StockCheckJob.new(part) }
+      let(:kit) { create(:base_variant, in_stock_cache: false) }
 
       context "with all required parts in stock" do
-
         it "sets the kit to in stock" do
           expect(kit.in_stock_cache).to be_falsey
           subject.perform

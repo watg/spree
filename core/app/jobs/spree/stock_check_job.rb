@@ -11,7 +11,7 @@ module Spree
 
     def perform
       if dynamic_assembly?
-        adjust_dynamic_assembly
+        adjust_dynamic_assembly_and_parts
       elsif static_assembly?
         adjust_static_assembly
       else
@@ -45,8 +45,21 @@ module Spree
       adjust_in_stock_cache(out_of_stock)
     end
 
-    def adjust_dynamic_assembly
-      adjust_in_stock_cache(out_of_stock)
+    def adjust_dynamic_assembly_and_parts
+      in_stock = (can_supply? && parts_in_stock? )
+      adjust_in_stock_cache(!in_stock)
+    end
+
+    def can_supply?
+      kit? || variant.can_supply?
+    end
+
+    def kit?
+      variant.product.product_type.kit?
+    end
+
+    def parts_in_stock?
+      [*out_of_stock].empty?
     end
 
     def out_of_stock
