@@ -20,32 +20,32 @@ describe Spree::StockCheckJob do
       product.product_parts.last.product_part_variants = [ppv2]
     end
 
-    context 'variant is out of stock' do
+    context "variant is out of stock" do
       before { expect(variant).to receive(:can_supply?).and_return(false) }
 
-      it 'updates the variants stock cache' do
+      it "updates the variants stock cache" do
         subject.perform
         expect(variant.in_stock_cache).to be false
       end
 
-      it 'blows the suite tab cache' do
+      it "blows the suite tab cache" do
         expect(Spree::SuiteTabCacheRebuilder).to receive(:rebuild_from_product).with(product)
         subject.perform
       end
     end
 
-    context 'required part is out of stock' do
+    context "required part is out of stock" do
       subject              { Spree::StockCheckJob.new(part_variant) }
       let(:part_variant)   { create(:master_variant, product: part, in_stock_cache: false) }
 
       before               { expect(part_variant).to receive(:can_supply?).and_return(false) }
 
-      it 'updates the variants stock cache' do
+      it "updates the variants stock cache" do
         subject.perform
         expect(variant.reload.in_stock_cache).to be false
       end
 
-      it 'blows the suite tab cache' do
+      it "blows the suite tab cache" do
         expect(Spree::SuiteTabCacheRebuilder).to receive(:rebuild_from_product).with(product)
         subject.perform
       end
