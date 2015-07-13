@@ -17,7 +17,10 @@ describe Spree::StockCheckJob do
     let!(:adv)           { create(:product_part_variant, adv_opts) }
     let(:adv_opts)       { { product_part: adp, variant: pv } }
 
-    before               { variant.product.master =  variant }
+    before do
+      product.master = variant
+      variant.product.product_type.name = "kit"
+    end
 
     describe "stock check for the the Assembly Definition variant e.g. Kit itself" do
       subject  { klass.new(variant) }

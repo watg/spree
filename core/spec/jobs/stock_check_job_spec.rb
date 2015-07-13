@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::StockCheckJob do
-  describe 'ready to wear product with parts' do
+  describe "ready to wear product with parts" do
     subject              { Spree::StockCheckJob.new(variant) }
     let(:variant)        { create(:master_variant, in_stock_cache: true) }
     let(:product)        { variant.product }

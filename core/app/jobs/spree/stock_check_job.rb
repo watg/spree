@@ -46,7 +46,7 @@ module Spree
     end
 
     def adjust_dynamic_assembly_and_parts
-      in_stock = (can_supply? && parts_in_stock? )
+      in_stock = (can_supply? && parts_in_stock?)
       adjust_in_stock_cache(!in_stock)
     end
 
