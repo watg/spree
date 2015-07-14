@@ -1,11 +1,15 @@
 <% present(selected_tab_presenter.product, @context) do |product_presenter| %>
   <% present(product_presenter.sale_variant_or_first_variant_or_master, @context) do |variant_presenter| %>
 
-    <% if product_presenter.parts? %>
+    <% if product_presenter.kit_with_parts? %>
       <div class="displayable-kit-entity row active">
-
+    <% elsif product_presenter.parts? %>
+      <div class="displayable-customizable-entity row active"
+           data-option-values="<%= product_presenter.option_types_and_values.to_json %>"
+           data-tree="<%= product_presenter.variant_tree.to_json  %>"
+           data-option-type-order="<%= product_presenter.option_type_order.to_json %>"
+           data-variant-option-values="<%= product_presenter.variant_option_values.to_json %>">
     <% else %>
-
       <div class="displayable-entity row active"
            data-option-values="<%= product_presenter.option_types_and_values.to_json %>"
            data-tree="<%= product_presenter.variant_tree.to_json  %>"

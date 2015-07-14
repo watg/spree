@@ -90,6 +90,10 @@ module Spree
       product_parts.any?
     end
 
+    def kit_with_parts?
+      product.product_type.kit? && product_parts.any?
+    end
+
     def product_parts_images
       @product_parts_images ||= product.product_parts_images.with_target(target)
     end

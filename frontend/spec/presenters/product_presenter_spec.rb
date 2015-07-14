@@ -77,6 +77,28 @@ describe Spree::ProductPresenter do
     end
   end
 
+  describe "#kit_with_parts?" do
+    let(:product_type) { build_stubbed(:product_type_kit) }
+
+    context "with a kit with parts" do
+      before do
+        allow(product).to receive(:product_parts).and_return([double(:product_part)])
+        allow(product).to receive(:product_type).and_return(product_type)
+      end
+
+      it { expect(subject.kit_with_parts?).to be_truthy }
+    end
+
+    context "with a kit with parts" do
+      before do
+        allow(product).to receive(:product_parts).and_return([])
+        allow(product).to receive(:product_type).and_return(product_type)
+      end
+
+      it { expect(subject.kit_with_parts?).to be_falsey }
+    end
+  end
+
   describe "#product_parts" do
     it "returns the product_parts" do
       expect(product).to receive(:product_parts)
