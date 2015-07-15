@@ -1,14 +1,11 @@
 # provides a presenter for the rakuten tracking pixel
 class RakutenConversionPixelPresenter
-  MID = 40_554 # provided by rakuten
-
   def initialize(order)
     @order = order
   end
 
   def default_rakuten_params
-    { mid:      mid,
-      ord:      order_number,
+    { ord:      order_number,
       skulist:  sku_list,
       qlist:    quantity_list,
       amtlist:  amount_list,
@@ -29,10 +26,6 @@ class RakutenConversionPixelPresenter
     line_items_by_variant.keys
   end
 
-  def mid
-    MID
-  end
-
   def order_number
     order.number
   end
@@ -47,11 +40,7 @@ class RakutenConversionPixelPresenter
 
   def amount_list
     # BAD CODE ALERT, THIS SHOULD BE CHANGED AFTER DAVID COME BACK 14-07-2015
-    if line_items_by_variant.all?{|_k, v| v.all?{ |li| li.pre_tax_amount > 0 || li.price == li.pre_tax_amount } }
-      line_items_by_variant.map{ |_k, v| (v.sum(&:pre_tax_amount) * 100).to_i }.join("|")
-    else
-      line_items_by_variant.map{ |_k, v| (v.sum{ |li| li.price * li.quantity } * 100).to_i }.join("|")
-    end
+    line_items_by_variant.map{ |_k, v| (v.sum{ |li| calculate_pre_tax_amount(li) }).to_i }.join("|")
   end
 
   def currency
@@ -60,5 +49,11 @@ class RakutenConversionPixelPresenter
 
   def name_list
     line_items_by_variant.map{ |_k, v| URI.escape(v.first.product.name) }.join("|")
+  end
+
+  private
+
+  def calculate_pre_tax_amount(li)
+    (li.price - li.adjustments.tax.sum(:amount)) * li.quantity * 100
   end
 end

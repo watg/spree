@@ -20,8 +20,7 @@ describe RakutenConversionPixelPresenter do
     let(:line_item_2) { create(:line_item, variant: kit_2, quantity: 4) }
 
     let(:expected_params) do
-      { mid:      40_554,
-        ord:      order.number,
+      { ord:      order.number,
         skulist:  variant.sku,
         qlist:    "5",
         amtlist:  "2000",
