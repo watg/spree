@@ -1,9 +1,9 @@
 module Spree
   class PinterestService < ActiveInteraction::Base
     # product page api
-    # http://0.0.0.0:3000/api/pinterest/?url=http://0.0.0.0:3000/shop/items/zion-lion-men/made-by-the-gang/879
+    # http://127.0.0.1:3000/api/pinterest/?url=http://127.0.0.1:3000/shop/items/zion-lion-men/made-by-the-gang/879
     # suite api
-    # http://0.0.0.0:3000/api/pinterest/?url=http://0.0.0.0:3000/product/zion-lion-men/made-by-the-gang/879
+    # http://127.0.0.1:3000/api/pinterest/?url=http://127.0.0.1:3000/product/zion-lion-men/made-by-the-gang/879
 
     string :url
 
