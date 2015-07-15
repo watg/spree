@@ -3,10 +3,9 @@ core.suite.readyKitVariantOptions = (entity) ->
     event.preventDefault()
     option_value = $(this)
     selected_presentation = option_value.data('presentation')
-
     option_values = option_value.closest('.variant-option-values')
     product_variants = option_values.closest('.product-variants')
-
+    part_id = product_variants.data('adp-id')
     # If selected type value is unavailable, then return false
     if option_value.hasClass('unavailable')
       return false
@@ -35,23 +34,16 @@ core.suite.readyKitVariantOptions = (entity) ->
 
     # Walk the tree to get a variant id
     tree = product_variants.data('tree')
-    selected_option_values = product_variants.find('.option-value.selected').each ->
-      selected_type = $(this).data('type')
-      selected_value = $(this).data('value')
-      if selected_type of tree
-        if selected_value of tree[selected_type]
-         tree = tree[selected_type][selected_value]
+    selected_option_value = product_variants.find('.option-value.selected')
+    variant_id = selected_option_value.data('variant-id')
 
-    part_id = product_variants.data('adp-id')
-    if 'variant' of tree
-      variant = tree['variant']
-
-      # Set the variant_id
-      product_variants.find('.selected-parts').val(variant['id'])
+    if variant_id of tree
+      variant = tree[variant_id]
+      # Set the variant_id - adds optional part to params
+      product_variants.find('.selected-parts').val(variant_id)
 
       # Set the adjustments on the parts
       product_variants.data('adjustment', variant['part_price'])
-
       if variant['image_url']
         $('.part-image-' + part_id).css('background-image', 'url(' + variant['image_url'] + ')')
 

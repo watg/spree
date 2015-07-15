@@ -45,12 +45,12 @@ describe Spree::VariantOptions, type: :model do
   context "multiples types and values" do
 
     let!(:size)     { create(:option_type, name: 'size', presentation: 'Size', position: 1 )}
-    let!(:big)      { create(:option_value, name: 'big', presentation: 'Big', option_type: size, position: 0) }
-    let!(:small)    { create(:option_value, name: 'small', presentation: 'Small', option_type: size, position: 1) }
+    let!(:big)      { create(:option_value, name: 'big', presentation: 'Big', option_type: size, position: 1) }
+    let!(:small)    { create(:option_value, name: 'small', presentation: 'Small', option_type: size, position: 2) }
 
     let!(:colour)   { create(:option_type, name: 'colour', presentation: 'Colour', position: 2 )}
-    let!(:pink)     { create(:option_value, name: 'pink', presentation: 'Pink', option_type: colour, position: 0) }
-    let!(:blue)     { create(:option_value, name: 'blue', presentation: 'Blue', option_type: colour, position: 1) }
+    let!(:pink)     { create(:option_value, name: 'pink', presentation: 'Pink', option_type: colour, position: 1) }
+    let!(:blue)     { create(:option_value, name: 'blue', presentation: 'Blue', option_type: colour, position: 2) }
 
     let!(:language) { create(:option_type, name: 'language', presentation: 'Langauge', position: 3 )}
     let!(:french)   { create(:option_value, name: 'french', presentation: 'French', option_type: language, position: 0) }
@@ -263,7 +263,7 @@ describe Spree::VariantOptions, type: :model do
 
     end
 
-    describe "#simple_variant_tree" do
+    describe "#optin_value_simple_tree" do
 
       let!(:image) { create(:image) }
 
@@ -271,8 +271,8 @@ describe Spree::VariantOptions, type: :model do
         variant_in_stock1.images << image
       end
 
-      it "should return targeted variant_options_tree_for that are in stock " do
-        tree = subject.simple_tree
+      it "should return targeted variant_options_tree composed of option values and varaints" do
+        tree = subject.option_value_simple_tree
         expect(tree["size"]["small"]["colour"]["pink"]["variant"]["in_stock"]).to be true
         expect(tree["size"]["small"]["colour"]["blue"]["variant"]["in_stock"]).to be true
         expect(tree["size"]["big"]["colour"]["pink"]["variant"]["in_stock"]).to be true
@@ -284,6 +284,19 @@ describe Spree::VariantOptions, type: :model do
         expect(tree["size"]["small"]["colour"]["pink"]["variant"]["image_url"]).to eq image_url
       end
 
+    end
+
+    describe "#variant_simple_tree" do
+      it "should targeted variant_options_tree composed of variants" do
+        tree = subject.variant_simple_tree
+        expect(tree).to be_kind_of Hash
+
+        variant = tree.first
+        expect(variant).to be_kind_of Array
+
+        expect(variant[0]).to eq(variants.first.id)
+        expect(variant[1]["number"]).to eq(variants.first.number)
+      end
     end
 
 
@@ -303,7 +316,7 @@ describe Spree::VariantOptions, type: :model do
 
       describe "tree" do
         it "returns the tree scoped by just the type" do
-          tree = subject.simple_tree
+          tree = subject.option_value_simple_tree
           expect(tree["colour"]["pink"]["variant"]["in_stock"]).to be true
           expect(tree["colour"]["blue"]["variant"]["in_stock"]).to be true
           expect(tree["colour"]["pink"]["variant"]["number"]).to match(/#{variant_in_stock1.number}|#{variant_in_stock2.number}/)

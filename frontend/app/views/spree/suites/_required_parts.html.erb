@@ -7,25 +7,11 @@
   <% product_name = part_presenter.product_name %>
 
   <!-- render parts -->
-  <li class="product-variants required" data-tree="<%= part_presenter.simple_tree.to_json %>" data-adjustment="0"  data-quantity="<%=part_presenter.count%>" data-adp-id="<%= part_presenter.id %>">
-
-    <div class="part-description">
-      <span class="mobile-product-presentation"><%= part_presenter.presentation %></span>
-      <span class="color-value"></span>
-    </div>
-
-    <div class="part-thumbnail">
-      <span class="part-image part-image-<%= part_presenter.id %>"></span>
-    </div>
-
-    <div class="part-arrow">
-      <button>Open menu</button>
-    </div>
-
+  <li class="product-variants required" data-tree="<%= part_presenter.simple_tree.to_json %>" data-adjustment="0"  data-quantity="<%=part_presenter.count%>" data-adp-id="<%= part_presenter.id %>" data-varaint-id="<%= part_presenter.first_variant.id %>"><%= part_presenter.presentation %> <span class="color-value"></span>
     <div class="variant-options required <%= type.url_safe_name.downcase %>" data-type="<%= type.url_safe_name.downcase %>">
       <p><%= product_name %></p>
       <ul class="variant-option-values <%= type.url_safe_name.downcase %><% if type.url_safe_name.downcase == 'colour' %> slimscroll<% end %>">
-        <%= render 'variant_selector', part_presenter: part_presenter, option_values: option_values, type: type, product_name: product_name %>
+         <%= render 'variant_selector', part_presenter: part_presenter, option_values: option_values, type: type, product_name: product_name %>
       </ul>
     </div>
     <input class="selected-parts" type="hidden" name="options[parts][<%= part_presenter.id %>]" value="" />
