@@ -21,12 +21,12 @@ class RakutenConversionPixelPresenter
 
   attr_reader :order
 
-  def line_items
+  def line_items_by_variant
     order.line_items.sort_by(&:variant_id).group_by(&:variant_id)
   end
 
   def variant_ids
-    line_items.keys
+    line_items_by_variant.keys
   end
 
   def mid
@@ -42,11 +42,16 @@ class RakutenConversionPixelPresenter
   end
 
   def quantity_list
-    line_items.map{ |_k, v| v.sum(&:quantity) }.join("|")
+    line_items_by_variant.map{ |_k, v| v.sum(&:quantity) }.join("|")
   end
 
   def amount_list
-    line_items.map{ |_k, v| (v.sum(&:pre_tax_amount) * 100).to_i }.join("|")
+    # BAD CODE ALERT, THIS SHOULD BE CHANGED AFTER DAVID COME BACK 14-07-2015
+    if line_items_by_variant.all?{|_k, v| v.all?{ |li| li.pre_tax_amount > 0 || li.price == li.pre_tax_amount } }
+      line_items_by_variant.map{ |_k, v| (v.sum(&:pre_tax_amount) * 100).to_i }.join("|")
+    else
+      line_items_by_variant.map{ |_k, v| (v.sum{ |li| li.price * li.quantity } * 100).to_i }.join("|")
+    end
   end
 
   def currency
@@ -54,6 +59,6 @@ class RakutenConversionPixelPresenter
   end
 
   def name_list
-    line_items.map{ |_k, v| URI.escape(v.first.product.name) }.join("|")
+    line_items_by_variant.map{ |_k, v| URI.escape(v.first.product.name) }.join("|")
   end
 end
