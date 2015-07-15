@@ -2,6 +2,7 @@ module Spree
   module Admin
     class PersonalisationsController < ResourceController
       belongs_to 'spree/product', :find_by => :slug
+      before_action :set_product_tab_presenter
 
       def update_all
         @product = Spree::Product.find_by slug: params[:product_id]

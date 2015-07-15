@@ -2,6 +2,7 @@ module Spree
   module Admin
     class ProductPartsController < ResourceController
       belongs_to 'spree/product', :find_by => :slug
+      before_action :set_product_tab_presenter
       before_filter :permit_attributes, only: [:update_all]
 
       def index
