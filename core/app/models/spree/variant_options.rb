@@ -33,12 +33,12 @@ module Spree
 
     def variant_simple_tree
       variants.inject({}) do |hash, variant|
-        hash[variant.id] = create_variant_simple_tree(variant, part_price(variant_prices(variant)), variant_prices(variant), variant_image(variant))
+        hash[variant.id] = create_variant_simple_tree(variant, part_price(variant_prices(variant)), variant_image(variant))
         hash
       end
     end
 
-    def create_variant_simple_tree(variant, part_price, variant_prices, image)
+    def create_variant_simple_tree(variant, part_price, image)
       {
         "number"     => variant.number,
         "in_stock"   => variant.in_stock?,
