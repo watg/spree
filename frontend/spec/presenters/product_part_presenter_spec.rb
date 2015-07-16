@@ -88,7 +88,7 @@ describe Spree::ProductPartPresenter do
         array = subject.variant_option_objects
         struct = array.first
 
-        expect(struct).to be_kind_of Struct
+        expect(struct).to be_a(::VariantPartOptions)
         expect(struct.variant_id).to eq(variant.id)
         expect(struct.presentation).to eq(option_value.presentation)
         expect(struct.type).to eq(option_type.name)

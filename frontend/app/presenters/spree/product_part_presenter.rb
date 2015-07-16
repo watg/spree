@@ -31,40 +31,10 @@ module Spree
 
     ########### Variant option object methods ####################
 
-    Options = Struct.new(:variant_id,
-                         :presentation,
-                         :type,
-                         :name,
-                         :image,
-                         :product_image,
-                         :value,
-                         :classes)
-
     def variant_option_objects
       variants.map do |v|
-        value = v.option_values.detect { |ov| ov.option_type == displayable_option_type }
-        product_images = Spree::Image.where(viewable_id: v.id, viewable_type: "Spree::Variant")
-                         .sort_by(&:position)
-
-        create_variant_option_object(v, value, product_images)
+        ::VariantPartOptions.new(v, displayable_option_type)
       end
-    end
-
-    def create_variant_option_object(variant, value, product_images)
-      Options.new(
-        variant.id,
-        value.presentation,
-        value.option_type.url_safe_name,
-        value.name,
-        variant.part_image ? variant.part_image.attachment : value_image(value),
-        product_images.any? ? product_images.first.attachment.url(:mini) : nil,
-        value.url_safe_name,
-        ["option-value", value.url_safe_name, value.option_type.url_safe_name].join(" ")
-      )
-    end
-
-    def value_image(value)
-      value.image.url.include?("missing.png") ? nil : value.image
     end
 
     #### option value methods ####
