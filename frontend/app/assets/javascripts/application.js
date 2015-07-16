@@ -49,6 +49,9 @@
 //= require spree/frontend/core.suites-index
 //= require spree/frontend/core.payment
 
+//= require spree/frontend/product/kit_updater
+//= require spree/frontend/product/ready_made_updater
+
 //= require spree/frontend/product-option-values
 //= require spree/frontend/kit-option-values
 //= require spree/frontend/spree_paypal_express

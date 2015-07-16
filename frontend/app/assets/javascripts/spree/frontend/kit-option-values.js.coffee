@@ -1,57 +1,20 @@
 core.suite.readyKitVariantOptions = (entity) ->
   entity.find('.option-value').click (event)->
     event.preventDefault()
-    option_value = $(this)
-    selected_presentation = option_value.data('presentation')
-    option_values = option_value.closest('.variant-option-values')
-    product_variants = option_values.closest('.product-variants')
-    part_id = product_variants.data('adp-id')
-    # If selected type value is unavailable, then return false
-    if option_value.hasClass('unavailable')
+    kit_updater = new KitUpdater(entity, $(this))
+
+    if kit_updater.option_value.hasClass('unavailable')
       return false
 
-    # Show thumbs and change main image
-    thumbs = entity.find('ul.thumbnails li.tmb-product-parts')
-    thumbs.show()
-    thumb_href = thumbs.first().find('a').attr('href')
-    main_image = entity.find('.main-image')
-    main_image.find('img').attr('src', thumb_href)
-    main_image.find('a').attr('href', thumb_href)
+    kit_updater.showThumbs()
+    kit_updater.changeMainImage()
+    kit_updater.toogleSelect()
+    kit_updater.setOptionText()
 
-    # Ensure the option you selected clicked is selected and
-    # unselect all the other options at this level
-    option_values.find('.option-value').removeClass('selected')
-    option_value.closest('.variant-options').addClass('selected')
-    option_value.addClass('selected')
-
-    # Set the option value text
-    presentation_spans = product_variants.find('span:not(.optional)')
-    if core.isMobileWidthOrLess() == false
-      presentation_spans.eq(0).text(selected_presentation)
+    if kit_updater.validSelection()
+      kit_updater.selectOption()
     else
-      presentation_spans.not(".mobile-product-presentation")
-      .eq(0).text(selected_presentation)
-
-    # Walk the tree to get a variant id
-    tree = product_variants.data('tree')
-    selected_option_value = product_variants.find('.option-value.selected')
-    variant_id = selected_option_value.data('variant-id')
-
-    if variant_id of tree
-      variant = tree[variant_id]
-      # Set the variant_id - adds optional part to params
-      product_variants.find('.selected-parts').val(variant_id)
-
-      # Set the adjustments on the parts
-      product_variants.data('adjustment', variant['part_price'])
-      if variant['image_url']
-        $('.part-image-' + part_id).css('background-image', 'url(' + variant['image_url'] + ')')
-
-    else
-      $('.part-image-' + part_id).css('background-image', 'none')
-      selected_parts = product_variants.find('.selected-parts')
-      selected_parts.val(selected_parts.data('original-value'))
-      product_variants.data('adjustment', 0)
+      kit_updater.resetOption()
 
     entity.find(".price").trigger('recalculate')
     entity.find(".prices").trigger('update')
