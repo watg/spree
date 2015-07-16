@@ -32,18 +32,14 @@ module Spree
     end
 
     def variant_simple_tree
-      variants.each_with_object({}) do |variant, hash|
-        variant_prices = prices.select { |p| p.variant_id == variant.id }
-        variant_images = images.select { |i| i.viewable_id == variant.id }.sort_by(&:position)
-        image = variant_images.any? ? variant_images.first.attachment.url(:mini) : nil
-        part_price = part_price(variant_prices)
-
-        create_variant_simple_tree(hash, variant, part_price, variant_prices, image)
+      variants.inject({}) do |hash, variant|
+        hash[variant.id] = create_variant_simple_tree(variant, part_price(variant_prices(variant)), variant_prices(variant), variant_image(variant))
+        hash
       end
     end
 
-    def create_variant_simple_tree(hash, variant, part_price, variant_prices, image)
-      hash[variant.id] = {
+    def create_variant_simple_tree(variant, part_price, variant_prices, image)
+      {
         "number"     => variant.number,
         "in_stock"   => variant.in_stock?,
         "is_digital" => variant.digital?,
@@ -157,6 +153,18 @@ module Spree
         return @variant_stock_items[variant.id]
       end
       @variant_stock_items ||= stock_items.select { |s| s.variant_id == variant.id }
+    end
+
+    def variant_prices(variant)
+      prices.select { |p| p.variant_id == variant.id }
+    end
+
+    def variant_image(variant)
+      variant_images(variant).any? && variant_images(variant).first.attachment.url(:mini)
+    end
+
+    def variant_images(variant)
+      images.select{ |i| i.viewable_id == variant.id }.sort_by(&:position)
     end
 
     def part_price(variant_prices)

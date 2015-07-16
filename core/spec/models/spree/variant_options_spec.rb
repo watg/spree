@@ -43,14 +43,13 @@ describe Spree::VariantOptions, type: :model do
   end
 
   context "multiples types and values" do
-
     let!(:size)     { create(:option_type, name: 'size', presentation: 'Size', position: 1 )}
     let!(:big)      { create(:option_value, big_opts) }
     let(:big_opts)  { { name: "big", presentation: "Big", option_type: size, position: 1 } }
     let!(:small)    { create(:option_value, small_opts) }
     let(:small_opts){ { name: "small", presentation: "Small", option_type: size, position: 2 } }
 
-    let!(:colour)   { create(:option_type, name: "colour", presentation: "Colour", position: 2 ) }
+    let!(:colour)   { create(:option_type, name: "colour", presentation: "Colour", position: 2) }
     let!(:pink)     { create(:option_value, pink_opts) }
     let(:pink_opts) { { name: "pink", presentation: "Pink", option_type: colour, position: 1 } }
     let!(:blue)     { create(:option_value, blue_opts) }
@@ -263,11 +262,9 @@ describe Spree::VariantOptions, type: :model do
           variant_2 = tree["size"]["big"]["colour"]["pink"]["variant"]
           variant_2['is_digital'].should == false
         end
-
-
     end
 
-    describe "#optin_value_simple_tree" do
+    describe "#option_value_simple_tree" do
 
       let!(:image) { create(:image) }
 
@@ -291,6 +288,16 @@ describe Spree::VariantOptions, type: :model do
     end
 
     describe "#variant_simple_tree" do
+      let(:image)      { double(viewable_id: variant_in_stock1.id, position: 1, attachment: attachment) }
+      let(:attachment) { double(url: url) }
+      let(:url)        { %[www.test-hook.com] }
+      let(:image_opts) { { viewable_id: variants, viewable_type: "Spree::Variant" } }
+
+      before do
+        expect(Spree::Image).to receive(:where).with(image_opts).and_return([image])
+        allow_any_instance_of(Spree::Price).to receive(:in_subunit).and_return(999)
+      end
+
       it "should targeted variant_options_tree composed of variants" do
         tree = subject.variant_simple_tree
         expect(tree).to be_kind_of Hash
@@ -300,9 +307,10 @@ describe Spree::VariantOptions, type: :model do
 
         expect(variant[0]).to eq(variants.first.id)
         expect(variant[1]["number"]).to eq(variants.first.number)
+        expect(variant[1]["image_url"]).to eq(url)
+        expect(variant[1]["part_price"]).to eq(999)
       end
     end
-
 
     context "#option_type_order" do
 
