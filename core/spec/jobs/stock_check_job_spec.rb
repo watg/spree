@@ -15,6 +15,7 @@ describe Spree::StockCheckJob do
     let(:ppv2_opts)      { { variant: part2_variant, product_part: product.product_parts.last } }
 
     before do
+      product.master = variant
       variant.product.parts = [part, part2]
       product.product_parts.first.product_part_variants = [ppv]
       product.product_parts.last.product_part_variants = [ppv2]
