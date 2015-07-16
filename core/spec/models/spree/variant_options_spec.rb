@@ -45,16 +45,20 @@ describe Spree::VariantOptions, type: :model do
   context "multiples types and values" do
 
     let!(:size)     { create(:option_type, name: 'size', presentation: 'Size', position: 1 )}
-    let!(:big)      { create(:option_value, name: 'big', presentation: 'Big', option_type: size, position: 1) }
-    let!(:small)    { create(:option_value, name: 'small', presentation: 'Small', option_type: size, position: 2) }
+    let!(:big)      { create(:option_value, big_opts) }
+    let(:big_opts)  { { name: "big", presentation: "Big", option_type: size, position: 1 } }
+    let!(:small)    { create(:option_value, small_opts) }
+    let(:small_opts){ { name: "small", presentation: "Small", option_type: size, position: 2 } }
 
-    let!(:colour)   { create(:option_type, name: 'colour', presentation: 'Colour', position: 2 )}
-    let!(:pink)     { create(:option_value, name: 'pink', presentation: 'Pink', option_type: colour, position: 1) }
-    let!(:blue)     { create(:option_value, name: 'blue', presentation: 'Blue', option_type: colour, position: 2) }
+    let!(:colour)   { create(:option_type, name: "colour", presentation: "Colour", position: 2 ) }
+    let!(:pink)     { create(:option_value, pink_opts) }
+    let(:pink_opts) { { name: "pink", presentation: "Pink", option_type: colour, position: 1 } }
+    let!(:blue)     { create(:option_value, blue_opts) }
+    let(:blue_opts) { { name: "blue", presentation: "Blue", option_type: colour, position: 2 } }
 
     let!(:language) { create(:option_type, name: 'language', presentation: 'Langauge', position: 3 )}
     let!(:french)   { create(:option_value, name: 'french', presentation: 'French', option_type: language, position: 0) }
-    let!(:english)   { create(:option_value, name: 'english', presentation: 'English', option_type: language, position: 1) }
+    let!(:english)  { create(:option_value, name: 'english', presentation: 'English', option_type: language, position: 1) }
 
 
     let!(:variant_in_stock1)  { create(:variant_with_stock_items, product: product, option_values: [pink,small], amount: 19.99 ) }

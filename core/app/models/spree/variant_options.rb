@@ -36,17 +36,21 @@ module Spree
         variant_prices = prices.select { |p| p.variant_id == variant.id }
         variant_images = images.select { |i| i.viewable_id == variant.id }.sort_by(&:position)
         image = variant_images.any? ? variant_images.first.attachment.url(:mini) : nil
+        part_price = part_price(variant_prices)
 
-        hash[variant.id] = {
-          "number"     => variant.number,
-          "in_stock"   => variant.in_stock?,
-          "is_digital" => variant.digital?,
-          "part_price" => part_price(variant_prices),
-          "image_url"  => image
-        }
+        create_variant_simple_tree(hash, variant, part_price, variant_prices, image)
       end
     end
 
+    def create_variant_simple_tree(hash, variant, part_price, variant_prices, image)
+      hash[variant.id] = {
+        "number"     => variant.number,
+        "in_stock"   => variant.in_stock?,
+        "is_digital" => variant.digital?,
+        "part_price" => part_price,
+        "image_url"  => image
+      }
+    end
     # This does not need to be targetted as you can not have variants without
     # populating each of the option types
     def option_type_order
