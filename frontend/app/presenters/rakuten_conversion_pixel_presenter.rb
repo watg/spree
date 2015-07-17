@@ -54,6 +54,6 @@ class RakutenConversionPixelPresenter
   private
 
   def calculate_pre_tax_amount(li)
-    (li.price - li.adjustments.tax.sum(:amount)) * li.quantity * 100
+    (li.price * li.quantity - li.adjustments.tax.sum(:amount)) * 100
   end
 end
