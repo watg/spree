@@ -8,19 +8,20 @@ $(document).on("ready page:load", function() {
 core.RakutenTrackingPixel.persistMID = function() {
    var mid = core.RakutenTrackingPixel.getUrlParameter("mid");
     if(mid){
-      sessionStorage.setItem("rakuten_mid", mid);
+      $.cookie("rakuten_mid", mid, { path: "/" });
     }
 };
 
 core.RakutenTrackingPixel.insertTrackingImage = function(rakuten_params) {
   var base_url = "http://track.linksynergy.com/ep?",
-      mid = sessionStorage.rakuten_mid;
+      mid = $.cookie("rakuten_mid");
   if(mid) {
     rakuten_params.mid = mid;
     rakuten_params = jQuery.map(rakuten_params,function(v, k){
                         return k + "=" + v;
                      }).join("&");
     $( "body" ).append("<img src='" + base_url + rakuten_params + "'>");
+    $.removeCookie("rakuten_mid", { path: "/" });
   }
 };
 
