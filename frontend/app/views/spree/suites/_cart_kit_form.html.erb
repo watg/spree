@@ -1,6 +1,5 @@
 <div class="row row-assembly" data-ad-id="<%= product_presenter.id %>">
 	<div class="assembly-menus large-10 small-8 column">
-
     <ol>
       <% product_presenter.product_parts.each do |part| %>
         <% cache [part, product_presenter.currency, device] do %>
@@ -9,9 +8,8 @@
             <!--- if it is not optional -->
     			  <% if part_presenter.optional? %>
               <%= render 'optional_parts', part_presenter: part_presenter %>
-            <% else %>
-              <%= render 'no_optional_parts', part_presenter: part_presenter %>
-
+            <% else # optional %>
+              <%= render 'required_parts', part_presenter: part_presenter %>
             <% end %>
 
           <% end # part_presenter %>

@@ -1,0 +1,36 @@
+<% variants_hash = part_presenter.variant_option_objects.each do |obj| %>
+  <li>
+      <% if obj.image %>
+
+        <%= link_to '#',
+          class: obj.classes,
+          title: obj.presentation,
+          data: {
+            presentation: obj.presentation,
+            type: obj.type,
+            variant_id: obj.variant_id,
+            image_url: obj.image,
+            product_image_url: obj.product_image
+          },
+          data_obj: obj.name do %>
+            <%= image_tag(obj.image, :alt => obj.presentation) %>
+        <% end %>
+        <p class="assembly-name"><%= obj.presentation %></p>
+
+      <% else %>
+
+        <%= link_to content_tag(:span, obj.presentation),
+          '#',
+          class: obj.classes,
+          title: obj.presentation,
+          data: {
+            variant_id: obj.variant_id,
+            presentation: obj.presentation,
+            type: obj.type,
+            product_image_url: obj.product_image
+          }
+        %>
+      <% end %>
+
+  </li>
+<% end %>

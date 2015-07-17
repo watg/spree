@@ -1,4 +1,4 @@
-require "feature_helper"
+  require "feature_helper"
 
 
 feature 'adding product to cart', inaccessible: true do
@@ -55,8 +55,8 @@ feature 'adding product to cart', inaccessible: true do
         Capybara.ignore_hidden_elements = false
 
         expect(page).to have_content 'red'
-        expect(page).to have_css('a.option-value.red.colour', text: 'red')
-        page.find('a.option-value.red.colour', text: 'red').click
+        expect(page).to have_css("a.option-value.red.colour span", text: "red")
+        page.find("a.option-value.red.colour span", text: "red").click
         Capybara.ignore_hidden_elements = true
       end
 
@@ -117,8 +117,8 @@ feature 'adding product to cart', inaccessible: true do
 
           expect(page).to have_content 'blue'
           page.find('a.option-value.blue.colour')
-          expect(page).to have_css('a.option-value.blue.colour', visible: false, text: 'blue')
-          page.find('a.option-value.blue.colour', text: 'blue').click
+          expect(page).to have_css("a.option-value.blue.colour span", visible: false, text: "blue")
+          page.find("a.option-value.blue.colour span", text: "blue").click
           Capybara.ignore_hidden_elements = true
         end
         expect(page).to have_content('BLUE')
