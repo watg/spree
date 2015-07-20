@@ -1,34 +1,34 @@
 <div class="row row-assembly" data-ad-id="<%= product_presenter.id %>">
-	<div class="assembly-menus large-10 small-8 column">
+  <div class="assembly-menus large-10 small-8 column">
     <ol>
       <% product_presenter.product_parts.each do |part| %>
         <% cache [part, product_presenter.currency, device] do %>
           <% present(part, @context) do |part_presenter| %>
 
             <!--- if it is not optional -->
-    			  <% if part_presenter.optional? %>
+            <% if part_presenter.optional? %>
               <%= render 'optional_parts', part_presenter: part_presenter %>
             <% else # optional %>
               <%= render 'required_parts', part_presenter: part_presenter %>
             <% end %>
 
-          <% end %>
-        <% end %>
-      <% end %>
+          <% end # part_presenter %>
+        <% end # cache %>
+      <% end # each parts %>
     </ol>
 
     <%= render 'add_to_cart', product_presenter: product_presenter %>
 
-	</div>
-	<div class="assembly-images large-2 small-4 column">
-		<ul class="no-bullet">
+  </div>
+  <div class="assembly-images large-2 small-4 column">
+    <ul class="no-bullet">
       <% product_presenter.product_parts.each do |part| %>
         <% present(part, @context) do |part_presenter| %>
           <!-- we do not want to render the image place holder if it is mandotory -->
-			    <% next if !part_presenter.optional? and part_presenter.displayable_option_values.size == 1 %>
+          <% next if !part_presenter.optional? and part_presenter.displayable_option_values.size == 1 %>
           <li class="part-image-<%= part_presenter.id %>"></li>
-        <% end %>
-			<% end %>
-		</ul>
-	</div>
-</div>
+        <% end # part_presenter %>
+      <% end # parts.each  %>
+    </ul>
+  </div>
+</div><!-- /.row -->
