@@ -8,7 +8,7 @@ $(document).on("ready page:load", function() {
 core.RakutenTrackingPixel.persistMID = function() {
    var mid = core.RakutenTrackingPixel.getUrlParameter("mid");
     if(mid){
-      $.cookie("rakuten_mid", mid, { path: "/" });
+      $.cookie("rakuten_mid", mid, { path: "/", expires: 1 });
     }
 };
 
@@ -21,7 +21,6 @@ core.RakutenTrackingPixel.insertTrackingImage = function(rakuten_params) {
                         return k + "=" + v;
                      }).join("&");
     $( "body" ).append("<img src='" + base_url + rakuten_params + "'>");
-    $.removeCookie("rakuten_mid", { path: "/" });
   }
 };
 
