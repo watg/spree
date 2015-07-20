@@ -12,9 +12,9 @@
               <%= render 'required_parts', part_presenter: part_presenter %>
             <% end %>
 
-          <% end # part_presenter %>
-        <% end # cache %>
-      <% end # each parts %>
+          <% end %>
+        <% end %>
+      <% end %>
     </ol>
 
     <%= render 'add_to_cart', product_presenter: product_presenter %>
@@ -27,8 +27,8 @@
           <!-- we do not want to render the image place holder if it is mandotory -->
 			    <% next if !part_presenter.optional? and part_presenter.displayable_option_values.size == 1 %>
           <li class="part-image-<%= part_presenter.id %>"></li>
-        <% end # part_presenter %>
-			<% end # parts.each  %>
+        <% end %>
+			<% end %>
 		</ul>
 	</div>
-</div><!-- /.row -->
+</div>
