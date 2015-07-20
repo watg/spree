@@ -19,8 +19,6 @@ module Spree
     accepts_nested_attributes_for :tabs, allow_destroy: true
     accepts_nested_attributes_for :image, allow_destroy: true
 
-    # TODO this should be a boolean
-    scope :active, -> { where(deleted_at: nil) }
     scope :indexable, -> { where(indexable: true) }
 
     make_permalink
@@ -33,16 +31,8 @@ module Spree
       { id: SMALL_BOTTOM, name: "bottom centre" }
     ]
 
-    class << self
-      def active
-        joins(:tabs) # to ensure that tabs are present
-      end
-    end
-
-
     def to_param
       permalink.present? ? permalink.to_s.to_url : name.to_s.to_url
     end
-
   end
 end

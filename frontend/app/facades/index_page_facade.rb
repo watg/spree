@@ -1,33 +1,38 @@
 # Provides a page object for the taxon index view
 class IndexPageFacade
   include IndexableInterface
-  attr_reader :context
+  attr_reader :context, :taxon, :page
 
   def initialize(taxon: taxon, context: context, page: page, per_page: per_page)
     @taxon = taxon
     @context = context
     @page = page
     @per_page = per_page
+    @preloader = ActiveRecord::Associations::Preloader.new
+  end
+
+  def available_suites?
+    number_of_suites > 0
   end
 
   def suites
     @suites ||= begin
-      selector = fetch_suites
+                  paginated_suites = Kaminari.paginate_array(fetch_suites)
+                  found_suites = paginated_suites.page(curr_page).per(per_page)
+                  if found_suites.empty? && curr_page > 1
+                    found_suites = paginated_suites.page(1).per(per_page)
+                  end
+                  found_suites
+                end
+  end
 
-      # Ensure that if for some reason the page you are looking at is
-      # now empty then re-run the query with the first page
-      found_suites = selector.page(curr_page).per(per_page)
-      if found_suites.empty? && curr_page > 1
-        found_suites = selector.page(1).per(per_page)
-
-      end
-      found_suites
-    end
+  def suites_with_details
+    @preloader.preload(suites, [:image, :target])
+    suites
   end
 
   def num_pages
-    @num_pages ||= fetch_suites.count.to_f / per_page
-    @num_pages.ceil
+    @num_pages ||= (number_of_suites.to_f / per_page).ceil
   end
 
   def meta_description
@@ -48,12 +53,14 @@ class IndexPageFacade
 
   private
 
-  attr_reader :taxon
+  def number_of_suites
+    @number_of_suites ||= fetch_suites.count
+  end
 
   def fetch_suites
-    Spree::Suite.joins(:classifications, :tabs).includes(:image, :tabs, :target)
-      .merge(Spree::Classification.where(taxon_id: taxon.try(:id)))
-      .references(:classifications)
+    @fetch_suites ||= Spree::Suite.joins(:classifications, :tabs).includes(:tabs)
+                      .merge(Spree::Classification.where(taxon_id: taxon.try(:id)))
+                      .references(:classifications).to_a
   end
 
   def per_page
