@@ -3,7 +3,6 @@
     <% unless mobile_device? %>
 
       <% Spree::GlobalFreeShippingPresenter.new(self).present do |presenter| %>
-        <% cache presenter.cache_key, expires_in: 10.minutes do %>
         <!-- The modal for shipping can be found in the footer -->
 
           <% if presenter.eligible? %>
@@ -19,7 +18,6 @@
             </div>
           <% end %>
 
-        <% end %> <!-- cache key -->
       <% end %> <!-- presenter -->
     <% end %> <!-- mobile sniffer -->
 

@@ -25,12 +25,16 @@
   <%= render :partial => 'spree/shared/header' %>
 
   <% if Flip.on?(:suites_feature) %>
-  <%= render "spree/shared/taxons_driven_menu" %>
+    <% cache ['taxon_driven_menu', Spree::Taxonomy.navigation_cache_key, device, current_currency] do %>
+      <%= render "spree/shared/taxons_driven_menu" %>
+    <% end %>
   <% else %>
-  <%= render "spree/shared/old_menu" %>
+    <%= render "spree/shared/old_menu" %>
   <% end %>
 
-  <%= render "spree/shared/shipping_and_contact" %>
+  <% cache ["shipping_and_contact", current_currency, current_country_code, device], expires_in: 60.minutes do %>
+    <%= render "spree/shared/shipping_and_contact" %>
+  <% end %>
 
   <div class="container">
     <div class="row">
@@ -40,7 +44,11 @@
       </div>
     </div>
 
-    <%= render "spree/shared/footer" %>
+    <% cache_key = ["footer", Spree::Taxonomy.navigation_cache_key, device, current_currency, current_country_code] %>
+    <% cache cache_key do %>
+      <%= render "spree/shared/footer" %>
+    <% end %>
+    <%= yield :modals %>
   </div>
 
   <script>
