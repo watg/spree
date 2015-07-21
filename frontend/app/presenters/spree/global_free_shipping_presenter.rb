@@ -15,7 +15,12 @@ module Spree
     end
 
     def shipping_partial
-      "/spree/shared/shipping/shipping_#{country_code.downcase}"
+      partials = Spree::Promotable::GlobalFreeShipping::SHIPPING_PARTIALS
+      if partials.include?(country_code.downcase)
+        "/spree/shared/shipping/shipping_#{country_code.downcase}"
+      else
+        "/spree/shared/shipping/default_shipping"
+      end
     end
 
     private

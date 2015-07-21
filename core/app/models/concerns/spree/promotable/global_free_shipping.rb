@@ -9,6 +9,8 @@ module Spree
       # This is brittle but enough to get this working
       GLOBAL_FREE_SHIPPING_PROMOTION_ID = 127
 
+      SHIPPING_PARTIALS = ["au", "ca", "ch", "de", "es", "fr", "gb", "nz", "us"]
+
       def initialize(country_code, currency)
         @country_code = country_code
         @currency = currency
