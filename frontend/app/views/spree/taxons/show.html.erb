@@ -8,6 +8,7 @@
   <meta content="<%= @page.meta_description %>" name="description" />
 <% end %>
 
+
 <% @body_class = 'suites-index no-sitewide-promo' %>
 
 <div class="wrapper-product-index">
@@ -19,21 +20,12 @@
   </div>
 
   <div class="row-products">
-    <% if @page.suites.any?%>
-      <div class="row">
-        <div class="large-12 columns">
-          <% if params['per_page'] != @page.show_all %>
-            <p class="show-all">
-              <%= link_to 'Show all', params.merge(:per_page => @page.show_all) %>
-            </p>
-          <% end %>
-          <%= paginate @page.suites, num_pages: @page.num_pages %>
-        </div>
-      </div>
+    <% if @page.available_suites?%>
+      <%= render partial: "spree/shared/pagination_links" %>
 
       <div class="row row-product">
         <%= render partial: "spree/taxons/suite",
-                   collection: @page.suites,
+                   collection: @page.suites_with_details,
                    locals: {
                      context: @page.context
                    },
@@ -45,16 +37,7 @@
                      } %>
       </div>
 
-      <div class="row">
-        <div class="large-12 columns">
-          <% if params['per_page'] != @page.show_all %>
-            <p class="show-all">
-              <%= link_to 'Show all', params.merge(:per_page => @page.show_all) %>
-            </p>
-          <% end %>
-          <%= paginate @page.suites, num_pages: @page.num_pages %>
-        </div>
-      </div>
+      <%= render partial: "spree/shared/pagination_links" %>
     <% else %>
       <div class="no-search-results text-center">
         <h4>No results found</h4>

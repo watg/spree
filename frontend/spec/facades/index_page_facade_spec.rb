@@ -56,6 +56,18 @@ describe IndexPageFacade do
     end
   end
 
+  describe "#available_suites?" do
+    it "returns true if there are available suites" do
+      allow(subject).to receive(:fetch_suites).and_return([1])
+      expect(subject.available_suites?).to eq true
+    end
+
+    it "returns false if there are no available suites" do
+      allow(subject).to receive(:fetch_suites).and_return([])
+      expect(subject.available_suites?).to eq false
+    end
+  end
+
   describe "#meta_title" do
     let(:taxon) { double }
     it "returns the taxon.meta_title if present" do
