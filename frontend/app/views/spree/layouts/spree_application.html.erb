@@ -32,7 +32,7 @@
     <%= render "spree/shared/old_menu" %>
   <% end %>
 
-  <% cache ["shipping_and_contact", current_currency, current_country_code, device], expires_in: 60.minutes do %>
+  <% cache ["shipping_and_contact", current_currency, current_country_code, device], expires_in: 15.minutes do %>
     <%= render "spree/shared/shipping_and_contact" %>
   <% end %>
 
@@ -44,9 +44,11 @@
       </div>
     </div>
 
-    <% cache_key = ["footer", Spree::Taxonomy.navigation_cache_key, device, current_currency, current_country_code] %>
-    <% cache cache_key do %>
+    <% cache ["footer", Spree::Taxonomy.navigation_cache_key, device] do %>
       <%= render "spree/shared/footer" %>
+    <% end %>
+    <% cache ["shipping_modal", current_currency, current_country_code], expires_in: 15.minutes do %>
+      <%= render "spree/shared/shipping_modal" %>
     <% end %>
     <%= yield :modals %>
   </div>
