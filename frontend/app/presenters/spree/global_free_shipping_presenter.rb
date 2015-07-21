@@ -1,11 +1,6 @@
 module Spree
   # presenter for user specific free shipping views
   class GlobalFreeShippingPresenter < SimpleBasePresenter
-
-    def cache_key
-      [currency, country_code, device]
-    end
-
     def eligible?
       @eligible ||= promotion.eligible?
     end

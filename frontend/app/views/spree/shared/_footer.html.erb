@@ -12,62 +12,40 @@
 	</div>
 </div>
 
-<% cache_key = ['footer',
-                Spree::Taxonomy.navigation_cache_key,
-                device,
-                current_currency,
-                current_country_code] %>
-
-<% cache cache_key, expires_in: 10.minutes do %>
-  <!-- Global footer -->
-  <footer class="row">
-    <!-- Newsletter signup / social media -->
-    <% unless mobile_device? %>
-      <%= render "/spree/shared/footer_nav" %>
-    <% else %>
-      <%= render "/spree/shared/mobile_footer_nav" %>
-    <% end %>
-  </footer>
-
-  <!-- Cookie message -->
-  <div class="row row-cookie">
-    <p><span>Hello there!</span> This website uses cookies. If you're down with that, just carry on as you were. <a href="#">Don't show this message again</a>. | <a href="/terms-and-conditions#cookies">Read about cookies</a>.</p>
-  </div>
-
-  <!-- Shipping modal -->
-  <% Spree::GlobalFreeShippingPresenter.new(self).present do |presenter| %>
-    <% if presenter.eligible? %>
-      <div class="modal" id="modal-shipping">
-        <a class="modal-close" href="#">Close</a>
-        <%= render presenter.shipping_partial, free_shipping_amount: presenter.amount %>
-        <p><a class="button" href="#">OK, got it</a></p>
-      </div>
-    <% end %>
+<!-- Global footer -->
+<footer class="row">
+  <!-- Newsletter signup / social media -->
+  <% unless mobile_device? %>
+    <%= render "/spree/shared/footer_nav" %>
+  <% else %>
+    <%= render "/spree/shared/mobile_footer_nav" %>
   <% end %>
+</footer>
 
-  <!-- Contact modal -->
-  <div class="modal" id="modal-contact">
-    <a class="modal-close" href="#">Close</a>
-    <h3>Contact Us</h3>
-    <% if production_or_staging? %>
-      <iframe id="contact-iframe" data-src="<%= desk_iframe_url %>" src="about:blank"></iframe>
-  <% end %>
-  </div>
+<!-- Cookie message -->
+<div class="row row-cookie">
+  <p><span>Hello there!</span> This website uses cookies. If you're down with that, just carry on as you were. <a href="#">Don't show this message again</a>. | <a href="/terms-and-conditions#cookies">Read about cookies</a>.</p>
+</div>
 
-  <!-- Signup modal -->
-  <div class="modal" id="modal-signup">
-    <a class="modal-close" href="#">Close</a>
-    <%= render "/spree/shared/modal_signup" %>
-    <p class="hide">
-      <a class="button" href="#">OK, got it</a>
-    </p>
-  </div>
-
-  <!-- Alpaca -->
-  <% unless true # disabeld for the time being due to an ssl issue mobile_device? %>
-    <img class="alpaca-attack" src="<%= image_path("alpaca-attack.gif") %>" alt="THE ALPACAS ARE ATTACKING" />
-  <% end %>
-
+<!-- Contact modal -->
+<div class="modal" id="modal-contact">
+  <a class="modal-close" href="#">Close</a>
+  <h3>Contact Us</h3>
+  <% if production_or_staging? %>
+    <iframe id="contact-iframe" data-src="<%= desk_iframe_url %>" src="about:blank"></iframe>
 <% end %>
-<%= yield :modals %>
+</div>
 
+<!-- Signup modal -->
+<div class="modal" id="modal-signup">
+  <a class="modal-close" href="#">Close</a>
+  <%= render "/spree/shared/modal_signup" %>
+  <p class="hide">
+    <a class="button" href="#">OK, got it</a>
+  </p>
+</div>
+
+<!-- Alpaca -->
+<% unless true # disabeld for the time being due to an ssl issue mobile_device? %>
+  <img class="alpaca-attack" src="<%= image_path("alpaca-attack.gif") %>" alt="THE ALPACAS ARE ATTACKING" />
+<% end %>
