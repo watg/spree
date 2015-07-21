@@ -16,7 +16,8 @@ module Spree
     end
 
     def initalize_rack_profiler
-      Rack::MiniProfiler.authorize_request if try_spree_current_user.try(:has_spree_role?, "admin")
+      user_has_role = try_spree_current_user.try(:has_spree_role?, "superuser")
+      Rack::MiniProfiler.authorize_request if user_has_role
     end
 
     protected
