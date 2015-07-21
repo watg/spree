@@ -4,7 +4,11 @@ module Spree
     delegate :id, :optional?, :count, :presentation, to: :product_part
 
     def variants
-      @variants ||= product_part.variants.in_stock
+      @variants ||= begin
+                      variants_in_stock = product_part.variants.in_stock
+                      preloader.preload(variants_in_stock, [:images, :part_image, option_values: :option_type])
+                      variants_in_stock
+                    end
     end
 
     def first_variant
@@ -48,6 +52,10 @@ module Spree
     end
 
     private
+
+    def preloader
+      ActiveRecord::Associations::Preloader.new
+    end
 
     def variant_options
       @variant_options ||= Spree::VariantOptions.new(variants, currency, displayable_option_type)

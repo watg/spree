@@ -1,7 +1,6 @@
-<% variants_hash = part_presenter.variant_option_objects.each do |obj| %>
+<% part_presenter.variant_option_objects.each do |obj| %>
   <li>
       <% if obj.image %>
-
         <%= link_to '#',
           class: obj.classes,
           title: obj.presentation,

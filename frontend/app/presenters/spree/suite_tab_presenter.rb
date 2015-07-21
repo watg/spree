@@ -23,6 +23,13 @@ module Spree
       @product ||= suite_tab.product
     end
 
+    def cross_sales
+      preloader = ActiveRecord::Associations::Preloader.new
+      cross_sales = suite_tab.cross_sales
+      preloader.preload(cross_sales, [:tabs, :image])
+      cross_sales
+    end
+
     def presentation
       @presentation ||= suite_tab.presentation
     end

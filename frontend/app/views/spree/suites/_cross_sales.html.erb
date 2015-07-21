@@ -10,9 +10,14 @@
         </div>
       <% else %>
         <div class="row row-product owl-carousel">
-          <% selected_tab_presenter.cross_sales.each do |suite| %>
-            <%= render partial: "spree/taxons/suite", locals: {suite: suite, cache_safe_suite_counter: false, context: @context} %>
-          <% end %>
+          <#% selected_tab_presenter.cross_sales.each do |suite| %>
+            <%#= render partial: "spree/taxons/suite", locals: {suite: suite, cache_safe_suite_counter: false, context: @context} %>
+
+            <%= render partial: "spree/taxons/suite",
+              collection: selected_tab_presenter.cross_sales,
+              locals: { context: @context, cache_safe_suite_counter: false },
+              cache: Proc.new{ |suite, counter| [suite, :large, @context[:currency] , @context[:device]] } %>
+          <#% end %>
         </div>
       <% end %>
     </div>
