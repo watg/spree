@@ -70,14 +70,14 @@ class @ReadyMadeUpdater
       return null
 
   toggleOptionValues: (selected_type, selected_value, selected_presentation, option_type_order) ->
+    # If selected type value is unavailable, then return false
+    if @entity.find(".option-value.#{selected_type}.#{selected_value}").hasClass('unavailable')
+      return false
+
     # Update the color-text value if type is selected_type is colour
     if (selected_type == 'colour' || selected_type == 'icon-colour')
       selector = "span.color-value.#{selected_type}"
       $(selector).text(selected_presentation)
-
-    # If selected type value is unavailable, then return false
-    if @entity.find(".option-value.#{selected_type}.#{selected_value}").hasClass('unavailable')
-      return false
 
     this.toogleSelect(selected_type, selected_value)
     next_type = option_type_order[selected_type]
