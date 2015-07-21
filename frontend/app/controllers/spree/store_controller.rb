@@ -3,6 +3,7 @@ module Spree
     include Spree::Core::ControllerHelpers::Order
 
     skip_before_action :set_current_order, only: :cart_link
+    before_filter :initalize_rack_profiler
 
     def unauthorized
       flash[:error] = "Sorry, you are not authorized"
@@ -12,6 +13,11 @@ module Spree
     def cart_link
       render :partial => 'spree/shared/link_to_cart'
       fresh_when(simple_current_order)
+    end
+
+    def initalize_rack_profiler
+      user_has_role = try_spree_current_user.try(:has_spree_role?, "superuser")
+      Rack::MiniProfiler.authorize_request if user_has_role
     end
 
     protected
