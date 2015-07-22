@@ -1,5 +1,4 @@
-  require "feature_helper"
-
+require "feature_helper"
 
 feature 'adding product to cart', inaccessible: true do
 
@@ -18,17 +17,15 @@ feature 'adding product to cart', inaccessible: true do
   let!(:colour_variant_two) { create(:base_variant, product: hat_product, option_values: [red], in_stock_cache: true) }
 
   before do
+    hat_product.product_type.update_column(:name, 'kit')
     colour_variant_one.stock_items.first.set_count_on_hand(1)
     colour_variant_one.stock_items.first.update_column(:backorderable, false)
     colour_variant_two.stock_items.first.set_count_on_hand(1)
     colour_variant_two.stock_items.first.update_column(:backorderable, false)
     kill_popups
-    # Capybara.current_driver = :selenium_chrome
   end
 
-
   feature 'when product has parts' do
-
     # creates some colour variants for the hat
     let!(:part) { create(:base_product, sku: 'some-wool', name: 'wool') }
     let!(:colour_variant_one) { create(:base_variant, product: part, option_values: [blue], in_stock_cache: true) }
@@ -41,7 +38,6 @@ feature 'adding product to cart', inaccessible: true do
     let!(:product_part_variant_two) { create(:product_part_variant, variant: colour_variant_two, product_part: product_part) }
 
     scenario 'user selects variant and add to cart', js: true do
-
       # visit page
       visit spree.suite_path(id: suite.permalink, tab: suite_tab.tab_type)
       expect(page).to have_content 'SUN DANCE HAT'
@@ -60,27 +56,19 @@ feature 'adding product to cart', inaccessible: true do
         Capybara.ignore_hidden_elements = true
       end
 
-      # variant red is selected
       expect(page).to have_content('RED')
-
-
-      # add to cart and check contents
       find_button('Add To My Bag').click
 
       # Ensure flash message is correct
       expect(page).to have_content('ADDED TO YOUR CART')
       expect(page).to have_content('SUN DANCE HAT')
 
-      # Proceed to checkout
       click_link("Checkout")
-
-      #find_button('Checkout').click
 
       # wait until page load
       expect(page).to have_content('PARTS:')
       expect(page).to have_content('Color: red')
       expect(current_path).to eq "/cart"
-
     end
 
 
