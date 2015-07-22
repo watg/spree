@@ -53,7 +53,8 @@
           <%= content_tag :li, :class => ('active' if current == 'Product Parts') do %>
               <%= link_to_with_icon 'sitemap', "Product Parts", admin_product_product_parts_url(@product) %>
           <% end if can?(:stock, Spree::Product) %>
-        <% elsif @product_tab_presenter.static_parts? %>
+        <% end %>
+        <% if @product_tab_presenter.static_parts? %>
           <%= content_tag :li, :class => ('active' if current == 'Parts') do %>
             <%= link_to_with_icon 'sitemap', Spree.t(:parts) + " (" + @product.static_assemblies_parts.count.to_s + ")", admin_product_static_parts_url(@product) %>
           <% end if can?(:stock, Spree::Product) %>
