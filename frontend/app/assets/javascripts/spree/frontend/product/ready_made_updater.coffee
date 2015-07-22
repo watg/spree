@@ -212,7 +212,7 @@ class @ReadyMadeUpdater
 
   # Modify the images based on the selected variant
   toggleImages: (variant_id) ->
-    variant_id = variant_id || this.getVariantDetails.variant_id
+    variant_id = variant_id || this.getVariantDetails().id
     all_thumbs = @entity.find('li.vtmb')
     all_thumbs.hide()
     variant_thumbs = @entity.find('li.tmb-' + variant_id)
@@ -224,7 +224,7 @@ class @ReadyMadeUpdater
     this.changeMainImage(thumb)
 
   toggleCarouselImages: ->
-    variant_id = this.getVariantDetails.variant_id
+    variant_id = this.getVariantDetails().id
     variant_thumbs = @entity.find('li.tmb-' + variant_id)
     owl = $('#carousel')
     textholder = undefined
