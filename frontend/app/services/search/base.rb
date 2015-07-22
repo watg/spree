@@ -10,7 +10,14 @@ module Search
     end
 
     def results
-      @results ||= Kaminari.paginate_array(suites).page(page).per(per_page)
+      @results ||= begin
+                     paginated_suites = Kaminari.paginate_array(suites)
+                     found_suites = paginated_suites.page(curr_page).per(per_page)
+                     if found_suites.empty? && curr_page > 1
+                       found_suites = paginated_suites.page(1).per(per_page)
+                     end
+                     found_suites
+                   end
     end
 
     def num_pages
@@ -18,6 +25,11 @@ module Search
     end
 
     private
+
+    def curr_page
+      curr_page = @page.to_i
+      (curr_page <= 0) ? 1 : curr_page
+    end
 
     def calc_per_page(params)
       if params.key?(:per_page) && params[:per_page].to_i > 0

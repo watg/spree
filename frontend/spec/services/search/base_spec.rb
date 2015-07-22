@@ -23,6 +23,16 @@ module Search
         expect(searcher.results.length).to eq(2)
       end
 
+      it "loads the first page if the request page does not contain any suites" do
+        create(:suite, title: "RoR Shirt2")
+        params = {}
+
+        searcher = described_class.new(params)
+        searcher.instance_variable_set("@per_page", 10)
+        searcher.instance_variable_set("@page", 2)
+        expect(searcher.results.size).to eq 2
+      end
+
       context "non indexable suites" do
         before do
           suite1.indexable = false
