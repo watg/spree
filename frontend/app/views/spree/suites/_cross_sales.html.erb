@@ -4,20 +4,17 @@
     <div class="row-carousel row-products">
       <% if mobile_device? %>
         <div class="row row-product">
-          <% selected_tab_presenter.cross_sales.each do |suite| %>
-            <%= render partial: "spree/taxons/suite", locals: {suite: suite, cache_safe_suite_counter: 1, context: @context} %>
-          <% end %>
+          <%= render partial: "spree/taxons/suite",
+            collection: selected_tab_presenter.cross_sales,
+            locals: { class_overide: "large-4 small-6", image_style_overide: "small", context: @context } ,
+            cache: Proc.new{ |suite, counter| [suite, :large, @context[:currency] , @context[:device]] } %>
         </div>
       <% else %>
         <div class="row row-product owl-carousel">
-          <#% selected_tab_presenter.cross_sales.each do |suite| %>
-            <%#= render partial: "spree/taxons/suite", locals: {suite: suite, cache_safe_suite_counter: false, context: @context} %>
-
             <%= render partial: "spree/taxons/suite",
               collection: selected_tab_presenter.cross_sales,
-              locals: { context: @context, cache_safe_suite_counter: false },
+              locals: { class_overide: "large 12", image_style_overide: "small", context: @context } ,
               cache: Proc.new{ |suite, counter| [suite, :large, @context[:currency] , @context[:device]] } %>
-          <#% end %>
         </div>
       <% end %>
     </div>

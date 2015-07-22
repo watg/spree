@@ -1,6 +1,5 @@
 <% present(suite, context) do |suite_presenter| %>
-
-  <div class="<%= suite_presenter.container_class(cache_safe_suite_counter) %> <%='small-6' if cache_safe_suite_counter %> columns"
+  <div class="<%= suite_presenter.container_class(cache_safe_suite_counter, local_assigns.fetch(:class_overide, nil)) %> columns"
        itemscope
        itemtype="http://schema.org/Product">
 
@@ -8,7 +7,7 @@
     <% present(tab, context.merge(suite: suite)) do |tab_presenter| %>
       <a href="<%=tab_presenter.link_to%>">
         <h2 itemprop="name" class="<%= suite_presenter.header_style %>"><%= suite_presenter.title %></h2>
-				<%= image_tag(suite_presenter.image_url(cache_safe_suite_counter), alt: suite_presenter.image_alt) %>
+				<%= image_tag(suite_presenter.image_url(cache_safe_suite_counter, local_assigns.fetch(:image_style_overide, nil)), alt: suite_presenter.image_alt) %>
       </a>
     <% end %>
 

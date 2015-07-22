@@ -7,11 +7,7 @@ module Spree
     end
 
     def self.desktop_image_size(counter)
-      if counter
-        counter % 9 == 0  ? :large : :small
-      else
-        :small
-      end
+      counter % 9 == 0  ? :large : :small
     end
 
     def meta_content_for_robots
@@ -35,21 +31,18 @@ module Spree
     end
 
     ## Images
-    def image_url(counter = 0)
+    def image_url(counter = 0, image_style = nil)
       if image.present?
-        style = image_size(counter)
+        style = image_style || image_size(counter)
         image.attachment.url(style)
       else
         placeholder_image
       end
     end
 
-    def container_class(counter=0)
-      if counter
-        image_size(counter) == :large ? 'large-8' : 'large-4'
-      else
-        'large-12'
-      end
+    def container_class(counter = 0, class_overide = nil)
+      return class_overide if class_overide
+      image_size(counter) == :large ? "large-8 small-6" : "large-4 small-6"
     end
 
     def image_alt

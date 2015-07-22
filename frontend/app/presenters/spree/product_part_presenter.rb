@@ -6,7 +6,9 @@ module Spree
     def variants
       @variants ||= begin
                       variants_in_stock = product_part.variants.in_stock
-                      preloader.preload(variants_in_stock, [:images, :part_image, option_values: :option_type])
+                      preloader.preload(variants_in_stock, [:images,
+                                                            :part_image,
+                                                            option_values: :option_type])
                       variants_in_stock
                     end
     end

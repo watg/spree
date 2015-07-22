@@ -24,7 +24,6 @@ module Spree
     end
 
     def cross_sales
-      preloader = ActiveRecord::Associations::Preloader.new
       cross_sales = suite_tab.cross_sales
       preloader.preload(cross_sales, [:tabs, :image])
       cross_sales
@@ -151,6 +150,10 @@ module Spree
     end
 
     private
+
+    def preloader
+      ActiveRecord::Associations::Preloader.new
+    end
 
     def social_description
       "Presenting #{suite.title} by Wool and the Gang"

@@ -93,7 +93,7 @@ describe Spree::SuitePresenter do
       expect(described_class.desktop_image_size(10)).to eq :small
       expect(described_class.desktop_image_size(17)).to eq :small
     end
-    
+
   end
 
   describe "#image_size" do
@@ -124,7 +124,7 @@ describe Spree::SuitePresenter do
       end
 
     end
-    
+
   end
 
   context "#image" do
@@ -252,13 +252,13 @@ describe Spree::SuitePresenter do
 
     context "with a number divisible by 9" do
       it "should return large style" do
-        expect(subject.container_class(9)).to eq 'large-8'
+        expect(subject.container_class(9)).to eq "large-8 small-6"
       end
     end
 
     context "with a number not divisible by 9" do
       it "should return small style" do
-        expect(subject.container_class(8)).to eq 'large-4'
+        expect(subject.container_class(8)).to eq "large-4 small-6"
       end
     end
 

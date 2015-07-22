@@ -96,9 +96,11 @@ module Spree
 
     def product_parts
       @product_parts ||= begin
-                            product_parts = product.product_parts
-                            preloader.preload(product_parts, [:displayable_option_type, :part, :variants])
-                            product_parts
+                           product_parts = product.product_parts
+                           preloader.preload(product_parts, [:displayable_option_type,
+                                                             :part,
+                                                             :variants])
+                           product_parts
                          end
     end
 
