@@ -56,7 +56,7 @@
     			  <% if part_presenter.optional? %>
               <%= render 'optional_parts', part_presenter: part_presenter %>
             <% else %>
-              <%= render 'no_optional_parts', part_presenter: part_presenter %>
+              <%= render 'required_parts', part_presenter: part_presenter %>
 
             <% end %>
 

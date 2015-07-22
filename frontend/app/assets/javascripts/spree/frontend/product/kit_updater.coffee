@@ -2,7 +2,7 @@ class @KitUpdater
   constructor: (@entity, @option_value) ->
     @option_values = @option_value.closest('.variant-option-values')
     @product_variants = @option_values.closest('.product-variants')
-    @thumbs = @entity.find('ul.thumbnails li.tmb-product-parts')
+    @thumbs = @entity.find('.assembly-menus ul.thumbnails li.tmb-product-parts')
 
   showThumbs: ->
     @thumbs.show()
@@ -56,3 +56,12 @@ class @KitUpdater
     @option_values.find('.option-value').removeClass('selected')
     @option_value.closest('.variant-options').addClass('selected')
     @option_value.addClass('selected')
+
+  @formatPrice: (currencySymbol, pence) ->
+    "#{currencySymbol}#{(pence / 100).toFixed(2)}"
+
+  @sumOfOptionalPartPrices: (entity) ->
+    sum = 0
+    entity.find(".product-variants.optional").each ->
+      sum = sum + ( Number $(this).data('adjustment') * $(this).data('quantity') )
+    sum

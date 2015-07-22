@@ -2,6 +2,7 @@ module Admin
   # controller for variant part images
   class VariantPartImagesController < Spree::Admin::ResourceController
     before_filter :load_data
+    before_action :set_product_tab_presenter
 
     def s3_callback
       if @variant.part_image.blank?
