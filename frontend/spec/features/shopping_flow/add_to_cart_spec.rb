@@ -17,7 +17,7 @@ feature 'adding product to cart', inaccessible: true do
   let!(:colour_variant_two) { create(:base_variant, product: hat_product, option_values: [red], in_stock_cache: true) }
 
   before do
-    hat_product.product_type.update_column(:name, 'kit')
+    hat_product.product_type.update_column(:name, "kit")
     colour_variant_one.stock_items.first.set_count_on_hand(1)
     colour_variant_one.stock_items.first.update_column(:backorderable, false)
     colour_variant_two.stock_items.first.set_count_on_hand(1)

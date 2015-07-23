@@ -28,7 +28,7 @@ core.suite.readyCustomizableVariantOptions = function(entity) {
     return ready_made_updater.updateProductPage();
   });
 
-  entity.find(".assembled-options .optional-parts ul input").click(function(event) {
+  entity.find(".assembled-options .optional-parts ul input").click(function() {
     return ready_made_updater.adjustPrices();
   });
 
@@ -83,10 +83,10 @@ core.suite.readyCustomizableVariantOptions = function(entity) {
     return core.suite.setAssemblyListHeights();
   });
 
-  entity.find(".price").on('recalculate', (function() {
+  entity.find(".price").on("recalculate", function() {
     var adjustment;
     adjustment = KitUpdater.sumOfOptionalPartPrices(entity);
-    return $(this).html(KitUpdater.formatPrice($(this).data('currency'), $(this).data('price') + adjustment));
-  }));
+    return $(this).html(KitUpdater.formatPrice($(this).data("currency"), $(this).data("price") + adjustment));
+  });
 
 };
