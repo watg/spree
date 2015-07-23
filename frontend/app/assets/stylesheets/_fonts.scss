@@ -41,11 +41,11 @@ $watg-font-fallback: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif
 /* ----- International fonts ----- */
 
 // JP
-$watg-font-jp-light: "Noto Sans CJK JP Light", Helvetica, Arial, sans-serif;
-$watg-font-jp-medium: "Noto Sans CJK JP Medium", Helvetica, Arial, sans-serif;
-$watg-font-jp-bold: "Noto Sans CJK JP Bold", Helvetica, Arial, sans-serif;
+$watg-font-jp-light: $watg-font-fallback;
+$watg-font-jp-medium: $watg-font-fallback;
+$watg-font-jp-bold: $watg-font-fallback;
 
 // KR
-$watg-font-kr-light: "Noto Sans CJK KR Light", Helvetica, Arial, sans-serif;
-$watg-font-kr-medium: "Noto Sans CJK KR Medium", Helvetica, Arial, sans-serif;
-$watg-font-kr-bold: "Noto Sans CJK KR Bold", Helvetica, Arial, sans-serif;
+$watg-font-kr-light: $watg-font-fallback;
+$watg-font-kr-medium: $watg-font-fallback;
+$watg-font-kr-bold: $watg-font-fallback;
