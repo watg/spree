@@ -42,7 +42,6 @@ module Spree
       {
         "number"     => variant.number,
         "in_stock"   => variant.in_stock?,
-        "is_digital" => variant.digital?,
         "part_price" => part_price,
         "image_url"  => image
       }

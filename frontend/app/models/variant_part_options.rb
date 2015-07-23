@@ -27,7 +27,7 @@ class VariantPartOptions
   end
 
   def product_image
-    product_images.any? ? product_images.first.attachment.url(:mini) : nil
+    variant_images.any? ? variant_images.first.attachment.url(:mini) : nil
   end
 
   def value
@@ -41,16 +41,16 @@ class VariantPartOptions
   private
 
   def option_value
-    variant.option_values.detect{ |ov| ov.option_type == @displayable_option_type }
+    @option_value ||= variant.option_values.detect do |ov|
+      ov.option_type == @displayable_option_type
+    end
   end
 
   def value_image
     option_value.image.url.include?("missing.png") ? nil : option_value.image
   end
 
-  def product_images
-    Spree::Image
-      .where(viewable_id: variant_id, viewable_type: "Spree::Variant")
-      .sort_by(&:position)
+  def variant_images
+    @variant_images ||= variant.images
   end
 end

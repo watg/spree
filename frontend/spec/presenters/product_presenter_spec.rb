@@ -61,8 +61,9 @@ describe Spree::ProductPresenter do
   end
 
   describe "#parts?" do
+    let(:product_part) { build_stubbed(:product_part) }
     it "returns the true if there are product_parts" do
-      allow(product).to receive(:product_parts).and_return([double(:product_part)])
+      allow(product).to receive(:product_parts).and_return([product_part])
       expect(subject.parts?).to eq true
     end
 

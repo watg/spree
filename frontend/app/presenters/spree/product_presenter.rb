@@ -95,7 +95,13 @@ module Spree
     end
 
     def product_parts
-      @product_parts ||= product.product_parts
+      @product_parts ||= begin
+                           product_parts = product.product_parts
+                           preloader.preload(product_parts, [:displayable_option_type,
+                                                             :part,
+                                                             :variants])
+                           product_parts
+                         end
     end
 
     def video
@@ -138,6 +144,10 @@ module Spree
     end
 
     private
+
+    def preloader
+      ActiveRecord::Associations::Preloader.new
+    end
 
     def build_variant_presenter(variant)
       VariantPresenter.new(variant, template, context)
