@@ -90,8 +90,16 @@ module Spree
       product_parts.any?
     end
 
+    def ready_to_wear_with_parts?
+      !kit? && parts?
+    end
+
     def kit_with_parts?
-      product.product_type.kit? && product_parts.any?
+      kit? && parts?
+    end
+
+    def kit?
+      product.product_type.kit?
     end
 
     def product_parts_images

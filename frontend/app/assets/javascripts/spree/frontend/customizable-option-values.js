@@ -21,9 +21,9 @@ core.suite.readyCustomizableVariantOptions = function(entity) {
   entity.find('.assembled-options .option-value').click(function(event) {
     var selected_presentation, selected_type, selected_value;
     event.preventDefault();
-    selected_type = $(this).data('type');
-    selected_value = $(this).data('value');
-    selected_presentation = $(this).data('presentation');
+    selected_type = $(this).data("type");
+    selected_value = $(this).data("value");
+    selected_presentation = $(this).data("presentation");
     ready_made_updater.toggleOptionValues(selected_type, selected_value, selected_presentation, option_type_order);
     return ready_made_updater.updateProductPage();
   });
@@ -32,41 +32,43 @@ core.suite.readyCustomizableVariantOptions = function(entity) {
     return ready_made_updater.adjustPrices();
   });
 
-  entity.find('.assembled-options .personalisations :checkbox').click(function(event) {
+  entity.find(".assembled-options .personalisations :checkbox").click(function(event) {
     ready_made_updater.togglePersonalisations($(this), event);
     return ready_made_updater.adjustPrices();
   });
 
-  entity.find('.assembled-options .personalisation-option-value').click(function(event) {
+  entity.find(".assembled-options .personalisation-option-value").click(function(event) {
     return ready_made_updater.togglePersonalisationOptionValue($(this), event);
   });
 
-  entity.find('.add-to-cart-button').click(function(event) {
-    var key, last, message, missing_types;
-    if ($(this).hasClass('disabled')) {
+  entity.find(".add-to-cart-button").click(function(event) {
+    var key, last, message, missing_types, add_to_cart;
+
+    if ($(this).hasClass("disabled")) {
       missing_types = [];
       for (key in option_type_order) {
-        if (!entity.find(".variant-option-values." + key).hasClass('selected')) {
+        if (!entity.find(".variant-option-values." + key).hasClass("selected")) {
           missing_types.push(key);
         }
       }
       last = missing_types.splice(-1, 1);
-      message = "Please choose your " + missing_types.join(', ');
+      message = "Please choose your " + missing_types.join(", ");
       if (missing_types.length > 0) {
         message = message + " and ";
       }
       message = message + last;
-      entity.find('p.error').remove();
-      entity.find('.add-to-cart').prepend($("<p class='error'>" + message + "</p>").hide().fadeIn('slow').focus());
+      entity.find("p.error").remove();
+      add_to_cart = entity.find(".add-to-cart");
+      add_to_cart.prepend($("<p class='error'>" + message + "</p>").hide().fadeIn("slow").focus());
       return false;
     }
   });
 
-  entity.find('.assembly-menus .option-value').click(function(event) {
+  entity.find(".assembly-menus .option-value").click(function(event) {
     var kit_updater;
     event.preventDefault();
     kit_updater = new KitUpdater(entity, $(this));
-    if (kit_updater.option_value.hasClass('unavailable')) {
+    if (kit_updater.option_value.hasClass("unavailable")) {
       return false;
     }
     kit_updater.showThumbs();
@@ -78,15 +80,16 @@ core.suite.readyCustomizableVariantOptions = function(entity) {
     } else {
       kit_updater.resetOption();
     }
-    entity.find(".price").trigger('recalculate');
-    entity.find(".add-to-cart-button").trigger('update');
+    entity.find(".price").trigger("recalculate");
+    entity.find(".add-to-cart-button").trigger("update");
     return core.suite.setAssemblyListHeights();
   });
 
   entity.find(".price").on("recalculate", function() {
     var adjustment;
     adjustment = KitUpdater.sumOfOptionalPartPrices(entity);
-    return $(this).html(KitUpdater.formatPrice($(this).data("currency"), $(this).data("price") + adjustment));
+    new_price  = $(this).data("price") + adjustment;
+    return $(this).html(KitUpdater.formatPrice($(this).data("currency"), new_price));
   });
 
 };

@@ -25,12 +25,5 @@ module Admin
         end
       end
     end
-
-    describe '#static_parts?' do
-      let(:product)      { double(static_assemblies_parts: [static_part]) }
-      let(:static_part)  { double }
-
-      it { expect(subject.static_parts?).to be_truthy }
-    end
   end
 end

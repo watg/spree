@@ -34,7 +34,8 @@ core.suite.readyKitVariantOptions = (entity) ->
 
   entity.find(".price").on('recalculate',( ->
     adjustment = KitUpdater.sumOfOptionalPartPrices(entity)
-    $(this).html( KitUpdater.formatPrice($(this).data('currency'), $(this).data('price') + adjustment ) )
+    new_price  = $(this).data('price') + adjustment
+    $(this).html(KitUpdater.formatPrice($(this).data('currency'), new_price))
   ))
 
 #######################################################################################################################

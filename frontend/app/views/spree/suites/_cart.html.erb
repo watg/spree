@@ -3,7 +3,7 @@
 
     <% if product_presenter.kit_with_parts? %>
       <div class="displayable-kit-entity row active">
-    <% elsif product_presenter.parts? %>
+    <% elsif product_presenter.ready_to_wear_with_parts? %>
       <div class="displayable-customizable-entity row active"
            data-option-values="<%= product_presenter.option_types_and_values.to_json %>"
            data-tree="<%= product_presenter.variant_tree.to_json  %>"

@@ -10,10 +10,6 @@ module Admin
       kit? || ready_to_wear?
     end
 
-    def static_parts?
-      product.static_assemblies_parts.any?
-    end
-
     private
 
     def kit?
