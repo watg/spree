@@ -54,6 +54,7 @@
 
 //= require spree/frontend/product-option-values
 //= require spree/frontend/kit-option-values
+//= require spree/frontend/customizable-option-values
 //= require spree/frontend/spree_paypal_express
 
 // Refer-a-friend module

@@ -43,11 +43,6 @@ describe Spree::ProductPartPresenter do
       expect(Spree::VariantOptions).to receive(:new).with(subject.variants, subject.currency, nil)
       subject.send(:variant_options)
     end
-
-    it "instantiates a new VariantOption object" do
-      expect(Spree::VariantOptions).to receive(:new).with(subject.variants, subject.currency, nil)
-      subject.send(:variant_options)
-    end
   end
 
   context "methods that delegate to variant_options" do

@@ -33,18 +33,10 @@ core.suite.readyKitVariantOptions = (entity) ->
   ))
 
   entity.find(".price").on('recalculate',( ->
-    adjustment = sum_of_optional_part_prices(entity)
-    $(this).html( format_price($(this).data('currency'), $(this).data('price') + adjustment ) )
+    adjustment = KitUpdater.sumOfOptionalPartPrices(entity)
+    new_price  = $(this).data('price') + adjustment
+    $(this).html(KitUpdater.formatPrice($(this).data('currency'), new_price))
   ))
-
-  format_price = (currencySymbol,pence) ->
-    "#{currencySymbol}#{(pence / 100).toFixed(2)}"
-
-  sum_of_optional_part_prices = (entity) ->
-    sum = 0
-    entity.find(".product-variants.optional").each ->
-      sum = sum + ( Number $(this).data('adjustment') * $(this).data('quantity') )
-    sum
 
 #######################################################################################################################
 

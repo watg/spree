@@ -80,56 +80,56 @@ module Spree
         spree.edit_admin_product_url(@product)
       end
 
-        def load_data
-          @taxons = Taxon.order(:name)
-          @option_types = OptionType.order(:name)
-          @tax_categories = TaxCategory.order(:name)
-          @shipping_categories = ShippingCategory.order(:name)
-          @product_groups = ProductGroup.order(:name)
-          @suppliers = Supplier.order(:firstname, :lastname)
-        end
+      def load_data
+        @taxons = Taxon.order(:name)
+        @option_types = OptionType.order(:name)
+        @tax_categories = TaxCategory.order(:name)
+        @shipping_categories = ShippingCategory.order(:name)
+        @product_groups = ProductGroup.order(:name)
+        @suppliers = Supplier.order(:firstname, :lastname)
+      end
 
-        def collection
-          return @collection if @collection.present?
-          params[:q] ||= {}
-          params[:q][:deleted_at_null] ||= "1"
+      def collection
+        return @collection if @collection.present?
+        params[:q] ||= {}
+        params[:q][:deleted_at_null] ||= "1"
 
-          params[:q][:s] ||= "name asc"
-          @collection = super
-          @collection = @collection.with_deleted if params[:q][:deleted_at_null] == '0'
-          # @search needs to be defined as this is passed to search_form_for
-          @search = @collection.ransack(params[:q])
-          @collection = @search.result.
-                distinct_by_product_ids(params[:q][:s]).
-                includes(product_includes).
-                page(params[:page]).
-                per(Spree::Config[:admin_products_per_page])
+        params[:q][:s] ||= "name asc"
+        @collection = super
+        @collection = @collection.with_deleted if params[:q][:deleted_at_null] == '0'
+        # @search needs to be defined as this is passed to search_form_for
+        @search = @collection.ransack(params[:q])
+        @collection = @search.result.
+              distinct_by_product_ids(params[:q][:s]).
+              includes(product_includes).
+              page(params[:page]).
+              per(Spree::Config[:admin_products_per_page])
 
-          @collection
-        end
+        @collection
+      end
 
-        def create_before
-          return if params[:product][:prototype_id].blank?
-          @prototype = Spree::Prototype.find(params[:product][:prototype_id])
-        end
+      def create_before
+        return if params[:product][:prototype_id].blank?
+        @prototype = Spree::Prototype.find(params[:product][:prototype_id])
+      end
 
-        def update_before
-          # note: we only reset the product properties if we're receiving a post from the form on that tab
-          return unless params[:clear_product_properties]
-          params[:product] ||= {}
-        end
+      def update_before
+        # note: we only reset the product properties if we're receiving a post from the form on that tab
+        return unless params[:clear_product_properties]
+        params[:product] ||= {}
+      end
 
-        def product_includes
-          [{ variants: [:images, { option_values: :option_type }], master: [:images, :default_price] }]
-        end
+      def product_includes
+        [{ variants: [:images, { option_values: :option_type }], master: [:images, :default_price] }]
+      end
 
-        def clone_object_url resource
-          clone_admin_product_url resource
-        end
+      def clone_object_url resource
+        clone_admin_product_url resource
+      end
 
-        def permit_attributes
-          params.require(:product).permit!
-        end
+      def permit_attributes
+        params.require(:product).permit!
+      end
 
 
       private

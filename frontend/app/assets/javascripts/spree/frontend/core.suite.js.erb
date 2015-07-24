@@ -25,7 +25,6 @@ var readySuite = function() {
   core.suite.showHeroImage();
   core.suite.positionHeroTitle();
   core.suite.startCrossSales();
-  core.suite.readyOutOfStock();
   core.suite.readyProductTabs();
   core.suite.readyStartOlapic();
   /* ----- New kit UI only ----- */
@@ -58,6 +57,10 @@ core.suite.runVariantMethods = function() {
   var visible_entity = $('.displayable-entity:visible');
   if (visible_entity.length > 0) {
     core.suite.readyVariantOptions(visible_entity.first());
+  }
+  var visible_entity = $('.displayable-customizable-entity:visible');
+  if (visible_entity.length > 0) {
+    core.suite.readyCustomizableVariantOptions(visible_entity.first());
   }
   var visible_entity = $('.displayable-kit-entity:visible');
   if (visible_entity.length > 0) {

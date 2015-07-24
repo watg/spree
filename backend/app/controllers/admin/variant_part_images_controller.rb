@@ -1,5 +1,4 @@
 module Admin
-  # controller for variant part images
   class VariantPartImagesController < Spree::Admin::ResourceController
     before_filter :load_data
 

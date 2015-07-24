@@ -78,6 +78,35 @@ describe Spree::ProductPresenter do
     end
   end
 
+  describe "#kit?" do
+    before { product.product_type = product_type }
+
+    context "kit" do
+      let(:product_type) { build_stubbed(:product_type_kit, :kit) }
+      it { expect(subject.kit?).to be_truthy }
+    end
+
+    context "not a kit" do
+      let(:product_type) { build_stubbed(:product_type) }
+      it { expect(subject.kit?).to be_falsey }
+    end
+  end
+
+  describe "#ready_to_wear_with_parts?" do
+    let(:type)  { build_stubbed(:product_type) }
+    before      { product.product_type = type }
+
+    context "ready to wear with parts" do
+      let(:part) { build_stubbed(:product) }
+      before     { product.parts = [part] }
+      it         { expect(subject.ready_to_wear_with_parts?).to be_truthy }
+    end
+
+    context "ready to wear" do
+      it { expect(subject.ready_to_wear_with_parts?).to be_falsey }
+    end
+  end
+
   describe "#product_parts" do
     it "returns the product_parts" do
       expect(product).to receive(:product_parts)
