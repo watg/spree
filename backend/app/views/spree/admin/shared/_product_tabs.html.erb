@@ -1,3 +1,5 @@
+<% product_tab_presenter = ::Admin::ProductTabPresenter.new(@product) %>
+
 <% content_for :page_title do %>
   <%= Spree.t(:editing_product) %> &ldquo;<%= @product.name %>&rdquo;
 <% end %>
@@ -49,7 +51,7 @@
         <%= link_to_with_icon 'edit', t(:Personalisations),  admin_product_personalisations_url(@product) %>
       <% end if can?(:stock, Spree::Personalisation) %>
         <li><hr></li>
-        <% if @product_tab_presenter.parts? %>
+        <% if product_tab_presenter.parts? %>
           <%= content_tag :li, :class => ('active' if current == 'Product Parts') do %>
               <%= link_to_with_icon 'sitemap', "Product Parts", admin_product_product_parts_url(@product) %>
           <% end if can?(:stock, Spree::Product) %>

@@ -2,7 +2,6 @@ module Spree
   module Admin
     class ImagesController < ResourceController
       before_action :load_data
-      before_action :set_product_tab_presenter
       create.before :set_viewable
       update.before :set_viewable
 

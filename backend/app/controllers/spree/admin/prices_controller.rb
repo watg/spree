@@ -2,7 +2,6 @@ module Spree
   module Admin
     class PricesController < ResourceController
       belongs_to 'spree/product', :find_by => :slug
-      before_action :set_product_tab_presenter
 
       def create
         outcome = Spree::VariantPricesService.run(filtered_params)

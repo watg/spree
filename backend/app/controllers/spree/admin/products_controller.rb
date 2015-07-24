@@ -4,7 +4,6 @@ module Spree
       helper 'spree/products'
 
       before_action :load_data, except: :index
-      before_action :set_product_tab_presenter
       create.before :create_before
       update.before :update_before
       helper_method :clone_object_url
@@ -118,10 +117,6 @@ module Spree
         # note: we only reset the product properties if we're receiving a post from the form on that tab
         return unless params[:clear_product_properties]
         params[:product] ||= {}
-      end
-
-      def set_product_tab_presenter
-        @product_tab_presenter = ::Admin::ProductTabPresenter.new(@product)
       end
 
       def product_includes

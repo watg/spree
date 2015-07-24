@@ -271,10 +271,4 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
   def new_actions
     [:new, :create]
   end
-
-  private
-
-  def set_product_tab_presenter
-    @product_tab_presenter = ::Admin::ProductTabPresenter.new(@product)
-  end
 end

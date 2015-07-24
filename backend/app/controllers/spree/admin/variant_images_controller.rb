@@ -2,7 +2,6 @@ module Spree
   module Admin
     class VariantImagesController < ResourceController
       before_filter :load_data
-      before_action :set_product_tab_presenter
 
       def s3_callback
         image = Image.new(viewable: @variant)
