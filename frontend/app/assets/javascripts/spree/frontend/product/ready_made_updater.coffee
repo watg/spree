@@ -148,7 +148,7 @@ class @ReadyMadeUpdater
     sale_price      = variant_details.sale_price
     in_sale         = variant_details.in_sale
 
-    @container.find('.variant_id, form[data-form-type="variant"] input[name$="[variant_id]"]')
+    @entity.find('.variant_id, form[data-form-type="variant"] input[name$="[variant_id]"]')
             .val(variant_id)
 
     adjustment = this.getAdjustmentPrice()
