@@ -64,4 +64,4 @@
 //= require spree/frontend/reward_landing
 
 // Knit party module
-//= require spree/frontend/spree_party
+//= require spree/frontend/party

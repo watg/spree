@@ -9,7 +9,7 @@
     </div>
     <div class="row row-logo">
       <div class="large-2 columns">
-        <%= link_to root_path do %>
+        <%= link_to spree.root_path do %>
           <% unless mobile_device? %>
             <img src="<%= image_path("logo-watg-135x99.png") %>" width="116" height="85" alt="Wool And The Gang" />
           <% else %>
@@ -27,7 +27,7 @@
         <a class="link-nav-primary-sub" href="#navPrimarySub">Menu</a>
       </div>
       <div class="small-4 columns">
-        <a class="link-home" href="<%= root_path %>">Home</a>
+        <a class="link-home" href="<%= spree.root_path %>">Home</a>
       </div>
       <div class="small-4 columns">
         <a class="link-search" href="#">Search</a>
