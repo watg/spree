@@ -1,6 +1,5 @@
 class @ReadyMadeUpdater
   constructor: (@entity, @master_tree, @variants_total_on_hand) ->
-    @container = @entity.find('#variant-options-container')
 
   updateProductPage: ->
     if this.getVariantDetails()
@@ -11,7 +10,7 @@ class @ReadyMadeUpdater
       this.setPrices()
       if core.isMobileWidthOrLess() == true
         # if option values had the class langauge when is was clicked - dont toggle
-        if @container.find('.option-value.language').length <= 0
+        if @entity.find('.option-value.language').length <= 0
           this.toggleCarouselImages()
       else
         this.toggleImages()
@@ -54,9 +53,9 @@ class @ReadyMadeUpdater
 
 
   toogleSelect: (selected_type, selected_value) ->
-    @container.find(".option-value.#{selected_type}").removeClass('selected')
-    @container.find(".option-value.#{selected_type}.#{selected_value}").addClass('selected')
-    @container.find(".variant-option-values.#{selected_type}").addClass('selected')
+    @entity.find(".option-value.#{selected_type}").removeClass('selected')
+    @entity.find(".option-value.#{selected_type}.#{selected_value}").addClass('selected')
+    @entity.find(".variant-option-values.#{selected_type}").addClass('selected')
 
   getVariantDetails: ->
     selection_details = this.getSelectionDetails()
@@ -69,7 +68,7 @@ class @ReadyMadeUpdater
 
   toggleOptionValues: (selected_type, selected_value, selected_presentation, option_type_order) ->
     # If selected type value is unavailable, then return false
-    if @container.find(".option-value.#{selected_type}.#{selected_value}").hasClass('unavailable')
+    if @entity.find(".option-value.#{selected_type}.#{selected_value}").hasClass('unavailable')
       return false
 
     # Update the color-text value if type is selected_type is colour
@@ -81,10 +80,10 @@ class @ReadyMadeUpdater
     next_type = option_type_order[selected_type]
 
     while (next_type)
-      option = @container.find("#variant-options-container .option-value.#{next_type}")
-      @container.find(".option-value.#{next_type}").removeClass('selected')
+      option = @entity.find("#variant-options-container .option-value.#{next_type}")
+      @entity.find(".option-value.#{next_type}").removeClass('selected')
       .addClass('unavailable').addClass('locked')
-      @container.find(".variant-option-values.#{next_type}").removeClass('selected')
+      @entity.find(".variant-option-values.#{next_type}").removeClass('selected')
       next_type = option_type_order[next_type]
 
     selection_details = this.getSelectionDetails()
@@ -94,7 +93,7 @@ class @ReadyMadeUpdater
     type = ""
     value = ""
     tree = @master_tree
-    @container.find('.option-value.selected').each ->
+    @entity.find('.option-value.selected').each ->
       option_value = $(this)
       type =  option_value.data('type')
       value = option_value.data('value')
@@ -106,7 +105,7 @@ class @ReadyMadeUpdater
     # value we have to choose a value for, and make only those that
     # should be available, available
     for type, sub_tree of tree
-      @container.find(".option-value.#{type}").each ->
+      @entity.find(".option-value.#{type}").each ->
         option_value = $(this)
         if option_value.data('value') of sub_tree
           option_value.removeClass('unavailable')
@@ -131,13 +130,13 @@ class @ReadyMadeUpdater
 
   sumOfPersonalisationPrices: ->
     sum = 0
-    @container.find(".personalisations input:checked").each ->
+    @entity.find(".personalisations input:checked").each ->
       sum = sum + Number $(this).data('price')
     sum
 
   sumOfOptionalPartPrices: ->
     sum = 0
-    @container.find(".optional-parts ul input:checked").each ->
+    @entity.find(".optional-parts ul input:checked").each ->
       sum = sum + ( Number $(this).data('price') * $(this).data('quantity') )
     sum
 
@@ -148,7 +147,7 @@ class @ReadyMadeUpdater
     sale_price      = variant_details.sale_price
     in_sale         = variant_details.in_sale
 
-    @container.find('.variant_id, form[data-form-type="variant"] input[name$="[variant_id]"]')
+    @entity.find('.variant_id, form[data-form-type="variant"] input[name$="[variant_id]"]')
             .val(variant_id)
 
     adjustment = this.getAdjustmentPrice()
