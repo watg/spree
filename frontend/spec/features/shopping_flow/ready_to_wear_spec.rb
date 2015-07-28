@@ -10,6 +10,7 @@ feature "buying ready to wear products" do
   let(:colours)  { %w|blue red green| }
   let!(:options) { create_option_values }
   let(:variants) { create_variants }
+  let(:hat_page) { spree.suite_path(id: suite.permalink, tab: tab.tab_type) }
 
   before do
     variants.each do |v|
@@ -19,19 +20,25 @@ feature "buying ready to wear products" do
   end
 
   scenario "user selects favourite color", js: true do
-    visit spree.suite_path(id: suite.permalink, tab: tab.tab_type)
-    expect(page).to have_content "BAG"
+    visit hat_page
+    add_to_bag('green')
 
-    page.find("a.green").click
-    expect(page).to have_content("green")
-
-    find_button("Add To My Bag").click
-    expect(page).to have_content("ADDED TO YOUR CART")
-    expect(page).to have_content("BAG")
-
-    click_link("Checkout")
-    expect(page).to have_content("Color: green")
     expect(current_path).to eq "/cart"
+    expect(page).to have_content("Color: green")
+  end
+
+  scenario "user selects another colour", js: true do
+    visit hat_page
+    add_to_bag('blue')
+
+    expect(current_path).to eq "/cart"
+    expect(page).to have_content("Color: blue")
+  end
+
+  def add_to_bag(colour)
+    page.find("a.#{colour}").click
+    find_button("Add To My Bag").click
+    click_link("Checkout")
   end
 
   def create_option_values
