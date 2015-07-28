@@ -6,7 +6,7 @@ FactoryGirl.define do
     category_id 0
     trait :with_tab do
       after :create do |suite, evaluator|
-        create(:suite_tab, suite: suite)
+        create(:suite_tab, suite: suite, in_stock_cache: false)
       end
     end
   end
