@@ -63,6 +63,7 @@ body.homepage {
     display: block;
     line-height: 0;
     font-size: 0;
+    border: 1px solid blue;
   }
   .link-pattern {
     width: 100%;
@@ -74,6 +75,12 @@ body.homepage {
     bottom: 0;
     left: 0;
   }
+  .link-yarn {
+    width: 100px;
+    height: 100px;
+    top: 145px;
+    left: 16%;
+  }
   @media only screen and (min-width: 28.750em) {
     background: #fff cdn-url("/homepage/2015-07-28/Homepage_LexCropTop_DESKTOP_V3.jpg") top center no-repeat;
     & > div {
@@ -82,6 +89,12 @@ body.homepage {
     .link-kit {
       width: 50%;
       height: 300px;
+    }
+    .link-yarn {
+      width: 150px;
+      height: 150px;
+      top: 45px;
+      left: 42%;
     }
   }
 }
