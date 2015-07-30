@@ -81,7 +81,7 @@ module Spree
           '</td>' +
           '</tr>'
       end
-      template.to_html
+      template.to_s
     end
 
     def line_items
