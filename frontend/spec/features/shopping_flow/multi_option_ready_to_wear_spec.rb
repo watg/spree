@@ -6,11 +6,11 @@ feature "buying multi option product" do
   let!(:suite)   { create(:suite, name: " Bag ", title: "bag", permalink: "bag") }
   let!(:tab)     { create(:suite_tab, tab_type: "made-by-the-gang", suite: suite, product: hat) }
 
-  let!(:size)    { create(:option_type, name: "size", position: '1') }
+  let!(:size)    { create(:option_type, name: "size", position: "1") }
   let(:sizes)    { %w|small medium large| }
   let(:s_opts)   { create_option_values(size, sizes) }
 
-  let!(:colour)  { create(:option_type, name: "colour", position: '2') }
+  let!(:colour)  { create(:option_type, name: "colour", position: "2") }
   let(:colours)  { %w|blue red green| }
   let!(:c_opts)  { create_option_values(colour, colours) }
 
@@ -29,15 +29,15 @@ feature "buying multi option product" do
 
   scenario "user selects preferred color and size", js: true do
     visit hat_page
-    click_link('medium')
+    click_link("medium")
 
     verify_red_medium_variant_unavailable
-    expect(find('span.colour').text).to be_empty
-    expect(find('.add-to-cart-button')[:disabled]).to be_truthy
+    expect(find("span.colour").text).to be_empty
+    expect(find(".add-to-cart-button")[:disabled]).to be_truthy
 
-    click_link('blue')
+    click_link("blue")
 
-    expect(find('span.colour').text).to eq 'BLUE'
+    expect(find("span.colour").text).to eq "BLUE"
 
     checkout
 
@@ -61,11 +61,11 @@ feature "buying multi option product" do
   end
 
   def verify_red_medium_variant_unavailable
-    expect(page).to have_css('a.red.locked')
+    expect(page).to have_css("a.red.locked")
   end
 
   def checkout
     click_button("Add To My Bag")
-    click_link('Checkout')
+    click_link("Checkout")
   end
 end
