@@ -1,5 +1,6 @@
 class @ReadyMadeUpdater
   constructor: (@entity, @master_tree, @variants_total_on_hand) ->
+    @cart_button = @entity.find('.add-to-cart-button')
 
   updateProductPage: ->
     if this.getVariantDetails()
@@ -8,6 +9,7 @@ class @ReadyMadeUpdater
       this.setStockLevel(@variants_total_on_hand)
       this.setIsDigital()
       this.setPrices()
+
       if core.isMobileWidthOrLess() == true
         # if option values had the class langauge when is was clicked - dont toggle
         if @entity.find('.option-value.language').length <= 0
@@ -52,11 +54,6 @@ class @ReadyMadeUpdater
     @entity.find('.profiles').html(profiles)
 
 
-  toogleSelect: (selected_type, selected_value) ->
-    @entity.find(".option-value.#{selected_type}").removeClass('selected')
-    @entity.find(".option-value.#{selected_type}.#{selected_value}").addClass('selected')
-    @entity.find(".variant-option-values.#{selected_type}").addClass('selected')
-
   getVariantDetails: ->
     selection_details = this.getSelectionDetails()
     # If the node is 'variant' then we have no more options to select
@@ -76,8 +73,10 @@ class @ReadyMadeUpdater
       selector = "span.color-value.#{selected_type}"
       $(selector).text(selected_presentation)
 
-    this.toogleSelect(selected_type, selected_value)
+    this.toggleSelect(selected_type, selected_value)
+
     next_type = option_type_order[selected_type]
+    this.displayChosenOptions(selected_type, next_type)
 
     while (next_type)
       option = @entity.find("#variant-options-container .option-value.#{next_type}")
@@ -88,6 +87,20 @@ class @ReadyMadeUpdater
 
     selection_details = this.getSelectionDetails()
     this.showOptionsAvaliability(selection_details.type, selection_details.tree)
+
+  toggleSelect: (selected_type, selected_value) ->
+    @entity.find(".option-value.#{selected_type}").removeClass('selected')
+    @entity.find(".option-value.#{selected_type}.#{selected_value}").addClass('selected')
+    @entity.find(".variant-option-values.#{selected_type}").addClass('selected')
+
+  displayChosenOptions: (selected_type, next_type) ->
+    if selected_type == 'size' && next_type == 'colour'
+      @cart_button.attr("style", "opacity: 0.5")
+      @cart_button[0].disabled = true
+      @entity.find("span.color-value.colour").text('')
+    else
+      @cart_button.removeAttr("style")
+      @cart_button[0].disabled = false
 
   getSelectionDetails: ->
     type = ""
