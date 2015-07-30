@@ -53,7 +53,7 @@ module Spree
 
 
         def load_data
-          @product = Product.friendly.find(params[:product_id])
+          @product = Product.friendly.with_deleted.find(params[:product_id])
           @variants = @product.variants.collect do |variant|
             [variant.sku_and_options_text, variant.id]
           end
