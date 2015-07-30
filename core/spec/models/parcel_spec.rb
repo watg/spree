@@ -1,19 +1,25 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::Parcel do
   let(:order)   { create(:order) }
   let(:box)     { create(:product, product_type: create(:product_type_packaging)) }
-  subject { Spree::Parcel.new(order_id: order.id,
-                              box_id: box.id,
-                              weight: 20.0,
-                              height: 10.0,
-                              width: 15.0,
-                              depth: 4.0) }
+  subject do
+    described_class.new(order_id: order.id,
+                        box_id: box.id,
+                        weight: 20.0,
+                        height: 10.0,
+                        width: 15.0,
+                        depth: 4.0)
+  end
 
   context "Class Methods" do
-    subject      { Spree::Parcel }
+    subject      { described_class }
     let!(:boxes) { [create(:box)] }
-    its(:find_boxes) { should match_array(boxes) }
+
+    describe "#find_boxes" do
+      subject { super().find_boxes }
+      it { is_expected.to match_array(boxes) }
+    end
   end
 
   context "Validation" do
@@ -24,6 +30,4 @@ describe Spree::Parcel do
       end
     end
   end
-
-
 end

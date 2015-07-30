@@ -1,41 +1,44 @@
 # -*- coding: utf-8 -*-
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::UpdateProductService do
   let(:product) { FactoryGirl.create(:product_with_variants) }
-  let(:option_types) { [FactoryGirl.create(:option_type, name: "onte"), FactoryGirl.create(:option_type, name: "deux")]}
+  let(:option_types) { [FactoryGirl.create(:option_type, name: "onte"), FactoryGirl.create(:option_type, name: "deux")] }
 
-  let(:valid_params) { {option_type_ids: option_types.map(&:id).join(','),  visible_option_type_ids: [option_types[0]].join(','), name: 'test product'} }
+  let(:valid_params) { { option_type_ids: option_types.map(&:id).join(","),  visible_option_type_ids: [option_types[0]].join(","), name: "test product" } }
 
-  let(:prices) { {
-    :normal=>{"GBP"=>"£39.00", "USD"=>"$49.00", "EUR"=>"€47.00"},
-    :normal_sale=>{"GBP"=>"£111.00", "USD"=>"$12.00", "EUR"=>"€0.00"},
-    :part=>{"GBP"=>"£22.00", "USD"=>"$0.00", "EUR"=>"€0.00"}
-  } }
+  let(:prices) do
+    {
+      normal: { "GBP" => "£39.00", "USD" => "$49.00", "EUR" => "€47.00" },
+      normal_sale: { "GBP" => "£111.00", "USD" => "$12.00", "EUR" => "€0.00" },
+      part: { "GBP" => "£22.00", "USD" => "$0.00", "EUR" => "€0.00" }
+    }
+  end
 
   context "#run" do
-    let(:subject) { Spree::UpdateProductService }
+    let(:subject) { described_class }
 
-    it "should invoke success callback when all is good" do
+    it "invokes success callback when all is good" do
       outcome = subject.run(product: product, details: valid_params, prices: prices, stock_thresholds: nil)
       expect(outcome).to be_success
     end
 
-    it "should invoke failure callback on any error" do
+    it "invokes failure callback on any error" do
       outcome = subject.run(product: product, details: "wrong params!", prices: prices, stock_thresholds: nil)
       expect(outcome).not_to be_success
     end
 
-    it "should comply to definition" do
-      instance = subject.any_instance
-      instance.should_receive(:update_details)
-      instance.should_receive(:option_type_visibility)
+    it "complies to definition" do
+      expect_any_instance_of(described_class).to receive(:update_details)
+      expect_any_instance_of(described_class).to receive(:option_type_visibility)
 
       subject.run(product: product, details: {}, prices: prices, stock_thresholds: nil)
     end
 
     it "sets the prices on the master" do
-      Spree::UpdateProductService.any_instance.should_receive(:update_prices).once.with(hash_including(prices) ,product.master)
+      expect_any_instance_of(described_class)
+        .to receive(:update_prices).once.with(hash_including(prices), product.master)
+
       subject.run(product: product, details: valid_params, prices: prices, stock_thresholds: nil)
     end
 
@@ -49,48 +52,48 @@ describe Spree::UpdateProductService do
     let(:product) { FactoryGirl.create(:product_with_option_types) }
     let(:pot) { Spree::ProductOptionType.new }
 
-    it "should update product_option_type with visibility selection " do
+    it "updates product_option_type with visibility selection" do
       color, lang_id = [product.option_types[0], 99]
 
-      subject.should_receive(:make_visible).once
+      expect(subject).to receive(:make_visible).once
 
-      subject.option_type_visibility(product, [color.id, lang_id].join(','))
+      subject.option_type_visibility(product, [color.id, lang_id].join(","))
     end
 
-    it "should remove unselected visible option type"do
-      subject.should_receive(:reset_visible_option_types).with(product.id, product.option_types.map(&:id))
+    it "removes unselected visible option type"do
+      expect(subject).to receive(:reset_visible_option_types).with(product.id, product.option_types.map(&:id))
 
-      subject.option_type_visibility(product, '')
+      subject.option_type_visibility(product, "")
     end
   end
 
-
   context "update properties" do
-    let(:subject) { Spree::UpdateProductService }
-    it "should not delete product detais" do
+    let(:subject) { described_class }
+    it "does not delete product detais" do
       add_option_type_to(product, option_types[0])
 
       product_options = product.option_types.dup
       product_id = product.id
 
-      outcome = subject.run({product: product, details: properties_params, prices: prices, stock_thresholds: nil})
+      outcome = subject.run(product: product, details: properties_params, prices: prices, stock_thresholds: nil)
       product  = Spree::Product.find(product_id)
 
       expect(outcome).to be_success
-      product.option_types.should == product_options
+      expect(product.option_types).to eq(product_options)
     end
-
   end
 
   describe "update stock_thresholds" do
     let(:london) { create(:stock_location) }
     let(:bray) { create(:stock_location) }
-    let(:stock_thresholds) { {
-      london.to_param => 100,
-      bray.to_param   => 200,
-    } }
+    let(:stock_thresholds) do
+      {
+        london.to_param => 100,
+        bray.to_param   => 200
+      }
+    end
 
-    subject(:service) { Spree::UpdateProductService }
+    subject(:service) { described_class }
 
     it "creates stock thresholds on the master" do
       service.run(product: product, details: valid_params, prices: prices, stock_thresholds: stock_thresholds)
@@ -125,8 +128,8 @@ describe Spree::UpdateProductService do
   end
 
   # ----------------------
-  def to_list(array=[])
-    array.map(&:id).join(',')
+  def to_list(array = [])
+    array.map(&:id).join(",")
   end
 
   def add_option_type_to(p, opt_type)
@@ -135,9 +138,9 @@ describe Spree::UpdateProductService do
 
   def properties_params
     {
-      product_properties_attributes:{
-        "0"=>{id: '', property_name: "gender", value: "Women"},
-        "1"=>{id: "",  property_name: "",       value: ""}}
+      product_properties_attributes: {
+        "0" => { id: "", property_name: "gender", value: "Women" },
+        "1" => { id: "",  property_name: "",       value: "" } }
     }
   end
 end

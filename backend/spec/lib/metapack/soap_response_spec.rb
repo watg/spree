@@ -1,33 +1,44 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Metapack::SoapResponse do
   describe "#success?" do
     context "when the http response was successful" do
-      subject { Metapack::SoapResponse.new(Net::HTTPResponse.new(1.0, '200', '')) }
-      its(:success?) { should be true }
+      subject { described_class.new(Net::HTTPResponse.new(1.0, "200", "")) }
+
+      describe "#success?" do
+        subject { super().success? }
+        it { is_expected.to be true }
+      end
     end
 
     context "when the http response was unsuccessful" do
-      subject { Metapack::SoapResponse.new(Net::HTTPResponse.new(1.0, '500', '')) }
-      its(:success?) { should be false }
+      subject { described_class.new(Net::HTTPResponse.new(1.0, "500", "")) }
+
+      describe "#success?" do
+        subject { super().success? }
+        it { is_expected.to be false }
+      end
     end
   end
 
   describe "#body" do
-    let(:response) { Net::HTTPResponse.new(1.0, '200', 'OK') }
-    subject { Metapack::SoapResponse.new(response) }
+    let(:response) { Net::HTTPResponse.new(1.0, "200", "OK") }
+    subject { described_class.new(response) }
 
     before :each do
-      allow(response).to receive(:body).and_return('ok')
+      allow(response).to receive(:body).and_return("ok")
     end
-    
-    its(:body) { should eq('ok') }
+
+    describe "#body" do
+      subject { super().body }
+      it { is_expected.to eq("ok") }
+    end
   end
-  
+
   describe "finders" do
     let(:xml) { xml_fixture("responses/find_ready_to_manifest_records.xml") }
-    let(:response) { Net::HTTPResponse.new(1.0, '200', 'OK') }
-    subject { Metapack::SoapResponse.new(response) }
+    let(:response) { Net::HTTPResponse.new(1.0, "200", "OK") }
+    subject { described_class.new(response) }
 
     before :each do
       allow(response).to receive(:body).and_return(xml)
@@ -44,14 +55,13 @@ describe Metapack::SoapResponse do
         selector = "findReadyToManifestRecordsReturn findReadyToManifestRecordsReturn"
         expect(subject.find_all(selector, [:carrierCode, :consignmentCount])).to eq([
           { carrierCode: "DHL", consignmentCount: "1" },
-          { carrierCode: "ROYALMAIL", consignmentCount: "2" },
+          { carrierCode: "ROYALMAIL", consignmentCount: "2" }
         ])
       end
     end
   end
 
-  
   def xml_fixture(file)
-    File.read(File.join(fixture_path, "xml", file)) 
+    File.read(File.join(fixture_path, "xml", file))
   end
 end

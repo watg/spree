@@ -62,7 +62,7 @@ module Spree
           (index + 1).to_s +
           ": " + parcel.metapack_tracking_url.to_s + "</p>"
       end
-      t.to_html
+      t.to_s
     end
   end
 end

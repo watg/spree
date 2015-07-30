@@ -1,44 +1,45 @@
-require 'spec_helper'
+require "spec_helper"
 
 module Spree
   describe StockReport do
-
     describe "#header" do
-      it "should return the header" do
+      it "returns the header" do
         expect(subject.header).to be_kind_of Array
       end
     end
 
     describe "#retrieve_data" do
-      subject {
+      subject do
         data = []
-        described_class.new.retrieve_data {|d| data << d}
+        described_class.new.retrieve_data { |d| data << d }
         data.flatten
-      }
+      end
 
-      it "should run fine without data (this tests the sql)" do
+      it "runs fine without data (this tests the sql)" do
         expect(subject).to eq []
       end
 
-      context 'with data' do
-        let(:prices) { [
-          build(:price, :currency => 'GBP', :amount => 12),
-          build(:price, :currency => 'USD', :amount => 13),
-          build(:price, :currency => 'EUR', :amount => 14),
-          build(:price, :currency => 'GBP', :amount => 2, :sale => true),
-          build(:price, :currency => 'USD', :amount => 3, :sale => true),
-          build(:price, :currency => 'EUR', :amount => 4, :sale => true),
-          build(:price, :currency => 'GBP', :amount => 5, :is_kit => true),
-          build(:price, :currency => 'USD', :amount => 6, :is_kit => true),
-          build(:price, :currency => 'EUR', :amount => 7, :is_kit => true),
-        ] }
+      context "with data" do
+        let(:prices) do
+          [
+            create(:price, currency: "GBP", amount: 12),
+            create(:price, currency: "USD", amount: 13),
+            create(:price, currency: "EUR", amount: 14),
+            create(:price, currency: "GBP", amount: 2, sale: true),
+            create(:price, currency: "USD", amount: 3, sale: true),
+            create(:price, currency: "EUR", amount: 4, sale: true),
+            create(:price, currency: "GBP", amount: 5, is_kit: true),
+            create(:price, currency: "USD", amount: 6, is_kit: true),
+            create(:price, currency: "EUR", amount: 7, is_kit: true)
+          ]
+        end
 
         before do
-          @variant = Variant.new(sku: 'SKU1')
+          @variant = Variant.new(sku: "SKU1")
           @variant.prices = prices
 
           @marketing_type = build_stubbed(:marketing_type)
-          @product = Product.new(name: 'Product 1', marketing_type: @marketing_type)
+          @product = Product.new(name: "Product 1", marketing_type: @marketing_type)
           @product.variants << @variant
 
           @supplier = build(:supplier)
@@ -50,45 +51,54 @@ module Spree
         end
 
         context "its size should be the same as the header" do
-          its(:size) { should eq described_class.new.header.size }
-        end
-
-        [:name, :sku].each do |method|
-          it { should include @product.send(method) }
-        end
-
-        [:sku, :options_text, :cost_price].each do |method|
-          it { should include @variant.send(method) }
-        end
-
-        [:name].each do |method|
-          it { should include @marketing_type.send(method) }
-        end
-
-        [:name].each do |method|
-          it { should include @supplier.send(method) }
-        end
-
-        [:name].each do |method|
-          it { should include @stock_location.send(method) }
-        end
-
-        [:count_on_hand].each do |method|
-          it { should include @stock_item.send(method) }
-        end
-
-        context 'prices' do
-          ['USD', 'GBP', 'EUR'].each do |currency|
-            it { should include Spree::Price.find_normal_price(prices, currency).price.to_s }
-            it { should include Spree::Price.find_part_price(prices, currency).price.to_s }
-            it { should include Spree::Price.find_sale_price(prices, currency).price.to_s }
+          describe "#size" do
+            it { expect(subject.size).to eq described_class.new.header.size }
           end
         end
 
-      end
+        [:name, :sku].each do |method|
+          it { is_expected.to include @product.send(method) }
+        end
 
+        [:sku, :options_text, :cost_price].each do |method|
+          it { is_expected.to include @variant.send(method) }
+        end
+
+        [:name].each do |method|
+          it { is_expected.to include @marketing_type.send(method) }
+        end
+
+        [:name].each do |method|
+          it { is_expected.to include @supplier.send(method) }
+        end
+
+        [:name].each do |method|
+          it { is_expected.to include @stock_location.send(method) }
+        end
+
+        [:count_on_hand].each do |method|
+          it { is_expected.to include @stock_item.send(method) }
+        end
+
+        context "prices" do
+          %w(USD GBP EUR).each do |currency|
+            it "have normal_price" do
+              price = Spree::Price.find_part_price(prices, currency).price.to_s
+              expect(subject).to include(price)
+            end
+
+            it "have part_price" do
+              price = Spree::Price.find_part_price(prices, currency).price.to_s
+              expect(subject).to include(price)
+            end
+
+            it "have sale_price" do
+              price = Spree::Price.find_part_price(prices, currency).price.to_s
+              expect(subject).to include(price)
+            end
+          end
+        end
+      end
     end
   end
 end
-
-

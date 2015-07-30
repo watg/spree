@@ -1,12 +1,12 @@
-require 'spec_helper'
+require "spec_helper"
 
-describe Spree::StockItem, :type => :model do
+describe Spree::StockItem, type: :model do
   let(:stock_location) { create(:stock_location_with_items) }
   let!(:stock_item) { stock_location.stock_items.first }
 
   subject { stock_location.stock_items.order(:id).first }
 
-  it 'maintains the count on hand for a variant' do
+  it "maintains the count on hand for a variant" do
     expect(subject.count_on_hand).to eq 10
   end
 
@@ -26,8 +26,8 @@ describe Spree::StockItem, :type => :model do
     end
 
     it "return stock items from only avaiable locations" do
-      stock_items = described_class.from_available_locations.
-        where(variant: stock_item.variant)
+      stock_items = described_class.from_available_locations
+                    .where(variant: stock_item.variant)
 
       expect(stock_items.size).to eq 3
 
@@ -36,7 +36,7 @@ describe Spree::StockItem, :type => :model do
       expected_stock_locations = [
         stock_location,
         stock_location_2,
-        stock_location_4,
+        stock_location_4
       ]
 
       expect(stock_locations).to match_array expected_stock_locations
@@ -63,32 +63,32 @@ describe Spree::StockItem, :type => :model do
     end
   end
 
-  describe 'reduce_count_on_hand_to_zero' do
-    context 'when count_on_hand > 0' do
+  describe "reduce_count_on_hand_to_zero" do
+    context "when count_on_hand > 0" do
       before(:each) do
-        subject.update_column('count_on_hand', 4)
-         subject.reduce_count_on_hand_to_zero
-       end
+        subject.update_column("count_on_hand", 4)
+        subject.reduce_count_on_hand_to_zero
+      end
 
-       it { expect(subject.count_on_hand).to eq(0) }
-     end
+      it { expect(subject.count_on_hand).to eq(0) }
+    end
 
-     context 'when count_on_hand > 0' do
-       before(:each) do
-         subject.update_column('count_on_hand', -4)
-         @count_on_hand = subject.count_on_hand
-         subject.reduce_count_on_hand_to_zero
-       end
+    context "when count_on_hand > 0" do
+      before(:each) do
+        subject.update_column("count_on_hand", -4)
+        @count_on_hand = subject.count_on_hand
+        subject.reduce_count_on_hand_to_zero
+      end
 
-       it { expect(subject.count_on_hand).to eq(@count_on_hand) }
-     end
+      it { expect(subject.count_on_hand).to eq(@count_on_hand) }
+    end
   end
 
   context "adjust count_on_hand" do
     let!(:current_on_hand) { subject.count_on_hand }
 
-    it 'is updated pessimistically' do
-      copy = Spree::StockItem.find(subject.id)
+    it "is updated pessimistically" do
+      copy = described_class.find(subject.id)
 
       subject.adjust_count_on_hand(5)
       expect(subject.count_on_hand).to eq(current_on_hand + 5)
@@ -99,21 +99,20 @@ describe Spree::StockItem, :type => :model do
     end
 
     context "check_variant_stock" do
-
       it "creates a job after save" do
-        mock_object = double('stock_check_job', perform: true)
+        mock_object = double("stock_check_job", perform: true)
         expect(Spree::StockCheckJob).to receive(:new).with(subject.variant).and_return(mock_object)
-        expect(::Delayed::Job).to receive(:enqueue).with(mock_object, queue: 'stock_check', priority: 10)
+        expect(::Delayed::Job).to receive(:enqueue).with(mock_object, queue: "stock_check", priority: 10)
         subject.send(:conditional_variant_touch)
       end
     end
 
     context "item out of stock" do
-      let(:inventory_unit) { double('InventoryUnit', fill_backorder: true, backordered?: true) }
-      let(:inventory_unit_2) { double('InventoryUnit2', fill_backorder: true, backordered?: true) }
+      let(:inventory_unit) { double("InventoryUnit", fill_backorder: true, backordered?: true) }
+      let(:inventory_unit_2) { double("InventoryUnit2", fill_backorder: true, backordered?: true) }
 
       before do
-        allow(subject).to receive_messages(:backordered_inventory_units => [inventory_unit, inventory_unit_2])
+        allow(subject).to receive_messages(backordered_inventory_units: [inventory_unit, inventory_unit_2])
         subject.update_column(:count_on_hand, -2)
       end
 
@@ -138,8 +137,8 @@ describe Spree::StockItem, :type => :model do
   context "set count_on_hand" do
     let!(:current_on_hand) { subject.count_on_hand }
 
-    it 'is updated pessimistically' do
-      copy = Spree::StockItem.find(subject.id)
+    it "is updated pessimistically" do
+      copy = described_class.find(subject.id)
 
       subject.set_count_on_hand(5)
       expect(subject.count_on_hand).to eq(5)
@@ -150,8 +149,8 @@ describe Spree::StockItem, :type => :model do
     end
 
     context "item out of stock (by two items)" do
-      let(:inventory_unit) { double('InventoryUnit', backordered?: true) }
-      let(:inventory_unit_2) { double('InventoryUnit2', backordered?: true) }
+      let(:inventory_unit) { double("InventoryUnit", backordered?: true) }
+      let(:inventory_unit_2) { double("InventoryUnit2", backordered?: true) }
 
       before { subject.set_count_on_hand(-2) }
 
@@ -171,12 +170,10 @@ describe Spree::StockItem, :type => :model do
   end
 
   describe "#waiting_units_processor" do
-
     it "instantiates WaitingUnitsProcessor correctly" do
       expect(Spree::Stock::WaitingUnitsProcessor).to receive(:new).with(subject)
       subject.send(:waiting_units_processor)
     end
-
   end
 
   context "with stock movements" do
@@ -191,17 +188,17 @@ describe Spree::StockItem, :type => :model do
     before { subject.destroy }
 
     it "recreates stock item just fine" do
-      expect {
+      expect do
         stock_location.stock_items.create!(variant: subject.variant)
-      }.not_to raise_error
+      end.not_to raise_error
     end
 
     it "doesnt allow recreating more than one stock item at once" do
       stock_location.stock_items.create!(variant: subject.variant)
 
-      expect {
+      expect do
         stock_location.stock_items.create!(variant: subject.variant)
-      }.to raise_error
+      end.to raise_error
     end
   end
 
@@ -295,20 +292,16 @@ describe Spree::StockItem, :type => :model do
     end
   end
 
-
   describe "stock_quantifier" do
-
     it "returns an instance of the stock Quantifier" do
       expect(Spree::Stock::Quantifier).to receive(:new).with(subject.variant)
       subject.send(:stock_quantifier)
     end
-
   end
 
   describe "clear_total_on_hand_cache" do
-
-    let(:variant) { build_stubbed(:base_variant)}
-    let(:stock_quantifier) { Spree::Stock::Quantifier.new(variant)}
+    let(:variant) { build_stubbed(:base_variant) }
+    let(:stock_quantifier) { Spree::Stock::Quantifier.new(variant) }
 
     before { allow(subject).to receive(:stock_quantifier).and_return(stock_quantifier) }
 
@@ -316,13 +309,11 @@ describe Spree::StockItem, :type => :model do
       expect(stock_quantifier).to receive(:clear_total_on_hand_cache)
       subject.send(:clear_total_on_hand_cache)
     end
-
   end
 
   describe "conditional_clear_total_on_hand_cache" do
-
-    let(:variant) { build_stubbed(:base_variant)}
-    let(:stock_quantifier) { Spree::Stock::Quantifier.new(variant)}
+    let(:variant) { build_stubbed(:base_variant) }
+    let(:stock_quantifier) { Spree::Stock::Quantifier.new(variant) }
 
     before { allow(subject).to receive(:stock_quantifier).and_return(stock_quantifier) }
 
@@ -349,14 +340,11 @@ describe Spree::StockItem, :type => :model do
       expect(stock_quantifier).to_not receive(:clear_total_on_hand_cache)
       subject.send(:conditional_clear_total_on_hand_cache)
     end
-
   end
 
-
   describe "clear_backorderable_cache" do
-
-    let(:variant) { build_stubbed(:base_variant)}
-    let(:stock_quantifier) { Spree::Stock::Quantifier.new(variant)}
+    let(:variant) { build_stubbed(:base_variant) }
+    let(:stock_quantifier) { Spree::Stock::Quantifier.new(variant) }
 
     before { allow(subject).to receive(:stock_quantifier).and_return(stock_quantifier) }
 
@@ -383,53 +371,52 @@ describe Spree::StockItem, :type => :model do
       expect(stock_quantifier).to_not receive(:clear_backorderable_cache)
       subject.send(:clear_backorderable_cache)
     end
-
   end
 
   describe "stock_changed?" do
     it "is true when count on hand changes from positive to 0" do
-      subject.send(:count_on_hand=,0)
+      subject.send(:count_on_hand=, 0)
       expect(subject.send(:stock_changed?)).to be true
     end
 
     it "is false when it changes but not to 0" do
-      subject.send(:count_on_hand=,1123)
+      subject.send(:count_on_hand=, 1123)
       expect(subject.send(:stock_changed?)).to be false
     end
 
     it "is true when it changes from a negative to a positive" do
       subject.update_column(:count_on_hand, -1)
-      subject.send(:count_on_hand=,1)
+      subject.send(:count_on_hand=, 1)
       expect(subject.send(:stock_changed?)).to be_truthy
     end
 
     it "is true when it changes from a zero to a positive" do
       subject.update_column(:count_on_hand, 0)
-      subject.send(:count_on_hand=,1)
+      subject.send(:count_on_hand=, 1)
       expect(subject.send(:stock_changed?)).to be_truthy
     end
 
     it "is true when it changes from a postive to a negative" do
       subject.update_column(:count_on_hand, 1)
-      subject.send(:count_on_hand=,-1)
+      subject.send(:count_on_hand=, -1)
       expect(subject.send(:stock_changed?)).to be_truthy
     end
 
     it "is true when it changes from a zero to a negative" do
       subject.update_column(:count_on_hand, 0)
-      subject.send(:count_on_hand=,-1)
+      subject.send(:count_on_hand=, -1)
       expect(subject.send(:stock_changed?)).to be_truthy
     end
 
     it "is false when it changes from a positive to positive" do
       subject.update_column(:count_on_hand, 1)
-      subject.send(:count_on_hand=,2)
+      subject.send(:count_on_hand=, 2)
       expect(subject.send(:stock_changed?)).to be_falsey
     end
 
     it "is false when it changes from a negative to negative" do
       subject.update_column(:count_on_hand, -1)
-      subject.send(:count_on_hand=,-2)
+      subject.send(:count_on_hand=, -2)
       expect(subject.send(:stock_changed?)).to be_falsey
     end
 
@@ -437,7 +424,6 @@ describe Spree::StockItem, :type => :model do
       subject.variant_id = nil
       expect(subject.send(:stock_changed?)).to be true
     end
-
   end
 
   describe "#after_touch" do
@@ -454,7 +440,7 @@ describe Spree::StockItem, :type => :model do
 
     let(:order) do
       order = create(:order)
-      order.state = 'complete'
+      order.state = "complete"
       order.completed_at = Time.now
       order.tap(&:save!)
     end
@@ -464,9 +450,9 @@ describe Spree::StockItem, :type => :model do
       shipment.stock_location = stock_location
       shipment.shipping_methods << create(:shipping_method)
       shipment.order = order
-      shipment.state = 'ready'
+      shipment.state = "ready"
       # We don't care about this in this test
-      shipment.stub(:ensure_correct_adjustment)
+      allow(shipment).to receive(:ensure_correct_adjustment)
       shipment.tap(&:save!)
     end
 
@@ -489,18 +475,18 @@ describe Spree::StockItem, :type => :model do
     end
 
     it "is influenced by order states (cancel)" do
-      order.update_column(:state, 'cancel')
+      order.update_column(:state, "cancel")
       expect(stock_item.reload.number_of_shipments_pending).to eq 0
     end
 
     it "is influenced by order states (resumed)" do
-      shipment.update_column(:state, 'ready')
-      order.update_column(:state, 'resumed')
+      shipment.update_column(:state, "ready")
+      order.update_column(:state, "resumed")
       expect(stock_item.reload.number_of_shipments_pending).to eq 1
     end
 
     it "is influenced by shipments states" do
-      shipment.update_column(:state, 'shipped')
+      shipment.update_column(:state, "shipped")
       expect(stock_item.reload.number_of_shipments_pending).to eq 0
     end
 
@@ -521,7 +507,6 @@ describe Spree::StockItem, :type => :model do
         stock_item.supplier = supplier
         expect(stock_item.number_of_shipments_pending).to eq 1
       end
-
     end
 
     context "stock_location" do
@@ -536,7 +521,6 @@ describe Spree::StockItem, :type => :model do
       end
     end
   end # #number_of_shipments_pending
-
 
   # Regression test for #4651
   context "variant" do

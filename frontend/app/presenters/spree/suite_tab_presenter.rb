@@ -179,10 +179,10 @@ module Spree
       normal_money_amount = "from #{Spree::Money.new(normal_amount, money_options)}"
       if in_sale && sale_amount && (sale_amount < normal_amount)
         sale_money_amount = "from #{Spree::Money.new(sale_amount, money_options)}"
-        h.content_tag(:span, normal_money_amount.to_html, class: "price was", itemprop: "price") +
-          h.content_tag(:span, sale_money_amount.to_html, class: "price now")
+        h.content_tag(:span, normal_money_amount.to_s, class: "price was", itemprop: "price") +
+          h.content_tag(:span, sale_money_amount.to_s, class: "price now")
       else
-        h.content_tag(:span, normal_money_amount.to_html, class: "price now", itemprop: "price")
+        h.content_tag(:span, normal_money_amount.to_s, class: "price now", itemprop: "price")
       end
     end
   end

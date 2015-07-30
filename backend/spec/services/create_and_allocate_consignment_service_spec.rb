@@ -12,9 +12,9 @@ describe Spree::CreateAndAllocateConsignmentService do
   let(:shipping_method) { order.shipments.first.shipping_method }
 
   before do
-    Spree::ProductGroup.any_instance.stub(:country).and_return country
+    allow_any_instance_of(Spree::ProductGroup).to receive(:country).and_return country
     # Test removal of the \n
-    Spree::ProductGroup.any_instance.stub(:content).and_return "10% Wool\n90% Cotton"
+    allow_any_instance_of(Spree::ProductGroup).to receive(:content).and_return "10% Wool\n90% Cotton"
   end
 
   describe "::run" do

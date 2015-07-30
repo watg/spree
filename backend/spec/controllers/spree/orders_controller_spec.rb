@@ -1,18 +1,17 @@
-require 'spec_helper'
-require 'cancan'
-require 'spree/testing_support/bar_ability'
+require "spec_helper"
+require "cancan"
+require "spree/testing_support/bar_ability"
 
 # Ability to test access to specific model instances
 class OrderSpecificAbility
   include CanCan::Ability
 
-  def initialize(user)
-    can [:admin, :manage], Spree::Order, :number => 'R987654321'
+  def initialize(_user)
+    can [:admin, :manage], Spree::Order, number: "R987654321"
   end
 end
 
-describe Spree::Admin::OrdersController, :type => :controller do
-
+describe Spree::Admin::OrdersController, type: :controller do
   # prevents the Spree::Admin::OrdersController with authorization search does not display duplicated results
   # test from failing when when with a random seed
   before(:all) do
@@ -36,14 +35,14 @@ describe Spree::Admin::OrdersController, :type => :controller do
         Spree::Order,
         completed?:      true,
         total:           100,
-        number:          'R123456789',
+        number:          "R123456789",
         all_adjustments: adjustments,
         can_cancel?:      true,
         billing_address: mock_model(Spree::Address)
       )
     end
 
-    let(:adjustments) { double('adjustments') }
+    let(:adjustments) { double("adjustments") }
 
     before do
       allow(Spree::Order).to receive_messages(find_by_number!: order)
@@ -75,7 +74,7 @@ describe Spree::Admin::OrdersController, :type => :controller do
 
     context "pagination" do
       it "can page through the orders" do
-        spree_get :index, :page => 2, :per_page => 10
+        spree_get :index, page: 2, per_page: 10
         expect(assigns[:orders].offset_value).to eq(10)
         expect(assigns[:orders].limit_value).to eq(10)
       end
@@ -90,15 +89,15 @@ describe Spree::Admin::OrdersController, :type => :controller do
     end
 
     context "#create" do
-      let(:params) { { order: { currency: 'GBP'}} }
+      let(:params) { { order: { currency: "GBP" } } }
       it "a created order has the current user assigned as a creator" do
         spree_post :create, params
-        assigns[:order].created_by.should == controller.try_spree_current_user
+        expect(assigns[:order].created_by).to eq(controller.try_spree_current_user)
       end
 
       it "a created order has the currency assigned" do
         spree_post :create, params
-        assigns[:order].currency.should == 'GBP'
+        expect(assigns[:order].currency).to eq("GBP")
       end
 
       it "sets the internal" do
@@ -106,7 +105,6 @@ describe Spree::Admin::OrdersController, :type => :controller do
         spree_post :create, params
         expect(assigns[:order]).to be_internal
       end
-
     end
 
     # Regression test for #3684
@@ -114,13 +112,13 @@ describe Spree::Admin::OrdersController, :type => :controller do
       it "does not refresh rates if the order is completed" do
         allow(order).to receive_messages :completed? => true
         expect(order).not_to receive :refresh_shipment_rates
-        spree_get :edit, :id => order.number
+        spree_get :edit, id: order.number
       end
 
       it "does refresh the rates if the order is incomplete" do
         allow(order).to receive_messages :completed? => false
         expect(order).to receive :refresh_shipment_rates
-        spree_get :edit, :id => order.number
+        spree_get :edit, id: order.number
       end
     end
 
@@ -129,8 +127,8 @@ describe Spree::Admin::OrdersController, :type => :controller do
       let(:user) { create(:user) }
 
       before do
-        allow(controller).to receive_messages :spree_current_user => user
-        user.spree_roles << Spree::Role.find_or_create_by(name: 'admin')
+        allow(controller).to receive_messages spree_current_user: user
+        user.spree_roles << Spree::Role.find_or_create_by(name: "admin")
 
         create(:completed_order_with_totals)
         expect(Spree::Order.count).to eq 1
@@ -140,7 +138,7 @@ describe Spree::Admin::OrdersController, :type => :controller do
         spree_get :index, q: {
           line_items_variant_id_in: Spree::Order.first.variants.map(&:id)
         }
-        expect(assigns[:orders].map { |o| o.number }.count).to eq 1
+        expect(assigns[:orders].map(&:number).count).to eq 1
       end
     end
 
@@ -148,7 +146,7 @@ describe Spree::Admin::OrdersController, :type => :controller do
       it "toggles the important flag" do
         expect(order).to receive(:toggle).with(:important)
         expect(order).to receive(:save!)
-        spree_post :important, :id => order.number
+        spree_post :important, id: order.number
       end
     end
 
@@ -171,7 +169,7 @@ describe Spree::Admin::OrdersController, :type => :controller do
     end
 
     context "#open_adjustments" do
-      let(:closed) { double('closed_adjustments') }
+      let(:closed) { double("closed_adjustments") }
 
       before do
         allow(adjustments).to receive(:where).and_return(closed)
@@ -179,15 +177,15 @@ describe Spree::Admin::OrdersController, :type => :controller do
       end
 
       it "changes all the closed adjustments to open" do
-        expect(adjustments).to receive(:where).with(state: 'closed')
+        expect(adjustments).to receive(:where).with(state: "closed")
           .and_return(closed)
-        expect(closed).to receive(:update_all).with(state: 'open')
+        expect(closed).to receive(:update_all).with(state: "open")
         spree_post :open_adjustments, id: order.number
       end
 
       it "sets the flash success message" do
         spree_post :open_adjustments, id: order.number
-        expect(flash[:success]).to eql('All adjustments successfully opened!')
+        expect(flash[:success]).to eql("All adjustments successfully opened!")
       end
 
       it "redirects back" do
@@ -197,7 +195,7 @@ describe Spree::Admin::OrdersController, :type => :controller do
     end
 
     context "#close_adjustments" do
-      let(:open) { double('open_adjustments') }
+      let(:open) { double("open_adjustments") }
 
       before do
         allow(adjustments).to receive(:where).and_return(open)
@@ -205,15 +203,15 @@ describe Spree::Admin::OrdersController, :type => :controller do
       end
 
       it "changes all the open adjustments to closed" do
-        expect(adjustments).to receive(:where).with(state: 'open')
+        expect(adjustments).to receive(:where).with(state: "open")
           .and_return(open)
-        expect(open).to receive(:update_all).with(state: 'closed')
+        expect(open).to receive(:update_all).with(state: "closed")
         spree_post :close_adjustments, id: order.number
       end
 
       it "sets the flash success message" do
         spree_post :close_adjustments, id: order.number
-        expect(flash[:success]).to eql('All adjustments successfully closed!')
+        expect(flash[:success]).to eql("All adjustments successfully closed!")
       end
 
       it "redirects back" do
@@ -223,48 +221,48 @@ describe Spree::Admin::OrdersController, :type => :controller do
     end
   end
 
-  context '#authorize_admin' do
+  context "#authorize_admin" do
     let(:user) { create(:user) }
-    let(:order) { create(:completed_order_with_totals, :number => 'R987654321') }
+    let(:order) { create(:completed_order_with_totals, number: "R987654321") }
 
     before do
       allow(Spree::Order).to receive_messages :find_by_number! => order
-      allow(controller).to receive_messages :spree_current_user => user
+      allow(controller).to receive_messages spree_current_user: user
     end
 
-    it 'should grant access to users with an admin role' do
-      user.spree_roles << Spree::Role.find_or_create_by(name: 'admin')
+    it "grants access to users with an admin role" do
+      user.spree_roles << Spree::Role.find_or_create_by(name: "admin")
       spree_post :index
       expect(response).to render_template :index
     end
 
-    it 'should grant access to users with an bar role' do
-      user.spree_roles << Spree::Role.find_or_create_by(name: 'bar')
+    it "grants access to users with an bar role" do
+      user.spree_roles << Spree::Role.find_or_create_by(name: "bar")
       Spree::Ability.register_ability(BarAbility)
       spree_post :index
       expect(response).to render_template :index
       Spree::Ability.remove_ability(BarAbility)
     end
 
-    it 'should deny access to users with an bar role' do
+    it "denies access to users with an bar role" do
       allow(order).to receive(:update_attributes).and_return true
       allow(order).to receive(:user).and_return Spree.user_class.new
       allow(order).to receive(:token).and_return nil
       user.spree_roles.clear
-      user.spree_roles << Spree::Role.find_or_create_by(name: 'bar')
+      user.spree_roles << Spree::Role.find_or_create_by(name: "bar")
       Spree::Ability.register_ability(BarAbility)
-      spree_put :update, { :id => 'R123' }
-      expect(response).to redirect_to('/unauthorized')
+      spree_put :update,  id: "R123"
+      expect(response).to redirect_to("/unauthorized")
       Spree::Ability.remove_ability(BarAbility)
     end
 
-    it 'should deny access to users without an admin role' do
+    it "denies access to users without an admin role" do
       allow(user).to receive_messages :has_spree_role? => false
       spree_post :index
-      expect(response).to redirect_to('/unauthorized')
+      expect(response).to redirect_to("/unauthorized")
     end
 
-    it 'should restrict returned order(s) on index when using OrderSpecificAbility' do
+    it "restricts returned order(s) on index when using OrderSpecificAbility" do
       number = order.number
 
       3.times { create(:completed_order_with_totals) }
@@ -274,9 +272,9 @@ describe Spree::Admin::OrdersController, :type => :controller do
       allow(user).to receive_messages :has_spree_role? => false
       spree_get :index
       expect(response).to render_template :index
-      expect(assigns['orders'].size).to eq 1
-      expect(assigns['orders'].first.number).to eq number
-      expect(Spree::Order.accessible_by(Spree::Ability.new(user), :index).pluck(:number)).to eq  [number]
+      expect(assigns["orders"].size).to eq 1
+      expect(assigns["orders"].first.number).to eq number
+      expect(Spree::Order.accessible_by(Spree::Ability.new(user), :index).pluck(:number)).to eq [number]
     end
   end
 
@@ -284,9 +282,9 @@ describe Spree::Admin::OrdersController, :type => :controller do
     stub_authorization!
 
     it "raise active record not found" do
-      expect {
+      expect do
         spree_get :edit, id: nil
-      }.to raise_error ActiveRecord::RecordNotFound
+      end.to raise_error ActiveRecord::RecordNotFound
     end
   end
 end

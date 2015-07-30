@@ -10,16 +10,41 @@ describe Spree::ProductPresenter do
 
   subject { described_class.new(product, target, context) }
 
-  its(:id) { should eq product.id }
-  its(:name) { should eq product.name }
-  its(:slug) { should eq product.slug }
-  its(:out_of_stock_override?) { should eq product.out_of_stock_override? }
+  describe "#id" do
+    it { expect(subject.id).to eq product.id }
+  end
 
-  its(:master) { should eq product.master }
-  its(:price) { should eq product.price_normal_in("USD") }
-  its(:personalisations) { should eq product.personalisations }
-  its(:personalisation_images) { should eq product.personalisation_images }
-  its(:optional_parts_for_display) { should eq product.optional_parts_for_display }
+  describe "#name" do
+    it { expect(subject.name).to eq product.name }
+  end
+
+  describe "#slug" do
+    it { expect(subject.slug).to eq product.slug }
+  end
+
+  describe "#out_of_stock_override?" do
+    it { expect(subject.out_of_stock_override?).to eq product.out_of_stock_override? }
+  end
+
+  describe "#master" do
+    it { expect(subject.master).to eq product.master }
+  end
+
+  describe "#price" do
+    it { expect(subject.price).to eq product.price_normal_in("USD") }
+  end
+
+  describe "#personalisations" do
+    it { expect(subject.personalisations).to eq product.personalisations }
+  end
+
+  describe "#personalisation_images" do
+    it { expect(subject.personalisation_images).to eq product.personalisation_images }
+  end
+
+  describe "#optional_parts_for_display" do
+    it { expect(subject.optional_parts_for_display).to eq product.optional_parts_for_display }
+  end
 
   it "#variants should return only targetted variants that are in_stock" do
     mocked_variants = double
@@ -52,11 +77,15 @@ describe Spree::ProductPresenter do
         allow(subject).to receive(:variant_images).and_return(["image"])
       end
 
-      its(:complex_carousel?) { should eq true }
+      describe "#complex_carousel?" do
+        it { expect(subject.complex_carousel?).to eq true }
+      end
     end
 
     context "when variant has no option values or image" do
-      its(:complex_carousel?) { should eq false }
+      describe "#complex_carousel?" do
+        it { expect(subject.complex_carousel?).to eq false }
+      end
     end
   end
 
@@ -128,9 +157,9 @@ describe Spree::ProductPresenter do
   end
 
   context "#product_parts_images" do
-    let(:product_parts_images) { double() }
+    let(:product_parts_images) { double }
 
-    it "should call #images and pass a target" do
+    it "calls #images and pass a target" do
       expect(product_parts_images).to receive(:with_target).with(target).and_return true
       expect(product).to receive(:product_parts_images).and_return(product_parts_images)
       expect(subject.product_parts_images).to eq true
@@ -199,7 +228,7 @@ describe Spree::ProductPresenter do
     end
 
     it "returns an the first variant in stock when variants are available" do
-      subject.stub_chain(:variants).and_return [variant]
+      allow(subject).to receive_message_chain(:variants).and_return [variant]
       expect(subject.sale_variant_or_first_variant_or_master).to eq(variant)
     end
 

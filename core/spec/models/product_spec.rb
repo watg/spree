@@ -1,15 +1,15 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::Product do
   subject { create(:product_with_variants) }
-  let(:variant) { subject.variants.first}
+  let(:variant) { subject.variants.first }
 
-  describe '#visible_option_types' do
+  describe "#visible_option_types" do
     subject { super().visible_option_types }
     it { is_expected.to be_blank }
   end
 
-  describe '#product_group' do
+  describe "#product_group" do
     subject { create(:product, :with_product_group).product_group }
     it { is_expected.to be_kind_of(Spree::ProductGroup) }
   end
@@ -19,16 +19,16 @@ describe Spree::Product do
 
     it "excludes products with assembly definition" do
       create(:product_part, product: subject, part: part)
-      expect(Spree::Product.all).to match_array([part, subject])
-      expect(Spree::Product.all.not_assembly).to eq([part])
+      expect(described_class.all).to match_array([part, subject])
+      expect(described_class.all.not_assembly).to eq([part])
     end
 
     it "includes kits without assembly definition" do
       part = create(:variant)
       subject.add_part part
 
-      expect(Spree::Product.all).to match_array [part.product, subject]
-      expect(Spree::Product.all.not_assembly).to match_array [part.product, subject]
+      expect(described_class.all).to match_array [part.product, subject]
+      expect(described_class.all.not_assembly).to match_array [part.product, subject]
     end
   end
 
@@ -46,18 +46,23 @@ describe Spree::Product do
     end
   end
 
-  its(:first_variant_or_master) { should eql(variant) }
+  describe "#first_variant_or_master" do
+    it { expect(subject.first_variant_or_master).to eql(variant) }
+  end
   context "product has no variant" do
     subject { create(:base_product) }
-    its(:first_variant_or_master) { should be_is_master }
+
+    describe "#first_variant_or_master" do
+      it { expect(subject.first_variant_or_master).to be_is_master }
+    end
   end
 
-  describe 'videos' do
+  describe "videos" do
     let(:video)   { Video.new }
     let(:video_2) { Video.new }
     let(:videos)  { [video, video_2] }
 
-    context 'many' do
+    context "many" do
       before { subject.videos = videos }
       it     { expect(subject.videos).to eq(videos) }
     end
@@ -71,13 +76,14 @@ describe Spree::Product do
         expect(subject.all_variants_or_master).to be_kind_of(ActiveRecord::Relation)
         expect(subject.all_variants_or_master).to eq([subject.master])
       end
-
     end
 
     context "with multiple variants" do
-      let(:variants) { 2.times.map { create(:variant, :product => subject) } }
-
-      its(:all_variants_or_master) { should eq(variants)  }
+      let(:variants) { 2.times.map { create(:variant, product: subject) } }
+      before { subject.variants << variants }
+      describe "#all_variants_or_master" do
+        it { expect(subject.all_variants_or_master.to_a).to match_array(variants.to_a) }
+      end
     end
   end
 
@@ -85,27 +91,27 @@ describe Spree::Product do
     let(:r2w) { create(:base_product) }
 
     let!(:variant1) do
-      create(:variant, product: r2w, sku: 'part1', in_stock_cache: true)
+      create(:variant, product: r2w, sku: "part1", in_stock_cache: true)
     end
 
     let!(:variant2) do
-      create(:variant, product: r2w, sku: 'part2', in_stock_cache: true)
+      create(:variant, product: r2w, sku: "part2", in_stock_cache: true)
     end
 
     before do
-      p = variant1.price_normal_in('USD')
+      p = variant1.price_normal_in("USD")
       p.amount = 18.00
       p.save
 
-      p = variant1.price_normal_sale_in('USD')
+      p = variant1.price_normal_sale_in("USD")
       p.amount = 14.00
       p.save
 
-      p = variant2.price_normal_in('USD')
+      p = variant2.price_normal_in("USD")
       p.amount = 17.99
       p.save
 
-      p = variant2.price_normal_sale_in('USD')
+      p = variant2.price_normal_sale_in("USD")
       p.amount = 16.99
       p.save
     end
@@ -150,17 +156,15 @@ describe Spree::Product do
     it "for kit products with some variants out of stock" do
       kit = create(:base_product, product_type: create(:product_type_kit))
 
-      kit_variant1 = create(:variant, amount: 14.00, currency: "USD", product: kit, sku: 'v1', in_stock_cache: false)
-      kit_variant2 = create(:variant, amount: 14.01, currency: "USD", product: kit, sku: 'v2', in_stock_cache: true)
-      kit_variant3 = create(:variant, amount: 15.00, currency: "USD", product: kit, sku: 'v3', in_stock_cache: true)
+      kit_variant1 = create(:variant, amount: 14.00, currency: "USD", product: kit, sku: "v1", in_stock_cache: false)
+      kit_variant2 = create(:variant, amount: 14.01, currency: "USD", product: kit, sku: "v2", in_stock_cache: true)
+      kit_variant3 = create(:variant, amount: 15.00, currency: "USD", product: kit, sku: "v3", in_stock_cache: true)
 
       expect(kit.lowest_priced_variant("USD")).to eq(kit_variant2)
     end
   end
 
-
   describe "#after_touch" do
-
     before { Delayed::Worker.delay_jobs = false }
     after { Delayed::Worker.delay_jobs = true }
     let(:product) { create(:base_product) }
@@ -169,16 +173,14 @@ describe Spree::Product do
       expect(product).to receive(:touch_suite_tabs)
       product.touch
     end
-
   end
 
   describe "#touch_suite_tabs" do
-
     let(:product) { create(:base_product) }
     let(:suite_tab) { build(:suite_tab, product: product) }
 
     before do
-      product.suite_tabs = [ suite_tab ]
+      product.suite_tabs = [suite_tab]
     end
 
     it "touches suite tabs" do

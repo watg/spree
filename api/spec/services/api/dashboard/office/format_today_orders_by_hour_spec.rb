@@ -1,14 +1,15 @@
 require "spec_helper"
 
 describe Api::Dashboard::Office::FormatTodayOrdersByHour, type: :interaction do
-
+  let!(:orders_early) { create_list(:order, 4) }
+  let!(:orders_recent) { create_list(:order, 4) }
   subject { described_class.new }
   describe "execute" do
     before do
       new_time = Time.local(2015, 9, 1, 12, 0, 0)
       Timecop.freeze(new_time)
-      orders_early = create_list(:order, 4, completed_at: Time.zone.now.at_beginning_of_day)
-      orders_recent = create_list(:order, 4, completed_at: 1.hour.ago)
+      orders_early.each { |o| o.update_attributes(completed_at: Time.zone.now.at_beginning_of_day) }
+      orders_recent.each { |o| o.update_attributes(completed_at: 1.hour.ago) }
     end
     it "contains all the hours until one hour ago" do
       allow_any_instance_of(Api::Dashboard::Office::FindTodayValidOrders)

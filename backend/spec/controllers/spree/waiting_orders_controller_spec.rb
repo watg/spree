@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::Admin::WaitingOrdersController, type: :controller do
   stub_authorization!
@@ -7,24 +7,24 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
   let(:outcome)   { OpenStruct.new(:valid? => true) }
 
   context "#index" do
-    it "should load all boxes in the system" do
+    it "loads all boxes in the system" do
       allow(Spree::Parcel).to receive(:find_boxes).and_return(:boxes)
       spree_get :index
       expect(assigns[:all_boxes]).to eq(:boxes)
     end
 
-    it "should use filter params" do
-      filter_params={'first_filter'=> 'test1',
-                     'second_filter'=>'test2',
-                     "filter_express"=>"1",
-                     "express"=>true}
+    it "uses filter params" do
+      filter_params = { "first_filter" => "test1",
+                        "second_filter" => "test2",
+                        "filter_express" => "1",
+                        "express" => true }
       expect(Spree::Order).to receive(:ransack).with(filter_params).and_call_original
-      spree_get :index, { q: filter_params }
+      spree_get :index,  q: filter_params
     end
 
     it "assigns the print batch size, number of unprinted invoices and stickers" do
       expect(Spree::Order).to receive(:unprinted_invoices).and_return(["order1"]).twice
-      expect(Spree::Order).to receive(:unprinted_image_stickers).and_return(["order2", "order3"]).twice
+      expect(Spree::Order).to receive(:unprinted_image_stickers).and_return(%w(order2 order3)).twice
 
       spree_get :index
       expect(assigns[:batch_size]).to eq(Spree::BulkOrderPrintingService::BATCH_SIZE)
@@ -37,20 +37,20 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
   context "#update" do
     let(:expected_params) do
       {
-        order_id: '1',
+        order_id: "1",
         box_id: small_box.id.to_s,
-        quantity: '2'
+        quantity: "2"
       }
     end
 
-    it "should call add parcel to order service" do
+    it "calls add parcel to order service" do
       expect(Spree::AddParcelToOrderService).to receive(:run).with(expected_params).and_return(outcome)
       spree_put :update, params
     end
 
     context "with a batch id" do
       it "redirects to the batch id" do
-        q = {q: {id_eq: 1234}}
+        q = { q: { id_eq: 1234 } }
         allow(Spree::AddParcelToOrderService).to receive(:run).with(expected_params).and_return(outcome)
         spree_put :update, params.merge(q)
         expect(:response).to redirect_to(spree.admin_waiting_orders_path(q))
@@ -59,13 +59,13 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
   end
 
   context "#destroy" do
-    it "should delete all parcels for a specific type of box" do
+    it "deletes all parcels for a specific type of box" do
       expected_params = {
-        order_id: '1',
+        order_id: "1",
         box_id: small_box.id.to_s,
-        quantity: '2'
+        quantity: "2"
       }
-      Spree::RemoveParcelToOrderService.should_receive(:run).with(expected_params).and_return(outcome)
+      expect(Spree::RemoveParcelToOrderService).to receive(:run).with(expected_params).and_return(outcome)
 
       spree_delete :destroy, params
     end
@@ -96,17 +96,16 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
     end
   end
 
-
   context "#create_and_allocate_consignment" do
     let(:outcome) { OpenStruct.new(:valid? => true, :result => :pdf) }
 
     it "submits order details to metapack" do
-      Spree::CreateAndAllocateConsignmentService.should_receive(:run).with(order_id: '1').and_return(outcome)
+      expect(Spree::CreateAndAllocateConsignmentService).to receive(:run).with(order_id: "1").and_return(outcome)
       spree_post :create_and_allocate_consignment, id: 1, page: 2
     end
 
     it "renders the result as a PDF" do
-      allow(Spree::CreateAndAllocateConsignmentService).to receive(:run).with(order_id: '1').and_return(outcome)
+      allow(Spree::CreateAndAllocateConsignmentService).to receive(:run).with(order_id: "1").and_return(outcome)
       spree_post :create_and_allocate_consignment, id: 1, page: 2
       expect(response.body).to eq("pdf")
       expect(response.headers["Content-Type"]).to eq("application/pdf")
@@ -114,11 +113,11 @@ describe Spree::Admin::WaitingOrdersController, type: :controller do
     end
   end
 
-# ---------------------------------------------------
+  # ---------------------------------------------------
   def build_valid_params
     {
       id:  1,
-      box: {id:  small_box.id, quantity:  2}
+      box: { id:  small_box.id, quantity:  2 }
     }
   end
 end

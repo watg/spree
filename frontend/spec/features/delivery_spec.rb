@@ -10,7 +10,7 @@ describe "Delivery", type: :feature, js: true do
 
   let!(:order) do
     order = OrderWalkthrough.up_to(:delivery)
-    order.stub :confirmation_required? => true
+    allow(order).to receive_messages :confirmation_required? => true
     order.user = user
     order.shipments = [create(:shipment, cost: 10)]
     order.update!
@@ -22,8 +22,8 @@ describe "Delivery", type: :feature, js: true do
     allow(Flip).to receive(:on?).with(:shipping_options).and_return(true)
     allow(Flip).to receive(:on?).with(:suites_feature).and_return(false)
 
-    Spree::CheckoutController.any_instance.stub(current_order: order)
-    Spree::CheckoutController.any_instance.stub(:check_authorization)
+    allow_any_instance_of(Spree::CheckoutController).to receive_messages(current_order: order)
+    allow_any_instance_of(Spree::CheckoutController).to receive(:check_authorization)
     allow_any_instance_of(Spree::OrdersController).to receive_messages(try_spree_current_user: user)
     order.reload
   end
@@ -49,8 +49,8 @@ describe "Delivery", type: :feature, js: true do
 
       #  Adds coupon code
       within ".coupons-updates" do
-        fill_in('order[coupon_code]', :with => 'FREEMANGAL')
-        find_button('Update bag').click
+        fill_in("order[coupon_code]", with: "FREEMANGAL")
+        find_button("Update bag").click
       end
 
       within ".shipping-total-table" do
@@ -72,18 +72,18 @@ describe "Delivery", type: :feature, js: true do
     end
 
     it "can switch between the shipping rates and recalculate the shipping cost" do
-      page.driver.set_cookie('signupPopKilled', 'true')
-      page.driver.set_cookie('showCookieMessage', 'true')
+      page.driver.set_cookie("signupPopKilled", "true")
+      page.driver.set_cookie("showCookieMessage", "true")
       visit spree.checkout_state_path("delivery")
 
       # default selected shippng rate
       expect(page).to have_content "UPS Ground"
-      find_field("UPS Ground").should be_checked
+      expect(find_field("UPS Ground")).to be_checked
 
       within ".delivery-options" do
         expect(page).to have_content "100.00"
         expect(page).to have_content "second shipping rate"
-        find_field("second shipping rate").should_not be_checked
+        expect(find_field("second shipping rate")).not_to be_checked
       end
 
       within ".shipping-total-table" do
@@ -93,8 +93,8 @@ describe "Delivery", type: :feature, js: true do
 
       choose("second shipping rate")
 
-      find_field("second shipping rate").should be_checked
-      find_field("UPS Ground").should_not be_checked
+      expect(find_field("second shipping rate")).to be_checked
+      expect(find_field("UPS Ground")).not_to be_checked
 
       within ".shipping-total-table" do
         expect(page).to have_content "Shipping total:"
@@ -113,8 +113,8 @@ describe "Delivery", type: :feature, js: true do
       end
 
       it "applies to the relevant shipping rate" do
-        page.driver.set_cookie('signupPopKilled', 'true')
-        page.driver.set_cookie('showCookieMessage', 'true')
+        page.driver.set_cookie("signupPopKilled", "true")
+        page.driver.set_cookie("showCookieMessage", "true")
         visit spree.checkout_state_path("delivery")
 
         # default selected shippng rate

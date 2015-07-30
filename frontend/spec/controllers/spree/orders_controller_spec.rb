@@ -48,7 +48,6 @@ describe Spree::OrdersController, type: :controller do
       end
 
       context "with order" do
-
         before do
           allow(controller).to receive :check_authorization
           allow(controller).to receive_messages current_order: order
@@ -57,23 +56,23 @@ describe Spree::OrdersController, type: :controller do
         it "handles population" do
           expect(Spree::OrderPopulator).to receive(:new).with(order, params).and_return(populator)
           spree_post :populate, params.merge(order_id: order.id)
-          response.should redirect_to spree.cart_path
-          assigns[:item].should == item
+          expect(response).to redirect_to spree.cart_path
+          expect(assigns[:item]).to eq(item)
         end
 
         it "handles ajax population" do
           expect(Spree::OrderPopulator).to receive(:new).with(order, params).and_return(populator)
           spree_post :populate, params.merge(order_id: order.id), format: :js
-          response.should redirect_to spree.cart_path
-          assigns[:item].should == item
+          expect(response).to redirect_to spree.cart_path
+          expect(assigns[:item]).to eq(item)
         end
 
         it "shows an error if there is an error on item object" do
           item.errors << "Foobar"
           expect(Spree::OrderPopulator).to receive(:new).with(order, params).and_return(populator)
           spree_post :populate, params.merge(order_id: order.id), format: :js
-          response.should redirect_to spree.cart_path
-          assigns[:item].should == item
+          expect(response).to redirect_to spree.cart_path
+          expect(assigns[:item]).to eq(item)
         end
 
         context "Validation error with service" do

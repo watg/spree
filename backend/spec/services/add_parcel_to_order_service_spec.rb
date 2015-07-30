@@ -1,18 +1,17 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::AddParcelToOrderService do
-
   context "#run" do
-    let(:subject)   { Spree::AddParcelToOrderService }
+    let(:subject)   { described_class }
     let(:small_box) { FactoryGirl.create(:product, product_type: create(:product_type_packaging), individual_sale: false, weight: 5.0, depth: 30.0, width: 34.0, height: 20.0) }
     let(:order)     { FactoryGirl.create(:order) }
 
-    it "should invoke success callback when all is good" do
+    it "invokes success callback when all is good" do
       outcome = subject.run(box_id: small_box.id, quantity: 1, order_id: order.id)
       expect(outcome.valid?).to be true
     end
 
-    it "should add parcel to order" do
+    it "adds parcel to order" do
       expected = {
         weight: small_box.weight,
         height: small_box.height,
@@ -22,22 +21,22 @@ describe Spree::AddParcelToOrderService do
         order_id:   order.id
       }
 
-      Spree::Parcel.should_receive(:create!).with(expected)
-      subject.run(box_id: small_box.id , quantity:   1, order_id:   order.id)
+      expect(Spree::Parcel).to receive(:create!).with(expected)
+      subject.run(box_id: small_box.id, quantity:   1, order_id:   order.id)
     end
 
-    it "should invoke failure callback on wrong quantity" do
+    it "invokes failure callback on wrong quantity" do
       outcome = subject.run(box_id: small_box.id, quantity: -1, order_id: order.id)
       expect(outcome.valid?).to be false
     end
 
-    it "should invoke failure callback on wrong box_id" do
-      outcome = subject.run(box_id: 99999999, quantity: 1, order_id: order.id)
+    it "invokes failure callback on wrong box_id" do
+      outcome = subject.run(box_id: 99_999_999, quantity: 1, order_id: order.id)
       expect(outcome.valid?).to be false
     end
 
-    it "should invoke failure callback on wrong box_id" do
-      outcome = subject.run(box_id: small_box.id, quantity: 1, order_id: 99999999)
+    it "invokes failure callback on wrong box_id" do
+      outcome = subject.run(box_id: small_box.id, quantity: 1, order_id: 99_999_999)
       expect(outcome.valid?).to be false
     end
 
@@ -47,7 +46,7 @@ describe Spree::AddParcelToOrderService do
         stock_item.adjust_count_on_hand(10)
       end
 
-      it "should decrement stock of selected box by correct quantity" do
+      it "decrements stock of selected box by correct quantity" do
         subject.run(box_id: small_box.id, quantity: 4, order_id: order.id)
         expect(small_box.stock_items[0].count_on_hand).to eq(6)
       end
@@ -63,6 +62,4 @@ describe Spree::AddParcelToOrderService do
       end
     end
   end
-
-
 end

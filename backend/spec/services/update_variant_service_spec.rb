@@ -1,57 +1,60 @@
 # -*- coding: utf-8 -*-
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::UpdateVariantService do
-  subject { Spree::UpdateVariantService }
+  subject { described_class }
 
   let(:product) { create(:product) }
   let(:variant) { create(:variant, product_id: product.id) }
   let(:variant2) { create(:variant, product_id: product.id) }
   let(:option_type) { create(:option_type, name: "color") }
-  let(:option_value) { create(:option_value, option_type: option_type, presentation: 'red') }
-  let(:tags) { [create(:tag, value: "First Tag"), create(:tag, value: "Second Tag" )] }
-  let(:tag_ids) { tags.map(&:id).join(',') }
+  let(:option_value) { create(:option_value, option_type: option_type, presentation: "red") }
+  let(:tags) { [create(:tag, value: "First Tag"), create(:tag, value: "Second Tag")] }
+  let(:tag_ids) { tags.map(&:id).join(",") }
   let(:targets) { create_list(:target, 2) }
-  let(:target_ids) { targets.map(&:id).join(',') }
+  let(:target_ids) { targets.map(&:id).join(",") }
 
-  let(:valid_params) {{
-     sku: '123123',
-     label: 'test',
-     option_value_ids: [option_value.id],
-     tags: tag_ids,
-     target_ids: target_ids
-  }}
+  let(:valid_params) do
+    {
+      sku: "123123",
+      label: "test",
+      option_value_ids: [option_value.id],
+      tags: tag_ids,
+      target_ids: target_ids
+    }
+  end
 
-  let(:prices) { {
-    :normal=>{"GBP"=>"£39.00", "USD"=>"$49.00", "EUR"=>"€47.00"},
-    :normal_sale=>{"GBP"=>"£111.00", "USD"=>"$12.00", "EUR"=>"€0.00"},
-    :part=>{"GBP"=>"£22.00", "USD"=>"$22.00", "EUR"=>"€22.00"}
-  } }
+  let(:prices) do
+    {
+      normal: { "GBP" => "£39.00", "USD" => "$49.00", "EUR" => "€47.00" },
+      normal_sale: { "GBP" => "£111.00", "USD" => "$12.00", "EUR" => "€0.00" },
+      part: { "GBP" => "£22.00", "USD" => "$22.00", "EUR" => "€22.00" }
+    }
+  end
 
   context "#run" do
-
-    it "should invoke success callback when all is good" do
+    it "invokes success callback when all is good" do
       outcome = subject.run(variant: variant, details: valid_params, prices: prices)
       expect(outcome.valid?).to be_truthy
     end
 
-    it "should invoke failure callback on any error" do
+    it "invokes failure callback on any error" do
       outcome = subject.run(variant: variant, details: "wrong params!", prices: prices)
-      expect(outcome.errors.full_messages.to_sentence).to eq 'Details is not a valid hash'
+      expect(outcome.errors.full_messages.to_sentence).to eq "Details is not a valid hash"
       expect(outcome.valid?).to be_falsey
     end
 
-    it "should return validate_prices failures" do
+    it "returns validate_prices failures" do
       bad_prices = prices.dup
-      bad_prices[:normal]['GBP'] = '£0'
+      bad_prices[:normal]["GBP"] = "£0"
       outcome = subject.run(variant: variant, details: valid_params, prices: bad_prices)
       expect(outcome.valid?).to be_falsey
       expect(outcome.errors.full_messages.to_sentence)
-        .to eq 'Variant amount can not be <= 0 for type: normal, currency: GBP'
+        .to eq "Variant amount can not be <= 0 for type: normal, currency: GBP"
     end
 
     it "sets the prices on the master" do
-      Spree::UpdateVariantService.any_instance.should_receive(:update_prices).once.with(hash_including(prices) ,variant)
+      expect_any_instance_of(described_class).to receive(:update_prices).once.with(hash_including(prices), variant)
       subject.run(variant: variant, details: valid_params, prices: prices)
     end
 
@@ -80,18 +83,19 @@ describe Spree::UpdateVariantService do
       new_targets = variant.reload.targets
       expect(new_targets).to match_array(targets)
     end
-
   end
 
   describe "update stock_thresholds" do
     let(:london) { create(:stock_location) }
     let(:bray) { create(:stock_location) }
-    let(:stock_thresholds) { {
-      london.to_param => 100,
-      bray.to_param   => 200,
-    } }
+    let(:stock_thresholds) do
+      {
+        london.to_param => 100,
+        bray.to_param   => 200
+      }
+    end
 
-    subject(:service) { Spree::UpdateVariantService }
+    subject(:service) { described_class }
 
     it "creates stock thresholds on the master" do
       service.run(variant: variant, details: valid_params, prices: prices, stock_thresholds: stock_thresholds)
@@ -126,13 +130,11 @@ describe Spree::UpdateVariantService do
   end
 
   context "requires a supplier" do
-
     let(:supplier) { create(:supplier) }
 
-    before { Spree::ProductType.any_instance.stub requires_supplier?: true }
+    before { allow_any_instance_of(Spree::ProductType).to receive_messages requires_supplier?: true }
 
     context "on create" do
-
       let(:variant) { build(:variant, product_id: product.id) }
 
       context "with supplier supplied" do
@@ -146,20 +148,16 @@ describe Spree::UpdateVariantService do
       end
 
       context "no supplier supplied" do
-
         let(:variant) { build(:variant, product_id: product.id) }
 
         it "provides an error" do
           outcome = subject.run(variant: variant, details: valid_params, prices: prices)
-          expect(outcome.errors.full_messages.to_sentence).to eq 'Supplier is required'
+          expect(outcome.errors.full_messages.to_sentence).to eq "Supplier is required"
         end
-
       end
-
     end
 
     context "on update" do
-
       context "with supplier supplied" do
         before { valid_params.merge!(supplier_id: supplier.id) }
         it "does not set the supplier on variant" do
@@ -170,27 +168,21 @@ describe Spree::UpdateVariantService do
       end
 
       context "no supplier supplied" do
-
         it "does not provide an error" do
           outcome = subject.run(variant: variant, details: valid_params, prices: prices)
           expect(outcome.valid?).to be true
           expect(variant.supplier).to be_nil
         end
-
       end
-
     end
-
   end
 
   context "does not require a supplier" do
-
     let(:supplier) { create(:supplier) }
 
-    before { Spree::ProductType.any_instance.stub requires_supplier?: false }
+    before { allow_any_instance_of(Spree::ProductType).to receive_messages requires_supplier?: false }
 
     context "on create" do
-
       let(:variant) { build(:variant, product_id: product.id) }
 
       context "with supplier supplied" do
@@ -204,7 +196,6 @@ describe Spree::UpdateVariantService do
       end
 
       context "no supplier supplied" do
-
         let(:variant) { build(:variant, product_id: product.id) }
 
         it "provides an error" do
@@ -212,13 +203,10 @@ describe Spree::UpdateVariantService do
           expect(outcome.valid?).to be true
           expect(variant.supplier).to be_nil
         end
-
       end
-
     end
 
     context "set_product_type_defaults" do
-
       it "sets defaults" do
         outcome = subject.run(variant: variant, details: valid_params, prices: prices)
         expect(outcome.valid?).to be true
@@ -227,7 +215,6 @@ describe Spree::UpdateVariantService do
       end
 
       context "when an assembly" do
-
         before do
           variant.product.product_type.container = true
         end
@@ -237,13 +224,10 @@ describe Spree::UpdateVariantService do
           expect(outcome.valid?).to be true
           expect(variant.track_inventory).to be false
         end
-
       end
-
     end
 
     context "on update" do
-
       context "with supplier supplied" do
         before { valid_params.merge!(supplier_id: supplier.id) }
         it "does not set the supplier on variant" do
@@ -254,19 +238,12 @@ describe Spree::UpdateVariantService do
       end
 
       context "no supplier supplied" do
-
         it "does not provide an error" do
           outcome = subject.run(variant: variant, details: valid_params, prices: prices)
           expect(outcome.valid?).to be true
           expect(variant.supplier).to be_nil
         end
-
       end
-
     end
-
   end
-
-
 end
-

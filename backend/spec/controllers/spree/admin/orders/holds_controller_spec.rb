@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::Admin::Orders::HoldsController, type: :controller do
   stub_authorization!
@@ -20,12 +20,12 @@ describe Spree::Admin::Orders::HoldsController, type: :controller do
   describe "POST create" do
     let(:reason) { "this is a reason why it is being put on hold" }
     let(:user) { create(:user) }
-    let(:params) { {order_id: order.to_param, reason: reason, type: "warehouse"} }
+    let(:params) { { order_id: order.to_param, reason: reason, type: "warehouse" } }
     let(:valid) { true }
     let(:service_result) { double(Spree::HoldService, valid?: valid) }
 
     before do
-      controller.stub :spree_current_user => user
+      allow(controller).to receive_messages spree_current_user: user
       allow(Spree::HoldService).to receive(:run).and_return(service_result)
     end
 
@@ -35,7 +35,7 @@ describe Spree::Admin::Orders::HoldsController, type: :controller do
         order:  order,
         reason: reason,
         user:   user,
-        type:   "warehouse",
+        type:   "warehouse"
       )
     end
 

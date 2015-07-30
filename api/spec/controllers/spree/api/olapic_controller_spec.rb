@@ -1,4 +1,4 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::Api::OlapicController, type: :controller do
   render_views
@@ -21,36 +21,34 @@ describe Spree::Api::OlapicController, type: :controller do
     it "retrieves a list of products" do
       api_get :index
       p = json_response["products"].first
-      p.should have_attributes(attributes)
-      p["productId"].should == suite.permalink
-      p["name"].should == suite.title
-      p["productUrl"].should == "http://test.host/product/#{suite.permalink}"
-      p["stockImageUrl"].should == "http://test.host#{suite.image.attachment.url}"
-      p["category"].should == suite.target.name
+      expect(p).to have_attributes(attributes)
+      expect(p["productId"]).to eq(suite.permalink)
+      expect(p["name"]).to eq(suite.title)
+      expect(p["productUrl"]).to eq("http://test.host/product/#{suite.permalink}")
+      expect(p["stockImageUrl"]).to eq("http://test.host#{suite.image.attachment.url}")
+      expect(p["category"]).to eq(suite.target.name)
 
-      json_response["total_count"].should == 1
-      json_response["current_page"].should == 1
-      json_response["pages"].should == 1
-      json_response["per_page"].should == Kaminari.config.default_per_page
+      expect(json_response["total_count"]).to eq(1)
+      expect(json_response["current_page"]).to eq(1)
+      expect(json_response["pages"]).to eq(1)
+      expect(json_response["per_page"]).to eq(Kaminari.config.default_per_page)
     end
   end
 
   context "with no image" do
-
-    it "should return the place holder" do
+    it "returns the place holder" do
       api_get :index
       p = json_response["products"].first
-      p.should have_attributes(attributes)
-      p["stockImageUrl"].should == "http://test.host/product-group/placeholder-470x600.gif"
+      expect(p).to have_attributes(attributes)
+      expect(p["stockImageUrl"]).to eq("http://test.host/product-group/placeholder-470x600.gif")
     end
   end
 
   context "jsonp" do
     it "retrieves a list of products of jsonp" do
-      api_get :index, {:callback => 'callback'}
-      response.body.should =~ /^callback\(.*\)$/
-      response.header['Content-Type'].should include('application/javascript')
+      api_get :index, callback: "callback"
+      expect(response.body).to match(/^callback\(.*\)$/)
+      expect(response.header["Content-Type"]).to include("application/javascript")
     end
   end
-
 end

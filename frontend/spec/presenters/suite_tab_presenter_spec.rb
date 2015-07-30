@@ -1,55 +1,63 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::SuiteTabPresenter do
-
-  let(:target) { mock_model(Spree::Target)}
-  let(:suite) { Spree::Suite.new(permalink: 'suite-permalink') }
-  let(:tab) { Spree::SuiteTab.new(suite: suite, tab_type: 'knit-your-own') }
-  let(:context) { { currency: 'USD', target: target, suite: suite, device: :desktop}}
+  let(:target) { mock_model(Spree::Target) }
+  let(:suite) { Spree::Suite.new(permalink: "suite-permalink") }
+  let(:tab) { Spree::SuiteTab.new(suite: suite, tab_type: "knit-your-own") }
+  let(:context) { { currency: "USD", target: target, suite: suite, device: :desktop } }
   subject { described_class.new(tab, view, context) }
 
-  before { allow(view).to receive(:current_currency).and_return 'USD' }
+  before { allow(view).to receive(:current_currency).and_return "USD" }
 
   context "#product" do
-    its(:product) { should eq tab.product }
+    describe "#product" do
+      subject { super().product }
+      it { is_expected.to eq tab.product }
+    end
   end
 
   context "#id" do
-    its(:id) { should eq tab.id }
+    describe "#id" do
+      subject { super().id }
+      it { is_expected.to eq tab.id }
+    end
   end
 
   describe "#ready_made?" do
-    let(:suite) { Spree::Suite.new(permalink: 'suite-permalink') }
-    let(:other_tab) { Spree::SuiteTab.new(suite: suite, tab_type: 'knit-your-own') }
-    let(:ready_made_tab) { Spree::SuiteTab.new(suite: suite, tab_type: 'made-by-the-gang') }
+    let(:suite) { Spree::Suite.new(permalink: "suite-permalink") }
+    let(:other_tab) { Spree::SuiteTab.new(suite: suite, tab_type: "knit-your-own") }
+    let(:ready_made_tab) { Spree::SuiteTab.new(suite: suite, tab_type: "made-by-the-gang") }
 
     let!(:ready_made_presenter) { described_class.new(ready_made_tab, view, context) }
     let!(:other_presenter) { described_class.new(other_tab, view, context) }
 
-    it "should return true if tab is of type made-by-the-gang" do
+    it "returns true if tab is of type made-by-the-gang" do
       expect(ready_made_presenter.ready_made?).to be_truthy
     end
-    it "should return false if tab is not of type made-by-the-gang" do
+    it "returns false if tab is not of type made-by-the-gang" do
       expect(other_presenter.ready_made?).to be_falsey
     end
   end
 
-  describe '#display_videos?' do
+  describe "#display_videos?" do
     let(:product) { create(:product) }
     before        { tab.product = product }
 
-    context 'product has video' do
+    context "product has video" do
       before { product.videos.create(embed: "youtube embed") }
       it     { expect(subject.display_videos?).to be_truthy }
     end
 
-    context 'product doesnt have video' do
+    context "product doesnt have video" do
       it { expect(subject.display_videos?).to be_falsey }
     end
   end
 
   describe "#in_stock?" do
-    its(:in_stock?) { should eq tab.in_stock_cache }
+    describe "#in_stock?" do
+      subject { super().in_stock? }
+      it { is_expected.to eq tab.in_stock_cache }
+    end
   end
 
   describe "variants_total_on_hand" do
@@ -68,7 +76,7 @@ describe Spree::SuiteTabPresenter do
       allow(Spree::Stock::Quantifier).to receive(:new).with(variant_2).and_return(mock_quantifier_2)
     end
 
-    it "should return a data structure of variants and total on hand" do
+    it "returns a data structure of variants and total on hand" do
       expected = {
         variant_1.number => 2,
         variant_2.number => 3
@@ -77,7 +85,6 @@ describe Spree::SuiteTabPresenter do
     end
 
     context "count on hand above 5" do
-
       before do
         mock_quantifier_1 = double(total_on_hand: 5)
         allow(Spree::Stock::Quantifier).to receive(:new).with(variant_1).and_return(mock_quantifier_1)
@@ -92,11 +99,9 @@ describe Spree::SuiteTabPresenter do
         }
         expect(subject.variants_total_on_hand).to eq expected
       end
-
     end
 
     context "count on hand less than 1" do
-
       before do
         mock_quantifier_1 = double(total_on_hand: 1)
         allow(Spree::Stock::Quantifier).to receive(:new).with(variant_1).and_return(mock_quantifier_1)
@@ -105,103 +110,113 @@ describe Spree::SuiteTabPresenter do
         allow(Spree::Stock::Quantifier).to receive(:new).with(variant_2).and_return(mock_quantifier_2)
       end
 
-      it "should return a data structure of variants and total on hand" do
+      it "returns a data structure of variants and total on hand" do
         expected = {
           variant_1.number => 1
         }
         expect(subject.variants_total_on_hand).to eq expected
       end
-
     end
-
   end
 
   context "#tab_type" do
-    its(:tab_type) { should eq tab.tab_type }
+    describe "#tab_type" do
+      subject { super().tab_type }
+      it { is_expected.to eq tab.tab_type }
+    end
   end
 
   describe "#cart_partial" do
-    its(:cart_partial) { should eq 'spree/suites/tab_type/knit_your_own' }
+    describe "#cart_partial" do
+      subject { super().cart_partial }
+      it { is_expected.to eq "spree/suites/tab_type/knit_your_own" }
+    end
 
     context "made-by-the-gang" do
-      before { tab.tab_type = 'made-by-the-gang' }
-      its(:cart_partial) { should eq 'spree/suites/tab_type/default' }
+      before { tab.tab_type = "made-by-the-gang" }
+
+      describe "#cart_partial" do
+        subject { super().cart_partial }
+        it { is_expected.to eq "spree/suites/tab_type/default" }
+      end
     end
 
     context "default" do
-      before { tab.tab_type = 'default' }
-      its(:cart_partial) { should eq 'spree/suites/tab_type/default' }
-    end
+      before { tab.tab_type = "default" }
 
+      describe "#cart_partial" do
+        subject { super().cart_partial }
+        it { is_expected.to eq "spree/suites/tab_type/default" }
+      end
+    end
   end
 
   context "#link_to" do
     it "links to a suite and a tab" do
-      expect(subject.link_to).to eq spree.suite_url('suite-permalink', tab: 'knit-your-own')
+      expect(subject.link_to).to eq spree.suite_url("suite-permalink", tab: "knit-your-own")
     end
 
     context "default" do
-      before { tab.tab_type = 'default' }
+      before { tab.tab_type = "default" }
 
       it "links to a suite and no tab" do
-        expect(subject.link_to).to eq spree.suite_url('suite-permalink', tab: 'default')
+        expect(subject.link_to).to eq spree.suite_url("suite-permalink", tab: "default")
       end
     end
-
   end
 
   context "#banner_url" do
-
-    let(:url) { 'the image url'}
+    let(:url) { "the image url" }
     let(:attachment) { double(url: url) }
-    let(:image) { double(attachment: attachment, alt: 'wooo') }
+    let(:image) { double(attachment: attachment, alt: "wooo") }
     let(:device) { :desktop }
 
-    its(:banner_url) { should be_nil }
+    describe "#banner_url" do
+      subject { super().banner_url }
+      it { is_expected.to be_nil }
+    end
 
     context "with image" do
       before do
         allow(tab).to receive(:image).and_return(image)
       end
 
-      its(:banner_url) { should eq url}
+      describe "#banner_url" do
+        subject { super().banner_url }
+        it { is_expected.to eq url }
+      end
 
-      it "should receive an attachment style request for large" do
+      it "receives an attachment style request for large" do
         expect(attachment).to receive(:url).with(:large)
         subject.banner_url
       end
 
-      context 'mobile' do
+      context "mobile" do
         before { context[:device] = :mobile }
 
-        it 'should receive an attachement style request for mobile' do
+        it "receives an attachement style request for mobile" do
           expect(attachment).to receive(:url).with(:mobile)
           subject.banner_url
         end
       end
-
     end
-
   end
 
   describe "#inverted_colour" do
-
-    it "should be nil when position is odd" do
+    it "is nil when position is odd" do
       tab.position = 1
       expect(subject.inverted_colour).to eq nil
     end
 
-    it "should be 'inverted' when position is even" do
+    it "is 'inverted' when position is even" do
       tab.position = 2
-      expect(subject.inverted_colour).to eq 'inverted'
+      expect(subject.inverted_colour).to eq "inverted"
     end
-
   end
 
   context "social_links" do
-    before { suite.title = 'foobar' }
+    before { suite.title = "foobar" }
     context "#twitter_url" do
-
       it "returns the correct link" do
         text = "Presenting foobar by Wool and the Gang: #{spree.suite_url('suite-permalink', tab: 'knit-your-own')}"
         encoded_text = subject.send(:url_encode, text)
@@ -211,60 +226,55 @@ describe Spree::SuiteTabPresenter do
 
     context "#facebook_url" do
       it "returns the correct link" do
-        link_to = spree.suite_url('suite-permalink', tab: 'knit-your-own')
+        link_to = spree.suite_url("suite-permalink", tab: "knit-your-own")
         encoded_link_to = subject.send(:url_encode, link_to)
         expect(subject.facebook_url).to eq "http://facebook.com/sharer/sharer.php?u=#{encoded_link_to}"
       end
     end
 
     context "#pinterest_url" do
+      describe "#pinterest_url" do
+        it do
+          text = "Presenting foobar by Wool and the Gang"
+          encoded_text = subject.send(:url_encode, text)
+          link_to = spree.suite_url("suite-permalink", tab: "knit-your-own")
+          encoded_link_to = subject.send(:url_encode, link_to)
 
-      its(:pinterest_url) do
-        text = "Presenting foobar by Wool and the Gang"
-        encoded_text = subject.send(:url_encode, text)
-        link_to = spree.suite_url('suite-permalink', tab: 'knit-your-own')
-        encoded_link_to = subject.send(:url_encode, link_to)
-
-        expect(subject.pinterest_url).to eq "http://pinterest.com/pin/create/%20button/?url=#{encoded_link_to}&amp;media=&amp;description=#{encoded_text}"
+          expect(subject.pinterest_url).to eq "http://pinterest.com/pin/create/%20button/?url=#{encoded_link_to}&amp;media=&amp;description=#{encoded_text}"
+        end
       end
     end
   end
 
   describe "#meta_name" do
-
     it "returns the name of the suite" do
       expect(subject.meta_name).to eq subject.suite.name
     end
-
   end
 
   describe "#meta_description" do
-
     before do
       long_sentance = []
-      16.times { long_sentance << '1234567890' }
-      long_sentance = long_sentance.join(' ')
+      16.times { long_sentance << "1234567890" }
+      long_sentance = long_sentance.join(" ")
 
       mock_product = mock_model(Spree::Product, description: long_sentance)
       allow(subject).to receive(:product).and_return(mock_product)
     end
 
-
     it "returns the description of the product" do
       expect(subject.meta_description.size).to eq 156
-      expect(subject.meta_description.split(' ').last).to eq '1234567890...'
+      expect(subject.meta_description.split(" ").last).to eq "1234567890..."
     end
-
   end
 
   describe "meta_title" do
-
-    let(:marketing_type) { Spree::MarketingType.new(title: 'title', meta_title: "meta_title")}
-    let(:product) { Spree::Product.new(marketing_type: marketing_type)}
+    let(:marketing_type) { Spree::MarketingType.new(title: "title", meta_title: "meta_title") }
+    let(:product) { Spree::Product.new(marketing_type: marketing_type) }
 
     before do
       subject.suite_tab.product = product
-      suite.title = 'suite_title'
+      suite.title = "suite_title"
     end
 
     it "returns the title" do
@@ -273,20 +283,17 @@ describe Spree::SuiteTabPresenter do
     end
 
     context "suite has a meta_title" do
-
       before do
-        subject.suite.meta_title = 'ralf'
+        subject.suite.meta_title = "ralf"
       end
 
       it "returns the title" do
         expected = "ralf | meta_title | WOOL AND THE GANG"
         expect(subject.meta_title).to eq expected
       end
-
     end
 
     context "no marketing type meta title" do
-
       before do
         marketing_type.meta_title = nil
       end
@@ -296,18 +303,15 @@ describe Spree::SuiteTabPresenter do
         expect(subject.meta_title).to eq expected
       end
     end
-
   end
 
-
   describe "meta_keywords" do
-
-    let(:marketing_type) { Spree::MarketingType.new(title: 'marketing_type', meta_title: "meta_title")}
-    let(:product) { Spree::Product.new(meta_keywords: 'product', marketing_type: marketing_type)}
+    let(:marketing_type) { Spree::MarketingType.new(title: "marketing_type", meta_title: "meta_title") }
+    let(:product) { Spree::Product.new(meta_keywords: "product", marketing_type: marketing_type) }
 
     before do
       subject.suite_tab.product = product
-      suite.title = 'suite_title'
+      suite.title = "suite_title"
     end
 
     it "returns the keywords of the product" do
@@ -317,20 +321,18 @@ describe Spree::SuiteTabPresenter do
   end
 
   context "#lowest_prices" do
-
     before do
-      allow(subject).to receive(:lowest_normal_amount).and_return(BigDecimal.new('21.89'))
+      allow(subject).to receive(:lowest_normal_amount).and_return(BigDecimal.new("21.89"))
     end
 
     it "returns formatted normal price when no sale price is given" do
-     expect(subject.lowest_prices).to eq '<span class="price now" itemprop="price">from $21.89</span>'
+      expect(subject.lowest_prices).to eq '<span class="price now" itemprop="price">from $21.89</span>'
     end
 
     context "with sale price" do
-
       before do
         tab.in_sale_cache = true
-        allow(subject).to receive(:lowest_sale_amount).and_return(BigDecimal.new('11.99'))
+        allow(subject).to receive(:lowest_sale_amount).and_return(BigDecimal.new("11.99"))
       end
 
       it "returns formatted normal and sale price" do
@@ -338,7 +340,6 @@ describe Spree::SuiteTabPresenter do
       end
 
       context "sale price disabled" do
-
         before do
           tab.in_sale_cache = false
         end
@@ -346,41 +347,35 @@ describe Spree::SuiteTabPresenter do
         it "returns formatted normal and sale price" do
           expect(subject.lowest_prices).to eq '<span class="price now" itemprop="price">from $21.89</span>'
         end
-
       end
-
     end
   end
 
   describe "#cross_sales_heading" do
-
     context "when tab type is yarn-and-wool" do
-
-      before { tab.tab_type = 'yarn-and-wool' }
+      before { tab.tab_type = "yarn-and-wool" }
       it "returns correct heading" do
-        expect(subject.cross_sales_heading).to eq 'What you can make'
+        expect(subject.cross_sales_heading).to eq "What you can make"
       end
     end
 
     context "when tab type is knitting-pattern" do
-
-      before { tab.tab_type = 'knitting-pattern' }
+      before { tab.tab_type = "knitting-pattern" }
       it "returns correct heading" do
-        expect(subject.cross_sales_heading).to eq 'Knit this pattern'
+        expect(subject.cross_sales_heading).to eq "Knit this pattern"
       end
     end
 
     context "when tab type is made-by-the-gang" do
-
-      before { tab.tab_type = 'made-by-the-gang' }
+      before { tab.tab_type = "made-by-the-gang" }
       it "returns correct heading" do
-        expect(subject.cross_sales_heading).to eq 'More ready made goodness'
+        expect(subject.cross_sales_heading).to eq "More ready made goodness"
       end
     end
 
     context "when tab type is anything else" do
       it "returns correct heading" do
-        expect(subject.cross_sales_heading).to eq 'More WATG goodness'
+        expect(subject.cross_sales_heading).to eq "More WATG goodness"
       end
     end
   end
@@ -451,5 +446,4 @@ describe Spree::SuiteTabPresenter do
       end
     end
   end
-
 end

@@ -9,20 +9,51 @@ describe Spree::ProductPartPresenter do
   subject { described_class.new(product_part, view, context) }
 
   # All directly delegated
-  its(:optional?) { should eq true }
-  its(:count) { should eq 2 }
-  its(:id) { should eq 21 }
-  its(:displayable_option_values) { should eq product_part.displayable_option_values }
-  its(:displayable_option_type) { should eq product_part.displayable_option_type }
-  its(:presentation) { should eq product_part.presentation }
+
+  describe "#optional?" do
+    subject { super().optional? }
+    it { is_expected.to eq true }
+  end
+
+  describe "#count" do
+    subject { super().count }
+    it { is_expected.to eq 2 }
+  end
+
+  describe "#id" do
+    subject { super().id }
+    it { is_expected.to eq 21 }
+  end
+
+  describe "#displayable_option_values" do
+    subject { super().displayable_option_values }
+    it { is_expected.to eq product_part.displayable_option_values }
+  end
+
+  describe "#displayable_option_type" do
+    subject { super().displayable_option_type }
+    it { is_expected.to eq product_part.displayable_option_type }
+  end
+
+  describe "#presentation" do
+    subject { super().presentation }
+    it { is_expected.to eq product_part.presentation }
+  end
 
   context "#variants" do
     before do
       product_part.variants << variant
     end
 
-    its(:variants) { should eq [] }
-    its(:first_variant) { should be_nil  }
+    describe "#variants" do
+      subject { super().variants }
+      it { is_expected.to eq [] }
+    end
+
+    describe "#first_variant" do
+      subject { super().first_variant }
+      it { is_expected.to be_nil  }
+    end
 
     it "calls in_stock" do
       mocked_variants = double
@@ -35,7 +66,10 @@ describe Spree::ProductPartPresenter do
   context "#product_name" do
     before { product_part.part = product }
 
-    its(:product_name) { should eq "Product Name" }
+    describe "#product_name" do
+      subject { super().product_name }
+      it { is_expected.to eq "Product Name" }
+    end
   end
 
   context "#variant_options" do

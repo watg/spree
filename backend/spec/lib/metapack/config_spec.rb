@@ -1,21 +1,44 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Metapack::Config do
-  subject { Metapack::Config }
+  subject { described_class }
 
   context "metapack active flag" do
     before do
       allow(ENV).to receive(:[]).with("METAPACK_ACTIVE").and_return("false")
     end
-    its(:active) { should be false }
+
+    describe "#active" do
+      subject { super().active }
+      it { is_expected.to be false }
+    end
   end
- 
+
   context "when there is no heroku config" do
-    its(:host) { should eq('test.metapack') }
-    its(:service_base_url) { should eq('/dm/services') }
-    its(:username) { should eq('test_username') }
-    its(:password) { should eq('test_password') }
-    its(:active)   { should be true }
+    describe "#host" do
+      subject { super().host }
+      it { is_expected.to eq("test.metapack") }
+    end
+
+    describe "#service_base_url" do
+      subject { super().service_base_url }
+      it { is_expected.to eq("/dm/services") }
+    end
+
+    describe "#username" do
+      subject { super().username }
+      it { is_expected.to eq("test_username") }
+    end
+
+    describe "#password" do
+      subject { super().password }
+      it { is_expected.to eq("test_password") }
+    end
+
+    describe "#active" do
+      subject { super().active }
+      it { is_expected.to be true }
+    end
   end
 
   context "when the metapack details are set in heroku" do
@@ -26,9 +49,24 @@ describe Metapack::Config do
       allow(ENV).to receive(:[]).with("METAPACK_SERVICE_BASE_URL").and_return("/override/dm/services")
     end
 
-    its(:host) { should eq('override.host') }
-    its(:service_base_url) { should eq('/override/dm/services') }
-    its(:username) { should eq('mp_user') }
-    its(:password) { should eq('mp_password') }
+    describe "#host" do
+      subject { super().host }
+      it { is_expected.to eq("override.host") }
+    end
+
+    describe "#service_base_url" do
+      subject { super().service_base_url }
+      it { is_expected.to eq("/override/dm/services") }
+    end
+
+    describe "#username" do
+      subject { super().username }
+      it { is_expected.to eq("mp_user") }
+    end
+
+    describe "#password" do
+      subject { super().password }
+      it { is_expected.to eq("mp_password") }
+    end
   end
 end

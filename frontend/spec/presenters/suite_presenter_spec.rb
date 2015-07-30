@@ -1,25 +1,24 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::SuitePresenter do
-
   let(:target) { mock_model(Spree::Target) }
-  let(:suite) { create(:suite, target: target ) }
-  let!(:tab) { suite.tabs.create(tab_type: 'arbitrary') }
+  let(:suite) { create(:suite, target: target) }
+  let!(:tab) { suite.tabs.create(tab_type: "arbitrary") }
   let!(:device) { :desktop }
-  let(:context) { { currency: 'USD', device: device}}
+  let(:context) { { currency: "USD", device: device } }
   subject { described_class.new(suite, view, context) }
 
-  before { allow(view).to receive(:current_currency).and_return 'USD' }
+  before { allow(view).to receive(:current_currency).and_return "USD" }
 
-  it "should give us an out of stock message" do
+  it "gives us an out of stock message" do
     expect(subject.send(:render_out_of_stock)).to eq('<span class="price" itemprop="price">out-of-stock</span>')
   end
 
   describe "#tabs" do
-    let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true)}
-    let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false)}
+    let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true) }
+    let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false) }
 
-    it "should give you only the tabs in stock" do
+    it "gives you only the tabs in stock" do
       expect(subject.tabs).to eq [tab, tab_in_stock, tab_not_in_stock]
     end
 
@@ -35,42 +34,37 @@ describe Spree::SuitePresenter do
         allow(subject).to receive(:suite).and_return(suite_mock)
       end
 
-      it "should order it's tabs" do
-        expect(subject.tabs).to eq [another_tab_1, another_tab_3, another_tab_2 ]
+      it "orders it's tabs" do
+        expect(subject.tabs).to eq [another_tab_1, another_tab_3, another_tab_2]
       end
     end
-
   end
 
   describe "indexable?" do
-
     before { suite.indexable = true }
     it "returns correct meta tags" do
-      expect(subject.meta_content_for_robots).to eq 'index,follow'
+      expect(subject.meta_content_for_robots).to eq "index,follow"
     end
 
     context "indexable off" do
       before { suite.indexable = false }
 
       it "returns correct meta tags" do
-        expect(subject.meta_content_for_robots).to eq 'noindex,nofollow'
+        expect(subject.meta_content_for_robots).to eq "noindex,nofollow"
       end
-
     end
-
   end
 
   describe "#tabs_in_stock" do
-    let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true)}
-    let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false)}
+    let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true) }
+    let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false) }
 
-    it "should give you only the tabs in stock" do
+    it "gives you only the tabs in stock" do
       expect(subject.tabs_in_stock).to eq [tab_in_stock]
     end
   end
 
   describe "#desktop_image_size" do
-
     it "is large when the counter is 0" do
       expect(described_class.desktop_image_size(0)).to eq :large
     end
@@ -93,109 +87,117 @@ describe Spree::SuitePresenter do
       expect(described_class.desktop_image_size(10)).to eq :small
       expect(described_class.desktop_image_size(17)).to eq :small
     end
-
   end
 
   describe "#image_size" do
-
     context "desktop" do
-
       it "is large when the counter is 0" do
         expect(subject.send(:image_size, 0)).to eq :large
       end
 
       it "is large when the counter is a modulus of 9" do
-        expect(subject.send(:image_size,9)).to eq :large
+        expect(subject.send(:image_size, 9)).to eq :large
       end
 
       it "is small when the counter is a not a modulus of 9" do
-        expect(subject.send(:image_size,1)).to eq :small
+        expect(subject.send(:image_size, 1)).to eq :small
       end
     end
 
     context "mobile" do
-
       let(:device) { :mobile }
 
       it "is mobile regardless of counter" do
-        expect(subject.send(:image_size,0)).to eq :mobile
-        expect(subject.send(:image_size,1)).to eq :mobile
-        expect(subject.send(:image_size,9)).to eq :mobile
+        expect(subject.send(:image_size, 0)).to eq :mobile
+        expect(subject.send(:image_size, 1)).to eq :mobile
+        expect(subject.send(:image_size, 9)).to eq :mobile
       end
-
     end
-
   end
 
   context "#image" do
-    its(:image) { should eq suite.image }
+    describe "#image" do
+      subject { super().image }
+      it { is_expected.to eq suite.image }
+    end
   end
 
   context "#title" do
-    its(:title) { should eq suite.title }
+    describe "#title" do
+      subject { super().title }
+      it { is_expected.to eq suite.title }
+    end
   end
 
   context "#permalink" do
-    its(:permalink) { should eq suite.permalink }
+    describe "#permalink" do
+      subject { super().permalink }
+      it { is_expected.to eq suite.permalink }
+    end
   end
 
   context "#target" do
-    its(:target) { should eq suite.target }
+    describe "#target" do
+      subject { super().target }
+      it { is_expected.to eq suite.target }
+    end
   end
 
   context "#id" do
-    its(:id) { should eq suite.id }
+    describe "#id" do
+      subject { super().id }
+      it { is_expected.to eq suite.id }
+    end
   end
 
-
   context "#available_stock?" do
-    let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false)}
+    let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false) }
 
     it "returns false if there is not tabs_in_stock" do
       expect(subject.available_stock?).to eq false
     end
 
     context "in stock tab" do
-      let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true)}
+      let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true) }
 
       it "returns true if there is not tabs_in_stock" do
         expect(subject.available_stock?).to eq true
       end
-
     end
   end
 
   context "image methods" do
-
-    let!(:url) { 'the image url'}
+    let!(:url) { "the image url" }
     let!(:attachment) { double(url: url) }
-    let!(:image) { double(attachment: attachment, alt: 'wooo') }
+    let!(:image) { double(attachment: attachment, alt: "wooo") }
 
     before do
       allow(suite).to receive(:image).and_return(image)
     end
 
     context "#image_alt" do
-
-      its(:image_alt) { should eq 'wooo' }
+      describe "#image_alt" do
+        subject { super().image_alt }
+        it { is_expected.to eq "wooo" }
+      end
 
       context "no image.alt" do
+        let!(:image) { double(attachment: attachment, alt: "") }
 
-        let!(:image) { double(attachment: attachment, alt: '') }
-
-        it "should use the title" do
+        it "uses the title" do
           expect(subject.image_alt).to eq subject.title
         end
       end
-
     end
 
     describe "#image_url" do
       context "with an image" do
-        its(:image_url) { should eq("the image url") }
+        describe "#image_url" do
+          subject { super().image_url }
+          it { is_expected.to eq("the image url") }
+        end
 
         context "device is not a mobile" do
-
           context "with a number divisible by 9" do
             it "attachment should receive a style request for large" do
               expect(attachment).to receive(:url).with(:large)
@@ -209,7 +211,6 @@ describe Spree::SuitePresenter do
               subject.image_url(8)
             end
           end
-
         end
 
         context "device is a mobile" do
@@ -227,45 +228,45 @@ describe Spree::SuitePresenter do
               expect(attachment).to receive(:url).with(:mobile)
               subject.image_url(8)
             end
-
           end
         end
-
       end
 
       context "without an image" do
-
         before { allow(suite).to receive(:image).and_return nil }
-        its(:image_url) { should eq("/assets/product-group/placeholder-470x600.gif") }
+
+        describe "#image_url" do
+          subject { super().image_url }
+          it { is_expected.to eq("/assets/product-group/placeholder-470x600.gif") }
+        end
 
         context "device is a mobile" do
           let(:device) { :mobile }
-          its(:image_url) { should eq("/assets/product-group/placeholder-150x192.gif") }
-        end
 
+          describe "#image_url" do
+            subject { super().image_url }
+            it { is_expected.to eq("/assets/product-group/placeholder-150x192.gif") }
+          end
+        end
       end
     end
-
   end
 
   context "#container_class" do
-
     context "with a number divisible by 9" do
-      it "should return large style" do
+      it "returns large style" do
         expect(subject.container_class(9)).to eq "large-8 small-6"
       end
     end
 
     context "with a number not divisible by 9" do
-      it "should return small style" do
+      it "returns small style" do
         expect(subject.container_class(8)).to eq "large-4 small-6"
       end
     end
-
   end
 
   context "#title_size_class" do
-
     it "assigns the correct size (mini) class for a title" do
       suite.title = "Mini Wellington Hat"
       expect(subject.title_size_class).to eq ("mini")
@@ -285,37 +286,49 @@ describe Spree::SuitePresenter do
       suite.title = "Mini Hat"
       expect(subject.title_size_class).to eq ("large")
     end
-
   end
 
   context "#header_style" do
-
     context "large top" do
       before { suite.template_id =  Spree::Suite::LARGE_TOP }
-      its(:header_style) { should eq 'large top'}
+
+      describe "#header_style" do
+        subject { super().header_style }
+        it { is_expected.to eq "large top" }
+      end
     end
 
     context "small bottom" do
       before { suite.template_id =  Spree::Suite::SMALL_BOTTOM }
-      its(:header_style) { should eq 'small bottom'}
+
+      describe "#header_style" do
+        subject { super().header_style }
+        it { is_expected.to eq "small bottom" }
+      end
     end
 
     context "default" do
-      before { suite.template_id =  'asdasd' }
-      its(:header_style) { should eq 'small bottom'}
+      before { suite.template_id =  "asdasd" }
+
+      describe "#header_style" do
+        subject { super().header_style }
+        it { is_expected.to eq "small bottom" }
+      end
     end
 
     context "inverted" do
       before { suite.inverted = true }
-      its(:header_style) { should eq 'small bottom inverted'}
+
+      describe "#header_style" do
+        subject { super().header_style }
+        it { is_expected.to eq "small bottom inverted" }
+      end
     end
-
-
   end
 
   describe "#first_tab_in_stock" do
-    let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true)}
-    let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false)}
+    let!(:tab_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: true) }
+    let!(:tab_not_in_stock) { create(:suite_tab, suite: suite, in_stock_cache: false) }
 
     it "returns first tab in stock" do
       expect(subject.first_tab_in_stock).to eq tab_in_stock
@@ -324,9 +337,8 @@ describe Spree::SuitePresenter do
 
   context "#tab_grid_class" do
     it "assigns correct grid class" do
-      expect(subject.tab_grid_class(0)).to eq 'push-3'
-      expect(subject.tab_grid_class(1)).to eq 'pull-3'
+      expect(subject.tab_grid_class(0)).to eq "push-3"
+      expect(subject.tab_grid_class(1)).to eq "pull-3"
     end
   end
-
 end

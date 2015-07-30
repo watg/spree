@@ -1,13 +1,12 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::SuiteTab do
+  let(:suite) { build_stubbed(:suite) }
+  let(:product) { build_stubbed(:product) }
 
-  let(:suite) { build_stubbed(:suite)}
-  let(:product) { build_stubbed(:product)}
+  subject { described_class.new(tab_type: "made-by-the-gang", suite: suite, product: product) }
 
-  subject { Spree::SuiteTab.new(tab_type: "made-by-the-gang", suite: suite, product: product ) }
-
-  it "should assign a position on create" do
+  it "assigns a position on create" do
     subject.save
     expect(subject.position).to eq 1
   end
@@ -34,104 +33,110 @@ describe Spree::SuiteTab do
   end
 
   describe "#presentation" do
-    its(:presentation) { should eq 'READY MADE' }
+    describe "#presentation" do
+      subject { super().presentation }
+      it { is_expected.to eq "READY MADE" }
+    end
 
     context "knit-your-own" do
-      before { subject.tab_type = 'knit-your-own' }
-      its(:presentation) { should eq 'KNIT YOUR OWN' }
+      before { subject.tab_type = "knit-your-own" }
+
+      describe "#presentation" do
+        it { expect(subject.presentation).to eq "KNIT YOUR OWN" }
+      end
     end
 
     context "crochet-your-own" do
-      before { subject.tab_type = 'crochet-your-own' }
-      its(:presentation) { should eq 'CROCHET YOUR OWN' }
+      before { subject.tab_type = "crochet-your-own" }
+
+      describe "#presentation" do
+        it { expect(subject.presentation).to eq "CROCHET YOUR OWN" }
+      end
     end
 
     context "default" do
-      before { subject.tab_type = 'default' }
-      its(:presentation) { should eq 'GET IT!' }
-    end
+      before { subject.tab_type = "default" }
 
+      describe "#presentation" do
+        it { expect(subject.presentation).to eq "GET IT!" }
+      end
+    end
   end
 
   describe "#partial" do
-    its(:partial) { should eq 'default' }
+    describe "#partial" do
+      it { expect(subject.partial).to eq "default" }
+    end
 
     context "knit-your-own" do
-      before { subject.tab_type = 'knit-your-own' }
-      its(:partial) { should eq 'knit_your_own' }
+      before { subject.tab_type = "knit-your-own" }
+
+      describe "#partial" do
+        it { expect(subject.partial).to eq "knit_your_own" }
+      end
     end
 
     context "default" do
-      before { subject.tab_type = 'default' }
-      its(:partial) { should eq 'default' }
-    end
+      before { subject.tab_type = "default" }
 
+      describe "#partial" do
+        it { expect(subject.partial).to eq "default" }
+      end
+    end
   end
 
   context "setting the lowest amounts" do
-
     let(:suite_tab) { create(:suite_tab) }
 
     context "normal amount" do
-
       it "sets the amount" do
-        suite_tab.set_lowest_normal_amount(100, 'USD')
-        expect(suite_tab.lowest_normal_amount('USD')).to eq 100
+        suite_tab.set_lowest_normal_amount(100, "USD")
+        expect(suite_tab.lowest_normal_amount("USD")).to eq 100
       end
 
       it "updates an existing amount" do
-        suite_tab.set_lowest_normal_amount(100, 'USD')
-        suite_tab.set_lowest_normal_amount(200, 'USD')
-        expect(suite_tab.lowest_normal_amount('USD')).to eq 200
+        suite_tab.set_lowest_normal_amount(100, "USD")
+        suite_tab.set_lowest_normal_amount(200, "USD")
+        expect(suite_tab.lowest_normal_amount("USD")).to eq 200
       end
 
       it "can be scoped by currency" do
-        suite_tab.set_lowest_normal_amount(100, 'GBP')
-        suite_tab.set_lowest_normal_amount(200, 'USD')
-        expect(suite_tab.lowest_normal_amount('GBP')).to eq 100
-        expect(suite_tab.lowest_normal_amount('USD')).to eq 200
+        suite_tab.set_lowest_normal_amount(100, "GBP")
+        suite_tab.set_lowest_normal_amount(200, "USD")
+        expect(suite_tab.lowest_normal_amount("GBP")).to eq 100
+        expect(suite_tab.lowest_normal_amount("USD")).to eq 200
       end
-
     end
 
     context "sale amount" do
-
       it "sets the amount" do
-
-        suite_tab.set_lowest_sale_amount(100, 'USD')
-        expect(suite_tab.lowest_sale_amount('USD')).to eq 100
-
+        suite_tab.set_lowest_sale_amount(100, "USD")
+        expect(suite_tab.lowest_sale_amount("USD")).to eq 100
       end
 
       it "updates an existing amount" do
-
-        suite_tab.set_lowest_sale_amount(100, 'USD')
-        suite_tab.set_lowest_sale_amount(200, 'USD')
-        expect(suite_tab.lowest_sale_amount('USD')).to eq 200
-
+        suite_tab.set_lowest_sale_amount(100, "USD")
+        suite_tab.set_lowest_sale_amount(200, "USD")
+        expect(suite_tab.lowest_sale_amount("USD")).to eq 200
       end
 
       it "can be scoped by currency" do
-        suite_tab.set_lowest_sale_amount(100, 'GBP')
-        suite_tab.set_lowest_sale_amount(200, 'USD')
-        expect(suite_tab.lowest_sale_amount('GBP')).to eq 100
-        expect(suite_tab.lowest_sale_amount('USD')).to eq 200
+        suite_tab.set_lowest_sale_amount(100, "GBP")
+        suite_tab.set_lowest_sale_amount(200, "USD")
+        expect(suite_tab.lowest_sale_amount("GBP")).to eq 100
+        expect(suite_tab.lowest_sale_amount("USD")).to eq 200
       end
-
     end
   end
 
-
   context "touching" do
-
     let(:suite) { create(:suite) }
-    let(:suite_tab) { Spree::SuiteTab.create(suite: suite, product: product) }
+    let(:suite_tab) { described_class.create(suite: suite, product: product) }
 
     it "updates a suite" do
       suite.update_column(:updated_at, 1.day.ago)
       suite_tab.reload.touch
       expect(suite.reload.updated_at).to be_within(3.seconds).of(Time.now)
     end
-
   end
 end

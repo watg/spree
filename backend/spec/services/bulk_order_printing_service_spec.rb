@@ -1,18 +1,17 @@
-require 'spec_helper'
+require "spec_helper"
 
 describe Spree::BulkOrderPrintingService do
-  subject { Spree::BulkOrderPrintingService.new }
+  subject { described_class.new }
 
   describe "#print_invoices" do
     before :all do
       @unprinted_invoices = 2.times.map { create(:order_ready_to_be_consigned_and_allocated, :with_product_group) }
-
     end
 
     it "generates a PDF for each order that hasn't been printed and create a print job" do
       outcome = subject.print_invoices(@unprinted_invoices)
       expect(outcome.valid?).to be true
-      expect(outcome.result[0,4]).to eq('%PDF')
+      expect(outcome.result[0, 4]).to eq("%PDF")
 
       job = @unprinted_invoices.first.invoice_print_job
       expect(job.reload.print_time).to be_within(5.second).of(Time.now)
@@ -31,18 +30,17 @@ describe Spree::BulkOrderPrintingService do
     end
   end
 
-
   describe "#print_image_stickers" do
     let(:orders) { [FactoryGirl.build(:order)] }
 
     before do
-      Spree::Order.any_instance.stub_chain(:shipping_address, :firstname, :upcase) { "Person Name" }
+      allow_any_instance_of(Spree::Order).to receive_message_chain(:shipping_address, :firstname, :upcase) { "Person Name" }
     end
 
     it "generates image stickers and adds sticker print date" do
       outcome = subject.print_image_stickers(orders)
       expect(outcome.valid?).to be true
-      expect(outcome.result[0,4]).to eq('%PDF')
+      expect(outcome.result[0, 4]).to eq("%PDF")
 
       expect(orders.first.batch_sticker_print_date).to eq(Date.today)
     end
@@ -57,7 +55,7 @@ describe Spree::BulkOrderPrintingService do
 
     describe "print job" do
       before do
-        Spree::BulkOrderPrintingService.new.print_image_stickers(orders)
+        described_class.new.print_image_stickers(orders)
         Timecop.freeze
       end
 
@@ -67,10 +65,22 @@ describe Spree::BulkOrderPrintingService do
 
       subject { Spree::PrintJob.last }
 
-      it { should_not be_nil }
-      its(:print_time) { should be_within(1.second).of(Time.now) }
-      its(:job_type) { should eq("image_sticker") }
-      its(:orders) { should eq(orders) }
+      it { is_expected.not_to be_nil }
+
+      describe "#print_time" do
+        subject { super().print_time }
+        it { is_expected.to be_within(1.second).of(Time.now) }
+      end
+
+      describe "#job_type" do
+        subject { super().job_type }
+        it { is_expected.to eq("image_sticker") }
+      end
+
+      describe "#orders" do
+        subject { super().orders }
+        it { is_expected.to eq(orders) }
+      end
     end
   end
 end
