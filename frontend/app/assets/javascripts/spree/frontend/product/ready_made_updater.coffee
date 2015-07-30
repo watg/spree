@@ -1,6 +1,7 @@
 class @ReadyMadeUpdater
   constructor: (@entity, @master_tree, @variants_total_on_hand) ->
     @cart_button = @entity.find('.add-to-cart-button')
+    @stock_level = @entity.find('.stock-level')
 
   updateProductPage: ->
     if this.getVariantDetails()
@@ -76,7 +77,7 @@ class @ReadyMadeUpdater
     this.toggleSelect(selected_type, selected_value)
 
     next_type = option_type_order[selected_type]
-    this.displayChosenOptions(selected_type, next_type)
+    this.resetAvailableOptions(selected_type, next_type)
 
     while (next_type)
       option = @entity.find("#variant-options-container .option-value.#{next_type}")
@@ -93,14 +94,15 @@ class @ReadyMadeUpdater
     @entity.find(".option-value.#{selected_type}.#{selected_value}").addClass('selected')
     @entity.find(".variant-option-values.#{selected_type}").addClass('selected')
 
-  displayChosenOptions: (selected_type, next_type) ->
-    if selected_type == 'size' && next_type == 'colour'
-      @cart_button.attr("style", "opacity: 0.5")
-      @cart_button[0].disabled = true
+  resetAvailableOptions: (selected_type, next_type) ->
+    if selected_type && next_type
+      @cart_button.css("opacity", "0.5")
+      @cart_button.prop('disabled', true)
       @entity.find("span.color-value.colour").text('')
+      @stock_level.css('display', 'none')
     else
-      @cart_button.removeAttr("style")
-      @cart_button[0].disabled = false
+      @cart_button.css("opacity", "1")
+      @cart_button.prop('disabled', false)
 
   getSelectionDetails: ->
     type = ""
@@ -188,12 +190,12 @@ class @ReadyMadeUpdater
 
     if total_on_hand
       if core.isMobileWidthOrLess() == false
-        @entity.find('.stock-level').css('display', 'initial')
+        @stock_level.css('display', 'initial')
       else
-        @entity.find('.stock-level').css('display', 'block')
+        @stock_level.css('display', 'block')
       @entity.find('.stock-value').text(total_on_hand + ' left')
     else
-      @entity.find('.stock-level').css('display', 'none')
+      @stock_level.css('display', 'none')
 
   setIsDigital: ->
     if this.getVariantDetails().is_digital

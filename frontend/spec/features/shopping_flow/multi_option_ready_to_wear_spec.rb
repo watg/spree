@@ -1,22 +1,22 @@
 require "feature_helper"
 
 feature "buying multi option product" do
-  let!(:hat)     { create(:product, :with_marketing_type, sku: "ready", name: "bag", slug: "bag") }
+  let!(:hat)      { create(:product, :with_marketing_type, sku: "ready", name: "bag", slug: "bag") }
 
-  let!(:suite)   { create(:suite, name: " Bag ", title: "bag", permalink: "bag") }
-  let!(:tab)     { create(:suite_tab, tab_type: "made-by-the-gang", suite: suite, product: hat) }
+  let!(:suite)    { create(:suite, name: " Bag ", title: "bag", permalink: "bag") }
+  let!(:tab)      { create(:suite_tab, tab_type: "made-by-the-gang", suite: suite, product: hat) }
 
-  let!(:size)    { create(:option_type, name: "size", position: "1") }
-  let(:sizes)    { %w|small medium large| }
-  let(:s_opts)   { create_option_values(size, sizes) }
+  let!(:size)     { create(:option_type, name: "size", position: "1") }
+  let(:sizes)     { %w|small medium large| }
+  let(:options)   { create_option_values(size, sizes) }
 
-  let!(:colour)  { create(:option_type, name: "colour", position: "2") }
-  let(:colours)  { %w|blue red green| }
-  let!(:c_opts)  { create_option_values(colour, colours) }
+  let!(:colour)   { create(:option_type, name: "colour", position: "2") }
+  let(:colours)   { %w|blue red green| }
+  let!(:options2) { create_option_values(colour, colours) }
 
-  let(:variants) { create_variants }
-  let(:red_med)  { variants[4] }
-  let(:hat_page) { spree.suite_path(id: suite.permalink, tab: tab.tab_type) }
+  let(:variants)  { create_variants }
+  let(:red_med)   { variants[4] }
+  let(:hat_page)  { spree.suite_path(id: suite.permalink, tab: tab.tab_type) }
 
   before do
     variants.each do |v|
@@ -54,8 +54,8 @@ feature "buying multi option product" do
   end
 
   def combos
-    s_opts.each.inject([]) do |array, s|
-      c_opts.map{ |c| array << [s, c] }
+    options.each.inject([]) do |array, s|
+      options2.map{ |c| array << [s, c] }
       array
     end
   end
