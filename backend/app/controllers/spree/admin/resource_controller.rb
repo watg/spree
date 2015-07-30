@@ -178,19 +178,35 @@ class Spree::Admin::ResourceController < Spree::Admin::BaseController
 
   def parent
     if parent_data.present?
-      @parent ||= parent_data[:model_class].with_deleted.send("find_by_#{parent_data[:find_by]}", params["#{model_name}_id"])
+      @parent ||= parent_class_scope.send(*find_by_id)
       instance_variable_set("@#{model_name}", @parent)
     else
       nil
     end
   end
 
+  def parent_class_scope
+    parent_class.respond_to?(:with_deleted) ? parent_class.with_deleted : parent_class
+  end
+
+  def parent_class
+    parent_data[:model_class]
+  end
+
+  def find_by_id
+    ["find_by_#{parent_data[:find_by]}", params["#{model_name}_id"]]
+  end
+
   def find_resource
     if parent_data.present?
       parent.send(controller_name).find(params[:id])
     else
-      model_class.with_deleted.find(params[:id])
+      model_class_scope.find(params[:id])
     end
+  end
+
+  def model_class_scope
+    model_class.respond_to?(:with_deleted) ? model_class.with_deleted : model_class
   end
 
   def build_resource
