@@ -7,7 +7,7 @@ describe Spree::Admin::ShippingMethodsController, type: :controller do
 
   it "should not hard-delete shipping methods" do
     shipping_method.deleted_at.should be_nil
-    spree_delete :destroy, :id => 1
+    spree_delete :destroy, id: shipping_method.id
     shipping_method.reload.deleted_at.should_not be_nil
   end
 end
