@@ -1,86 +1,85 @@
-<div data-hook="inside_product_cart_form">
-	<% if product_presenter.grouped_option_values_in_stock.any? %>
-		<div class="product-variants assembled-options">
-			<% index = 0 %>
-			<% product_presenter.grouped_option_values_in_stock.each do |type, values|  %>
-  			<div class="variant-options index-<%= index %> <%= type.url_safe_name.downcase %>" id="variant-options-container">
-  				<h5 class="variant-option-type"><%= type.presentation %>
-  					<% if %['colour' 'icon colour'].include?(type.name.downcase) %>
-  					<span class="color-value <%= type.url_safe_name.downcase %>"></span>
-  					<% end %>
-  				</h5>
+<div id='ready_made_with_parts'>
+  <div data-hook="inside_product_cart_form">
+  	<% if product_presenter.grouped_option_values_in_stock.any? %>
+  		<div id="product-options" class="product-variants assembled-options">
+        <% product_presenter.grouped_option_values_in_stock.each_with_index do |(type, values), index|  %>
+    			<div class="variant-options index-<%= index %> <%= type.url_safe_name.downcase %>" id="variant-options-container">
+    				<h5 class="variant-option-type"><%= type.presentation %>
+    					<% if %['colour' 'icon colour'].include?(type.name.downcase) %>
+    					   <span class="color-value <%= type.url_safe_name.downcase %>"></span>
+    					<% end %>
+    				</h5>
+    				<ul class="variant-option-values <%= type.url_safe_name.downcase %> kyo">
+    					<% values.sort_by(&:position).each do |value| %>
+    					<% classes = ["option-value", value.url_safe_name, type.url_safe_name] %>
+    					<li>
+    						<%= link_to value.has_image? ? image_tag(value.image.url, :alt => value.presentation) : content_tag(:span, value.presentation), "#", :title => value.presentation, :class => classes.join(" "), data: {type: type.url_safe_name, value: value.url_safe_name, presentation: value.presentation } %>
+    					</li>
+    					<% end %>
+    				</ul>
+    			</div>
+  			<% end %>
+  		</div>
 
-  				<ul class="variant-option-values <%= type.url_safe_name.downcase %> kyo">
-  					<% values.sort_by(&:position).each do |value| %>
-  					<% classes = ["option-value", value.url_safe_name, type.url_safe_name] %>
-  					<li>
-  						<%= link_to value.has_image? ? image_tag(value.image.url, :alt => value.presentation) : content_tag(:span, value.presentation), "#", :title => value.presentation, :class => classes.join(" "), data: {type: type.url_safe_name, value: value.url_safe_name, presentation: value.presentation } %>
-  					</li>
-  					<% end %>
-  				</ul>
-  			</div>
-			<% index += 1 %>
-			<% end %>
-		</div>
+  		<% if product_presenter.optional_parts_for_display.any? %>
+      	<div class="optional-parts">
+      		<h5 class="product-section-title">Do you need knitting needles?</h5>
+      		<ul>
+      			<% product_presenter.optional_parts_for_display.each do |opart| %>
+      			<li>
+              <%= check_box_tag "options[optional_static_parts][]", opart.id, false, 'data-price' => product_presenter.part_price_in_pence(opart), 'data-quantity' => product_presenter.part_quantity(opart),  'data-currency' => current_currency, id: "products_options_#{opart.id}", class: "kit-option" %>
+      				<label for="<%= ['products', 'options', opart.id].join('_') %>">
+      					<span class="optional-part-label"><%= "#{product_presenter.part_quantity(opart)} X #{opart.label_or_product_name}" %></span>
+      				</label>
+      			</li>
+      			<% end %>
+      		</ul>
+      	</div>
+  		<% end %>
+  	<% end %>
 
-		<% unless product_presenter.optional_parts_for_display.blank? %>
-    	<div class="optional-parts">
-    		<h5 class="product-section-title">Do you need knitting needles?</h5>
-    		<ul>
-    			<% product_presenter.optional_parts_for_display.each do |opart| %>
-    			<li>
-            <%= check_box_tag "options[optional_static_parts][]", opart.id, false, 'data-price' => product_presenter.part_price_in_pence(opart), 'data-quantity' => product_presenter.part_quantity(opart),  'data-currency' => current_currency, id: "products_options_#{opart.id}", class: "kit-option" %>
-    				<label for="<%= ['products', 'options', opart.id].join('_') %>">
-    					<span class="optional-part-label"><%= "#{product_presenter.part_quantity(opart)} X #{opart.label_or_product_name}" %></span>
-    				</label>
-    			</li>
-    			<% end %>
-    		</ul>
-    	</div>
-		<% end %>
-	<% end %>
+    <% if product_presenter.personalisations.any? %>
+      <%= render 'personalisations', product_presenter: product_presenter %>
+    <% end %>
+  </div>
 
-  <% if product_presenter.personalisations.any? %>
-    <%= render 'personalisations', product_presenter: product_presenter %>
+  <div class="row row-assembly" data-ad-id="<%= product_presenter.id %>">
+  	<div class="assembly-menus large-10 small-8 column">
+      <ol>
+        <% product_presenter.product_parts.each do |part| %>
+          <% cache [part, product_presenter.currency, device] do %>
+            <% present(part, @context) do |part_presenter| %>
+
+              <!--- if it is not optional -->
+      			  <% if part_presenter.optional? %>
+                <%= render 'optional_parts', part_presenter: part_presenter %>
+              <% else %>
+                <%= render 'required_parts', part_presenter: part_presenter %>
+
+              <% end %>
+
+            <% end # part_presenter %>
+          <% end # cache %>
+        <% end # each parts %>
+      </ol>
+  	</div>
+
+  	<div class="assembly-images large-2 small-4 column">
+  		<ul class="no-bullet">
+        <% product_presenter.product_parts.each do |part| %>
+          <% present(part, @context) do |part_presenter| %>
+            <!-- we do not want to render the image place holder if it is mandotory -->
+  			    <% next if !part_presenter.optional? and part_presenter.displayable_option_values.size == 1 %>
+            <li class="part-image-<%= part_presenter.id %>"></li>
+          <% end %>
+  			<% end  %>
+  		</ul>
+  	</div>
+  </div>
+
+  <% if mobile_device? %>
+  	<%= render 'spree/suites/mobile/add_to_cart', product_presenter: product_presenter %>
+  <% else %>
+  	<%= render 'add_to_cart', product_presenter: product_presenter %>
   <% end %>
 </div>
-
-<div class="row row-assembly" data-ad-id="<%= product_presenter.id %>">
-	<div class="assembly-menus large-10 small-8 column">
-    <ol>
-      <% product_presenter.product_parts.each do |part| %>
-        <% cache [part, product_presenter.currency, device] do %>
-          <% present(part, @context) do |part_presenter| %>
-
-            <!--- if it is not optional -->
-    			  <% if part_presenter.optional? %>
-              <%= render 'optional_parts', part_presenter: part_presenter %>
-            <% else %>
-              <%= render 'required_parts', part_presenter: part_presenter %>
-
-            <% end %>
-
-          <% end # part_presenter %>
-        <% end # cache %>
-      <% end # each parts %>
-    </ol>
-	</div>
-
-	<div class="assembly-images large-2 small-4 column">
-		<ul class="no-bullet">
-      <% product_presenter.product_parts.each do |part| %>
-        <% present(part, @context) do |part_presenter| %>
-          <!-- we do not want to render the image place holder if it is mandotory -->
-			    <% next if !part_presenter.optional? and part_presenter.displayable_option_values.size == 1 %>
-          <li class="part-image-<%= part_presenter.id %>"></li>
-        <% end %>
-			<% end  %>
-		</ul>
-	</div>
-</div>
-
-<% if mobile_device? %>
-	<%= render 'spree/suites/mobile/add_to_cart', product_presenter: product_presenter %>
-<% else %>
-	<%= render 'add_to_cart', product_presenter: product_presenter %>
-<% end %>
