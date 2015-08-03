@@ -18,7 +18,7 @@ class @ReadyMadeUpdater
       else
         this.toggleImages()
     else
-      this.toogleOnColorSelector()
+      this.toggleOnColorSelector()
 
   updateSupplierDetails: ->
     suppliers = this.getVariantDetails().suppliers
@@ -108,7 +108,8 @@ class @ReadyMadeUpdater
     type = ""
     value = ""
     tree = @master_tree
-    @entity.find('.option-value.selected').each ->
+
+    @entity.find('div.product-variants .option-value.selected').each ->
       option_value = $(this)
       type =  option_value.data('type')
       value = option_value.data('value')
@@ -346,9 +347,9 @@ class @ReadyMadeUpdater
     # this into a function but I decided it was less messy to keep all of this
     # horror in a self contained function of shit, rather than smearing it out
     # across other functions.
-  toogleOnColorSelector: ->
+  toggleOnColorSelector: ->
     node = @master_tree
-    @entity.find('.option-value.selected').each ->
+    @entity.find('div.product-variants .option-value.selected').each ->
       option_value = $(this)
       type =  option_value.data('type')
       value = option_value.data('value')
