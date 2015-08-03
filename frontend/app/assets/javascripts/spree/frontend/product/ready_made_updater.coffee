@@ -109,7 +109,7 @@ class @ReadyMadeUpdater
     value = ""
     tree = @master_tree
 
-    @entity.find('div.product-variants .option-value.selected').each ->
+    @entity.find('#product-options .option-value.selected').each ->
       option_value = $(this)
       type =  option_value.data('type')
       value = option_value.data('value')
@@ -349,7 +349,7 @@ class @ReadyMadeUpdater
     # across other functions.
   toggleOnColorSelector: ->
     node = @master_tree
-    @entity.find('div.product-variants .option-value.selected').each ->
+    @entity.find('#product-options .option-value.selected').each ->
       option_value = $(this)
       type =  option_value.data('type')
       value = option_value.data('value')
