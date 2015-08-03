@@ -418,11 +418,12 @@ module Spree
       values = values.inject(values.shift) { |memo, value| memo.product(value).map(&:flatten) }
 
       values.each do |ids|
-        variant = variants.create(
+        variant = variants.new(
           option_value_ids: ids#,
           # Not part of vanilla spree
           # price: master.price
         )
+        variant.create_sku
         variant.prices = master.prices
       end
       save
