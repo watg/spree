@@ -1125,10 +1125,15 @@
     }
 
     #custom {
-      .product-variants{
+      .product-variants {
         border-bottom: 1px dotted #333;
         margin-bottom: 25px;
         padding-bottom: 15px;
+      }
+
+      .row-assembly {
+        padding: 0;
+        margin-bottom: 0;
       }
     }
 
@@ -1279,13 +1284,6 @@
     }
 
     /* Assembly */
-    #custom{
-      .row-assembly{
-        padding: 0;
-        margin-bottom: 0;
-      }
-    }
-
     .row-assembly {
       .assembly-menus {
         padding: 0;
