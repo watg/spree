@@ -472,8 +472,8 @@ body.homepage {
   }
 
   .home-main .leader-party {
-    /* Small screen background */
-    background: #cedfef cdn-url("/homepage/au/2015-05-29/Homepage_Australie_SS_KnitParty_MOBILE_V1.jpg") top center no-repeat;
+    /* Large screen background */
+    background: #cedfef cdn-url("/homepage/au/2015-05-29/Homepage_Australie_SS_KnitParty_DESKTOP_V1.jpg") top center no-repeat;
     & > div {
       height: 580px;
     }
@@ -487,9 +487,9 @@ body.homepage {
       width: 100%;
       height: 100%;
     }
-    /* Large screen background */
+    /* Small screen background */
     @media only screen and (min-width: 28.750em) {
-      background: #cedfef cdn-url("/homepage/au/2015-05-29/Homepage_Australie_SS_KnitParty_DESKTOP_V1.jpg") top center no-repeat;
+      background: #cedfef cdn-url("/homepage/au/2015-05-29/Homepage_Australie_SS_KnitParty_MOBILE_V1.jpg") top center no-repeat;
       & > div {
         height: 700px;
       }
