@@ -8,8 +8,8 @@
 
 <%= tab *Spree::BackendConfiguration::VIDEO_TABS, icon: 'video-camera' %>
 
-<% if can? :admin, Spree::Admin::ReportsController %>
-  <%= tab *Spree::BackendConfiguration::REPORT_TABS, icon: 'file-excel-o'  %>
+<% if can? :admin, Reporting::ReportsController %>
+  <%= tab *Spree::BackendConfiguration::REPORT_TABS, label: :reports, icon: 'file-excel-o', url: reporting.reports_path  %>
 <% end %>
 
 <%= tab *Spree::BackendConfiguration::CONFIGURATION_TABS, label: 'config', icon: 'wrench', url: spree.edit_admin_general_settings_path %>

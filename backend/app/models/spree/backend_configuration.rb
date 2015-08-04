@@ -9,7 +9,7 @@ module Spree
                             :variants, :product_properties, :taxonomies,
                             :taxons, :suites, :suppliers, :product_groups]
     VIDEO_TABS         ||= [:videos]
-    REPORT_TABS        ||= [:reports]
+    REPORT_TABS        ||= [:reporting_reports]
     CONFIGURATION_TABS ||= [:configurations, :general_settings, :tax_categories,
                             :tax_rates, :zones, :countries, :states,
                             :payment_methods, :shipping_methods,
