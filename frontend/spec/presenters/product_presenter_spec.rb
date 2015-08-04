@@ -46,15 +46,17 @@ describe Spree::ProductPresenter do
     it { expect(subject.optional_parts_for_display).to eq product.optional_parts_for_display }
   end
 
-  describe "part_option_styling" do
+  describe "part_option_grid" do
+    let(:actual) { subject.part_option_grid }
+
     context "desktop" do
       let(:device) { :desktop }
-      it { expect(subject.part_option_style).to eq "small-12" }
+      it { expect(actual).to eq "small-8" }
     end
 
     context "mobile" do
       let(:device) { :mobile }
-      it { expect(subject.part_option_style).to eq "small-8" }
+      it { expect(actual).to eq "small-12" }
     end
   end
 

@@ -45,7 +45,7 @@
   </div>
 
   <div class="row row-assembly" data-ad-id="<%= product_presenter.id %>">
-  	<div class="assembly-menus large-10 <%= product_presenter.part_option_style %> column">
+  	<div class="assembly-menus large-10 <%= product_presenter.part_option_grid %> column">
       <ol>
         <% product_presenter.product_parts.each do |part| %>
           <% cache [part, product_presenter.currency, device] do %>
