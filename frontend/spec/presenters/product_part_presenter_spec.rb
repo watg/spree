@@ -40,6 +40,20 @@ describe Spree::ProductPartPresenter do
     it { is_expected.to eq product_part.presentation }
   end
 
+  describe "#part_template" do
+    context 'mobile' do
+      let(:context) { { device: :mobile } }
+      let(:partial) { 'spree/suites/mobile/optional_part' }
+      it { expect(subject.template).to eq partial }
+    end
+
+    context 'desktop' do
+      let(:context) { { device: :desktop } }
+      let(:partial) { 'optional_part' }
+      it { expect(subject.template).to eq partial }
+    end
+  end
+
   context "#variants" do
     before do
       product_part.variants << variant

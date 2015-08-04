@@ -40,6 +40,10 @@ module Spree
       variant_options.tree
     end
 
+    def part_option_style
+      mobile? ? 'small-12' : 'small-8'
+    end
+
     def option_type_order
       variant_options.option_type_order
     end

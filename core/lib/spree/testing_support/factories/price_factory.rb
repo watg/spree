@@ -9,6 +9,6 @@ FactoryGirl.define do
     currency 'USD'
     is_kit false
     sale false
-    variant_id # a real variant with callbacks turns this hard to test.
+    variant_id # a real variant with callbacks makes this hard to test.
   end
 end
