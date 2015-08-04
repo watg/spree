@@ -26,7 +26,7 @@ core.suite.readyCustomizableVariantOptions = function(entity) {
     selected_presentation = $(this).data("presentation");
     ready_made_updater.toggleOptionValues(selected_type, selected_value, selected_presentation, option_type_order);
     ready_made_updater.updateProductPage();
-    return entity.find(".price").trigger("recalculate");
+    entity.find(".price").trigger("recalculate");
   });
 
   entity.find(".assembled-options .optional-parts ul input").click(function() {

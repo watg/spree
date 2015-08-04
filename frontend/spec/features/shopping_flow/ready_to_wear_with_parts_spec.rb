@@ -15,7 +15,8 @@ feature "buying multi option product" do
   let(:red)       { values[0] }
   let(:red_strap) { create(:variant, product: strap, option_values: [red], in_stock_cache: true) }
   let(:price)     { create(:price, price_type: "part") }
-  let(:prod_part) { create(:product_part, product: hat, part: strap, displayable_option_type: option) }
+  let(:prod_part) { create(:product_part, params) }
+  let(:params)    { { product: hat, part: strap, displayable_option_type: option } }
   let(:ppv)       { create(:product_part_variant, variant: red_strap, product_part: prod_part) }
 
   let(:hat_page)  { spree.suite_path(id: suite.permalink, tab: tab.tab_type) }
