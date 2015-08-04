@@ -246,4 +246,18 @@ describe Spree::UpdateVariantService do
       end
     end
   end
+
+  context "variant is updated with same params" do
+    context "sku has already been taken" do
+      it "does not save variant" do
+        outcome_1 = subject.run(variant: variant, details: valid_params, prices: prices)
+        outcome_2 = subject.run(variant: variant2, details: valid_params, prices: prices)
+
+        expect(outcome_1).to be_valid
+        expect(outcome_1.errors.messages).to be_blank
+        expect(outcome_2).to be_invalid
+        expect(outcome_2.errors.messages).to eq :base => ["SKU has already been taken"]
+      end
+    end
+  end
 end
