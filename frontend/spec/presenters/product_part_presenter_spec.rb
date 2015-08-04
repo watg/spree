@@ -41,15 +41,15 @@ describe Spree::ProductPartPresenter do
   end
 
   describe "#part_template" do
-    context 'mobile' do
+    context "mobile" do
       let(:context) { { device: :mobile } }
-      let(:partial) { 'spree/suites/mobile/optional_part' }
+      let(:partial) { "spree/suites/mobile/optional_part" }
       it { expect(subject.template).to eq partial }
     end
 
-    context 'desktop' do
+    context "desktop" do
       let(:context) { { device: :desktop } }
-      let(:partial) { 'optional_part' }
+      let(:partial) { "optional_part" }
       it { expect(subject.template).to eq partial }
     end
   end

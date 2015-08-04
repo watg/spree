@@ -11,10 +11,10 @@ feature "buying multi option product" do
   let!(:values)   { create_option_values }
   let(:variants)  { create_variants }
 
-  let(:strap)     { create(:product, name: 'strap') }
+  let(:strap)     { create(:product, name: "strap") }
   let(:red)       { values[0] }
   let(:red_strap) { create(:variant, product: strap, option_values: [red], in_stock_cache: true) }
-  let(:price)     { create(:price, price_type: 'part') }
+  let(:price)     { create(:price, price_type: "part") }
   let(:prod_part) { create(:product_part, product: hat, part: strap, displayable_option_type: option) }
   let(:ppv)       { create(:product_part_variant, variant: red_strap, product_part: prod_part) }
 
@@ -32,15 +32,15 @@ feature "buying multi option product" do
 
   scenario "user selects preferred color and part", js: true do
     visit hat_page
-    verify_chosen_colour('blue')
-    verify_product_price('$19.99')
+    verify_chosen_colour("blue")
+    verify_product_price("$19.99")
 
     choose_blue_part
-    verify_product_price('$29.98')
+    verify_product_price("$29.98")
 
     choose_red_hat
-    verify_chosen_colour('red')
-    verify_product_price('$29.98')
+    verify_chosen_colour("red")
+    verify_product_price("$29.98")
 
     checkout
 
@@ -56,20 +56,20 @@ feature "buying multi option product" do
   end
 
   def verify_chosen_colour(colour)
-    expect(find('.color-value').text).to eq colour.upcase
+    expect(find(".color-value").text).to eq colour.upcase
   end
 
   def verify_product_price(price)
-    expect(find('.normal-price').text).to eq price
+    expect(find(".normal-price").text).to eq price
   end
 
   def choose_blue_part
-    find('.optional').click
+    find(".optional").click
     page.find(".row-assembly a.option-value.blue.colour span").click
   end
 
   def choose_red_hat
-    click_link('red')
+    click_link("red")
   end
 
   def checkout

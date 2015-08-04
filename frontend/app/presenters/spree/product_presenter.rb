@@ -41,7 +41,7 @@ module Spree
     end
 
     def part_option_style
-      mobile? ? 'small-12' : 'small-8'
+      mobile? ? "small-12" : "small-8"
     end
 
     def option_type_order

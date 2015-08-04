@@ -26,7 +26,7 @@ module Spree
     end
 
     def template
-      [partial_path, 'optional_part'].compact.join
+      [partial_path, "optional_part"].compact.join
     end
 
     #### option value methods ####
@@ -60,7 +60,7 @@ module Spree
     private
 
     def partial_path
-      'spree/suites/mobile/' if mobile?
+      "spree/suites/mobile/" if mobile?
     end
 
     def preloader
