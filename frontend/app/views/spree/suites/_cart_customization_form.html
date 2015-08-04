@@ -3,23 +3,24 @@
   	<% if product_presenter.grouped_option_values_in_stock.any? %>
   		<div id="product-options" class="product-variants assembled-options">
         <% product_presenter.grouped_option_values_in_stock.each_with_index do |(type, values), index|  %>
-    			<div class="variant-options index-<%= index %> <%= type.url_safe_name.downcase %>" id="variant-options-container">
-    				<h5 class="variant-option-type"><%= type.presentation %>
-    					<% if %['colour' 'icon colour'].include?(type.name.downcase) %>
-    					   <span class="color-value <%= type.url_safe_name.downcase %>"></span>
-    					<% end %>
-    				</h5>
-    				<ul class="variant-option-values <%= type.url_safe_name.downcase %> kyo">
-    					<% values.sort_by(&:position).each do |value| %>
-    					<% classes = ["option-value", value.url_safe_name, type.url_safe_name] %>
-    					<li>
-    						<%= link_to value.has_image? ? image_tag(value.image.url, :alt => value.presentation) : content_tag(:span, value.presentation), "#", :title => value.presentation, :class => classes.join(" "), data: {type: type.url_safe_name, value: value.url_safe_name, presentation: value.presentation } %>
-    					</li>
-    					<% end %>
-    				</ul>
-    			</div>
-  			<% end %>
-  		</div>
+          <div class="variant-options index-<%= index %> <%= type.url_safe_name.downcase %>" id="variant-options-container">
+            <h5 class="variant-option-type"><%= type.presentation %>
+              <% if %['colour' 'icon colour'].include?(type.name.downcase) %>
+                 <span class="color-value <%= type.url_safe_name.downcase %>"></span>
+              <% end %>
+            </h5>
+
+            <ul class="variant-option-values <%= type.url_safe_name.downcase %> kyo">
+              <% values.sort_by(&:position).each do |value| %>
+              <% classes = ["option-value", value.url_safe_name, type.url_safe_name] %>
+              <li>
+                <%= link_to value.has_image? ? image_tag(value.image.url, :alt => value.presentation) : content_tag(:span, value.presentation), "#", :title => value.presentation, :class => classes.join(" "), data: {type: type.url_safe_name, value: value.url_safe_name, presentation: value.presentation } %>
+              </li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+      </div>
 
   		<% if product_presenter.optional_parts_for_display.any? %>
       	<div class="optional-parts">
@@ -44,37 +45,21 @@
   </div>
 
   <div class="row row-assembly" data-ad-id="<%= product_presenter.id %>">
-  	<div class="assembly-menus large-10 small-8 column">
+  	<div class="assembly-menus large-10 <%= product_presenter.part_option_grid %> column">
       <ol>
         <% product_presenter.product_parts.each do |part| %>
           <% cache [part, product_presenter.currency, device] do %>
             <% present(part, @context) do |part_presenter| %>
-
-              <!--- if it is not optional -->
-      			  <% if part_presenter.optional? %>
-                <%= render 'optional_parts', part_presenter: part_presenter %>
-              <% else %>
-                <%= render 'required_parts', part_presenter: part_presenter %>
-
-              <% end %>
-
+              <%= render part_presenter.template, part_presenter: part_presenter %>
             <% end # part_presenter %>
           <% end # cache %>
-        <% end # each parts %>
+        <% end #part %>
       </ol>
   	</div>
 
-  	<div class="assembly-images large-2 small-4 column">
-  		<ul class="no-bullet">
-        <% product_presenter.product_parts.each do |part| %>
-          <% present(part, @context) do |part_presenter| %>
-            <!-- we do not want to render the image place holder if it is mandotory -->
-  			    <% next if !part_presenter.optional? and part_presenter.displayable_option_values.size == 1 %>
-            <li class="part-image-<%= part_presenter.id %>"></li>
-          <% end %>
-  			<% end  %>
-  		</ul>
-  	</div>
+    <% if !mobile_device? %>
+    	<%= render 'part_image', product_presenter: product_presenter %>
+    <% end %>
   </div>
 
   <% if mobile_device? %>

@@ -25,7 +25,12 @@ module Spree
     def to_key
       @object.to_key
     end
+
     private
+
+    def mobile?
+      is_mobile?
+    end
 
     def is_mobile?
       device == :mobile

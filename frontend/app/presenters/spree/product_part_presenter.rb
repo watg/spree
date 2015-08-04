@@ -25,6 +25,10 @@ module Spree
       @displayable_option_type ||= product_part.displayable_option_type
     end
 
+    def template
+      [partial_path, "optional_part"].compact.join
+    end
+
     #### option value methods ####
 
     def option_value_tree
@@ -54,6 +58,10 @@ module Spree
     end
 
     private
+
+    def partial_path
+      "spree/suites/mobile/" if mobile?
+    end
 
     def preloader
       ActiveRecord::Associations::Preloader.new

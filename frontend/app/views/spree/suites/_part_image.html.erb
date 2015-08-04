@@ -1,0 +1,11 @@
+<div class="assembly-images large-2 small-4 column">
+  <ul class="no-bullet">
+    <% product_presenter.product_parts.each do |part| %>
+      <% present(part, @context) do |part_presenter| %>
+        <!-- we do not want to render the image place holder if it is mandotory -->
+        <% next if !part_presenter.optional? and part_presenter.displayable_option_values.size == 1 %>
+        <li class="part-image-<%= part_presenter.id %>"></li>
+      <% end %>
+    <% end  %>
+  </ul>
+</div>
