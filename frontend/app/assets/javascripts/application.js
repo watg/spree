@@ -63,5 +63,6 @@
 //= require spree/frontend/referee_landing
 //= require spree/frontend/reward_landing
 
-// Knit party module
+// Party module
 //= require spree/frontend/party
+//= require spree/frontend/time_to_party

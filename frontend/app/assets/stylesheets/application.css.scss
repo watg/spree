@@ -100,9 +100,10 @@
 // Refer-a-friend module
 @import "spree/frontend/spree_raf";
 
-// party module
-@import "spree/frontend/party";
+// Party module
+@import "spree/frontend/_party_tutorial";
 @import "spree/frontend/_additional_tutorials";
+@import "spree/frontend/_time_to_party";
 
 // Internationalisation
 @import "_internationalisation";

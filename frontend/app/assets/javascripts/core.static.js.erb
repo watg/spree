@@ -28,7 +28,7 @@ $(document).on('ready page:load', function() {
   }
 
   if ($('body').hasClass('gang-labs')) {
-    core.Static.readyTabs();
+    core.Static.readyTabs('desktop');
   }
 });
 
@@ -126,20 +126,29 @@ core.Static.fancyboxModal = function() {
   });
 }
 
-core.Static.readyTabs = function() {
-  var tab_links = $('.row-tabs a');
+// Desktop mode and mobile mode
+core.Static.readyTabs = function(mode) {
+  var tab_links = mode == 'desktop' ? $('.row-tabs a') : $('.row-tab-mobile a');
   var tab_content = $('.row-tab-content');
 
   tab_links.on({
     click: function(e) {
       e.preventDefault();
-      tab_links.removeClass('selected');
-      $(this).addClass('selected');
+      if (mode == 'desktop') {
+        tab_links.removeClass('selected');
+        $(this).addClass('selected');
+      } else {
+        $(this).closest('.row-tab-mobile').toggleClass('selected');
+      }
 
       var tab_id = $(this).attr('href');
       if ($(tab_id)) {
-        tab_content.removeClass('selected');
-        $(tab_id).addClass('selected');
+        if (mode == 'desktop') {
+          tab_content.removeClass('selected');
+          $(tab_id).addClass('selected');
+        } else {
+          $(tab_id).toggleClass('selected');
+        }
       }
     }
   });
