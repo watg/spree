@@ -18,6 +18,8 @@
       <%= render "spree/suites/mobile/cart_kit_form", variant_presenter: variant_presenter, product_presenter: product_presenter %>
     <% elsif product_presenter.ready_to_wear_with_parts? %>
         <%= render 'cart_customization_form', variant_presenter: variant_presenter, product_presenter: product_presenter %>
+    <% elsif selected_tab_presenter.yarn_or_wool? %>
+      <%= render 'spree/suites/mobile/yarn_and_wool_form', variant_presenter: variant_presenter, product_presenter: product_presenter %>
     <% else %>
       <%= render 'cart_form', variant_presenter: variant_presenter, product_presenter: product_presenter %>
     <% end %>

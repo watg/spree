@@ -9,17 +9,22 @@
            data-tree="<%= product_presenter.variant_tree.to_json  %>"
            data-option-type-order="<%= product_presenter.option_type_order.to_json %>"
            data-variant-option-values="<%= product_presenter.variant_option_values.to_json %>">
+    <% elsif selected_tab_presenter.yarn_or_wool? %>
+      <div class="displayable-yarn-and-wool-entity row active"
+           data-option-values="<%= product_presenter.option_types_and_values.to_json %>"
+           data-tree="<%= product_presenter.variant_tree.to_json  %>"
+           data-option-type-order="<%= product_presenter.option_type_order.to_json %>"
+           data-variant-option-values="<%= product_presenter.variant_option_values.to_json %>">
     <% else %>
       <div class="displayable-entity row active"
            data-option-values="<%= product_presenter.option_types_and_values.to_json %>"
            data-tree="<%= product_presenter.variant_tree.to_json  %>"
            data-option-type-order="<%= product_presenter.option_type_order.to_json %>"
            data-variant-option-values="<%= product_presenter.variant_option_values.to_json %>">
-
     <% end %>
 
     <div class="row">
-      <div class="large-6 small-12 columns images-column">
+      <div class="<%= selected_tab_presenter.main_image_container_classes %>">
         <div class="product-images" data-hook="product_images">
           <%= render selected_tab_presenter.product_images,
                       variant_presenter: variant_presenter,
@@ -29,7 +34,9 @@
 
       <div class="large-6 small-12 columns">
         <h1 class="product-name"><%= product_presenter.name %></h1>
-
+        <% if selected_tab_presenter.present_color_as_title? %>
+          <p class="level"><span class="color-value colour"></span></p>
+        <% end%>
         <%# Template Dependency: spree/suites/in_stock %>
         <%# Template Dependency: spree/suites/out_of_stock %>
         <%= render selected_tab_presenter.product_selector,

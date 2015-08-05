@@ -3,31 +3,31 @@ core.suite.readyVariantOptions = (entity) ->
   variants_total_on_hand = entity.parents(".wrapper-product-group").data('variants-total-on-hand')
   option_type_order = entity.data('option-type-order')
   option_values = entity.data('option-values') || []
-  ready_made_updater = new ReadyMadeUpdater(entity, entity.data('tree'), variants_total_on_hand)
+  page_updater = new ReadyMadeUpdater(entity, entity.data('tree'), variants_total_on_hand)
   for option_value in option_values
-    ready_made_updater.toggleOptionValues(option_value[0], option_value[1], option_value[2], option_type_order)
-  ready_made_updater.updateProductPage()
+    page_updater.toggleOptionValues(option_value[0], option_value[1], option_value[2], option_type_order)
+  page_updater.updateProductPage()
 
   entity.find('.option-value').click (event)->
     event.preventDefault()
     selected_type = $(this).data('type')
     selected_value = $(this).data('value')
     selected_presentation = $(this).data('presentation')
-    ready_made_updater.toggleOptionValues(selected_type, selected_value, selected_presentation, option_type_order)
-    ready_made_updater.updateProductPage()
+    page_updater.toggleOptionValues(selected_type, selected_value, selected_presentation, option_type_order)
+    page_updater.updateProductPage()
 #  THIS BIT SHOULD BE REVIEWED
 
   # Then get it working with option_value changes
   entity.find(".optional-parts ul input").click (event) ->
-    ready_made_updater.adjustPrices()
+    page_updater.adjustPrices()
 
   entity.find('.personalisations :checkbox').click (event) ->
-    ready_made_updater.togglePersonalisations($(this), event)
-    ready_made_updater.adjustPrices()
+    page_updater.togglePersonalisations($(this), event)
+    page_updater.adjustPrices()
 
   # Toggle the personalisation option values
   entity.find('.personalisation-option-value').click (event) ->
-    ready_made_updater.togglePersonalisationOptionValue($(this), event)
+    page_updater.togglePersonalisationOptionValue($(this), event)
 
   # Friendly flash message in case user tries to checkout without the add-to-cart button
   # being enabled

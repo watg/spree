@@ -51,10 +51,11 @@
 
 //= require spree/frontend/product/kit_updater
 //= require spree/frontend/product/ready_made_updater
-
+//= require spree/frontend/product/yarn_and_wool_updater
 //= require spree/frontend/product-option-values
 //= require spree/frontend/kit-option-values
 //= require spree/frontend/customizable-option-values
+//= require spree/frontend/yarn-and-wool-values
 //= require spree/frontend/spree_paypal_express
 
 // Refer-a-friend module

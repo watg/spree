@@ -4,6 +4,7 @@
  * Table of contents
  *
  * Tabs
+ * Yarn and Wool Pages
  * Images
  * Basic product description
  * Out of stock section
@@ -108,7 +109,27 @@
   }
   /* Tabs ends */
 
-
+  /* Yarn and Wool Pages */
+  .displayable-yarn-and-wool-entity {
+    .owl-controls .owl-buttons {
+      div {
+        position: absolute;
+      }
+      .owl-prev {
+        left: -10px;
+        top: 135px;
+      }
+      .owl-next {
+        right: -10px;
+        top: 135px;
+      }
+      img {
+        height: 40px;
+      }
+    }
+  }
+  /* End Yarn and Wool Pages */
+  
   /* Images */
   .images-column {
     padding: 0;
@@ -606,5 +627,3 @@
   }
   /* Social Icons end */
 }
-
-

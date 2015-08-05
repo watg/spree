@@ -67,6 +67,11 @@ core.suite.runVariantMethods = function() {
   if (visible_entity.length > 0) {
     core.suite.readyKitVariantOptions(visible_entity.first());
   }
+
+  var visible_entity = $('.displayable-yarn-and-wool-entity:visible');
+  if (visible_entity.length > 0) {
+    core.suite.readyYarnAndWoolOptions(visible_entity.first());
+  }
 }
 
 core.suite.readySocialWidget = function() {
