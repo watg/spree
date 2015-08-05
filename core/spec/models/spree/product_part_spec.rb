@@ -8,7 +8,7 @@ describe Spree::ProductPart do
   let(:product)  { variant.product }
   let(:part)     { create(:base_product) }
   let(:colour)   { create(:option_type, name: "colour", position: 2) }
-  let(:type)     { 'kit' }
+  let(:type)     { "kit" }
 
   before         { product.product_type.update_column(:name, type) }
 
@@ -24,11 +24,11 @@ describe Spree::ProductPart do
       end
     end
 
-    context 'ready made product' do
+    context "ready made product" do
       subject      { described_class.create(opts) }
-      let(:opts)   { { product_id: product.id, optional: "false"} }
+      let(:opts)   { { product_id: product.id, optional: "false" } }
       let(:errors) { subject.errors.full_messages }
-      let(:type)   { 'normal' }
+      let(:type)   { "normal" }
 
       it           { expect(errors).to eq(["Optional can't be blank"]) }
     end

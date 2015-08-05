@@ -18,7 +18,7 @@ module Spree
 
     accepts_nested_attributes_for :variants
 
-    validates :optional, presence: true, if: -> { product.product_type.normal? }
+    validates :optional, presence: true, if: -> { product.normal? }
 
     NO_THANKS = "no_thanks"
 
