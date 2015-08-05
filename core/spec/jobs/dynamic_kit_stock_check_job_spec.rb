@@ -5,7 +5,8 @@ describe Spree::StockCheckJob do
     let(:klass)          { Spree::StockCheckJob }
     let!(:variant)       { create(:master_variant, variant_opts) }
     let(:variant_opts)   { { product: product, in_stock_cache: variant_status } }
-    let!(:product)       { create(:product) }
+    let!(:product)       { create(:product, product_type: product_type) }
+    let(:product_type)   { create(:product_type, :kit) }
     let(:variant_status) { in_stock }
     let(:in_stock)       { true }
     let(:out_of_stock)   { false }
@@ -13,14 +14,11 @@ describe Spree::StockCheckJob do
     let!(:pv)            { create(:variant, product: part_product, in_stock_cache: pv_status) }
     let(:pv_status)      { in_stock }
     let!(:adp)           { create(:product_part, adp_opts) }
-    let(:adp_opts)       { { product: variant.product, part: part_product } }
+    let(:adp_opts)       { { product: variant.product, part: part_product, optional: false} }
     let!(:adv)           { create(:product_part_variant, adv_opts) }
     let(:adv_opts)       { { product_part: adp, variant: pv } }
 
-    before do
-      product.master = variant
-      variant.product.product_type.name = "kit"
-    end
+    before               { product.master = variant }
 
     describe "stock check for the the Assembly Definition variant e.g. Kit itself" do
       subject  { klass.new(variant) }
@@ -204,7 +202,8 @@ describe Spree::StockCheckJob do
         let(:part_2)         { create(:product) }
         let(:pv2)            { create(:variant, product: part_2, in_stock_cache: pv2_status) }
         let(:pv2_status)     { out_of_stock }
-        let(:adp_2)          { create(:product_part, product: product, part: part_2) }
+        let(:adp_2)          { create(:product_part, adp_2_opts) }
+        let(:adp_2_opts)     { { product: product, part: part_2, optional: false } }
         let!(:adv2)          { create(:product_part_variant, adv2_opts) }
         let(:adv2_opts)      { { product_part: adp_2, variant: pv2 } }
 
@@ -350,8 +349,9 @@ describe Spree::StockCheckJob do
   end
 
   context "Dynamic kit where part is a static kit" do
-    let!(:product) { create(:base_product, name: "My Product", description: "Product Description") }
-    let!(:variant) { create(:master_variant, variant_opts) }
+    let!(:product)     { create(:base_product, name: "My Product", product_type: product_type) }
+    let(:product_type) { create(:product_type, :kit) }
+    let!(:variant)     { create(:master_variant, variant_opts) }
     let(:variant_opts) { { product: product, in_stock_cache: true, updated_at: 1.day.ago } }
 
     let!(:product_part)  { create(:base_product) }
@@ -362,7 +362,7 @@ describe Spree::StockCheckJob do
     let(:ap_opts) { { part_id: skp.id, assembly_id: sk.id, assembly_type: "Spree::Variant" } }
 
     let!(:adp) { create(:product_part, adp_opts) }
-    let!(:adp_opts) { { product: variant.product, part: product_part } }
+    let!(:adp_opts) { { product: variant.product, part: product_part, optional: false } }
     let!(:adv) { adv_klass.create(product_part: adp, variant: sk) }
     let(:adv_klass) { Spree::ProductPartVariant }
 

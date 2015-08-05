@@ -213,8 +213,8 @@ module Spree
       end
 
       context "Dynamic" do
-        # TODO: turn this into a factory
-        let(:product) { create(:base_product, name: "My Product", description: "Product Description") }
+        let(:product) { create(:base_product, name: "My Product", product_type: type) }
+        let(:type)    { create(:product_type, :kit) }
         let(:variant) { create(:base_variant, product: product, in_stock_cache: true, number: "V1234", updated_at: 1.day.ago) }
 
         let!(:product_part)  { create(:base_product) }

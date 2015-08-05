@@ -267,10 +267,10 @@ describe Spree::Product, :type => :model do
   end
 
   context "parts" do
-    subject         { create(:product) }
-    let(:part)      { create(:product) }
+    subject     { create(:product) }
+    let(:part)  { create(:product) }
 
-    before { create(:product_part, product: subject, part: part) }
+    before      { create(:product_part, product: subject, part: part) }
 
     describe "#parts" do
       it { expect(subject.parts).to eq [part] }

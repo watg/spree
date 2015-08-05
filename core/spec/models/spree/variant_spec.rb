@@ -666,25 +666,25 @@ describe Spree::Variant, :type => :model do
     end
 
     context "#touch" do
-      let(:variant_part)  { create(:variant) }
-      let(:product_part)  { variant_part.product }
-      let(:adp)  { create(:product_part, adp_opts) }
-      let(:adp_opts) { { product: variant.product, part: product_part } }
-      let!(:adv) { create(:product_part_variant, product_part: adp, variant: variant_part) }
+      let(:part_variant)  { create(:variant) }
+      let(:part)          { create(:product, product_type: product_type) }
+      let(:product_type)  { create(:product_type, :kit) }
+      let(:adp)           { create(:product_part, adp_opts) }
+      let(:adp_opts)      { { product: variant.product, part: part, optional: true } }
+      let!(:adv) { create(:product_part_variant, product_part: adp, variant: part_variant) }
 
       # This is not needed for the time being
       it "touches assembly product after touch" do
         variant.product.update_column(:updated_at, 1.day.ago)
-        variant_part.reload.touch
+        part_variant.reload.touch
         expect(variant.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
       end
 
       it "touches assembly product after save" do
         variant.product.update_column(:updated_at, 1.day.ago)
-        variant_part.reload.save
+        part_variant.reload.save
         expect(variant.product.reload.updated_at).to be_within(1.seconds).of(Time.now)
       end
-
     end
   end
 

@@ -9,16 +9,17 @@ describe Spree::StockCheckJob do
     let(:part2)          { create(:product) }
     let(:part_variant)   { create(:master_variant, product: part, in_stock_cache: true) }
     let(:part2_variant)  { create(:master_variant, product: part2, in_stock_cache: true) }
+    let(:product_part)   { create(:product_part, product: product, part: part, optional: true) }
+    let(:product_part2)  { create(:product_part, product: product, part: part2, optional: true) }
     let(:ppv)            { create(:product_part_variant, ppv_opts) }
-    let(:ppv_opts)       { { variant: part_variant, product_part: product.product_parts.first } }
+    let(:ppv_opts)       { { variant: part_variant, product_part: product_part } }
     let(:ppv2)           { create(:product_part_variant, ppv2_opts) }
-    let(:ppv2_opts)      { { variant: part2_variant, product_part: product.product_parts.last } }
+    let(:ppv2_opts)      { { variant: part2_variant, product_part: product_part2 } }
 
     before do
       product.master = variant
-      variant.product.parts = [part, part2]
-      product.product_parts.first.product_part_variants = [ppv]
-      product.product_parts.last.product_part_variants = [ppv2]
+      product_part.product_part_variants = [ppv]
+      product_part2.product_part_variants = [ppv2]
     end
 
     context "variant is out of stock" do
@@ -27,23 +28,6 @@ describe Spree::StockCheckJob do
       it "updates the variants stock cache" do
         subject.perform
         expect(variant.in_stock_cache).to be false
-      end
-
-      it "blows the suite tab cache" do
-        expect(Spree::SuiteTabCacheRebuilder).to receive(:rebuild_from_product).with(product)
-        subject.perform
-      end
-    end
-
-    context "required part is out of stock" do
-      subject              { Spree::StockCheckJob.new(part_variant) }
-      let(:part_variant)   { create(:master_variant, product: part, in_stock_cache: false) }
-
-      before               { expect(part_variant).to receive(:can_supply?).and_return(false) }
-
-      it "updates the variants stock cache" do
-        subject.perform
-        expect(variant.reload.in_stock_cache).to be false
       end
 
       it "blows the suite tab cache" do

@@ -112,21 +112,20 @@ describe Spree::Api::ShipmentsController, :type => :controller do
 
 
       context "dynamic kits" do
-
-        #let(:variant) { create(:variant, amount: 60.00) }
         let!(:variant_part)  { create(:base_variant, prices: [price]) }
-        let(:part) { variant_part.product }
-        let(:product_type) { create(:product_type_kit) }
+        let(:part)           { variant_part.product }
+        let(:product_type)   { create(:product_type, :kit) }
 
-        let!(:variant) { create(:base_variant) }
-        let!(:product) { variant.product }
+        let!(:variant)       { create(:base_variant) }
+        let!(:product)       { variant.product }
 
-        let(:price) { create(:price, price: 2.99, price_type: "part", currency: 'USD') }
-        let!(:adp) { create(:product_part, adp_opts) }
-        let(:adp_opts) { { part: part,  product: product, count: 2 } }
-        let!(:adv) { create(:product_part_variant, product_part: adp, variant: variant_part) }
+        let(:price)          { create(:price, price: 2.99, price_type: "part", currency: "USD") }
+        let!(:adp)           { create(:product_part, adp_opts) }
+        let(:adp_opts)       { { part: part,  product: product, count: 2 } }
+        let!(:adv)           { create(:product_part_variant, adv_opts) }
+        let(:adv_opts)       { { product_part: adp, variant: variant_part } }
 
-        before { product.update_column(:product_type_id, product_type.id ) }
+        before               { product.product_type = product_type }
 
         it 'can add and remove quantity' do
           assembly_selection = {adp.id.to_s => variant_part.id}
@@ -142,17 +141,15 @@ describe Spree::Api::ShipmentsController, :type => :controller do
       end
 
       context "static kits" do
-
         let(:variant) { create(:variant, amount: 60.00) }
         let(:product) { variant.product }
         let!(:required_part1) { create(:variant) }
         let(:product_type) { create(:product_type_kit) }
-        #let(:part1) { create(:variant) }
 
         before do
           # TODO: make old kits work with options
           #  product.add_part(part1, 1, true)
-          product.update_column(:product_type_id, product_type.id ) 
+          product.update_column(:product_type_id, product_type.id)
           product.add_part(required_part1, 2, false)
         end
 
