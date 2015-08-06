@@ -25,7 +25,7 @@ describe Spree::ProductPart do
     end
 
     context "ready made product" do
-      subject       { described_class.create(opts) }
+      subject       { described_class.create(options) }
       let(:options) { { product_id: product.id, optional: "false" } }
       let(:errors)  { subject.errors.full_messages }
       let(:type)    { "normal" }
