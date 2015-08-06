@@ -3,16 +3,17 @@ require 'spec_helper'
 describe Spree::Api::ProductPartsController do
   render_views
 
-  let(:variant_assembly)   { create(:variant)  }
-  let(:product)            { variant_assembly.product  }
+  let(:variant_assembly) { create(:variant)  }
+  let(:product)          { create(:product, product_type: type) }
+  let(:type)             { create(:product_type, :kit) }
 
-  let(:variant_part)  { create(:base_variant)  }
-  let(:part)  { variant_part.product  }
+  let(:variant_part)     { create(:base_variant)  }
+  let(:part)             { variant_part.product  }
 
-  let!(:product_part) { Spree::ProductPart.create(opts)  }
-  let(:opts)          { { product: product, part: part }  }
-  let!(:variants)     { [create(:variant)]  }
-  let!(:attributes)   { [:id, :options_text]  }
+  let!(:product_part)    { Spree::ProductPart.create(opts)  }
+  let(:opts)             { { product: product, part: part }  }
+  let!(:variants)        { [create(:variant)]  }
+  let!(:attributes)      { [:id, :options_text]  }
 
   before do
     stub_authentication!

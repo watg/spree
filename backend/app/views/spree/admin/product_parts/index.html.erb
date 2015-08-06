@@ -151,8 +151,12 @@
         data: post_params,
         dataType: 'script',
         success: function (data, textStatus) {
-           spinner.hide();
-        }
+          spinner.hide();
+        },
+        error: function(data, textStatus){
+          alert('Product part must be optional.')
+          spinner.hide();
+      }
     });
 
     return false;

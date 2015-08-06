@@ -40,9 +40,10 @@ describe Spree::LineItemOptionsParser do
 
   context "#parts" do
     context "dynamic kits" do
-      let!(:variant_assembly) { create(:variant) }
-      let!(:product_assembly) { variant_assembly.product }
-      let!(:variant_part)  { create(:base_variant, product: product, prices: [price]) }
+      let!(:variant_assembly) { create(:variant, product: product_assembly) }
+      let!(:product_assembly) { create(:product, product_type: product_type) }
+      let(:product_type)      { create(:product_type, :kit) }
+      let!(:variant_part)     { create(:base_variant, product: product, prices: [price]) }
       let!(:price) { create(:price, price: 2.99, sale: false, is_kit: true, price_type: "part", currency: "USD") }
       let!(:adp) do
         create(:product_part,
@@ -167,10 +168,10 @@ describe Spree::LineItemOptionsParser do
       end
 
       context "when the part has parts of its own (old kit in an assembly)" do
-        let(:other_product)  { create(:base_product) }
-        let(:other_variant)  { create(:base_variant, product: other_product) }
+        let(:product2)       { create(:base_product) }
+        let(:other_variant)  { create(:base_variant, product: product2) }
         let(:other_part) { create(:product_part, op_opts) }
-        let(:op_opts)  { { product: variant_assembly.product, part: other_product, count: 1 } }
+        let(:op_opts)  { { product: variant_assembly.product, part: product2, optional: false } }
         let!(:other_part_variant) { create(:product_part_variant, product_part: other_part, variant: other_variant) }
 
         # Override the price to 0 as this is now a container
@@ -180,6 +181,7 @@ describe Spree::LineItemOptionsParser do
         let!(:part_variant_price) { create(:price, part_amount: 3.99, sale: false, is_kit: true, currency: "USD") }
 
         before do
+          adp.update_column(:optional, false)
           variant_part.product.add_part(part_attached_to_product, 3, false)
           variant_part.add_part(part_attached_to_variant, 4, false)
         end

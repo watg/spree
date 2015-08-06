@@ -141,7 +141,6 @@ module Spree
         static_assemblies = fetch_static_assemblies(obj)
         adjust_in_stock_cache_of_static_assemblies(static_assemblies, obj)
         obj_accumilator += static_assemblies
-
         dynamic_master_variants = fetch_dynamic_master_variants(obj)
         adjust_in_stock_cache_for_dynamic_master_variants(dynamic_master_variants)
 

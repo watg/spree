@@ -72,7 +72,7 @@ module Spree
                     "add_all_available_variants" => "1",
                     "variant_ids" => ["", part_variant.id],
                     "count" => "2",
-                    "optional" => "0",
+                    "optional" => "1",
                     "id" => adp.id
                   }
                 }
@@ -94,7 +94,7 @@ module Spree
             product_parts = product.product_parts
             expect(product_parts.size).to eq 1
             product_part = product_parts.first
-            expect(product_part.optional).to eq false
+            expect(product_part.optional).to eq true
             expect(product_part.count).to eq 2
             expect(product_part.presentation).to eq "Foo"
             expect(product_part.add_all_available_variants).to eq true

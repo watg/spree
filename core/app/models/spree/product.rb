@@ -152,6 +152,10 @@ module Spree
       where.not(id: assembly.select('spree_products.id').uniq.map(&:id) )
     }
 
+    def normal?
+      product_type.normal?
+    end
+
     def videos?
       videos.any?
     end

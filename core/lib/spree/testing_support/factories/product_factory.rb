@@ -39,10 +39,6 @@ FactoryGirl.define do
       end
     end
 
-    #after(:create) do |p|
-    #  p.variants_including_master.each { |v| v.save! }
-    #end
-
     factory :product, aliases: [:rtw, :kit, :virtual_product] do
 
       transient do

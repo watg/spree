@@ -5,9 +5,12 @@ describe Spree::ProductPart do
   subject { create(:product_part, adp_opts) }
   let(:adp_opts) { { product: product, part: part } }
   let(:variant)  { create(:base_variant) }
-  let(:product) { variant.product }
-  let(:part)  { create(:base_product) }
+  let(:product)  { variant.product }
+  let(:part)     { create(:base_product) }
   let(:colour)   { create(:option_type, name: "colour", position: 2) }
+  let(:type)     { "kit" }
+
+  before         { product.product_type.update_column(:name, type) }
 
   describe "save" do
     let(:adp) { create(:product_part, part: part, product: product) }
@@ -19,6 +22,15 @@ describe Spree::ProductPart do
         pp = product.product_parts.create
         expect(pp.position).to eq adp_position + 1
       end
+    end
+
+    context "ready made product" do
+      subject       { described_class.create(opts) }
+      let(:options) { { product_id: product.id, optional: "false" } }
+      let(:errors)  { subject.errors.full_messages }
+      let(:type)    { "normal" }
+
+      it            { expect(errors).to eq(["Optional can't be blank"]) }
     end
   end
 

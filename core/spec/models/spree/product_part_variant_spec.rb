@@ -4,9 +4,9 @@ require 'spec_helper'
 describe Spree::ProductPartVariant do
 
   let(:variant)  { create(:base_variant) }
-  let(:product) { variant.product }
-  let(:part)  { create(:base_product) }
-  let(:adp) { create(:product_part, adp_opts) }
+  let(:product)  { variant.product }
+  let(:part)     { create(:base_product) }
+  let(:adp)      { create(:product_part, adp_opts) }
   let(:adp_opts) { { product: product, part: part } }
 
   let(:variant_part)  { create(:base_variant) }

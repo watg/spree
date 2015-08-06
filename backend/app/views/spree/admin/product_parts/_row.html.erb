@@ -37,7 +37,7 @@
   <td>
     <%= f.number_field :count %>
   </td>
-  <td style="text-align: center;"><%= f.check_box :optional %></td>
+  <td style="text-align: center;"><%= f.check_box :optional, disabled: @product.normal? %></td>
   <td class="actions">
     <%= link_to_delete part, :url => admin_product_product_part_path(@product, f.object), :no_text => true %>
   </td>
