@@ -25,12 +25,12 @@ describe Spree::ProductPart do
     end
 
     context "ready made product" do
-      subject      { described_class.create(opts) }
-      let(:opts)   { { product_id: product.id, optional: "false" } }
-      let(:errors) { subject.errors.full_messages }
-      let(:type)   { "normal" }
+      subject       { described_class.create(opts) }
+      let(:options) { { product_id: product.id, optional: "false" } }
+      let(:errors)  { subject.errors.full_messages }
+      let(:type)    { "normal" }
 
-      it           { expect(errors).to eq(["Optional can't be blank"]) }
+      it            { expect(errors).to eq(["Optional can't be blank"]) }
     end
   end
 

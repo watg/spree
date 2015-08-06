@@ -14,7 +14,7 @@ describe Spree::StockCheckJob do
     let!(:pv)            { create(:variant, product: part_product, in_stock_cache: pv_status) }
     let(:pv_status)      { in_stock }
     let!(:adp)           { create(:product_part, adp_opts) }
-    let(:adp_opts)       { { product: variant.product, part: part_product, optional: false} }
+    let(:adp_opts)       { { product: variant.product, part: part_product, optional: false } }
     let!(:adv)           { create(:product_part_variant, adv_opts) }
     let(:adv_opts)       { { product_part: adp, variant: pv } }
 

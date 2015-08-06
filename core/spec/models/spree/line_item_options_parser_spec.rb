@@ -168,10 +168,10 @@ describe Spree::LineItemOptionsParser do
       end
 
       context "when the part has parts of its own (old kit in an assembly)" do
-        let(:other_product)  { create(:base_product) }
-        let(:other_variant)  { create(:base_variant, product: other_product) }
+        let(:product2)       { create(:base_product) }
+        let(:other_variant)  { create(:base_variant, product: product2) }
         let(:other_part) { create(:product_part, op_opts) }
-        let(:op_opts)  { { product: variant_assembly.product, part: other_product, count: 1, optional: false } }
+        let(:op_opts)  { { product: variant_assembly.product, part: product2, optional: false } }
         let!(:other_part_variant) { create(:product_part_variant, product_part: other_part, variant: other_variant) }
 
         # Override the price to 0 as this is now a container
