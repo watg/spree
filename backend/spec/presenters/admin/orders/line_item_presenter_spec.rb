@@ -1,0 +1,29 @@
+require 'spec_helper'
+
+describe Admin::Orders::LineItemPresenter do
+  describe '#quantity' do
+    subject          { described_class.new(item, shipment) }
+    let(:item)       { double(inventory_units: units, item_opts) }
+    let(:item_opts)  { { parts: parts, line_item_parts: item_parts, product: bag, quantity: 1 } }
+    let(:bag)        { double(product_type: type) }
+    let(:type)       { double(normal?: normal?) }
+    let(:normal?)    { true }
+    let(:parts)      { [double] }
+    let(:item_parts) { [double(container?: false, quantity: 1)] }
+    let(:shipment)   { double }
+    let(:item_unit)  { double(shipment: shipment) }
+    let(:part_unit)  { double(shipment: shipment) }
+
+    context 'ready made' do
+      let(:units) { [item_unit, part_unit] }
+      it { expect(subject.quantity).to eq 1 }
+    end
+
+    context 'kit' do
+      let(:normal?) { false }
+      let(:units)   { [item_unit] }
+      it { expect(subject.quantity).to eq 1 }
+    end
+  end
+end
+

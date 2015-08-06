@@ -1,28 +1,22 @@
 <% shipment.line_items.sort_by(&:created_at).each do |item| %>
-  <% line_item_units = item.inventory_units.select { |iu| iu.shipment == shipment } %>
-  <% denominator = item.parts.any? ? item.line_item_parts.reject(&:container?).sum(&:quantity) : 1 %>
-  <% quantity = line_item_units.count / denominator %>
-  <tr class="stock-item" data-item-quantity="<%= quantity %>">
+  <% item_presenter = Admin::Orders::LineItemPresenter.new(item, shipment) %>
+
+  <tr class="stock-item" data-item-quantity="<%= item_presenter.quantity %>">
     <td class="item-type"> <%= item.variant.product.marketing_type.name %> </td>
     <td class="item-image"> <%= mini_image(item.variant) %> </td>
     <td class="line-item-name">
       <%= render 'spree/admin/orders/line_item_name', item: item, inventory_units: shipment.inventory_units, order: shipment.order %>
-    </td> 
+    </td>
     <td class="item-price align-center"><%= item.single_money.to_html %></td>
     <td class="item-qty-show align-center">
-       <%= quantity %>
-        <!-- Because we have kits this does not make sense
-      <%# item.states.each do |state,count| %>
-        <%#= count %> x <%#= Spree.t(state).downcase %>
-      <%# end %>
-        -->
+       <%= item_presenter.quantity %>
     </td>
     <% unless shipment.shipped? %>
       <td class="item-qty-edit hidden">
-        <%= number_field_tag :quantity, quantity, :min => 0, :class => "line_item_quantity", :size => 5 %>
+        <%= number_field_tag :quantity, item_presenter.quantity, :min => 0, :class => "line_item_quantity", :size => 5 %>
       </td>
     <% end %>
-    <td class="item-total align-center"><%= line_item_shipment_price(item, quantity) %></td>
+    <td class="item-total align-center"><%= line_item_shipment_price(item, item_presenter.quantity) %></td>
     <% unless shipment.shipped? %>
       <td class="cart-item-delete actions" data-hook="cart_item_delete">
         <% if can? :update, item %>
