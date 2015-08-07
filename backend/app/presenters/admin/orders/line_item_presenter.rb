@@ -22,7 +22,7 @@ module Admin
 
       def divisor
         if ready_made? && parts?
-          parts_quantity + item.quantity
+          parts_quantity + [item].size
         elsif parts?
           parts_quantity
         else
