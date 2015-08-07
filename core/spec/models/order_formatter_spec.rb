@@ -37,13 +37,8 @@ describe Spree::OrderFormatter do
       "</tr>"
     end
 
-    before do
-      order.line_items = [item]
-    end
-
-    it do
-      expect(subject.order_data[:items]).to eq html
-    end
+    before { order.line_items = [item] }
+    it     { expect(subject.order_data[:items]).to eq html }
   end
 
   describe "Data entries" do

@@ -8,7 +8,7 @@ describe Spree::OrderMailer, :type => :mailer do
   let(:order) do
     order = stub_model(Spree::Order)
     type = build_stubbed(:product_type)
-    product = stub_model(Spree::Product, :name => %Q{The "BEST" product}, product_type: type)
+    product = stub_model(Spree::Product, name: %{The "BEST" product}, product_type: type)
     variant = stub_model(Spree::Variant, :product => product)
     price = stub_model(Spree::Price, :variant => variant, :amount => 5.00)
     line_item = stub_model(Spree::LineItem, :variant => variant, :order => order, :quantity => 1, :price => 4.99)
