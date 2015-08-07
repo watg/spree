@@ -46,7 +46,7 @@ module Spree
 
     def validate_params
       check_for_missing_parts(parts) if parts
-      send_notifications if notifications.any?
+      create_failture_logs if notifications.any?
     end
 
     def check_for_missing_parts(parts)
@@ -57,6 +57,11 @@ module Spree
       end
       return unless missing_parts_hash.any?
       notifications << "Some required parts are missing: #{missing_parts_hash.inspect}"
+    end
+
+    def create_failture_logs
+      notifier_params = params.merge(order_id: order.id)
+      Rails.logger.warn("order_validation_failture: params -> #{notifier_params}")
     end
 
     def send_notifications

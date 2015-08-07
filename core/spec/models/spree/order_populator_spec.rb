@@ -84,9 +84,11 @@ describe Spree::OrderPopulator, type: :model do
           allow(subject.options_parser).to receive(:missing_parts).and_return(missing_parts)
         end
 
-        it "sends a notication if parts are missing" do
+        it "writes to log if parts are missing" do
           expect(order.contents).to_not receive(:add)
-          expect(Helpers::AirbrakeNotifier).to receive(:notify).with(error, notify_params)
+          expect(Rails.logger)
+            .to receive(:warn)
+            .with("order_validation_failture: params -> #{notify_params}")
           item = subject.populate
           expect(item.variant).to eq variant
           expect(item.quantity).to eq quantity
