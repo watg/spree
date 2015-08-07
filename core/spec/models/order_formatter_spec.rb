@@ -26,6 +26,26 @@ describe Spree::OrderFormatter do
     it { expect(subject).to have_key(:payment_total) }
   end
 
+  describe 'items' do
+    let(:item)    { create(:line_item) }
+    let(:product) { item.product }
+    let(:html) do
+      %|<tr>| +
+        %|<td align='left' style='font-weight:bold;'>#{product.name}</td>| +
+        %|<td align='left'>1</td><td align='left'></td>| +
+        %|<td align='left'>$10.00</td>| +
+      %|</tr>|
+    end
+
+    before do
+      order.line_items = [item]
+    end
+
+    it do
+      expect(subject.order_data[:items]).to eq html
+    end
+  end
+
   describe "Data entries" do
     subject { described_class.new(order) }
     let!(:foo) { Spree::Adjustment.new(order: order, source_type: "Spree::PromotionAction", eligible: true, label: "foo", amount: 2) }

@@ -4,6 +4,7 @@ module Spree
       @order = order.respond_to?(:id) ? order : Spree::Order.find(order)
       subject = (resend ? "[#{Spree.t(:resend).upcase}] " : '')
       subject += "#{Spree::Store.current.name} #{Spree.t('order_mailer.confirm_email.subject')} ##{@order.number}"
+
       mail(to: @order.email, from: from_address, subject: subject)
 
       mandrill_default_headers(tags: "order, confirmation", template: "#{I18n.locale}_confirm_email_v2")
