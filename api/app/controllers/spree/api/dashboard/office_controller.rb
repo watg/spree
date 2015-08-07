@@ -28,6 +28,11 @@ module Spree
           render json: sells_by_type.to_json
         end
 
+        def today_payments_by_type
+          payments_by_type = ::Api::Dashboard::Office::FormatTodayPaymentsByType.new.run
+          render json: payments_by_type.to_json
+        end
+
         def today_orders_by_hour
           today_orders = ::Api::Dashboard::Office::FormatTodayOrdersByHour.new.run
           render json: today_orders.to_json
