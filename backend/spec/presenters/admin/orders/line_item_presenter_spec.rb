@@ -4,8 +4,7 @@ describe Admin::Orders::LineItemPresenter do
   describe "#quantity" do
     subject          { described_class.new(item, shipment) }
     let(:item)       { double(item_opts) }
-    let(:bag)        { double(product_type: type) }
-    let(:type)       { double(normal?: normal?) }
+    let(:bag)        { double(normal?: normal?) }
     let(:normal?)    { true }
     let(:parts)      { [double] }
     let(:item_parts) { [double(container?: false, quantity: 1)] }

@@ -33,7 +33,6 @@ module Admin
       def ready_made?
         item
           .product
-          .product_type
           .normal?
       end
 
