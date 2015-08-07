@@ -84,6 +84,14 @@ module Spree
       "http://pinterest.com/pin/create/%20button/?url=#{ url_encode(link_to) }&amp;media=#{ banner_url }&amp;description=#{ url_encode(social_description) }"
     end
 
+    def yarn_or_wool?
+      suite_tab.tab_type == "yarn-and-wool"
+    end
+
+    def present_color_as_title?
+      yarn_or_wool? && mobile?
+    end
+
     def in_stock?
       @in_stock ||= suite_tab.in_stock_cache
     end
@@ -109,6 +117,14 @@ module Spree
         File.join("spree/suites/mobile/images")
       else
         "images_default"
+      end
+    end
+
+    def main_image_container_classes
+      if yarn_or_wool? && is_mobile?
+        "large-6 small-10 small-offset-1 columns images-column"
+      else
+        "large-6 small-12 columns images-column"
       end
     end
 

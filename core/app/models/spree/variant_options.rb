@@ -14,6 +14,7 @@ module Spree
         base = create_options_base(hash, variant)
         add_generic_details_to_base(base, variant)
         add_image_to_base(base, variant)
+        add_part_image_to_base(base, variant)
         add_prices_to_base(base, variant)
         add_supplier_to_base(base, variant)
         add_digitals_to_base(base, variant)
@@ -91,6 +92,10 @@ module Spree
       @images ||= Spree::Image.where(viewable_id: variants, viewable_type: "Spree::Variant")
     end
 
+    def part_images
+      @part_images ||= ::PartImage.where(variant_id: variants)
+    end
+
     def digitals
       @digitals ||= Spree::Digital.where(variant_id: variants)
     end
@@ -139,6 +144,13 @@ module Spree
       variant_images = images.select { |i| i.viewable_id == variant.id }.sort_by(&:position)
       if variant_images.any?
         base["variant"]["image_url"] = variant_images.first.attachment.url(:mini)
+      end
+    end
+
+    def add_part_image_to_base(base, variant)
+      variant_part_images = part_images.select { |i| i.variant_id == variant.id }
+      if variant_part_images.any?
+        base["variant"]["part_image_url"] = variant_part_images.first.attachment.url(:small)
       end
     end
 

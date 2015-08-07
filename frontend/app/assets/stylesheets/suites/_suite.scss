@@ -606,6 +606,7 @@
 /* If we're missing the tabs, let's give ourselves some margin. */
 .suite {
   .row-hero + .displayable-entity,
+  .row-hero + .displayable-yarn-and-wool-entity,
   .row-hero + .displayable-kit-entity {
     padding-top: emCalc(40px);
   }

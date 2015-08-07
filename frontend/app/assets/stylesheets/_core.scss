@@ -782,6 +782,7 @@ table.order-item-listing{
 /* scroll customization */
 .customscroll {
   overflow-y: scroll;
+  overflow-x: hidden;
 }
 .customscroll::-webkit-scrollbar {
   width: 7px;

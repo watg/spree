@@ -1,0 +1,40 @@
+<div id="product-options" class="row row-assembly" data-ad-id="<%= product_presenter.id %>">
+  <div class="assembly-menus large-10 small-12 column">
+    <% index = 0 %>
+    <ol>
+      <li class = "product-variants">
+        <% product_presenter.grouped_option_values_in_stock.each do |type, values|  %>
+          <span class="variant-option-type" ><%= type.presentation %></span></br>
+          <% if %['colour' 'icon colour'].include?(type.name.downcase) %>
+            <span class="color-value <%= type.url_safe_name.downcase %>"></span>
+          <% end %>
+
+          <div class="part-thumbnail">
+            <span class="part-image"></span>
+          </div>
+
+          <div class="part-arrow">
+            <button>Open menu</button>
+          </div>
+
+          <div class="variant-options index-<%= index %> <%= type.url_safe_name.downcase %>" id="variant-options-container">
+            <p> <%= product_presenter.name %>  </p>
+            <ul class="variant-option-values colour slimscroll">
+              <% values.sort_by(&:position).each do |value| %>
+                <li>
+                  <% classes = ["option-value", value.url_safe_name, type.url_safe_name] %>
+                  <%= link_to "#", :title => value.presentation, :class => classes.join(" "), data: { type: type.url_safe_name, value: value.url_safe_name, presentation: value.presentation } do %>
+                    <img src='#' alt='<%= value.presentation %>' data-option_type_id='<%= value.option_type_id %>' />
+                  <% end %>
+                  <%= content_tag(:p, value.presentation, class: "assembly-name yarn-name") %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+          <% index += 1 %>
+        <% end %>
+      </li>
+    </ol>
+    <%= render 'spree/suites/mobile/add_to_cart', product_presenter: product_presenter %>
+  </div>
+</div><!-- /.row -->

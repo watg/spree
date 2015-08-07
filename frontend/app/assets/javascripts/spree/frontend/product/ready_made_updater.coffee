@@ -12,7 +12,7 @@ class @ReadyMadeUpdater
       this.setPrices()
 
       if core.isMobileWidthOrLess() == true
-        # if option values had the class langauge when is was clicked - dont toggle
+        # if option values had the class language when is was clicked - dont toggle
         if @entity.find('.option-value.language').length <= 0
           this.toggleCarouselImages()
       else
