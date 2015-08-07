@@ -26,15 +26,15 @@ describe Spree::OrderFormatter do
     it { expect(subject).to have_key(:payment_total) }
   end
 
-  describe 'items' do
+  describe "items" do
     let(:item)    { create(:line_item) }
     let(:product) { item.product }
     let(:html) do
-      %|<tr>| +
-        %|<td align='left' style='font-weight:bold;'>#{product.name}</td>| +
-        %|<td align='left'>1</td><td align='left'></td>| +
-        %|<td align='left'>$10.00</td>| +
-      %|</tr>|
+      "<tr>" \
+      "<td align='left' style='font-weight:bold;'>#{product.name}</td>" \
+      "<td align='left'>1</td><td align='left'></td>" \
+      "<td align='left'>$10.00</td>" \
+      "</tr>"
     end
 
     before do

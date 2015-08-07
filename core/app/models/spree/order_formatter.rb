@@ -85,8 +85,8 @@ module Spree
     end
 
     def line_items
-      @order.line_items.map do |line_item|
-        build_table_row(line_item) + build_parts_table_rows(line_item)
+      @order.line_items.map do |li|
+        build_table_row(li, li.quantity) + build_parts_table_rows(li)
       end.join.to_s
     end
 
@@ -94,18 +94,18 @@ module Spree
       return "" unless line_item.product.normal?
 
       line_item.parts.map do |part|
-        build_table_row(part, part.quantity * line_item.quantity, '-----------', 'normal')
+        build_table_row(part, part.quantity * line_item.quantity, "-----------", "normal")
       end.join.to_s
     end
 
-    def build_table_row(item, quantity = nil, amount = nil, font_weight = 'bold')
-       [ "<tr>",
-          "<td align='left' style='font-weight:#{font_weight};'>%s</td>" % item.product.name.to_s,
-          "<td align='left'>%s</td>" % (quantity || item.quantity.to_s),
-          "<td align='left'>%s</td>" % item.variant.options_text.to_s,
-          "<td align='left'>%s</td>" % (amount || item.display_amount.to_s),
-          "</tr>"
-        ].join
+    def build_table_row(item, quantity, amount = nil, font_weight = "bold")
+      ["<tr>",
+       "<td align='left' style='font-weight:#{font_weight};'>%s</td>" % item.product.name.to_s,
+       "<td align='left'>%s</td>" % quantity.to_s,
+       "<td align='left'>%s</td>" % item.variant.options_text.to_s,
+       "<td align='left'>%s</td>" % (amount || item.display_amount.to_s),
+       "</tr>"
+      ].join
     end
 
     def digital_message
