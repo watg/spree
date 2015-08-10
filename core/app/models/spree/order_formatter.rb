@@ -1,6 +1,11 @@
 module Spree
   class OrderFormatter
     using ShippingMethodDurations::Description
+
+    EMPTY_CELL   = %|"-----------"|
+    DEFAULT_FONT = %|normal|
+
+
     def initialize(order)
       @order = order
     end
@@ -94,7 +99,7 @@ module Spree
       return "" unless line_item.product.normal?
 
       line_item.parts.map do |part|
-        build_table_row(part, part.quantity * line_item.quantity, "-----------", "normal")
+        build_table_row(part, part.quantity * line_item.quantity, EMPTY_CELL, DEFAULT_FONT)
       end.join.to_s
     end
 
