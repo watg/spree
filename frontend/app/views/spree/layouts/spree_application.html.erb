@@ -10,9 +10,9 @@
   <script type="text/javascript" src="https://photorankstatics-a.akamaihd.net/static/frontend/latest/build.min.js" async></script>
 
   <%= stylesheet_link_tag    "application", cache: true %>
-  <%= javascript_include_tag "application", defer: true%>
+  <%= javascript_include_tag "application", defer: safe_ie9_defer?%>
 
-  <script type="text/javascript" src="https://s3.amazonaws.com/mamaya/mamaya_spree_1276.js" defer="defer"></script>
+  <script type="text/javascript" src="https://s3.amazonaws.com/mamaya/mamaya_spree_1276.js" <%= safe_ie9_defer %> ></script>
   <%= yield(:javascript_include) %>
 
   <%= csrf_meta_tags %>

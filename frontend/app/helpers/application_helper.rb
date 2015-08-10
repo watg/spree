@@ -72,5 +72,12 @@ module ApplicationHelper
     end
   end
 
+  def safe_ie9_defer
+    safe_ie9_defer? ? "defer = defer" : ""
+  end
+
+  def safe_ie9_defer?
+    request.env["HTTP_USER_AGENT"] =~ /.*MSIE 9/ ? false : true
+  end
 
 end

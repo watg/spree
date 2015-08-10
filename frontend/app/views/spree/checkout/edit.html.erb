@@ -41,5 +41,5 @@
 </script>
 
 <% if I18n.locale != :en %>
-  <%= javascript_include_tag 'jquery.validate/localization/messages_' + I18n.locale.to_s.downcase.gsub('-', ''), defer: true  %>
+  <%= javascript_include_tag 'jquery.validate/localization/messages_' + I18n.locale.to_s.downcase.gsub('-', ''), defer: safe_ie9_defer?  %>
 <% end %>
