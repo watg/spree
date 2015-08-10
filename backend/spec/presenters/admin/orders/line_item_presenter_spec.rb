@@ -13,7 +13,7 @@ describe Admin::Orders::LineItemPresenter do
     let(:shipment)   { double }
     let(:item_unit)  { double(shipment: shipment) }
     let(:part_unit)  { double(shipment: shipment) }
-    let(:part_unit2)  { double(shipment: shipment) }
+    let(:part_unit2) { double(shipment: shipment) }
 
     let(:item_opts) do
       { inventory_units: units,
