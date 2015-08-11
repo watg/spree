@@ -3,6 +3,8 @@ module Admin
     class LineItemPresenter
       attr_reader :item, :shipment
 
+      READY_MADE_ITEM_COUNT = 1
+
       def initialize(item, shipment)
         @item     = item
         @shipment = shipment
@@ -21,13 +23,9 @@ module Admin
       end
 
       def divisor
-        if ready_made? && parts?
-          parts_quantity + item.quantity
-        elsif parts?
-          parts_quantity
-        else
-          default
-        end
+        _divisor = ready_made? ? READY_MADE_ITEM_COUNT : 0
+        _divisor += parts_quantity
+        _divisor
       end
 
       def ready_made?
@@ -48,10 +46,6 @@ module Admin
         item
           .line_item_parts
           .reject(&:container?)
-      end
-
-      def default
-        1
       end
     end
   end
