@@ -1,4 +1,4 @@
-<%= render 'spree/suites/party_product',  selected_tab_presenter: selected_tab_presenter, suite_presenter: suite_presenter%>
+<%= render 'spree/suites/party_product',  selected_tab_presenter: selected_tab_presenter, suite_presenter: suite_presenter %>
 <% if selected_tab_presenter.cross_sales.any? %>
   <%= render partial: 'cross_sales', locals: { selected_tab_presenter: selected_tab_presenter, suite_presenter: suite_presenter } %>
 <% end %>
