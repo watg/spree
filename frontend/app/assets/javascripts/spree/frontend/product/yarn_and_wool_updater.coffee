@@ -13,7 +13,7 @@ class @YarnAndWoolUpdater extends @ReadyMadeUpdater
     variant_thumbs = []
     for key, option of @master_tree.colour
       clone = @entity
-              .find('li.tmb-' +  option.variant.id + ' img')
+              .find('li.tmb-' +  option.variant.id + ' img').first()
               .clone().data("optionColour", key)
       variant_thumbs.push clone
     owl = $('#carousel')
