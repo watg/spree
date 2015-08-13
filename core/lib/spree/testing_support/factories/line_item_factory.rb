@@ -26,7 +26,6 @@ FactoryGirl.define do
       association :product
     end
     variant{ product.master }
-
     after(:build) do |object, _e|
       object.item_uuid = Spree::VariantUuid.fetch(object.variant, nil, nil).number
     end

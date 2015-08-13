@@ -236,15 +236,6 @@ Spree::Core::Engine.add_routes do
       end
     end
 
-    resources :reports, :only => [:index] do
-      collection do
-        get '/download/:name/:id' => 'reports#download', :as => 'download'
-        get '/:name' => 'reports#report', :as => 'report_name'
-        get '/:name/:id' => 'reports#refresh', :as => 'refresh'
-        post '/:name' => 'reports#create', :as => 'create'
-      end
-    end
-
     resources :reimbursement_types, only: [:index]
     resources :refund_reasons, except: [:show, :destroy]
     resources :return_authorization_reasons, except: [:show, :destroy]
