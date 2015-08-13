@@ -23,15 +23,15 @@ module Admin
       end
 
       def divisor
-        _divisor = ready_made? ? READY_MADE_ITEM_COUNT : 0
+        _divisor = kit? ? 0 : READY_MADE_ITEM_COUNT
         _divisor += parts_quantity
         _divisor
       end
 
-      def ready_made?
+      def kit?
         item
           .product
-          .normal?
+          .kit?
       end
 
       def parts?

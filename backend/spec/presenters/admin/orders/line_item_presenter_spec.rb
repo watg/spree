@@ -4,8 +4,8 @@ describe Admin::Orders::LineItemPresenter do
   describe "#quantity" do
     subject          { described_class.new(item, shipment) }
     let(:item)       { double(item_opts) }
-    let(:bag)        { double(normal?: normal?) }
-    let(:normal?)    { true }
+    let(:bag)        { double(kit?: kit?) }
+    let(:kit?)       { false }
     let(:parts)      { [double] }
     let(:item_parts) { [item_part, item_part2] }
     let(:item_part)  { double(container?: false, quantity: 1) }
@@ -30,8 +30,15 @@ describe Admin::Orders::LineItemPresenter do
     end
 
     context "kit" do
-      let(:normal?) { false }
+      let(:kit?)    { true }
       let(:units)   { [part_unit, part_unit2] }
+      it { expect(subject.quantity).to eq 1 }
+    end
+
+    context "pattern" do
+      let(:kit?)       { false }
+      let(:units)      { [item_unit] }
+      let(:item_parts) { [] }
       it { expect(subject.quantity).to eq 1 }
     end
   end
