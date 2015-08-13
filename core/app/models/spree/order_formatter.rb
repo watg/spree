@@ -2,9 +2,8 @@ module Spree
   class OrderFormatter
     using ShippingMethodDurations::Description
 
-    EMPTY_CELL   = %|"-----------"|
+    EMPTY_CELL   = %|-----------|
     DEFAULT_FONT = %|normal|
-
 
     def initialize(order)
       @order = order
