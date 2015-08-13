@@ -63,7 +63,7 @@ module Spree
 
     has_many :product_parts_images, -> { order(:position) }, class_name: "ProductPartsImage"
 
-    has_many :product_parts, -> { order(:position) }, foreign_key: "product_id", 
+    has_many :product_parts, -> { order(:position) }, foreign_key: "product_id",
       class_name: "Spree::ProductPart"
     has_many :product_part_variants, through: :product_parts
 
@@ -154,6 +154,10 @@ module Spree
 
     def normal?
       product_type.normal?
+    end
+
+    def kit?
+      product_type.kit?
     end
 
     def videos?
