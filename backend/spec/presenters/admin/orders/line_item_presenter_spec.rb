@@ -24,18 +24,18 @@ describe Admin::Orders::LineItemPresenter do
       }
     end
 
-    context "ready made" do
+    context "product is ready made" do
       let(:units) { [item_unit, part_unit, part_unit2] }
       it { expect(subject.quantity).to eq 1 }
     end
 
-    context "kit" do
+    context "product is kit" do
       let(:kit?)    { true }
       let(:units)   { [part_unit, part_unit2] }
       it { expect(subject.quantity).to eq 1 }
     end
 
-    context "pattern" do
+    context "product is pattern" do
       let(:kit?)       { false }
       let(:units)      { [item_unit] }
       let(:item_parts) { [] }
