@@ -29,9 +29,7 @@ module Admin
       end
 
       def kit?
-        item
-          .product
-          .kit?
+        item.product.kit?
       end
 
       def parts?
