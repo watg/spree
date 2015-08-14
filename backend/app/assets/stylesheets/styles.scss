@@ -23,31 +23,3 @@
     border-bottom: none;
   }
 }
-
-.data-list {
-  .row {
-    border-bottom: 1px dotted #cee1f4;
-    padding: 15px 5px;
-    margin: 0px;
-    text-align: center;
-
-    &:nth-child(even) { background-color: #eff5fc; }
-
-    div {
-      border-right: 1px solid #cee1f4;
-
-      &:last-child {
-        border: none;
-      }
-    }
-  }
-
-  .head {
-    border-bottom: 2px solid #cee1f4;
-
-    h3{
-      font-size: 1em;
-    }
-  }
-}
-
