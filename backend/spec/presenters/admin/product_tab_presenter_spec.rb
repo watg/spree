@@ -14,15 +14,7 @@ module Admin
 
       context 'ready to wear' do
         before { product.product_type.name = 'normal' }
-
-        context 'feature flag set' do
-          before { expect(ENV).to receive(:[]).with('PRODUCT_PARTS').and_return(true) }
-          it     { expect(subject.parts?).to be_truthy }
-        end
-
-        context 'no feature flag' do
-          it { expect(subject.parts?).to be_falsey}
-        end
+        it     { expect(subject.parts?).to be_truthy}
       end
     end
   end
