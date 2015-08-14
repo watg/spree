@@ -14,7 +14,7 @@ module Admin
 
       context 'ready to wear' do
         before { product.product_type.name = 'normal' }
-        it     { expect(subject.parts?).to be_truthy}
+        it     { expect(subject.parts?).to be_truthy }
       end
     end
   end
