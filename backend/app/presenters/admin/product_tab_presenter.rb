@@ -7,17 +7,7 @@ module Admin
     end
 
     def parts?
-      kit? || ready_to_wear?
-    end
-
-    private
-
-    def kit?
-      product.product_type.kit?
-    end
-
-    def ready_to_wear?
-      Features.product_parts
+      product.kit? || product.normal?
     end
   end
 end
