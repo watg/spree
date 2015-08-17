@@ -250,10 +250,6 @@ module Spree
       goods_weight + boxes_weight
     end
 
-    def cost_price_total
-      line_items.inject(0.0) { |sum, li| sum + li.cost_price.to_f }
-    end
-
     # Sum of all line item amounts pre-tax
     def pre_tax_item_amount
       line_items.to_a.sum(&:pre_tax_amount)
